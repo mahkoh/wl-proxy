@@ -1,0 +1,601 @@
+//! an exported activation handle
+//!
+//! An object for setting up a token and receiving a token handle that can
+//! be passed as an activation token to another client.
+//!
+//! The object is created using the xdg_activation_v1.get_activation_token
+//! request. This object should then be populated with the app_id, surface
+//! and serial information and committed. The compositor shall then issue a
+//! done event with the token. In case the request's parameters are invalid,
+//! the compositor will provide an invalid token.
+
+use crate::generated_helper::prelude::*;
+use super::super::all_types::*;
+
+/// A xdg_activation_token_v1 proxy.
+///
+/// See the documentation of [the module][self] for the interface description.
+pub struct MetaXdgActivationTokenV1 {
+    core: ProxyCore,
+    handler: MessageHandlerHolder<dyn MetaXdgActivationTokenV1MessageHandler>,
+}
+
+struct DefaultMessageHandler;
+
+impl MetaXdgActivationTokenV1MessageHandler for DefaultMessageHandler { }
+
+impl MetaXdgActivationTokenV1 {
+    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Rc::new(Self {
+            core: ProxyCore::new(state, version),
+            handler: Default::default(),
+        })
+    }
+}
+
+impl Debug for MetaXdgActivationTokenV1 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("MetaXdgActivationTokenV1")
+            .field("server_obj_id", &self.core.server_obj_id.get())
+            .field("client_id", &self.core.client_id.get())
+            .field("client_obj_id", &self.core.client_obj_id.get())
+            .finish()
+    }
+}
+
+impl MetaXdgActivationTokenV1 {
+    /// Since when the set_serial message is available.
+    #[allow(dead_code)]
+    pub const MSG__SET_SERIAL__SINCE: u32 = 1;
+
+    /// specifies the seat and serial of the activating event
+    ///
+    /// Provides information about the seat and serial event that requested the
+    /// token.
+    ///
+    /// The serial can come from an input or focus event. For instance, if a
+    /// click triggers the launch of a third-party client, the launcher client
+    /// should send a set_serial request with the serial and seat from the
+    /// wl_pointer.button event.
+    ///
+    /// Some compositors might refuse to activate toplevels when the token
+    /// doesn't have a valid and recent enough event serial.
+    ///
+    /// Must be sent before commit. This information is optional.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: the serial of the event that triggered the activation
+    /// - `seat`: the wl_seat of the event
+    #[inline]
+    pub fn send_set_serial(
+        &self,
+        serial: u32,
+        seat: &Rc<MetaWlSeat>,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            serial,
+            seat,
+        );
+        let arg1 = arg1.core();
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError);
+        };
+        let arg1 = match arg1.server_obj_id.get() {
+            None => return Err(ObjectError),
+            Some(id) => id,
+        };
+        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            0,
+            arg0,
+            arg1,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the set_app_id message is available.
+    #[allow(dead_code)]
+    pub const MSG__SET_APP_ID__SINCE: u32 = 1;
+
+    /// specifies the application being activated
+    ///
+    /// The requesting client can specify an app_id to associate the token
+    /// being created with it.
+    ///
+    /// Must be sent before commit. This information is optional.
+    ///
+    /// # Arguments
+    ///
+    /// - `app_id`: the application id of the client being activated.
+    #[inline]
+    pub fn send_set_app_id(
+        &self,
+        app_id: &str,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            app_id,
+        );
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            1,
+        ]);
+        fmt.string(arg0);
+        Ok(())
+    }
+
+    /// Since when the set_surface message is available.
+    #[allow(dead_code)]
+    pub const MSG__SET_SURFACE__SINCE: u32 = 1;
+
+    /// specifies the surface requesting activation
+    ///
+    /// This request sets the surface requesting the activation. Note, this is
+    /// different from the surface that will be activated.
+    ///
+    /// Some compositors might refuse to activate toplevels when the token
+    /// doesn't have a requesting surface.
+    ///
+    /// Must be sent before commit. This information is optional.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`: the requesting surface
+    #[inline]
+    pub fn send_set_surface(
+        &self,
+        surface: &Rc<MetaWlSurface>,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            surface,
+        );
+        let arg0 = arg0.core();
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError);
+        };
+        let arg0 = match arg0.server_obj_id.get() {
+            None => return Err(ObjectError),
+            Some(id) => id,
+        };
+        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            2,
+            arg0,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the commit message is available.
+    #[allow(dead_code)]
+    pub const MSG__COMMIT__SINCE: u32 = 1;
+
+    /// issues the token request
+    ///
+    /// Requests an activation token based on the different parameters that
+    /// have been offered through set_serial, set_surface and set_app_id.
+    #[inline]
+    pub fn send_commit(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            3,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the done message is available.
+    #[allow(dead_code)]
+    pub const MSG__DONE__SINCE: u32 = 1;
+
+    /// the exported activation token
+    ///
+    /// The 'done' event contains the unique token of this activation request
+    /// and notifies that the provider is done.
+    ///
+    /// # Arguments
+    ///
+    /// - `token`: the exported activation token
+    #[inline]
+    pub fn send_done(
+        &self,
+        token: &str,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            token,
+        );
+        let core = self.core();
+        let client = core.client.borrow();
+        let Some(client) = &*client else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *client.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            core.client_obj_id.get().unwrap_or(0),
+            0,
+        ]);
+        fmt.string(arg0);
+        Ok(())
+    }
+
+    /// Since when the destroy message is available.
+    #[allow(dead_code)]
+    pub const MSG__DESTROY__SINCE: u32 = 1;
+
+    /// destroy the xdg_activation_token_v1 object
+    ///
+    /// Notify the compositor that the xdg_activation_token_v1 object will no
+    /// longer be used. The received token stays valid.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            4,
+        ]);
+        Ok(())
+    }
+}
+
+/// A message handler for [XdgActivationTokenV1] proxies.
+#[allow(dead_code)]
+pub trait MetaXdgActivationTokenV1MessageHandler {
+    /// specifies the seat and serial of the activating event
+    ///
+    /// Provides information about the seat and serial event that requested the
+    /// token.
+    ///
+    /// The serial can come from an input or focus event. For instance, if a
+    /// click triggers the launch of a third-party client, the launcher client
+    /// should send a set_serial request with the serial and seat from the
+    /// wl_pointer.button event.
+    ///
+    /// Some compositors might refuse to activate toplevels when the token
+    /// doesn't have a valid and recent enough event serial.
+    ///
+    /// Must be sent before commit. This information is optional.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: the serial of the event that triggered the activation
+    /// - `seat`: the wl_seat of the event
+    ///
+    /// All borrowed proxies passed to this function are guaranteed to be
+    /// immutable and non-null.
+    #[inline]
+    fn set_serial(
+        &mut self,
+        _slf: &Rc<MetaXdgActivationTokenV1>,
+        serial: u32,
+        seat: &Rc<MetaWlSeat>,
+    ) {
+        let res = _slf.send_set_serial(
+            serial,
+            seat,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a xdg_activation_token_v1.set_serial message: {}", Report::new(e));
+        }
+    }
+
+    /// specifies the application being activated
+    ///
+    /// The requesting client can specify an app_id to associate the token
+    /// being created with it.
+    ///
+    /// Must be sent before commit. This information is optional.
+    ///
+    /// # Arguments
+    ///
+    /// - `app_id`: the application id of the client being activated.
+    #[inline]
+    fn set_app_id(
+        &mut self,
+        _slf: &Rc<MetaXdgActivationTokenV1>,
+        app_id: &str,
+    ) {
+        let res = _slf.send_set_app_id(
+            app_id,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a xdg_activation_token_v1.set_app_id message: {}", Report::new(e));
+        }
+    }
+
+    /// specifies the surface requesting activation
+    ///
+    /// This request sets the surface requesting the activation. Note, this is
+    /// different from the surface that will be activated.
+    ///
+    /// Some compositors might refuse to activate toplevels when the token
+    /// doesn't have a requesting surface.
+    ///
+    /// Must be sent before commit. This information is optional.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`: the requesting surface
+    ///
+    /// All borrowed proxies passed to this function are guaranteed to be
+    /// immutable and non-null.
+    #[inline]
+    fn set_surface(
+        &mut self,
+        _slf: &Rc<MetaXdgActivationTokenV1>,
+        surface: &Rc<MetaWlSurface>,
+    ) {
+        let res = _slf.send_set_surface(
+            surface,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a xdg_activation_token_v1.set_surface message: {}", Report::new(e));
+        }
+    }
+
+    /// issues the token request
+    ///
+    /// Requests an activation token based on the different parameters that
+    /// have been offered through set_serial, set_surface and set_app_id.
+    #[inline]
+    fn commit(
+        &mut self,
+        _slf: &Rc<MetaXdgActivationTokenV1>,
+    ) {
+        let res = _slf.send_commit(
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a xdg_activation_token_v1.commit message: {}", Report::new(e));
+        }
+    }
+
+    /// the exported activation token
+    ///
+    /// The 'done' event contains the unique token of this activation request
+    /// and notifies that the provider is done.
+    ///
+    /// # Arguments
+    ///
+    /// - `token`: the exported activation token
+    #[inline]
+    fn done(
+        &mut self,
+        _slf: &Rc<MetaXdgActivationTokenV1>,
+        token: &str,
+    ) {
+        let res = _slf.send_done(
+            token,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a xdg_activation_token_v1.done message: {}", Report::new(e));
+        }
+    }
+
+    /// destroy the xdg_activation_token_v1 object
+    ///
+    /// Notify the compositor that the xdg_activation_token_v1 object will no
+    /// longer be used. The received token stays valid.
+    #[inline]
+    fn destroy(
+        &mut self,
+        _slf: &Rc<MetaXdgActivationTokenV1>,
+    ) {
+        let res = _slf.send_destroy(
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a xdg_activation_token_v1.destroy message: {}", Report::new(e));
+        }
+    }
+}
+
+impl Proxy for MetaXdgActivationTokenV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+        let handler = &mut *self.handler.borrow();
+        match msg[1] & 0xffff {
+            0 => {
+                let [
+                    arg0,
+                    arg1,
+                ] = msg[2..] else {
+                    return Err(ObjectError);
+                };
+                let Some(arg1) = client.lookup(arg1) else {
+                    return Err(ObjectError);
+                };
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSeat>() else {
+                    return Err(ObjectError);
+                };
+                let arg1 = &arg1;
+                if let Some(handler) = handler {
+                    (**handler).set_serial(&self, arg0, arg1);
+                } else {
+                    DefaultMessageHandler.set_serial(&self, arg0, arg1);
+                }
+            }
+            1 => {
+                let mut offset = 2;
+                let arg0 = {
+                    let Some(&len) = msg.get(offset) else {
+                        return Err(ObjectError);
+                    };
+                    offset += 1;
+                    let len = len as usize;
+                    let words = ((len as u64 + 3) / 4) as usize;
+                    if offset + words > msg.len() {
+                        return Err(ObjectError);
+                    }
+                    let start = offset;
+                    offset += words;
+                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
+                    if bytes.is_empty() {
+                        return Err(ObjectError);
+                    } else {
+                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
+                            return Err(ObjectError);
+                        };
+                        s
+                    }
+                };
+                if offset != msg.len() {
+                    return Err(ObjectError);
+                }
+                if let Some(handler) = handler {
+                    (**handler).set_app_id(&self, arg0);
+                } else {
+                    DefaultMessageHandler.set_app_id(&self, arg0);
+                }
+            }
+            2 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError);
+                };
+                let Some(arg0) = client.lookup(arg0) else {
+                    return Err(ObjectError);
+                };
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                    return Err(ObjectError);
+                };
+                let arg0 = &arg0;
+                if let Some(handler) = handler {
+                    (**handler).set_surface(&self, arg0);
+                } else {
+                    DefaultMessageHandler.set_surface(&self, arg0);
+                }
+            }
+            3 => {
+                if let Some(handler) = handler {
+                    (**handler).commit(&self);
+                } else {
+                    DefaultMessageHandler.commit(&self);
+                }
+            }
+            4 => {
+                if let Some(handler) = handler {
+                    (**handler).destroy(&self);
+                } else {
+                    DefaultMessageHandler.destroy(&self);
+                }
+            }
+            _ => {
+                let _ = client;
+                let _ = msg;
+                let _ = fds;
+                let _ = handler;
+                return Err(ObjectError);
+            }
+        }
+        Ok(())
+    }
+
+    fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+        let handler = &mut *self.handler.borrow();
+        match msg[1] & 0xffff {
+            0 => {
+                let mut offset = 2;
+                let arg0 = {
+                    let Some(&len) = msg.get(offset) else {
+                        return Err(ObjectError);
+                    };
+                    offset += 1;
+                    let len = len as usize;
+                    let words = ((len as u64 + 3) / 4) as usize;
+                    if offset + words > msg.len() {
+                        return Err(ObjectError);
+                    }
+                    let start = offset;
+                    offset += words;
+                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
+                    if bytes.is_empty() {
+                        return Err(ObjectError);
+                    } else {
+                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
+                            return Err(ObjectError);
+                        };
+                        s
+                    }
+                };
+                if offset != msg.len() {
+                    return Err(ObjectError);
+                }
+                if let Some(handler) = handler {
+                    (**handler).done(&self, arg0);
+                } else {
+                    DefaultMessageHandler.done(&self, arg0);
+                }
+            }
+            _ => {
+                let _ = msg;
+                let _ = fds;
+                let _ = handler;
+                return Err(ObjectError);
+            }
+        }
+        Ok(())
+    }
+}
+
+impl MetaXdgActivationTokenV1 {
+    /// Since when the error.already_used enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__ERROR_ALREADY_USED__SINCE: u32 = 1;
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[allow(dead_code)]
+pub struct MetaXdgActivationTokenV1Error(pub u32);
+
+impl MetaXdgActivationTokenV1Error {
+    /// The token has already been used previously
+    #[allow(dead_code)]
+    pub const ALREADY_USED: Self = Self(0);
+}
+
+impl Debug for MetaXdgActivationTokenV1Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match *self {
+            Self::ALREADY_USED => "ALREADY_USED",
+            _ => return Debug::fmt(&self.0, f),
+        };
+        f.write_str(name)
+    }
+}

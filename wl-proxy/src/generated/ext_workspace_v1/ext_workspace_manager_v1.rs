@@ -1,0 +1,495 @@
+//! list and control workspaces
+//!
+//! Workspaces, also called virtual desktops, are groups of surfaces. A
+//! compositor with a concept of workspaces may only show some such groups of
+//! surfaces (those of 'active' workspaces) at a time. 'Activating' a
+//! workspace is a request for the compositor to display that workspace's
+//! surfaces as normal, whereas the compositor may hide or otherwise
+//! de-emphasise surfaces that are associated only with 'inactive' workspaces.
+//! Workspaces are grouped by which sets of outputs they correspond to, and
+//! may contain surfaces only from those outputs. In this way, it is possible
+//! for each output to have its own set of workspaces, or for all outputs (or
+//! any other arbitrary grouping) to share workspaces. Compositors may
+//! optionally conceptually arrange each group of workspaces in an
+//! N-dimensional grid.
+//!
+//! The purpose of this protocol is to enable the creation of taskbars and
+//! docks by providing them with a list of workspaces and their properties,
+//! and allowing them to activate and deactivate workspaces.
+//!
+//! After a client binds the ext_workspace_manager_v1, each workspace will be
+//! sent via the workspace event.
+
+use crate::generated_helper::prelude::*;
+use super::super::all_types::*;
+
+/// A ext_workspace_manager_v1 proxy.
+///
+/// See the documentation of [the module][self] for the interface description.
+pub struct MetaExtWorkspaceManagerV1 {
+    core: ProxyCore,
+    handler: MessageHandlerHolder<dyn MetaExtWorkspaceManagerV1MessageHandler>,
+}
+
+struct DefaultMessageHandler;
+
+impl MetaExtWorkspaceManagerV1MessageHandler for DefaultMessageHandler { }
+
+impl MetaExtWorkspaceManagerV1 {
+    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Rc::new(Self {
+            core: ProxyCore::new(state, version),
+            handler: Default::default(),
+        })
+    }
+}
+
+impl Debug for MetaExtWorkspaceManagerV1 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("MetaExtWorkspaceManagerV1")
+            .field("server_obj_id", &self.core.server_obj_id.get())
+            .field("client_id", &self.core.client_id.get())
+            .field("client_obj_id", &self.core.client_obj_id.get())
+            .finish()
+    }
+}
+
+impl MetaExtWorkspaceManagerV1 {
+    /// Since when the workspace_group message is available.
+    #[allow(dead_code)]
+    pub const MSG__WORKSPACE_GROUP__SINCE: u32 = 1;
+
+    /// a workspace group has been created
+    ///
+    /// This event is emitted whenever a new workspace group has been created.
+    ///
+    /// All initial details of the workspace group (outputs) will be
+    /// sent immediately after this event via the corresponding events in
+    /// ext_workspace_group_handle_v1 and ext_workspace_handle_v1.
+    #[inline]
+    pub fn send_workspace_group(
+        &self,
+        workspace_group: &Rc<MetaExtWorkspaceGroupHandleV1>,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            workspace_group,
+        );
+        let arg0_obj = arg0;
+        let arg0 = arg0_obj.core();
+        let core = self.core();
+        let client = core.client.borrow();
+        let Some(client) = &*client else {
+            return Err(ObjectError);
+        };
+        arg0.generate_client_id(client, arg0_obj.clone())?;
+        let outgoing = &mut *client.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            core.client_obj_id.get().unwrap_or(0),
+            0,
+            arg0.client_obj_id.get().unwrap_or(0),
+        ]);
+        Ok(())
+    }
+
+    /// Since when the workspace message is available.
+    #[allow(dead_code)]
+    pub const MSG__WORKSPACE__SINCE: u32 = 1;
+
+    /// workspace has been created
+    ///
+    /// This event is emitted whenever a new workspace has been created.
+    ///
+    /// All initial details of the workspace (name, coordinates, state) will
+    /// be sent immediately after this event via the corresponding events in
+    /// ext_workspace_handle_v1.
+    ///
+    /// Workspaces start off unassigned to any workspace group.
+    #[inline]
+    pub fn send_workspace(
+        &self,
+        workspace: &Rc<MetaExtWorkspaceHandleV1>,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            workspace,
+        );
+        let arg0_obj = arg0;
+        let arg0 = arg0_obj.core();
+        let core = self.core();
+        let client = core.client.borrow();
+        let Some(client) = &*client else {
+            return Err(ObjectError);
+        };
+        arg0.generate_client_id(client, arg0_obj.clone())?;
+        let outgoing = &mut *client.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            core.client_obj_id.get().unwrap_or(0),
+            1,
+            arg0.client_obj_id.get().unwrap_or(0),
+        ]);
+        Ok(())
+    }
+
+    /// Since when the commit message is available.
+    #[allow(dead_code)]
+    pub const MSG__COMMIT__SINCE: u32 = 1;
+
+    /// all requests about the workspaces have been sent
+    ///
+    /// The client must send this request after it has finished sending other
+    /// requests. The compositor must process a series of requests preceding a
+    /// commit request atomically.
+    ///
+    /// This allows changes to the workspace properties to be seen as atomic,
+    /// even if they happen via multiple events, and even if they involve
+    /// multiple ext_workspace_handle_v1 objects, for example, deactivating one
+    /// workspace and activating another.
+    #[inline]
+    pub fn send_commit(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            0,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the done message is available.
+    #[allow(dead_code)]
+    pub const MSG__DONE__SINCE: u32 = 1;
+
+    /// all information about the workspaces and workspace groups has been sent
+    ///
+    /// This event is sent after all changes in all workspaces and workspace groups have been
+    /// sent.
+    ///
+    /// This allows changes to one or more ext_workspace_group_handle_v1
+    /// properties and ext_workspace_handle_v1 properties
+    /// to be seen as atomic, even if they happen via multiple events.
+    /// In particular, an output moving from one workspace group to
+    /// another sends an output_enter event and an output_leave event to the two
+    /// ext_workspace_group_handle_v1 objects in question. The compositor sends
+    /// the done event only after updating the output information in both
+    /// workspace groups.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let client = core.client.borrow();
+        let Some(client) = &*client else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *client.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            core.client_obj_id.get().unwrap_or(0),
+            2,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the finished message is available.
+    #[allow(dead_code)]
+    pub const MSG__FINISHED__SINCE: u32 = 1;
+
+    /// the compositor has finished with the workspace_manager
+    ///
+    /// This event indicates that the compositor is done sending events to the
+    /// ext_workspace_manager_v1. The server will destroy the object
+    /// immediately after sending this request.
+    #[inline]
+    pub fn send_finished(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let client = core.client.borrow();
+        let Some(client) = &*client else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *client.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            core.client_obj_id.get().unwrap_or(0),
+            3,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the stop message is available.
+    #[allow(dead_code)]
+    pub const MSG__STOP__SINCE: u32 = 1;
+
+    /// stop sending events
+    ///
+    /// Indicates the client no longer wishes to receive events for new
+    /// workspace groups. However the compositor may emit further workspace
+    /// events, until the finished event is emitted. The compositor is expected
+    /// to send the finished event eventually once the stop request has been processed.
+    ///
+    /// The client must not send any requests after this one, doing so will raise a wl_display
+    /// invalid_object error.
+    #[inline]
+    pub fn send_stop(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            1,
+        ]);
+        Ok(())
+    }
+}
+
+/// A message handler for [ExtWorkspaceManagerV1] proxies.
+#[allow(dead_code)]
+pub trait MetaExtWorkspaceManagerV1MessageHandler {
+    /// a workspace group has been created
+    ///
+    /// This event is emitted whenever a new workspace group has been created.
+    ///
+    /// All initial details of the workspace group (outputs) will be
+    /// sent immediately after this event via the corresponding events in
+    /// ext_workspace_group_handle_v1 and ext_workspace_handle_v1.
+    ///
+    /// # Arguments
+    ///
+    /// - `workspace_group`:
+    #[inline]
+    fn workspace_group(
+        &mut self,
+        _slf: &Rc<MetaExtWorkspaceManagerV1>,
+        workspace_group: &Rc<MetaExtWorkspaceGroupHandleV1>,
+    ) {
+        let res = _slf.send_workspace_group(
+            workspace_group,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a ext_workspace_manager_v1.workspace_group message: {}", Report::new(e));
+        }
+    }
+
+    /// workspace has been created
+    ///
+    /// This event is emitted whenever a new workspace has been created.
+    ///
+    /// All initial details of the workspace (name, coordinates, state) will
+    /// be sent immediately after this event via the corresponding events in
+    /// ext_workspace_handle_v1.
+    ///
+    /// Workspaces start off unassigned to any workspace group.
+    ///
+    /// # Arguments
+    ///
+    /// - `workspace`:
+    #[inline]
+    fn workspace(
+        &mut self,
+        _slf: &Rc<MetaExtWorkspaceManagerV1>,
+        workspace: &Rc<MetaExtWorkspaceHandleV1>,
+    ) {
+        let res = _slf.send_workspace(
+            workspace,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a ext_workspace_manager_v1.workspace message: {}", Report::new(e));
+        }
+    }
+
+    /// all requests about the workspaces have been sent
+    ///
+    /// The client must send this request after it has finished sending other
+    /// requests. The compositor must process a series of requests preceding a
+    /// commit request atomically.
+    ///
+    /// This allows changes to the workspace properties to be seen as atomic,
+    /// even if they happen via multiple events, and even if they involve
+    /// multiple ext_workspace_handle_v1 objects, for example, deactivating one
+    /// workspace and activating another.
+    #[inline]
+    fn commit(
+        &mut self,
+        _slf: &Rc<MetaExtWorkspaceManagerV1>,
+    ) {
+        let res = _slf.send_commit(
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a ext_workspace_manager_v1.commit message: {}", Report::new(e));
+        }
+    }
+
+    /// all information about the workspaces and workspace groups has been sent
+    ///
+    /// This event is sent after all changes in all workspaces and workspace groups have been
+    /// sent.
+    ///
+    /// This allows changes to one or more ext_workspace_group_handle_v1
+    /// properties and ext_workspace_handle_v1 properties
+    /// to be seen as atomic, even if they happen via multiple events.
+    /// In particular, an output moving from one workspace group to
+    /// another sends an output_enter event and an output_leave event to the two
+    /// ext_workspace_group_handle_v1 objects in question. The compositor sends
+    /// the done event only after updating the output information in both
+    /// workspace groups.
+    #[inline]
+    fn done(
+        &mut self,
+        _slf: &Rc<MetaExtWorkspaceManagerV1>,
+    ) {
+        let res = _slf.send_done(
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a ext_workspace_manager_v1.done message: {}", Report::new(e));
+        }
+    }
+
+    /// the compositor has finished with the workspace_manager
+    ///
+    /// This event indicates that the compositor is done sending events to the
+    /// ext_workspace_manager_v1. The server will destroy the object
+    /// immediately after sending this request.
+    #[inline]
+    fn finished(
+        &mut self,
+        _slf: &Rc<MetaExtWorkspaceManagerV1>,
+    ) {
+        let res = _slf.send_finished(
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a ext_workspace_manager_v1.finished message: {}", Report::new(e));
+        }
+    }
+
+    /// stop sending events
+    ///
+    /// Indicates the client no longer wishes to receive events for new
+    /// workspace groups. However the compositor may emit further workspace
+    /// events, until the finished event is emitted. The compositor is expected
+    /// to send the finished event eventually once the stop request has been processed.
+    ///
+    /// The client must not send any requests after this one, doing so will raise a wl_display
+    /// invalid_object error.
+    #[inline]
+    fn stop(
+        &mut self,
+        _slf: &Rc<MetaExtWorkspaceManagerV1>,
+    ) {
+        let res = _slf.send_stop(
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a ext_workspace_manager_v1.stop message: {}", Report::new(e));
+        }
+    }
+}
+
+impl Proxy for MetaExtWorkspaceManagerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+        let handler = &mut *self.handler.borrow();
+        match msg[1] & 0xffff {
+            0 => {
+                if let Some(handler) = handler {
+                    (**handler).commit(&self);
+                } else {
+                    DefaultMessageHandler.commit(&self);
+                }
+            }
+            1 => {
+                if let Some(handler) = handler {
+                    (**handler).stop(&self);
+                } else {
+                    DefaultMessageHandler.stop(&self);
+                }
+            }
+            _ => {
+                let _ = client;
+                let _ = msg;
+                let _ = fds;
+                let _ = handler;
+                return Err(ObjectError);
+            }
+        }
+        Ok(())
+    }
+
+    fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+        let handler = &mut *self.handler.borrow();
+        match msg[1] & 0xffff {
+            0 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError);
+                };
+                let arg0_id = arg0;
+                let arg0 = MetaExtWorkspaceGroupHandleV1::new(&self.core.state, self.core.version);
+                arg0.core().set_server_id(arg0_id, arg0.clone())?;
+                let arg0 = &arg0;
+                if let Some(handler) = handler {
+                    (**handler).workspace_group(&self, arg0);
+                } else {
+                    DefaultMessageHandler.workspace_group(&self, arg0);
+                }
+            }
+            1 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError);
+                };
+                let arg0_id = arg0;
+                let arg0 = MetaExtWorkspaceHandleV1::new(&self.core.state, self.core.version);
+                arg0.core().set_server_id(arg0_id, arg0.clone())?;
+                let arg0 = &arg0;
+                if let Some(handler) = handler {
+                    (**handler).workspace(&self, arg0);
+                } else {
+                    DefaultMessageHandler.workspace(&self, arg0);
+                }
+            }
+            2 => {
+                if let Some(handler) = handler {
+                    (**handler).done(&self);
+                } else {
+                    DefaultMessageHandler.done(&self);
+                }
+            }
+            3 => {
+                if let Some(handler) = handler {
+                    (**handler).finished(&self);
+                } else {
+                    DefaultMessageHandler.finished(&self);
+                }
+            }
+            _ => {
+                let _ = msg;
+                let _ = fds;
+                let _ = handler;
+                return Err(ObjectError);
+            }
+        }
+        Ok(())
+    }
+}
+

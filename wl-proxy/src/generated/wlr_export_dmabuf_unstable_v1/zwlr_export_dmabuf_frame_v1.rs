@@ -1,0 +1,698 @@
+//! a DMA-BUF frame
+//!
+//! This object represents a single DMA-BUF frame.
+//!
+//! If the capture is successful, the compositor will first send a "frame"
+//! event, followed by one or several "object". When the frame is available
+//! for readout, the "ready" event is sent.
+//!
+//! If the capture failed, the "cancel" event is sent. This can happen anytime
+//! before the "ready" event.
+//!
+//! Once either a "ready" or a "cancel" event is received, the client should
+//! destroy the frame. Once an "object" event is received, the client is
+//! responsible for closing the associated file descriptor.
+//!
+//! All frames are read-only and may not be written into or altered.
+
+use crate::generated_helper::prelude::*;
+use super::super::all_types::*;
+
+/// A zwlr_export_dmabuf_frame_v1 proxy.
+///
+/// See the documentation of [the module][self] for the interface description.
+pub struct MetaZwlrExportDmabufFrameV1 {
+    core: ProxyCore,
+    handler: MessageHandlerHolder<dyn MetaZwlrExportDmabufFrameV1MessageHandler>,
+}
+
+struct DefaultMessageHandler;
+
+impl MetaZwlrExportDmabufFrameV1MessageHandler for DefaultMessageHandler { }
+
+impl MetaZwlrExportDmabufFrameV1 {
+    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Rc::new(Self {
+            core: ProxyCore::new(state, version),
+            handler: Default::default(),
+        })
+    }
+}
+
+impl Debug for MetaZwlrExportDmabufFrameV1 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("MetaZwlrExportDmabufFrameV1")
+            .field("server_obj_id", &self.core.server_obj_id.get())
+            .field("client_id", &self.core.client_id.get())
+            .field("client_obj_id", &self.core.client_obj_id.get())
+            .finish()
+    }
+}
+
+impl MetaZwlrExportDmabufFrameV1 {
+    /// Since when the frame message is available.
+    #[allow(dead_code)]
+    pub const MSG__FRAME__SINCE: u32 = 1;
+
+    /// a frame description
+    ///
+    /// Main event supplying the client with information about the frame. If the
+    /// capture didn't fail, this event is always emitted first before any other
+    /// events.
+    ///
+    /// This event is followed by a number of "object" as specified by the
+    /// "num_objects" argument.
+    ///
+    /// # Arguments
+    ///
+    /// - `width`: frame width in pixels
+    /// - `height`: frame height in pixels
+    /// - `offset_x`: crop offset for the x axis
+    /// - `offset_y`: crop offset for the y axis
+    /// - `buffer_flags`: flags which indicate properties (invert, interlacing),
+    ///                                       has the same values as zwp_linux_buffer_params_v1:flags
+    /// - `flags`: indicates special frame features
+    /// - `format`: format of the frame (DRM_FORMAT_*)
+    /// - `mod_high`: drm format modifier, high
+    /// - `mod_low`: drm format modifier, low
+    /// - `num_objects`: indicates how many objects (FDs) the frame has (max 4)
+    #[inline]
+    pub fn send_frame(
+        &self,
+        width: u32,
+        height: u32,
+        offset_x: u32,
+        offset_y: u32,
+        buffer_flags: u32,
+        flags: MetaZwlrExportDmabufFrameV1Flags,
+        format: u32,
+        mod_high: u32,
+        mod_low: u32,
+        num_objects: u32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+            arg4,
+            arg5,
+            arg6,
+            arg7,
+            arg8,
+            arg9,
+        ) = (
+            width,
+            height,
+            offset_x,
+            offset_y,
+            buffer_flags,
+            flags,
+            format,
+            mod_high,
+            mod_low,
+            num_objects,
+        );
+        let core = self.core();
+        let client = core.client.borrow();
+        let Some(client) = &*client else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *client.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            core.client_obj_id.get().unwrap_or(0),
+            0,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+            arg4,
+            arg5.0,
+            arg6,
+            arg7,
+            arg8,
+            arg9,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the object message is available.
+    #[allow(dead_code)]
+    pub const MSG__OBJECT__SINCE: u32 = 1;
+
+    /// an object description
+    ///
+    /// Event which serves to supply the client with the file descriptors
+    /// containing the data for each object.
+    ///
+    /// After receiving this event, the client must always close the file
+    /// descriptor as soon as they're done with it and even if the frame fails.
+    ///
+    /// # Arguments
+    ///
+    /// - `index`: index of the current object
+    /// - `fd`: fd of the current object
+    /// - `size`: size in bytes for the current object
+    /// - `offset`: starting point for the data in the object's fd
+    /// - `stride`: line size in bytes
+    /// - `plane_index`: index of the plane the data in the object applies to
+    #[inline]
+    pub fn send_object(
+        &self,
+        index: u32,
+        fd: &Rc<OwnedFd>,
+        size: u32,
+        offset: u32,
+        stride: u32,
+        plane_index: u32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+            arg4,
+            arg5,
+        ) = (
+            index,
+            fd,
+            size,
+            offset,
+            stride,
+            plane_index,
+        );
+        let core = self.core();
+        let client = core.client.borrow();
+        let Some(client) = &*client else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *client.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.fds.push_back(arg1.clone());
+        fmt.words([
+            core.client_obj_id.get().unwrap_or(0),
+            1,
+            arg0,
+            arg2,
+            arg3,
+            arg4,
+            arg5,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the ready message is available.
+    #[allow(dead_code)]
+    pub const MSG__READY__SINCE: u32 = 1;
+
+    /// indicates frame is available for reading
+    ///
+    /// This event is sent as soon as the frame is presented, indicating it is
+    /// available for reading. This event includes the time at which
+    /// presentation happened at.
+    ///
+    /// The timestamp is expressed as tv_sec_hi, tv_sec_lo, tv_nsec triples,
+    /// each component being an unsigned 32-bit value. Whole seconds are in
+    /// tv_sec which is a 64-bit value combined from tv_sec_hi and tv_sec_lo,
+    /// and the additional fractional part in tv_nsec as nanoseconds. Hence,
+    /// for valid timestamps tv_nsec must be in [0, 999999999]. The seconds part
+    /// may have an arbitrary offset at start.
+    ///
+    /// After receiving this event, the client should destroy this object.
+    ///
+    /// # Arguments
+    ///
+    /// - `tv_sec_hi`: high 32 bits of the seconds part of the timestamp
+    /// - `tv_sec_lo`: low 32 bits of the seconds part of the timestamp
+    /// - `tv_nsec`: nanoseconds part of the timestamp
+    #[inline]
+    pub fn send_ready(
+        &self,
+        tv_sec_hi: u32,
+        tv_sec_lo: u32,
+        tv_nsec: u32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+            arg2,
+        ) = (
+            tv_sec_hi,
+            tv_sec_lo,
+            tv_nsec,
+        );
+        let core = self.core();
+        let client = core.client.borrow();
+        let Some(client) = &*client else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *client.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            core.client_obj_id.get().unwrap_or(0),
+            2,
+            arg0,
+            arg1,
+            arg2,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the cancel message is available.
+    #[allow(dead_code)]
+    pub const MSG__CANCEL__SINCE: u32 = 1;
+
+    /// indicates the frame is no longer valid
+    ///
+    /// If the capture failed or if the frame is no longer valid after the
+    /// "frame" event has been emitted, this event will be used to inform the
+    /// client to scrap the frame.
+    ///
+    /// If the failure is temporary, the client may capture again the same
+    /// source. If the failure is permanent, any further attempts to capture the
+    /// same source will fail again.
+    ///
+    /// After receiving this event, the client should destroy this object.
+    ///
+    /// # Arguments
+    ///
+    /// - `reason`: indicates a reason for cancelling this frame capture
+    #[inline]
+    pub fn send_cancel(
+        &self,
+        reason: MetaZwlrExportDmabufFrameV1CancelReason,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            reason,
+        );
+        let core = self.core();
+        let client = core.client.borrow();
+        let Some(client) = &*client else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *client.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            core.client_obj_id.get().unwrap_or(0),
+            3,
+            arg0.0,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the destroy message is available.
+    #[allow(dead_code)]
+    pub const MSG__DESTROY__SINCE: u32 = 1;
+
+    /// delete this object, used or not
+    ///
+    /// Unreferences the frame. This request must be called as soon as its no
+    /// longer used.
+    ///
+    /// It can be called at any time by the client. The client will still have
+    /// to close any FDs it has been given.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            0,
+        ]);
+        Ok(())
+    }
+}
+
+/// A message handler for [ZwlrExportDmabufFrameV1] proxies.
+#[allow(dead_code)]
+pub trait MetaZwlrExportDmabufFrameV1MessageHandler {
+    /// a frame description
+    ///
+    /// Main event supplying the client with information about the frame. If the
+    /// capture didn't fail, this event is always emitted first before any other
+    /// events.
+    ///
+    /// This event is followed by a number of "object" as specified by the
+    /// "num_objects" argument.
+    ///
+    /// # Arguments
+    ///
+    /// - `width`: frame width in pixels
+    /// - `height`: frame height in pixels
+    /// - `offset_x`: crop offset for the x axis
+    /// - `offset_y`: crop offset for the y axis
+    /// - `buffer_flags`: flags which indicate properties (invert, interlacing),
+    ///                                       has the same values as zwp_linux_buffer_params_v1:flags
+    /// - `flags`: indicates special frame features
+    /// - `format`: format of the frame (DRM_FORMAT_*)
+    /// - `mod_high`: drm format modifier, high
+    /// - `mod_low`: drm format modifier, low
+    /// - `num_objects`: indicates how many objects (FDs) the frame has (max 4)
+    #[inline]
+    fn frame(
+        &mut self,
+        _slf: &Rc<MetaZwlrExportDmabufFrameV1>,
+        width: u32,
+        height: u32,
+        offset_x: u32,
+        offset_y: u32,
+        buffer_flags: u32,
+        flags: MetaZwlrExportDmabufFrameV1Flags,
+        format: u32,
+        mod_high: u32,
+        mod_low: u32,
+        num_objects: u32,
+    ) {
+        let res = _slf.send_frame(
+            width,
+            height,
+            offset_x,
+            offset_y,
+            buffer_flags,
+            flags,
+            format,
+            mod_high,
+            mod_low,
+            num_objects,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a zwlr_export_dmabuf_frame_v1.frame message: {}", Report::new(e));
+        }
+    }
+
+    /// an object description
+    ///
+    /// Event which serves to supply the client with the file descriptors
+    /// containing the data for each object.
+    ///
+    /// After receiving this event, the client must always close the file
+    /// descriptor as soon as they're done with it and even if the frame fails.
+    ///
+    /// # Arguments
+    ///
+    /// - `index`: index of the current object
+    /// - `fd`: fd of the current object
+    /// - `size`: size in bytes for the current object
+    /// - `offset`: starting point for the data in the object's fd
+    /// - `stride`: line size in bytes
+    /// - `plane_index`: index of the plane the data in the object applies to
+    #[inline]
+    fn object(
+        &mut self,
+        _slf: &Rc<MetaZwlrExportDmabufFrameV1>,
+        index: u32,
+        fd: &Rc<OwnedFd>,
+        size: u32,
+        offset: u32,
+        stride: u32,
+        plane_index: u32,
+    ) {
+        let res = _slf.send_object(
+            index,
+            fd,
+            size,
+            offset,
+            stride,
+            plane_index,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a zwlr_export_dmabuf_frame_v1.object message: {}", Report::new(e));
+        }
+    }
+
+    /// indicates frame is available for reading
+    ///
+    /// This event is sent as soon as the frame is presented, indicating it is
+    /// available for reading. This event includes the time at which
+    /// presentation happened at.
+    ///
+    /// The timestamp is expressed as tv_sec_hi, tv_sec_lo, tv_nsec triples,
+    /// each component being an unsigned 32-bit value. Whole seconds are in
+    /// tv_sec which is a 64-bit value combined from tv_sec_hi and tv_sec_lo,
+    /// and the additional fractional part in tv_nsec as nanoseconds. Hence,
+    /// for valid timestamps tv_nsec must be in [0, 999999999]. The seconds part
+    /// may have an arbitrary offset at start.
+    ///
+    /// After receiving this event, the client should destroy this object.
+    ///
+    /// # Arguments
+    ///
+    /// - `tv_sec_hi`: high 32 bits of the seconds part of the timestamp
+    /// - `tv_sec_lo`: low 32 bits of the seconds part of the timestamp
+    /// - `tv_nsec`: nanoseconds part of the timestamp
+    #[inline]
+    fn ready(
+        &mut self,
+        _slf: &Rc<MetaZwlrExportDmabufFrameV1>,
+        tv_sec_hi: u32,
+        tv_sec_lo: u32,
+        tv_nsec: u32,
+    ) {
+        let res = _slf.send_ready(
+            tv_sec_hi,
+            tv_sec_lo,
+            tv_nsec,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a zwlr_export_dmabuf_frame_v1.ready message: {}", Report::new(e));
+        }
+    }
+
+    /// indicates the frame is no longer valid
+    ///
+    /// If the capture failed or if the frame is no longer valid after the
+    /// "frame" event has been emitted, this event will be used to inform the
+    /// client to scrap the frame.
+    ///
+    /// If the failure is temporary, the client may capture again the same
+    /// source. If the failure is permanent, any further attempts to capture the
+    /// same source will fail again.
+    ///
+    /// After receiving this event, the client should destroy this object.
+    ///
+    /// # Arguments
+    ///
+    /// - `reason`: indicates a reason for cancelling this frame capture
+    #[inline]
+    fn cancel(
+        &mut self,
+        _slf: &Rc<MetaZwlrExportDmabufFrameV1>,
+        reason: MetaZwlrExportDmabufFrameV1CancelReason,
+    ) {
+        let res = _slf.send_cancel(
+            reason,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a zwlr_export_dmabuf_frame_v1.cancel message: {}", Report::new(e));
+        }
+    }
+
+    /// delete this object, used or not
+    ///
+    /// Unreferences the frame. This request must be called as soon as its no
+    /// longer used.
+    ///
+    /// It can be called at any time by the client. The client will still have
+    /// to close any FDs it has been given.
+    #[inline]
+    fn destroy(
+        &mut self,
+        _slf: &Rc<MetaZwlrExportDmabufFrameV1>,
+    ) {
+        let res = _slf.send_destroy(
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a zwlr_export_dmabuf_frame_v1.destroy message: {}", Report::new(e));
+        }
+    }
+}
+
+impl Proxy for MetaZwlrExportDmabufFrameV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+        let handler = &mut *self.handler.borrow();
+        match msg[1] & 0xffff {
+            0 => {
+                if let Some(handler) = handler {
+                    (**handler).destroy(&self);
+                } else {
+                    DefaultMessageHandler.destroy(&self);
+                }
+            }
+            _ => {
+                let _ = client;
+                let _ = msg;
+                let _ = fds;
+                let _ = handler;
+                return Err(ObjectError);
+            }
+        }
+        Ok(())
+    }
+
+    fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+        let handler = &mut *self.handler.borrow();
+        match msg[1] & 0xffff {
+            0 => {
+                let [
+                    arg0,
+                    arg1,
+                    arg2,
+                    arg3,
+                    arg4,
+                    arg5,
+                    arg6,
+                    arg7,
+                    arg8,
+                    arg9,
+                ] = msg[2..] else {
+                    return Err(ObjectError);
+                };
+                let arg5 = MetaZwlrExportDmabufFrameV1Flags(arg5);
+                if let Some(handler) = handler {
+                    (**handler).frame(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+                } else {
+                    DefaultMessageHandler.frame(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+                }
+            }
+            1 => {
+                let [
+                    arg0,
+                    arg2,
+                    arg3,
+                    arg4,
+                    arg5,
+                ] = msg[2..] else {
+                    return Err(ObjectError);
+                };
+                let Some(arg1) = fds.pop_front() else {
+                    return Err(ObjectError);
+                };
+                let arg1 = &arg1;
+                if let Some(handler) = handler {
+                    (**handler).object(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                } else {
+                    DefaultMessageHandler.object(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                }
+            }
+            2 => {
+                let [
+                    arg0,
+                    arg1,
+                    arg2,
+                ] = msg[2..] else {
+                    return Err(ObjectError);
+                };
+                if let Some(handler) = handler {
+                    (**handler).ready(&self, arg0, arg1, arg2);
+                } else {
+                    DefaultMessageHandler.ready(&self, arg0, arg1, arg2);
+                }
+            }
+            3 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError);
+                };
+                let arg0 = MetaZwlrExportDmabufFrameV1CancelReason(arg0);
+                if let Some(handler) = handler {
+                    (**handler).cancel(&self, arg0);
+                } else {
+                    DefaultMessageHandler.cancel(&self, arg0);
+                }
+            }
+            _ => {
+                let _ = msg;
+                let _ = fds;
+                let _ = handler;
+                return Err(ObjectError);
+            }
+        }
+        Ok(())
+    }
+}
+
+impl MetaZwlrExportDmabufFrameV1 {
+    /// Since when the flags.transient enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__FLAGS_TRANSIENT__SINCE: u32 = 1;
+
+    /// Since when the cancel_reason.temporary enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__CANCEL_REASON_TEMPORARY__SINCE: u32 = 1;
+    /// Since when the cancel_reason.permanent enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__CANCEL_REASON_PERMANENT__SINCE: u32 = 1;
+    /// Since when the cancel_reason.resizing enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__CANCEL_REASON_RESIZING__SINCE: u32 = 1;
+}
+
+/// frame flags
+///
+/// Special flags that should be respected by the client.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[allow(dead_code)]
+pub struct MetaZwlrExportDmabufFrameV1Flags(pub u32);
+
+impl MetaZwlrExportDmabufFrameV1Flags {
+    /// clients should copy frame before processing
+    #[allow(dead_code)]
+    pub const TRANSIENT: Self = Self(0x1);
+}
+
+impl Debug for MetaZwlrExportDmabufFrameV1Flags {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match *self {
+            Self::TRANSIENT => "TRANSIENT",
+            _ => return Debug::fmt(&self.0, f),
+        };
+        f.write_str(name)
+    }
+}
+
+/// cancel reason
+///
+/// Indicates reason for cancelling the frame.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[allow(dead_code)]
+pub struct MetaZwlrExportDmabufFrameV1CancelReason(pub u32);
+
+impl MetaZwlrExportDmabufFrameV1CancelReason {
+    /// temporary error, source will produce more frames
+    #[allow(dead_code)]
+    pub const TEMPORARY: Self = Self(0);
+
+    /// fatal error, source will not produce frames
+    #[allow(dead_code)]
+    pub const PERMANENT: Self = Self(1);
+
+    /// temporary error, source will produce more frames
+    #[allow(dead_code)]
+    pub const RESIZING: Self = Self(2);
+}
+
+impl Debug for MetaZwlrExportDmabufFrameV1CancelReason {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match *self {
+            Self::TEMPORARY => "TEMPORARY",
+            Self::PERMANENT => "PERMANENT",
+            Self::RESIZING => "RESIZING",
+            _ => return Debug::fmt(&self.0, f),
+        };
+        f.write_str(name)
+    }
+}

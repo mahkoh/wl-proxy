@@ -1,0 +1,278 @@
+//! protocol for fifo constraints
+//!
+//! When a Wayland compositor considers applying a content update,
+//! it must ensure all the update's readiness constraints (fences, etc)
+//! are met.
+//!
+//! This protocol provides a way to use the completion of a display refresh
+//! cycle as an additional readiness constraint.
+//!
+//! Warning! The protocol described in this file is currently in the testing
+//! phase. Backward compatible changes may be added together with the
+//! corresponding interface version bump. Backward incompatible changes can
+//! only be done by creating a new major version of the extension.
+
+use crate::generated_helper::prelude::*;
+use super::super::all_types::*;
+
+/// A wp_fifo_manager_v1 proxy.
+///
+/// See the documentation of [the module][self] for the interface description.
+pub struct MetaWpFifoManagerV1 {
+    core: ProxyCore,
+    handler: MessageHandlerHolder<dyn MetaWpFifoManagerV1MessageHandler>,
+}
+
+struct DefaultMessageHandler;
+
+impl MetaWpFifoManagerV1MessageHandler for DefaultMessageHandler { }
+
+impl MetaWpFifoManagerV1 {
+    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Rc::new(Self {
+            core: ProxyCore::new(state, version),
+            handler: Default::default(),
+        })
+    }
+}
+
+impl Debug for MetaWpFifoManagerV1 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("MetaWpFifoManagerV1")
+            .field("server_obj_id", &self.core.server_obj_id.get())
+            .field("client_id", &self.core.client_id.get())
+            .field("client_obj_id", &self.core.client_obj_id.get())
+            .finish()
+    }
+}
+
+impl MetaWpFifoManagerV1 {
+    /// Since when the destroy message is available.
+    #[allow(dead_code)]
+    pub const MSG__DESTROY__SINCE: u32 = 1;
+
+    /// unbind from the manager interface
+    ///
+    /// Informs the server that the client will no longer be using
+    /// this protocol object. Existing objects created by this object
+    /// are not affected.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            0,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the get_fifo message is available.
+    #[allow(dead_code)]
+    pub const MSG__GET_FIFO__SINCE: u32 = 1;
+
+    /// request fifo interface for surface
+    ///
+    /// Establish a fifo object for a surface that may be used to add
+    /// display refresh constraints to content updates.
+    ///
+    /// Only one such object may exist for a surface and attempting
+    /// to create more than one will result in an already_exists
+    /// protocol error. If a surface is acted on by multiple software
+    /// components, general best practice is that only the component
+    /// performing wl_surface.attach operations should use this protocol.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn send_get_fifo(
+        &self,
+        id: &Rc<MetaWpFifoV1>,
+        surface: &Rc<MetaWlSurface>,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            id,
+            surface,
+        );
+        let arg0_obj = arg0;
+        let arg0 = arg0_obj.core();
+        let arg1 = arg1.core();
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError);
+        };
+        let arg1 = match arg1.server_obj_id.get() {
+            None => return Err(ObjectError),
+            Some(id) => id,
+        };
+        arg0.generate_server_id(arg0_obj.clone())?;
+        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            1,
+            arg0.server_obj_id.get().unwrap_or(0),
+            arg1,
+        ]);
+        Ok(())
+    }
+}
+
+/// A message handler for [WpFifoManagerV1] proxies.
+#[allow(dead_code)]
+pub trait MetaWpFifoManagerV1MessageHandler {
+    /// unbind from the manager interface
+    ///
+    /// Informs the server that the client will no longer be using
+    /// this protocol object. Existing objects created by this object
+    /// are not affected.
+    #[inline]
+    fn destroy(
+        &mut self,
+        _slf: &Rc<MetaWpFifoManagerV1>,
+    ) {
+        let res = _slf.send_destroy(
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wp_fifo_manager_v1.destroy message: {}", Report::new(e));
+        }
+    }
+
+    /// request fifo interface for surface
+    ///
+    /// Establish a fifo object for a surface that may be used to add
+    /// display refresh constraints to content updates.
+    ///
+    /// Only one such object may exist for a surface and attempting
+    /// to create more than one will result in an already_exists
+    /// protocol error. If a surface is acted on by multiple software
+    /// components, general best practice is that only the component
+    /// performing wl_surface.attach operations should use this protocol.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    ///
+    /// All borrowed proxies passed to this function are guaranteed to be
+    /// immutable and non-null.
+    #[inline]
+    fn get_fifo(
+        &mut self,
+        _slf: &Rc<MetaWpFifoManagerV1>,
+        id: &Rc<MetaWpFifoV1>,
+        surface: &Rc<MetaWlSurface>,
+    ) {
+        let res = _slf.send_get_fifo(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wp_fifo_manager_v1.get_fifo message: {}", Report::new(e));
+        }
+    }
+}
+
+impl Proxy for MetaWpFifoManagerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+        let handler = &mut *self.handler.borrow();
+        match msg[1] & 0xffff {
+            0 => {
+                if let Some(handler) = handler {
+                    (**handler).destroy(&self);
+                } else {
+                    DefaultMessageHandler.destroy(&self);
+                }
+            }
+            1 => {
+                let [
+                    arg0,
+                    arg1,
+                ] = msg[2..] else {
+                    return Err(ObjectError);
+                };
+                let arg0_id = arg0;
+                let arg0 = MetaWpFifoV1::new(&self.core.state, self.core.version);
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
+                let Some(arg1) = client.lookup(arg1) else {
+                    return Err(ObjectError);
+                };
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                    return Err(ObjectError);
+                };
+                let arg0 = &arg0;
+                let arg1 = &arg1;
+                if let Some(handler) = handler {
+                    (**handler).get_fifo(&self, arg0, arg1);
+                } else {
+                    DefaultMessageHandler.get_fifo(&self, arg0, arg1);
+                }
+            }
+            _ => {
+                let _ = client;
+                let _ = msg;
+                let _ = fds;
+                let _ = handler;
+                return Err(ObjectError);
+            }
+        }
+        Ok(())
+    }
+
+    fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+        let handler = &mut *self.handler.borrow();
+        match msg[1] & 0xffff {
+            _ => {
+                let _ = msg;
+                let _ = fds;
+                let _ = handler;
+                return Err(ObjectError);
+            }
+        }
+    }
+}
+
+impl MetaWpFifoManagerV1 {
+    /// Since when the error.already_exists enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__ERROR_ALREADY_EXISTS__SINCE: u32 = 1;
+}
+
+/// fatal presentation error
+///
+/// These fatal protocol errors may be emitted in response to
+/// illegal requests.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[allow(dead_code)]
+pub struct MetaWpFifoManagerV1Error(pub u32);
+
+impl MetaWpFifoManagerV1Error {
+    /// fifo manager already exists for surface
+    #[allow(dead_code)]
+    pub const ALREADY_EXISTS: Self = Self(0);
+}
+
+impl Debug for MetaWpFifoManagerV1Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match *self {
+            Self::ALREADY_EXISTS => "ALREADY_EXISTS",
+            _ => return Debug::fmt(&self.0, f),
+        };
+        f.write_str(name)
+    }
+}

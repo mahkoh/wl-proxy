@@ -1,0 +1,180 @@
+//! inhibits input events to other clients
+//!
+//! Clients can use this interface to prevent input events from being sent to
+//! any surfaces but its own, which is useful for example in lock screen
+//! software. It is assumed that access to this interface will be locked down
+//! to whitelisted clients by the compositor.
+//!
+//! Note! This protocol is deprecated and not intended for production use.
+//! For screen lockers, use the ext-session-lock-v1 protocol.
+
+use crate::generated_helper::prelude::*;
+use super::super::all_types::*;
+
+/// A zwlr_input_inhibit_manager_v1 proxy.
+///
+/// See the documentation of [the module][self] for the interface description.
+pub struct MetaZwlrInputInhibitManagerV1 {
+    core: ProxyCore,
+    handler: MessageHandlerHolder<dyn MetaZwlrInputInhibitManagerV1MessageHandler>,
+}
+
+struct DefaultMessageHandler;
+
+impl MetaZwlrInputInhibitManagerV1MessageHandler for DefaultMessageHandler { }
+
+impl MetaZwlrInputInhibitManagerV1 {
+    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Rc::new(Self {
+            core: ProxyCore::new(state, version),
+            handler: Default::default(),
+        })
+    }
+}
+
+impl Debug for MetaZwlrInputInhibitManagerV1 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("MetaZwlrInputInhibitManagerV1")
+            .field("server_obj_id", &self.core.server_obj_id.get())
+            .field("client_id", &self.core.client_id.get())
+            .field("client_obj_id", &self.core.client_obj_id.get())
+            .finish()
+    }
+}
+
+impl MetaZwlrInputInhibitManagerV1 {
+    /// Since when the get_inhibitor message is available.
+    #[allow(dead_code)]
+    pub const MSG__GET_INHIBITOR__SINCE: u32 = 1;
+
+    /// inhibit input to other clients
+    ///
+    /// Activates the input inhibitor. As long as the inhibitor is active, the
+    /// compositor will not send input events to other clients.
+    #[inline]
+    pub fn send_get_inhibitor(
+        &self,
+        id: &Rc<MetaZwlrInputInhibitorV1>,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            id,
+        );
+        let arg0_obj = arg0;
+        let arg0 = arg0_obj.core();
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError);
+        };
+        arg0.generate_server_id(arg0_obj.clone())?;
+        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            0,
+            arg0.server_obj_id.get().unwrap_or(0),
+        ]);
+        Ok(())
+    }
+}
+
+/// A message handler for [ZwlrInputInhibitManagerV1] proxies.
+#[allow(dead_code)]
+pub trait MetaZwlrInputInhibitManagerV1MessageHandler {
+    /// inhibit input to other clients
+    ///
+    /// Activates the input inhibitor. As long as the inhibitor is active, the
+    /// compositor will not send input events to other clients.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    #[inline]
+    fn get_inhibitor(
+        &mut self,
+        _slf: &Rc<MetaZwlrInputInhibitManagerV1>,
+        id: &Rc<MetaZwlrInputInhibitorV1>,
+    ) {
+        let res = _slf.send_get_inhibitor(
+            id,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a zwlr_input_inhibit_manager_v1.get_inhibitor message: {}", Report::new(e));
+        }
+    }
+}
+
+impl Proxy for MetaZwlrInputInhibitManagerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+        let handler = &mut *self.handler.borrow();
+        match msg[1] & 0xffff {
+            0 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError);
+                };
+                let arg0_id = arg0;
+                let arg0 = MetaZwlrInputInhibitorV1::new(&self.core.state, self.core.version);
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
+                let arg0 = &arg0;
+                if let Some(handler) = handler {
+                    (**handler).get_inhibitor(&self, arg0);
+                } else {
+                    DefaultMessageHandler.get_inhibitor(&self, arg0);
+                }
+            }
+            _ => {
+                let _ = client;
+                let _ = msg;
+                let _ = fds;
+                let _ = handler;
+                return Err(ObjectError);
+            }
+        }
+        Ok(())
+    }
+
+    fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+        let handler = &mut *self.handler.borrow();
+        match msg[1] & 0xffff {
+            _ => {
+                let _ = msg;
+                let _ = fds;
+                let _ = handler;
+                return Err(ObjectError);
+            }
+        }
+    }
+}
+
+impl MetaZwlrInputInhibitManagerV1 {
+    /// Since when the error.already_inhibited enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__ERROR_ALREADY_INHIBITED__SINCE: u32 = 1;
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[allow(dead_code)]
+pub struct MetaZwlrInputInhibitManagerV1Error(pub u32);
+
+impl MetaZwlrInputInhibitManagerV1Error {
+    /// an input inhibitor is already in use on the compositor
+    #[allow(dead_code)]
+    pub const ALREADY_INHIBITED: Self = Self(0);
+}
+
+impl Debug for MetaZwlrInputInhibitManagerV1Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match *self {
+            Self::ALREADY_INHIBITED => "ALREADY_INHIBITED",
+            _ => return Debug::fmt(&self.0, f),
+        };
+        f.write_str(name)
+    }
+}

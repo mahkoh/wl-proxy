@@ -1,0 +1,559 @@
+//! Colorimetric image description
+//!
+//! An image description carries information about the pixel color encoding
+//! and its intended display and viewing environment. The image description is
+//! attached to a wl_surface via
+//! wp_color_management_surface_v1.set_image_description. A compositor can use
+//! this information to decode pixel values into colorimetrically meaningful
+//! quantities, which allows the compositor to transform the surface contents
+//! to become suitable for various displays and viewing environments.
+//!
+//! Note, that the wp_image_description_v1 object is not ready to be used
+//! immediately after creation. The object eventually delivers either the
+//! 'ready' or the 'failed' event, specified in all requests creating it. The
+//! object is deemed "ready" after receiving the 'ready' event.
+//!
+//! An object which is not ready is illegal to use, it can only be destroyed.
+//! Any other request in this interface shall result in the 'not_ready'
+//! protocol error. Attempts to use an object which is not ready through other
+//! interfaces shall raise protocol errors defined there.
+//!
+//! Once created and regardless of how it was created, a
+//! wp_image_description_v1 object always refers to one fixed image
+//! description. It cannot change after creation.
+
+use crate::generated_helper::prelude::*;
+use super::super::all_types::*;
+
+/// A wp_image_description_v1 proxy.
+///
+/// See the documentation of [the module][self] for the interface description.
+pub struct MetaWpImageDescriptionV1 {
+    core: ProxyCore,
+    handler: MessageHandlerHolder<dyn MetaWpImageDescriptionV1MessageHandler>,
+}
+
+struct DefaultMessageHandler;
+
+impl MetaWpImageDescriptionV1MessageHandler for DefaultMessageHandler { }
+
+impl MetaWpImageDescriptionV1 {
+    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Rc::new(Self {
+            core: ProxyCore::new(state, version),
+            handler: Default::default(),
+        })
+    }
+}
+
+impl Debug for MetaWpImageDescriptionV1 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("MetaWpImageDescriptionV1")
+            .field("server_obj_id", &self.core.server_obj_id.get())
+            .field("client_id", &self.core.client_id.get())
+            .field("client_obj_id", &self.core.client_obj_id.get())
+            .finish()
+    }
+}
+
+impl MetaWpImageDescriptionV1 {
+    /// Since when the destroy message is available.
+    #[allow(dead_code)]
+    pub const MSG__DESTROY__SINCE: u32 = 1;
+
+    /// destroy the image description
+    ///
+    /// Destroy this object. It is safe to destroy an object which is not ready.
+    ///
+    /// Destroying a wp_image_description_v1 object has no side-effects, not
+    /// even if a wp_color_management_surface_v1.set_image_description has not
+    /// yet been followed by a wl_surface.commit.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            0,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the failed message is available.
+    #[allow(dead_code)]
+    pub const MSG__FAILED__SINCE: u32 = 1;
+
+    /// graceful error on creating the image description
+    ///
+    /// If creating a wp_image_description_v1 object fails for a reason that is
+    /// not defined as a protocol error, this event is sent.
+    ///
+    /// The requests that create image description objects define whether and
+    /// when this can occur. Only such creation requests can trigger this event.
+    /// This event cannot be triggered after the image description was
+    /// successfully formed.
+    ///
+    /// Once this event has been sent, the wp_image_description_v1 object will
+    /// never become ready and it can only be destroyed.
+    ///
+    /// # Arguments
+    ///
+    /// - `cause`: generic reason
+    /// - `msg`: ad hoc human-readable explanation
+    #[inline]
+    pub fn send_failed(
+        &self,
+        cause: MetaWpImageDescriptionV1Cause,
+        msg: &str,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            cause,
+            msg,
+        );
+        let core = self.core();
+        let client = core.client.borrow();
+        let Some(client) = &*client else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *client.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            core.client_obj_id.get().unwrap_or(0),
+            0,
+            arg0.0,
+        ]);
+        fmt.string(arg1);
+        Ok(())
+    }
+
+    /// Since when the ready message is available.
+    #[allow(dead_code)]
+    pub const MSG__READY__SINCE: u32 = 1;
+
+    /// indication that the object is ready to be used
+    ///
+    /// Once this event has been sent, the wp_image_description_v1 object is
+    /// deemed "ready". Ready objects can be used to send requests and can be
+    /// used through other interfaces.
+    ///
+    /// Every ready wp_image_description_v1 protocol object refers to an
+    /// underlying image description record in the compositor. Multiple protocol
+    /// objects may end up referring to the same record. Clients may identify
+    /// these "copies" by comparing their id numbers: if the numbers from two
+    /// protocol objects are identical, the protocol objects refer to the same
+    /// image description record. Two different image description records
+    /// cannot have the same id number simultaneously. The id number does not
+    /// change during the lifetime of the image description record.
+    ///
+    /// The id number is valid only as long as the protocol object is alive. If
+    /// all protocol objects referring to the same image description record are
+    /// destroyed, the id number may be recycled for a different image
+    /// description record.
+    ///
+    /// Image description id number is not a protocol object id. Zero is
+    /// reserved as an invalid id number. It shall not be possible for a client
+    /// to refer to an image description by its id number in protocol. The id
+    /// numbers might not be portable between Wayland connections. A compositor
+    /// shall not send an invalid id number.
+    ///
+    /// This identity allows clients to de-duplicate image description records
+    /// and avoid get_information request if they already have the image
+    /// description information.
+    ///
+    /// # Arguments
+    ///
+    /// - `identity`: image description id number
+    #[inline]
+    pub fn send_ready(
+        &self,
+        identity: u32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            identity,
+        );
+        let core = self.core();
+        let client = core.client.borrow();
+        let Some(client) = &*client else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *client.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            core.client_obj_id.get().unwrap_or(0),
+            1,
+            arg0,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the get_information message is available.
+    #[allow(dead_code)]
+    pub const MSG__GET_INFORMATION__SINCE: u32 = 1;
+
+    /// get information about the image description
+    ///
+    /// Creates a wp_image_description_info_v1 object which delivers the
+    /// information that makes up the image description.
+    ///
+    /// Not all image description protocol objects allow get_information
+    /// request. Whether it is allowed or not is defined by the request that
+    /// created the object. If get_information is not allowed, the protocol
+    /// error no_information is raised.
+    #[inline]
+    pub fn send_get_information(
+        &self,
+        information: &Rc<MetaWpImageDescriptionInfoV1>,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            information,
+        );
+        let arg0_obj = arg0;
+        let arg0 = arg0_obj.core();
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError);
+        };
+        arg0.generate_server_id(arg0_obj.clone())?;
+        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            1,
+            arg0.server_obj_id.get().unwrap_or(0),
+        ]);
+        Ok(())
+    }
+}
+
+/// A message handler for [WpImageDescriptionV1] proxies.
+#[allow(dead_code)]
+pub trait MetaWpImageDescriptionV1MessageHandler {
+    /// destroy the image description
+    ///
+    /// Destroy this object. It is safe to destroy an object which is not ready.
+    ///
+    /// Destroying a wp_image_description_v1 object has no side-effects, not
+    /// even if a wp_color_management_surface_v1.set_image_description has not
+    /// yet been followed by a wl_surface.commit.
+    #[inline]
+    fn destroy(
+        &mut self,
+        _slf: &Rc<MetaWpImageDescriptionV1>,
+    ) {
+        let res = _slf.send_destroy(
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wp_image_description_v1.destroy message: {}", Report::new(e));
+        }
+    }
+
+    /// graceful error on creating the image description
+    ///
+    /// If creating a wp_image_description_v1 object fails for a reason that is
+    /// not defined as a protocol error, this event is sent.
+    ///
+    /// The requests that create image description objects define whether and
+    /// when this can occur. Only such creation requests can trigger this event.
+    /// This event cannot be triggered after the image description was
+    /// successfully formed.
+    ///
+    /// Once this event has been sent, the wp_image_description_v1 object will
+    /// never become ready and it can only be destroyed.
+    ///
+    /// # Arguments
+    ///
+    /// - `cause`: generic reason
+    /// - `msg`: ad hoc human-readable explanation
+    #[inline]
+    fn failed(
+        &mut self,
+        _slf: &Rc<MetaWpImageDescriptionV1>,
+        cause: MetaWpImageDescriptionV1Cause,
+        msg: &str,
+    ) {
+        let res = _slf.send_failed(
+            cause,
+            msg,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wp_image_description_v1.failed message: {}", Report::new(e));
+        }
+    }
+
+    /// indication that the object is ready to be used
+    ///
+    /// Once this event has been sent, the wp_image_description_v1 object is
+    /// deemed "ready". Ready objects can be used to send requests and can be
+    /// used through other interfaces.
+    ///
+    /// Every ready wp_image_description_v1 protocol object refers to an
+    /// underlying image description record in the compositor. Multiple protocol
+    /// objects may end up referring to the same record. Clients may identify
+    /// these "copies" by comparing their id numbers: if the numbers from two
+    /// protocol objects are identical, the protocol objects refer to the same
+    /// image description record. Two different image description records
+    /// cannot have the same id number simultaneously. The id number does not
+    /// change during the lifetime of the image description record.
+    ///
+    /// The id number is valid only as long as the protocol object is alive. If
+    /// all protocol objects referring to the same image description record are
+    /// destroyed, the id number may be recycled for a different image
+    /// description record.
+    ///
+    /// Image description id number is not a protocol object id. Zero is
+    /// reserved as an invalid id number. It shall not be possible for a client
+    /// to refer to an image description by its id number in protocol. The id
+    /// numbers might not be portable between Wayland connections. A compositor
+    /// shall not send an invalid id number.
+    ///
+    /// This identity allows clients to de-duplicate image description records
+    /// and avoid get_information request if they already have the image
+    /// description information.
+    ///
+    /// # Arguments
+    ///
+    /// - `identity`: image description id number
+    #[inline]
+    fn ready(
+        &mut self,
+        _slf: &Rc<MetaWpImageDescriptionV1>,
+        identity: u32,
+    ) {
+        let res = _slf.send_ready(
+            identity,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wp_image_description_v1.ready message: {}", Report::new(e));
+        }
+    }
+
+    /// get information about the image description
+    ///
+    /// Creates a wp_image_description_info_v1 object which delivers the
+    /// information that makes up the image description.
+    ///
+    /// Not all image description protocol objects allow get_information
+    /// request. Whether it is allowed or not is defined by the request that
+    /// created the object. If get_information is not allowed, the protocol
+    /// error no_information is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `information`:
+    #[inline]
+    fn get_information(
+        &mut self,
+        _slf: &Rc<MetaWpImageDescriptionV1>,
+        information: &Rc<MetaWpImageDescriptionInfoV1>,
+    ) {
+        let res = _slf.send_get_information(
+            information,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wp_image_description_v1.get_information message: {}", Report::new(e));
+        }
+    }
+}
+
+impl Proxy for MetaWpImageDescriptionV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+        let handler = &mut *self.handler.borrow();
+        match msg[1] & 0xffff {
+            0 => {
+                if let Some(handler) = handler {
+                    (**handler).destroy(&self);
+                } else {
+                    DefaultMessageHandler.destroy(&self);
+                }
+            }
+            1 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError);
+                };
+                let arg0_id = arg0;
+                let arg0 = MetaWpImageDescriptionInfoV1::new(&self.core.state, self.core.version);
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
+                let arg0 = &arg0;
+                if let Some(handler) = handler {
+                    (**handler).get_information(&self, arg0);
+                } else {
+                    DefaultMessageHandler.get_information(&self, arg0);
+                }
+            }
+            _ => {
+                let _ = client;
+                let _ = msg;
+                let _ = fds;
+                let _ = handler;
+                return Err(ObjectError);
+            }
+        }
+        Ok(())
+    }
+
+    fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+        let handler = &mut *self.handler.borrow();
+        match msg[1] & 0xffff {
+            0 => {
+                let mut offset = 2;
+                let Some(&arg0) = msg.get(offset) else {
+                    return Err(ObjectError);
+                };
+                offset += 1;
+                let arg1 = {
+                    let Some(&len) = msg.get(offset) else {
+                        return Err(ObjectError);
+                    };
+                    offset += 1;
+                    let len = len as usize;
+                    let words = ((len as u64 + 3) / 4) as usize;
+                    if offset + words > msg.len() {
+                        return Err(ObjectError);
+                    }
+                    let start = offset;
+                    offset += words;
+                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
+                    if bytes.is_empty() {
+                        return Err(ObjectError);
+                    } else {
+                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
+                            return Err(ObjectError);
+                        };
+                        s
+                    }
+                };
+                if offset != msg.len() {
+                    return Err(ObjectError);
+                }
+                let arg0 = MetaWpImageDescriptionV1Cause(arg0);
+                if let Some(handler) = handler {
+                    (**handler).failed(&self, arg0, arg1);
+                } else {
+                    DefaultMessageHandler.failed(&self, arg0, arg1);
+                }
+            }
+            1 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError);
+                };
+                if let Some(handler) = handler {
+                    (**handler).ready(&self, arg0);
+                } else {
+                    DefaultMessageHandler.ready(&self, arg0);
+                }
+            }
+            _ => {
+                let _ = msg;
+                let _ = fds;
+                let _ = handler;
+                return Err(ObjectError);
+            }
+        }
+        Ok(())
+    }
+}
+
+impl MetaWpImageDescriptionV1 {
+    /// Since when the error.not_ready enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__ERROR_NOT_READY__SINCE: u32 = 1;
+    /// Since when the error.no_information enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__ERROR_NO_INFORMATION__SINCE: u32 = 1;
+
+    /// Since when the cause.low_version enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__CAUSE_LOW_VERSION__SINCE: u32 = 1;
+    /// Since when the cause.unsupported enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__CAUSE_UNSUPPORTED__SINCE: u32 = 1;
+    /// Since when the cause.operating_system enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__CAUSE_OPERATING_SYSTEM__SINCE: u32 = 1;
+    /// Since when the cause.no_output enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__CAUSE_NO_OUTPUT__SINCE: u32 = 1;
+}
+
+/// protocol errors
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[allow(dead_code)]
+pub struct MetaWpImageDescriptionV1Error(pub u32);
+
+impl MetaWpImageDescriptionV1Error {
+    /// attempted to use an object which is not ready
+    #[allow(dead_code)]
+    pub const NOT_READY: Self = Self(0);
+
+    /// get_information not allowed
+    #[allow(dead_code)]
+    pub const NO_INFORMATION: Self = Self(1);
+}
+
+impl Debug for MetaWpImageDescriptionV1Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match *self {
+            Self::NOT_READY => "NOT_READY",
+            Self::NO_INFORMATION => "NO_INFORMATION",
+            _ => return Debug::fmt(&self.0, f),
+        };
+        f.write_str(name)
+    }
+}
+
+/// generic reason for failure
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[allow(dead_code)]
+pub struct MetaWpImageDescriptionV1Cause(pub u32);
+
+impl MetaWpImageDescriptionV1Cause {
+    /// interface version too low
+    #[allow(dead_code)]
+    pub const LOW_VERSION: Self = Self(0);
+
+    /// unsupported image description data
+    #[allow(dead_code)]
+    pub const UNSUPPORTED: Self = Self(1);
+
+    /// error independent of the client
+    #[allow(dead_code)]
+    pub const OPERATING_SYSTEM: Self = Self(2);
+
+    /// the relevant output no longer exists
+    #[allow(dead_code)]
+    pub const NO_OUTPUT: Self = Self(3);
+}
+
+impl Debug for MetaWpImageDescriptionV1Cause {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match *self {
+            Self::LOW_VERSION => "LOW_VERSION",
+            Self::UNSUPPORTED => "UNSUPPORTED",
+            Self::OPERATING_SYSTEM => "OPERATING_SYSTEM",
+            Self::NO_OUTPUT => "NO_OUTPUT",
+            _ => return Debug::fmt(&self.0, f),
+        };
+        f.write_str(name)
+    }
+}

@@ -1,0 +1,959 @@
+//! keyboard input device
+//!
+//! The wl_keyboard interface represents one or more keyboards
+//! associated with a seat.
+//!
+//! Each wl_keyboard has the following logical state:
+//!
+//! - an active surface (possibly null),
+//! - the keys currently logically down,
+//! - the active modifiers,
+//! - the active group.
+//!
+//! By default, the active surface is null, the keys currently logically down
+//! are empty, the active modifiers and the active group are 0.
+
+use crate::generated_helper::prelude::*;
+use super::super::all_types::*;
+
+/// A wl_keyboard proxy.
+///
+/// See the documentation of [the module][self] for the interface description.
+pub struct MetaWlKeyboard {
+    core: ProxyCore,
+    handler: MessageHandlerHolder<dyn MetaWlKeyboardMessageHandler>,
+}
+
+struct DefaultMessageHandler;
+
+impl MetaWlKeyboardMessageHandler for DefaultMessageHandler { }
+
+impl MetaWlKeyboard {
+    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Rc::new(Self {
+            core: ProxyCore::new(state, version),
+            handler: Default::default(),
+        })
+    }
+}
+
+impl Debug for MetaWlKeyboard {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("MetaWlKeyboard")
+            .field("server_obj_id", &self.core.server_obj_id.get())
+            .field("client_id", &self.core.client_id.get())
+            .field("client_obj_id", &self.core.client_obj_id.get())
+            .finish()
+    }
+}
+
+impl MetaWlKeyboard {
+    /// Since when the keymap message is available.
+    #[allow(dead_code)]
+    pub const MSG__KEYMAP__SINCE: u32 = 1;
+
+    /// keyboard mapping
+    ///
+    /// This event provides a file descriptor to the client which can be
+    /// memory-mapped in read-only mode to provide a keyboard mapping
+    /// description.
+    ///
+    /// From version 7 onwards, the fd must be mapped with MAP_PRIVATE by
+    /// the recipient, as MAP_SHARED may fail.
+    ///
+    /// # Arguments
+    ///
+    /// - `format`: keymap format
+    /// - `fd`: keymap file descriptor
+    /// - `size`: keymap size, in bytes
+    #[inline]
+    pub fn send_keymap(
+        &self,
+        format: MetaWlKeyboardKeymapFormat,
+        fd: &Rc<OwnedFd>,
+        size: u32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+            arg2,
+        ) = (
+            format,
+            fd,
+            size,
+        );
+        let core = self.core();
+        let client = core.client.borrow();
+        let Some(client) = &*client else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *client.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.fds.push_back(arg1.clone());
+        fmt.words([
+            core.client_obj_id.get().unwrap_or(0),
+            0,
+            arg0.0,
+            arg2,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the enter message is available.
+    #[allow(dead_code)]
+    pub const MSG__ENTER__SINCE: u32 = 1;
+
+    /// enter event
+    ///
+    /// Notification that this seat's keyboard focus is on a certain
+    /// surface.
+    ///
+    /// The compositor must send the wl_keyboard.modifiers event after this
+    /// event.
+    ///
+    /// In the wl_keyboard logical state, this event sets the active surface to
+    /// the surface argument and the keys currently logically down to the keys
+    /// in the keys argument. The compositor must not send this event if the
+    /// wl_keyboard already had an active surface immediately before this event.
+    ///
+    /// Clients should not use the list of pressed keys to emulate key-press
+    /// events. The order of keys in the list is unspecified.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the enter event
+    /// - `surface`: surface gaining keyboard focus
+    /// - `keys`: the keys currently logically down
+    #[inline]
+    pub fn send_enter(
+        &self,
+        serial: u32,
+        surface: &Rc<MetaWlSurface>,
+        keys: &[u8],
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+            arg2,
+        ) = (
+            serial,
+            surface,
+            keys,
+        );
+        let arg1 = arg1.core();
+        let core = self.core();
+        let client = core.client.borrow();
+        let Some(client) = &*client else {
+            return Err(ObjectError);
+        };
+        if arg1.client_id.get() != Some(client.id) {
+            return Err(ObjectError);
+        }
+        let outgoing = &mut *client.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            core.client_obj_id.get().unwrap_or(0),
+            1,
+            arg0,
+            arg1.client_obj_id.get().unwrap_or(0),
+        ]);
+        fmt.array(arg2);
+        Ok(())
+    }
+
+    /// Since when the leave message is available.
+    #[allow(dead_code)]
+    pub const MSG__LEAVE__SINCE: u32 = 1;
+
+    /// leave event
+    ///
+    /// Notification that this seat's keyboard focus is no longer on
+    /// a certain surface.
+    ///
+    /// The leave notification is sent before the enter notification
+    /// for the new focus.
+    ///
+    /// In the wl_keyboard logical state, this event resets all values to their
+    /// defaults. The compositor must not send this event if the active surface
+    /// of the wl_keyboard was not equal to the surface argument immediately
+    /// before this event.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the leave event
+    /// - `surface`: surface that lost keyboard focus
+    #[inline]
+    pub fn send_leave(
+        &self,
+        serial: u32,
+        surface: &Rc<MetaWlSurface>,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            serial,
+            surface,
+        );
+        let arg1 = arg1.core();
+        let core = self.core();
+        let client = core.client.borrow();
+        let Some(client) = &*client else {
+            return Err(ObjectError);
+        };
+        if arg1.client_id.get() != Some(client.id) {
+            return Err(ObjectError);
+        }
+        let outgoing = &mut *client.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            core.client_obj_id.get().unwrap_or(0),
+            2,
+            arg0,
+            arg1.client_obj_id.get().unwrap_or(0),
+        ]);
+        Ok(())
+    }
+
+    /// Since when the key message is available.
+    #[allow(dead_code)]
+    pub const MSG__KEY__SINCE: u32 = 1;
+
+    /// key event
+    ///
+    /// A key was pressed or released.
+    /// The time argument is a timestamp with millisecond
+    /// granularity, with an undefined base.
+    ///
+    /// The key is a platform-specific key code that can be interpreted
+    /// by feeding it to the keyboard mapping (see the keymap event).
+    ///
+    /// If this event produces a change in modifiers, then the resulting
+    /// wl_keyboard.modifiers event must be sent after this event.
+    ///
+    /// In the wl_keyboard logical state, this event adds the key to the keys
+    /// currently logically down (if the state argument is pressed) or removes
+    /// the key from the keys currently logically down (if the state argument is
+    /// released). The compositor must not send this event if the wl_keyboard
+    /// did not have an active surface immediately before this event. The
+    /// compositor must not send this event if state is pressed (resp. released)
+    /// and the key was already logically down (resp. was not logically down)
+    /// immediately before this event.
+    ///
+    /// Since version 10, compositors may send key events with the "repeated"
+    /// key state when a wl_keyboard.repeat_info event with a rate argument of
+    /// 0 has been received. This allows the compositor to take over the
+    /// responsibility of key repetition.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the key event
+    /// - `time`: timestamp with millisecond granularity
+    /// - `key`: key that produced the event
+    /// - `state`: physical state of the key
+    #[inline]
+    pub fn send_key(
+        &self,
+        serial: u32,
+        time: u32,
+        key: u32,
+        state: MetaWlKeyboardKeyState,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+        ) = (
+            serial,
+            time,
+            key,
+            state,
+        );
+        let core = self.core();
+        let client = core.client.borrow();
+        let Some(client) = &*client else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *client.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            core.client_obj_id.get().unwrap_or(0),
+            3,
+            arg0,
+            arg1,
+            arg2,
+            arg3.0,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the modifiers message is available.
+    #[allow(dead_code)]
+    pub const MSG__MODIFIERS__SINCE: u32 = 1;
+
+    /// modifier and group state
+    ///
+    /// Notifies clients that the modifier and/or group state has
+    /// changed, and it should update its local state.
+    ///
+    /// The compositor may send this event without a surface of the client
+    /// having keyboard focus, for example to tie modifier information to
+    /// pointer focus instead. If a modifier event with pressed modifiers is sent
+    /// without a prior enter event, the client can assume the modifier state is
+    /// valid until it receives the next wl_keyboard.modifiers event. In order to
+    /// reset the modifier state again, the compositor can send a
+    /// wl_keyboard.modifiers event with no pressed modifiers.
+    ///
+    /// In the wl_keyboard logical state, this event updates the modifiers and
+    /// group.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the modifiers event
+    /// - `mods_depressed`: depressed modifiers
+    /// - `mods_latched`: latched modifiers
+    /// - `mods_locked`: locked modifiers
+    /// - `group`: keyboard layout
+    #[inline]
+    pub fn send_modifiers(
+        &self,
+        serial: u32,
+        mods_depressed: u32,
+        mods_latched: u32,
+        mods_locked: u32,
+        group: u32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+            arg4,
+        ) = (
+            serial,
+            mods_depressed,
+            mods_latched,
+            mods_locked,
+            group,
+        );
+        let core = self.core();
+        let client = core.client.borrow();
+        let Some(client) = &*client else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *client.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            core.client_obj_id.get().unwrap_or(0),
+            4,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+            arg4,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the release message is available.
+    #[allow(dead_code)]
+    pub const MSG__RELEASE__SINCE: u32 = 3;
+
+    /// release the keyboard object
+    #[inline]
+    pub fn send_release(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            0,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the repeat_info message is available.
+    #[allow(dead_code)]
+    pub const MSG__REPEAT_INFO__SINCE: u32 = 4;
+
+    /// repeat rate and delay
+    ///
+    /// Informs the client about the keyboard's repeat rate and delay.
+    ///
+    /// This event is sent as soon as the wl_keyboard object has been created,
+    /// and is guaranteed to be received by the client before any key press
+    /// event.
+    ///
+    /// Negative values for either rate or delay are illegal. A rate of zero
+    /// will disable any repeating (regardless of the value of delay).
+    ///
+    /// This event can be sent later on as well with a new value if necessary,
+    /// so clients should continue listening for the event past the creation
+    /// of wl_keyboard.
+    ///
+    /// # Arguments
+    ///
+    /// - `rate`: the rate of repeating keys in characters per second
+    /// - `delay`: delay in milliseconds since key down until repeating starts
+    #[inline]
+    pub fn send_repeat_info(
+        &self,
+        rate: i32,
+        delay: i32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            rate,
+            delay,
+        );
+        let core = self.core();
+        let client = core.client.borrow();
+        let Some(client) = &*client else {
+            return Err(ObjectError);
+        };
+        let outgoing = &mut *client.outgoing.borrow_mut();
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            core.client_obj_id.get().unwrap_or(0),
+            5,
+            arg0 as u32,
+            arg1 as u32,
+        ]);
+        Ok(())
+    }
+}
+
+/// A message handler for [WlKeyboard] proxies.
+#[allow(dead_code)]
+pub trait MetaWlKeyboardMessageHandler {
+    /// keyboard mapping
+    ///
+    /// This event provides a file descriptor to the client which can be
+    /// memory-mapped in read-only mode to provide a keyboard mapping
+    /// description.
+    ///
+    /// From version 7 onwards, the fd must be mapped with MAP_PRIVATE by
+    /// the recipient, as MAP_SHARED may fail.
+    ///
+    /// # Arguments
+    ///
+    /// - `format`: keymap format
+    /// - `fd`: keymap file descriptor
+    /// - `size`: keymap size, in bytes
+    #[inline]
+    fn keymap(
+        &mut self,
+        _slf: &Rc<MetaWlKeyboard>,
+        format: MetaWlKeyboardKeymapFormat,
+        fd: &Rc<OwnedFd>,
+        size: u32,
+    ) {
+        let res = _slf.send_keymap(
+            format,
+            fd,
+            size,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wl_keyboard.keymap message: {}", Report::new(e));
+        }
+    }
+
+    /// enter event
+    ///
+    /// Notification that this seat's keyboard focus is on a certain
+    /// surface.
+    ///
+    /// The compositor must send the wl_keyboard.modifiers event after this
+    /// event.
+    ///
+    /// In the wl_keyboard logical state, this event sets the active surface to
+    /// the surface argument and the keys currently logically down to the keys
+    /// in the keys argument. The compositor must not send this event if the
+    /// wl_keyboard already had an active surface immediately before this event.
+    ///
+    /// Clients should not use the list of pressed keys to emulate key-press
+    /// events. The order of keys in the list is unspecified.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the enter event
+    /// - `surface`: surface gaining keyboard focus
+    /// - `keys`: the keys currently logically down
+    ///
+    /// All borrowed proxies passed to this function are guaranteed to be
+    /// immutable and non-null.
+    #[inline]
+    fn enter(
+        &mut self,
+        _slf: &Rc<MetaWlKeyboard>,
+        serial: u32,
+        surface: &Rc<MetaWlSurface>,
+        keys: &[u8],
+    ) {
+        if let Some(client_id) = _slf.core.client_id.get() {
+            if let Some(client_id_2) = surface.core().client_id.get() {
+                if client_id != client_id_2 {
+                    return;
+                }
+            }
+        }
+        let res = _slf.send_enter(
+            serial,
+            surface,
+            keys,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wl_keyboard.enter message: {}", Report::new(e));
+        }
+    }
+
+    /// leave event
+    ///
+    /// Notification that this seat's keyboard focus is no longer on
+    /// a certain surface.
+    ///
+    /// The leave notification is sent before the enter notification
+    /// for the new focus.
+    ///
+    /// In the wl_keyboard logical state, this event resets all values to their
+    /// defaults. The compositor must not send this event if the active surface
+    /// of the wl_keyboard was not equal to the surface argument immediately
+    /// before this event.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the leave event
+    /// - `surface`: surface that lost keyboard focus
+    ///
+    /// All borrowed proxies passed to this function are guaranteed to be
+    /// immutable and non-null.
+    #[inline]
+    fn leave(
+        &mut self,
+        _slf: &Rc<MetaWlKeyboard>,
+        serial: u32,
+        surface: &Rc<MetaWlSurface>,
+    ) {
+        if let Some(client_id) = _slf.core.client_id.get() {
+            if let Some(client_id_2) = surface.core().client_id.get() {
+                if client_id != client_id_2 {
+                    return;
+                }
+            }
+        }
+        let res = _slf.send_leave(
+            serial,
+            surface,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wl_keyboard.leave message: {}", Report::new(e));
+        }
+    }
+
+    /// key event
+    ///
+    /// A key was pressed or released.
+    /// The time argument is a timestamp with millisecond
+    /// granularity, with an undefined base.
+    ///
+    /// The key is a platform-specific key code that can be interpreted
+    /// by feeding it to the keyboard mapping (see the keymap event).
+    ///
+    /// If this event produces a change in modifiers, then the resulting
+    /// wl_keyboard.modifiers event must be sent after this event.
+    ///
+    /// In the wl_keyboard logical state, this event adds the key to the keys
+    /// currently logically down (if the state argument is pressed) or removes
+    /// the key from the keys currently logically down (if the state argument is
+    /// released). The compositor must not send this event if the wl_keyboard
+    /// did not have an active surface immediately before this event. The
+    /// compositor must not send this event if state is pressed (resp. released)
+    /// and the key was already logically down (resp. was not logically down)
+    /// immediately before this event.
+    ///
+    /// Since version 10, compositors may send key events with the "repeated"
+    /// key state when a wl_keyboard.repeat_info event with a rate argument of
+    /// 0 has been received. This allows the compositor to take over the
+    /// responsibility of key repetition.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the key event
+    /// - `time`: timestamp with millisecond granularity
+    /// - `key`: key that produced the event
+    /// - `state`: physical state of the key
+    #[inline]
+    fn key(
+        &mut self,
+        _slf: &Rc<MetaWlKeyboard>,
+        serial: u32,
+        time: u32,
+        key: u32,
+        state: MetaWlKeyboardKeyState,
+    ) {
+        let res = _slf.send_key(
+            serial,
+            time,
+            key,
+            state,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wl_keyboard.key message: {}", Report::new(e));
+        }
+    }
+
+    /// modifier and group state
+    ///
+    /// Notifies clients that the modifier and/or group state has
+    /// changed, and it should update its local state.
+    ///
+    /// The compositor may send this event without a surface of the client
+    /// having keyboard focus, for example to tie modifier information to
+    /// pointer focus instead. If a modifier event with pressed modifiers is sent
+    /// without a prior enter event, the client can assume the modifier state is
+    /// valid until it receives the next wl_keyboard.modifiers event. In order to
+    /// reset the modifier state again, the compositor can send a
+    /// wl_keyboard.modifiers event with no pressed modifiers.
+    ///
+    /// In the wl_keyboard logical state, this event updates the modifiers and
+    /// group.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the modifiers event
+    /// - `mods_depressed`: depressed modifiers
+    /// - `mods_latched`: latched modifiers
+    /// - `mods_locked`: locked modifiers
+    /// - `group`: keyboard layout
+    #[inline]
+    fn modifiers(
+        &mut self,
+        _slf: &Rc<MetaWlKeyboard>,
+        serial: u32,
+        mods_depressed: u32,
+        mods_latched: u32,
+        mods_locked: u32,
+        group: u32,
+    ) {
+        let res = _slf.send_modifiers(
+            serial,
+            mods_depressed,
+            mods_latched,
+            mods_locked,
+            group,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wl_keyboard.modifiers message: {}", Report::new(e));
+        }
+    }
+
+    /// release the keyboard object
+    #[inline]
+    fn release(
+        &mut self,
+        _slf: &Rc<MetaWlKeyboard>,
+    ) {
+        let res = _slf.send_release(
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wl_keyboard.release message: {}", Report::new(e));
+        }
+    }
+
+    /// repeat rate and delay
+    ///
+    /// Informs the client about the keyboard's repeat rate and delay.
+    ///
+    /// This event is sent as soon as the wl_keyboard object has been created,
+    /// and is guaranteed to be received by the client before any key press
+    /// event.
+    ///
+    /// Negative values for either rate or delay are illegal. A rate of zero
+    /// will disable any repeating (regardless of the value of delay).
+    ///
+    /// This event can be sent later on as well with a new value if necessary,
+    /// so clients should continue listening for the event past the creation
+    /// of wl_keyboard.
+    ///
+    /// # Arguments
+    ///
+    /// - `rate`: the rate of repeating keys in characters per second
+    /// - `delay`: delay in milliseconds since key down until repeating starts
+    #[inline]
+    fn repeat_info(
+        &mut self,
+        _slf: &Rc<MetaWlKeyboard>,
+        rate: i32,
+        delay: i32,
+    ) {
+        let res = _slf.send_repeat_info(
+            rate,
+            delay,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wl_keyboard.repeat_info message: {}", Report::new(e));
+        }
+    }
+}
+
+impl Proxy for MetaWlKeyboard {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+        let handler = &mut *self.handler.borrow();
+        match msg[1] & 0xffff {
+            0 => {
+                if let Some(handler) = handler {
+                    (**handler).release(&self);
+                } else {
+                    DefaultMessageHandler.release(&self);
+                }
+            }
+            _ => {
+                let _ = client;
+                let _ = msg;
+                let _ = fds;
+                let _ = handler;
+                return Err(ObjectError);
+            }
+        }
+        Ok(())
+    }
+
+    fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+        let handler = &mut *self.handler.borrow();
+        match msg[1] & 0xffff {
+            0 => {
+                let [
+                    arg0,
+                    arg2,
+                ] = msg[2..] else {
+                    return Err(ObjectError);
+                };
+                let Some(arg1) = fds.pop_front() else {
+                    return Err(ObjectError);
+                };
+                let arg0 = MetaWlKeyboardKeymapFormat(arg0);
+                let arg1 = &arg1;
+                if let Some(handler) = handler {
+                    (**handler).keymap(&self, arg0, arg1, arg2);
+                } else {
+                    DefaultMessageHandler.keymap(&self, arg0, arg1, arg2);
+                }
+            }
+            1 => {
+                let mut offset = 2;
+                let Some(&arg0) = msg.get(offset) else {
+                    return Err(ObjectError);
+                };
+                offset += 1;
+                let Some(&arg1) = msg.get(offset) else {
+                    return Err(ObjectError);
+                };
+                offset += 1;
+                let arg2 = {
+                    let Some(&len) = msg.get(offset) else {
+                        return Err(ObjectError);
+                    };
+                    offset += 1;
+                    let len = len as usize;
+                    let words = ((len as u64 + 3) / 4) as usize;
+                    if offset + words > msg.len() {
+                        return Err(ObjectError);
+                    }
+                    let start = offset;
+                    offset += words;
+                    &uapi::as_bytes(&msg[start..])[..len]
+                };
+                if offset != msg.len() {
+                    return Err(ObjectError);
+                }
+                let Some(arg1) = self.core.state.lookup(arg1) else {
+                    return Err(ObjectError);
+                };
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                    return Err(ObjectError);
+                };
+                let arg1 = &arg1;
+                if let Some(handler) = handler {
+                    (**handler).enter(&self, arg0, arg1, arg2);
+                } else {
+                    DefaultMessageHandler.enter(&self, arg0, arg1, arg2);
+                }
+            }
+            2 => {
+                let [
+                    arg0,
+                    arg1,
+                ] = msg[2..] else {
+                    return Err(ObjectError);
+                };
+                let Some(arg1) = self.core.state.lookup(arg1) else {
+                    return Err(ObjectError);
+                };
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                    return Err(ObjectError);
+                };
+                let arg1 = &arg1;
+                if let Some(handler) = handler {
+                    (**handler).leave(&self, arg0, arg1);
+                } else {
+                    DefaultMessageHandler.leave(&self, arg0, arg1);
+                }
+            }
+            3 => {
+                let [
+                    arg0,
+                    arg1,
+                    arg2,
+                    arg3,
+                ] = msg[2..] else {
+                    return Err(ObjectError);
+                };
+                let arg3 = MetaWlKeyboardKeyState(arg3);
+                if let Some(handler) = handler {
+                    (**handler).key(&self, arg0, arg1, arg2, arg3);
+                } else {
+                    DefaultMessageHandler.key(&self, arg0, arg1, arg2, arg3);
+                }
+            }
+            4 => {
+                let [
+                    arg0,
+                    arg1,
+                    arg2,
+                    arg3,
+                    arg4,
+                ] = msg[2..] else {
+                    return Err(ObjectError);
+                };
+                if let Some(handler) = handler {
+                    (**handler).modifiers(&self, arg0, arg1, arg2, arg3, arg4);
+                } else {
+                    DefaultMessageHandler.modifiers(&self, arg0, arg1, arg2, arg3, arg4);
+                }
+            }
+            5 => {
+                let [
+                    arg0,
+                    arg1,
+                ] = msg[2..] else {
+                    return Err(ObjectError);
+                };
+                let arg0 = arg0 as i32;
+                let arg1 = arg1 as i32;
+                if let Some(handler) = handler {
+                    (**handler).repeat_info(&self, arg0, arg1);
+                } else {
+                    DefaultMessageHandler.repeat_info(&self, arg0, arg1);
+                }
+            }
+            _ => {
+                let _ = msg;
+                let _ = fds;
+                let _ = handler;
+                return Err(ObjectError);
+            }
+        }
+        Ok(())
+    }
+}
+
+impl MetaWlKeyboard {
+    /// Since when the keymap_format.no_keymap enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__KEYMAP_FORMAT_NO_KEYMAP__SINCE: u32 = 1;
+    /// Since when the keymap_format.xkb_v1 enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__KEYMAP_FORMAT_XKB_V1__SINCE: u32 = 1;
+
+    /// Since when the key_state.released enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__KEY_STATE_RELEASED__SINCE: u32 = 1;
+    /// Since when the key_state.pressed enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__KEY_STATE_PRESSED__SINCE: u32 = 1;
+    /// Since when the key_state.repeated enum variant is available.
+    #[allow(dead_code)]
+    pub const ENM__KEY_STATE_REPEATED__SINCE: u32 = 10;
+}
+
+/// keyboard mapping format
+///
+/// This specifies the format of the keymap provided to the
+/// client with the wl_keyboard.keymap event.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[allow(dead_code)]
+pub struct MetaWlKeyboardKeymapFormat(pub u32);
+
+impl MetaWlKeyboardKeymapFormat {
+    /// no keymap; client must understand how to interpret the raw keycode
+    #[allow(dead_code)]
+    pub const NO_KEYMAP: Self = Self(0);
+
+    /// libxkbcommon compatible, null-terminated string; to determine the xkb keycode, clients must add 8 to the key event keycode
+    #[allow(dead_code)]
+    pub const XKB_V1: Self = Self(1);
+}
+
+impl Debug for MetaWlKeyboardKeymapFormat {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match *self {
+            Self::NO_KEYMAP => "NO_KEYMAP",
+            Self::XKB_V1 => "XKB_V1",
+            _ => return Debug::fmt(&self.0, f),
+        };
+        f.write_str(name)
+    }
+}
+
+/// physical key state
+///
+/// Describes the physical state of a key that produced the key event.
+///
+/// Since version 10, the key can be in a "repeated" pseudo-state which
+/// means the same as "pressed", but is used to signal repetition in the
+/// key event.
+///
+/// The key may only enter the repeated state after entering the pressed
+/// state and before entering the released state. This event may be
+/// generated multiple times while the key is down.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[allow(dead_code)]
+pub struct MetaWlKeyboardKeyState(pub u32);
+
+impl MetaWlKeyboardKeyState {
+    /// key is not pressed
+    #[allow(dead_code)]
+    pub const RELEASED: Self = Self(0);
+
+    /// key is pressed
+    #[allow(dead_code)]
+    pub const PRESSED: Self = Self(1);
+
+    /// key was repeated
+    #[allow(dead_code)]
+    pub const REPEATED: Self = Self(2);
+}
+
+impl Debug for MetaWlKeyboardKeyState {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match *self {
+            Self::RELEASED => "RELEASED",
+            Self::PRESSED => "PRESSED",
+            Self::REPEATED => "REPEATED",
+            _ => return Debug::fmt(&self.0, f),
+        };
+        f.write_str(name)
+    }
+}
