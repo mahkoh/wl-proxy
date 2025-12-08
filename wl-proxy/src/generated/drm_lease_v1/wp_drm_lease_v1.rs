@@ -81,8 +81,10 @@ impl MetaWpDrmLeaseV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_drm_lease_v1#{}.lease_fd(leased_fd: {})", client.endpoint.id, id, arg0.as_raw_fd());
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -92,7 +94,7 @@ impl MetaWpDrmLeaseV1 {
         let mut fmt = outgoing.formatter();
         fmt.fds.push_back(arg0.clone());
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
         ]);
         Ok(())
@@ -121,8 +123,10 @@ impl MetaWpDrmLeaseV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_drm_lease_v1#{}.finished()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -131,7 +135,7 @@ impl MetaWpDrmLeaseV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             1,
         ]);
         Ok(())
@@ -156,8 +160,9 @@ impl MetaWpDrmLeaseV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wp_drm_lease_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -262,6 +267,10 @@ impl Proxy for MetaWpDrmLeaseV1 {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
             0 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> wp_drm_lease_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -269,12 +278,12 @@ impl Proxy for MetaWpDrmLeaseV1 {
                 }
                 self.core.handle_client_destroy();
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -284,10 +293,14 @@ impl Proxy for MetaWpDrmLeaseV1 {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
             0 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
                 let Some(arg0) = fds.pop_front() else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingFd("leased_fd"));
                 };
                 let arg0 = &arg0;
+                eprintln!("server      -> wp_drm_lease_v1#{}.lease_fd(leased_fd: {})", msg[0], arg0.as_raw_fd());
                 if let Some(handler) = handler {
                     (**handler).lease_fd(&self, arg0);
                 } else {
@@ -295,20 +308,41 @@ impl Proxy for MetaWpDrmLeaseV1 {
                 }
             }
             1 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("server      -> wp_drm_lease_v1#{}.finished()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).finished(&self);
                 } else {
                     DefaultMessageHandler.finished(&self);
                 }
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "destroy",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "lease_fd",
+            1 => "finished",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

@@ -55,8 +55,9 @@ impl MetaZwpRelativePointerV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= zwp_relative_pointer_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -145,8 +146,10 @@ impl MetaZwpRelativePointerV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= zwp_relative_pointer_v1#{}.relative_motion(utime_hi: {}, utime_lo: {}, dx: {}, dy: {}, dx_unaccel: {}, dy_unaccel: {})", client.endpoint.id, id, arg0, arg1, arg2, arg3, arg4, arg5);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -155,7 +158,7 @@ impl MetaZwpRelativePointerV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
             arg0,
             arg1,
@@ -259,6 +262,10 @@ impl Proxy for MetaZwpRelativePointerV1 {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
             0 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> zwp_relative_pointer_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -266,12 +273,12 @@ impl Proxy for MetaZwpRelativePointerV1 {
                 }
                 self.core.handle_client_destroy();
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -289,26 +296,43 @@ impl Proxy for MetaZwpRelativePointerV1 {
                     arg4,
                     arg5,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 32));
                 };
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 let arg3 = Fixed::from_wire(arg3 as i32);
                 let arg4 = Fixed::from_wire(arg4 as i32);
                 let arg5 = Fixed::from_wire(arg5 as i32);
+                eprintln!("server      -> zwp_relative_pointer_v1#{}.relative_motion(utime_hi: {}, utime_lo: {}, dx: {}, dy: {}, dx_unaccel: {}, dy_unaccel: {})", msg[0], arg0, arg1, arg2, arg3, arg4, arg5);
                 if let Some(handler) = handler {
                     (**handler).relative_motion(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 } else {
                     DefaultMessageHandler.relative_motion(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 }
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "destroy",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "relative_motion",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

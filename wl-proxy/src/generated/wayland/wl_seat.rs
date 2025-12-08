@@ -92,8 +92,10 @@ impl MetaWlSeat {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_seat#{}.capabilities(capabilities: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -102,7 +104,7 @@ impl MetaWlSeat {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
             arg0.0,
         ]);
@@ -137,9 +139,12 @@ impl MetaWlSeat {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        arg0.generate_server_id(arg0_obj.clone())?;
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("id", e))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        eprintln!("server      <= wl_seat#{}.get_pointer(id: wl_pointer#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -150,7 +155,7 @@ impl MetaWlSeat {
         fmt.words([
             id,
             0,
-            arg0.server_obj_id.get().unwrap_or(0),
+            arg0_id,
         ]);
         Ok(())
     }
@@ -183,9 +188,12 @@ impl MetaWlSeat {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        arg0.generate_server_id(arg0_obj.clone())?;
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("id", e))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        eprintln!("server      <= wl_seat#{}.get_keyboard(id: wl_keyboard#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -196,7 +204,7 @@ impl MetaWlSeat {
         fmt.words([
             id,
             1,
-            arg0.server_obj_id.get().unwrap_or(0),
+            arg0_id,
         ]);
         Ok(())
     }
@@ -229,9 +237,12 @@ impl MetaWlSeat {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        arg0.generate_server_id(arg0_obj.clone())?;
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("id", e))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        eprintln!("server      <= wl_seat#{}.get_touch(id: wl_touch#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -242,7 +253,7 @@ impl MetaWlSeat {
         fmt.words([
             id,
             2,
-            arg0.server_obj_id.get().unwrap_or(0),
+            arg0_id,
         ]);
         Ok(())
     }
@@ -286,8 +297,10 @@ impl MetaWlSeat {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_seat#{}.name(name: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -296,7 +309,7 @@ impl MetaWlSeat {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             1,
         ]);
         fmt.string(arg0);
@@ -317,8 +330,9 @@ impl MetaWlSeat {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wl_seat#{}.release()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -532,11 +546,13 @@ impl Proxy for MetaWlSeat {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("client#{:04} -> wl_seat#{}.get_pointer(id: wl_pointer#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWlPointer::new(&self.core.state, self.core.version);
-                arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).get_pointer(&self, arg0);
@@ -548,11 +564,13 @@ impl Proxy for MetaWlSeat {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("client#{:04} -> wl_seat#{}.get_keyboard(id: wl_keyboard#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWlKeyboard::new(&self.core.state, self.core.version);
-                arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).get_keyboard(&self, arg0);
@@ -564,11 +582,13 @@ impl Proxy for MetaWlSeat {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("client#{:04} -> wl_seat#{}.get_touch(id: wl_touch#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWlTouch::new(&self.core.state, self.core.version);
-                arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).get_touch(&self, arg0);
@@ -577,6 +597,10 @@ impl Proxy for MetaWlSeat {
                 }
             }
             3 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> wl_seat#{}.release()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
@@ -584,12 +608,12 @@ impl Proxy for MetaWlSeat {
                 }
                 self.core.handle_client_destroy();
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -602,9 +626,10 @@ impl Proxy for MetaWlSeat {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWlSeatCapability(arg0);
+                eprintln!("server      -> wl_seat#{}.capabilities(capabilities: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).capabilities(&self, arg0);
                 } else {
@@ -615,43 +640,64 @@ impl Proxy for MetaWlSeat {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("name"));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("name"));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::NullString("name"));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError);
+                            return Err(ObjectError::NonUtf8("name"));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError);
+                    return Err(ObjectError::TrailingBytes);
                 }
+                eprintln!("server      -> wl_seat#{}.name(name: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).name(&self, arg0);
                 } else {
                     DefaultMessageHandler.name(&self, arg0);
                 }
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "get_pointer",
+            1 => "get_keyboard",
+            2 => "get_touch",
+            3 => "release",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "capabilities",
+            1 => "name",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

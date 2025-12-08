@@ -55,8 +55,9 @@ impl MetaXdgToplevelDragV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= xdg_toplevel_drag_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -118,12 +119,13 @@ impl MetaXdgToplevelDragV1 {
         let arg0 = arg0.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg0 = match arg0.server_obj_id.get() {
-            None => return Err(ObjectError),
+        let arg0_id = match arg0.server_obj_id.get() {
+            None => return Err(ObjectError::ArgNoServerId("toplevel")),
             Some(id) => id,
         };
+        eprintln!("server      <= xdg_toplevel_drag_v1#{}.attach(toplevel: xdg_toplevel#{}, x_offset: {}, y_offset: {})", id, arg0_id, arg1, arg2);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -134,7 +136,7 @@ impl MetaXdgToplevelDragV1 {
         fmt.words([
             id,
             1,
-            arg0,
+            arg0_id,
             arg1 as u32,
             arg2 as u32,
         ]);
@@ -217,6 +219,10 @@ impl Proxy for MetaXdgToplevelDragV1 {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
             0 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> xdg_toplevel_drag_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -230,29 +236,32 @@ impl Proxy for MetaXdgToplevelDragV1 {
                     arg1,
                     arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
-                let Some(arg0) = client.endpoint.lookup(arg0) else {
-                    return Err(ObjectError);
-                };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaXdgToplevel>() else {
-                    return Err(ObjectError);
-                };
-                let arg0 = &arg0;
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
+                eprintln!("client#{:04} -> xdg_toplevel_drag_v1#{}.attach(toplevel: xdg_toplevel#{}, x_offset: {}, y_offset: {})", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                let arg0_id = arg0;
+                let Some(arg0) = client.endpoint.lookup(arg0_id) else {
+                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
+                };
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaXdgToplevel>() else {
+                    let o = client.endpoint.lookup(arg0_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("toplevel", o.core().interface, ProxyInterface::XdgToplevel));
+                };
+                let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).attach(&self, arg0, arg1, arg2);
                 } else {
                     DefaultMessageHandler.attach(&self, arg0, arg1, arg2);
                 }
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -261,13 +270,27 @@ impl Proxy for MetaXdgToplevelDragV1 {
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "destroy",
+            1 => "attach",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let _ = id;
+        None
     }
 }
 

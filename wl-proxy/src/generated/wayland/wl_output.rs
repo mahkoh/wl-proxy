@@ -117,8 +117,10 @@ impl MetaWlOutput {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_output#{}.geometry(x: {}, y: {}, physical_width: {}, physical_height: {}, subpixel: {:?}, make: {:?}, model: {:?}, transform: {:?})", client.endpoint.id, id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -127,7 +129,7 @@ impl MetaWlOutput {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
             arg0 as u32,
             arg1 as u32,
@@ -211,8 +213,10 @@ impl MetaWlOutput {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_output#{}.mode(flags: {:?}, width: {}, height: {}, refresh: {})", client.endpoint.id, id, arg0, arg1, arg2, arg3);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -221,7 +225,7 @@ impl MetaWlOutput {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             1,
             arg0.0,
             arg1 as u32,
@@ -249,8 +253,10 @@ impl MetaWlOutput {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_output#{}.done()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -259,7 +265,7 @@ impl MetaWlOutput {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             2,
         ]);
         Ok(())
@@ -306,8 +312,10 @@ impl MetaWlOutput {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_output#{}.scale(factor: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -316,7 +324,7 @@ impl MetaWlOutput {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             3,
             arg0 as u32,
         ]);
@@ -337,8 +345,9 @@ impl MetaWlOutput {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wl_output#{}.release()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -405,8 +414,10 @@ impl MetaWlOutput {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_output#{}.name(name: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -415,7 +426,7 @@ impl MetaWlOutput {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             4,
         ]);
         fmt.string(arg0);
@@ -459,8 +470,10 @@ impl MetaWlOutput {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_output#{}.description(description: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -469,7 +482,7 @@ impl MetaWlOutput {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             5,
         ]);
         fmt.string(arg0);
@@ -768,6 +781,10 @@ impl Proxy for MetaWlOutput {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
             0 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> wl_output#{}.release()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
@@ -775,12 +792,12 @@ impl Proxy for MetaWlOutput {
                 }
                 self.core.handle_client_destroy();
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -792,75 +809,75 @@ impl Proxy for MetaWlOutput {
             0 => {
                 let mut offset = 2;
                 let Some(&arg0) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("x"));
                 };
                 offset += 1;
                 let Some(&arg1) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("y"));
                 };
                 offset += 1;
                 let Some(&arg2) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("physical_width"));
                 };
                 offset += 1;
                 let Some(&arg3) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("physical_height"));
                 };
                 offset += 1;
                 let Some(&arg4) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("subpixel"));
                 };
                 offset += 1;
                 let arg5 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("make"));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("make"));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::NullString("make"));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError);
+                            return Err(ObjectError::NonUtf8("make"));
                         };
                         s
                     }
                 };
                 let arg6 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("model"));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("model"));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::NullString("model"));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError);
+                            return Err(ObjectError::NonUtf8("model"));
                         };
                         s
                     }
                 };
                 let Some(&arg7) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("transform"));
                 };
                 offset += 1;
                 if offset != msg.len() {
-                    return Err(ObjectError);
+                    return Err(ObjectError::TrailingBytes);
                 }
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
@@ -868,6 +885,7 @@ impl Proxy for MetaWlOutput {
                 let arg3 = arg3 as i32;
                 let arg4 = MetaWlOutputSubpixel(arg4);
                 let arg7 = MetaWlOutputTransform(arg7);
+                eprintln!("server      -> wl_output#{}.geometry(x: {}, y: {}, physical_width: {}, physical_height: {}, subpixel: {:?}, make: {:?}, model: {:?}, transform: {:?})", msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 if let Some(handler) = handler {
                     (**handler).geometry(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 } else {
@@ -881,12 +899,13 @@ impl Proxy for MetaWlOutput {
                     arg2,
                     arg3,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
                 let arg0 = MetaWlOutputMode(arg0);
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
+                eprintln!("server      -> wl_output#{}.mode(flags: {:?}, width: {}, height: {}, refresh: {})", msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).mode(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -894,6 +913,10 @@ impl Proxy for MetaWlOutput {
                 }
             }
             2 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("server      -> wl_output#{}.done()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).done(&self);
                 } else {
@@ -904,9 +927,10 @@ impl Proxy for MetaWlOutput {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = arg0 as i32;
+                eprintln!("server      -> wl_output#{}.scale(factor: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).scale(&self, arg0);
                 } else {
@@ -917,29 +941,30 @@ impl Proxy for MetaWlOutput {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("name"));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("name"));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::NullString("name"));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError);
+                            return Err(ObjectError::NonUtf8("name"));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError);
+                    return Err(ObjectError::TrailingBytes);
                 }
+                eprintln!("server      -> wl_output#{}.name(name: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).name(&self, arg0);
                 } else {
@@ -950,43 +975,65 @@ impl Proxy for MetaWlOutput {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("description"));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("description"));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::NullString("description"));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError);
+                            return Err(ObjectError::NonUtf8("description"));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError);
+                    return Err(ObjectError::TrailingBytes);
                 }
+                eprintln!("server      -> wl_output#{}.description(description: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).description(&self, arg0);
                 } else {
                     DefaultMessageHandler.description(&self, arg0);
                 }
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "release",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "geometry",
+            1 => "mode",
+            2 => "done",
+            3 => "scale",
+            4 => "name",
+            5 => "description",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

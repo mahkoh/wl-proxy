@@ -75,8 +75,9 @@ impl MetaXdgToplevel {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= xdg_toplevel#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -135,15 +136,16 @@ impl MetaXdgToplevel {
         let arg0 = arg0.map(|a| a.core());
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg0 = match arg0 {
+        let arg0_id = match arg0 {
             None => 0,
             Some(arg0) => match arg0.server_obj_id.get() {
-                None => return Err(ObjectError),
+                None => return Err(ObjectError::ArgNoServerId("parent")),
                 Some(id) => id,
             },
         };
+        eprintln!("server      <= xdg_toplevel#{}.set_parent(parent: xdg_toplevel#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -154,7 +156,7 @@ impl MetaXdgToplevel {
         fmt.words([
             id,
             1,
-            arg0,
+            arg0_id,
         ]);
         Ok(())
     }
@@ -188,8 +190,9 @@ impl MetaXdgToplevel {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= xdg_toplevel#{}.set_title(title: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -250,8 +253,9 @@ impl MetaXdgToplevel {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= xdg_toplevel#{}.set_app_id(app_id: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -314,12 +318,13 @@ impl MetaXdgToplevel {
         let arg0 = arg0.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg0 = match arg0.server_obj_id.get() {
-            None => return Err(ObjectError),
+        let arg0_id = match arg0.server_obj_id.get() {
+            None => return Err(ObjectError::ArgNoServerId("seat")),
             Some(id) => id,
         };
+        eprintln!("server      <= xdg_toplevel#{}.show_window_menu(seat: wl_seat#{}, serial: {}, x: {}, y: {})", id, arg0_id, arg1, arg2, arg3);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -330,7 +335,7 @@ impl MetaXdgToplevel {
         fmt.words([
             id,
             4,
-            arg0,
+            arg0_id,
             arg1,
             arg2 as u32,
             arg3 as u32,
@@ -381,12 +386,13 @@ impl MetaXdgToplevel {
         let arg0 = arg0.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg0 = match arg0.server_obj_id.get() {
-            None => return Err(ObjectError),
+        let arg0_id = match arg0.server_obj_id.get() {
+            None => return Err(ObjectError::ArgNoServerId("seat")),
             Some(id) => id,
         };
+        eprintln!("server      <= xdg_toplevel#{}.move(seat: wl_seat#{}, serial: {})", id, arg0_id, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -397,7 +403,7 @@ impl MetaXdgToplevel {
         fmt.words([
             id,
             5,
-            arg0,
+            arg0_id,
             arg1,
         ]);
         Ok(())
@@ -465,12 +471,13 @@ impl MetaXdgToplevel {
         let arg0 = arg0.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg0 = match arg0.server_obj_id.get() {
-            None => return Err(ObjectError),
+        let arg0_id = match arg0.server_obj_id.get() {
+            None => return Err(ObjectError::ArgNoServerId("seat")),
             Some(id) => id,
         };
+        eprintln!("server      <= xdg_toplevel#{}.resize(seat: wl_seat#{}, serial: {}, edges: {:?})", id, arg0_id, arg1, arg2);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -481,7 +488,7 @@ impl MetaXdgToplevel {
         fmt.words([
             id,
             6,
-            arg0,
+            arg0_id,
             arg1,
             arg2.0,
         ]);
@@ -547,8 +554,9 @@ impl MetaXdgToplevel {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= xdg_toplevel#{}.set_max_size(width: {}, height: {})", id, arg0, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -624,8 +632,9 @@ impl MetaXdgToplevel {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= xdg_toplevel#{}.set_min_size(width: {}, height: {})", id, arg0, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -673,8 +682,9 @@ impl MetaXdgToplevel {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= xdg_toplevel#{}.set_maximized()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -722,8 +732,9 @@ impl MetaXdgToplevel {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= xdg_toplevel#{}.unset_maximized()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -784,15 +795,16 @@ impl MetaXdgToplevel {
         let arg0 = arg0.map(|a| a.core());
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg0 = match arg0 {
+        let arg0_id = match arg0 {
             None => 0,
             Some(arg0) => match arg0.server_obj_id.get() {
-                None => return Err(ObjectError),
+                None => return Err(ObjectError::ArgNoServerId("output")),
                 Some(id) => id,
             },
         };
+        eprintln!("server      <= xdg_toplevel#{}.set_fullscreen(output: wl_output#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -803,7 +815,7 @@ impl MetaXdgToplevel {
         fmt.words([
             id,
             11,
-            arg0,
+            arg0_id,
         ]);
         Ok(())
     }
@@ -837,8 +849,9 @@ impl MetaXdgToplevel {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= xdg_toplevel#{}.unset_fullscreen()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -873,8 +886,9 @@ impl MetaXdgToplevel {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= xdg_toplevel#{}.set_minimized()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -939,8 +953,10 @@ impl MetaXdgToplevel {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= xdg_toplevel#{}.configure(width: {}, height: {}, states: {})", client.endpoint.id, id, arg0, arg1, debug_array(arg2));
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -949,7 +965,7 @@ impl MetaXdgToplevel {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
             arg0 as u32,
             arg1 as u32,
@@ -979,8 +995,10 @@ impl MetaXdgToplevel {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= xdg_toplevel#{}.close()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -989,7 +1007,7 @@ impl MetaXdgToplevel {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             1,
         ]);
         Ok(())
@@ -1037,8 +1055,10 @@ impl MetaXdgToplevel {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= xdg_toplevel#{}.configure_bounds(width: {}, height: {})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -1047,7 +1067,7 @@ impl MetaXdgToplevel {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             2,
             arg0 as u32,
             arg1 as u32,
@@ -1098,8 +1118,10 @@ impl MetaXdgToplevel {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= xdg_toplevel#{}.wm_capabilities(capabilities: {})", client.endpoint.id, id, debug_array(arg0));
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -1108,7 +1130,7 @@ impl MetaXdgToplevel {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             3,
         ]);
         fmt.array(arg0);
@@ -1828,6 +1850,10 @@ impl Proxy for MetaXdgToplevel {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
             0 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> xdg_toplevel#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -1839,16 +1865,19 @@ impl Proxy for MetaXdgToplevel {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("client#{:04} -> xdg_toplevel#{}.set_parent(parent: xdg_toplevel#{})", client.endpoint.id, msg[0], arg0);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
-                    let Some(arg0) = client.endpoint.lookup(arg0) else {
-                        return Err(ObjectError);
+                    let arg0_id = arg0;
+                    let Some(arg0) = client.endpoint.lookup(arg0_id) else {
+                        return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaXdgToplevel>() else {
-                        return Err(ObjectError);
+                        let o = client.endpoint.lookup(arg0_id).unwrap();
+                        return Err(ObjectError::WrongObjectType("parent", o.core().interface, ProxyInterface::XdgToplevel));
                     };
                     Some(arg0)
                 };
@@ -1863,29 +1892,30 @@ impl Proxy for MetaXdgToplevel {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("title"));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("title"));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::NullString("title"));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError);
+                            return Err(ObjectError::NonUtf8("title"));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError);
+                    return Err(ObjectError::TrailingBytes);
                 }
+                eprintln!("client#{:04} -> xdg_toplevel#{}.set_title(title: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_title(&self, arg0);
                 } else {
@@ -1896,29 +1926,30 @@ impl Proxy for MetaXdgToplevel {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("app_id"));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("app_id"));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::NullString("app_id"));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError);
+                            return Err(ObjectError::NonUtf8("app_id"));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError);
+                    return Err(ObjectError::TrailingBytes);
                 }
+                eprintln!("client#{:04} -> xdg_toplevel#{}.set_app_id(app_id: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_app_id(&self, arg0);
                 } else {
@@ -1932,17 +1963,20 @@ impl Proxy for MetaXdgToplevel {
                     arg2,
                     arg3,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
-                let Some(arg0) = client.endpoint.lookup(arg0) else {
-                    return Err(ObjectError);
-                };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSeat>() else {
-                    return Err(ObjectError);
-                };
-                let arg0 = &arg0;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
+                eprintln!("client#{:04} -> xdg_toplevel#{}.show_window_menu(seat: wl_seat#{}, serial: {}, x: {}, y: {})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
+                let arg0_id = arg0;
+                let Some(arg0) = client.endpoint.lookup(arg0_id) else {
+                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
+                };
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSeat>() else {
+                    let o = client.endpoint.lookup(arg0_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                };
+                let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).show_window_menu(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -1954,13 +1988,16 @@ impl Proxy for MetaXdgToplevel {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                let Some(arg0) = client.endpoint.lookup(arg0) else {
-                    return Err(ObjectError);
+                eprintln!("client#{:04} -> xdg_toplevel#{}.move(seat: wl_seat#{}, serial: {})", client.endpoint.id, msg[0], arg0, arg1);
+                let arg0_id = arg0;
+                let Some(arg0) = client.endpoint.lookup(arg0_id) else {
+                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSeat>() else {
-                    return Err(ObjectError);
+                    let o = client.endpoint.lookup(arg0_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1975,16 +2012,19 @@ impl Proxy for MetaXdgToplevel {
                     arg1,
                     arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
-                let Some(arg0) = client.endpoint.lookup(arg0) else {
-                    return Err(ObjectError);
+                let arg2 = MetaXdgToplevelResizeEdge(arg2);
+                eprintln!("client#{:04} -> xdg_toplevel#{}.resize(seat: wl_seat#{}, serial: {}, edges: {:?})", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                let arg0_id = arg0;
+                let Some(arg0) = client.endpoint.lookup(arg0_id) else {
+                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSeat>() else {
-                    return Err(ObjectError);
+                    let o = client.endpoint.lookup(arg0_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
                 };
                 let arg0 = &arg0;
-                let arg2 = MetaXdgToplevelResizeEdge(arg2);
                 if let Some(handler) = handler {
                     (**handler).resize(&self, arg0, arg1, arg2);
                 } else {
@@ -1996,10 +2036,11 @@ impl Proxy for MetaXdgToplevel {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
+                eprintln!("client#{:04} -> xdg_toplevel#{}.set_max_size(width: {}, height: {})", client.endpoint.id, msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).set_max_size(&self, arg0, arg1);
                 } else {
@@ -2011,10 +2052,11 @@ impl Proxy for MetaXdgToplevel {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
+                eprintln!("client#{:04} -> xdg_toplevel#{}.set_min_size(width: {}, height: {})", client.endpoint.id, msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).set_min_size(&self, arg0, arg1);
                 } else {
@@ -2022,6 +2064,10 @@ impl Proxy for MetaXdgToplevel {
                 }
             }
             9 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> xdg_toplevel#{}.set_maximized()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).set_maximized(&self);
                 } else {
@@ -2029,6 +2075,10 @@ impl Proxy for MetaXdgToplevel {
                 }
             }
             10 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> xdg_toplevel#{}.unset_maximized()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).unset_maximized(&self);
                 } else {
@@ -2039,16 +2089,19 @@ impl Proxy for MetaXdgToplevel {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("client#{:04} -> xdg_toplevel#{}.set_fullscreen(output: wl_output#{})", client.endpoint.id, msg[0], arg0);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
-                    let Some(arg0) = client.endpoint.lookup(arg0) else {
-                        return Err(ObjectError);
+                    let arg0_id = arg0;
+                    let Some(arg0) = client.endpoint.lookup(arg0_id) else {
+                        return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlOutput>() else {
-                        return Err(ObjectError);
+                        let o = client.endpoint.lookup(arg0_id).unwrap();
+                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
                     };
                     Some(arg0)
                 };
@@ -2060,6 +2113,10 @@ impl Proxy for MetaXdgToplevel {
                 }
             }
             12 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> xdg_toplevel#{}.unset_fullscreen()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).unset_fullscreen(&self);
                 } else {
@@ -2067,18 +2124,22 @@ impl Proxy for MetaXdgToplevel {
                 }
             }
             13 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> xdg_toplevel#{}.set_minimized()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).set_minimized(&self);
                 } else {
                     DefaultMessageHandler.set_minimized(&self);
                 }
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -2090,32 +2151,33 @@ impl Proxy for MetaXdgToplevel {
             0 => {
                 let mut offset = 2;
                 let Some(&arg0) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("width"));
                 };
                 offset += 1;
                 let Some(&arg1) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("height"));
                 };
                 offset += 1;
                 let arg2 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("states"));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("states"));
                     }
                     let start = offset;
                     offset += words;
                     &uapi::as_bytes(&msg[start..])[..len]
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError);
+                    return Err(ObjectError::TrailingBytes);
                 }
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
+                eprintln!("server      -> xdg_toplevel#{}.configure(width: {}, height: {}, states: {})", msg[0], arg0, arg1, debug_array(arg2));
                 if let Some(handler) = handler {
                     (**handler).configure(&self, arg0, arg1, arg2);
                 } else {
@@ -2123,6 +2185,10 @@ impl Proxy for MetaXdgToplevel {
                 }
             }
             1 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("server      -> xdg_toplevel#{}.close()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).close(&self);
                 } else {
@@ -2134,10 +2200,11 @@ impl Proxy for MetaXdgToplevel {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
+                eprintln!("server      -> xdg_toplevel#{}.configure_bounds(width: {}, height: {})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).configure_bounds(&self, arg0, arg1);
                 } else {
@@ -2148,35 +2215,68 @@ impl Proxy for MetaXdgToplevel {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("capabilities"));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("capabilities"));
                     }
                     let start = offset;
                     offset += words;
                     &uapi::as_bytes(&msg[start..])[..len]
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError);
+                    return Err(ObjectError::TrailingBytes);
                 }
+                eprintln!("server      -> xdg_toplevel#{}.wm_capabilities(capabilities: {})", msg[0], debug_array(arg0));
                 if let Some(handler) = handler {
                     (**handler).wm_capabilities(&self, arg0);
                 } else {
                     DefaultMessageHandler.wm_capabilities(&self, arg0);
                 }
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "destroy",
+            1 => "set_parent",
+            2 => "set_title",
+            3 => "set_app_id",
+            4 => "show_window_menu",
+            5 => "move",
+            6 => "resize",
+            7 => "set_max_size",
+            8 => "set_min_size",
+            9 => "set_maximized",
+            10 => "unset_maximized",
+            11 => "set_fullscreen",
+            12 => "unset_fullscreen",
+            13 => "set_minimized",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "configure",
+            1 => "close",
+            2 => "configure_bounds",
+            3 => "wm_capabilities",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

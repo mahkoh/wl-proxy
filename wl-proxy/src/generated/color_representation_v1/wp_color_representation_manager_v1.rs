@@ -59,8 +59,9 @@ impl MetaWpColorRepresentationManagerV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wp_color_representation_manager_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -112,13 +113,16 @@ impl MetaWpColorRepresentationManagerV1 {
         let arg1 = arg1.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg1 = match arg1.server_obj_id.get() {
-            None => return Err(ObjectError),
+        let arg1_id = match arg1.server_obj_id.get() {
+            None => return Err(ObjectError::ArgNoServerId("surface")),
             Some(id) => id,
         };
-        arg0.generate_server_id(arg0_obj.clone())?;
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("id", e))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        eprintln!("server      <= wp_color_representation_manager_v1#{}.get_surface(id: wp_color_representation_surface_v1#{}, surface: wl_surface#{})", id, arg0_id, arg1_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -129,8 +133,8 @@ impl MetaWpColorRepresentationManagerV1 {
         fmt.words([
             id,
             1,
-            arg0.server_obj_id.get().unwrap_or(0),
-            arg1,
+            arg0_id,
+            arg1_id,
         ]);
         Ok(())
     }
@@ -163,8 +167,10 @@ impl MetaWpColorRepresentationManagerV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_color_representation_manager_v1#{}.supported_alpha_mode(alpha_mode: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -173,7 +179,7 @@ impl MetaWpColorRepresentationManagerV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
             arg0.0,
         ]);
@@ -214,8 +220,10 @@ impl MetaWpColorRepresentationManagerV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_color_representation_manager_v1#{}.supported_coefficients_and_ranges(coefficients: {:?}, range: {:?})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -224,7 +232,7 @@ impl MetaWpColorRepresentationManagerV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             1,
             arg0.0,
             arg1.0,
@@ -246,8 +254,10 @@ impl MetaWpColorRepresentationManagerV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_color_representation_manager_v1#{}.done()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -256,7 +266,7 @@ impl MetaWpColorRepresentationManagerV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             2,
         ]);
         Ok(())
@@ -395,6 +405,10 @@ impl Proxy for MetaWpColorRepresentationManagerV1 {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
             0 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> wp_color_representation_manager_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -407,16 +421,20 @@ impl Proxy for MetaWpColorRepresentationManagerV1 {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                eprintln!("client#{:04} -> wp_color_representation_manager_v1#{}.get_surface(id: wp_color_representation_surface_v1#{}, surface: wl_surface#{})", client.endpoint.id, msg[0], arg0, arg1);
                 let arg0_id = arg0;
                 let arg0 = MetaWpColorRepresentationSurfaceV1::new(&self.core.state, self.core.version);
-                arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
-                let Some(arg1) = client.endpoint.lookup(arg1) else {
-                    return Err(ObjectError);
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
+                let arg1_id = arg1;
+                let Some(arg1) = client.endpoint.lookup(arg1_id) else {
+                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
-                    return Err(ObjectError);
+                    let o = client.endpoint.lookup(arg1_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -426,12 +444,12 @@ impl Proxy for MetaWpColorRepresentationManagerV1 {
                     DefaultMessageHandler.get_surface(&self, arg0, arg1);
                 }
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -444,9 +462,10 @@ impl Proxy for MetaWpColorRepresentationManagerV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWpColorRepresentationSurfaceV1AlphaMode(arg0);
+                eprintln!("server      -> wp_color_representation_manager_v1#{}.supported_alpha_mode(alpha_mode: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).supported_alpha_mode(&self, arg0);
                 } else {
@@ -458,10 +477,11 @@ impl Proxy for MetaWpColorRepresentationManagerV1 {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 let arg0 = MetaWpColorRepresentationSurfaceV1Coefficients(arg0);
                 let arg1 = MetaWpColorRepresentationSurfaceV1Range(arg1);
+                eprintln!("server      -> wp_color_representation_manager_v1#{}.supported_coefficients_and_ranges(coefficients: {:?}, range: {:?})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).supported_coefficients_and_ranges(&self, arg0, arg1);
                 } else {
@@ -469,20 +489,43 @@ impl Proxy for MetaWpColorRepresentationManagerV1 {
                 }
             }
             2 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("server      -> wp_color_representation_manager_v1#{}.done()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).done(&self);
                 } else {
                     DefaultMessageHandler.done(&self);
                 }
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "destroy",
+            1 => "get_surface",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "supported_alpha_mode",
+            1 => "supported_coefficients_and_ranges",
+            2 => "done",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

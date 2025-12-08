@@ -56,8 +56,10 @@ impl MetaZwpFullscreenShellModeFeedbackV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= zwp_fullscreen_shell_mode_feedback_v1#{}.mode_successful()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -66,7 +68,7 @@ impl MetaZwpFullscreenShellModeFeedbackV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
         ]);
         drop(fmt);
@@ -95,8 +97,10 @@ impl MetaZwpFullscreenShellModeFeedbackV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= zwp_fullscreen_shell_mode_feedback_v1#{}.mode_failed()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -105,7 +109,7 @@ impl MetaZwpFullscreenShellModeFeedbackV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             1,
         ]);
         drop(fmt);
@@ -134,8 +138,10 @@ impl MetaZwpFullscreenShellModeFeedbackV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= zwp_fullscreen_shell_mode_feedback_v1#{}.present_cancelled()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -144,7 +150,7 @@ impl MetaZwpFullscreenShellModeFeedbackV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             2,
         ]);
         drop(fmt);
@@ -227,12 +233,12 @@ impl Proxy for MetaZwpFullscreenShellModeFeedbackV1 {
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
     }
@@ -241,6 +247,10 @@ impl Proxy for MetaZwpFullscreenShellModeFeedbackV1 {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
             0 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("server      -> zwp_fullscreen_shell_mode_feedback_v1#{}.mode_successful()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).mode_successful(&self);
                 } else {
@@ -249,6 +259,10 @@ impl Proxy for MetaZwpFullscreenShellModeFeedbackV1 {
                 self.core.handle_server_destroy();
             }
             1 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("server      -> zwp_fullscreen_shell_mode_feedback_v1#{}.mode_failed()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).mode_failed(&self);
                 } else {
@@ -257,6 +271,10 @@ impl Proxy for MetaZwpFullscreenShellModeFeedbackV1 {
                 self.core.handle_server_destroy();
             }
             2 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("server      -> zwp_fullscreen_shell_mode_feedback_v1#{}.present_cancelled()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).present_cancelled(&self);
                 } else {
@@ -264,14 +282,29 @@ impl Proxy for MetaZwpFullscreenShellModeFeedbackV1 {
                 }
                 self.core.handle_server_destroy();
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let _ = id;
+        None
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "mode_successful",
+            1 => "mode_failed",
+            2 => "present_cancelled",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

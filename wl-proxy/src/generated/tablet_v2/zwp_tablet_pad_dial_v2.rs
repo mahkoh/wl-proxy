@@ -89,8 +89,9 @@ impl MetaZwpTabletPadDialV2 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= zwp_tablet_pad_dial_v2#{}.set_feedback(description: {:?}, serial: {})", id, arg0, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -122,8 +123,9 @@ impl MetaZwpTabletPadDialV2 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= zwp_tablet_pad_dial_v2#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -172,8 +174,10 @@ impl MetaZwpTabletPadDialV2 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= zwp_tablet_pad_dial_v2#{}.delta(value120: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -182,7 +186,7 @@ impl MetaZwpTabletPadDialV2 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
             arg0 as u32,
         ]);
@@ -223,8 +227,10 @@ impl MetaZwpTabletPadDialV2 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= zwp_tablet_pad_dial_v2#{}.frame(time: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -233,7 +239,7 @@ impl MetaZwpTabletPadDialV2 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             1,
             arg0,
         ]);
@@ -375,33 +381,34 @@ impl Proxy for MetaZwpTabletPadDialV2 {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("description"));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("description"));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::NullString("description"));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError);
+                            return Err(ObjectError::NonUtf8("description"));
                         };
                         s
                     }
                 };
                 let Some(&arg1) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("serial"));
                 };
                 offset += 1;
                 if offset != msg.len() {
-                    return Err(ObjectError);
+                    return Err(ObjectError::TrailingBytes);
                 }
+                eprintln!("client#{:04} -> zwp_tablet_pad_dial_v2#{}.set_feedback(description: {:?}, serial: {})", client.endpoint.id, msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).set_feedback(&self, arg0, arg1);
                 } else {
@@ -409,6 +416,10 @@ impl Proxy for MetaZwpTabletPadDialV2 {
                 }
             }
             1 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> zwp_tablet_pad_dial_v2#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -416,12 +427,12 @@ impl Proxy for MetaZwpTabletPadDialV2 {
                 }
                 self.core.handle_client_destroy();
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -434,9 +445,10 @@ impl Proxy for MetaZwpTabletPadDialV2 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = arg0 as i32;
+                eprintln!("server      -> zwp_tablet_pad_dial_v2#{}.delta(value120: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).delta(&self, arg0);
                 } else {
@@ -447,22 +459,41 @@ impl Proxy for MetaZwpTabletPadDialV2 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("server      -> zwp_tablet_pad_dial_v2#{}.frame(time: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).frame(&self, arg0);
                 } else {
                     DefaultMessageHandler.frame(&self, arg0);
                 }
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "set_feedback",
+            1 => "destroy",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "delta",
+            1 => "frame",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

@@ -73,9 +73,12 @@ impl MetaWlDisplay {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        arg0.generate_server_id(arg0_obj.clone())?;
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("callback", e))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        eprintln!("server      <= wl_display#{}.sync(callback: wl_callback#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -86,7 +89,7 @@ impl MetaWlDisplay {
         fmt.words([
             id,
             0,
-            arg0.server_obj_id.get().unwrap_or(0),
+            arg0_id,
         ]);
         Ok(())
     }
@@ -120,9 +123,12 @@ impl MetaWlDisplay {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        arg0.generate_server_id(arg0_obj.clone())?;
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("registry", e))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        eprintln!("server      <= wl_display#{}.get_registry(registry: wl_registry#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -133,7 +139,7 @@ impl MetaWlDisplay {
         fmt.words([
             id,
             1,
-            arg0.server_obj_id.get().unwrap_or(0),
+            arg0_id,
         ]);
         Ok(())
     }
@@ -177,11 +183,14 @@ impl MetaWlDisplay {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
         if arg0.client_id.get() != Some(client.endpoint.id) {
-            return Err(ObjectError);
+            return Err(ObjectError::ArgNoClientId("object_id", client.endpoint.id));
         }
+        let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_display#{}.error(object_id: unknown#{}, code: {}, message: {:?})", client.endpoint.id, id, arg0_id, arg1, arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -190,9 +199,9 @@ impl MetaWlDisplay {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
-            arg0.client_obj_id.get().unwrap_or(0),
+            arg0_id,
             arg1,
         ]);
         fmt.string(arg2);
@@ -227,8 +236,10 @@ impl MetaWlDisplay {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_display#{}.delete_id(id: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -237,7 +248,7 @@ impl MetaWlDisplay {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             1,
             arg0,
         ]);
@@ -389,11 +400,13 @@ impl Proxy for MetaWlDisplay {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("client#{:04} -> wl_display#{}.sync(callback: wl_callback#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWlCallback::new(&self.core.state, self.core.version);
-                arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg0_id, "callback", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).sync(&self, arg0);
@@ -405,11 +418,13 @@ impl Proxy for MetaWlDisplay {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("client#{:04} -> wl_display#{}.get_registry(registry: wl_registry#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWlRegistry::new(&self.core.state, self.core.version);
-                arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg0_id, "registry", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).get_registry(&self, arg0);
@@ -417,12 +432,12 @@ impl Proxy for MetaWlDisplay {
                     DefaultMessageHandler.get_registry(&self, arg0);
                 }
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -434,40 +449,42 @@ impl Proxy for MetaWlDisplay {
             0 => {
                 let mut offset = 2;
                 let Some(&arg0) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("object_id"));
                 };
                 offset += 1;
                 let Some(&arg1) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("code"));
                 };
                 offset += 1;
                 let arg2 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("message"));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("message"));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::NullString("message"));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError);
+                            return Err(ObjectError::NonUtf8("message"));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError);
+                    return Err(ObjectError::TrailingBytes);
                 }
-                let Some(arg0) = self.core.state.server.lookup(arg0) else {
-                    return Err(ObjectError);
+                eprintln!("server      -> wl_display#{}.error(object_id: unknown#{}, code: {}, message: {:?})", msg[0], arg0, arg1, arg2);
+                let arg0_id = arg0;
+                let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
+                    return Err(ObjectError::NoServerObject(arg0_id));
                 };
                 self.core.state.handle_error(arg0, arg1, arg2);
             }
@@ -475,18 +492,37 @@ impl Proxy for MetaWlDisplay {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("server      -> wl_display#{}.delete_id(id: {})", msg[0], arg0);
                 self.core.state.handle_delete_id(arg0);
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "sync",
+            1 => "get_registry",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "error",
+            1 => "delete_id",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

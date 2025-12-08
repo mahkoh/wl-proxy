@@ -69,8 +69,9 @@ impl MetaWpColorRepresentationSurfaceV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wp_color_representation_surface_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -119,8 +120,9 @@ impl MetaWpColorRepresentationSurfaceV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wp_color_representation_surface_v1#{}.set_alpha_mode(alpha_mode: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -188,8 +190,9 @@ impl MetaWpColorRepresentationSurfaceV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wp_color_representation_surface_v1#{}.set_coefficients_and_range(coefficients: {:?}, range: {:?})", id, arg0, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -245,8 +248,9 @@ impl MetaWpColorRepresentationSurfaceV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wp_color_representation_surface_v1#{}.set_chroma_location(chroma_location: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -414,6 +418,10 @@ impl Proxy for MetaWpColorRepresentationSurfaceV1 {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
             0 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> wp_color_representation_surface_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -425,9 +433,10 @@ impl Proxy for MetaWpColorRepresentationSurfaceV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWpColorRepresentationSurfaceV1AlphaMode(arg0);
+                eprintln!("client#{:04} -> wp_color_representation_surface_v1#{}.set_alpha_mode(alpha_mode: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_alpha_mode(&self, arg0);
                 } else {
@@ -439,10 +448,11 @@ impl Proxy for MetaWpColorRepresentationSurfaceV1 {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 let arg0 = MetaWpColorRepresentationSurfaceV1Coefficients(arg0);
                 let arg1 = MetaWpColorRepresentationSurfaceV1Range(arg1);
+                eprintln!("client#{:04} -> wp_color_representation_surface_v1#{}.set_coefficients_and_range(coefficients: {:?}, range: {:?})", client.endpoint.id, msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).set_coefficients_and_range(&self, arg0, arg1);
                 } else {
@@ -453,21 +463,22 @@ impl Proxy for MetaWpColorRepresentationSurfaceV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWpColorRepresentationSurfaceV1ChromaLocation(arg0);
+                eprintln!("client#{:04} -> wp_color_representation_surface_v1#{}.set_chroma_location(chroma_location: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_chroma_location(&self, arg0);
                 } else {
                     DefaultMessageHandler.set_chroma_location(&self, arg0);
                 }
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -476,13 +487,29 @@ impl Proxy for MetaWpColorRepresentationSurfaceV1 {
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "destroy",
+            1 => "set_alpha_mode",
+            2 => "set_coefficients_and_range",
+            3 => "set_chroma_location",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let _ = id;
+        None
     }
 }
 

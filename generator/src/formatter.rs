@@ -130,9 +130,7 @@ fn format_interface_constructors(w: &mut impl Write, interface: &Interface) -> i
     let snake = &interface.name;
     let camel = format_camel(snake).to_string();
     wl!(r#"impl Meta{camel} {{"#)?;
-    wl!(
-        r#"    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {{"#
-    )?;
+    wl!(r#"    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {{"#)?;
     wl!(r#"        Rc::new(Self {{"#)?;
     wl!(r#"            core: ProxyCore::new(state, ProxyInterface::{camel}, version),"#)?;
     wl!(r#"            handler: Default::default(),"#)?;
@@ -199,13 +197,14 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
         wl!(r#"        let core = self.core();"#)?;
         if message.is_request {
             wl!(r#"        let Some(id) = core.server_obj_id.get() else {{"#)?;
-            wl!(r#"            return Err(ObjectError);"#)?;
+            wl!(r#"            return Err(ObjectError::ReceiverNoServerId);"#)?;
             wl!(r#"        }};"#)?;
         } else {
             wl!(r#"        let client_ref = core.client.borrow();"#)?;
             wl!(r#"        let Some(client) = &*client_ref else {{"#)?;
-            wl!(r#"            return Err(ObjectError);"#)?;
+            wl!(r#"            return Err(ObjectError::ReceiverNoClient);"#)?;
             wl!(r#"        }};"#)?;
+            wl!(r#"        let id = core.client_obj_id.get().unwrap_or(0);"#)?;
         }
         if !message.is_request {
             for (idx, arg) in message.args.iter().enumerate() {
@@ -218,7 +217,10 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
                     wl!(
                         r#"        {prefix}if arg{idx}.client_id.get() != Some(client.endpoint.id) {{"#
                     )?;
-                    wl!(r#"        {prefix}    return Err(ObjectError);"#)?;
+                    wl!(
+                        r#"        {prefix}    return Err(ObjectError::ArgNoClientId("{}", client.endpoint.id));"#,
+                        arg.name
+                    )?;
                     wl!(r#"        {prefix}}}"#)?;
                     if arg.allow_null {
                         wl!(r#"        }}"#)?;
@@ -230,7 +232,7 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
             for (idx, arg) in message.args.iter().enumerate() {
                 if arg.ty == ArgType::Object {
                     let mut prefix = "";
-                    w!(r#"        let arg{idx} = "#)?;
+                    w!(r#"        let arg{idx}_id = "#)?;
                     if arg.allow_null {
                         prefix = "    ";
                         wl!(r#"match arg{idx} {{"#)?;
@@ -238,7 +240,10 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
                         w!(r#"            Some(arg{idx}) => "#)?;
                     }
                     wl!(r#"match arg{idx}.server_obj_id.get() {{"#)?;
-                    wl!(r#"            {prefix}None => return Err(ObjectError),"#)?;
+                    wl!(
+                        r#"            {prefix}None => return Err(ObjectError::ArgNoServerId("{}")),"#,
+                        arg.name
+                    )?;
                     wl!(r#"            {prefix}Some(id) => id,"#)?;
                     if arg.allow_null {
                         wl!(r#"            }},"#)?;
@@ -250,12 +255,38 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
         for (idx, arg) in message.args.iter().enumerate() {
             if arg.ty == ArgType::NewId {
                 if message.is_request {
-                    wl!(r#"        arg{idx}.generate_server_id(arg{idx}_obj.clone())?;"#)?;
+                    wl!(r#"        arg{idx}.generate_server_id(arg{idx}_obj.clone())"#)?;
+                    wl!(
+                        r#"            .map_err(|e| ObjectError::GenerateServerId("{}", e))?;"#,
+                        arg.name
+                    )?;
                 } else {
-                    wl!(r#"        arg{idx}.generate_client_id(client, arg{idx}_obj.clone())?;"#)?;
+                    wl!(r#"        arg{idx}.generate_client_id(client, arg{idx}_obj.clone())"#)?;
+                    wl!(
+                        r#"            .map_err(|e| ObjectError::GenerateClientId("{}", e))?;"#,
+                        arg.name
+                    )?;
                 }
             }
         }
+        for (idx, arg) in message.args.iter().enumerate() {
+            if (arg.ty == ArgType::Object && !message.is_request) || arg.ty == ArgType::NewId {
+                w!(r#"        let arg{idx}_id = "#)?;
+                if arg.allow_null {
+                    w!("arg{idx}.map(|arg{idx}| ").unwrap();
+                }
+                if message.is_request {
+                    w!("arg{idx}.server_obj_id.get()").unwrap();
+                } else {
+                    w!("arg{idx}.client_obj_id.get()").unwrap();
+                }
+                if arg.allow_null {
+                    w!(").flatten()").unwrap();
+                }
+                wl!(".unwrap_or(0);").unwrap();
+            }
+        }
+        format_wayland_debug(w, interface, message, true)?;
         if message.is_request {
             wl!(r#"        let endpoint = &self.core.state.server;"#)?;
         } else {
@@ -270,11 +301,7 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
         wl!(r#"        let outgoing = &mut *outgoing_ref;"#)?;
         wl!(r#"        let mut fmt = outgoing.formatter();"#)?;
         let mut words = vec![];
-        if message.is_request {
-            words.push("id".to_string());
-        } else {
-            words.push("core.client_obj_id.get().unwrap_or(0)".to_string());
-        }
+        words.push("id".to_string());
         words.push(format!("{}", message.message_id));
         macro_rules! flush_words {
             () => {{
@@ -289,31 +316,15 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
         }
         for (idx, arg) in message.args.iter().enumerate() {
             match arg.ty {
-                ArgType::NewId | ArgType::Object => {
-                    if message.is_request && arg.ty == ArgType::Object {
-                        words.push(format!("arg{idx}"));
-                    } else {
-                        if arg.ty == ArgType::NewId && arg.interface.is_none() {
-                            flush_words!();
-                            wl!(r#"        fmt.string(arg{idx}.interface.name());"#)?;
-                            words.push(format!("arg{idx}.version"));
-                        }
-                        let mut s = String::new();
-                        if arg.allow_null {
-                            write!(s, "arg{idx}.map(|arg{idx}| ").unwrap();
-                        }
-                        if message.is_request {
-                            write!(s, "arg{idx}.server_obj_id.get()").unwrap();
-                        } else {
-                            write!(s, "arg{idx}.client_obj_id.get()").unwrap();
-                        }
-                        if arg.allow_null {
-                            write!(s, ").flatten()").unwrap();
-                        }
-                        write!(s, ".unwrap_or(0)").unwrap();
-                        words.push(s);
+                ArgType::NewId => {
+                    if arg.interface.is_none() {
+                        flush_words!();
+                        wl!(r#"        fmt.string(arg{idx}.interface.name());"#)?;
+                        words.push(format!("arg{idx}.version"));
                     }
+                    words.push(format!("arg{idx}_id"));
                 }
+                ArgType::Object => words.push(format!("arg{idx}_id")),
                 ArgType::Int if arg.enum_.is_some() => words.push(format!("arg{idx}.0 as u32")),
                 ArgType::Int => words.push(format!("arg{idx} as u32")),
                 ArgType::Uint if arg.enum_.is_some() => words.push(format!("arg{idx}.0")),
@@ -324,6 +335,8 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
                     if arg.allow_null {
                         wl!(r#"        if let Some(arg{idx}) = arg{idx} {{"#)?;
                         wl!(r#"            fmt.string(arg{idx});"#)?;
+                        wl!(r#"        }} else {{"#)?;
+                        wl!(r#"            fmt.words([0]);"#)?;
                         wl!(r#"        }}"#)?;
                     } else {
                         wl!(r#"        fmt.string(arg{idx});"#)?;
@@ -557,21 +570,27 @@ pub fn format_mod_file(
             let camel = format_camel(snake).to_string();
             wl!(r#"            "{snake}" => |s, v| {{"#)?;
             wl!(r#"                if v > Meta{camel}::XML_VERSION {{"#)?;
-            wl!(r#"                    return Err(ObjectError);"#)?;
+            wl!(
+                r#"                    return Err(ObjectError::MaxVersion(ProxyInterface::{camel}, v));"#
+            )?;
             wl!(r#"                }}"#)?;
             wl!(r#"                Ok(Meta{camel}::new(s, v))"#)?;
             wl!(r#"            }},"#)?;
         }
     }
     wl!("        }};")?;
-    wl!("        INTERFACES.get(interface).ok_or(ObjectError).and_then(|i| i(state, version))")?;
+    wl!("        INTERFACES")?;
+    wl!("            .get(interface)")?;
+    wl!("            .ok_or(ObjectError::UnsupportedInterface(interface.to_string()))")?;
+    wl!("            .and_then(|i| i(state, version))")?;
     wl!("    }}")?;
     wl!()?;
-    wl!("    pub(super) fn xml_interface_version(interface: &str) -> Option<u32> {{")?;
-    wl!("        static INTERFACES: phf::Map<&'static str, u32> = phf::phf_map! {{")?;
+    wl!("    pub(super) fn proxy_interface(interface: &str) -> Option<ProxyInterface> {{")?;
+    wl!("        static INTERFACES: phf::Map<&'static str, ProxyInterface> = phf::phf_map! {{")?;
     for (_, interfaces) in protocols {
-        for (snake, _, version) in interfaces {
-            wl!(r#"            "{snake}" => {version},"#)?;
+        for (snake, _, _) in interfaces {
+            let camel = format_camel(snake);
+            wl!(r#"            "{snake}" => ProxyInterface::{camel},"#)?;
         }
     }
     wl!("        }};")?;
@@ -596,6 +615,17 @@ pub fn format_mod_file(
         for (snake, _, _) in interfaces {
             let camel = format_camel(snake);
             wl!(r#"            Self::{camel} => "{snake}","#)?;
+        }
+    }
+    wl!("        }}")?;
+    wl!("    }}")?;
+    wl!()?;
+    wl!("    pub fn xml_version(self) -> u32 {{")?;
+    wl!("        match self {{")?;
+    for (_, interfaces) in protocols {
+        for (snake, _, version) in interfaces {
+            let camel = format_camel(snake);
+            wl!(r#"            Self::{camel} => {version},"#)?;
         }
     }
     wl!("        }}")?;
@@ -765,7 +795,138 @@ fn format_proxy_impl(w: &mut impl Write, interface: &Interface) -> io::Result<()
     )?;
     format_proxy_message_handler_body(w, interface, false)?;
     wl!(r#"    }}"#)?;
+    wl!()?;
+    wl!(r#"    fn get_request_name(&self, id: u32) -> Option<&'static str> {{"#)?;
+    format_proxy_message_name(w, interface, true)?;
+    wl!(r#"    }}"#)?;
+    wl!()?;
+    wl!(r#"    fn get_event_name(&self, id: u32) -> Option<&'static str> {{"#)?;
+    format_proxy_message_name(w, interface, false)?;
+    wl!(r#"    }}"#)?;
     wl!(r#"}}"#)?;
+    Ok(())
+}
+
+fn format_proxy_message_name(
+    w: &mut impl Write,
+    interface: &Interface,
+    requests: bool,
+) -> io::Result<()> {
+    define_w!(w);
+    let p = "        ";
+    if interface.messages.iter().any(|m| m.is_request == requests) {
+        wl!(r#"{p}let name = match id {{"#)?;
+        for msg in &interface.messages {
+            if msg.is_request != requests {
+                continue;
+            }
+            wl!(r#"{p}    {} => "{}","#, msg.message_id, msg.name)?;
+        }
+        wl!(r#"{p}    _ => return None,"#)?;
+        wl!(r#"{p}}};"#)?;
+        wl!(r#"{p}Some(name)"#)?;
+    } else {
+        wl!(r#"{p}let _ = id;"#)?;
+        wl!(r#"{p}None"#)?;
+    }
+    Ok(())
+}
+
+fn format_wayland_debug(
+    w: &mut impl Write,
+    interface: &Interface,
+    msg: &Message,
+    outgoing: bool,
+) -> io::Result<()> {
+    define_w!(w);
+    if !outgoing {
+        w!(r#"        "#)?;
+    }
+    w!(r#"        eprintln!(""#)?;
+    if msg.is_request ^ outgoing {
+        w!(r#"client#{{:04}}"#)?;
+    } else {
+        w!(r#"server     "#)?;
+    }
+    if outgoing {
+        w!(r#" <= "#)?;
+    } else {
+        w!(r#" -> "#)?;
+    }
+    w!(r#"{}#{{}}.{}("#, interface.name, msg.name)?;
+    for (idx, arg) in msg.args.iter().enumerate() {
+        if idx > 0 {
+            w!(r#", "#)?;
+        }
+        w!(r#"{}: "#, arg.name)?;
+        match arg.ty {
+            ArgType::NewId | ArgType::Object => {
+                if let Some(interface) = &arg.interface {
+                    w!(r#"{interface}"#)?
+                } else if arg.ty == ArgType::NewId {
+                    w!(r#"{{}}"#)?
+                } else {
+                    w!(r#"unknown"#)?
+                }
+                w!(r#"#{{}}"#)?;
+                if arg.interface.is_none() && arg.ty == ArgType::NewId {
+                    w!(r#" (version: {{}})"#)?;
+                }
+            }
+            _ if arg.enum_.is_some() => w!(r#"{{:?}}"#)?,
+            ArgType::Int | ArgType::Uint | ArgType::Fixed | ArgType::Fd | ArgType::Array => {
+                w!(r#"{{}}"#)?
+            }
+            ArgType::String => w!(r#"{{:?}}"#)?,
+        }
+    }
+    w!(r#")""#)?;
+    if msg.is_request ^ outgoing {
+        w!(r#", client.endpoint.id"#)?;
+    }
+    if outgoing {
+        w!(r#", id"#)?;
+    } else {
+        w!(r#", msg[0]"#)?;
+    }
+    for (idx, arg) in msg.args.iter().enumerate() {
+        match arg.ty {
+            ArgType::NewId => {
+                if arg.interface.is_none() {
+                    if outgoing {
+                        w!(r#", arg{idx}.interface.name()"#)?;
+                    } else {
+                        w!(r#", arg{idx}_interface"#)?;
+                    }
+                }
+                if outgoing {
+                    w!(r#", arg{idx}_id"#)?;
+                } else {
+                    w!(r#", arg{idx}"#)?;
+                }
+                if arg.interface.is_none() {
+                    if outgoing {
+                        w!(r#", arg{idx}.version"#)?;
+                    } else {
+                        w!(r#", arg{idx}_version"#)?;
+                    }
+                }
+            }
+            ArgType::Object => {
+                if outgoing {
+                    w!(r#", arg{idx}_id"#)?
+                } else {
+                    w!(r#", arg{idx}"#)?
+                }
+            }
+            ArgType::Int | ArgType::Uint | ArgType::Fixed | ArgType::String => {
+                w!(r#", arg{idx}"#)?
+            }
+            ArgType::Array => w!(r#", debug_array(arg{idx})"#)?,
+            ArgType::Fd => w!(r#", arg{idx}.as_raw_fd()"#)?,
+        }
+    }
+    wl!(r#");"#)?;
     Ok(())
 }
 
@@ -816,20 +977,27 @@ fn format_proxy_message_handler_body<W: Write>(
                 }
             }
             wl!(r#"{p}        ] = msg[2..] else {{"#)?;
-            wl!(r#"{p}            return Err(ObjectError);"#)?;
+            wl!(
+                r#"{p}            return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, {}));"#,
+                (num_words + 2) * 4
+            )?;
             wl!(r#"{p}        }};"#)?;
         } else if msg.args.iter().any(|a| !matches!(a.ty, ArgType::Fd)) {
             wl!(r#"{p}        let mut offset = 2;"#)?;
-            let parse_array = |w: &mut W, ty: ArgType, allow_null: bool| -> io::Result<()> {
+            let parse_array = |w: &mut W,
+                               name: &str,
+                               ty: ArgType,
+                               allow_null: bool|
+             -> io::Result<()> {
                 define_w!(w, wl2);
                 wl2!(r#"{p}            let Some(&len) = msg.get(offset) else {{"#)?;
-                wl2!(r#"{p}                return Err(ObjectError);"#)?;
+                wl2!(r#"{p}                return Err(ObjectError::MissingArgument("{name}"));"#)?;
                 wl2!(r#"{p}            }};"#)?;
                 wl2!(r#"{p}            offset += 1;"#)?;
                 wl2!(r#"{p}            let len = len as usize;"#)?;
                 wl2!(r#"{p}            let words = ((len as u64 + 3) / 4) as usize;"#)?;
                 wl2!(r#"{p}            if offset + words > msg.len() {{"#)?;
-                wl2!(r#"{p}                return Err(ObjectError);"#)?;
+                wl2!(r#"{p}                return Err(ObjectError::MissingArgument("{name}"));"#)?;
                 wl2!(r#"{p}            }}"#)?;
                 wl2!(r#"{p}            let start = offset;"#)?;
                 wl2!(r#"{p}            offset += words;"#)?;
@@ -841,13 +1009,15 @@ fn format_proxy_message_handler_body<W: Write>(
                     if allow_null {
                         wl2!(r#"{p}                None"#)?;
                     } else {
-                        wl2!(r#"{p}                return Err(ObjectError);"#)?;
+                        wl2!(
+                            r#"{p}                return Err(ObjectError::NullString("{name}"));"#
+                        )?;
                     }
                     wl2!(r#"{p}            }} else {{"#)?;
                     wl2!(
                         r#"{p}                let Ok(s) = str::from_utf8(&bytes[..len-1]) else {{"#
                     )?;
-                    wl2!(r#"{p}                    return Err(ObjectError);"#)?;
+                    wl2!(r#"{p}                    return Err(ObjectError::NonUtf8("{name}"));"#)?;
                     wl2!(r#"{p}                }};"#)?;
                     if allow_null {
                         wl2!(r#"{p}                Some(s)"#)?;
@@ -867,42 +1037,85 @@ fn format_proxy_message_handler_body<W: Write>(
                     | ArgType::Object => {
                         if arg.ty == ArgType::NewId && arg.interface.is_none() {
                             wl!(r#"{p}        let arg{idx}_interface = {{"#)?;
-                            parse_array(w, ArgType::String, false)?;
+                            parse_array(w, &arg.name, ArgType::String, false)?;
                             wl!(r#"{p}        }};"#)?;
                             wl!(
                                 r#"{p}        let Some(&arg{idx}_version) = msg.get(offset) else {{"#
                             )?;
-                            wl!(r#"{p}            return Err(ObjectError);"#)?;
+                            wl!(
+                                r#"{p}            return Err(ObjectError::MissingArgument("{}"));"#,
+                                arg.name
+                            )?;
                             wl!(r#"{p}        }};"#)?;
                             wl!(r#"{p}        offset += 1;"#)?;
                         }
                         wl!(r#"{p}        let Some(&arg{idx}) = msg.get(offset) else {{"#)?;
-                        wl!(r#"{p}            return Err(ObjectError);"#)?;
+                        wl!(
+                            r#"{p}            return Err(ObjectError::MissingArgument("{}"));"#,
+                            arg.name
+                        )?;
                         wl!(r#"{p}        }};"#)?;
                         wl!(r#"{p}        offset += 1;"#)?;
                     }
                     ArgType::Fd => continue,
                     ArgType::String | ArgType::Array => {
                         wl!(r#"{p}        let arg{idx} = {{"#)?;
-                        parse_array(w, arg.ty, arg.allow_null)?;
+                        parse_array(w, &arg.name, arg.ty, arg.allow_null)?;
                         wl!(r#"{p}        }};"#)?;
                     }
                 }
             }
             wl!(r#"{p}        if offset != msg.len() {{"#)?;
-            wl!(r#"{p}            return Err(ObjectError);"#)?;
+            wl!(r#"{p}            return Err(ObjectError::TrailingBytes);"#)?;
+            wl!(r#"{p}        }}"#)?;
+        } else {
+            wl!(r#"{p}        if msg.len() != 2 {{"#)?;
+            wl!(
+                r#"{p}            return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));"#
+            )?;
             wl!(r#"{p}        }}"#)?;
         }
         for (idx, arg) in msg.args.iter().enumerate() {
             if arg.ty == ArgType::Fd {
                 wl!(r#"{p}        let Some(arg{idx}) = fds.pop_front() else {{"#)?;
-                wl!(r#"{p}            return Err(ObjectError);"#)?;
+                wl!(
+                    r#"{p}            return Err(ObjectError::MissingFd("{}"));"#,
+                    arg.name
+                )?;
                 wl!(r#"{p}        }};"#)?;
             }
         }
+        for (idx, arg) in msg.args.iter().enumerate() {
+            match arg.ty {
+                ArgType::String | ArgType::Array => continue,
+                ArgType::Uint if arg.enum_.is_none() => continue,
+                ArgType::NewId | ArgType::Object => continue,
+                _ => {}
+            }
+            w!(r#"                let arg{idx} = "#)?;
+            match arg.ty {
+                ArgType::Int | ArgType::Uint if arg.enum_.is_some() => {
+                    w!(r#"{}(arg{idx})"#, arg_type(interface, arg))?;
+                }
+                ArgType::Int => {
+                    w!(r#"arg{idx} as i32"#)?;
+                }
+                ArgType::NewId | ArgType::Object | ArgType::Uint | ArgType::String | ArgType::Array => {
+                    unreachable!();
+                }
+                ArgType::Fixed => {
+                    w!(r#"Fixed::from_wire(arg{idx} as i32)"#)?;
+                }
+                ArgType::Fd => {
+                    w!(r#"&arg{idx}"#)?;
+                }
+            }
+            wl!(r#";"#)?;
+        }
+        format_wayland_debug(w, interface, msg, false)?;
         if interface.is_wl_registry && msg.name == "global" {
-            wl!(r#"{p}        let arg2 = match xml_interface_version(arg1) {{"#)?;
-            wl!(r#"{p}            Some(v) => v.min(arg2),"#)?;
+            wl!(r#"{p}        let arg2 = match proxy_interface(arg1) {{"#)?;
+            wl!(r#"{p}            Some(i) => i.xml_version().min(arg2),"#)?;
             wl!(r#"{p}            _ => return Ok(()),"#)?;
             wl!(r#"{p}        }};"#)?;
         }
@@ -925,11 +1138,19 @@ fn format_proxy_message_handler_body<W: Write>(
                     }
                     if msg.is_request {
                         wl!(
-                            r#"{p}        arg{idx}.core().set_client_id(client, arg{idx}_id, arg{idx}.clone())?;"#
+                            r#"{p}        arg{idx}.core().set_client_id(client, arg{idx}_id, arg{idx}.clone())"#
+                        )?;
+                        wl!(
+                            r#"{p}            .map_err(|e| ObjectError::SetClientId(arg{idx}_id, "{}", e))?;"#,
+                            arg.name,
                         )?;
                     } else {
                         wl!(
-                            r#"{p}        arg{idx}.core().set_server_id(arg{idx}_id, arg{idx}.clone())?;"#
+                            r#"{p}        arg{idx}.core().set_server_id(arg{idx}_id, arg{idx}.clone())"#
+                        )?;
+                        wl!(
+                            r#"{p}            .map_err(|e| ObjectError::SetServerId(arg{idx}_id, "{}", e))?;"#,
+                            arg.name,
                         )?;
                     }
                 }
@@ -941,23 +1162,41 @@ fn format_proxy_message_handler_body<W: Write>(
                         wl!(r#"{p}        }} else {{"#)?;
                         prefix = "    ";
                     }
+                    wl!(r#"{p}        {prefix}let arg{idx}_id = arg{idx};"#)?;
                     if msg.is_request {
                         wl!(
-                            r#"{p}        {prefix}let Some(arg{idx}) = client.endpoint.lookup(arg{idx}) else {{"#
+                            r#"{p}        {prefix}let Some(arg{idx}) = client.endpoint.lookup(arg{idx}_id) else {{"#
+                        )?;
+                        wl!(
+                            r#"{p}            {prefix}return Err(ObjectError::NoClientObject(client.endpoint.id, arg{idx}_id));"#
                         )?;
                     } else {
                         wl!(
-                            r#"{p}        {prefix}let Some(arg{idx}) = self.core.state.server.lookup(arg{idx}) else {{"#
+                            r#"{p}        {prefix}let Some(arg{idx}) = self.core.state.server.lookup(arg{idx}_id) else {{"#
+                        )?;
+                        wl!(
+                            r#"{p}            {prefix}return Err(ObjectError::NoServerObject(arg{idx}_id));"#
                         )?;
                     }
-                    wl!(r#"{p}            {prefix}return Err(ObjectError);"#)?;
                     wl!(r#"{p}        {prefix}}};"#)?;
                     if let Some(interface) = &arg.interface {
                         let camel = format_camel(interface);
                         wl!(
                             r#"{p}        {prefix}let Ok(arg{idx}) = (arg{idx} as Rc<dyn Any>).downcast::<Meta{camel}>() else {{"#
                         )?;
-                        wl!(r#"{p}        {prefix}    return Err(ObjectError);"#)?;
+                        if msg.is_request {
+                            wl!(
+                                r#"{p}        {prefix}    let o = client.endpoint.lookup(arg{idx}_id).unwrap();"#
+                            )?;
+                        } else {
+                            wl!(
+                                r#"{p}        {prefix}    let o = self.core.state.server.lookup(arg{idx}_id).unwrap();"#
+                            )?;
+                        }
+                        wl!(
+                            r#"{p}        {prefix}    return Err(ObjectError::WrongObjectType("{}", o.core().interface, ProxyInterface::{camel}));"#,
+                            arg.name
+                        )?;
                         wl!(r#"{p}        {prefix}}};"#)?;
                     }
                     if arg.allow_null {
@@ -975,10 +1214,8 @@ fn format_proxy_message_handler_body<W: Write>(
         }
         for (idx, arg) in msg.args.iter().enumerate() {
             match arg.ty {
-                ArgType::String | ArgType::Array => continue,
-                ArgType::Uint if arg.enum_.is_none() => continue,
-                ArgType::NewId | ArgType::Object if arg.interface.is_none() => continue,
-                _ => {}
+                ArgType::NewId | ArgType::Object if arg.interface.is_some() => { },
+                _ => continue,
             }
             w!(r#"                let arg{idx} = "#)?;
             match arg.ty {
@@ -989,20 +1226,8 @@ fn format_proxy_message_handler_body<W: Write>(
                         w!(r#"&arg{idx}"#)?;
                     }
                 }
-                ArgType::Int | ArgType::Uint if arg.enum_.is_some() => {
-                    w!(r#"{}(arg{idx})"#, arg_type(interface, arg))?;
-                }
-                ArgType::Int => {
-                    w!(r#"arg{idx} as i32"#)?;
-                }
-                ArgType::Uint | ArgType::String | ArgType::Array => {
+                _ => {
                     unreachable!();
-                }
-                ArgType::Fixed => {
-                    w!(r#"Fixed::from_wire(arg{idx} as i32)"#)?;
-                }
-                ArgType::Fd => {
-                    w!(r#"&arg{idx}"#)?;
                 }
             }
             wl!(r#";"#)?;
@@ -1039,14 +1264,14 @@ fn format_proxy_message_handler_body<W: Write>(
         }
         wl!(r#"{p}    }}"#)?;
     }
-    wl!(r#"{p}    _ => {{"#)?;
+    wl!(r#"{p}    n => {{"#)?;
     if requests {
         wl!(r#"{p}        let _ = client;"#)?;
     }
     wl!(r#"{p}        let _ = msg;"#)?;
     wl!(r#"{p}        let _ = fds;"#)?;
     wl!(r#"{p}        let _ = handler;"#)?;
-    wl!(r#"{p}        return Err(ObjectError);"#)?;
+    wl!(r#"{p}        return Err(ObjectError::UnknownMessageId(n));"#)?;
     wl!(r#"{p}    }}"#)?;
     wl!(r#"{p}}}"#)?;
     if any_messages {

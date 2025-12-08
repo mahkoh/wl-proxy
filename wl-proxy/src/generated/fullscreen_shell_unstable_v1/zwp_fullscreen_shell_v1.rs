@@ -90,8 +90,9 @@ impl MetaZwpFullscreenShellV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= zwp_fullscreen_shell_v1#{}.release()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -138,8 +139,10 @@ impl MetaZwpFullscreenShellV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= zwp_fullscreen_shell_v1#{}.capability(capability: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -148,7 +151,7 @@ impl MetaZwpFullscreenShellV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
             arg0.0,
         ]);
@@ -208,22 +211,23 @@ impl MetaZwpFullscreenShellV1 {
         let arg2 = arg2.map(|a| a.core());
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg0 = match arg0 {
+        let arg0_id = match arg0 {
             None => 0,
             Some(arg0) => match arg0.server_obj_id.get() {
-                None => return Err(ObjectError),
+                None => return Err(ObjectError::ArgNoServerId("surface")),
                 Some(id) => id,
             },
         };
-        let arg2 = match arg2 {
+        let arg2_id = match arg2 {
             None => 0,
             Some(arg2) => match arg2.server_obj_id.get() {
-                None => return Err(ObjectError),
+                None => return Err(ObjectError::ArgNoServerId("output")),
                 Some(id) => id,
             },
         };
+        eprintln!("server      <= zwp_fullscreen_shell_v1#{}.present_surface(surface: wl_surface#{}, method: {:?}, output: wl_output#{})", id, arg0_id, arg1, arg2_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -234,9 +238,9 @@ impl MetaZwpFullscreenShellV1 {
         fmt.words([
             id,
             1,
-            arg0,
+            arg0_id,
             arg1.0,
-            arg2,
+            arg2_id,
         ]);
         Ok(())
     }
@@ -320,17 +324,20 @@ impl MetaZwpFullscreenShellV1 {
         let arg3 = arg3_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg0 = match arg0.server_obj_id.get() {
-            None => return Err(ObjectError),
+        let arg0_id = match arg0.server_obj_id.get() {
+            None => return Err(ObjectError::ArgNoServerId("surface")),
             Some(id) => id,
         };
-        let arg1 = match arg1.server_obj_id.get() {
-            None => return Err(ObjectError),
+        let arg1_id = match arg1.server_obj_id.get() {
+            None => return Err(ObjectError::ArgNoServerId("output")),
             Some(id) => id,
         };
-        arg3.generate_server_id(arg3_obj.clone())?;
+        arg3.generate_server_id(arg3_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("feedback", e))?;
+        let arg3_id = arg3.server_obj_id.get().unwrap_or(0);
+        eprintln!("server      <= zwp_fullscreen_shell_v1#{}.present_surface_for_mode(surface: wl_surface#{}, output: wl_output#{}, framerate: {}, feedback: zwp_fullscreen_shell_mode_feedback_v1#{})", id, arg0_id, arg1_id, arg2, arg3_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -341,10 +348,10 @@ impl MetaZwpFullscreenShellV1 {
         fmt.words([
             id,
             2,
-            arg0,
-            arg1,
+            arg0_id,
+            arg1_id,
             arg2 as u32,
-            arg3.server_obj_id.get().unwrap_or(0),
+            arg3_id,
         ]);
         Ok(())
     }
@@ -533,6 +540,10 @@ impl Proxy for MetaZwpFullscreenShellV1 {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
             0 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> zwp_fullscreen_shell_v1#{}.release()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
@@ -546,32 +557,37 @@ impl Proxy for MetaZwpFullscreenShellV1 {
                     arg1,
                     arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
+                let arg1 = MetaZwpFullscreenShellV1PresentMethod(arg1);
+                eprintln!("client#{:04} -> zwp_fullscreen_shell_v1#{}.present_surface(surface: wl_surface#{}, method: {:?}, output: wl_output#{})", client.endpoint.id, msg[0], arg0, arg1, arg2);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
-                    let Some(arg0) = client.endpoint.lookup(arg0) else {
-                        return Err(ObjectError);
+                    let arg0_id = arg0;
+                    let Some(arg0) = client.endpoint.lookup(arg0_id) else {
+                        return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
-                        return Err(ObjectError);
+                        let o = client.endpoint.lookup(arg0_id).unwrap();
+                        return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                     };
                     Some(arg0)
                 };
                 let arg2 = if arg2 == 0 {
                     None
                 } else {
-                    let Some(arg2) = client.endpoint.lookup(arg2) else {
-                        return Err(ObjectError);
+                    let arg2_id = arg2;
+                    let Some(arg2) = client.endpoint.lookup(arg2_id) else {
+                        return Err(ObjectError::NoClientObject(client.endpoint.id, arg2_id));
                     };
                     let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<MetaWlOutput>() else {
-                        return Err(ObjectError);
+                        let o = client.endpoint.lookup(arg2_id).unwrap();
+                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
                     };
                     Some(arg2)
                 };
                 let arg0 = arg0.as_ref();
-                let arg1 = MetaZwpFullscreenShellV1PresentMethod(arg1);
                 let arg2 = arg2.as_ref();
                 if let Some(handler) = handler {
                     (**handler).present_surface(&self, arg0, arg1, arg2);
@@ -586,26 +602,32 @@ impl Proxy for MetaZwpFullscreenShellV1 {
                     arg2,
                     arg3,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
-                let Some(arg0) = client.endpoint.lookup(arg0) else {
-                    return Err(ObjectError);
+                let arg2 = arg2 as i32;
+                eprintln!("client#{:04} -> zwp_fullscreen_shell_v1#{}.present_surface_for_mode(surface: wl_surface#{}, output: wl_output#{}, framerate: {}, feedback: zwp_fullscreen_shell_mode_feedback_v1#{})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
+                let arg0_id = arg0;
+                let Some(arg0) = client.endpoint.lookup(arg0_id) else {
+                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
-                    return Err(ObjectError);
+                    let o = client.endpoint.lookup(arg0_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
-                let Some(arg1) = client.endpoint.lookup(arg1) else {
-                    return Err(ObjectError);
+                let arg1_id = arg1;
+                let Some(arg1) = client.endpoint.lookup(arg1_id) else {
+                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlOutput>() else {
-                    return Err(ObjectError);
+                    let o = client.endpoint.lookup(arg1_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
                 };
                 let arg3_id = arg3;
                 let arg3 = MetaZwpFullscreenShellModeFeedbackV1::new(&self.core.state, self.core.version);
-                arg3.core().set_client_id(client, arg3_id, arg3.clone())?;
+                arg3.core().set_client_id(client, arg3_id, arg3.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg3_id, "feedback", e))?;
                 let arg0 = &arg0;
                 let arg1 = &arg1;
-                let arg2 = arg2 as i32;
                 let arg3 = &arg3;
                 if let Some(handler) = handler {
                     (**handler).present_surface_for_mode(&self, arg0, arg1, arg2, arg3);
@@ -613,12 +635,12 @@ impl Proxy for MetaZwpFullscreenShellV1 {
                     DefaultMessageHandler.present_surface_for_mode(&self, arg0, arg1, arg2, arg3);
                 }
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -631,23 +653,42 @@ impl Proxy for MetaZwpFullscreenShellV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaZwpFullscreenShellV1Capability(arg0);
+                eprintln!("server      -> zwp_fullscreen_shell_v1#{}.capability(capability: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).capability(&self, arg0);
                 } else {
                     DefaultMessageHandler.capability(&self, arg0);
                 }
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "release",
+            1 => "present_surface",
+            2 => "present_surface_for_mode",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "capability",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

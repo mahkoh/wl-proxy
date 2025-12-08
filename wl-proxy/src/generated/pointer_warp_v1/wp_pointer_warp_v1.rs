@@ -65,8 +65,9 @@ impl MetaWpPointerWarpV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wp_pointer_warp_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -132,16 +133,17 @@ impl MetaWpPointerWarpV1 {
         let arg1 = arg1.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg0 = match arg0.server_obj_id.get() {
-            None => return Err(ObjectError),
+        let arg0_id = match arg0.server_obj_id.get() {
+            None => return Err(ObjectError::ArgNoServerId("surface")),
             Some(id) => id,
         };
-        let arg1 = match arg1.server_obj_id.get() {
-            None => return Err(ObjectError),
+        let arg1_id = match arg1.server_obj_id.get() {
+            None => return Err(ObjectError::ArgNoServerId("pointer")),
             Some(id) => id,
         };
+        eprintln!("server      <= wp_pointer_warp_v1#{}.warp_pointer(surface: wl_surface#{}, pointer: wl_pointer#{}, x: {}, y: {}, serial: {})", id, arg0_id, arg1_id, arg2, arg3, arg4);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -152,8 +154,8 @@ impl MetaWpPointerWarpV1 {
         fmt.words([
             id,
             1,
-            arg0,
-            arg1,
+            arg0_id,
+            arg1_id,
             arg2.to_wire() as u32,
             arg3.to_wire() as u32,
             arg4,
@@ -235,6 +237,10 @@ impl Proxy for MetaWpPointerWarpV1 {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
             0 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> wp_pointer_warp_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -250,36 +256,41 @@ impl Proxy for MetaWpPointerWarpV1 {
                     arg3,
                     arg4,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 28));
                 };
-                let Some(arg0) = client.endpoint.lookup(arg0) else {
-                    return Err(ObjectError);
+                let arg2 = Fixed::from_wire(arg2 as i32);
+                let arg3 = Fixed::from_wire(arg3 as i32);
+                eprintln!("client#{:04} -> wp_pointer_warp_v1#{}.warp_pointer(surface: wl_surface#{}, pointer: wl_pointer#{}, x: {}, y: {}, serial: {})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
+                let arg0_id = arg0;
+                let Some(arg0) = client.endpoint.lookup(arg0_id) else {
+                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
-                    return Err(ObjectError);
+                    let o = client.endpoint.lookup(arg0_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
-                let Some(arg1) = client.endpoint.lookup(arg1) else {
-                    return Err(ObjectError);
+                let arg1_id = arg1;
+                let Some(arg1) = client.endpoint.lookup(arg1_id) else {
+                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlPointer>() else {
-                    return Err(ObjectError);
+                    let o = client.endpoint.lookup(arg1_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ProxyInterface::WlPointer));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
-                let arg2 = Fixed::from_wire(arg2 as i32);
-                let arg3 = Fixed::from_wire(arg3 as i32);
                 if let Some(handler) = handler {
                     (**handler).warp_pointer(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
                     DefaultMessageHandler.warp_pointer(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -288,13 +299,27 @@ impl Proxy for MetaWpPointerWarpV1 {
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "destroy",
+            1 => "warp_pointer",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let _ = id;
+        None
     }
 }
 

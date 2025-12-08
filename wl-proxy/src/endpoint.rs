@@ -2,6 +2,7 @@ use {
     crate::{
         client::Client,
         free_list::FreeList,
+        generated::ProxyInterface,
         object_error::ObjectError,
         proxy::Proxy,
         trans::{self, FlushResult, InputBuffer, OutputSwapchain, TransError},
@@ -9,6 +10,8 @@ use {
     std::{
         cell::{Cell, RefCell},
         collections::{HashMap, VecDeque},
+        error::Error,
+        fmt::{Display, Formatter},
         os::fd::{AsRawFd, OwnedFd},
         rc::Rc,
     },
@@ -43,8 +46,45 @@ pub enum EndpointError {
     Read(#[source] TransError),
     #[error("receiver object {} does not exist", .0)]
     NoReceiver(u32),
-    #[error("could not handle a message")]
-    HandleMessage(#[source] ObjectError),
+    #[error(transparent)]
+    HandleMessage(Box<MessageError>),
+}
+
+#[derive(Debug)]
+pub struct MessageError {
+    object: u32,
+    interface: Option<ProxyInterface>,
+    message_id: u32,
+    message_name: Option<&'static str>,
+    source: ObjectError,
+}
+
+impl Display for MessageError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "could not handle a ")?;
+        if let Some(interface) = &self.interface {
+            write!(f, "{}#{}.", interface.name(), self.object)?;
+            if let Some(name) = self.message_name {
+                write!(f, "{}", name)?;
+            } else {
+                write!(f, "{}", self.message_id)?;
+            }
+            write!(f, " message")?;
+        } else {
+            write!(
+                f,
+                "message {} on object {} with unknown interface",
+                self.message_id, self.object
+            )?;
+        }
+        Ok(())
+    }
+}
+
+impl Error for MessageError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        Some(&self.source)
+    }
 }
 
 impl Endpoint {
@@ -89,26 +129,36 @@ impl Endpoint {
             let Some(msg) = msg.map_err(EndpointError::Read)? else {
                 break;
             };
-            let obj = msg[0];
+            let obj_id = msg[0];
             let obj = self
                 .objects
                 .borrow()
-                .get(&obj)
+                .get(&obj_id)
                 .cloned()
-                .ok_or(EndpointError::NoReceiver(obj))?;
+                .ok_or(EndpointError::NoReceiver(obj_id))?;
             let res = if let Some(client) = client {
-                eprintln!(
-                    "client {}: -> {}.{}",
-                    client.endpoint.id,
-                    msg[0],
-                    msg[1] & 0xffff
-                );
                 obj.handle_request(client, msg, fds)
             } else {
-                eprintln!("server   : -> {}.{}", msg[0], msg[1] & 0xffff);
                 obj.handle_event(msg, fds)
             };
-            res.map_err(EndpointError::HandleMessage)?;
+            if let Err(e) = res {
+                let mut err = Box::new(MessageError {
+                    object: obj_id,
+                    interface: None,
+                    message_id: msg[1] & 0xffff,
+                    message_name: None,
+                    source: e,
+                });
+                if let Some(obj) = self.objects.borrow().get(&obj_id) {
+                    err.interface = Some(obj.core().interface);
+                    err.message_name = if client.is_some() {
+                        obj.get_request_name(err.message_id)
+                    } else {
+                        obj.get_event_name(err.message_id)
+                    };
+                }
+                return Err(EndpointError::HandleMessage(err));
+            }
         }
         Ok(())
     }

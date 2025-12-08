@@ -57,8 +57,9 @@ impl MetaWpSinglePixelBufferManagerV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wp_single_pixel_buffer_manager_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -127,9 +128,12 @@ impl MetaWpSinglePixelBufferManagerV1 {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        arg0.generate_server_id(arg0_obj.clone())?;
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("id", e))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        eprintln!("server      <= wp_single_pixel_buffer_manager_v1#{}.create_u32_rgba_buffer(id: wl_buffer#{}, r: {}, g: {}, b: {}, a: {})", id, arg0_id, arg1, arg2, arg3, arg4);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -140,7 +144,7 @@ impl MetaWpSinglePixelBufferManagerV1 {
         fmt.words([
             id,
             1,
-            arg0.server_obj_id.get().unwrap_or(0),
+            arg0_id,
             arg1,
             arg2,
             arg3,
@@ -225,6 +229,10 @@ impl Proxy for MetaWpSinglePixelBufferManagerV1 {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
             0 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> wp_single_pixel_buffer_manager_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -240,11 +248,13 @@ impl Proxy for MetaWpSinglePixelBufferManagerV1 {
                     arg3,
                     arg4,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 28));
                 };
+                eprintln!("client#{:04} -> wp_single_pixel_buffer_manager_v1#{}.create_u32_rgba_buffer(id: wl_buffer#{}, r: {}, g: {}, b: {}, a: {})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
                 let arg0_id = arg0;
                 let arg0 = MetaWlBuffer::new(&self.core.state, self.core.version);
-                arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).create_u32_rgba_buffer(&self, arg0, arg1, arg2, arg3, arg4);
@@ -252,12 +262,12 @@ impl Proxy for MetaWpSinglePixelBufferManagerV1 {
                     DefaultMessageHandler.create_u32_rgba_buffer(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -266,13 +276,27 @@ impl Proxy for MetaWpSinglePixelBufferManagerV1 {
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "destroy",
+            1 => "create_u32_rgba_buffer",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let _ = id;
+        None
     }
 }
 

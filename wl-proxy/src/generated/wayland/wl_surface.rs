@@ -95,8 +95,9 @@ impl MetaWlSurface {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wl_surface#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -208,15 +209,16 @@ impl MetaWlSurface {
         let arg0 = arg0.map(|a| a.core());
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg0 = match arg0 {
+        let arg0_id = match arg0 {
             None => 0,
             Some(arg0) => match arg0.server_obj_id.get() {
-                None => return Err(ObjectError),
+                None => return Err(ObjectError::ArgNoServerId("buffer")),
                 Some(id) => id,
             },
         };
+        eprintln!("server      <= wl_surface#{}.attach(buffer: wl_buffer#{}, x: {}, y: {})", id, arg0_id, arg1, arg2);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -227,7 +229,7 @@ impl MetaWlSurface {
         fmt.words([
             id,
             1,
-            arg0,
+            arg0_id,
             arg1 as u32,
             arg2 as u32,
         ]);
@@ -289,8 +291,9 @@ impl MetaWlSurface {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wl_surface#{}.damage(x: {}, y: {}, width: {}, height: {})", id, arg0, arg1, arg2, arg3);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -361,9 +364,12 @@ impl MetaWlSurface {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        arg0.generate_server_id(arg0_obj.clone())?;
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("callback", e))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        eprintln!("server      <= wl_surface#{}.frame(callback: wl_callback#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -374,7 +380,7 @@ impl MetaWlSurface {
         fmt.words([
             id,
             3,
-            arg0.server_obj_id.get().unwrap_or(0),
+            arg0_id,
         ]);
         Ok(())
     }
@@ -426,15 +432,16 @@ impl MetaWlSurface {
         let arg0 = arg0.map(|a| a.core());
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg0 = match arg0 {
+        let arg0_id = match arg0 {
             None => 0,
             Some(arg0) => match arg0.server_obj_id.get() {
-                None => return Err(ObjectError),
+                None => return Err(ObjectError::ArgNoServerId("region")),
                 Some(id) => id,
             },
         };
+        eprintln!("server      <= wl_surface#{}.set_opaque_region(region: wl_region#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -445,7 +452,7 @@ impl MetaWlSurface {
         fmt.words([
             id,
             4,
-            arg0,
+            arg0_id,
         ]);
         Ok(())
     }
@@ -495,15 +502,16 @@ impl MetaWlSurface {
         let arg0 = arg0.map(|a| a.core());
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg0 = match arg0 {
+        let arg0_id = match arg0 {
             None => 0,
             Some(arg0) => match arg0.server_obj_id.get() {
-                None => return Err(ObjectError),
+                None => return Err(ObjectError::ArgNoServerId("region")),
                 Some(id) => id,
             },
         };
+        eprintln!("server      <= wl_surface#{}.set_input_region(region: wl_region#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -514,7 +522,7 @@ impl MetaWlSurface {
         fmt.words([
             id,
             5,
-            arg0,
+            arg0_id,
         ]);
         Ok(())
     }
@@ -550,8 +558,9 @@ impl MetaWlSurface {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wl_surface#{}.commit()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -595,11 +604,14 @@ impl MetaWlSurface {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
         if arg0.client_id.get() != Some(client.endpoint.id) {
-            return Err(ObjectError);
+            return Err(ObjectError::ArgNoClientId("output", client.endpoint.id));
         }
+        let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_surface#{}.enter(output: wl_output#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -608,9 +620,9 @@ impl MetaWlSurface {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
-            arg0.client_obj_id.get().unwrap_or(0),
+            arg0_id,
         ]);
         Ok(())
     }
@@ -648,11 +660,14 @@ impl MetaWlSurface {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
         if arg0.client_id.get() != Some(client.endpoint.id) {
-            return Err(ObjectError);
+            return Err(ObjectError::ArgNoClientId("output", client.endpoint.id));
         }
+        let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_surface#{}.leave(output: wl_output#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -661,9 +676,9 @@ impl MetaWlSurface {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             1,
-            arg0.client_obj_id.get().unwrap_or(0),
+            arg0_id,
         ]);
         Ok(())
     }
@@ -721,8 +736,9 @@ impl MetaWlSurface {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wl_surface#{}.set_buffer_transform(transform: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -783,8 +799,9 @@ impl MetaWlSurface {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wl_surface#{}.set_buffer_scale(scale: {})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -866,8 +883,9 @@ impl MetaWlSurface {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wl_surface#{}.damage_buffer(x: {}, y: {}, width: {}, height: {})", id, arg0, arg1, arg2, arg3);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -927,8 +945,9 @@ impl MetaWlSurface {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wl_surface#{}.offset(x: {}, y: {})", id, arg0, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -980,8 +999,10 @@ impl MetaWlSurface {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_surface#{}.preferred_buffer_scale(factor: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -990,7 +1011,7 @@ impl MetaWlSurface {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             2,
             arg0 as u32,
         ]);
@@ -1029,8 +1050,10 @@ impl MetaWlSurface {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_surface#{}.preferred_buffer_transform(transform: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -1039,7 +1062,7 @@ impl MetaWlSurface {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             3,
             arg0.0,
         ]);
@@ -1724,6 +1747,10 @@ impl Proxy for MetaWlSurface {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
             0 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> wl_surface#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -1737,22 +1764,25 @@ impl Proxy for MetaWlSurface {
                     arg1,
                     arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
+                let arg1 = arg1 as i32;
+                let arg2 = arg2 as i32;
+                eprintln!("client#{:04} -> wl_surface#{}.attach(buffer: wl_buffer#{}, x: {}, y: {})", client.endpoint.id, msg[0], arg0, arg1, arg2);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
-                    let Some(arg0) = client.endpoint.lookup(arg0) else {
-                        return Err(ObjectError);
+                    let arg0_id = arg0;
+                    let Some(arg0) = client.endpoint.lookup(arg0_id) else {
+                        return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlBuffer>() else {
-                        return Err(ObjectError);
+                        let o = client.endpoint.lookup(arg0_id).unwrap();
+                        return Err(ObjectError::WrongObjectType("buffer", o.core().interface, ProxyInterface::WlBuffer));
                     };
                     Some(arg0)
                 };
                 let arg0 = arg0.as_ref();
-                let arg1 = arg1 as i32;
-                let arg2 = arg2 as i32;
                 if let Some(handler) = handler {
                     (**handler).attach(&self, arg0, arg1, arg2);
                 } else {
@@ -1766,12 +1796,13 @@ impl Proxy for MetaWlSurface {
                     arg2,
                     arg3,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
+                eprintln!("client#{:04} -> wl_surface#{}.damage(x: {}, y: {}, width: {}, height: {})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).damage(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -1782,11 +1813,13 @@ impl Proxy for MetaWlSurface {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("client#{:04} -> wl_surface#{}.frame(callback: wl_callback#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWlCallback::new(&self.core.state, self.core.version);
-                arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg0_id, "callback", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).frame(&self, arg0);
@@ -1798,16 +1831,19 @@ impl Proxy for MetaWlSurface {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("client#{:04} -> wl_surface#{}.set_opaque_region(region: wl_region#{})", client.endpoint.id, msg[0], arg0);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
-                    let Some(arg0) = client.endpoint.lookup(arg0) else {
-                        return Err(ObjectError);
+                    let arg0_id = arg0;
+                    let Some(arg0) = client.endpoint.lookup(arg0_id) else {
+                        return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlRegion>() else {
-                        return Err(ObjectError);
+                        let o = client.endpoint.lookup(arg0_id).unwrap();
+                        return Err(ObjectError::WrongObjectType("region", o.core().interface, ProxyInterface::WlRegion));
                     };
                     Some(arg0)
                 };
@@ -1822,16 +1858,19 @@ impl Proxy for MetaWlSurface {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("client#{:04} -> wl_surface#{}.set_input_region(region: wl_region#{})", client.endpoint.id, msg[0], arg0);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
-                    let Some(arg0) = client.endpoint.lookup(arg0) else {
-                        return Err(ObjectError);
+                    let arg0_id = arg0;
+                    let Some(arg0) = client.endpoint.lookup(arg0_id) else {
+                        return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlRegion>() else {
-                        return Err(ObjectError);
+                        let o = client.endpoint.lookup(arg0_id).unwrap();
+                        return Err(ObjectError::WrongObjectType("region", o.core().interface, ProxyInterface::WlRegion));
                     };
                     Some(arg0)
                 };
@@ -1843,6 +1882,10 @@ impl Proxy for MetaWlSurface {
                 }
             }
             6 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> wl_surface#{}.commit()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).commit(&self);
                 } else {
@@ -1853,9 +1896,10 @@ impl Proxy for MetaWlSurface {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWlOutputTransform(arg0);
+                eprintln!("client#{:04} -> wl_surface#{}.set_buffer_transform(transform: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_buffer_transform(&self, arg0);
                 } else {
@@ -1866,9 +1910,10 @@ impl Proxy for MetaWlSurface {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = arg0 as i32;
+                eprintln!("client#{:04} -> wl_surface#{}.set_buffer_scale(scale: {})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_buffer_scale(&self, arg0);
                 } else {
@@ -1882,12 +1927,13 @@ impl Proxy for MetaWlSurface {
                     arg2,
                     arg3,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
+                eprintln!("client#{:04} -> wl_surface#{}.damage_buffer(x: {}, y: {}, width: {}, height: {})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).damage_buffer(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -1899,22 +1945,23 @@ impl Proxy for MetaWlSurface {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
+                eprintln!("client#{:04} -> wl_surface#{}.offset(x: {}, y: {})", client.endpoint.id, msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).offset(&self, arg0, arg1);
                 } else {
                     DefaultMessageHandler.offset(&self, arg0, arg1);
                 }
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -1927,13 +1974,16 @@ impl Proxy for MetaWlSurface {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let Some(arg0) = self.core.state.server.lookup(arg0) else {
-                    return Err(ObjectError);
+                eprintln!("server      -> wl_surface#{}.enter(output: wl_output#{})", msg[0], arg0);
+                let arg0_id = arg0;
+                let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
+                    return Err(ObjectError::NoServerObject(arg0_id));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlOutput>() else {
-                    return Err(ObjectError);
+                    let o = self.core.state.server.lookup(arg0_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1946,13 +1996,16 @@ impl Proxy for MetaWlSurface {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let Some(arg0) = self.core.state.server.lookup(arg0) else {
-                    return Err(ObjectError);
+                eprintln!("server      -> wl_surface#{}.leave(output: wl_output#{})", msg[0], arg0);
+                let arg0_id = arg0;
+                let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
+                    return Err(ObjectError::NoServerObject(arg0_id));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlOutput>() else {
-                    return Err(ObjectError);
+                    let o = self.core.state.server.lookup(arg0_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1965,9 +2018,10 @@ impl Proxy for MetaWlSurface {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = arg0 as i32;
+                eprintln!("server      -> wl_surface#{}.preferred_buffer_scale(factor: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).preferred_buffer_scale(&self, arg0);
                 } else {
@@ -1978,23 +2032,53 @@ impl Proxy for MetaWlSurface {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWlOutputTransform(arg0);
+                eprintln!("server      -> wl_surface#{}.preferred_buffer_transform(transform: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).preferred_buffer_transform(&self, arg0);
                 } else {
                     DefaultMessageHandler.preferred_buffer_transform(&self, arg0);
                 }
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "destroy",
+            1 => "attach",
+            2 => "damage",
+            3 => "frame",
+            4 => "set_opaque_region",
+            5 => "set_input_region",
+            6 => "commit",
+            7 => "set_buffer_transform",
+            8 => "set_buffer_scale",
+            9 => "damage_buffer",
+            10 => "offset",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "enter",
+            1 => "leave",
+            2 => "preferred_buffer_scale",
+            3 => "preferred_buffer_transform",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

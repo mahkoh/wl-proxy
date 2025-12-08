@@ -72,16 +72,19 @@ impl MetaZwlrVirtualPointerManagerV1 {
         let arg1 = arg1_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg0 = match arg0 {
+        let arg0_id = match arg0 {
             None => 0,
             Some(arg0) => match arg0.server_obj_id.get() {
-                None => return Err(ObjectError),
+                None => return Err(ObjectError::ArgNoServerId("seat")),
                 Some(id) => id,
             },
         };
-        arg1.generate_server_id(arg1_obj.clone())?;
+        arg1.generate_server_id(arg1_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("id", e))?;
+        let arg1_id = arg1.server_obj_id.get().unwrap_or(0);
+        eprintln!("server      <= zwlr_virtual_pointer_manager_v1#{}.create_virtual_pointer(seat: wl_seat#{}, id: zwlr_virtual_pointer_v1#{})", id, arg0_id, arg1_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -92,8 +95,8 @@ impl MetaZwlrVirtualPointerManagerV1 {
         fmt.words([
             id,
             0,
-            arg0,
-            arg1.server_obj_id.get().unwrap_or(0),
+            arg0_id,
+            arg1_id,
         ]);
         Ok(())
     }
@@ -109,8 +112,9 @@ impl MetaZwlrVirtualPointerManagerV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= zwlr_virtual_pointer_manager_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -164,23 +168,26 @@ impl MetaZwlrVirtualPointerManagerV1 {
         let arg2 = arg2_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg0 = match arg0 {
+        let arg0_id = match arg0 {
             None => 0,
             Some(arg0) => match arg0.server_obj_id.get() {
-                None => return Err(ObjectError),
+                None => return Err(ObjectError::ArgNoServerId("seat")),
                 Some(id) => id,
             },
         };
-        let arg1 = match arg1 {
+        let arg1_id = match arg1 {
             None => 0,
             Some(arg1) => match arg1.server_obj_id.get() {
-                None => return Err(ObjectError),
+                None => return Err(ObjectError::ArgNoServerId("output")),
                 Some(id) => id,
             },
         };
-        arg2.generate_server_id(arg2_obj.clone())?;
+        arg2.generate_server_id(arg2_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("id", e))?;
+        let arg2_id = arg2.server_obj_id.get().unwrap_or(0);
+        eprintln!("server      <= zwlr_virtual_pointer_manager_v1#{}.create_virtual_pointer_with_output(seat: wl_seat#{}, output: wl_output#{}, id: zwlr_virtual_pointer_v1#{})", id, arg0_id, arg1_id, arg2_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -191,9 +198,9 @@ impl MetaZwlrVirtualPointerManagerV1 {
         fmt.words([
             id,
             2,
-            arg0,
-            arg1,
-            arg2.server_obj_id.get().unwrap_or(0),
+            arg0_id,
+            arg1_id,
+            arg2_id,
         ]);
         Ok(())
     }
@@ -290,22 +297,26 @@ impl Proxy for MetaZwlrVirtualPointerManagerV1 {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                eprintln!("client#{:04} -> zwlr_virtual_pointer_manager_v1#{}.create_virtual_pointer(seat: wl_seat#{}, id: zwlr_virtual_pointer_v1#{})", client.endpoint.id, msg[0], arg0, arg1);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
-                    let Some(arg0) = client.endpoint.lookup(arg0) else {
-                        return Err(ObjectError);
+                    let arg0_id = arg0;
+                    let Some(arg0) = client.endpoint.lookup(arg0_id) else {
+                        return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSeat>() else {
-                        return Err(ObjectError);
+                        let o = client.endpoint.lookup(arg0_id).unwrap();
+                        return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
                     };
                     Some(arg0)
                 };
                 let arg1_id = arg1;
                 let arg1 = MetaZwlrVirtualPointerV1::new(&self.core.state, self.core.version);
-                arg1.core().set_client_id(client, arg1_id, arg1.clone())?;
+                arg1.core().set_client_id(client, arg1_id, arg1.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg1_id, "id", e))?;
                 let arg0 = arg0.as_ref();
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
@@ -315,6 +326,10 @@ impl Proxy for MetaZwlrVirtualPointerManagerV1 {
                 }
             }
             1 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> zwlr_virtual_pointer_manager_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -328,33 +343,39 @@ impl Proxy for MetaZwlrVirtualPointerManagerV1 {
                     arg1,
                     arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
+                eprintln!("client#{:04} -> zwlr_virtual_pointer_manager_v1#{}.create_virtual_pointer_with_output(seat: wl_seat#{}, output: wl_output#{}, id: zwlr_virtual_pointer_v1#{})", client.endpoint.id, msg[0], arg0, arg1, arg2);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
-                    let Some(arg0) = client.endpoint.lookup(arg0) else {
-                        return Err(ObjectError);
+                    let arg0_id = arg0;
+                    let Some(arg0) = client.endpoint.lookup(arg0_id) else {
+                        return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSeat>() else {
-                        return Err(ObjectError);
+                        let o = client.endpoint.lookup(arg0_id).unwrap();
+                        return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
                     };
                     Some(arg0)
                 };
                 let arg1 = if arg1 == 0 {
                     None
                 } else {
-                    let Some(arg1) = client.endpoint.lookup(arg1) else {
-                        return Err(ObjectError);
+                    let arg1_id = arg1;
+                    let Some(arg1) = client.endpoint.lookup(arg1_id) else {
+                        return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                     };
                     let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlOutput>() else {
-                        return Err(ObjectError);
+                        let o = client.endpoint.lookup(arg1_id).unwrap();
+                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
                     };
                     Some(arg1)
                 };
                 let arg2_id = arg2;
                 let arg2 = MetaZwlrVirtualPointerV1::new(&self.core.state, self.core.version);
-                arg2.core().set_client_id(client, arg2_id, arg2.clone())?;
+                arg2.core().set_client_id(client, arg2_id, arg2.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg2_id, "id", e))?;
                 let arg0 = arg0.as_ref();
                 let arg1 = arg1.as_ref();
                 let arg2 = &arg2;
@@ -364,12 +385,12 @@ impl Proxy for MetaZwlrVirtualPointerManagerV1 {
                     DefaultMessageHandler.create_virtual_pointer_with_output(&self, arg0, arg1, arg2);
                 }
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -378,13 +399,28 @@ impl Proxy for MetaZwlrVirtualPointerManagerV1 {
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "create_virtual_pointer",
+            1 => "destroy",
+            2 => "create_virtual_pointer_with_output",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let _ = id;
+        None
     }
 }
 

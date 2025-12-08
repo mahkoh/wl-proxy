@@ -10,6 +10,7 @@ use {
         os::fd::OwnedFd,
         rc::Rc,
     },
+    thiserror::Error,
 };
 
 pub trait Proxy: Any {
@@ -25,6 +26,8 @@ pub trait Proxy: Any {
         msg: &[u32],
         fds: &mut VecDeque<Rc<OwnedFd>>,
     ) -> Result<(), ObjectError>;
+    fn get_request_name(&self, id: u32) -> Option<&'static str>;
+    fn get_event_name(&self, id: u32) -> Option<&'static str>;
 }
 
 pub struct ProxyCore {
@@ -35,6 +38,26 @@ pub struct ProxyCore {
     pub client_obj_id: Cell<Option<u32>>,
     pub client_id: Cell<Option<u64>>,
     pub client: RefCell<Option<Rc<Client>>>,
+}
+
+#[derive(Debug, Error)]
+pub enum IdError {
+    #[error("object already has the server id {0}")]
+    HasServerId(u32),
+    #[error("there are no server ids available")]
+    NoServerSpace,
+    #[error("the id {0} is too small to be a server id")]
+    NotServerId(u32),
+    #[error("the server id {0} is already in use")]
+    ServerIdInUse(u32),
+    #[error("object already has the client id {0}")]
+    HasClientId(u32),
+    #[error("there are no client ids available")]
+    NoClientSpace,
+    #[error("the id {0} is too large to be a client id")]
+    NotClientId(u32),
+    #[error("the client id {0} is already in use")]
+    ClientIdInUse(u32),
 }
 
 const MIN_SERVER_ID: u32 = 0xff000000;
@@ -52,23 +75,23 @@ impl ProxyCore {
         }
     }
 
-    pub(crate) fn generate_server_id(&self, slf: Rc<dyn Proxy>) -> Result<(), ObjectError> {
-        if self.server_obj_id.get().is_some() {
-            return Err(ObjectError);
+    pub(crate) fn generate_server_id(&self, slf: Rc<dyn Proxy>) -> Result<(), IdError> {
+        if let Some(id) = self.server_obj_id.get() {
+            return Err(IdError::HasServerId(id));
         }
         let id = self.state.server.idl.acquire();
         if id >= MIN_SERVER_ID {
             self.state.server.idl.release(id);
-            return Err(ObjectError);
+            return Err(IdError::NoServerSpace);
         }
         self.server_obj_id.set(Some(id));
         self.state.server.objects.borrow_mut().insert(id, slf);
         Ok(())
     }
 
-    pub(crate) fn set_server_id(&self, id: u32, slf: Rc<dyn Proxy>) -> Result<(), ObjectError> {
+    pub(crate) fn set_server_id(&self, id: u32, slf: Rc<dyn Proxy>) -> Result<(), IdError> {
         if id < MIN_SERVER_ID {
-            return Err(ObjectError);
+            return Err(IdError::NotServerId(id));
         }
         self.set_server_id_unchecked(id, slf)
     }
@@ -77,13 +100,13 @@ impl ProxyCore {
         &self,
         id: u32,
         slf: Rc<dyn Proxy>,
-    ) -> Result<(), ObjectError> {
-        if self.server_obj_id.get().is_some() {
-            return Err(ObjectError);
+    ) -> Result<(), IdError> {
+        if let Some(id) = self.server_obj_id.get() {
+            return Err(IdError::HasServerId(id));
         }
         let objects = &mut *self.state.server.objects.borrow_mut();
         let Entry::Vacant(entry) = objects.entry(id) else {
-            return Err(ObjectError);
+            return Err(IdError::ServerIdInUse(id));
         };
         entry.insert(slf);
         self.server_obj_id.set(Some(id));
@@ -94,14 +117,14 @@ impl ProxyCore {
         &self,
         client: &Rc<Client>,
         slf: Rc<dyn Proxy>,
-    ) -> Result<(), ObjectError> {
-        if self.client_obj_id.get().is_some() {
-            return Err(ObjectError);
+    ) -> Result<(), IdError> {
+        if let Some(id) = self.client_obj_id.get() {
+            return Err(IdError::HasClientId(id));
         }
         let id = client.endpoint.idl.acquire();
         let Some(id) = MIN_SERVER_ID.checked_add(id) else {
             client.endpoint.idl.release(id);
-            return Err(ObjectError);
+            return Err(IdError::NoClientSpace);
         };
         client.endpoint.objects.borrow_mut().insert(id, slf);
         self.set_client_id_(client, id);
@@ -113,16 +136,16 @@ impl ProxyCore {
         client: &Rc<Client>,
         id: u32,
         slf: Rc<dyn Proxy>,
-    ) -> Result<(), ObjectError> {
+    ) -> Result<(), IdError> {
         if id >= MIN_SERVER_ID {
-            return Err(ObjectError);
+            return Err(IdError::NotClientId(id));
         }
-        if self.client_obj_id.get().is_some() {
-            return Err(ObjectError);
+        if let Some(id) = self.client_obj_id.get() {
+            return Err(IdError::HasClientId(id));
         }
         let objects = &mut *client.endpoint.objects.borrow_mut();
         let Entry::Vacant(entry) = objects.entry(id) else {
-            return Err(ObjectError);
+            return Err(IdError::ClientIdInUse(id));
         };
         entry.insert(slf);
         self.set_client_id_(client, id);

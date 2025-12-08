@@ -68,15 +68,16 @@ impl MetaZwpPrimarySelectionDeviceV1 {
         let arg0 = arg0.map(|a| a.core());
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg0 = match arg0 {
+        let arg0_id = match arg0 {
             None => 0,
             Some(arg0) => match arg0.server_obj_id.get() {
-                None => return Err(ObjectError),
+                None => return Err(ObjectError::ArgNoServerId("source")),
                 Some(id) => id,
             },
         };
+        eprintln!("server      <= zwp_primary_selection_device_v1#{}.set_selection(source: zwp_primary_selection_source_v1#{}, serial: {})", id, arg0_id, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -87,7 +88,7 @@ impl MetaZwpPrimarySelectionDeviceV1 {
         fmt.words([
             id,
             0,
-            arg0,
+            arg0_id,
             arg1,
         ]);
         Ok(())
@@ -119,9 +120,13 @@ impl MetaZwpPrimarySelectionDeviceV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
-        arg0.generate_client_id(client, arg0_obj.clone())?;
+        let id = core.client_obj_id.get().unwrap_or(0);
+        arg0.generate_client_id(client, arg0_obj.clone())
+            .map_err(|e| ObjectError::GenerateClientId("offer", e))?;
+        let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= zwp_primary_selection_device_v1#{}.data_offer(offer: zwp_primary_selection_offer_v1#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -130,9 +135,9 @@ impl MetaZwpPrimarySelectionDeviceV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
-            arg0.client_obj_id.get().unwrap_or(0),
+            arg0_id,
         ]);
         Ok(())
     }
@@ -170,13 +175,16 @@ impl MetaZwpPrimarySelectionDeviceV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
         if let Some(arg0) = arg0 {
             if arg0.client_id.get() != Some(client.endpoint.id) {
-                return Err(ObjectError);
+                return Err(ObjectError::ArgNoClientId("id", client.endpoint.id));
             }
         }
+        let arg0_id = arg0.map(|arg0| arg0.client_obj_id.get()).flatten().unwrap_or(0);
+        eprintln!("client#{:04} <= zwp_primary_selection_device_v1#{}.selection(id: zwp_primary_selection_offer_v1#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -185,9 +193,9 @@ impl MetaZwpPrimarySelectionDeviceV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             1,
-            arg0.map(|arg0| arg0.client_obj_id.get()).flatten().unwrap_or(0),
+            arg0_id,
         ]);
         Ok(())
     }
@@ -205,8 +213,9 @@ impl MetaZwpPrimarySelectionDeviceV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= zwp_primary_selection_device_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -351,16 +360,19 @@ impl Proxy for MetaZwpPrimarySelectionDeviceV1 {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                eprintln!("client#{:04} -> zwp_primary_selection_device_v1#{}.set_selection(source: zwp_primary_selection_source_v1#{}, serial: {})", client.endpoint.id, msg[0], arg0, arg1);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
-                    let Some(arg0) = client.endpoint.lookup(arg0) else {
-                        return Err(ObjectError);
+                    let arg0_id = arg0;
+                    let Some(arg0) = client.endpoint.lookup(arg0_id) else {
+                        return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaZwpPrimarySelectionSourceV1>() else {
-                        return Err(ObjectError);
+                        let o = client.endpoint.lookup(arg0_id).unwrap();
+                        return Err(ObjectError::WrongObjectType("source", o.core().interface, ProxyInterface::ZwpPrimarySelectionSourceV1));
                     };
                     Some(arg0)
                 };
@@ -372,6 +384,10 @@ impl Proxy for MetaZwpPrimarySelectionDeviceV1 {
                 }
             }
             1 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> zwp_primary_selection_device_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -379,12 +395,12 @@ impl Proxy for MetaZwpPrimarySelectionDeviceV1 {
                 }
                 self.core.handle_client_destroy();
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -397,11 +413,13 @@ impl Proxy for MetaZwpPrimarySelectionDeviceV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("server      -> zwp_primary_selection_device_v1#{}.data_offer(offer: zwp_primary_selection_offer_v1#{})", msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaZwpPrimarySelectionOfferV1::new(&self.core.state, self.core.version);
-                arg0.core().set_server_id(arg0_id, arg0.clone())?;
+                arg0.core().set_server_id(arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError::SetServerId(arg0_id, "offer", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).data_offer(&self, arg0);
@@ -413,16 +431,19 @@ impl Proxy for MetaZwpPrimarySelectionDeviceV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("server      -> zwp_primary_selection_device_v1#{}.selection(id: zwp_primary_selection_offer_v1#{})", msg[0], arg0);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
-                    let Some(arg0) = self.core.state.server.lookup(arg0) else {
-                        return Err(ObjectError);
+                    let arg0_id = arg0;
+                    let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
+                        return Err(ObjectError::NoServerObject(arg0_id));
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaZwpPrimarySelectionOfferV1>() else {
-                        return Err(ObjectError);
+                        let o = self.core.state.server.lookup(arg0_id).unwrap();
+                        return Err(ObjectError::WrongObjectType("id", o.core().interface, ProxyInterface::ZwpPrimarySelectionOfferV1));
                     };
                     Some(arg0)
                 };
@@ -433,14 +454,32 @@ impl Proxy for MetaZwpPrimarySelectionDeviceV1 {
                     DefaultMessageHandler.selection(&self, arg0);
                 }
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "set_selection",
+            1 => "destroy",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "data_offer",
+            1 => "selection",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

@@ -86,8 +86,10 @@ impl MetaExtImageCopyCaptureSessionV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= ext_image_copy_capture_session_v1#{}.buffer_size(width: {}, height: {})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -96,7 +98,7 @@ impl MetaExtImageCopyCaptureSessionV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
             arg0,
             arg1,
@@ -131,8 +133,10 @@ impl MetaExtImageCopyCaptureSessionV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= ext_image_copy_capture_session_v1#{}.shm_format(format: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -141,7 +145,7 @@ impl MetaExtImageCopyCaptureSessionV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             1,
             arg0.0,
         ]);
@@ -178,8 +182,10 @@ impl MetaExtImageCopyCaptureSessionV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= ext_image_copy_capture_session_v1#{}.dmabuf_device(device: {})", client.endpoint.id, id, debug_array(arg0));
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -188,7 +194,7 @@ impl MetaExtImageCopyCaptureSessionV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             2,
         ]);
         fmt.array(arg0);
@@ -229,8 +235,10 @@ impl MetaExtImageCopyCaptureSessionV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= ext_image_copy_capture_session_v1#{}.dmabuf_format(format: {}, modifiers: {})", client.endpoint.id, id, arg0, debug_array(arg1));
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -239,7 +247,7 @@ impl MetaExtImageCopyCaptureSessionV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             3,
             arg0,
         ]);
@@ -266,8 +274,10 @@ impl MetaExtImageCopyCaptureSessionV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= ext_image_copy_capture_session_v1#{}.done()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -276,7 +286,7 @@ impl MetaExtImageCopyCaptureSessionV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             4,
         ]);
         Ok(())
@@ -301,8 +311,10 @@ impl MetaExtImageCopyCaptureSessionV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= ext_image_copy_capture_session_v1#{}.stopped()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -311,7 +323,7 @@ impl MetaExtImageCopyCaptureSessionV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             5,
         ]);
         Ok(())
@@ -342,9 +354,12 @@ impl MetaExtImageCopyCaptureSessionV1 {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        arg0.generate_server_id(arg0_obj.clone())?;
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("frame", e))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        eprintln!("server      <= ext_image_copy_capture_session_v1#{}.create_frame(frame: ext_image_copy_capture_frame_v1#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -355,7 +370,7 @@ impl MetaExtImageCopyCaptureSessionV1 {
         fmt.words([
             id,
             0,
-            arg0.server_obj_id.get().unwrap_or(0),
+            arg0_id,
         ]);
         Ok(())
     }
@@ -377,8 +392,9 @@ impl MetaExtImageCopyCaptureSessionV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= ext_image_copy_capture_session_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -602,11 +618,13 @@ impl Proxy for MetaExtImageCopyCaptureSessionV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("client#{:04} -> ext_image_copy_capture_session_v1#{}.create_frame(frame: ext_image_copy_capture_frame_v1#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaExtImageCopyCaptureFrameV1::new(&self.core.state, self.core.version);
-                arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg0_id, "frame", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).create_frame(&self, arg0);
@@ -615,6 +633,10 @@ impl Proxy for MetaExtImageCopyCaptureSessionV1 {
                 }
             }
             1 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> ext_image_copy_capture_session_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -622,12 +644,12 @@ impl Proxy for MetaExtImageCopyCaptureSessionV1 {
                 }
                 self.core.handle_client_destroy();
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -641,8 +663,9 @@ impl Proxy for MetaExtImageCopyCaptureSessionV1 {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                eprintln!("server      -> ext_image_copy_capture_session_v1#{}.buffer_size(width: {}, height: {})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).buffer_size(&self, arg0, arg1);
                 } else {
@@ -653,9 +676,10 @@ impl Proxy for MetaExtImageCopyCaptureSessionV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWlShmFormat(arg0);
+                eprintln!("server      -> ext_image_copy_capture_session_v1#{}.shm_format(format: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).shm_format(&self, arg0);
                 } else {
@@ -666,21 +690,22 @@ impl Proxy for MetaExtImageCopyCaptureSessionV1 {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("device"));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("device"));
                     }
                     let start = offset;
                     offset += words;
                     &uapi::as_bytes(&msg[start..])[..len]
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError);
+                    return Err(ObjectError::TrailingBytes);
                 }
+                eprintln!("server      -> ext_image_copy_capture_session_v1#{}.dmabuf_device(device: {})", msg[0], debug_array(arg0));
                 if let Some(handler) = handler {
                     (**handler).dmabuf_device(&self, arg0);
                 } else {
@@ -690,26 +715,27 @@ impl Proxy for MetaExtImageCopyCaptureSessionV1 {
             3 => {
                 let mut offset = 2;
                 let Some(&arg0) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("format"));
                 };
                 offset += 1;
                 let arg1 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("modifiers"));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("modifiers"));
                     }
                     let start = offset;
                     offset += words;
                     &uapi::as_bytes(&msg[start..])[..len]
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError);
+                    return Err(ObjectError::TrailingBytes);
                 }
+                eprintln!("server      -> ext_image_copy_capture_session_v1#{}.dmabuf_format(format: {}, modifiers: {})", msg[0], arg0, debug_array(arg1));
                 if let Some(handler) = handler {
                     (**handler).dmabuf_format(&self, arg0, arg1);
                 } else {
@@ -717,6 +743,10 @@ impl Proxy for MetaExtImageCopyCaptureSessionV1 {
                 }
             }
             4 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("server      -> ext_image_copy_capture_session_v1#{}.done()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).done(&self);
                 } else {
@@ -724,20 +754,46 @@ impl Proxy for MetaExtImageCopyCaptureSessionV1 {
                 }
             }
             5 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("server      -> ext_image_copy_capture_session_v1#{}.stopped()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).stopped(&self);
                 } else {
                     DefaultMessageHandler.stopped(&self);
                 }
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "create_frame",
+            1 => "destroy",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "buffer_size",
+            1 => "shm_format",
+            2 => "dmabuf_device",
+            3 => "dmabuf_format",
+            4 => "done",
+            5 => "stopped",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

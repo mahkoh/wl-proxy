@@ -83,11 +83,14 @@ impl MetaWpPresentationFeedback {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
         if arg0.client_id.get() != Some(client.endpoint.id) {
-            return Err(ObjectError);
+            return Err(ObjectError::ArgNoClientId("output", client.endpoint.id));
         }
+        let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_presentation_feedback#{}.sync_output(output: wl_output#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -96,9 +99,9 @@ impl MetaWpPresentationFeedback {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
-            arg0.client_obj_id.get().unwrap_or(0),
+            arg0_id,
         ]);
         Ok(())
     }
@@ -194,8 +197,10 @@ impl MetaWpPresentationFeedback {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_presentation_feedback#{}.presented(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {}, refresh: {}, seq_hi: {}, seq_lo: {}, flags: {:?})", client.endpoint.id, id, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -204,7 +209,7 @@ impl MetaWpPresentationFeedback {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             1,
             arg0,
             arg1,
@@ -235,8 +240,10 @@ impl MetaWpPresentationFeedback {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_presentation_feedback#{}.discarded()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -245,7 +252,7 @@ impl MetaWpPresentationFeedback {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             2,
         ]);
         drop(fmt);
@@ -403,12 +410,12 @@ impl Proxy for MetaWpPresentationFeedback {
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
     }
@@ -420,13 +427,16 @@ impl Proxy for MetaWpPresentationFeedback {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let Some(arg0) = self.core.state.server.lookup(arg0) else {
-                    return Err(ObjectError);
+                eprintln!("server      -> wp_presentation_feedback#{}.sync_output(output: wl_output#{})", msg[0], arg0);
+                let arg0_id = arg0;
+                let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
+                    return Err(ObjectError::NoServerObject(arg0_id));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlOutput>() else {
-                    return Err(ObjectError);
+                    let o = self.core.state.server.lookup(arg0_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -445,9 +455,10 @@ impl Proxy for MetaWpPresentationFeedback {
                     arg5,
                     arg6,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 36));
                 };
                 let arg6 = MetaWpPresentationFeedbackKind(arg6);
+                eprintln!("server      -> wp_presentation_feedback#{}.presented(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {}, refresh: {}, seq_hi: {}, seq_lo: {}, flags: {:?})", msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6);
                 if let Some(handler) = handler {
                     (**handler).presented(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
                 } else {
@@ -456,6 +467,10 @@ impl Proxy for MetaWpPresentationFeedback {
                 self.core.handle_server_destroy();
             }
             2 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("server      -> wp_presentation_feedback#{}.discarded()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).discarded(&self);
                 } else {
@@ -463,14 +478,29 @@ impl Proxy for MetaWpPresentationFeedback {
                 }
                 self.core.handle_server_destroy();
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let _ = id;
+        None
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "sync_output",
+            1 => "presented",
+            2 => "discarded",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

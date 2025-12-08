@@ -91,8 +91,9 @@ impl MetaZwlrLayerSurfaceV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= zwlr_layer_surface_v1#{}.set_size(width: {}, height: {})", id, arg0, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -138,8 +139,9 @@ impl MetaZwlrLayerSurfaceV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= zwlr_layer_surface_v1#{}.set_anchor(anchor: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -209,8 +211,9 @@ impl MetaZwlrLayerSurfaceV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= zwlr_layer_surface_v1#{}.set_exclusive_zone(zone: {})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -267,8 +270,9 @@ impl MetaZwlrLayerSurfaceV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= zwlr_layer_surface_v1#{}.set_margin(top: {}, right: {}, bottom: {}, left: {})", id, arg0, arg1, arg2, arg3);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -321,8 +325,9 @@ impl MetaZwlrLayerSurfaceV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= zwlr_layer_surface_v1#{}.set_keyboard_interactivity(keyboard_interactivity: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -368,12 +373,13 @@ impl MetaZwlrLayerSurfaceV1 {
         let arg0 = arg0.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg0 = match arg0.server_obj_id.get() {
-            None => return Err(ObjectError),
+        let arg0_id = match arg0.server_obj_id.get() {
+            None => return Err(ObjectError::ArgNoServerId("popup")),
             Some(id) => id,
         };
+        eprintln!("server      <= zwlr_layer_surface_v1#{}.get_popup(popup: xdg_popup#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -384,7 +390,7 @@ impl MetaZwlrLayerSurfaceV1 {
         fmt.words([
             id,
             5,
-            arg0,
+            arg0_id,
         ]);
         Ok(())
     }
@@ -426,8 +432,9 @@ impl MetaZwlrLayerSurfaceV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= zwlr_layer_surface_v1#{}.ack_configure(serial: {})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -456,8 +463,9 @@ impl MetaZwlrLayerSurfaceV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= zwlr_layer_surface_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -524,8 +532,10 @@ impl MetaZwlrLayerSurfaceV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= zwlr_layer_surface_v1#{}.configure(serial: {}, width: {}, height: {})", client.endpoint.id, id, arg0, arg1, arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -534,7 +544,7 @@ impl MetaZwlrLayerSurfaceV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
             arg0,
             arg1,
@@ -561,8 +571,10 @@ impl MetaZwlrLayerSurfaceV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= zwlr_layer_surface_v1#{}.closed()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -571,7 +583,7 @@ impl MetaZwlrLayerSurfaceV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             1,
         ]);
         Ok(())
@@ -602,8 +614,9 @@ impl MetaZwlrLayerSurfaceV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= zwlr_layer_surface_v1#{}.set_layer(layer: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -649,8 +662,9 @@ impl MetaZwlrLayerSurfaceV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= zwlr_layer_surface_v1#{}.set_exclusive_edge(edge: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -1060,8 +1074,9 @@ impl Proxy for MetaZwlrLayerSurfaceV1 {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                eprintln!("client#{:04} -> zwlr_layer_surface_v1#{}.set_size(width: {}, height: {})", client.endpoint.id, msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).set_size(&self, arg0, arg1);
                 } else {
@@ -1072,9 +1087,10 @@ impl Proxy for MetaZwlrLayerSurfaceV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaZwlrLayerSurfaceV1Anchor(arg0);
+                eprintln!("client#{:04} -> zwlr_layer_surface_v1#{}.set_anchor(anchor: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_anchor(&self, arg0);
                 } else {
@@ -1085,9 +1101,10 @@ impl Proxy for MetaZwlrLayerSurfaceV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = arg0 as i32;
+                eprintln!("client#{:04} -> zwlr_layer_surface_v1#{}.set_exclusive_zone(zone: {})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_exclusive_zone(&self, arg0);
                 } else {
@@ -1101,12 +1118,13 @@ impl Proxy for MetaZwlrLayerSurfaceV1 {
                     arg2,
                     arg3,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
+                eprintln!("client#{:04} -> zwlr_layer_surface_v1#{}.set_margin(top: {}, right: {}, bottom: {}, left: {})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).set_margin(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -1117,9 +1135,10 @@ impl Proxy for MetaZwlrLayerSurfaceV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaZwlrLayerSurfaceV1KeyboardInteractivity(arg0);
+                eprintln!("client#{:04} -> zwlr_layer_surface_v1#{}.set_keyboard_interactivity(keyboard_interactivity: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_keyboard_interactivity(&self, arg0);
                 } else {
@@ -1130,13 +1149,16 @@ impl Proxy for MetaZwlrLayerSurfaceV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let Some(arg0) = client.endpoint.lookup(arg0) else {
-                    return Err(ObjectError);
+                eprintln!("client#{:04} -> zwlr_layer_surface_v1#{}.get_popup(popup: xdg_popup#{})", client.endpoint.id, msg[0], arg0);
+                let arg0_id = arg0;
+                let Some(arg0) = client.endpoint.lookup(arg0_id) else {
+                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaXdgPopup>() else {
-                    return Err(ObjectError);
+                    let o = client.endpoint.lookup(arg0_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("popup", o.core().interface, ProxyInterface::XdgPopup));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1149,8 +1171,9 @@ impl Proxy for MetaZwlrLayerSurfaceV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("client#{:04} -> zwlr_layer_surface_v1#{}.ack_configure(serial: {})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).ack_configure(&self, arg0);
                 } else {
@@ -1158,6 +1181,10 @@ impl Proxy for MetaZwlrLayerSurfaceV1 {
                 }
             }
             7 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> zwlr_layer_surface_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -1169,9 +1196,10 @@ impl Proxy for MetaZwlrLayerSurfaceV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaZwlrLayerShellV1Layer(arg0);
+                eprintln!("client#{:04} -> zwlr_layer_surface_v1#{}.set_layer(layer: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_layer(&self, arg0);
                 } else {
@@ -1182,21 +1210,22 @@ impl Proxy for MetaZwlrLayerSurfaceV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaZwlrLayerSurfaceV1Anchor(arg0);
+                eprintln!("client#{:04} -> zwlr_layer_surface_v1#{}.set_exclusive_edge(edge: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_exclusive_edge(&self, arg0);
                 } else {
                     DefaultMessageHandler.set_exclusive_edge(&self, arg0);
                 }
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -1211,8 +1240,9 @@ impl Proxy for MetaZwlrLayerSurfaceV1 {
                     arg1,
                     arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
+                eprintln!("server      -> zwlr_layer_surface_v1#{}.configure(serial: {}, width: {}, height: {})", msg[0], arg0, arg1, arg2);
                 if let Some(handler) = handler {
                     (**handler).configure(&self, arg0, arg1, arg2);
                 } else {
@@ -1220,20 +1250,50 @@ impl Proxy for MetaZwlrLayerSurfaceV1 {
                 }
             }
             1 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("server      -> zwlr_layer_surface_v1#{}.closed()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).closed(&self);
                 } else {
                     DefaultMessageHandler.closed(&self);
                 }
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "set_size",
+            1 => "set_anchor",
+            2 => "set_exclusive_zone",
+            3 => "set_margin",
+            4 => "set_keyboard_interactivity",
+            5 => "get_popup",
+            6 => "ack_configure",
+            7 => "destroy",
+            8 => "set_layer",
+            9 => "set_exclusive_edge",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "configure",
+            1 => "closed",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

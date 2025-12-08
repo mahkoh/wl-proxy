@@ -86,9 +86,12 @@ impl MetaWlShm {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        arg0.generate_server_id(arg0_obj.clone())?;
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("id", e))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        eprintln!("server      <= wl_shm#{}.create_pool(id: wl_shm_pool#{}, fd: {}, size: {})", id, arg0_id, arg1.as_raw_fd(), arg2);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -100,7 +103,7 @@ impl MetaWlShm {
         fmt.words([
             id,
             0,
-            arg0.server_obj_id.get().unwrap_or(0),
+            arg0_id,
             arg2 as u32,
         ]);
         Ok(())
@@ -132,8 +135,10 @@ impl MetaWlShm {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_shm#{}.format(format: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -142,7 +147,7 @@ impl MetaWlShm {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
             arg0.0,
         ]);
@@ -165,8 +170,9 @@ impl MetaWlShm {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wl_shm#{}.release()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -272,17 +278,19 @@ impl Proxy for MetaWlShm {
                     arg0,
                     arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 let Some(arg1) = fds.pop_front() else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingFd("fd"));
                 };
-                let arg0_id = arg0;
-                let arg0 = MetaWlShmPool::new(&self.core.state, self.core.version);
-                arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
-                let arg0 = &arg0;
                 let arg1 = &arg1;
                 let arg2 = arg2 as i32;
+                eprintln!("client#{:04} -> wl_shm#{}.create_pool(id: wl_shm_pool#{}, fd: {}, size: {})", client.endpoint.id, msg[0], arg0, arg1.as_raw_fd(), arg2);
+                let arg0_id = arg0;
+                let arg0 = MetaWlShmPool::new(&self.core.state, self.core.version);
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
+                let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).create_pool(&self, arg0, arg1, arg2);
                 } else {
@@ -290,6 +298,10 @@ impl Proxy for MetaWlShm {
                 }
             }
             1 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> wl_shm#{}.release()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
@@ -297,12 +309,12 @@ impl Proxy for MetaWlShm {
                 }
                 self.core.handle_client_destroy();
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -315,23 +327,41 @@ impl Proxy for MetaWlShm {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWlShmFormat(arg0);
+                eprintln!("server      -> wl_shm#{}.format(format: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).format(&self, arg0);
                 } else {
                     DefaultMessageHandler.format(&self, arg0);
                 }
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "create_pool",
+            1 => "release",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "format",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

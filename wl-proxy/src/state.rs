@@ -18,7 +18,7 @@ use {
         rc::Rc,
     },
     thiserror::Error,
-    uapi::c,
+    uapi::{Errno, c},
 };
 
 #[derive(Debug, Error)]
@@ -261,11 +261,13 @@ impl InnerState {
         let readable = &mut *self.readable_endpoints.borrow_mut();
         let acceptable = &mut *self.acceptable_acceptors.borrow_mut();
         loop {
-            let n = uapi::epoll_wait(self.epoll.as_raw_fd(), &mut events, timeout)
-                .map_err(|e| StateError::ReadEpoll(e.into()))?;
-            if n == 0 {
-                return Ok(());
-            }
+            let res = uapi::epoll_wait(self.epoll.as_raw_fd(), &mut events, timeout);
+            let n = match res {
+                Ok(0) => return Ok(()),
+                Ok(n) => n,
+                Err(Errno(c::EINTR)) => continue,
+                Err(e) => return Err(StateError::ReadEpoll(e.into())),
+            };
             timeout = 0;
             for event in &events[0..n] {
                 let id = event.u64;

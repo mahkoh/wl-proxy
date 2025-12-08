@@ -103,8 +103,9 @@ impl MetaXdgSurface {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= xdg_surface#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -145,9 +146,12 @@ impl MetaXdgSurface {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        arg0.generate_server_id(arg0_obj.clone())?;
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("id", e))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        eprintln!("server      <= xdg_surface#{}.get_toplevel(id: xdg_toplevel#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -158,7 +162,7 @@ impl MetaXdgSurface {
         fmt.words([
             id,
             1,
-            arg0.server_obj_id.get().unwrap_or(0),
+            arg0_id,
         ]);
         Ok(())
     }
@@ -205,20 +209,23 @@ impl MetaXdgSurface {
         let arg2 = arg2.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg1 = match arg1 {
+        let arg1_id = match arg1 {
             None => 0,
             Some(arg1) => match arg1.server_obj_id.get() {
-                None => return Err(ObjectError),
+                None => return Err(ObjectError::ArgNoServerId("parent")),
                 Some(id) => id,
             },
         };
-        let arg2 = match arg2.server_obj_id.get() {
-            None => return Err(ObjectError),
+        let arg2_id = match arg2.server_obj_id.get() {
+            None => return Err(ObjectError::ArgNoServerId("positioner")),
             Some(id) => id,
         };
-        arg0.generate_server_id(arg0_obj.clone())?;
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("id", e))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        eprintln!("server      <= xdg_surface#{}.get_popup(id: xdg_popup#{}, parent: xdg_surface#{}, positioner: xdg_positioner#{})", id, arg0_id, arg1_id, arg2_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -229,9 +236,9 @@ impl MetaXdgSurface {
         fmt.words([
             id,
             2,
-            arg0.server_obj_id.get().unwrap_or(0),
-            arg1,
-            arg2,
+            arg0_id,
+            arg1_id,
+            arg2_id,
         ]);
         Ok(())
     }
@@ -310,8 +317,9 @@ impl MetaXdgSurface {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= xdg_surface#{}.set_window_geometry(x: {}, y: {}, width: {}, height: {})", id, arg0, arg1, arg2, arg3);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -384,8 +392,9 @@ impl MetaXdgSurface {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= xdg_surface#{}.ack_configure(serial: {})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -440,8 +449,10 @@ impl MetaXdgSurface {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= xdg_surface#{}.configure(serial: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -450,7 +461,7 @@ impl MetaXdgSurface {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
             arg0,
         ]);
@@ -707,6 +718,10 @@ impl Proxy for MetaXdgSurface {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
             0 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> xdg_surface#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -718,11 +733,13 @@ impl Proxy for MetaXdgSurface {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("client#{:04} -> xdg_surface#{}.get_toplevel(id: xdg_toplevel#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaXdgToplevel::new(&self.core.state, self.core.version);
-                arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).get_toplevel(&self, arg0);
@@ -736,27 +753,33 @@ impl Proxy for MetaXdgSurface {
                     arg1,
                     arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
+                eprintln!("client#{:04} -> xdg_surface#{}.get_popup(id: xdg_popup#{}, parent: xdg_surface#{}, positioner: xdg_positioner#{})", client.endpoint.id, msg[0], arg0, arg1, arg2);
                 let arg0_id = arg0;
                 let arg0 = MetaXdgPopup::new(&self.core.state, self.core.version);
-                arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg1 = if arg1 == 0 {
                     None
                 } else {
-                    let Some(arg1) = client.endpoint.lookup(arg1) else {
-                        return Err(ObjectError);
+                    let arg1_id = arg1;
+                    let Some(arg1) = client.endpoint.lookup(arg1_id) else {
+                        return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                     };
                     let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaXdgSurface>() else {
-                        return Err(ObjectError);
+                        let o = client.endpoint.lookup(arg1_id).unwrap();
+                        return Err(ObjectError::WrongObjectType("parent", o.core().interface, ProxyInterface::XdgSurface));
                     };
                     Some(arg1)
                 };
-                let Some(arg2) = client.endpoint.lookup(arg2) else {
-                    return Err(ObjectError);
+                let arg2_id = arg2;
+                let Some(arg2) = client.endpoint.lookup(arg2_id) else {
+                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg2_id));
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<MetaXdgPositioner>() else {
-                    return Err(ObjectError);
+                    let o = client.endpoint.lookup(arg2_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("positioner", o.core().interface, ProxyInterface::XdgPositioner));
                 };
                 let arg0 = &arg0;
                 let arg1 = arg1.as_ref();
@@ -774,12 +797,13 @@ impl Proxy for MetaXdgSurface {
                     arg2,
                     arg3,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
+                eprintln!("client#{:04} -> xdg_surface#{}.set_window_geometry(x: {}, y: {}, width: {}, height: {})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).set_window_geometry(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -790,20 +814,21 @@ impl Proxy for MetaXdgSurface {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("client#{:04} -> xdg_surface#{}.ack_configure(serial: {})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).ack_configure(&self, arg0);
                 } else {
                     DefaultMessageHandler.ack_configure(&self, arg0);
                 }
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -816,22 +841,43 @@ impl Proxy for MetaXdgSurface {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("server      -> xdg_surface#{}.configure(serial: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).configure(&self, arg0);
                 } else {
                     DefaultMessageHandler.configure(&self, arg0);
                 }
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "destroy",
+            1 => "get_toplevel",
+            2 => "get_popup",
+            3 => "set_window_geometry",
+            4 => "ack_configure",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "configure",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

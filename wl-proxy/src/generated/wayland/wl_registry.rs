@@ -90,9 +90,12 @@ impl MetaWlRegistry {
         let arg1 = arg1_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        arg1.generate_server_id(arg1_obj.clone())?;
+        arg1.generate_server_id(arg1_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("id", e))?;
+        let arg1_id = arg1.server_obj_id.get().unwrap_or(0);
+        eprintln!("server      <= wl_registry#{}.bind(name: {}, id: {}#{} (version: {}))", id, arg0, arg1.interface.name(), arg1_id, arg1.version);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -108,7 +111,7 @@ impl MetaWlRegistry {
         fmt.string(arg1.interface.name());
         fmt.words([
             arg1.version,
-            arg1.server_obj_id.get().unwrap_or(0),
+            arg1_id,
         ]);
         Ok(())
     }
@@ -149,8 +152,10 @@ impl MetaWlRegistry {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_registry#{}.global(name: {}, interface: {:?}, version: {})", client.endpoint.id, id, arg0, arg1, arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -159,7 +164,7 @@ impl MetaWlRegistry {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
             arg0,
         ]);
@@ -203,8 +208,10 @@ impl MetaWlRegistry {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_registry#{}.global_remove(name: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -213,7 +220,7 @@ impl MetaWlRegistry {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             1,
             arg0,
         ]);
@@ -322,57 +329,59 @@ impl Proxy for MetaWlRegistry {
             0 => {
                 let mut offset = 2;
                 let Some(&arg0) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("name"));
                 };
                 offset += 1;
                 let arg1_interface = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("id"));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("id"));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::NullString("id"));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError);
+                            return Err(ObjectError::NonUtf8("id"));
                         };
                         s
                     }
                 };
                 let Some(&arg1_version) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("id"));
                 };
                 offset += 1;
                 let Some(&arg1) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("id"));
                 };
                 offset += 1;
                 if offset != msg.len() {
-                    return Err(ObjectError);
+                    return Err(ObjectError::TrailingBytes);
                 }
+                eprintln!("client#{:04} -> wl_registry#{}.bind(name: {}, id: {}#{} (version: {}))", client.endpoint.id, msg[0], arg0, arg1_interface, arg1, arg1_version);
                 let arg1_id = arg1;
                 let arg1 = create_proxy_for_interface(&self.core.state, arg1_interface, arg1_version)?;
-                arg1.core().set_client_id(client, arg1_id, arg1.clone())?;
+                arg1.core().set_client_id(client, arg1_id, arg1.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg1_id, "id", e))?;
                 if let Some(handler) = handler {
                     (**handler).bind(&self, arg0, arg1);
                 } else {
                     DefaultMessageHandler.bind(&self, arg0, arg1);
                 }
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -384,40 +393,41 @@ impl Proxy for MetaWlRegistry {
             0 => {
                 let mut offset = 2;
                 let Some(&arg0) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("name"));
                 };
                 offset += 1;
                 let arg1 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("interface"));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("interface"));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::NullString("interface"));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError);
+                            return Err(ObjectError::NonUtf8("interface"));
                         };
                         s
                     }
                 };
                 let Some(&arg2) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("version"));
                 };
                 offset += 1;
                 if offset != msg.len() {
-                    return Err(ObjectError);
+                    return Err(ObjectError::TrailingBytes);
                 }
-                let arg2 = match xml_interface_version(arg1) {
-                    Some(v) => v.min(arg2),
+                eprintln!("server      -> wl_registry#{}.global(name: {}, interface: {:?}, version: {})", msg[0], arg0, arg1, arg2);
+                let arg2 = match proxy_interface(arg1) {
+                    Some(i) => i.xml_version().min(arg2),
                     _ => return Ok(()),
                 };
                 if let Some(handler) = handler {
@@ -430,22 +440,40 @@ impl Proxy for MetaWlRegistry {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("server      -> wl_registry#{}.global_remove(name: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).global_remove(&self, arg0);
                 } else {
                     DefaultMessageHandler.global_remove(&self, arg0);
                 }
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "bind",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "global",
+            1 => "global_remove",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

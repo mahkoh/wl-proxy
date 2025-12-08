@@ -76,8 +76,10 @@ impl MetaWpImageDescriptionInfoV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_image_description_info_v1#{}.done()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -86,7 +88,7 @@ impl MetaWpImageDescriptionInfoV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
         ]);
         drop(fmt);
@@ -131,8 +133,10 @@ impl MetaWpImageDescriptionInfoV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_image_description_info_v1#{}.icc_file(icc: {}, icc_size: {})", client.endpoint.id, id, arg0.as_raw_fd(), arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -142,7 +146,7 @@ impl MetaWpImageDescriptionInfoV1 {
         let mut fmt = outgoing.formatter();
         fmt.fds.push_back(arg0.clone());
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             1,
             arg1,
         ]);
@@ -205,8 +209,10 @@ impl MetaWpImageDescriptionInfoV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_image_description_info_v1#{}.primaries(r_x: {}, r_y: {}, g_x: {}, g_y: {}, b_x: {}, b_y: {}, w_x: {}, w_y: {})", client.endpoint.id, id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -215,7 +221,7 @@ impl MetaWpImageDescriptionInfoV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             2,
             arg0 as u32,
             arg1 as u32,
@@ -254,8 +260,10 @@ impl MetaWpImageDescriptionInfoV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_image_description_info_v1#{}.primaries_named(primaries: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -264,7 +272,7 @@ impl MetaWpImageDescriptionInfoV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             3,
             arg0.0,
         ]);
@@ -301,8 +309,10 @@ impl MetaWpImageDescriptionInfoV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_image_description_info_v1#{}.tf_power(eexp: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -311,7 +321,7 @@ impl MetaWpImageDescriptionInfoV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             4,
             arg0,
         ]);
@@ -343,8 +353,10 @@ impl MetaWpImageDescriptionInfoV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_image_description_info_v1#{}.tf_named(tf: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -353,7 +365,7 @@ impl MetaWpImageDescriptionInfoV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             5,
             arg0.0,
         ]);
@@ -399,8 +411,10 @@ impl MetaWpImageDescriptionInfoV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_image_description_info_v1#{}.luminances(min_lum: {}, max_lum: {}, reference_lum: {})", client.endpoint.id, id, arg0, arg1, arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -409,7 +423,7 @@ impl MetaWpImageDescriptionInfoV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             6,
             arg0,
             arg1,
@@ -480,8 +494,10 @@ impl MetaWpImageDescriptionInfoV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_image_description_info_v1#{}.target_primaries(r_x: {}, r_y: {}, g_x: {}, g_y: {}, b_x: {}, b_y: {}, w_x: {}, w_y: {})", client.endpoint.id, id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -490,7 +506,7 @@ impl MetaWpImageDescriptionInfoV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             7,
             arg0 as u32,
             arg1 as u32,
@@ -543,8 +559,10 @@ impl MetaWpImageDescriptionInfoV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_image_description_info_v1#{}.target_luminance(min_lum: {}, max_lum: {})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -553,7 +571,7 @@ impl MetaWpImageDescriptionInfoV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             8,
             arg0,
             arg1,
@@ -589,8 +607,10 @@ impl MetaWpImageDescriptionInfoV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_image_description_info_v1#{}.target_max_cll(max_cll: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -599,7 +619,7 @@ impl MetaWpImageDescriptionInfoV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             9,
             arg0,
         ]);
@@ -634,8 +654,10 @@ impl MetaWpImageDescriptionInfoV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wp_image_description_info_v1#{}.target_max_fall(max_fall: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -644,7 +666,7 @@ impl MetaWpImageDescriptionInfoV1 {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             10,
             arg0,
         ]);
@@ -998,12 +1020,12 @@ impl Proxy for MetaWpImageDescriptionInfoV1 {
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
     }
@@ -1012,6 +1034,10 @@ impl Proxy for MetaWpImageDescriptionInfoV1 {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
             0 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("server      -> wp_image_description_info_v1#{}.done()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).done(&self);
                 } else {
@@ -1023,12 +1049,13 @@ impl Proxy for MetaWpImageDescriptionInfoV1 {
                 let [
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let Some(arg0) = fds.pop_front() else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingFd("icc"));
                 };
                 let arg0 = &arg0;
+                eprintln!("server      -> wp_image_description_info_v1#{}.icc_file(icc: {}, icc_size: {})", msg[0], arg0.as_raw_fd(), arg1);
                 if let Some(handler) = handler {
                     (**handler).icc_file(&self, arg0, arg1);
                 } else {
@@ -1046,7 +1073,7 @@ impl Proxy for MetaWpImageDescriptionInfoV1 {
                     arg6,
                     arg7,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 40));
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
@@ -1056,6 +1083,7 @@ impl Proxy for MetaWpImageDescriptionInfoV1 {
                 let arg5 = arg5 as i32;
                 let arg6 = arg6 as i32;
                 let arg7 = arg7 as i32;
+                eprintln!("server      -> wp_image_description_info_v1#{}.primaries(r_x: {}, r_y: {}, g_x: {}, g_y: {}, b_x: {}, b_y: {}, w_x: {}, w_y: {})", msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 if let Some(handler) = handler {
                     (**handler).primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 } else {
@@ -1066,9 +1094,10 @@ impl Proxy for MetaWpImageDescriptionInfoV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWpColorManagerV1Primaries(arg0);
+                eprintln!("server      -> wp_image_description_info_v1#{}.primaries_named(primaries: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).primaries_named(&self, arg0);
                 } else {
@@ -1079,8 +1108,9 @@ impl Proxy for MetaWpImageDescriptionInfoV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("server      -> wp_image_description_info_v1#{}.tf_power(eexp: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).tf_power(&self, arg0);
                 } else {
@@ -1091,9 +1121,10 @@ impl Proxy for MetaWpImageDescriptionInfoV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWpColorManagerV1TransferFunction(arg0);
+                eprintln!("server      -> wp_image_description_info_v1#{}.tf_named(tf: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).tf_named(&self, arg0);
                 } else {
@@ -1106,8 +1137,9 @@ impl Proxy for MetaWpImageDescriptionInfoV1 {
                     arg1,
                     arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
+                eprintln!("server      -> wp_image_description_info_v1#{}.luminances(min_lum: {}, max_lum: {}, reference_lum: {})", msg[0], arg0, arg1, arg2);
                 if let Some(handler) = handler {
                     (**handler).luminances(&self, arg0, arg1, arg2);
                 } else {
@@ -1125,7 +1157,7 @@ impl Proxy for MetaWpImageDescriptionInfoV1 {
                     arg6,
                     arg7,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 40));
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
@@ -1135,6 +1167,7 @@ impl Proxy for MetaWpImageDescriptionInfoV1 {
                 let arg5 = arg5 as i32;
                 let arg6 = arg6 as i32;
                 let arg7 = arg7 as i32;
+                eprintln!("server      -> wp_image_description_info_v1#{}.target_primaries(r_x: {}, r_y: {}, g_x: {}, g_y: {}, b_x: {}, b_y: {}, w_x: {}, w_y: {})", msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 if let Some(handler) = handler {
                     (**handler).target_primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 } else {
@@ -1146,8 +1179,9 @@ impl Proxy for MetaWpImageDescriptionInfoV1 {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                eprintln!("server      -> wp_image_description_info_v1#{}.target_luminance(min_lum: {}, max_lum: {})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).target_luminance(&self, arg0, arg1);
                 } else {
@@ -1158,8 +1192,9 @@ impl Proxy for MetaWpImageDescriptionInfoV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("server      -> wp_image_description_info_v1#{}.target_max_cll(max_cll: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).target_max_cll(&self, arg0);
                 } else {
@@ -1170,22 +1205,46 @@ impl Proxy for MetaWpImageDescriptionInfoV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                eprintln!("server      -> wp_image_description_info_v1#{}.target_max_fall(max_fall: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).target_max_fall(&self, arg0);
                 } else {
                     DefaultMessageHandler.target_max_fall(&self, arg0);
                 }
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let _ = id;
+        None
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "done",
+            1 => "icc_file",
+            2 => "primaries",
+            3 => "primaries_named",
+            4 => "tf_power",
+            5 => "tf_named",
+            6 => "luminances",
+            7 => "target_primaries",
+            8 => "target_luminance",
+            9 => "target_max_cll",
+            10 => "target_max_fall",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

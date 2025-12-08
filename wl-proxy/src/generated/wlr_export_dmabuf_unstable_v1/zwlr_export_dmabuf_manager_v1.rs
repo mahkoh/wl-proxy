@@ -75,13 +75,16 @@ impl MetaZwlrExportDmabufManagerV1 {
         let arg2 = arg2.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
-        let arg2 = match arg2.server_obj_id.get() {
-            None => return Err(ObjectError),
+        let arg2_id = match arg2.server_obj_id.get() {
+            None => return Err(ObjectError::ArgNoServerId("output")),
             Some(id) => id,
         };
-        arg0.generate_server_id(arg0_obj.clone())?;
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("frame", e))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        eprintln!("server      <= zwlr_export_dmabuf_manager_v1#{}.capture_output(frame: zwlr_export_dmabuf_frame_v1#{}, overlay_cursor: {}, output: wl_output#{})", id, arg0_id, arg1, arg2_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -92,9 +95,9 @@ impl MetaZwlrExportDmabufManagerV1 {
         fmt.words([
             id,
             0,
-            arg0.server_obj_id.get().unwrap_or(0),
+            arg0_id,
             arg1 as u32,
-            arg2,
+            arg2_id,
         ]);
         Ok(())
     }
@@ -113,8 +116,9 @@ impl MetaZwlrExportDmabufManagerV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= zwlr_export_dmabuf_manager_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -195,19 +199,23 @@ impl Proxy for MetaZwlrExportDmabufManagerV1 {
                     arg1,
                     arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
+                let arg1 = arg1 as i32;
+                eprintln!("client#{:04} -> zwlr_export_dmabuf_manager_v1#{}.capture_output(frame: zwlr_export_dmabuf_frame_v1#{}, overlay_cursor: {}, output: wl_output#{})", client.endpoint.id, msg[0], arg0, arg1, arg2);
                 let arg0_id = arg0;
                 let arg0 = MetaZwlrExportDmabufFrameV1::new(&self.core.state, self.core.version);
-                arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
-                let Some(arg2) = client.endpoint.lookup(arg2) else {
-                    return Err(ObjectError);
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg0_id, "frame", e))?;
+                let arg2_id = arg2;
+                let Some(arg2) = client.endpoint.lookup(arg2_id) else {
+                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg2_id));
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<MetaWlOutput>() else {
-                    return Err(ObjectError);
+                    let o = client.endpoint.lookup(arg2_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
                 };
                 let arg0 = &arg0;
-                let arg1 = arg1 as i32;
                 let arg2 = &arg2;
                 if let Some(handler) = handler {
                     (**handler).capture_output(&self, arg0, arg1, arg2);
@@ -216,6 +224,10 @@ impl Proxy for MetaZwlrExportDmabufManagerV1 {
                 }
             }
             1 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> zwlr_export_dmabuf_manager_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -223,12 +235,12 @@ impl Proxy for MetaZwlrExportDmabufManagerV1 {
                 }
                 self.core.handle_client_destroy();
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -237,13 +249,27 @@ impl Proxy for MetaZwlrExportDmabufManagerV1 {
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "capture_output",
+            1 => "destroy",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let _ = id;
+        None
     }
 }
 

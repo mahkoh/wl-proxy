@@ -89,8 +89,10 @@ impl MetaWlKeyboard {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_keyboard#{}.keymap(format: {:?}, fd: {}, size: {})", client.endpoint.id, id, arg0, arg1.as_raw_fd(), arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -100,7 +102,7 @@ impl MetaWlKeyboard {
         let mut fmt = outgoing.formatter();
         fmt.fds.push_back(arg1.clone());
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             0,
             arg0.0,
             arg2,
@@ -153,11 +155,14 @@ impl MetaWlKeyboard {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
         if arg1.client_id.get() != Some(client.endpoint.id) {
-            return Err(ObjectError);
+            return Err(ObjectError::ArgNoClientId("surface", client.endpoint.id));
         }
+        let arg1_id = arg1.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_keyboard#{}.enter(serial: {}, surface: wl_surface#{}, keys: {})", client.endpoint.id, id, arg0, arg1_id, debug_array(arg2));
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -166,10 +171,10 @@ impl MetaWlKeyboard {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             1,
             arg0,
-            arg1.client_obj_id.get().unwrap_or(0),
+            arg1_id,
         ]);
         fmt.array(arg2);
         Ok(())
@@ -213,11 +218,14 @@ impl MetaWlKeyboard {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
         if arg1.client_id.get() != Some(client.endpoint.id) {
-            return Err(ObjectError);
+            return Err(ObjectError::ArgNoClientId("surface", client.endpoint.id));
         }
+        let arg1_id = arg1.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_keyboard#{}.leave(serial: {}, surface: wl_surface#{})", client.endpoint.id, id, arg0, arg1_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -226,10 +234,10 @@ impl MetaWlKeyboard {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             2,
             arg0,
-            arg1.client_obj_id.get().unwrap_or(0),
+            arg1_id,
         ]);
         Ok(())
     }
@@ -292,8 +300,10 @@ impl MetaWlKeyboard {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_keyboard#{}.key(serial: {}, time: {}, key: {}, state: {:?})", client.endpoint.id, id, arg0, arg1, arg2, arg3);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -302,7 +312,7 @@ impl MetaWlKeyboard {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             3,
             arg0,
             arg1,
@@ -364,8 +374,10 @@ impl MetaWlKeyboard {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_keyboard#{}.modifiers(serial: {}, mods_depressed: {}, mods_latched: {}, mods_locked: {}, group: {})", client.endpoint.id, id, arg0, arg1, arg2, arg3, arg4);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -374,7 +386,7 @@ impl MetaWlKeyboard {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             4,
             arg0,
             arg1,
@@ -396,8 +408,9 @@ impl MetaWlKeyboard {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoServerId);
         };
+        eprintln!("server      <= wl_keyboard#{}.release()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -452,8 +465,10 @@ impl MetaWlKeyboard {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError);
+            return Err(ObjectError::ReceiverNoClient);
         };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        eprintln!("client#{:04} <= wl_keyboard#{}.repeat_info(rate: {}, delay: {})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -462,7 +477,7 @@ impl MetaWlKeyboard {
         let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
-            core.client_obj_id.get().unwrap_or(0),
+            id,
             5,
             arg0 as u32,
             arg1 as u32,
@@ -753,6 +768,10 @@ impl Proxy for MetaWlKeyboard {
         let handler = &mut *self.handler.borrow();
         match msg[1] & 0xffff {
             0 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                }
+                eprintln!("client#{:04} -> wl_keyboard#{}.release()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
@@ -760,12 +779,12 @@ impl Proxy for MetaWlKeyboard {
                 }
                 self.core.handle_client_destroy();
             }
-            _ => {
+            n => {
                 let _ = client;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
@@ -779,13 +798,14 @@ impl Proxy for MetaWlKeyboard {
                     arg0,
                     arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 let Some(arg1) = fds.pop_front() else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingFd("fd"));
                 };
                 let arg0 = MetaWlKeyboardKeymapFormat(arg0);
                 let arg1 = &arg1;
+                eprintln!("server      -> wl_keyboard#{}.keymap(format: {:?}, fd: {}, size: {})", msg[0], arg0, arg1.as_raw_fd(), arg2);
                 if let Some(handler) = handler {
                     (**handler).keymap(&self, arg0, arg1, arg2);
                 } else {
@@ -795,35 +815,38 @@ impl Proxy for MetaWlKeyboard {
             1 => {
                 let mut offset = 2;
                 let Some(&arg0) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("serial"));
                 };
                 offset += 1;
                 let Some(&arg1) = msg.get(offset) else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::MissingArgument("surface"));
                 };
                 offset += 1;
                 let arg2 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("keys"));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError);
+                        return Err(ObjectError::MissingArgument("keys"));
                     }
                     let start = offset;
                     offset += words;
                     &uapi::as_bytes(&msg[start..])[..len]
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError);
+                    return Err(ObjectError::TrailingBytes);
                 }
-                let Some(arg1) = self.core.state.server.lookup(arg1) else {
-                    return Err(ObjectError);
+                eprintln!("server      -> wl_keyboard#{}.enter(serial: {}, surface: wl_surface#{}, keys: {})", msg[0], arg0, arg1, debug_array(arg2));
+                let arg1_id = arg1;
+                let Some(arg1) = self.core.state.server.lookup(arg1_id) else {
+                    return Err(ObjectError::NoServerObject(arg1_id));
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
-                    return Err(ObjectError);
+                    let o = self.core.state.server.lookup(arg1_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
@@ -837,13 +860,16 @@ impl Proxy for MetaWlKeyboard {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                let Some(arg1) = self.core.state.server.lookup(arg1) else {
-                    return Err(ObjectError);
+                eprintln!("server      -> wl_keyboard#{}.leave(serial: {}, surface: wl_surface#{})", msg[0], arg0, arg1);
+                let arg1_id = arg1;
+                let Some(arg1) = self.core.state.server.lookup(arg1_id) else {
+                    return Err(ObjectError::NoServerObject(arg1_id));
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
-                    return Err(ObjectError);
+                    let o = self.core.state.server.lookup(arg1_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
@@ -859,9 +885,10 @@ impl Proxy for MetaWlKeyboard {
                     arg2,
                     arg3,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
                 let arg3 = MetaWlKeyboardKeyState(arg3);
+                eprintln!("server      -> wl_keyboard#{}.key(serial: {}, time: {}, key: {}, state: {:?})", msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).key(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -876,8 +903,9 @@ impl Proxy for MetaWlKeyboard {
                     arg3,
                     arg4,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 28));
                 };
+                eprintln!("server      -> wl_keyboard#{}.modifiers(serial: {}, mods_depressed: {}, mods_latched: {}, mods_locked: {}, group: {})", msg[0], arg0, arg1, arg2, arg3, arg4);
                 if let Some(handler) = handler {
                     (**handler).modifiers(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
@@ -889,24 +917,46 @@ impl Proxy for MetaWlKeyboard {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError);
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
+                eprintln!("server      -> wl_keyboard#{}.repeat_info(rate: {}, delay: {})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).repeat_info(&self, arg0, arg1);
                 } else {
                     DefaultMessageHandler.repeat_info(&self, arg0, arg1);
                 }
             }
-            _ => {
+            n => {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError);
+                return Err(ObjectError::UnknownMessageId(n));
             }
         }
         Ok(())
+    }
+
+    fn get_request_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "release",
+            _ => return None,
+        };
+        Some(name)
+    }
+
+    fn get_event_name(&self, id: u32) -> Option<&'static str> {
+        let name = match id {
+            0 => "keymap",
+            1 => "enter",
+            2 => "leave",
+            3 => "key",
+            4 => "modifiers",
+            5 => "repeat_info",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 
