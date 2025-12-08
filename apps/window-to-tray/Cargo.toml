@@ -1,0 +1,30 @@
+[package]
+name = "window-to-tray"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+thiserror = "2.0.17"
+error_reporter = "1.0.0"
+log = "0.4.29"
+env_logger = "0.11.8"
+clap = { version = "4.5.53", features = ["derive"] }
+clap_complete = "4.5.61"
+uapi = "0.2.13"
+arrayvec = "0.7.6"
+run-on-drop = "1.0.0"
+linearize = { version = "0.1.5", features = ["derive"] }
+isnt = "0.2.0"
+resvg = "0.45.1"
+rust-ini = "0.21.3"
+png = "0.18.0"
+shellexpand = "3.1.1"
+walkdir = "2.5.0"
+
+[dependencies.wl-proxy]
+path = "../../wl-proxy"
+features = [
+    "suite-wayland-protocols",
+    "suite-jay-protocols",
+    "protocol-org_kde_kwin_server_decoration_v1",
+]

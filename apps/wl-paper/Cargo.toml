@@ -1,0 +1,22 @@
+[package]
+name = "wl-paper"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.5.53", features = ["derive"] }
+clap_complete = "4.5.61"
+thiserror = "2.0.17"
+error_reporter = "1.0.0"
+uapi = "0.2.13"
+log = "0.4.29"
+env_logger = "0.11.8"
+arrayvec = "0.7.6"
+
+[dependencies.wl-proxy]
+path = "../../wl-proxy"
+features = [
+    "suite-wayland-protocols",
+    "suite-wlr-protocols",
+    "protocol-org_kde_kwin_server_decoration_v1",
+]

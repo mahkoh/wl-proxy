@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="wlproxy_test">
+  <interface name="wlproxy_test" version="1">
+    <request name="destroy" type="destructor"/>
+
+    <request name="recv_fd">
+      <arg name="fd" type="fd"/>
+    </request>
+
+    <request name="echo_array">
+      <arg name="echo" type="new_id" interface="wlproxy_test_array_echo"/>
+      <arg name="array" type="array"/>
+    </request>
+
+    <request name="echo_fd">
+      <arg name="echo" type="new_id" interface="wlproxy_test_fd_echo"/>
+      <arg name="fd1" type="fd"/>
+      <arg name="fd2" type="fd"/>
+    </request>
+
+    <request name="send_many_events"/>
+
+    <event name="many_event"/>
+
+    <request name="count_hops">
+      <arg name="id" type="new_id" interface="wlproxy_test_hops"/>
+    </request>
+
+    <request name="create_dummy">
+      <arg name="id" type="new_id" interface="wlproxy_test_dummy"/>
+    </request>
+
+    <request name="echo_object">
+      <arg name="echo" type="new_id" interface="wlproxy_test_object_echo"/>
+      <arg name="object" type="object"/>
+    </request>
+
+    <request name="send_object"/>
+
+    <event name="sent_object">
+      <arg name="echo" type="new_id" interface="wlproxy_test_server_sent"/>
+    </event>
+
+    <request name="create_non_forward">
+      <arg name="id" type="new_id" interface="wlproxy_test_non_forward"/>
+    </request>
+  </interface>
+
+  <interface name="wlproxy_test_array_echo" version="1">
+    <event name="array" type="destructor">
+      <arg name="array" type="array"/>
+    </event>
+  </interface>
+
+  <interface name="wlproxy_test_fd_echo" version="1">
+    <event name="fd" type="destructor">
+      <arg name="fd1" type="fd"/>
+      <arg name="fd2" type="fd"/>
+    </event>
+  </interface>
+
+  <interface name="wlproxy_test_hops" version="1">
+    <event name="count" type="destructor">
+      <arg name="count" type="uint"/>
+    </event>
+  </interface>
+
+  <interface name="wlproxy_test_dummy" version="1"/>
+
+  <interface name="wlproxy_test_object_echo" version="1">
+    <event name="object" type="destructor">
+      <arg name="obj" type="object"/>
+    </event>
+  </interface>
+
+  <interface name="wlproxy_test_server_sent" version="1">
+    <request name="send_destroy"/>
+
+    <event name="destroyed" type="destructor"/>
+  </interface>
+
+  <interface name="wlproxy_test_non_forward" version="1">
+    <request name="echo"/>
+    <event name="echoed"/>
+  </interface>
+</protocol>

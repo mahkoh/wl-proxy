@@ -1,0 +1,11 @@
+[workspace]
+resolver = "3"
+members = [
+    "wl-proxy",
+    "generator",
+    "update-protocols",
+    "apps/wl-veil",
+    "apps/wl-paper",
+    "apps/window-to-tray",
+    "apps/wl-format-filter",
+]

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="wlproxy_sync_v1">
+  <copyright>
+    Copyright © 2025 Julian Orth
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice (including the next
+    paragraph) shall be included in all copies or substantial portions of the
+    Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+  </copyright>
+
+  <interface name="wlproxy_sync_v1" version="1">
+    <description summary="protocol for message synchronization">
+      This protocol can be used by wl-proxy applications to synchronize state
+      between their own wayland client and the proxy.
+
+      Compositors should not implement this interface directly.
+    </description>
+
+    <request name="destroy" type="destructor">
+      <description summary="destroy this object" />
+    </request>
+
+    <request name="sync_with_proxy">
+      <description summary="synchronize from the client to the proxy">
+        This request can be used to synchronize messages between the client
+        and the proxy.
+
+        The id_hi and id_lo arguments form an opaque 64-bit number.
+      </description>
+      <arg name="id_hi" type="uint" summary="upper 32 bits of the id"/>
+      <arg name="id_lo" type="uint" summary="lower 32 bits of the id"/>
+    </request>
+
+    <event name="sync_with_client">
+      <description summary="synchronize from the proxy to the client">
+        This event can be used to synchronize messages between the client
+        and the proxy.
+
+        The id_hi and id_lo arguments form an opaque 64-bit number.
+      </description>
+      <arg name="id_hi" type="uint" summary="upper 32 bits of the id"/>
+      <arg name="id_lo" type="uint" summary="lower 32 bits of the id"/>
+    </event>
+  </interface>
+</protocol>
