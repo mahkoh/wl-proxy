@@ -14,9 +14,13 @@ struct DefaultMessageHandler;
 impl MetaZwpFullscreenShellModeFeedbackV1MessageHandler for DefaultMessageHandler { }
 
 impl MetaZwpFullscreenShellModeFeedbackV1 {
+    pub const XML_VERSION: u32 = 1;
+}
+
+impl MetaZwpFullscreenShellModeFeedbackV1 {
     pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
         Rc::new(Self {
-            core: ProxyCore::new(state, version),
+            core: ProxyCore::new(state, ProxyInterface::ZwpFullscreenShellModeFeedbackV1, version),
             handler: Default::default(),
         })
     }
@@ -50,16 +54,25 @@ impl MetaZwpFullscreenShellModeFeedbackV1 {
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
             0,
         ]);
+        drop(fmt);
+        drop(outgoing_ref);
+        drop(client_ref);
+        self.core.handle_client_destroy();
         Ok(())
     }
 
@@ -80,16 +93,25 @@ impl MetaZwpFullscreenShellModeFeedbackV1 {
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
             1,
         ]);
+        drop(fmt);
+        drop(outgoing_ref);
+        drop(client_ref);
+        self.core.handle_client_destroy();
         Ok(())
     }
 
@@ -110,16 +132,25 @@ impl MetaZwpFullscreenShellModeFeedbackV1 {
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
             2,
         ]);
+        drop(fmt);
+        drop(outgoing_ref);
+        drop(client_ref);
+        self.core.handle_client_destroy();
         Ok(())
     }
 }
@@ -215,6 +246,7 @@ impl Proxy for MetaZwpFullscreenShellModeFeedbackV1 {
                 } else {
                     DefaultMessageHandler.mode_successful(&self);
                 }
+                self.core.handle_server_destroy();
             }
             1 => {
                 if let Some(handler) = handler {
@@ -222,6 +254,7 @@ impl Proxy for MetaZwpFullscreenShellModeFeedbackV1 {
                 } else {
                     DefaultMessageHandler.mode_failed(&self);
                 }
+                self.core.handle_server_destroy();
             }
             2 => {
                 if let Some(handler) = handler {
@@ -229,6 +262,7 @@ impl Proxy for MetaZwpFullscreenShellModeFeedbackV1 {
                 } else {
                     DefaultMessageHandler.present_cancelled(&self);
                 }
+                self.core.handle_server_destroy();
             }
             _ => {
                 let _ = msg;

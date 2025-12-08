@@ -19,9 +19,13 @@ struct DefaultMessageHandler;
 impl MetaZwlrOutputPowerV1MessageHandler for DefaultMessageHandler { }
 
 impl MetaZwlrOutputPowerV1 {
+    pub const XML_VERSION: u32 = 1;
+}
+
+impl MetaZwlrOutputPowerV1 {
     pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
         Rc::new(Self {
-            core: ProxyCore::new(state, version),
+            core: ProxyCore::new(state, ProxyInterface::ZwlrOutputPowerV1, version),
             handler: Default::default(),
         })
     }
@@ -65,7 +69,12 @@ impl MetaZwlrOutputPowerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
@@ -103,11 +112,16 @@ impl MetaZwlrOutputPowerV1 {
             mode,
         );
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
@@ -137,11 +151,16 @@ impl MetaZwlrOutputPowerV1 {
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
@@ -165,12 +184,18 @@ impl MetaZwlrOutputPowerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
             1,
         ]);
+        self.core.handle_server_destroy();
         Ok(())
     }
 }
@@ -294,6 +319,7 @@ impl Proxy for MetaZwlrOutputPowerV1 {
                 } else {
                     DefaultMessageHandler.destroy(&self);
                 }
+                self.core.handle_client_destroy();
             }
             _ => {
                 let _ = client;

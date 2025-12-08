@@ -18,9 +18,13 @@ struct DefaultMessageHandler;
 impl MetaZwpTextInputManagerV1MessageHandler for DefaultMessageHandler { }
 
 impl MetaZwpTextInputManagerV1 {
+    pub const XML_VERSION: u32 = 1;
+}
+
+impl MetaZwpTextInputManagerV1 {
     pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
         Rc::new(Self {
-            core: ProxyCore::new(state, version),
+            core: ProxyCore::new(state, ProxyInterface::ZwpTextInputManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -61,7 +65,12 @@ impl MetaZwpTextInputManagerV1 {
             return Err(ObjectError);
         };
         arg0.generate_server_id(arg0_obj.clone())?;
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,

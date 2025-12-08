@@ -19,9 +19,13 @@ struct DefaultMessageHandler;
 impl MetaWlDisplayMessageHandler for DefaultMessageHandler { }
 
 impl MetaWlDisplay {
+    pub const XML_VERSION: u32 = 1;
+}
+
+impl MetaWlDisplay {
     pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
         Rc::new(Self {
-            core: ProxyCore::new(state, version),
+            core: ProxyCore::new(state, ProxyInterface::WlDisplay, version),
             handler: Default::default(),
         })
     }
@@ -72,7 +76,12 @@ impl MetaWlDisplay {
             return Err(ObjectError);
         };
         arg0.generate_server_id(arg0_obj.clone())?;
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
@@ -114,7 +123,12 @@ impl MetaWlDisplay {
             return Err(ObjectError);
         };
         arg0.generate_server_id(arg0_obj.clone())?;
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
@@ -161,14 +175,19 @@ impl MetaWlDisplay {
         );
         let arg0 = arg0.core();
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
-        if arg0.client_id.get() != Some(client.id) {
+        if arg0.client_id.get() != Some(client.endpoint.id) {
             return Err(ObjectError);
         }
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
@@ -206,11 +225,16 @@ impl MetaWlDisplay {
             id,
         );
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
@@ -442,14 +466,10 @@ impl Proxy for MetaWlDisplay {
                 if offset != msg.len() {
                     return Err(ObjectError);
                 }
-                let Some(arg0) = self.core.state.lookup(arg0) else {
+                let Some(arg0) = self.core.state.server.lookup(arg0) else {
                     return Err(ObjectError);
                 };
-                if let Some(handler) = handler {
-                    (**handler).error(&self, arg0, arg1, arg2);
-                } else {
-                    DefaultMessageHandler.error(&self, arg0, arg1, arg2);
-                }
+                self.core.state.handle_error(arg0, arg1, arg2);
             }
             1 => {
                 let [
@@ -457,11 +477,7 @@ impl Proxy for MetaWlDisplay {
                 ] = msg[2..] else {
                     return Err(ObjectError);
                 };
-                if let Some(handler) = handler {
-                    (**handler).delete_id(&self, arg0);
-                } else {
-                    DefaultMessageHandler.delete_id(&self, arg0);
-                }
+                self.core.state.handle_delete_id(arg0);
             }
             _ => {
                 let _ = msg;

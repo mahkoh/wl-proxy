@@ -22,9 +22,13 @@ struct DefaultMessageHandler;
 impl MetaWlDataDeviceMessageHandler for DefaultMessageHandler { }
 
 impl MetaWlDataDevice {
+    pub const XML_VERSION: u32 = 3;
+}
+
+impl MetaWlDataDevice {
     pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
         Rc::new(Self {
-            core: ProxyCore::new(state, version),
+            core: ProxyCore::new(state, ProxyInterface::WlDataDevice, version),
             handler: Default::default(),
         })
     }
@@ -127,7 +131,12 @@ impl MetaWlDataDevice {
                 Some(id) => id,
             },
         };
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
@@ -184,7 +193,12 @@ impl MetaWlDataDevice {
                 Some(id) => id,
             },
         };
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
@@ -221,12 +235,17 @@ impl MetaWlDataDevice {
         let arg0_obj = arg0;
         let arg0 = arg0_obj.core();
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
         arg0.generate_client_id(client, arg0_obj.clone())?;
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
@@ -279,19 +298,24 @@ impl MetaWlDataDevice {
         let arg1 = arg1.core();
         let arg4 = arg4.map(|a| a.core());
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
-        if arg1.client_id.get() != Some(client.id) {
+        if arg1.client_id.get() != Some(client.endpoint.id) {
             return Err(ObjectError);
         }
         if let Some(arg4) = arg4 {
-            if arg4.client_id.get() != Some(client.id) {
+            if arg4.client_id.get() != Some(client.endpoint.id) {
                 return Err(ObjectError);
             }
         }
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
@@ -319,11 +343,16 @@ impl MetaWlDataDevice {
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
@@ -365,11 +394,16 @@ impl MetaWlDataDevice {
             y,
         );
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
@@ -405,11 +439,16 @@ impl MetaWlDataDevice {
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
@@ -452,16 +491,21 @@ impl MetaWlDataDevice {
         );
         let arg0 = arg0.map(|a| a.core());
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
         if let Some(arg0) = arg0 {
-            if arg0.client_id.get() != Some(client.id) {
+            if arg0.client_id.get() != Some(client.endpoint.id) {
                 return Err(ObjectError);
             }
         }
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
@@ -486,12 +530,18 @@ impl MetaWlDataDevice {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
             2,
         ]);
+        self.core.handle_server_destroy();
         Ok(())
     }
 }
@@ -828,7 +878,7 @@ impl Proxy for MetaWlDataDevice {
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
-                    let Some(arg0) = client.lookup(arg0) else {
+                    let Some(arg0) = client.endpoint.lookup(arg0) else {
                         return Err(ObjectError);
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlDataSource>() else {
@@ -836,7 +886,7 @@ impl Proxy for MetaWlDataDevice {
                     };
                     Some(arg0)
                 };
-                let Some(arg1) = client.lookup(arg1) else {
+                let Some(arg1) = client.endpoint.lookup(arg1) else {
                     return Err(ObjectError);
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
@@ -845,7 +895,7 @@ impl Proxy for MetaWlDataDevice {
                 let arg2 = if arg2 == 0 {
                     None
                 } else {
-                    let Some(arg2) = client.lookup(arg2) else {
+                    let Some(arg2) = client.endpoint.lookup(arg2) else {
                         return Err(ObjectError);
                     };
                     let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
@@ -872,7 +922,7 @@ impl Proxy for MetaWlDataDevice {
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
-                    let Some(arg0) = client.lookup(arg0) else {
+                    let Some(arg0) = client.endpoint.lookup(arg0) else {
                         return Err(ObjectError);
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlDataSource>() else {
@@ -893,6 +943,7 @@ impl Proxy for MetaWlDataDevice {
                 } else {
                     DefaultMessageHandler.release(&self);
                 }
+                self.core.handle_client_destroy();
             }
             _ => {
                 let _ = client;
@@ -934,7 +985,7 @@ impl Proxy for MetaWlDataDevice {
                 ] = msg[2..] else {
                     return Err(ObjectError);
                 };
-                let Some(arg1) = self.core.state.lookup(arg1) else {
+                let Some(arg1) = self.core.state.server.lookup(arg1) else {
                     return Err(ObjectError);
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
@@ -943,7 +994,7 @@ impl Proxy for MetaWlDataDevice {
                 let arg4 = if arg4 == 0 {
                     None
                 } else {
-                    let Some(arg4) = self.core.state.lookup(arg4) else {
+                    let Some(arg4) = self.core.state.server.lookup(arg4) else {
                         return Err(ObjectError);
                     };
                     let Ok(arg4) = (arg4 as Rc<dyn Any>).downcast::<MetaWlDataOffer>() else {
@@ -1000,7 +1051,7 @@ impl Proxy for MetaWlDataDevice {
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
-                    let Some(arg0) = self.core.state.lookup(arg0) else {
+                    let Some(arg0) = self.core.state.server.lookup(arg0) else {
                         return Err(ObjectError);
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlDataOffer>() else {

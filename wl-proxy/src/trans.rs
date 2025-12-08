@@ -1,11 +1,16 @@
-use smallvec::SmallVec;
-use std::collections::VecDeque;
-use std::mem::MaybeUninit;
-use std::os::fd::{AsRawFd, FromRawFd, OwnedFd, RawFd};
-use std::rc::Rc;
-use std::{io, mem, slice};
-use thiserror::Error;
-use uapi::{Msghdr, MsghdrMut, c, sockaddr_none_mut, sockaddr_none_ref};
+use {
+    smallvec::SmallVec,
+    std::{
+        collections::VecDeque,
+        io,
+        mem::{self, MaybeUninit},
+        os::fd::{AsRawFd, FromRawFd, OwnedFd, RawFd},
+        rc::Rc,
+        slice,
+    },
+    thiserror::Error,
+    uapi::{Msghdr, MsghdrMut, c, sockaddr_none_mut, sockaddr_none_ref},
+};
 
 const WORD_SIZE: usize = size_of::<u32>();
 const MAX_MESSAGE_SIZE: usize = 4096;
@@ -49,6 +54,7 @@ pub struct MessageFormatter<'a> {
     valid_to_byte: &'a mut usize,
 }
 
+#[derive(Default)]
 pub struct OutputSwapchain {
     pending: VecDeque<Box<OutputBuffer>>,
     stash: Vec<Box<OutputBuffer>>,
@@ -68,8 +74,9 @@ pub enum TransError {
 
 pub fn read_message<'a>(
     socket: RawFd,
+    may_read_from_socket: &mut bool,
     buffer: &'a mut InputBuffer,
-    fds: &mut VecDeque<OwnedFd>,
+    fds: &mut VecDeque<Rc<OwnedFd>>,
 ) -> Result<Option<&'a [u32]>, TransError> {
     if buffer.valid_bytes == 0 {
         buffer.valid_from_word = 0;
@@ -78,9 +85,10 @@ pub fn read_message<'a>(
         buffer.buffer.copy_within(buffer.valid_from_word.., 0);
         buffer.valid_from_word = 0;
     }
-    let mut try_read = true;
     if buffer.valid_bytes < HEADER_SIZE {
-        try_read = read_from_socket(socket, buffer, fds)?;
+        if mem::take(may_read_from_socket) {
+            read_from_socket(socket, buffer, fds)?;
+        }
         if buffer.valid_bytes < HEADER_SIZE {
             return Ok(None);
         }
@@ -100,7 +108,7 @@ pub fn read_message<'a>(
         buffer.valid_from_word = 0;
     };
     if size > buffer.valid_bytes {
-        if try_read {
+        if mem::take(may_read_from_socket) {
             read_from_socket(socket, buffer, fds)?;
         }
         if size > buffer.valid_bytes {
@@ -117,8 +125,8 @@ pub fn read_message<'a>(
 fn read_from_socket(
     fd: RawFd,
     buffer: &mut InputBuffer,
-    fds: &mut VecDeque<OwnedFd>,
-) -> Result<bool, TransError> {
+    fds: &mut VecDeque<Rc<OwnedFd>>,
+) -> Result<(), TransError> {
     let mut iovec =
         &mut uapi::as_bytes_mut(&mut buffer.buffer[buffer.valid_from_word..])[buffer.valid_bytes..];
     let mut control_buf = [0u8; 128];
@@ -130,7 +138,7 @@ fn read_from_socket(
     };
     let (init, _, mut control) = match uapi::recvmsg(fd, &mut header, c::MSG_CMSG_CLOEXEC) {
         Ok(r) => r,
-        Err(e) if e.0 == c::EAGAIN => return Ok(false),
+        Err(e) if e.0 == c::EAGAIN => return Ok(()),
         Err(e) => {
             return Err(TransError::ReadFromSocket(io::Error::from_raw_os_error(
                 e.0,
@@ -145,11 +153,11 @@ fn read_from_socket(
         }
         for fd in uapi::pod_iter::<RawFd, _>(data).unwrap() {
             unsafe {
-                fds.push_back(OwnedFd::from_raw_fd(fd));
+                fds.push_back(Rc::new(OwnedFd::from_raw_fd(fd)));
             }
         }
     }
-    Ok(true)
+    Ok(())
 }
 
 pub fn flush_buffer(socket: RawFd, buffer: &mut OutputBuffer) -> Result<FlushResult, TransError> {
@@ -221,6 +229,16 @@ fn write_to_socket(socket: RawFd, buffer: &mut OutputBuffer) -> Result<FlushResu
     }
 }
 
+impl Default for InputBuffer {
+    fn default() -> Self {
+        Self {
+            buffer: [0; BUFFER_LEN],
+            valid_from_word: 0,
+            valid_bytes: 0,
+        }
+    }
+}
+
 impl Default for OutputBuffer {
     fn default() -> Self {
         Self {
@@ -282,5 +300,18 @@ impl OutputSwapchain {
         let fmt = self.stash.pop().unwrap_or_default();
         self.pending.push_back(fmt);
         self.pending.back_mut().unwrap().formatter().unwrap()
+    }
+
+    pub fn flush(&mut self, fd: RawFd) -> Result<FlushResult, TransError> {
+        while let Some(buf) = self.pending.front_mut() {
+            match flush_buffer(fd, buf)? {
+                FlushResult::Done => {
+                    let buf = self.pending.pop_front().unwrap();
+                    self.stash.push(buf);
+                }
+                FlushResult::Blocked => return Ok(FlushResult::Blocked),
+            }
+        }
+        Ok(FlushResult::Done)
     }
 }

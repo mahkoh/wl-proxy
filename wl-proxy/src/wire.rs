@@ -1,17 +1,4 @@
 use crate::trans::MessageFormatter;
-use thiserror::Error;
-
-#[derive(Debug, Error)]
-pub enum ParseError {}
-
-pub trait MessagePriv<'a>: Sized {
-    fn parse(parser: &mut MessageParser<'a>) -> Result<Self, ParseError>;
-    fn format(&self, formatter: &mut MessageFormatter<'_>);
-}
-
-pub struct MessageParser<'a> {
-    buffer: &'a [u32],
-}
 
 impl MessageFormatter<'_> {
     #[inline(always)]

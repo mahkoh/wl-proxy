@@ -37,9 +37,13 @@ struct DefaultMessageHandler;
 impl MetaWlRegistryMessageHandler for DefaultMessageHandler { }
 
 impl MetaWlRegistry {
+    pub const XML_VERSION: u32 = 1;
+}
+
+impl MetaWlRegistry {
     pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
         Rc::new(Self {
-            core: ProxyCore::new(state, version),
+            core: ProxyCore::new(state, ProxyInterface::WlRegistry, version),
             handler: Default::default(),
         })
     }
@@ -89,12 +93,21 @@ impl MetaWlRegistry {
             return Err(ObjectError);
         };
         arg1.generate_server_id(arg1_obj.clone())?;
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
             0,
             arg0,
+        ]);
+        fmt.string(arg1.interface.name());
+        fmt.words([
+            arg1.version,
             arg1.server_obj_id.get().unwrap_or(0),
         ]);
         Ok(())
@@ -134,11 +147,16 @@ impl MetaWlRegistry {
             version,
         );
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
@@ -183,11 +201,16 @@ impl MetaWlRegistry {
             name,
         );
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
@@ -302,10 +325,6 @@ impl Proxy for MetaWlRegistry {
                     return Err(ObjectError);
                 };
                 offset += 1;
-                let Some(&arg1) = msg.get(offset) else {
-                    return Err(ObjectError);
-                };
-                offset += 1;
                 let arg1_interface = {
                     let Some(&len) = msg.get(offset) else {
                         return Err(ObjectError);
@@ -329,6 +348,10 @@ impl Proxy for MetaWlRegistry {
                     }
                 };
                 let Some(&arg1_version) = msg.get(offset) else {
+                    return Err(ObjectError);
+                };
+                offset += 1;
+                let Some(&arg1) = msg.get(offset) else {
                     return Err(ObjectError);
                 };
                 offset += 1;
@@ -393,6 +416,10 @@ impl Proxy for MetaWlRegistry {
                 if offset != msg.len() {
                     return Err(ObjectError);
                 }
+                let arg2 = match xml_interface_version(arg1) {
+                    Some(v) => v.min(arg2),
+                    _ => return Ok(()),
+                };
                 if let Some(handler) = handler {
                     (**handler).global(&self, arg0, arg1, arg2);
                 } else {

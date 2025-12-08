@@ -18,9 +18,13 @@ struct DefaultMessageHandler;
 impl MetaZwlrVirtualPointerManagerV1MessageHandler for DefaultMessageHandler { }
 
 impl MetaZwlrVirtualPointerManagerV1 {
+    pub const XML_VERSION: u32 = 2;
+}
+
+impl MetaZwlrVirtualPointerManagerV1 {
     pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
         Rc::new(Self {
-            core: ProxyCore::new(state, version),
+            core: ProxyCore::new(state, ProxyInterface::ZwlrVirtualPointerManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -78,7 +82,12 @@ impl MetaZwlrVirtualPointerManagerV1 {
             },
         };
         arg1.generate_server_id(arg1_obj.clone())?;
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
@@ -102,12 +111,18 @@ impl MetaZwlrVirtualPointerManagerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
             1,
         ]);
+        self.core.handle_server_destroy();
         Ok(())
     }
 
@@ -166,7 +181,12 @@ impl MetaZwlrVirtualPointerManagerV1 {
             },
         };
         arg2.generate_server_id(arg2_obj.clone())?;
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
@@ -275,7 +295,7 @@ impl Proxy for MetaZwlrVirtualPointerManagerV1 {
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
-                    let Some(arg0) = client.lookup(arg0) else {
+                    let Some(arg0) = client.endpoint.lookup(arg0) else {
                         return Err(ObjectError);
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSeat>() else {
@@ -300,6 +320,7 @@ impl Proxy for MetaZwlrVirtualPointerManagerV1 {
                 } else {
                     DefaultMessageHandler.destroy(&self);
                 }
+                self.core.handle_client_destroy();
             }
             2 => {
                 let [
@@ -312,7 +333,7 @@ impl Proxy for MetaZwlrVirtualPointerManagerV1 {
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
-                    let Some(arg0) = client.lookup(arg0) else {
+                    let Some(arg0) = client.endpoint.lookup(arg0) else {
                         return Err(ObjectError);
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSeat>() else {
@@ -323,7 +344,7 @@ impl Proxy for MetaZwlrVirtualPointerManagerV1 {
                 let arg1 = if arg1 == 0 {
                     None
                 } else {
-                    let Some(arg1) = client.lookup(arg1) else {
+                    let Some(arg1) = client.endpoint.lookup(arg1) else {
                         return Err(ObjectError);
                     };
                     let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlOutput>() else {

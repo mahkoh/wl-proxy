@@ -112,7 +112,7 @@ impl Builder {
                     for enum_ in interface.enums {
                         enums.push(enum_.name);
                     }
-                    interfaces.push((interface.name, enums));
+                    interfaces.push((interface.name, enums, interface.version));
                 }
                 protocol_objects.push((protocol.name, interfaces));
             }

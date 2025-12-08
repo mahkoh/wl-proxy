@@ -345,8 +345,11 @@ fn parse_interface(
             }
         }
     }
+    let name = name.ok_or(InterfaceError::MissingName)?;
     Ok(Interface {
-        name: name.ok_or(InterfaceError::MissingName)?,
+        is_wl_display: name == "wl_display",
+        is_wl_registry: name == "wl_registry",
+        name,
         version: version.ok_or(InterfaceError::MissingVersion)?,
         description,
         messages,

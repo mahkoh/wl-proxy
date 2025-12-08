@@ -21,9 +21,13 @@ struct DefaultMessageHandler;
 impl MetaWpDrmLeaseRequestV1MessageHandler for DefaultMessageHandler { }
 
 impl MetaWpDrmLeaseRequestV1 {
+    pub const XML_VERSION: u32 = 1;
+}
+
+impl MetaWpDrmLeaseRequestV1 {
     pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
         Rc::new(Self {
-            core: ProxyCore::new(state, version),
+            core: ProxyCore::new(state, ProxyInterface::WpDrmLeaseRequestV1, version),
             handler: Default::default(),
         })
     }
@@ -79,7 +83,12 @@ impl MetaWpDrmLeaseRequestV1 {
             None => return Err(ObjectError),
             Some(id) => id,
         };
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
@@ -119,13 +128,19 @@ impl MetaWpDrmLeaseRequestV1 {
             return Err(ObjectError);
         };
         arg0.generate_server_id(arg0_obj.clone())?;
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
             1,
             arg0.server_obj_id.get().unwrap_or(0),
         ]);
+        self.core.handle_server_destroy();
         Ok(())
     }
 }
@@ -208,7 +223,7 @@ impl Proxy for MetaWpDrmLeaseRequestV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError);
                 };
-                let Some(arg0) = client.lookup(arg0) else {
+                let Some(arg0) = client.endpoint.lookup(arg0) else {
                     return Err(ObjectError);
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWpDrmLeaseConnectorV1>() else {
@@ -236,6 +251,7 @@ impl Proxy for MetaWpDrmLeaseRequestV1 {
                 } else {
                     DefaultMessageHandler.submit(&self, arg0);
                 }
+                self.core.handle_client_destroy();
             }
             _ => {
                 let _ = client;

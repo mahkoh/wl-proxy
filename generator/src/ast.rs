@@ -18,6 +18,8 @@ pub(crate) struct Description {
 pub(crate) struct Interface {
     pub(crate) name: String,
     pub(crate) version: u32,
+    pub(crate) is_wl_display: bool,
+    pub(crate) is_wl_registry: bool,
     pub(crate) description: Option<Description>,
     pub(crate) messages: Vec<Message>,
     pub(crate) enums: Vec<Enum>,

@@ -22,9 +22,13 @@ struct DefaultMessageHandler;
 impl MetaWpColorManagementSurfaceFeedbackV1MessageHandler for DefaultMessageHandler { }
 
 impl MetaWpColorManagementSurfaceFeedbackV1 {
+    pub const XML_VERSION: u32 = 1;
+}
+
+impl MetaWpColorManagementSurfaceFeedbackV1 {
     pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
         Rc::new(Self {
-            core: ProxyCore::new(state, version),
+            core: ProxyCore::new(state, ProxyInterface::WpColorManagementSurfaceFeedbackV1, version),
             handler: Default::default(),
         })
     }
@@ -56,12 +60,18 @@ impl MetaWpColorManagementSurfaceFeedbackV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
             0,
         ]);
+        self.core.handle_server_destroy();
         Ok(())
     }
 
@@ -102,11 +112,16 @@ impl MetaWpColorManagementSurfaceFeedbackV1 {
             identity,
         );
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
@@ -172,7 +187,12 @@ impl MetaWpColorManagementSurfaceFeedbackV1 {
             return Err(ObjectError);
         };
         arg0.generate_server_id(arg0_obj.clone())?;
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
@@ -211,7 +231,12 @@ impl MetaWpColorManagementSurfaceFeedbackV1 {
             return Err(ObjectError);
         };
         arg0.generate_server_id(arg0_obj.clone())?;
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
@@ -370,6 +395,7 @@ impl Proxy for MetaWpColorManagementSurfaceFeedbackV1 {
                 } else {
                     DefaultMessageHandler.destroy(&self);
                 }
+                self.core.handle_client_destroy();
             }
             1 => {
                 let [

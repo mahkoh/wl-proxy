@@ -28,9 +28,13 @@ struct DefaultMessageHandler;
 impl MetaWpPresentationFeedbackMessageHandler for DefaultMessageHandler { }
 
 impl MetaWpPresentationFeedback {
+    pub const XML_VERSION: u32 = 2;
+}
+
+impl MetaWpPresentationFeedback {
     pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
         Rc::new(Self {
-            core: ProxyCore::new(state, version),
+            core: ProxyCore::new(state, ProxyInterface::WpPresentationFeedback, version),
             handler: Default::default(),
         })
     }
@@ -77,14 +81,19 @@ impl MetaWpPresentationFeedback {
         );
         let arg0 = arg0.core();
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
-        if arg0.client_id.get() != Some(client.id) {
+        if arg0.client_id.get() != Some(client.endpoint.id) {
             return Err(ObjectError);
         }
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
@@ -183,11 +192,16 @@ impl MetaWpPresentationFeedback {
             flags,
         );
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
@@ -200,6 +214,10 @@ impl MetaWpPresentationFeedback {
             arg5,
             arg6.0,
         ]);
+        drop(fmt);
+        drop(outgoing_ref);
+        drop(client_ref);
+        self.core.handle_client_destroy();
         Ok(())
     }
 
@@ -215,16 +233,25 @@ impl MetaWpPresentationFeedback {
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
-        let client = core.client.borrow();
-        let Some(client) = &*client else {
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *client.outgoing.borrow_mut();
+        let endpoint = &client.endpoint;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             core.client_obj_id.get().unwrap_or(0),
             2,
         ]);
+        drop(fmt);
+        drop(outgoing_ref);
+        drop(client_ref);
+        self.core.handle_client_destroy();
         Ok(())
     }
 }
@@ -395,7 +422,7 @@ impl Proxy for MetaWpPresentationFeedback {
                 ] = msg[2..] else {
                     return Err(ObjectError);
                 };
-                let Some(arg0) = self.core.state.lookup(arg0) else {
+                let Some(arg0) = self.core.state.server.lookup(arg0) else {
                     return Err(ObjectError);
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlOutput>() else {
@@ -426,6 +453,7 @@ impl Proxy for MetaWpPresentationFeedback {
                 } else {
                     DefaultMessageHandler.presented(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
                 }
+                self.core.handle_server_destroy();
             }
             2 => {
                 if let Some(handler) = handler {
@@ -433,6 +461,7 @@ impl Proxy for MetaWpPresentationFeedback {
                 } else {
                     DefaultMessageHandler.discarded(&self);
                 }
+                self.core.handle_server_destroy();
             }
             _ => {
                 let _ = msg;

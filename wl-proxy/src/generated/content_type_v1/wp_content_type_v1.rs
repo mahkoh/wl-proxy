@@ -24,9 +24,13 @@ struct DefaultMessageHandler;
 impl MetaWpContentTypeV1MessageHandler for DefaultMessageHandler { }
 
 impl MetaWpContentTypeV1 {
+    pub const XML_VERSION: u32 = 1;
+}
+
+impl MetaWpContentTypeV1 {
     pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
         Rc::new(Self {
-            core: ProxyCore::new(state, version),
+            core: ProxyCore::new(state, ProxyInterface::WpContentTypeV1, version),
             handler: Default::default(),
         })
     }
@@ -60,12 +64,18 @@ impl MetaWpContentTypeV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
             0,
         ]);
+        self.core.handle_server_destroy();
         Ok(())
     }
 
@@ -101,7 +111,12 @@ impl MetaWpContentTypeV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
@@ -175,6 +190,7 @@ impl Proxy for MetaWpContentTypeV1 {
                 } else {
                     DefaultMessageHandler.destroy(&self);
                 }
+                self.core.handle_client_destroy();
             }
             1 => {
                 let [

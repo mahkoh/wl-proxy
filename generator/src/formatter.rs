@@ -1,5 +1,5 @@
 use {
-    crate::ast::{Arg, ArgType, Description, Interface, Message, Protocol},
+    crate::ast::{Arg, ArgType, Description, Interface, Message, MessageType, Protocol},
     debug_fn::debug_fn,
     phf::phf_set,
     std::{
@@ -118,6 +118,10 @@ fn format_interface_types(w: &mut impl Write, interface: &Interface) -> io::Resu
         wl!()?;
         wl!(r#"impl Meta{camel}MessageHandler for DefaultMessageHandler {{ }}"#)?;
     }
+    wl!()?;
+    wl!(r#"impl Meta{camel} {{"#)?;
+    wl!(r#"    pub const XML_VERSION: u32 = {};"#, interface.version)?;
+    wl!(r#"}}"#)?;
     Ok(())
 }
 
@@ -126,9 +130,11 @@ fn format_interface_constructors(w: &mut impl Write, interface: &Interface) -> i
     let snake = &interface.name;
     let camel = format_camel(snake).to_string();
     wl!(r#"impl Meta{camel} {{"#)?;
-    wl!(r#"    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {{"#)?;
+    wl!(
+        r#"    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {{"#
+    )?;
     wl!(r#"        Rc::new(Self {{"#)?;
-    wl!(r#"            core: ProxyCore::new(state, version),"#)?;
+    wl!(r#"            core: ProxyCore::new(state, ProxyInterface::{camel}, version),"#)?;
     wl!(r#"            handler: Default::default(),"#)?;
     wl!(r#"        }})"#)?;
     wl!(r#"    }}"#)?;
@@ -196,8 +202,8 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
             wl!(r#"            return Err(ObjectError);"#)?;
             wl!(r#"        }};"#)?;
         } else {
-            wl!(r#"        let client = core.client.borrow();"#)?;
-            wl!(r#"        let Some(client) = &*client else {{"#)?;
+            wl!(r#"        let client_ref = core.client.borrow();"#)?;
+            wl!(r#"        let Some(client) = &*client_ref else {{"#)?;
             wl!(r#"            return Err(ObjectError);"#)?;
             wl!(r#"        }};"#)?;
         }
@@ -209,7 +215,9 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
                         prefix = "    ";
                         wl!(r#"        if let Some(arg{idx}) = arg{idx} {{"#)?;
                     }
-                    wl!(r#"        {prefix}if arg{idx}.client_id.get() != Some(client.id) {{"#)?;
+                    wl!(
+                        r#"        {prefix}if arg{idx}.client_id.get() != Some(client.endpoint.id) {{"#
+                    )?;
                     wl!(r#"        {prefix}    return Err(ObjectError);"#)?;
                     wl!(r#"        {prefix}}}"#)?;
                     if arg.allow_null {
@@ -249,10 +257,17 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
             }
         }
         if message.is_request {
-            wl!(r#"        let outgoing = &mut *self.core.state.outgoing.borrow_mut();"#)?;
+            wl!(r#"        let endpoint = &self.core.state.server;"#)?;
         } else {
-            wl!(r#"        let outgoing = &mut *client.outgoing.borrow_mut();"#)?;
+            wl!(r#"        let endpoint = &client.endpoint;"#)?;
         }
+        wl!(r#"        if !endpoint.has_outgoing.replace(true) {{"#)?;
+        wl!(
+            r#"            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());"#
+        )?;
+        wl!(r#"        }}"#)?;
+        wl!(r#"        let mut outgoing_ref = endpoint.outgoing.borrow_mut();"#)?;
+        wl!(r#"        let outgoing = &mut *outgoing_ref;"#)?;
         wl!(r#"        let mut fmt = outgoing.formatter();"#)?;
         let mut words = vec![];
         if message.is_request {
@@ -278,6 +293,11 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
                     if message.is_request && arg.ty == ArgType::Object {
                         words.push(format!("arg{idx}"));
                     } else {
+                        if arg.ty == ArgType::NewId && arg.interface.is_none() {
+                            flush_words!();
+                            wl!(r#"        fmt.string(arg{idx}.interface.name());"#)?;
+                            words.push(format!("arg{idx}.version"));
+                        }
                         let mut s = String::new();
                         if arg.allow_null {
                             write!(s, "arg{idx}.map(|arg{idx}| ").unwrap();
@@ -319,6 +339,16 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
             }
         }
         flush_words!();
+        if message.ty == Some(MessageType::Destructor) {
+            if message.is_request {
+                wl!(r#"        self.core.handle_server_destroy();"#)?;
+            } else {
+                wl!(r#"        drop(fmt);"#)?;
+                wl!(r#"        drop(outgoing_ref);"#)?;
+                wl!(r#"        drop(client_ref);"#)?;
+                wl!(r#"        self.core.handle_client_destroy();"#)?;
+            }
+        }
         wl!(r#"        Ok(())"#)?;
         wl!(r#"    }}"#)?;
     }
@@ -489,7 +519,7 @@ fn arg_type<'a>(interface: &'a Interface, arg: &'a Arg) -> impl Display + use<'a
 #[allow(clippy::type_complexity)]
 pub fn format_mod_file(
     w: &mut impl Write,
-    protocols: &[(String, Vec<(String, Vec<String>)>)],
+    protocols: &[(String, Vec<(String, Vec<String>, u32)>)],
 ) -> io::Result<()> {
     define_w!(w);
     for (protocol, _) in protocols {
@@ -499,7 +529,7 @@ pub fn format_mod_file(
     wl!("#[allow(unused_imports)]")?;
     wl!("mod all_types {{")?;
     for (proto, interfaces) in protocols {
-        for (snake, enums) in interfaces {
+        for (snake, enums, _) in interfaces {
             let camel = format_camel(snake).to_string();
             let prefix = debug_fn(|f| {
                 write!(
@@ -520,26 +550,56 @@ pub fn format_mod_file(
         "    pub(super) fn create_proxy_for_interface(state: &Rc<InnerState>, interface: &str, version: u32) -> Result<Rc<dyn Proxy>, ObjectError> {{"
     )?;
     wl!(
-        "        static INTERFACES: phf::Map<&'static str, fn(&Rc<InnerState>, u32) -> Rc<dyn Proxy>> = phf::phf_map! {{"
+        "        static INTERFACES: phf::Map<&'static str, fn(&Rc<InnerState>, u32) -> Result<Rc<dyn Proxy>, ObjectError>> = phf::phf_map! {{"
     )?;
     for (_, interfaces) in protocols {
-        for (snake, _) in interfaces {
+        for (snake, _, _) in interfaces {
             let camel = format_camel(snake).to_string();
-            wl!(r#"            "{snake}" => |s, v| Meta{camel}::new(s, v),"#)?;
+            wl!(r#"            "{snake}" => |s, v| {{"#)?;
+            wl!(r#"                if v > Meta{camel}::XML_VERSION {{"#)?;
+            wl!(r#"                    return Err(ObjectError);"#)?;
+            wl!(r#"                }}"#)?;
+            wl!(r#"                Ok(Meta{camel}::new(s, v))"#)?;
+            wl!(r#"            }},"#)?;
         }
     }
     wl!("        }};")?;
-    wl!("        INTERFACES.get(interface).map(|i| i(state, version)).ok_or(ObjectError)")?;
+    wl!("        INTERFACES.get(interface).ok_or(ObjectError).and_then(|i| i(state, version))")?;
+    wl!("    }}")?;
+    wl!()?;
+    wl!("    pub(super) fn xml_interface_version(interface: &str) -> Option<u32> {{")?;
+    wl!("        static INTERFACES: phf::Map<&'static str, u32> = phf::phf_map! {{")?;
+    for (_, interfaces) in protocols {
+        for (snake, _, version) in interfaces {
+            wl!(r#"            "{snake}" => {version},"#)?;
+        }
+    }
+    wl!("        }};")?;
+    wl!("        INTERFACES.get(interface).copied()")?;
     wl!("    }}")?;
     wl!("}}")?;
     wl!()?;
+    wl!("#[derive(Copy, Clone, Debug, Eq, PartialEq)]")?;
     wl!("pub enum ProxyInterface {{")?;
     for (_, interfaces) in protocols {
-        for (snake, _) in interfaces {
-            let camel = format_camel(snake).to_string();
+        for (snake, _, _) in interfaces {
+            let camel = format_camel(snake);
             wl!(r#"    {camel},"#)?;
         }
     }
+    wl!("}}")?;
+    wl!()?;
+    wl!("impl ProxyInterface {{")?;
+    wl!("    pub fn name(self) -> &'static str {{")?;
+    wl!("        match self {{")?;
+    for (_, interfaces) in protocols {
+        for (snake, _, _) in interfaces {
+            let camel = format_camel(snake);
+            wl!(r#"            Self::{camel} => "{snake}","#)?;
+        }
+    }
+    wl!("        }}")?;
+    wl!("    }}")?;
     wl!("}}")?;
     Ok(())
 }
@@ -715,15 +775,16 @@ fn format_proxy_message_handler_body<W: Write>(
     requests: bool,
 ) -> io::Result<()> {
     define_w!(w);
-    wl!(r#"        let handler = &mut *self.handler.borrow();"#)?;
-    wl!(r#"        match msg[1] & 0xffff {{"#)?;
+    let p = "        ";
+    wl!(r#"{p}let handler = &mut *self.handler.borrow();"#)?;
+    wl!(r#"{p}match msg[1] & 0xffff {{"#)?;
     let mut any_messages = false;
     for msg in &interface.messages {
         if msg.is_request != requests {
             continue;
         }
         any_messages = true;
-        wl!(r#"            {} => {{"#, msg.message_id)?;
+        wl!(r#"{p}    {} => {{"#, msg.message_id)?;
         let num_words = msg.args.iter().try_fold(0, |n, a| {
             let size = match a.ty {
                 ArgType::NewId if a.interface.is_none() => return None,
@@ -740,7 +801,7 @@ fn format_proxy_message_handler_body<W: Write>(
         if let Some(num_words) = num_words
             && num_words > 0
         {
-            wl!(r#"                let ["#)?;
+            wl!(r#"{p}        let ["#)?;
             for (idx, arg) in msg.args.iter().enumerate() {
                 match arg.ty {
                     ArgType::NewId
@@ -748,54 +809,52 @@ fn format_proxy_message_handler_body<W: Write>(
                     | ArgType::Uint
                     | ArgType::Fixed
                     | ArgType::Object => {
-                        wl!(r#"                    arg{idx},"#)?;
+                        wl!(r#"{p}            arg{idx},"#)?;
                     }
                     ArgType::Fd => continue,
                     ArgType::String | ArgType::Array => unreachable!(),
                 }
             }
-            wl!(r#"                ] = msg[2..] else {{"#)?;
-            wl!(r#"                    return Err(ObjectError);"#)?;
-            wl!(r#"                }};"#)?;
+            wl!(r#"{p}        ] = msg[2..] else {{"#)?;
+            wl!(r#"{p}            return Err(ObjectError);"#)?;
+            wl!(r#"{p}        }};"#)?;
         } else if msg.args.iter().any(|a| !matches!(a.ty, ArgType::Fd)) {
-            wl!(r#"                let mut offset = 2;"#)?;
+            wl!(r#"{p}        let mut offset = 2;"#)?;
             let parse_array = |w: &mut W, ty: ArgType, allow_null: bool| -> io::Result<()> {
                 define_w!(w, wl2);
-                wl2!(r#"                    let Some(&len) = msg.get(offset) else {{"#)?;
-                wl2!(r#"                        return Err(ObjectError);"#)?;
-                wl2!(r#"                    }};"#)?;
-                wl2!(r#"                    offset += 1;"#)?;
-                wl2!(r#"                    let len = len as usize;"#)?;
-                wl2!(r#"                    let words = ((len as u64 + 3) / 4) as usize;"#)?;
-                wl2!(r#"                    if offset + words > msg.len() {{"#)?;
-                wl2!(r#"                        return Err(ObjectError);"#)?;
-                wl2!(r#"                    }}"#)?;
-                wl2!(r#"                    let start = offset;"#)?;
-                wl2!(r#"                    offset += words;"#)?;
+                wl2!(r#"{p}            let Some(&len) = msg.get(offset) else {{"#)?;
+                wl2!(r#"{p}                return Err(ObjectError);"#)?;
+                wl2!(r#"{p}            }};"#)?;
+                wl2!(r#"{p}            offset += 1;"#)?;
+                wl2!(r#"{p}            let len = len as usize;"#)?;
+                wl2!(r#"{p}            let words = ((len as u64 + 3) / 4) as usize;"#)?;
+                wl2!(r#"{p}            if offset + words > msg.len() {{"#)?;
+                wl2!(r#"{p}                return Err(ObjectError);"#)?;
+                wl2!(r#"{p}            }}"#)?;
+                wl2!(r#"{p}            let start = offset;"#)?;
+                wl2!(r#"{p}            offset += words;"#)?;
                 if ty == ArgType::Array {
-                    wl2!(r#"                    &uapi::as_bytes(&msg[start..])[..len]"#)?;
+                    wl2!(r#"{p}            &uapi::as_bytes(&msg[start..])[..len]"#)?;
                 } else {
-                    wl2!(
-                        r#"                    let bytes = &uapi::as_bytes(&msg[start..])[..len];"#
-                    )?;
-                    wl2!(r#"                    if bytes.is_empty() {{"#)?;
+                    wl2!(r#"{p}            let bytes = &uapi::as_bytes(&msg[start..])[..len];"#)?;
+                    wl2!(r#"{p}            if bytes.is_empty() {{"#)?;
                     if allow_null {
-                        wl2!(r#"                        None"#)?;
+                        wl2!(r#"{p}                None"#)?;
                     } else {
-                        wl2!(r#"                        return Err(ObjectError);"#)?;
+                        wl2!(r#"{p}                return Err(ObjectError);"#)?;
                     }
-                    wl2!(r#"                    }} else {{"#)?;
+                    wl2!(r#"{p}            }} else {{"#)?;
                     wl2!(
-                        r#"                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {{"#
+                        r#"{p}                let Ok(s) = str::from_utf8(&bytes[..len-1]) else {{"#
                     )?;
-                    wl2!(r#"                            return Err(ObjectError);"#)?;
-                    wl2!(r#"                        }};"#)?;
+                    wl2!(r#"{p}                    return Err(ObjectError);"#)?;
+                    wl2!(r#"{p}                }};"#)?;
                     if allow_null {
-                        wl2!(r#"                        Some(s)"#)?;
+                        wl2!(r#"{p}                Some(s)"#)?;
                     } else {
-                        wl2!(r#"                        s"#)?;
+                        wl2!(r#"{p}                s"#)?;
                     }
-                    wl2!(r#"                    }}"#)?;
+                    wl2!(r#"{p}            }}"#)?;
                 }
                 Ok(())
             };
@@ -806,98 +865,104 @@ fn format_proxy_message_handler_body<W: Write>(
                     | ArgType::Uint
                     | ArgType::Fixed
                     | ArgType::Object => {
-                        wl!(r#"                let Some(&arg{idx}) = msg.get(offset) else {{"#)?;
-                        wl!(r#"                    return Err(ObjectError);"#)?;
-                        wl!(r#"                }};"#)?;
-                        wl!(r#"                offset += 1;"#)?;
                         if arg.ty == ArgType::NewId && arg.interface.is_none() {
-                            wl!(r#"                let arg{idx}_interface = {{"#)?;
+                            wl!(r#"{p}        let arg{idx}_interface = {{"#)?;
                             parse_array(w, ArgType::String, false)?;
-                            wl!(r#"                }};"#)?;
+                            wl!(r#"{p}        }};"#)?;
                             wl!(
-                                r#"                let Some(&arg{idx}_version) = msg.get(offset) else {{"#
+                                r#"{p}        let Some(&arg{idx}_version) = msg.get(offset) else {{"#
                             )?;
-                            wl!(r#"                    return Err(ObjectError);"#)?;
-                            wl!(r#"                }};"#)?;
-                            wl!(r#"                offset += 1;"#)?;
+                            wl!(r#"{p}            return Err(ObjectError);"#)?;
+                            wl!(r#"{p}        }};"#)?;
+                            wl!(r#"{p}        offset += 1;"#)?;
                         }
+                        wl!(r#"{p}        let Some(&arg{idx}) = msg.get(offset) else {{"#)?;
+                        wl!(r#"{p}            return Err(ObjectError);"#)?;
+                        wl!(r#"{p}        }};"#)?;
+                        wl!(r#"{p}        offset += 1;"#)?;
                     }
                     ArgType::Fd => continue,
                     ArgType::String | ArgType::Array => {
-                        wl!(r#"                let arg{idx} = {{"#)?;
+                        wl!(r#"{p}        let arg{idx} = {{"#)?;
                         parse_array(w, arg.ty, arg.allow_null)?;
-                        wl!(r#"                }};"#)?;
+                        wl!(r#"{p}        }};"#)?;
                     }
                 }
             }
-            wl!(r#"                if offset != msg.len() {{"#)?;
-            wl!(r#"                    return Err(ObjectError);"#)?;
-            wl!(r#"                }}"#)?;
+            wl!(r#"{p}        if offset != msg.len() {{"#)?;
+            wl!(r#"{p}            return Err(ObjectError);"#)?;
+            wl!(r#"{p}        }}"#)?;
         }
         for (idx, arg) in msg.args.iter().enumerate() {
             if arg.ty == ArgType::Fd {
-                wl!(r#"                let Some(arg{idx}) = fds.pop_front() else {{"#)?;
-                wl!(r#"                    return Err(ObjectError);"#)?;
-                wl!(r#"                }};"#)?;
+                wl!(r#"{p}        let Some(arg{idx}) = fds.pop_front() else {{"#)?;
+                wl!(r#"{p}            return Err(ObjectError);"#)?;
+                wl!(r#"{p}        }};"#)?;
             }
+        }
+        if interface.is_wl_registry && msg.name == "global" {
+            wl!(r#"{p}        let arg2 = match xml_interface_version(arg1) {{"#)?;
+            wl!(r#"{p}            Some(v) => v.min(arg2),"#)?;
+            wl!(r#"{p}            _ => return Ok(()),"#)?;
+            wl!(r#"{p}        }};"#)?;
         }
         for (idx, arg) in msg.args.iter().enumerate() {
             match arg.ty {
                 ArgType::NewId => {
-                    wl!(r#"                let arg{idx}_id = arg{idx};"#)?;
+                    wl!(r#"{p}        let arg{idx}_id = arg{idx};"#)?;
                     match &arg.interface {
                         Some(interface) => {
                             let camel = format_camel(interface);
                             wl!(
-                                r#"                let arg{idx} = Meta{camel}::new(&self.core.state, self.core.version);"#
+                                r#"{p}        let arg{idx} = Meta{camel}::new(&self.core.state, self.core.version);"#
                             )?;
                         }
                         _ => {
                             wl!(
-                                r#"                let arg{idx} = create_proxy_for_interface(&self.core.state, arg{idx}_interface, arg{idx}_version)?;"#
+                                r#"{p}        let arg{idx} = create_proxy_for_interface(&self.core.state, arg{idx}_interface, arg{idx}_version)?;"#
                             )?;
                         }
                     }
                     if msg.is_request {
                         wl!(
-                            r#"                arg{idx}.core().set_client_id(client, arg{idx}_id, arg{idx}.clone())?;"#
+                            r#"{p}        arg{idx}.core().set_client_id(client, arg{idx}_id, arg{idx}.clone())?;"#
                         )?;
                     } else {
                         wl!(
-                            r#"                arg{idx}.core().set_server_id(arg{idx}_id, arg{idx}.clone())?;"#
+                            r#"{p}        arg{idx}.core().set_server_id(arg{idx}_id, arg{idx}.clone())?;"#
                         )?;
                     }
                 }
                 ArgType::Object => {
                     let mut prefix = "";
                     if arg.allow_null {
-                        wl!(r#"                let arg{idx} = if arg{idx} == 0 {{"#)?;
-                        wl!(r#"                    None"#)?;
-                        wl!(r#"                }} else {{"#)?;
+                        wl!(r#"{p}        let arg{idx} = if arg{idx} == 0 {{"#)?;
+                        wl!(r#"{p}            None"#)?;
+                        wl!(r#"{p}        }} else {{"#)?;
                         prefix = "    ";
                     }
                     if msg.is_request {
                         wl!(
-                            r#"                {prefix}let Some(arg{idx}) = client.lookup(arg{idx}) else {{"#
+                            r#"{p}        {prefix}let Some(arg{idx}) = client.endpoint.lookup(arg{idx}) else {{"#
                         )?;
                     } else {
                         wl!(
-                            r#"                {prefix}let Some(arg{idx}) = self.core.state.lookup(arg{idx}) else {{"#
+                            r#"{p}        {prefix}let Some(arg{idx}) = self.core.state.server.lookup(arg{idx}) else {{"#
                         )?;
                     }
-                    wl!(r#"                    {prefix}return Err(ObjectError);"#)?;
-                    wl!(r#"                {prefix}}};"#)?;
+                    wl!(r#"{p}            {prefix}return Err(ObjectError);"#)?;
+                    wl!(r#"{p}        {prefix}}};"#)?;
                     if let Some(interface) = &arg.interface {
                         let camel = format_camel(interface);
                         wl!(
-                            r#"                {prefix}let Ok(arg{idx}) = (arg{idx} as Rc<dyn Any>).downcast::<Meta{camel}>() else {{"#
+                            r#"{p}        {prefix}let Ok(arg{idx}) = (arg{idx} as Rc<dyn Any>).downcast::<Meta{camel}>() else {{"#
                         )?;
-                        wl!(r#"                {prefix}    return Err(ObjectError);"#)?;
-                        wl!(r#"                {prefix}}};"#)?;
+                        wl!(r#"{p}        {prefix}    return Err(ObjectError);"#)?;
+                        wl!(r#"{p}        {prefix}}};"#)?;
                     }
                     if arg.allow_null {
-                        wl!(r#"                    Some(arg{idx})"#)?;
-                        wl!(r#"                }};"#)?;
+                        wl!(r#"{p}            Some(arg{idx})"#)?;
+                        wl!(r#"{p}        }};"#)?;
                     }
                 }
                 ArgType::Int => {}
@@ -942,39 +1007,50 @@ fn format_proxy_message_handler_body<W: Write>(
             }
             wl!(r#";"#)?;
         }
-        macro_rules! format_call {
-            ($target:expr) => {
-                w!(
-                    r#"                    {}.{}("#,
-                    $target,
-                    escape_name(&msg.name)
-                )?;
-                w!(r#"&self"#)?;
-                for (idx, _) in msg.args.iter().enumerate() {
-                    w!(r#", arg{idx}"#)?;
+        if interface.is_wl_display && !msg.is_request {
+            if msg.name == "delete_id" {
+                wl!(r#"{p}        self.core.state.handle_delete_id(arg0);"#)?;
+            } else if msg.name == "error" {
+                wl!(r#"{p}        self.core.state.handle_error(arg0, arg1, arg2);"#)?;
+            }
+        } else {
+            macro_rules! format_call {
+                ($target:expr) => {
+                    w!(r#"{p}            {}.{}("#, $target, escape_name(&msg.name))?;
+                    w!(r#"&self"#)?;
+                    for (idx, _) in msg.args.iter().enumerate() {
+                        w!(r#", arg{idx}"#)?;
+                    }
+                    wl!(r#");"#)?;
+                };
+            }
+            wl!(r#"{p}        if let Some(handler) = handler {{"#)?;
+            format_call!("(**handler)");
+            wl!(r#"{p}        }} else {{"#)?;
+            format_call!("DefaultMessageHandler");
+            wl!(r#"{p}        }}"#)?;
+            if msg.ty == Some(MessageType::Destructor) {
+                if msg.is_request {
+                    wl!(r#"{p}        self.core.handle_client_destroy();"#)?;
+                } else {
+                    wl!(r#"{p}        self.core.handle_server_destroy();"#)?;
                 }
-                wl!(r#");"#)?;
-            };
+            }
         }
-        wl!(r#"                if let Some(handler) = handler {{"#)?;
-        format_call!("(**handler)");
-        wl!(r#"                }} else {{"#)?;
-        format_call!("DefaultMessageHandler");
-        wl!(r#"                }}"#)?;
-        wl!(r#"            }}"#)?;
+        wl!(r#"{p}    }}"#)?;
     }
-    wl!(r#"            _ => {{"#)?;
+    wl!(r#"{p}    _ => {{"#)?;
     if requests {
-        wl!(r#"                let _ = client;"#)?;
+        wl!(r#"{p}        let _ = client;"#)?;
     }
-    wl!(r#"                let _ = msg;"#)?;
-    wl!(r#"                let _ = fds;"#)?;
-    wl!(r#"                let _ = handler;"#)?;
-    wl!(r#"                return Err(ObjectError);"#)?;
-    wl!(r#"            }}"#)?;
-    wl!(r#"        }}"#)?;
+    wl!(r#"{p}        let _ = msg;"#)?;
+    wl!(r#"{p}        let _ = fds;"#)?;
+    wl!(r#"{p}        let _ = handler;"#)?;
+    wl!(r#"{p}        return Err(ObjectError);"#)?;
+    wl!(r#"{p}    }}"#)?;
+    wl!(r#"{p}}}"#)?;
     if any_messages {
-        wl!(r#"        Ok(())"#)?;
+        wl!(r#"{p}Ok(())"#)?;
     }
     Ok(())
 }

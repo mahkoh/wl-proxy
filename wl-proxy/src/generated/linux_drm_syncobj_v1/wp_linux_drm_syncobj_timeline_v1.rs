@@ -19,9 +19,13 @@ struct DefaultMessageHandler;
 impl MetaWpLinuxDrmSyncobjTimelineV1MessageHandler for DefaultMessageHandler { }
 
 impl MetaWpLinuxDrmSyncobjTimelineV1 {
+    pub const XML_VERSION: u32 = 1;
+}
+
+impl MetaWpLinuxDrmSyncobjTimelineV1 {
     pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
         Rc::new(Self {
-            core: ProxyCore::new(state, version),
+            core: ProxyCore::new(state, ProxyInterface::WpLinuxDrmSyncobjTimelineV1, version),
             handler: Default::default(),
         })
     }
@@ -55,12 +59,18 @@ impl MetaWpLinuxDrmSyncobjTimelineV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
             0,
         ]);
+        self.core.handle_server_destroy();
         Ok(())
     }
 }
@@ -100,6 +110,7 @@ impl Proxy for MetaWpLinuxDrmSyncobjTimelineV1 {
                 } else {
                     DefaultMessageHandler.destroy(&self);
                 }
+                self.core.handle_client_destroy();
             }
             _ => {
                 let _ = client;

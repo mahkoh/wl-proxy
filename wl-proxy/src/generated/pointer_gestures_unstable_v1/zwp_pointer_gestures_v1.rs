@@ -33,9 +33,13 @@ struct DefaultMessageHandler;
 impl MetaZwpPointerGesturesV1MessageHandler for DefaultMessageHandler { }
 
 impl MetaZwpPointerGesturesV1 {
+    pub const XML_VERSION: u32 = 3;
+}
+
+impl MetaZwpPointerGesturesV1 {
     pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
         Rc::new(Self {
-            core: ProxyCore::new(state, version),
+            core: ProxyCore::new(state, ProxyInterface::ZwpPointerGesturesV1, version),
             handler: Default::default(),
         })
     }
@@ -90,7 +94,12 @@ impl MetaZwpPointerGesturesV1 {
             Some(id) => id,
         };
         arg0.generate_server_id(arg0_obj.clone())?;
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
@@ -139,7 +148,12 @@ impl MetaZwpPointerGesturesV1 {
             Some(id) => id,
         };
         arg0.generate_server_id(arg0_obj.clone())?;
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
@@ -166,12 +180,18 @@ impl MetaZwpPointerGesturesV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError);
         };
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
             2,
         ]);
+        self.core.handle_server_destroy();
         Ok(())
     }
 
@@ -213,7 +233,12 @@ impl MetaZwpPointerGesturesV1 {
             Some(id) => id,
         };
         arg0.generate_server_id(arg0_obj.clone())?;
-        let outgoing = &mut *self.core.state.outgoing.borrow_mut();
+        let endpoint = &self.core.state.server;
+        if !endpoint.has_outgoing.replace(true) {
+            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
         let mut fmt = outgoing.formatter();
         fmt.words([
             id,
@@ -347,7 +372,7 @@ impl Proxy for MetaZwpPointerGesturesV1 {
                 let arg0_id = arg0;
                 let arg0 = MetaZwpPointerGestureSwipeV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
-                let Some(arg1) = client.lookup(arg1) else {
+                let Some(arg1) = client.endpoint.lookup(arg1) else {
                     return Err(ObjectError);
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlPointer>() else {
@@ -371,7 +396,7 @@ impl Proxy for MetaZwpPointerGesturesV1 {
                 let arg0_id = arg0;
                 let arg0 = MetaZwpPointerGesturePinchV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
-                let Some(arg1) = client.lookup(arg1) else {
+                let Some(arg1) = client.endpoint.lookup(arg1) else {
                     return Err(ObjectError);
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlPointer>() else {
@@ -391,6 +416,7 @@ impl Proxy for MetaZwpPointerGesturesV1 {
                 } else {
                     DefaultMessageHandler.release(&self);
                 }
+                self.core.handle_client_destroy();
             }
             3 => {
                 let [
@@ -402,7 +428,7 @@ impl Proxy for MetaZwpPointerGesturesV1 {
                 let arg0_id = arg0;
                 let arg0 = MetaZwpPointerGestureHoldV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())?;
-                let Some(arg1) = client.lookup(arg1) else {
+                let Some(arg1) = client.endpoint.lookup(arg1) else {
                     return Err(ObjectError);
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlPointer>() else {

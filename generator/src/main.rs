@@ -3,8 +3,7 @@ mod builder;
 mod error;
 mod formatter;
 mod parser;
-use crate::builder::Builder;
-use error::Error;
+use {crate::builder::Builder, error::Error};
 
 fn main() {
     Builder::default().build().unwrap();
