@@ -31,6 +31,14 @@ impl MetaWlRegion {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWlRegionMessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWlRegion {
@@ -59,7 +67,6 @@ impl MetaWlRegion {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wl_region#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -112,7 +119,6 @@ impl MetaWlRegion {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wl_region#{}.add(x: {}, y: {}, width: {}, height: {})", id, arg0, arg1, arg2, arg3);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -168,7 +174,6 @@ impl MetaWlRegion {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wl_region#{}.subtract(x: {}, y: {}, width: {}, height: {})", id, arg0, arg1, arg2, arg3);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -268,6 +273,10 @@ pub trait MetaWlRegionMessageHandler {
 }
 
 impl Proxy for MetaWlRegion {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -279,7 +288,6 @@ impl Proxy for MetaWlRegion {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wl_region#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -300,7 +308,6 @@ impl Proxy for MetaWlRegion {
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
-                eprintln!("client#{:04} -> wl_region#{}.add(x: {}, y: {}, width: {}, height: {})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).add(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -320,7 +327,6 @@ impl Proxy for MetaWlRegion {
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
-                eprintln!("client#{:04} -> wl_region#{}.subtract(x: {}, y: {}, width: {}, height: {})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).subtract(&self, arg0, arg1, arg2, arg3);
                 } else {

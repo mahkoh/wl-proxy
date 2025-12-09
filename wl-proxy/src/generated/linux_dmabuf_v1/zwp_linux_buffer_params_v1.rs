@@ -43,6 +43,14 @@ impl MetaZwpLinuxBufferParamsV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwpLinuxBufferParamsV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwpLinuxBufferParamsV1 {
@@ -72,7 +80,6 @@ impl MetaZwpLinuxBufferParamsV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwp_linux_buffer_params_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -151,7 +158,6 @@ impl MetaZwpLinuxBufferParamsV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwp_linux_buffer_params_v1#{}.add(fd: {}, plane_idx: {}, offset: {}, stride: {}, modifier_hi: {}, modifier_lo: {})", id, arg0.as_raw_fd(), arg1, arg2, arg3, arg4, arg5);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -267,7 +273,6 @@ impl MetaZwpLinuxBufferParamsV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwp_linux_buffer_params_v1#{}.create(width: {}, height: {}, format: {}, flags: {:?})", id, arg0, arg1, arg2, arg3);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -318,7 +323,6 @@ impl MetaZwpLinuxBufferParamsV1 {
         arg0.generate_client_id(client, arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateClientId("buffer", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_linux_buffer_params_v1#{}.created(buffer: wl_buffer#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -356,7 +360,6 @@ impl MetaZwpLinuxBufferParamsV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_linux_buffer_params_v1#{}.failed()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -440,7 +443,6 @@ impl MetaZwpLinuxBufferParamsV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("buffer_id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= zwp_linux_buffer_params_v1#{}.create_immed(buffer_id: wl_buffer#{}, width: {}, height: {}, format: {}, flags: {:?})", id, arg0_id, arg1, arg2, arg3, arg4);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -725,6 +727,10 @@ pub trait MetaZwpLinuxBufferParamsV1MessageHandler {
 }
 
 impl Proxy for MetaZwpLinuxBufferParamsV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -736,7 +742,6 @@ impl Proxy for MetaZwpLinuxBufferParamsV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwp_linux_buffer_params_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -758,7 +763,6 @@ impl Proxy for MetaZwpLinuxBufferParamsV1 {
                     return Err(ObjectError::MissingFd("fd"));
                 };
                 let arg0 = &arg0;
-                eprintln!("client#{:04} -> zwp_linux_buffer_params_v1#{}.add(fd: {}, plane_idx: {}, offset: {}, stride: {}, modifier_hi: {}, modifier_lo: {})", client.endpoint.id, msg[0], arg0.as_raw_fd(), arg1, arg2, arg3, arg4, arg5);
                 if let Some(handler) = handler {
                     (**handler).add(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 } else {
@@ -777,7 +781,6 @@ impl Proxy for MetaZwpLinuxBufferParamsV1 {
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
                 let arg3 = MetaZwpLinuxBufferParamsV1Flags(arg3);
-                eprintln!("client#{:04} -> zwp_linux_buffer_params_v1#{}.create(width: {}, height: {}, format: {}, flags: {:?})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).create(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -797,7 +800,6 @@ impl Proxy for MetaZwpLinuxBufferParamsV1 {
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg4 = MetaZwpLinuxBufferParamsV1Flags(arg4);
-                eprintln!("client#{:04} -> zwp_linux_buffer_params_v1#{}.create_immed(buffer_id: wl_buffer#{}, width: {}, height: {}, format: {}, flags: {:?})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
                 let arg0_id = arg0;
                 let arg0 = MetaWlBuffer::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -829,7 +831,6 @@ impl Proxy for MetaZwpLinuxBufferParamsV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwp_linux_buffer_params_v1#{}.created(buffer: wl_buffer#{})", msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWlBuffer::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
@@ -845,7 +846,6 @@ impl Proxy for MetaZwpLinuxBufferParamsV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zwp_linux_buffer_params_v1#{}.failed()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).failed(&self);
                 } else {

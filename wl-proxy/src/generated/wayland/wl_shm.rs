@@ -36,6 +36,14 @@ impl MetaWlShm {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWlShmMessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWlShm {
@@ -91,7 +99,6 @@ impl MetaWlShm {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wl_shm#{}.create_pool(id: wl_shm_pool#{}, fd: {}, size: {})", id, arg0_id, arg1.as_raw_fd(), arg2);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -138,7 +145,6 @@ impl MetaWlShm {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_shm#{}.format(format: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -172,7 +178,6 @@ impl MetaWlShm {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wl_shm#{}.release()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -266,6 +271,10 @@ pub trait MetaWlShmMessageHandler {
 }
 
 impl Proxy for MetaWlShm {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -285,7 +294,6 @@ impl Proxy for MetaWlShm {
                 };
                 let arg1 = &arg1;
                 let arg2 = arg2 as i32;
-                eprintln!("client#{:04} -> wl_shm#{}.create_pool(id: wl_shm_pool#{}, fd: {}, size: {})", client.endpoint.id, msg[0], arg0, arg1.as_raw_fd(), arg2);
                 let arg0_id = arg0;
                 let arg0 = MetaWlShmPool::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -301,7 +309,6 @@ impl Proxy for MetaWlShm {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wl_shm#{}.release()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
@@ -330,7 +337,6 @@ impl Proxy for MetaWlShm {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWlShmFormat(arg0);
-                eprintln!("server      -> wl_shm#{}.format(format: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).format(&self, arg0);
                 } else {

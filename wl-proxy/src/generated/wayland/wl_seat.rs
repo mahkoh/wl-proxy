@@ -31,6 +31,14 @@ impl MetaWlSeat {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWlSeatMessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWlSeat {
@@ -95,7 +103,6 @@ impl MetaWlSeat {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_seat#{}.capabilities(capabilities: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -144,7 +151,6 @@ impl MetaWlSeat {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wl_seat#{}.get_pointer(id: wl_pointer#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -193,7 +199,6 @@ impl MetaWlSeat {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wl_seat#{}.get_keyboard(id: wl_keyboard#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -242,7 +247,6 @@ impl MetaWlSeat {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wl_seat#{}.get_touch(id: wl_touch#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -300,7 +304,6 @@ impl MetaWlSeat {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_seat#{}.name(name: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -332,7 +335,6 @@ impl MetaWlSeat {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wl_seat#{}.release()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -535,6 +537,10 @@ pub trait MetaWlSeatMessageHandler {
 }
 
 impl Proxy for MetaWlSeat {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -548,7 +554,6 @@ impl Proxy for MetaWlSeat {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> wl_seat#{}.get_pointer(id: wl_pointer#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWlPointer::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -566,7 +571,6 @@ impl Proxy for MetaWlSeat {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> wl_seat#{}.get_keyboard(id: wl_keyboard#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWlKeyboard::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -584,7 +588,6 @@ impl Proxy for MetaWlSeat {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> wl_seat#{}.get_touch(id: wl_touch#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWlTouch::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -600,7 +603,6 @@ impl Proxy for MetaWlSeat {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wl_seat#{}.release()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
@@ -629,7 +631,6 @@ impl Proxy for MetaWlSeat {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWlSeatCapability(arg0);
-                eprintln!("server      -> wl_seat#{}.capabilities(capabilities: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).capabilities(&self, arg0);
                 } else {
@@ -663,7 +664,6 @@ impl Proxy for MetaWlSeat {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> wl_seat#{}.name(name: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).name(&self, arg0);
                 } else {

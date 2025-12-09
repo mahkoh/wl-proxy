@@ -89,6 +89,14 @@ impl MetaZwpLinuxDmabufV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwpLinuxDmabufV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwpLinuxDmabufV1 {
@@ -118,7 +126,6 @@ impl MetaZwpLinuxDmabufV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwp_linux_dmabuf_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -163,7 +170,6 @@ impl MetaZwpLinuxDmabufV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("params_id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= zwp_linux_dmabuf_v1#{}.create_params(params_id: zwp_linux_buffer_params_v1#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -220,7 +226,6 @@ impl MetaZwpLinuxDmabufV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_linux_dmabuf_v1#{}.format(format: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -297,7 +302,6 @@ impl MetaZwpLinuxDmabufV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_linux_dmabuf_v1#{}.modifier(format: {}, modifier_hi: {}, modifier_lo: {})", client.endpoint.id, id, arg0, arg1, arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -344,7 +348,6 @@ impl MetaZwpLinuxDmabufV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= zwp_linux_dmabuf_v1#{}.get_default_feedback(id: zwp_linux_dmabuf_feedback_v1#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -404,7 +407,6 @@ impl MetaZwpLinuxDmabufV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= zwp_linux_dmabuf_v1#{}.get_surface_feedback(id: zwp_linux_dmabuf_feedback_v1#{}, surface: wl_surface#{})", id, arg0_id, arg1_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -603,6 +605,10 @@ pub trait MetaZwpLinuxDmabufV1MessageHandler {
 }
 
 impl Proxy for MetaZwpLinuxDmabufV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -614,7 +620,6 @@ impl Proxy for MetaZwpLinuxDmabufV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwp_linux_dmabuf_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -628,7 +633,6 @@ impl Proxy for MetaZwpLinuxDmabufV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> zwp_linux_dmabuf_v1#{}.create_params(params_id: zwp_linux_buffer_params_v1#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaZwpLinuxBufferParamsV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -646,7 +650,6 @@ impl Proxy for MetaZwpLinuxDmabufV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> zwp_linux_dmabuf_v1#{}.get_default_feedback(id: zwp_linux_dmabuf_feedback_v1#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaZwpLinuxDmabufFeedbackV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -665,7 +668,6 @@ impl Proxy for MetaZwpLinuxDmabufV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                eprintln!("client#{:04} -> zwp_linux_dmabuf_v1#{}.get_surface_feedback(id: zwp_linux_dmabuf_feedback_v1#{}, surface: wl_surface#{})", client.endpoint.id, msg[0], arg0, arg1);
                 let arg0_id = arg0;
                 let arg0 = MetaZwpLinuxDmabufFeedbackV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -706,7 +708,6 @@ impl Proxy for MetaZwpLinuxDmabufV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwp_linux_dmabuf_v1#{}.format(format: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).format(&self, arg0);
                 } else {
@@ -721,7 +722,6 @@ impl Proxy for MetaZwpLinuxDmabufV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
-                eprintln!("server      -> zwp_linux_dmabuf_v1#{}.modifier(format: {}, modifier_hi: {}, modifier_lo: {})", msg[0], arg0, arg1, arg2);
                 if let Some(handler) = handler {
                     (**handler).modifier(&self, arg0, arg1, arg2);
                 } else {

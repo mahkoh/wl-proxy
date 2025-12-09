@@ -29,6 +29,14 @@ impl MetaExtImageCopyCaptureCursorSessionV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaExtImageCopyCaptureCursorSessionV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaExtImageCopyCaptureCursorSessionV1 {
@@ -61,7 +69,6 @@ impl MetaExtImageCopyCaptureCursorSessionV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= ext_image_copy_capture_cursor_session_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -109,7 +116,6 @@ impl MetaExtImageCopyCaptureCursorSessionV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("session", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= ext_image_copy_capture_cursor_session_v1#{}.get_capture_session(session: ext_image_copy_capture_session_v1#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -148,7 +154,6 @@ impl MetaExtImageCopyCaptureCursorSessionV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_image_copy_capture_cursor_session_v1#{}.enter()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -182,7 +187,6 @@ impl MetaExtImageCopyCaptureCursorSessionV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_image_copy_capture_cursor_session_v1#{}.leave()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -234,7 +238,6 @@ impl MetaExtImageCopyCaptureCursorSessionV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_image_copy_capture_cursor_session_v1#{}.position(x: {}, y: {})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -291,7 +294,6 @@ impl MetaExtImageCopyCaptureCursorSessionV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_image_copy_capture_cursor_session_v1#{}.hotspot(x: {}, y: {})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -461,6 +463,10 @@ pub trait MetaExtImageCopyCaptureCursorSessionV1MessageHandler {
 }
 
 impl Proxy for MetaExtImageCopyCaptureCursorSessionV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -472,7 +478,6 @@ impl Proxy for MetaExtImageCopyCaptureCursorSessionV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> ext_image_copy_capture_cursor_session_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -486,7 +491,6 @@ impl Proxy for MetaExtImageCopyCaptureCursorSessionV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> ext_image_copy_capture_cursor_session_v1#{}.get_capture_session(session: ext_image_copy_capture_session_v1#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaExtImageCopyCaptureSessionV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -516,7 +520,6 @@ impl Proxy for MetaExtImageCopyCaptureCursorSessionV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> ext_image_copy_capture_cursor_session_v1#{}.enter()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).enter(&self);
                 } else {
@@ -527,7 +530,6 @@ impl Proxy for MetaExtImageCopyCaptureCursorSessionV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> ext_image_copy_capture_cursor_session_v1#{}.leave()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).leave(&self);
                 } else {
@@ -543,7 +545,6 @@ impl Proxy for MetaExtImageCopyCaptureCursorSessionV1 {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
-                eprintln!("server      -> ext_image_copy_capture_cursor_session_v1#{}.position(x: {}, y: {})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).position(&self, arg0, arg1);
                 } else {
@@ -559,7 +560,6 @@ impl Proxy for MetaExtImageCopyCaptureCursorSessionV1 {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
-                eprintln!("server      -> ext_image_copy_capture_cursor_session_v1#{}.hotspot(x: {}, y: {})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).hotspot(&self, arg0, arg1);
                 } else {

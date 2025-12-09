@@ -28,6 +28,14 @@ impl MetaWpCursorShapeDeviceV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWpCursorShapeDeviceV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWpCursorShapeDeviceV1 {
@@ -58,7 +66,6 @@ impl MetaWpCursorShapeDeviceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_cursor_shape_device_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -120,7 +127,6 @@ impl MetaWpCursorShapeDeviceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_cursor_shape_device_v1#{}.set_shape(serial: {}, shape: {:?})", id, arg0, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -201,6 +207,10 @@ pub trait MetaWpCursorShapeDeviceV1MessageHandler {
 }
 
 impl Proxy for MetaWpCursorShapeDeviceV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -212,7 +222,6 @@ impl Proxy for MetaWpCursorShapeDeviceV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wp_cursor_shape_device_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -228,7 +237,6 @@ impl Proxy for MetaWpCursorShapeDeviceV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 let arg1 = MetaWpCursorShapeDeviceV1Shape(arg1);
-                eprintln!("client#{:04} -> wp_cursor_shape_device_v1#{}.set_shape(serial: {}, shape: {:?})", client.endpoint.id, msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).set_shape(&self, arg0, arg1);
                 } else {

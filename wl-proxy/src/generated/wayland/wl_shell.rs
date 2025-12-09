@@ -36,6 +36,14 @@ impl MetaWlShell {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWlShellMessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWlShell {
@@ -92,7 +100,6 @@ impl MetaWlShell {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wl_shell#{}.get_shell_surface(id: wl_shell_surface#{}, surface: wl_surface#{})", id, arg0_id, arg1_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -146,6 +153,10 @@ pub trait MetaWlShellMessageHandler {
 }
 
 impl Proxy for MetaWlShell {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -160,7 +171,6 @@ impl Proxy for MetaWlShell {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                eprintln!("client#{:04} -> wl_shell#{}.get_shell_surface(id: wl_shell_surface#{}, surface: wl_surface#{})", client.endpoint.id, msg[0], arg0, arg1);
                 let arg0_id = arg0;
                 let arg0 = MetaWlShellSurface::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())

@@ -32,6 +32,14 @@ impl MetaWpColorManagementSurfaceFeedbackV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWpColorManagementSurfaceFeedbackV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWpColorManagementSurfaceFeedbackV1 {
@@ -60,7 +68,6 @@ impl MetaWpColorManagementSurfaceFeedbackV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_color_management_surface_feedback_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -118,7 +125,6 @@ impl MetaWpColorManagementSurfaceFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wp_color_management_surface_feedback_v1#{}.preferred_changed(identity: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -192,7 +198,6 @@ impl MetaWpColorManagementSurfaceFeedbackV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("image_description", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wp_color_management_surface_feedback_v1#{}.get_preferred(image_description: wp_image_description_v1#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -239,7 +244,6 @@ impl MetaWpColorManagementSurfaceFeedbackV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("image_description", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wp_color_management_surface_feedback_v1#{}.get_preferred_parametric(image_description: wp_image_description_v1#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -391,6 +395,10 @@ pub trait MetaWpColorManagementSurfaceFeedbackV1MessageHandler {
 }
 
 impl Proxy for MetaWpColorManagementSurfaceFeedbackV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -402,7 +410,6 @@ impl Proxy for MetaWpColorManagementSurfaceFeedbackV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wp_color_management_surface_feedback_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -416,7 +423,6 @@ impl Proxy for MetaWpColorManagementSurfaceFeedbackV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> wp_color_management_surface_feedback_v1#{}.get_preferred(image_description: wp_image_description_v1#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWpImageDescriptionV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -434,7 +440,6 @@ impl Proxy for MetaWpColorManagementSurfaceFeedbackV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> wp_color_management_surface_feedback_v1#{}.get_preferred_parametric(image_description: wp_image_description_v1#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWpImageDescriptionV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -466,7 +471,6 @@ impl Proxy for MetaWpColorManagementSurfaceFeedbackV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> wp_color_management_surface_feedback_v1#{}.preferred_changed(identity: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).preferred_changed(&self, arg0);
                 } else {

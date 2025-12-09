@@ -136,6 +136,14 @@ fn format_interface_constructors(w: &mut impl Write, interface: &Interface) -> i
     wl!(r#"            handler: Default::default(),"#)?;
     wl!(r#"        }})"#)?;
     wl!(r#"    }}"#)?;
+    wl!()?;
+    wl!(r#"    pub fn set_handler(&self, handler: Box<dyn Meta{camel}MessageHandler>) {{"#)?;
+    wl!(r#"        self.handler.set(Some(handler));"#)?;
+    wl!(r#"    }}"#)?;
+    wl!()?;
+    wl!(r#"    pub fn unset_handler(&self) {{"#)?;
+    wl!(r#"        self.handler.set(None);"#)?;
+    wl!(r#"    }}"#)?;
     wl!(r#"}}"#)?;
     Ok(())
 }
@@ -780,6 +788,10 @@ fn format_proxy_impl(w: &mut impl Write, interface: &Interface) -> io::Result<()
     let snake = &interface.name;
     let camel = format_camel(snake).to_string();
     wl!(r#"impl Proxy for Meta{camel} {{"#)?;
+    wl!(r#"    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {{"#)?;
+    wl!(r#"        Self::new(state, version)"#)?;
+    wl!(r#"    }}"#)?;
+    wl!()?;
     wl!(r#"    fn core(&self) -> &ProxyCore {{"#)?;
     wl!(r#"        &self.core"#)?;
     wl!(r#"    }}"#)?;
@@ -838,6 +850,7 @@ fn format_wayland_debug(
     msg: &Message,
     outgoing: bool,
 ) -> io::Result<()> {
+    return Ok(());
     define_w!(w);
     if !outgoing {
         w!(r#"        "#)?;
@@ -919,9 +932,7 @@ fn format_wayland_debug(
                     w!(r#", arg{idx}"#)?
                 }
             }
-            ArgType::Int | ArgType::Uint | ArgType::Fixed | ArgType::String => {
-                w!(r#", arg{idx}"#)?
-            }
+            ArgType::Int | ArgType::Uint | ArgType::Fixed | ArgType::String => w!(r#", arg{idx}"#)?,
             ArgType::Array => w!(r#", debug_array(arg{idx})"#)?,
             ArgType::Fd => w!(r#", arg{idx}.as_raw_fd()"#)?,
         }
@@ -1100,7 +1111,11 @@ fn format_proxy_message_handler_body<W: Write>(
                 ArgType::Int => {
                     w!(r#"arg{idx} as i32"#)?;
                 }
-                ArgType::NewId | ArgType::Object | ArgType::Uint | ArgType::String | ArgType::Array => {
+                ArgType::NewId
+                | ArgType::Object
+                | ArgType::Uint
+                | ArgType::String
+                | ArgType::Array => {
                     unreachable!();
                 }
                 ArgType::Fixed => {
@@ -1214,7 +1229,7 @@ fn format_proxy_message_handler_body<W: Write>(
         }
         for (idx, arg) in msg.args.iter().enumerate() {
             match arg.ty {
-                ArgType::NewId | ArgType::Object if arg.interface.is_some() => { },
+                ArgType::NewId | ArgType::Object if arg.interface.is_some() => {}
                 _ => continue,
             }
             w!(r#"                let arg{idx} = "#)?;

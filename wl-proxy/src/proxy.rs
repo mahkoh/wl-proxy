@@ -6,6 +6,7 @@ use {
         any::Any,
         cell::{Cell, RefCell, RefMut},
         collections::{VecDeque, hash_map::Entry},
+        mem,
         ops::{Deref, DerefMut},
         os::fd::OwnedFd,
         rc::Rc,
@@ -14,6 +15,9 @@ use {
 };
 
 pub trait Proxy: Any {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self>
+    where
+        Self: Sized;
     fn core(&self) -> &ProxyCore;
     fn handle_request(
         self: Rc<Self>,
@@ -204,6 +208,15 @@ impl<T: ?Sized> MessageHandlerHolder<T> {
         MessageHandlerHolderBorrow {
             handler: self.handler.borrow_mut(),
             new: &self.new,
+        }
+    }
+
+    pub fn set(&self, handler: Option<Box<T>>) {
+        let _prev;
+        if let Ok(mut cell) = self.handler.try_borrow_mut() {
+            _prev = mem::replace(&mut *cell, handler);
+        } else {
+            self.new.set(Some(handler));
         }
     }
 }

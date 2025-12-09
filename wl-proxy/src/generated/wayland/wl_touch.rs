@@ -35,6 +35,14 @@ impl MetaWlTouch {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWlTouchMessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWlTouch {
@@ -103,7 +111,6 @@ impl MetaWlTouch {
             return Err(ObjectError::ArgNoClientId("surface", client.endpoint.id));
         }
         let arg2_id = arg2.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_touch#{}.down(serial: {}, time: {}, surface: wl_surface#{}, id: {}, x: {}, y: {})", client.endpoint.id, id, arg0, arg1, arg2_id, arg3, arg4, arg5);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -161,7 +168,6 @@ impl MetaWlTouch {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_touch#{}.up(serial: {}, time: {}, id: {})", client.endpoint.id, id, arg0, arg1, arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -218,7 +224,6 @@ impl MetaWlTouch {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_touch#{}.motion(time: {}, id: {}, x: {}, y: {})", client.endpoint.id, id, arg0, arg1, arg2, arg3);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -261,7 +266,6 @@ impl MetaWlTouch {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_touch#{}.frame()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -300,7 +304,6 @@ impl MetaWlTouch {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_touch#{}.cancel()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -328,7 +331,6 @@ impl MetaWlTouch {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wl_touch#{}.release()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -403,7 +405,6 @@ impl MetaWlTouch {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_touch#{}.shape(id: {}, major: {}, minor: {})", client.endpoint.id, id, arg0, arg1, arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -474,7 +475,6 @@ impl MetaWlTouch {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_touch#{}.orientation(id: {}, orientation: {})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -759,6 +759,10 @@ pub trait MetaWlTouchMessageHandler {
 }
 
 impl Proxy for MetaWlTouch {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -770,7 +774,6 @@ impl Proxy for MetaWlTouch {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wl_touch#{}.release()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
@@ -806,7 +809,6 @@ impl Proxy for MetaWlTouch {
                 let arg3 = arg3 as i32;
                 let arg4 = Fixed::from_wire(arg4 as i32);
                 let arg5 = Fixed::from_wire(arg5 as i32);
-                eprintln!("server      -> wl_touch#{}.down(serial: {}, time: {}, surface: wl_surface#{}, id: {}, x: {}, y: {})", msg[0], arg0, arg1, arg2, arg3, arg4, arg5);
                 let arg2_id = arg2;
                 let Some(arg2) = self.core.state.server.lookup(arg2_id) else {
                     return Err(ObjectError::NoServerObject(arg2_id));
@@ -831,7 +833,6 @@ impl Proxy for MetaWlTouch {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
                 let arg2 = arg2 as i32;
-                eprintln!("server      -> wl_touch#{}.up(serial: {}, time: {}, id: {})", msg[0], arg0, arg1, arg2);
                 if let Some(handler) = handler {
                     (**handler).up(&self, arg0, arg1, arg2);
                 } else {
@@ -850,7 +851,6 @@ impl Proxy for MetaWlTouch {
                 let arg1 = arg1 as i32;
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 let arg3 = Fixed::from_wire(arg3 as i32);
-                eprintln!("server      -> wl_touch#{}.motion(time: {}, id: {}, x: {}, y: {})", msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).motion(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -861,7 +861,6 @@ impl Proxy for MetaWlTouch {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> wl_touch#{}.frame()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).frame(&self);
                 } else {
@@ -872,7 +871,6 @@ impl Proxy for MetaWlTouch {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> wl_touch#{}.cancel()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).cancel(&self);
                 } else {
@@ -890,7 +888,6 @@ impl Proxy for MetaWlTouch {
                 let arg0 = arg0 as i32;
                 let arg1 = Fixed::from_wire(arg1 as i32);
                 let arg2 = Fixed::from_wire(arg2 as i32);
-                eprintln!("server      -> wl_touch#{}.shape(id: {}, major: {}, minor: {})", msg[0], arg0, arg1, arg2);
                 if let Some(handler) = handler {
                     (**handler).shape(&self, arg0, arg1, arg2);
                 } else {
@@ -906,7 +903,6 @@ impl Proxy for MetaWlTouch {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = Fixed::from_wire(arg1 as i32);
-                eprintln!("server      -> wl_touch#{}.orientation(id: {}, orientation: {})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).orientation(&self, arg0, arg1);
                 } else {

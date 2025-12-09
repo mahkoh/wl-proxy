@@ -30,6 +30,14 @@ impl MetaZwlrDataControlDeviceV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwlrDataControlDeviceV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwlrDataControlDeviceV1 {
@@ -83,7 +91,6 @@ impl MetaZwlrDataControlDeviceV1 {
                 Some(id) => id,
             },
         };
-        eprintln!("server      <= zwlr_data_control_device_v1#{}.set_selection(source: zwlr_data_control_source_v1#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -114,7 +121,6 @@ impl MetaZwlrDataControlDeviceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwlr_data_control_device_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -165,7 +171,6 @@ impl MetaZwlrDataControlDeviceV1 {
         arg0.generate_client_id(client, arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateClientId("id", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_data_control_device_v1#{}.data_offer(id: zwlr_data_control_offer_v1#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -226,7 +231,6 @@ impl MetaZwlrDataControlDeviceV1 {
             }
         }
         let arg0_id = arg0.map(|arg0| arg0.client_obj_id.get()).flatten().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_data_control_device_v1#{}.selection(id: zwlr_data_control_offer_v1#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -260,7 +264,6 @@ impl MetaZwlrDataControlDeviceV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_data_control_device_v1#{}.finished()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -321,7 +324,6 @@ impl MetaZwlrDataControlDeviceV1 {
             }
         }
         let arg0_id = arg0.map(|arg0| arg0.client_obj_id.get()).flatten().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_data_control_device_v1#{}.primary_selection(id: zwlr_data_control_offer_v1#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -380,7 +382,6 @@ impl MetaZwlrDataControlDeviceV1 {
                 Some(id) => id,
             },
         };
-        eprintln!("server      <= zwlr_data_control_device_v1#{}.set_primary_selection(source: zwlr_data_control_source_v1#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -615,6 +616,10 @@ pub trait MetaZwlrDataControlDeviceV1MessageHandler {
 }
 
 impl Proxy for MetaZwlrDataControlDeviceV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -628,7 +633,6 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> zwlr_data_control_device_v1#{}.set_selection(source: zwlr_data_control_source_v1#{})", client.endpoint.id, msg[0], arg0);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
@@ -653,7 +657,6 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwlr_data_control_device_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -667,7 +670,6 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> zwlr_data_control_device_v1#{}.set_primary_selection(source: zwlr_data_control_source_v1#{})", client.endpoint.id, msg[0], arg0);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
@@ -708,7 +710,6 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwlr_data_control_device_v1#{}.data_offer(id: zwlr_data_control_offer_v1#{})", msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaZwlrDataControlOfferV1::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
@@ -726,7 +727,6 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwlr_data_control_device_v1#{}.selection(id: zwlr_data_control_offer_v1#{})", msg[0], arg0);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
@@ -751,7 +751,6 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zwlr_data_control_device_v1#{}.finished()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).finished(&self);
                 } else {
@@ -764,7 +763,6 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwlr_data_control_device_v1#{}.primary_selection(id: zwlr_data_control_offer_v1#{})", msg[0], arg0);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {

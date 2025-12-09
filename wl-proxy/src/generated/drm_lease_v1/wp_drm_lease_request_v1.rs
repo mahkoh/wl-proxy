@@ -31,6 +31,14 @@ impl MetaWpDrmLeaseRequestV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWpDrmLeaseRequestV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWpDrmLeaseRequestV1 {
@@ -83,7 +91,6 @@ impl MetaWpDrmLeaseRequestV1 {
             None => return Err(ObjectError::ArgNoServerId("connector")),
             Some(id) => id,
         };
-        eprintln!("server      <= wp_drm_lease_request_v1#{}.request_connector(connector: wp_drm_lease_connector_v1#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -131,7 +138,6 @@ impl MetaWpDrmLeaseRequestV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wp_drm_lease_request_v1#{}.submit(id: wp_drm_lease_v1#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -214,6 +220,10 @@ pub trait MetaWpDrmLeaseRequestV1MessageHandler {
 }
 
 impl Proxy for MetaWpDrmLeaseRequestV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -227,7 +237,6 @@ impl Proxy for MetaWpDrmLeaseRequestV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> wp_drm_lease_request_v1#{}.request_connector(connector: wp_drm_lease_connector_v1#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
@@ -249,7 +258,6 @@ impl Proxy for MetaWpDrmLeaseRequestV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> wp_drm_lease_request_v1#{}.submit(id: wp_drm_lease_v1#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWpDrmLeaseV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())

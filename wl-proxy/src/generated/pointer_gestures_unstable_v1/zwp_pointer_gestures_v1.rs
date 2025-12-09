@@ -43,6 +43,14 @@ impl MetaZwpPointerGesturesV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwpPointerGesturesV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwpPointerGesturesV1 {
@@ -96,7 +104,6 @@ impl MetaZwpPointerGesturesV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= zwp_pointer_gestures_v1#{}.get_swipe_gesture(id: zwp_pointer_gesture_swipe_v1#{}, pointer: wl_pointer#{})", id, arg0_id, arg1_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -153,7 +160,6 @@ impl MetaZwpPointerGesturesV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= zwp_pointer_gestures_v1#{}.get_pinch_gesture(id: zwp_pointer_gesture_pinch_v1#{}, pointer: wl_pointer#{})", id, arg0_id, arg1_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -186,7 +192,6 @@ impl MetaZwpPointerGesturesV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwp_pointer_gestures_v1#{}.release()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -242,7 +247,6 @@ impl MetaZwpPointerGesturesV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= zwp_pointer_gestures_v1#{}.get_hold_gesture(id: zwp_pointer_gesture_hold_v1#{}, pointer: wl_pointer#{})", id, arg0_id, arg1_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -365,6 +369,10 @@ pub trait MetaZwpPointerGesturesV1MessageHandler {
 }
 
 impl Proxy for MetaZwpPointerGesturesV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -379,7 +387,6 @@ impl Proxy for MetaZwpPointerGesturesV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                eprintln!("client#{:04} -> zwp_pointer_gestures_v1#{}.get_swipe_gesture(id: zwp_pointer_gesture_swipe_v1#{}, pointer: wl_pointer#{})", client.endpoint.id, msg[0], arg0, arg1);
                 let arg0_id = arg0;
                 let arg0 = MetaZwpPointerGestureSwipeV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -407,7 +414,6 @@ impl Proxy for MetaZwpPointerGesturesV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                eprintln!("client#{:04} -> zwp_pointer_gestures_v1#{}.get_pinch_gesture(id: zwp_pointer_gesture_pinch_v1#{}, pointer: wl_pointer#{})", client.endpoint.id, msg[0], arg0, arg1);
                 let arg0_id = arg0;
                 let arg0 = MetaZwpPointerGesturePinchV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -432,7 +438,6 @@ impl Proxy for MetaZwpPointerGesturesV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwp_pointer_gestures_v1#{}.release()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
@@ -447,7 +452,6 @@ impl Proxy for MetaZwpPointerGesturesV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                eprintln!("client#{:04} -> zwp_pointer_gestures_v1#{}.get_hold_gesture(id: zwp_pointer_gesture_hold_v1#{}, pointer: wl_pointer#{})", client.endpoint.id, msg[0], arg0, arg1);
                 let arg0_id = arg0;
                 let arg0 = MetaZwpPointerGestureHoldV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())

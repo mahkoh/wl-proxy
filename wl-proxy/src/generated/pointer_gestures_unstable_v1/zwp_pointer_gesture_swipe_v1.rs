@@ -42,6 +42,14 @@ impl MetaZwpPointerGestureSwipeV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwpPointerGestureSwipeV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwpPointerGestureSwipeV1 {
@@ -68,7 +76,6 @@ impl MetaZwpPointerGestureSwipeV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwp_pointer_gesture_swipe_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -129,7 +136,6 @@ impl MetaZwpPointerGestureSwipeV1 {
             return Err(ObjectError::ArgNoClientId("surface", client.endpoint.id));
         }
         let arg2_id = arg2.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_pointer_gesture_swipe_v1#{}.begin(serial: {}, time: {}, surface: wl_surface#{}, fingers: {})", client.endpoint.id, id, arg0, arg1, arg2_id, arg3);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -187,7 +193,6 @@ impl MetaZwpPointerGestureSwipeV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_pointer_gesture_swipe_v1#{}.update(time: {}, dx: {}, dy: {})", client.endpoint.id, id, arg0, arg1, arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -246,7 +251,6 @@ impl MetaZwpPointerGestureSwipeV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_pointer_gesture_swipe_v1#{}.end(serial: {}, time: {}, cancelled: {})", client.endpoint.id, id, arg0, arg1, arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -388,6 +392,10 @@ pub trait MetaZwpPointerGestureSwipeV1MessageHandler {
 }
 
 impl Proxy for MetaZwpPointerGestureSwipeV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -399,7 +407,6 @@ impl Proxy for MetaZwpPointerGestureSwipeV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwp_pointer_gesture_swipe_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -430,7 +437,6 @@ impl Proxy for MetaZwpPointerGestureSwipeV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
-                eprintln!("server      -> zwp_pointer_gesture_swipe_v1#{}.begin(serial: {}, time: {}, surface: wl_surface#{}, fingers: {})", msg[0], arg0, arg1, arg2, arg3);
                 let arg2_id = arg2;
                 let Some(arg2) = self.core.state.server.lookup(arg2_id) else {
                     return Err(ObjectError::NoServerObject(arg2_id));
@@ -456,7 +462,6 @@ impl Proxy for MetaZwpPointerGestureSwipeV1 {
                 };
                 let arg1 = Fixed::from_wire(arg1 as i32);
                 let arg2 = Fixed::from_wire(arg2 as i32);
-                eprintln!("server      -> zwp_pointer_gesture_swipe_v1#{}.update(time: {}, dx: {}, dy: {})", msg[0], arg0, arg1, arg2);
                 if let Some(handler) = handler {
                     (**handler).update(&self, arg0, arg1, arg2);
                 } else {
@@ -472,7 +477,6 @@ impl Proxy for MetaZwpPointerGestureSwipeV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
                 let arg2 = arg2 as i32;
-                eprintln!("server      -> zwp_pointer_gesture_swipe_v1#{}.end(serial: {}, time: {}, cancelled: {})", msg[0], arg0, arg1, arg2);
                 if let Some(handler) = handler {
                     (**handler).end(&self, arg0, arg1, arg2);
                 } else {

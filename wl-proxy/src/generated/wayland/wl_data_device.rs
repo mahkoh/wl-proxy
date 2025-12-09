@@ -32,6 +32,14 @@ impl MetaWlDataDevice {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWlDataDeviceMessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWlDataDevice {
@@ -131,7 +139,6 @@ impl MetaWlDataDevice {
                 Some(id) => id,
             },
         };
-        eprintln!("server      <= wl_data_device#{}.start_drag(source: wl_data_source#{}, origin: wl_surface#{}, icon: wl_surface#{}, serial: {})", id, arg0_id, arg1_id, arg2_id, arg3);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -194,7 +201,6 @@ impl MetaWlDataDevice {
                 Some(id) => id,
             },
         };
-        eprintln!("server      <= wl_data_device#{}.set_selection(source: wl_data_source#{}, serial: {})", id, arg0_id, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -245,7 +251,6 @@ impl MetaWlDataDevice {
         arg0.generate_client_id(client, arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateClientId("id", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_data_device#{}.data_offer(id: wl_data_offer#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -319,7 +324,6 @@ impl MetaWlDataDevice {
         }
         let arg1_id = arg1.client_obj_id.get().unwrap_or(0);
         let arg4_id = arg4.map(|arg4| arg4.client_obj_id.get()).flatten().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_data_device#{}.enter(serial: {}, surface: wl_surface#{}, x: {}, y: {}, id: wl_data_offer#{})", client.endpoint.id, id, arg0, arg1_id, arg2, arg3, arg4_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -358,7 +362,6 @@ impl MetaWlDataDevice {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_data_device#{}.leave()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -411,7 +414,6 @@ impl MetaWlDataDevice {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_data_device#{}.motion(time: {}, x: {}, y: {})", client.endpoint.id, id, arg0, arg1, arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -458,7 +460,6 @@ impl MetaWlDataDevice {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_data_device#{}.drop()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -518,7 +519,6 @@ impl MetaWlDataDevice {
             }
         }
         let arg0_id = arg0.map(|arg0| arg0.client_obj_id.get()).flatten().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_data_device#{}.selection(id: wl_data_offer#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -549,7 +549,6 @@ impl MetaWlDataDevice {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wl_data_device#{}.release()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -879,6 +878,10 @@ pub trait MetaWlDataDeviceMessageHandler {
 }
 
 impl Proxy for MetaWlDataDevice {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -895,7 +898,6 @@ impl Proxy for MetaWlDataDevice {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
-                eprintln!("client#{:04} -> wl_data_device#{}.start_drag(source: wl_data_source#{}, origin: wl_surface#{}, icon: wl_surface#{}, serial: {})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
@@ -946,7 +948,6 @@ impl Proxy for MetaWlDataDevice {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                eprintln!("client#{:04} -> wl_data_device#{}.set_selection(source: wl_data_source#{}, serial: {})", client.endpoint.id, msg[0], arg0, arg1);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
@@ -971,7 +972,6 @@ impl Proxy for MetaWlDataDevice {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wl_data_device#{}.release()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
@@ -999,7 +999,6 @@ impl Proxy for MetaWlDataDevice {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> wl_data_device#{}.data_offer(id: wl_data_offer#{})", msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWlDataOffer::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
@@ -1023,7 +1022,6 @@ impl Proxy for MetaWlDataDevice {
                 };
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 let arg3 = Fixed::from_wire(arg3 as i32);
-                eprintln!("server      -> wl_data_device#{}.enter(serial: {}, surface: wl_surface#{}, x: {}, y: {}, id: wl_data_offer#{})", msg[0], arg0, arg1, arg2, arg3, arg4);
                 let arg1_id = arg1;
                 let Some(arg1) = self.core.state.server.lookup(arg1_id) else {
                     return Err(ObjectError::NoServerObject(arg1_id));
@@ -1057,7 +1055,6 @@ impl Proxy for MetaWlDataDevice {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> wl_data_device#{}.leave()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).leave(&self);
                 } else {
@@ -1074,7 +1071,6 @@ impl Proxy for MetaWlDataDevice {
                 };
                 let arg1 = Fixed::from_wire(arg1 as i32);
                 let arg2 = Fixed::from_wire(arg2 as i32);
-                eprintln!("server      -> wl_data_device#{}.motion(time: {}, x: {}, y: {})", msg[0], arg0, arg1, arg2);
                 if let Some(handler) = handler {
                     (**handler).motion(&self, arg0, arg1, arg2);
                 } else {
@@ -1085,7 +1081,6 @@ impl Proxy for MetaWlDataDevice {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> wl_data_device#{}.drop()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).drop(&self);
                 } else {
@@ -1098,7 +1093,6 @@ impl Proxy for MetaWlDataDevice {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> wl_data_device#{}.selection(id: wl_data_offer#{})", msg[0], arg0);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {

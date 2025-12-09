@@ -37,6 +37,14 @@ impl MetaExtImageCopyCaptureFrameV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaExtImageCopyCaptureFrameV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaExtImageCopyCaptureFrameV1 {
@@ -66,7 +74,6 @@ impl MetaExtImageCopyCaptureFrameV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= ext_image_copy_capture_frame_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -119,7 +126,6 @@ impl MetaExtImageCopyCaptureFrameV1 {
             None => return Err(ObjectError::ArgNoServerId("buffer")),
             Some(id) => id,
         };
-        eprintln!("server      <= ext_image_copy_capture_frame_v1#{}.attach_buffer(buffer: wl_buffer#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -192,7 +198,6 @@ impl MetaExtImageCopyCaptureFrameV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= ext_image_copy_capture_frame_v1#{}.damage_buffer(x: {}, y: {}, width: {}, height: {})", id, arg0, arg1, arg2, arg3);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -234,7 +239,6 @@ impl MetaExtImageCopyCaptureFrameV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= ext_image_copy_capture_frame_v1#{}.capture()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -277,7 +281,6 @@ impl MetaExtImageCopyCaptureFrameV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_image_copy_capture_frame_v1#{}.transform(transform: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -339,7 +342,6 @@ impl MetaExtImageCopyCaptureFrameV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_image_copy_capture_frame_v1#{}.damage(x: {}, y: {}, width: {}, height: {})", client.endpoint.id, id, arg0, arg1, arg2, arg3);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -401,7 +403,6 @@ impl MetaExtImageCopyCaptureFrameV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_image_copy_capture_frame_v1#{}.presentation_time(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {})", client.endpoint.id, id, arg0, arg1, arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -441,7 +442,6 @@ impl MetaExtImageCopyCaptureFrameV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_image_copy_capture_frame_v1#{}.ready()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -485,7 +485,6 @@ impl MetaExtImageCopyCaptureFrameV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_image_copy_capture_frame_v1#{}.failed(reason: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -764,6 +763,10 @@ pub trait MetaExtImageCopyCaptureFrameV1MessageHandler {
 }
 
 impl Proxy for MetaExtImageCopyCaptureFrameV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -775,7 +778,6 @@ impl Proxy for MetaExtImageCopyCaptureFrameV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> ext_image_copy_capture_frame_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -789,7 +791,6 @@ impl Proxy for MetaExtImageCopyCaptureFrameV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> ext_image_copy_capture_frame_v1#{}.attach_buffer(buffer: wl_buffer#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
@@ -818,7 +819,6 @@ impl Proxy for MetaExtImageCopyCaptureFrameV1 {
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
-                eprintln!("client#{:04} -> ext_image_copy_capture_frame_v1#{}.damage_buffer(x: {}, y: {}, width: {}, height: {})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).damage_buffer(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -829,7 +829,6 @@ impl Proxy for MetaExtImageCopyCaptureFrameV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> ext_image_copy_capture_frame_v1#{}.capture()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).capture(&self);
                 } else {
@@ -857,7 +856,6 @@ impl Proxy for MetaExtImageCopyCaptureFrameV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWlOutputTransform(arg0);
-                eprintln!("server      -> ext_image_copy_capture_frame_v1#{}.transform(transform: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).transform(&self, arg0);
                 } else {
@@ -877,7 +875,6 @@ impl Proxy for MetaExtImageCopyCaptureFrameV1 {
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
-                eprintln!("server      -> ext_image_copy_capture_frame_v1#{}.damage(x: {}, y: {}, width: {}, height: {})", msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).damage(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -892,7 +889,6 @@ impl Proxy for MetaExtImageCopyCaptureFrameV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
-                eprintln!("server      -> ext_image_copy_capture_frame_v1#{}.presentation_time(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {})", msg[0], arg0, arg1, arg2);
                 if let Some(handler) = handler {
                     (**handler).presentation_time(&self, arg0, arg1, arg2);
                 } else {
@@ -903,7 +899,6 @@ impl Proxy for MetaExtImageCopyCaptureFrameV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> ext_image_copy_capture_frame_v1#{}.ready()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).ready(&self);
                 } else {
@@ -917,7 +912,6 @@ impl Proxy for MetaExtImageCopyCaptureFrameV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaExtImageCopyCaptureFrameV1FailureReason(arg0);
-                eprintln!("server      -> ext_image_copy_capture_frame_v1#{}.failed(reason: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).failed(&self, arg0);
                 } else {

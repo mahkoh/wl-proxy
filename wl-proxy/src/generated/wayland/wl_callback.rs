@@ -32,6 +32,14 @@ impl MetaWlCallback {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWlCallbackMessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWlCallback {
@@ -72,7 +80,6 @@ impl MetaWlCallback {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_callback#{}.done(callback_data: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -119,6 +126,10 @@ pub trait MetaWlCallbackMessageHandler {
 }
 
 impl Proxy for MetaWlCallback {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -145,7 +156,6 @@ impl Proxy for MetaWlCallback {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> wl_callback#{}.done(callback_data: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).done(&self, arg0);
                 } else {

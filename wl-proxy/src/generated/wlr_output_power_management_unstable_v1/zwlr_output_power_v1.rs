@@ -29,6 +29,14 @@ impl MetaZwlrOutputPowerV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwlrOutputPowerV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwlrOutputPowerV1 {
@@ -69,7 +77,6 @@ impl MetaZwlrOutputPowerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwlr_output_power_v1#{}.set_mode(mode: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -118,7 +125,6 @@ impl MetaZwlrOutputPowerV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_output_power_v1#{}.mode(mode: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -159,7 +165,6 @@ impl MetaZwlrOutputPowerV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_output_power_v1#{}.failed()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -189,7 +194,6 @@ impl MetaZwlrOutputPowerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwlr_output_power_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -299,6 +303,10 @@ pub trait MetaZwlrOutputPowerV1MessageHandler {
 }
 
 impl Proxy for MetaZwlrOutputPowerV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -313,7 +321,6 @@ impl Proxy for MetaZwlrOutputPowerV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaZwlrOutputPowerV1Mode(arg0);
-                eprintln!("client#{:04} -> zwlr_output_power_v1#{}.set_mode(mode: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_mode(&self, arg0);
                 } else {
@@ -324,7 +331,6 @@ impl Proxy for MetaZwlrOutputPowerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwlr_output_power_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -353,7 +359,6 @@ impl Proxy for MetaZwlrOutputPowerV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaZwlrOutputPowerV1Mode(arg0);
-                eprintln!("server      -> zwlr_output_power_v1#{}.mode(mode: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).mode(&self, arg0);
                 } else {
@@ -364,7 +369,6 @@ impl Proxy for MetaZwlrOutputPowerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zwlr_output_power_v1#{}.failed()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).failed(&self);
                 } else {

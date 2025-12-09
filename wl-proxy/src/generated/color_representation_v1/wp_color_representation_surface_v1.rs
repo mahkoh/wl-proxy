@@ -37,6 +37,14 @@ impl MetaWpColorRepresentationSurfaceV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWpColorRepresentationSurfaceV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWpColorRepresentationSurfaceV1 {
@@ -71,7 +79,6 @@ impl MetaWpColorRepresentationSurfaceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_color_representation_surface_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -122,7 +129,6 @@ impl MetaWpColorRepresentationSurfaceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_color_representation_surface_v1#{}.set_alpha_mode(alpha_mode: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -192,7 +198,6 @@ impl MetaWpColorRepresentationSurfaceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_color_representation_surface_v1#{}.set_coefficients_and_range(coefficients: {:?}, range: {:?})", id, arg0, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -250,7 +255,6 @@ impl MetaWpColorRepresentationSurfaceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_color_representation_surface_v1#{}.set_chroma_location(chroma_location: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -410,6 +414,10 @@ pub trait MetaWpColorRepresentationSurfaceV1MessageHandler {
 }
 
 impl Proxy for MetaWpColorRepresentationSurfaceV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -421,7 +429,6 @@ impl Proxy for MetaWpColorRepresentationSurfaceV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wp_color_representation_surface_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -436,7 +443,6 @@ impl Proxy for MetaWpColorRepresentationSurfaceV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWpColorRepresentationSurfaceV1AlphaMode(arg0);
-                eprintln!("client#{:04} -> wp_color_representation_surface_v1#{}.set_alpha_mode(alpha_mode: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_alpha_mode(&self, arg0);
                 } else {
@@ -452,7 +458,6 @@ impl Proxy for MetaWpColorRepresentationSurfaceV1 {
                 };
                 let arg0 = MetaWpColorRepresentationSurfaceV1Coefficients(arg0);
                 let arg1 = MetaWpColorRepresentationSurfaceV1Range(arg1);
-                eprintln!("client#{:04} -> wp_color_representation_surface_v1#{}.set_coefficients_and_range(coefficients: {:?}, range: {:?})", client.endpoint.id, msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).set_coefficients_and_range(&self, arg0, arg1);
                 } else {
@@ -466,7 +471,6 @@ impl Proxy for MetaWpColorRepresentationSurfaceV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWpColorRepresentationSurfaceV1ChromaLocation(arg0);
-                eprintln!("client#{:04} -> wp_color_representation_surface_v1#{}.set_chroma_location(chroma_location: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_chroma_location(&self, arg0);
                 } else {

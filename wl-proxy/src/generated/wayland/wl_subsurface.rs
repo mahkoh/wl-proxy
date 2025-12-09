@@ -79,6 +79,14 @@ impl MetaWlSubsurface {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWlSubsurfaceMessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWlSubsurface {
@@ -110,7 +118,6 @@ impl MetaWlSubsurface {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wl_subsurface#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -168,7 +175,6 @@ impl MetaWlSubsurface {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wl_subsurface#{}.set_position(x: {}, y: {})", id, arg0, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -227,7 +233,6 @@ impl MetaWlSubsurface {
             None => return Err(ObjectError::ArgNoServerId("sibling")),
             Some(id) => id,
         };
-        eprintln!("server      <= wl_subsurface#{}.place_above(sibling: wl_surface#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -274,7 +279,6 @@ impl MetaWlSubsurface {
             None => return Err(ObjectError::ArgNoServerId("sibling")),
             Some(id) => id,
         };
-        eprintln!("server      <= wl_subsurface#{}.place_below(sibling: wl_surface#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -317,7 +321,6 @@ impl MetaWlSubsurface {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wl_subsurface#{}.set_sync()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -365,7 +368,6 @@ impl MetaWlSubsurface {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wl_subsurface#{}.set_desync()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -562,6 +564,10 @@ pub trait MetaWlSubsurfaceMessageHandler {
 }
 
 impl Proxy for MetaWlSubsurface {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -573,7 +579,6 @@ impl Proxy for MetaWlSubsurface {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wl_subsurface#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -590,7 +595,6 @@ impl Proxy for MetaWlSubsurface {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
-                eprintln!("client#{:04} -> wl_subsurface#{}.set_position(x: {}, y: {})", client.endpoint.id, msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).set_position(&self, arg0, arg1);
                 } else {
@@ -603,7 +607,6 @@ impl Proxy for MetaWlSubsurface {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> wl_subsurface#{}.place_above(sibling: wl_surface#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
@@ -625,7 +628,6 @@ impl Proxy for MetaWlSubsurface {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> wl_subsurface#{}.place_below(sibling: wl_surface#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
@@ -645,7 +647,6 @@ impl Proxy for MetaWlSubsurface {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wl_subsurface#{}.set_sync()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).set_sync(&self);
                 } else {
@@ -656,7 +657,6 @@ impl Proxy for MetaWlSubsurface {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wl_subsurface#{}.set_desync()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).set_desync(&self);
                 } else {

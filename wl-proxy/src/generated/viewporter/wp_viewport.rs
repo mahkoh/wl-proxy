@@ -81,6 +81,14 @@ impl MetaWpViewport {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWpViewportMessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWpViewport {
@@ -110,7 +118,6 @@ impl MetaWpViewport {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_viewport#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -172,7 +179,6 @@ impl MetaWpViewport {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_viewport#{}.set_source(x: {}, y: {}, width: {}, height: {})", id, arg0, arg1, arg2, arg3);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -229,7 +235,6 @@ impl MetaWpViewport {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_viewport#{}.set_destination(width: {}, height: {})", id, arg0, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -340,6 +345,10 @@ pub trait MetaWpViewportMessageHandler {
 }
 
 impl Proxy for MetaWpViewport {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -351,7 +360,6 @@ impl Proxy for MetaWpViewport {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wp_viewport#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -372,7 +380,6 @@ impl Proxy for MetaWpViewport {
                 let arg1 = Fixed::from_wire(arg1 as i32);
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 let arg3 = Fixed::from_wire(arg3 as i32);
-                eprintln!("client#{:04} -> wp_viewport#{}.set_source(x: {}, y: {}, width: {}, height: {})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).set_source(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -388,7 +395,6 @@ impl Proxy for MetaWpViewport {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
-                eprintln!("client#{:04} -> wp_viewport#{}.set_destination(width: {}, height: {})", client.endpoint.id, msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).set_destination(&self, arg0, arg1);
                 } else {

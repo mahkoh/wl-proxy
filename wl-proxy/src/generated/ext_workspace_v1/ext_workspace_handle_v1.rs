@@ -43,6 +43,14 @@ impl MetaExtWorkspaceHandleV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaExtWorkspaceHandleV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaExtWorkspaceHandleV1 {
@@ -95,7 +103,6 @@ impl MetaExtWorkspaceHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_workspace_handle_v1#{}.id(id: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -142,7 +149,6 @@ impl MetaExtWorkspaceHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_workspace_handle_v1#{}.name(name: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -202,7 +208,6 @@ impl MetaExtWorkspaceHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_workspace_handle_v1#{}.coordinates(coordinates: {})", client.endpoint.id, id, debug_array(arg0));
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -250,7 +255,6 @@ impl MetaExtWorkspaceHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_workspace_handle_v1#{}.state(state: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -305,7 +309,6 @@ impl MetaExtWorkspaceHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_workspace_handle_v1#{}.capabilities(capabilities: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -346,7 +349,6 @@ impl MetaExtWorkspaceHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_workspace_handle_v1#{}.removed()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -380,7 +382,6 @@ impl MetaExtWorkspaceHandleV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= ext_workspace_handle_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -416,7 +417,6 @@ impl MetaExtWorkspaceHandleV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= ext_workspace_handle_v1#{}.activate()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -448,7 +448,6 @@ impl MetaExtWorkspaceHandleV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= ext_workspace_handle_v1#{}.deactivate()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -495,7 +494,6 @@ impl MetaExtWorkspaceHandleV1 {
             None => return Err(ObjectError::ArgNoServerId("workspace_group")),
             Some(id) => id,
         };
-        eprintln!("server      <= ext_workspace_handle_v1#{}.assign(workspace_group: ext_workspace_group_handle_v1#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -528,7 +526,6 @@ impl MetaExtWorkspaceHandleV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= ext_workspace_handle_v1#{}.remove()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -826,6 +823,10 @@ pub trait MetaExtWorkspaceHandleV1MessageHandler {
 }
 
 impl Proxy for MetaExtWorkspaceHandleV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -837,7 +838,6 @@ impl Proxy for MetaExtWorkspaceHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> ext_workspace_handle_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -849,7 +849,6 @@ impl Proxy for MetaExtWorkspaceHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> ext_workspace_handle_v1#{}.activate()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).activate(&self);
                 } else {
@@ -860,7 +859,6 @@ impl Proxy for MetaExtWorkspaceHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> ext_workspace_handle_v1#{}.deactivate()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).deactivate(&self);
                 } else {
@@ -873,7 +871,6 @@ impl Proxy for MetaExtWorkspaceHandleV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> ext_workspace_handle_v1#{}.assign(workspace_group: ext_workspace_group_handle_v1#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
@@ -893,7 +890,6 @@ impl Proxy for MetaExtWorkspaceHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> ext_workspace_handle_v1#{}.remove()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).remove(&self);
                 } else {
@@ -941,7 +937,6 @@ impl Proxy for MetaExtWorkspaceHandleV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> ext_workspace_handle_v1#{}.id(id: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).id(&self, arg0);
                 } else {
@@ -975,7 +970,6 @@ impl Proxy for MetaExtWorkspaceHandleV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> ext_workspace_handle_v1#{}.name(name: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).name(&self, arg0);
                 } else {
@@ -1001,7 +995,6 @@ impl Proxy for MetaExtWorkspaceHandleV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> ext_workspace_handle_v1#{}.coordinates(coordinates: {})", msg[0], debug_array(arg0));
                 if let Some(handler) = handler {
                     (**handler).coordinates(&self, arg0);
                 } else {
@@ -1015,7 +1008,6 @@ impl Proxy for MetaExtWorkspaceHandleV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaExtWorkspaceHandleV1State(arg0);
-                eprintln!("server      -> ext_workspace_handle_v1#{}.state(state: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).state(&self, arg0);
                 } else {
@@ -1029,7 +1021,6 @@ impl Proxy for MetaExtWorkspaceHandleV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaExtWorkspaceHandleV1WorkspaceCapabilities(arg0);
-                eprintln!("server      -> ext_workspace_handle_v1#{}.capabilities(capabilities: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).capabilities(&self, arg0);
                 } else {
@@ -1040,7 +1031,6 @@ impl Proxy for MetaExtWorkspaceHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> ext_workspace_handle_v1#{}.removed()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).removed(&self);
                 } else {

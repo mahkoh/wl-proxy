@@ -31,6 +31,14 @@ impl MetaZwlrDataControlOfferV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwlrDataControlOfferV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwlrDataControlOfferV1 {
@@ -82,7 +90,6 @@ impl MetaZwlrDataControlOfferV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwlr_data_control_offer_v1#{}.receive(mime_type: {:?}, fd: {})", id, arg0, arg1.as_raw_fd());
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -114,7 +121,6 @@ impl MetaZwlrDataControlOfferV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwlr_data_control_offer_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -158,7 +164,6 @@ impl MetaZwlrDataControlOfferV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_data_control_offer_v1#{}.offer(mime_type: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -250,6 +255,10 @@ pub trait MetaZwlrDataControlOfferV1MessageHandler {
 }
 
 impl Proxy for MetaZwlrDataControlOfferV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -288,7 +297,6 @@ impl Proxy for MetaZwlrDataControlOfferV1 {
                     return Err(ObjectError::MissingFd("fd"));
                 };
                 let arg1 = &arg1;
-                eprintln!("client#{:04} -> zwlr_data_control_offer_v1#{}.receive(mime_type: {:?}, fd: {})", client.endpoint.id, msg[0], arg0, arg1.as_raw_fd());
                 if let Some(handler) = handler {
                     (**handler).receive(&self, arg0, arg1);
                 } else {
@@ -299,7 +307,6 @@ impl Proxy for MetaZwlrDataControlOfferV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwlr_data_control_offer_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -348,7 +355,6 @@ impl Proxy for MetaZwlrDataControlOfferV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> zwlr_data_control_offer_v1#{}.offer(mime_type: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).offer(&self, arg0);
                 } else {

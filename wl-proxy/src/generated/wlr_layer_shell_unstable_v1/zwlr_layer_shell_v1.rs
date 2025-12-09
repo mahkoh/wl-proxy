@@ -34,6 +34,14 @@ impl MetaZwlrLayerShellV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwlrLayerShellV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwlrLayerShellV1 {
@@ -126,7 +134,6 @@ impl MetaZwlrLayerShellV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= zwlr_layer_shell_v1#{}.get_layer_surface(id: zwlr_layer_surface_v1#{}, surface: wl_surface#{}, output: wl_output#{}, layer: {:?}, namespace: {:?})", id, arg0_id, arg1_id, arg2_id, arg3, arg4);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -163,7 +170,6 @@ impl MetaZwlrLayerShellV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwlr_layer_shell_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -258,6 +264,10 @@ pub trait MetaZwlrLayerShellV1MessageHandler {
 }
 
 impl Proxy for MetaZwlrLayerShellV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -309,7 +319,6 @@ impl Proxy for MetaZwlrLayerShellV1 {
                     return Err(ObjectError::TrailingBytes);
                 }
                 let arg3 = MetaZwlrLayerShellV1Layer(arg3);
-                eprintln!("client#{:04} -> zwlr_layer_shell_v1#{}.get_layer_surface(id: zwlr_layer_surface_v1#{}, surface: wl_surface#{}, output: wl_output#{}, layer: {:?}, namespace: {:?})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
                 let arg0_id = arg0;
                 let arg0 = MetaZwlrLayerSurfaceV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -348,7 +357,6 @@ impl Proxy for MetaZwlrLayerShellV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwlr_layer_shell_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {

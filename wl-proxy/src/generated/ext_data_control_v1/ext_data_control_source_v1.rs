@@ -31,6 +31,14 @@ impl MetaExtDataControlSourceV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaExtDataControlSourceV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaExtDataControlSourceV1 {
@@ -73,7 +81,6 @@ impl MetaExtDataControlSourceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= ext_data_control_source_v1#{}.offer(mime_type: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -104,7 +111,6 @@ impl MetaExtDataControlSourceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= ext_data_control_source_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -152,7 +158,6 @@ impl MetaExtDataControlSourceV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_data_control_source_v1#{}.send(mime_type: {:?}, fd: {})", client.endpoint.id, id, arg0, arg1.as_raw_fd());
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -189,7 +194,6 @@ impl MetaExtDataControlSourceV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_data_control_source_v1#{}.cancelled()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -293,6 +297,10 @@ pub trait MetaExtDataControlSourceV1MessageHandler {
 }
 
 impl Proxy for MetaExtDataControlSourceV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -327,7 +335,6 @@ impl Proxy for MetaExtDataControlSourceV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("client#{:04} -> ext_data_control_source_v1#{}.offer(mime_type: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).offer(&self, arg0);
                 } else {
@@ -338,7 +345,6 @@ impl Proxy for MetaExtDataControlSourceV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> ext_data_control_source_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -391,7 +397,6 @@ impl Proxy for MetaExtDataControlSourceV1 {
                     return Err(ObjectError::MissingFd("fd"));
                 };
                 let arg1 = &arg1;
-                eprintln!("server      -> ext_data_control_source_v1#{}.send(mime_type: {:?}, fd: {})", msg[0], arg0, arg1.as_raw_fd());
                 if let Some(handler) = handler {
                     (**handler).send(&self, arg0, arg1);
                 } else {
@@ -402,7 +407,6 @@ impl Proxy for MetaExtDataControlSourceV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> ext_data_control_source_v1#{}.cancelled()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).cancelled(&self);
                 } else {

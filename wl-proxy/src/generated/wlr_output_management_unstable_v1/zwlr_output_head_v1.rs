@@ -40,6 +40,14 @@ impl MetaZwlrOutputHeadV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwlrOutputHeadV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwlrOutputHeadV1 {
@@ -97,7 +105,6 @@ impl MetaZwlrOutputHeadV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_output_head_v1#{}.name(name: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -153,7 +160,6 @@ impl MetaZwlrOutputHeadV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_output_head_v1#{}.description(description: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -206,7 +212,6 @@ impl MetaZwlrOutputHeadV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_output_head_v1#{}.physical_size(width: {}, height: {})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -252,7 +257,6 @@ impl MetaZwlrOutputHeadV1 {
         arg0.generate_client_id(client, arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateClientId("mode", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_output_head_v1#{}.mode(mode: zwlr_output_mode_v1#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -299,7 +303,6 @@ impl MetaZwlrOutputHeadV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_output_head_v1#{}.enabled(enabled: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -348,7 +351,6 @@ impl MetaZwlrOutputHeadV1 {
             return Err(ObjectError::ArgNoClientId("mode", client.endpoint.id));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_output_head_v1#{}.current_mode(mode: zwlr_output_mode_v1#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -396,7 +398,6 @@ impl MetaZwlrOutputHeadV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_output_head_v1#{}.position(x: {}, y: {})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -441,7 +442,6 @@ impl MetaZwlrOutputHeadV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_output_head_v1#{}.transform(transform: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -485,7 +485,6 @@ impl MetaZwlrOutputHeadV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_output_head_v1#{}.scale(scale: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -520,7 +519,6 @@ impl MetaZwlrOutputHeadV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_output_head_v1#{}.finished()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -583,7 +581,6 @@ impl MetaZwlrOutputHeadV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_output_head_v1#{}.make(make: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -647,7 +644,6 @@ impl MetaZwlrOutputHeadV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_output_head_v1#{}.model(model: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -709,7 +705,6 @@ impl MetaZwlrOutputHeadV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_output_head_v1#{}.serial_number(serial_number: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -741,7 +736,6 @@ impl MetaZwlrOutputHeadV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwlr_output_head_v1#{}.release()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -786,7 +780,6 @@ impl MetaZwlrOutputHeadV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_output_head_v1#{}.adaptive_sync(state: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -1238,6 +1231,10 @@ pub trait MetaZwlrOutputHeadV1MessageHandler {
 }
 
 impl Proxy for MetaZwlrOutputHeadV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -1249,7 +1246,6 @@ impl Proxy for MetaZwlrOutputHeadV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwlr_output_head_v1#{}.release()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
@@ -1298,7 +1294,6 @@ impl Proxy for MetaZwlrOutputHeadV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> zwlr_output_head_v1#{}.name(name: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).name(&self, arg0);
                 } else {
@@ -1332,7 +1327,6 @@ impl Proxy for MetaZwlrOutputHeadV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> zwlr_output_head_v1#{}.description(description: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).description(&self, arg0);
                 } else {
@@ -1348,7 +1342,6 @@ impl Proxy for MetaZwlrOutputHeadV1 {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
-                eprintln!("server      -> zwlr_output_head_v1#{}.physical_size(width: {}, height: {})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).physical_size(&self, arg0, arg1);
                 } else {
@@ -1361,7 +1354,6 @@ impl Proxy for MetaZwlrOutputHeadV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwlr_output_head_v1#{}.mode(mode: zwlr_output_mode_v1#{})", msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaZwlrOutputModeV1::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
@@ -1380,7 +1372,6 @@ impl Proxy for MetaZwlrOutputHeadV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = arg0 as i32;
-                eprintln!("server      -> zwlr_output_head_v1#{}.enabled(enabled: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).enabled(&self, arg0);
                 } else {
@@ -1393,7 +1384,6 @@ impl Proxy for MetaZwlrOutputHeadV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwlr_output_head_v1#{}.current_mode(mode: zwlr_output_mode_v1#{})", msg[0], arg0);
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
                     return Err(ObjectError::NoServerObject(arg0_id));
@@ -1418,7 +1408,6 @@ impl Proxy for MetaZwlrOutputHeadV1 {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
-                eprintln!("server      -> zwlr_output_head_v1#{}.position(x: {}, y: {})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).position(&self, arg0, arg1);
                 } else {
@@ -1432,7 +1421,6 @@ impl Proxy for MetaZwlrOutputHeadV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWlOutputTransform(arg0);
-                eprintln!("server      -> zwlr_output_head_v1#{}.transform(transform: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).transform(&self, arg0);
                 } else {
@@ -1446,7 +1434,6 @@ impl Proxy for MetaZwlrOutputHeadV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = Fixed::from_wire(arg0 as i32);
-                eprintln!("server      -> zwlr_output_head_v1#{}.scale(scale: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).scale(&self, arg0);
                 } else {
@@ -1457,7 +1444,6 @@ impl Proxy for MetaZwlrOutputHeadV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zwlr_output_head_v1#{}.finished()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).finished(&self);
                 } else {
@@ -1491,7 +1477,6 @@ impl Proxy for MetaZwlrOutputHeadV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> zwlr_output_head_v1#{}.make(make: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).make(&self, arg0);
                 } else {
@@ -1525,7 +1510,6 @@ impl Proxy for MetaZwlrOutputHeadV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> zwlr_output_head_v1#{}.model(model: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).model(&self, arg0);
                 } else {
@@ -1559,7 +1543,6 @@ impl Proxy for MetaZwlrOutputHeadV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> zwlr_output_head_v1#{}.serial_number(serial_number: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).serial_number(&self, arg0);
                 } else {
@@ -1573,7 +1556,6 @@ impl Proxy for MetaZwlrOutputHeadV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaZwlrOutputHeadV1AdaptiveSyncState(arg0);
-                eprintln!("server      -> zwlr_output_head_v1#{}.adaptive_sync(state: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).adaptive_sync(&self, arg0);
                 } else {

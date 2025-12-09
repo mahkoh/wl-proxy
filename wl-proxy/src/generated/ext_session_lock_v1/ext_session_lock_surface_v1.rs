@@ -42,6 +42,14 @@ impl MetaExtSessionLockSurfaceV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaExtSessionLockSurfaceV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaExtSessionLockSurfaceV1 {
@@ -78,7 +86,6 @@ impl MetaExtSessionLockSurfaceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= ext_session_lock_surface_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -142,7 +149,6 @@ impl MetaExtSessionLockSurfaceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= ext_session_lock_surface_v1#{}.ack_configure(serial: {})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -198,7 +204,6 @@ impl MetaExtSessionLockSurfaceV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_session_lock_surface_v1#{}.configure(serial: {}, width: {}, height: {})", client.endpoint.id, id, arg0, arg1, arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -321,6 +326,10 @@ pub trait MetaExtSessionLockSurfaceV1MessageHandler {
 }
 
 impl Proxy for MetaExtSessionLockSurfaceV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -332,7 +341,6 @@ impl Proxy for MetaExtSessionLockSurfaceV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> ext_session_lock_surface_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -346,7 +354,6 @@ impl Proxy for MetaExtSessionLockSurfaceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> ext_session_lock_surface_v1#{}.ack_configure(serial: {})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).ack_configure(&self, arg0);
                 } else {
@@ -375,7 +382,6 @@ impl Proxy for MetaExtSessionLockSurfaceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
-                eprintln!("server      -> ext_session_lock_surface_v1#{}.configure(serial: {}, width: {}, height: {})", msg[0], arg0, arg1, arg2);
                 if let Some(handler) = handler {
                     (**handler).configure(&self, arg0, arg1, arg2);
                 } else {

@@ -30,6 +30,14 @@ impl MetaZxdgImporterV2 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZxdgImporterV2MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZxdgImporterV2 {
@@ -59,7 +67,6 @@ impl MetaZxdgImporterV2 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zxdg_importer_v2#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -113,7 +120,6 @@ impl MetaZxdgImporterV2 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= zxdg_importer_v2#{}.import_toplevel(id: zxdg_imported_v2#{}, handle: {:?})", id, arg0_id, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -180,6 +186,10 @@ pub trait MetaZxdgImporterV2MessageHandler {
 }
 
 impl Proxy for MetaZxdgImporterV2 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -191,7 +201,6 @@ impl Proxy for MetaZxdgImporterV2 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zxdg_importer_v2#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -230,7 +239,6 @@ impl Proxy for MetaZxdgImporterV2 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("client#{:04} -> zxdg_importer_v2#{}.import_toplevel(id: zxdg_imported_v2#{}, handle: {:?})", client.endpoint.id, msg[0], arg0, arg1);
                 let arg0_id = arg0;
                 let arg0 = MetaZxdgImportedV2::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())

@@ -45,6 +45,14 @@ impl MetaWpSecurityContextManagerV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWpSecurityContextManagerV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWpSecurityContextManagerV1 {
@@ -74,7 +82,6 @@ impl MetaWpSecurityContextManagerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_security_context_manager_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -142,7 +149,6 @@ impl MetaWpSecurityContextManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wp_security_context_manager_v1#{}.create_listener(id: wp_security_context_v1#{}, listen_fd: {}, close_fd: {})", id, arg0_id, arg1.as_raw_fd(), arg2.as_raw_fd());
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -223,6 +229,10 @@ pub trait MetaWpSecurityContextManagerV1MessageHandler {
 }
 
 impl Proxy for MetaWpSecurityContextManagerV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -234,7 +244,6 @@ impl Proxy for MetaWpSecurityContextManagerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wp_security_context_manager_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -256,7 +265,6 @@ impl Proxy for MetaWpSecurityContextManagerV1 {
                 };
                 let arg1 = &arg1;
                 let arg2 = &arg2;
-                eprintln!("client#{:04} -> wp_security_context_manager_v1#{}.create_listener(id: wp_security_context_v1#{}, listen_fd: {}, close_fd: {})", client.endpoint.id, msg[0], arg0, arg1.as_raw_fd(), arg2.as_raw_fd());
                 let arg0_id = arg0;
                 let arg0 = MetaWpSecurityContextV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())

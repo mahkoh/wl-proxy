@@ -46,6 +46,14 @@ impl MetaXdgPositioner {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaXdgPositionerMessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaXdgPositioner {
@@ -74,7 +82,6 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= xdg_positioner#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -123,7 +130,6 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= xdg_positioner#{}.set_size(width: {}, height: {})", id, arg0, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -186,7 +192,6 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= xdg_positioner#{}.set_anchor_rect(x: {}, y: {}, width: {}, height: {})", id, arg0, arg1, arg2, arg3);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -235,7 +240,6 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= xdg_positioner#{}.set_anchor(anchor: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -282,7 +286,6 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= xdg_positioner#{}.set_gravity(gravity: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -335,7 +338,6 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= xdg_positioner#{}.set_constraint_adjustment(constraint_adjustment: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -390,7 +392,6 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= xdg_positioner#{}.set_offset(x: {}, y: {})", id, arg0, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -427,7 +428,6 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= xdg_positioner#{}.set_reactive()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -476,7 +476,6 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= xdg_positioner#{}.set_parent_size(parent_width: {}, parent_height: {})", id, arg0, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -521,7 +520,6 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= xdg_positioner#{}.set_parent_configure(serial: {})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -818,6 +816,10 @@ pub trait MetaXdgPositionerMessageHandler {
 }
 
 impl Proxy for MetaXdgPositioner {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -829,7 +831,6 @@ impl Proxy for MetaXdgPositioner {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> xdg_positioner#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -846,7 +847,6 @@ impl Proxy for MetaXdgPositioner {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
-                eprintln!("client#{:04} -> xdg_positioner#{}.set_size(width: {}, height: {})", client.endpoint.id, msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).set_size(&self, arg0, arg1);
                 } else {
@@ -866,7 +866,6 @@ impl Proxy for MetaXdgPositioner {
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
-                eprintln!("client#{:04} -> xdg_positioner#{}.set_anchor_rect(x: {}, y: {}, width: {}, height: {})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).set_anchor_rect(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -880,7 +879,6 @@ impl Proxy for MetaXdgPositioner {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaXdgPositionerAnchor(arg0);
-                eprintln!("client#{:04} -> xdg_positioner#{}.set_anchor(anchor: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_anchor(&self, arg0);
                 } else {
@@ -894,7 +892,6 @@ impl Proxy for MetaXdgPositioner {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaXdgPositionerGravity(arg0);
-                eprintln!("client#{:04} -> xdg_positioner#{}.set_gravity(gravity: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_gravity(&self, arg0);
                 } else {
@@ -908,7 +905,6 @@ impl Proxy for MetaXdgPositioner {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaXdgPositionerConstraintAdjustment(arg0);
-                eprintln!("client#{:04} -> xdg_positioner#{}.set_constraint_adjustment(constraint_adjustment: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_constraint_adjustment(&self, arg0);
                 } else {
@@ -924,7 +920,6 @@ impl Proxy for MetaXdgPositioner {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
-                eprintln!("client#{:04} -> xdg_positioner#{}.set_offset(x: {}, y: {})", client.endpoint.id, msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).set_offset(&self, arg0, arg1);
                 } else {
@@ -935,7 +930,6 @@ impl Proxy for MetaXdgPositioner {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> xdg_positioner#{}.set_reactive()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).set_reactive(&self);
                 } else {
@@ -951,7 +945,6 @@ impl Proxy for MetaXdgPositioner {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
-                eprintln!("client#{:04} -> xdg_positioner#{}.set_parent_size(parent_width: {}, parent_height: {})", client.endpoint.id, msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).set_parent_size(&self, arg0, arg1);
                 } else {
@@ -964,7 +957,6 @@ impl Proxy for MetaXdgPositioner {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> xdg_positioner#{}.set_parent_configure(serial: {})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_parent_configure(&self, arg0);
                 } else {

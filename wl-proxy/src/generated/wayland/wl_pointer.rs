@@ -35,6 +35,14 @@ impl MetaWlPointer {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWlPointerMessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWlPointer {
@@ -125,7 +133,6 @@ impl MetaWlPointer {
                 Some(id) => id,
             },
         };
-        eprintln!("server      <= wl_pointer#{}.set_cursor(serial: {}, surface: wl_surface#{}, hotspot_x: {}, hotspot_y: {})", id, arg0, arg1_id, arg2, arg3);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -193,7 +200,6 @@ impl MetaWlPointer {
             return Err(ObjectError::ArgNoClientId("surface", client.endpoint.id));
         }
         let arg1_id = arg1.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_pointer#{}.enter(serial: {}, surface: wl_surface#{}, surface_x: {}, surface_y: {})", client.endpoint.id, id, arg0, arg1_id, arg2, arg3);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -252,7 +258,6 @@ impl MetaWlPointer {
             return Err(ObjectError::ArgNoClientId("surface", client.endpoint.id));
         }
         let arg1_id = arg1.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_pointer#{}.leave(serial: {}, surface: wl_surface#{})", client.endpoint.id, id, arg0, arg1_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -306,7 +311,6 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_pointer#{}.motion(time: {}, surface_x: {}, surface_y: {})", client.endpoint.id, id, arg0, arg1, arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -376,7 +380,6 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_pointer#{}.button(serial: {}, time: {}, button: {}, state: {:?})", client.endpoint.id, id, arg0, arg1, arg2, arg3);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -445,7 +448,6 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_pointer#{}.axis(time: {}, axis: {:?}, value: {})", client.endpoint.id, id, arg0, arg1, arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -482,7 +484,6 @@ impl MetaWlPointer {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wl_pointer#{}.release()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -548,7 +549,6 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_pointer#{}.frame()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -614,7 +614,6 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_pointer#{}.axis_source(axis_source: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -674,7 +673,6 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_pointer#{}.axis_stop(time: {}, axis: {:?})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -755,7 +753,6 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_pointer#{}.axis_discrete(axis: {:?}, discrete: {})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -823,7 +820,6 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_pointer#{}.axis_value120(axis: {:?}, value120: {})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -905,7 +901,6 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_pointer#{}.axis_relative_direction(axis: {:?}, direction: {:?})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -1494,6 +1489,10 @@ pub trait MetaWlPointerMessageHandler {
 }
 
 impl Proxy for MetaWlPointer {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -1512,7 +1511,6 @@ impl Proxy for MetaWlPointer {
                 };
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
-                eprintln!("client#{:04} -> wl_pointer#{}.set_cursor(serial: {}, surface: wl_surface#{}, hotspot_x: {}, hotspot_y: {})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                 let arg1 = if arg1 == 0 {
                     None
                 } else {
@@ -1537,7 +1535,6 @@ impl Proxy for MetaWlPointer {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wl_pointer#{}.release()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
@@ -1570,7 +1567,6 @@ impl Proxy for MetaWlPointer {
                 };
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 let arg3 = Fixed::from_wire(arg3 as i32);
-                eprintln!("server      -> wl_pointer#{}.enter(serial: {}, surface: wl_surface#{}, surface_x: {}, surface_y: {})", msg[0], arg0, arg1, arg2, arg3);
                 let arg1_id = arg1;
                 let Some(arg1) = self.core.state.server.lookup(arg1_id) else {
                     return Err(ObjectError::NoServerObject(arg1_id));
@@ -1593,7 +1589,6 @@ impl Proxy for MetaWlPointer {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                eprintln!("server      -> wl_pointer#{}.leave(serial: {}, surface: wl_surface#{})", msg[0], arg0, arg1);
                 let arg1_id = arg1;
                 let Some(arg1) = self.core.state.server.lookup(arg1_id) else {
                     return Err(ObjectError::NoServerObject(arg1_id));
@@ -1619,7 +1614,6 @@ impl Proxy for MetaWlPointer {
                 };
                 let arg1 = Fixed::from_wire(arg1 as i32);
                 let arg2 = Fixed::from_wire(arg2 as i32);
-                eprintln!("server      -> wl_pointer#{}.motion(time: {}, surface_x: {}, surface_y: {})", msg[0], arg0, arg1, arg2);
                 if let Some(handler) = handler {
                     (**handler).motion(&self, arg0, arg1, arg2);
                 } else {
@@ -1636,7 +1630,6 @@ impl Proxy for MetaWlPointer {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
                 let arg3 = MetaWlPointerButtonState(arg3);
-                eprintln!("server      -> wl_pointer#{}.button(serial: {}, time: {}, button: {}, state: {:?})", msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).button(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -1653,7 +1646,6 @@ impl Proxy for MetaWlPointer {
                 };
                 let arg1 = MetaWlPointerAxis(arg1);
                 let arg2 = Fixed::from_wire(arg2 as i32);
-                eprintln!("server      -> wl_pointer#{}.axis(time: {}, axis: {:?}, value: {})", msg[0], arg0, arg1, arg2);
                 if let Some(handler) = handler {
                     (**handler).axis(&self, arg0, arg1, arg2);
                 } else {
@@ -1664,7 +1656,6 @@ impl Proxy for MetaWlPointer {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> wl_pointer#{}.frame()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).frame(&self);
                 } else {
@@ -1678,7 +1669,6 @@ impl Proxy for MetaWlPointer {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWlPointerAxisSource(arg0);
-                eprintln!("server      -> wl_pointer#{}.axis_source(axis_source: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).axis_source(&self, arg0);
                 } else {
@@ -1693,7 +1683,6 @@ impl Proxy for MetaWlPointer {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 let arg1 = MetaWlPointerAxis(arg1);
-                eprintln!("server      -> wl_pointer#{}.axis_stop(time: {}, axis: {:?})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).axis_stop(&self, arg0, arg1);
                 } else {
@@ -1709,7 +1698,6 @@ impl Proxy for MetaWlPointer {
                 };
                 let arg0 = MetaWlPointerAxis(arg0);
                 let arg1 = arg1 as i32;
-                eprintln!("server      -> wl_pointer#{}.axis_discrete(axis: {:?}, discrete: {})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).axis_discrete(&self, arg0, arg1);
                 } else {
@@ -1725,7 +1713,6 @@ impl Proxy for MetaWlPointer {
                 };
                 let arg0 = MetaWlPointerAxis(arg0);
                 let arg1 = arg1 as i32;
-                eprintln!("server      -> wl_pointer#{}.axis_value120(axis: {:?}, value120: {})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).axis_value120(&self, arg0, arg1);
                 } else {
@@ -1741,7 +1728,6 @@ impl Proxy for MetaWlPointer {
                 };
                 let arg0 = MetaWlPointerAxis(arg0);
                 let arg1 = MetaWlPointerAxisRelativeDirection(arg1);
-                eprintln!("server      -> wl_pointer#{}.axis_relative_direction(axis: {:?}, direction: {:?})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).axis_relative_direction(&self, arg0, arg1);
                 } else {

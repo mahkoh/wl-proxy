@@ -45,6 +45,14 @@ impl MetaWpImageDescriptionCreatorIccV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWpImageDescriptionCreatorIccV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWpImageDescriptionCreatorIccV1 {
@@ -102,7 +110,6 @@ impl MetaWpImageDescriptionCreatorIccV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("image_description", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wp_image_description_creator_icc_v1#{}.create(image_description: wp_image_description_v1#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -190,7 +197,6 @@ impl MetaWpImageDescriptionCreatorIccV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_image_description_creator_icc_v1#{}.set_icc_file(icc_profile: {}, offset: {}, length: {})", id, arg0.as_raw_fd(), arg1, arg2);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -318,6 +324,10 @@ pub trait MetaWpImageDescriptionCreatorIccV1MessageHandler {
 }
 
 impl Proxy for MetaWpImageDescriptionCreatorIccV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -331,7 +341,6 @@ impl Proxy for MetaWpImageDescriptionCreatorIccV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> wp_image_description_creator_icc_v1#{}.create(image_description: wp_image_description_v1#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWpImageDescriptionV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -355,7 +364,6 @@ impl Proxy for MetaWpImageDescriptionCreatorIccV1 {
                     return Err(ObjectError::MissingFd("icc_profile"));
                 };
                 let arg0 = &arg0;
-                eprintln!("client#{:04} -> wp_image_description_creator_icc_v1#{}.set_icc_file(icc_profile: {}, offset: {}, length: {})", client.endpoint.id, msg[0], arg0.as_raw_fd(), arg1, arg2);
                 if let Some(handler) = handler {
                     (**handler).set_icc_file(&self, arg0, arg1, arg2);
                 } else {

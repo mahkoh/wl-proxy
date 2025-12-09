@@ -37,6 +37,14 @@ impl MetaWpSecurityContextV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWpSecurityContextV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWpSecurityContextV1 {
@@ -65,7 +73,6 @@ impl MetaWpSecurityContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_security_context_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -113,7 +120,6 @@ impl MetaWpSecurityContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_security_context_v1#{}.set_sandbox_engine(name: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -166,7 +172,6 @@ impl MetaWpSecurityContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_security_context_v1#{}.set_app_id(app_id: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -217,7 +222,6 @@ impl MetaWpSecurityContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_security_context_v1#{}.set_instance_id(instance_id: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -257,7 +261,6 @@ impl MetaWpSecurityContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_security_context_v1#{}.commit()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -409,6 +412,10 @@ pub trait MetaWpSecurityContextV1MessageHandler {
 }
 
 impl Proxy for MetaWpSecurityContextV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -420,7 +427,6 @@ impl Proxy for MetaWpSecurityContextV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wp_security_context_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -455,7 +461,6 @@ impl Proxy for MetaWpSecurityContextV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("client#{:04} -> wp_security_context_v1#{}.set_sandbox_engine(name: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_sandbox_engine(&self, arg0);
                 } else {
@@ -489,7 +494,6 @@ impl Proxy for MetaWpSecurityContextV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("client#{:04} -> wp_security_context_v1#{}.set_app_id(app_id: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_app_id(&self, arg0);
                 } else {
@@ -523,7 +527,6 @@ impl Proxy for MetaWpSecurityContextV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("client#{:04} -> wp_security_context_v1#{}.set_instance_id(instance_id: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).set_instance_id(&self, arg0);
                 } else {
@@ -534,7 +537,6 @@ impl Proxy for MetaWpSecurityContextV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wp_security_context_v1#{}.commit()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).commit(&self);
                 } else {

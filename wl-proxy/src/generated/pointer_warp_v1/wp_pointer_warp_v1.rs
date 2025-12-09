@@ -39,6 +39,14 @@ impl MetaWpPointerWarpV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWpPointerWarpV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWpPointerWarpV1 {
@@ -67,7 +75,6 @@ impl MetaWpPointerWarpV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_pointer_warp_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -143,7 +150,6 @@ impl MetaWpPointerWarpV1 {
             None => return Err(ObjectError::ArgNoServerId("pointer")),
             Some(id) => id,
         };
-        eprintln!("server      <= wp_pointer_warp_v1#{}.warp_pointer(surface: wl_surface#{}, pointer: wl_pointer#{}, x: {}, y: {}, serial: {})", id, arg0_id, arg1_id, arg2, arg3, arg4);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -229,6 +235,10 @@ pub trait MetaWpPointerWarpV1MessageHandler {
 }
 
 impl Proxy for MetaWpPointerWarpV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -240,7 +250,6 @@ impl Proxy for MetaWpPointerWarpV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wp_pointer_warp_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -260,7 +269,6 @@ impl Proxy for MetaWpPointerWarpV1 {
                 };
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 let arg3 = Fixed::from_wire(arg3 as i32);
-                eprintln!("client#{:04} -> wp_pointer_warp_v1#{}.warp_pointer(surface: wl_surface#{}, pointer: wl_pointer#{}, x: {}, y: {}, serial: {})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));

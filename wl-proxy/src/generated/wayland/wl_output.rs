@@ -33,6 +33,14 @@ impl MetaWlOutput {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWlOutputMessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWlOutput {
@@ -120,7 +128,6 @@ impl MetaWlOutput {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_output#{}.geometry(x: {}, y: {}, physical_width: {}, physical_height: {}, subpixel: {:?}, make: {:?}, model: {:?}, transform: {:?})", client.endpoint.id, id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -216,7 +223,6 @@ impl MetaWlOutput {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_output#{}.mode(flags: {:?}, width: {}, height: {}, refresh: {})", client.endpoint.id, id, arg0, arg1, arg2, arg3);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -256,7 +262,6 @@ impl MetaWlOutput {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_output#{}.done()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -315,7 +320,6 @@ impl MetaWlOutput {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_output#{}.scale(factor: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -347,7 +351,6 @@ impl MetaWlOutput {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wl_output#{}.release()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -417,7 +420,6 @@ impl MetaWlOutput {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_output#{}.name(name: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -473,7 +475,6 @@ impl MetaWlOutput {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wl_output#{}.description(description: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -773,6 +774,10 @@ pub trait MetaWlOutputMessageHandler {
 }
 
 impl Proxy for MetaWlOutput {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -784,7 +789,6 @@ impl Proxy for MetaWlOutput {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wl_output#{}.release()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
@@ -885,7 +889,6 @@ impl Proxy for MetaWlOutput {
                 let arg3 = arg3 as i32;
                 let arg4 = MetaWlOutputSubpixel(arg4);
                 let arg7 = MetaWlOutputTransform(arg7);
-                eprintln!("server      -> wl_output#{}.geometry(x: {}, y: {}, physical_width: {}, physical_height: {}, subpixel: {:?}, make: {:?}, model: {:?}, transform: {:?})", msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 if let Some(handler) = handler {
                     (**handler).geometry(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 } else {
@@ -905,7 +908,6 @@ impl Proxy for MetaWlOutput {
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
-                eprintln!("server      -> wl_output#{}.mode(flags: {:?}, width: {}, height: {}, refresh: {})", msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).mode(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -916,7 +918,6 @@ impl Proxy for MetaWlOutput {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> wl_output#{}.done()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).done(&self);
                 } else {
@@ -930,7 +931,6 @@ impl Proxy for MetaWlOutput {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = arg0 as i32;
-                eprintln!("server      -> wl_output#{}.scale(factor: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).scale(&self, arg0);
                 } else {
@@ -964,7 +964,6 @@ impl Proxy for MetaWlOutput {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> wl_output#{}.name(name: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).name(&self, arg0);
                 } else {
@@ -998,7 +997,6 @@ impl Proxy for MetaWlOutput {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> wl_output#{}.description(description: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).description(&self, arg0);
                 } else {

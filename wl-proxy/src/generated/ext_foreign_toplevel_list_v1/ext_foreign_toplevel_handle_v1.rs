@@ -29,6 +29,14 @@ impl MetaExtForeignToplevelHandleV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaExtForeignToplevelHandleV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaExtForeignToplevelHandleV1 {
@@ -69,7 +77,6 @@ impl MetaExtForeignToplevelHandleV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= ext_foreign_toplevel_handle_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -107,7 +114,6 @@ impl MetaExtForeignToplevelHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_foreign_toplevel_handle_v1#{}.closed()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -148,7 +154,6 @@ impl MetaExtForeignToplevelHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_foreign_toplevel_handle_v1#{}.done()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -193,7 +198,6 @@ impl MetaExtForeignToplevelHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_foreign_toplevel_handle_v1#{}.title(title: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -239,7 +243,6 @@ impl MetaExtForeignToplevelHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_foreign_toplevel_handle_v1#{}.app_id(app_id: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -301,7 +304,6 @@ impl MetaExtForeignToplevelHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_foreign_toplevel_handle_v1#{}.identifier(identifier: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -482,6 +484,10 @@ pub trait MetaExtForeignToplevelHandleV1MessageHandler {
 }
 
 impl Proxy for MetaExtForeignToplevelHandleV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -493,7 +499,6 @@ impl Proxy for MetaExtForeignToplevelHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> ext_foreign_toplevel_handle_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -519,7 +524,6 @@ impl Proxy for MetaExtForeignToplevelHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> ext_foreign_toplevel_handle_v1#{}.closed()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).closed(&self);
                 } else {
@@ -530,7 +534,6 @@ impl Proxy for MetaExtForeignToplevelHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> ext_foreign_toplevel_handle_v1#{}.done()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).done(&self);
                 } else {
@@ -564,7 +567,6 @@ impl Proxy for MetaExtForeignToplevelHandleV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> ext_foreign_toplevel_handle_v1#{}.title(title: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).title(&self, arg0);
                 } else {
@@ -598,7 +600,6 @@ impl Proxy for MetaExtForeignToplevelHandleV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> ext_foreign_toplevel_handle_v1#{}.app_id(app_id: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).app_id(&self, arg0);
                 } else {
@@ -632,7 +633,6 @@ impl Proxy for MetaExtForeignToplevelHandleV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> ext_foreign_toplevel_handle_v1#{}.identifier(identifier: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).identifier(&self, arg0);
                 } else {

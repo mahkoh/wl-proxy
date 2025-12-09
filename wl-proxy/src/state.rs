@@ -5,7 +5,7 @@ use {
         connect_upstream,
         endpoint::{Endpoint, EndpointError},
         generated::wayland::wl_display::MetaWlDisplay,
-        proxy::Proxy,
+        proxy::{MessageHandlerHolder, Proxy},
         trans::FlushResult,
     },
     error_reporter::Report,
@@ -69,6 +69,7 @@ impl State {
             epoll,
             next_pollable_id: Cell::new(1),
             server,
+            client_handler: Default::default(),
             pollables: RefCell::new(endpoints),
             acceptable_acceptors: Default::default(),
             readable_endpoints: Default::default(),
@@ -108,6 +109,10 @@ impl State {
     pub fn create_acceptor(&self) -> Result<Rc<Acceptor>, StateError> {
         self.inner.create_acceptor()
     }
+
+    pub fn set_clients_handler(&self, handler: Box<dyn ClientsHandler>) {
+        self.inner.set_clients_handler(handler);
+    }
 }
 
 #[derive(Clone)]
@@ -120,6 +125,7 @@ pub struct InnerState {
     pub epoll: uapi::OwnedFd,
     pub next_pollable_id: Cell<u64>,
     pub server: Rc<Endpoint>,
+    pub client_handler: MessageHandlerHolder<dyn ClientsHandler>,
     pub pollables: RefCell<HashMap<u64, Pollable>>,
     pub acceptable_acceptors: RefCell<Vec<Rc<Acceptor>>>,
     pub readable_endpoints: RefCell<Vec<EndpointWithClient>>,
@@ -189,6 +195,7 @@ impl InnerState {
         let display = MetaWlDisplay::new(self, 1);
         display.core().server_obj_id.set(Some(1));
         let client = Rc::new(Client {
+            state: self.clone(),
             endpoint: endpoint.clone(),
             display,
         });
@@ -204,6 +211,9 @@ impl InnerState {
                 client: Some(client.clone()),
             }),
         );
+        if let Some(handler) = &mut *self.client_handler.borrow() {
+            (**handler).new_client(&client);
+        }
         Ok(client)
     }
 
@@ -256,7 +266,7 @@ impl InnerState {
 
     pub(crate) fn read_events(&self, mut timeout: c::c_int) -> Result<(), StateError> {
         let mut events = [c::epoll_event { events: 0, u64: 0 }; 16];
-        let pollables = &*self.pollables.borrow();
+        let pollables = &mut *self.pollables.borrow_mut();
         let flushable = &mut *self.flushable_endpoints.borrow_mut();
         let readable = &mut *self.readable_endpoints.borrow_mut();
         let acceptable = &mut *self.acceptable_acceptors.borrow_mut();
@@ -276,8 +286,12 @@ impl InnerState {
                 };
                 match pollable {
                     Pollable::Endpoint(ewc) => {
-                        ewc.endpoint.current_interest.set(0);
                         let events = event.events as c::c_int;
+                        if events & c::EPOLLHUP != 0 {
+                            pollables.remove(&id);
+                            continue;
+                        }
+                        ewc.endpoint.current_interest.set(0);
                         self.change_interest(&ewc.endpoint, |i| i & !events);
                         if events & c::EPOLLIN != 0 {
                             readable.push(ewc.clone());
@@ -346,7 +360,7 @@ impl InnerState {
         .map_err(|e| StateError::AddEpoll(e.into()))
     }
 
-    pub fn connect(self: &Rc<Self>) -> Result<(Rc<Client>, OwnedFd), StateError> {
+    pub(crate) fn connect(self: &Rc<Self>) -> Result<(Rc<Client>, OwnedFd), StateError> {
         let (server_fd, client_fd) = uapi::socketpair(
             c::AF_UNIX,
             c::SOCK_STREAM | c::SOCK_NONBLOCK | c::SOCK_CLOEXEC,
@@ -357,7 +371,7 @@ impl InnerState {
         Ok((client, client_fd.into()))
     }
 
-    pub fn create_acceptor(&self) -> Result<Rc<Acceptor>, StateError> {
+    pub(crate) fn create_acceptor(&self) -> Result<Rc<Acceptor>, StateError> {
         let id = self.create_pollable_id();
         let acceptor = Acceptor::new(id).map_err(StateError::CreateAcceptor)?;
         self.register_socket(id, &acceptor.socket)?;
@@ -369,4 +383,19 @@ impl InnerState {
             .insert(id, Pollable::Acceptor(acceptor.clone()));
         Ok(acceptor)
     }
+
+    pub(crate) fn set_clients_handler(&self, handler: Box<dyn ClientsHandler>) {
+        self.client_handler.set(Some(handler));
+    }
+
+    pub fn create_proxy<P>(self: &Rc<Self>, version: u32) -> Rc<P>
+    where
+        P: Proxy + Sized,
+    {
+        P::new(self, version)
+    }
+}
+
+pub trait ClientsHandler {
+    fn new_client(&mut self, client: &Rc<Client>);
 }

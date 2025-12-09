@@ -30,6 +30,14 @@ impl MetaZxdgImportedV2 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZxdgImportedV2MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZxdgImportedV2 {
@@ -60,7 +68,6 @@ impl MetaZxdgImportedV2 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zxdg_imported_v2#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -110,7 +117,6 @@ impl MetaZxdgImportedV2 {
             None => return Err(ObjectError::ArgNoServerId("surface")),
             Some(id) => id,
         };
-        eprintln!("server      <= zxdg_imported_v2#{}.set_parent_of(surface: wl_surface#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -146,7 +152,6 @@ impl MetaZxdgImportedV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zxdg_imported_v2#{}.destroyed()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -230,6 +235,10 @@ pub trait MetaZxdgImportedV2MessageHandler {
 }
 
 impl Proxy for MetaZxdgImportedV2 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -241,7 +250,6 @@ impl Proxy for MetaZxdgImportedV2 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zxdg_imported_v2#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -255,7 +263,6 @@ impl Proxy for MetaZxdgImportedV2 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> zxdg_imported_v2#{}.set_parent_of(surface: wl_surface#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
@@ -289,7 +296,6 @@ impl Proxy for MetaZxdgImportedV2 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zxdg_imported_v2#{}.destroyed()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroyed(&self);
                 } else {

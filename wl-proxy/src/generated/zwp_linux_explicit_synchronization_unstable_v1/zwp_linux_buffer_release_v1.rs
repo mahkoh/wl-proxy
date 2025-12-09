@@ -44,6 +44,14 @@ impl MetaZwpLinuxBufferReleaseV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwpLinuxBufferReleaseV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwpLinuxBufferReleaseV1 {
@@ -94,7 +102,6 @@ impl MetaZwpLinuxBufferReleaseV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_linux_buffer_release_v1#{}.fenced_release(fence: {})", client.endpoint.id, id, arg0.as_raw_fd());
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -141,7 +148,6 @@ impl MetaZwpLinuxBufferReleaseV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_linux_buffer_release_v1#{}.immediate_release()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -222,6 +228,10 @@ pub trait MetaZwpLinuxBufferReleaseV1MessageHandler {
 }
 
 impl Proxy for MetaZwpLinuxBufferReleaseV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -250,7 +260,6 @@ impl Proxy for MetaZwpLinuxBufferReleaseV1 {
                     return Err(ObjectError::MissingFd("fence"));
                 };
                 let arg0 = &arg0;
-                eprintln!("server      -> zwp_linux_buffer_release_v1#{}.fenced_release(fence: {})", msg[0], arg0.as_raw_fd());
                 if let Some(handler) = handler {
                     (**handler).fenced_release(&self, arg0);
                 } else {
@@ -262,7 +271,6 @@ impl Proxy for MetaZwpLinuxBufferReleaseV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zwp_linux_buffer_release_v1#{}.immediate_release()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).immediate_release(&self);
                 } else {

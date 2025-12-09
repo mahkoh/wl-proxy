@@ -51,6 +51,14 @@ impl MetaXdgPopup {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaXdgPopupMessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaXdgPopup {
@@ -83,7 +91,6 @@ impl MetaXdgPopup {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= xdg_popup#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -169,7 +176,6 @@ impl MetaXdgPopup {
             None => return Err(ObjectError::ArgNoServerId("seat")),
             Some(id) => id,
         };
-        eprintln!("server      <= xdg_popup#{}.grab(seat: wl_seat#{}, serial: {})", id, arg0_id, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -236,7 +242,6 @@ impl MetaXdgPopup {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= xdg_popup#{}.configure(x: {}, y: {}, width: {}, height: {})", client.endpoint.id, id, arg0, arg1, arg2, arg3);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -274,7 +279,6 @@ impl MetaXdgPopup {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= xdg_popup#{}.popup_done()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -345,7 +349,6 @@ impl MetaXdgPopup {
             None => return Err(ObjectError::ArgNoServerId("positioner")),
             Some(id) => id,
         };
-        eprintln!("server      <= xdg_popup#{}.reposition(positioner: xdg_positioner#{}, token: {})", id, arg0_id, arg1);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -403,7 +406,6 @@ impl MetaXdgPopup {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= xdg_popup#{}.repositioned(token: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -649,6 +651,10 @@ pub trait MetaXdgPopupMessageHandler {
 }
 
 impl Proxy for MetaXdgPopup {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -660,7 +666,6 @@ impl Proxy for MetaXdgPopup {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> xdg_popup#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -675,7 +680,6 @@ impl Proxy for MetaXdgPopup {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                eprintln!("client#{:04} -> xdg_popup#{}.grab(seat: wl_seat#{}, serial: {})", client.endpoint.id, msg[0], arg0, arg1);
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
@@ -698,7 +702,6 @@ impl Proxy for MetaXdgPopup {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                eprintln!("client#{:04} -> xdg_popup#{}.reposition(positioner: xdg_positioner#{}, token: {})", client.endpoint.id, msg[0], arg0, arg1);
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
@@ -741,7 +744,6 @@ impl Proxy for MetaXdgPopup {
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
-                eprintln!("server      -> xdg_popup#{}.configure(x: {}, y: {}, width: {}, height: {})", msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).configure(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -752,7 +754,6 @@ impl Proxy for MetaXdgPopup {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> xdg_popup#{}.popup_done()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).popup_done(&self);
                 } else {
@@ -765,7 +766,6 @@ impl Proxy for MetaXdgPopup {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> xdg_popup#{}.repositioned(token: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).repositioned(&self, arg0);
                 } else {

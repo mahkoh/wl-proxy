@@ -31,6 +31,14 @@ impl MetaWpLinuxDrmSyncobjManagerV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWpLinuxDrmSyncobjManagerV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWpLinuxDrmSyncobjManagerV1 {
@@ -60,7 +68,6 @@ impl MetaWpLinuxDrmSyncobjManagerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_linux_drm_syncobj_manager_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -125,7 +132,6 @@ impl MetaWpLinuxDrmSyncobjManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wp_linux_drm_syncobj_manager_v1#{}.get_surface(id: wp_linux_drm_syncobj_surface_v1#{}, surface: wl_surface#{})", id, arg0_id, arg1_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -178,7 +184,6 @@ impl MetaWpLinuxDrmSyncobjManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wp_linux_drm_syncobj_manager_v1#{}.import_timeline(id: wp_linux_drm_syncobj_timeline_v1#{}, fd: {})", id, arg0_id, arg1.as_raw_fd());
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -280,6 +285,10 @@ pub trait MetaWpLinuxDrmSyncobjManagerV1MessageHandler {
 }
 
 impl Proxy for MetaWpLinuxDrmSyncobjManagerV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -291,7 +300,6 @@ impl Proxy for MetaWpLinuxDrmSyncobjManagerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wp_linux_drm_syncobj_manager_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -306,7 +314,6 @@ impl Proxy for MetaWpLinuxDrmSyncobjManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                eprintln!("client#{:04} -> wp_linux_drm_syncobj_manager_v1#{}.get_surface(id: wp_linux_drm_syncobj_surface_v1#{}, surface: wl_surface#{})", client.endpoint.id, msg[0], arg0, arg1);
                 let arg0_id = arg0;
                 let arg0 = MetaWpLinuxDrmSyncobjSurfaceV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -337,7 +344,6 @@ impl Proxy for MetaWpLinuxDrmSyncobjManagerV1 {
                     return Err(ObjectError::MissingFd("fd"));
                 };
                 let arg1 = &arg1;
-                eprintln!("client#{:04} -> wp_linux_drm_syncobj_manager_v1#{}.import_timeline(id: wp_linux_drm_syncobj_timeline_v1#{}, fd: {})", client.endpoint.id, msg[0], arg0, arg1.as_raw_fd());
                 let arg0_id = arg0;
                 let arg0 = MetaWpLinuxDrmSyncobjTimelineV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())

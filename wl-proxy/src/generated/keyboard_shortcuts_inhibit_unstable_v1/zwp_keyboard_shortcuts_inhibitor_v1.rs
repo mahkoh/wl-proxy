@@ -60,6 +60,14 @@ impl MetaZwpKeyboardShortcutsInhibitorV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwpKeyboardShortcutsInhibitorV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwpKeyboardShortcutsInhibitorV1 {
@@ -88,7 +96,6 @@ impl MetaZwpKeyboardShortcutsInhibitorV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwp_keyboard_shortcuts_inhibitor_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -131,7 +138,6 @@ impl MetaZwpKeyboardShortcutsInhibitorV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_keyboard_shortcuts_inhibitor_v1#{}.active()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -164,7 +170,6 @@ impl MetaZwpKeyboardShortcutsInhibitorV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_keyboard_shortcuts_inhibitor_v1#{}.inactive()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -241,6 +246,10 @@ pub trait MetaZwpKeyboardShortcutsInhibitorV1MessageHandler {
 }
 
 impl Proxy for MetaZwpKeyboardShortcutsInhibitorV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -252,7 +261,6 @@ impl Proxy for MetaZwpKeyboardShortcutsInhibitorV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwp_keyboard_shortcuts_inhibitor_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -278,7 +286,6 @@ impl Proxy for MetaZwpKeyboardShortcutsInhibitorV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zwp_keyboard_shortcuts_inhibitor_v1#{}.active()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).active(&self);
                 } else {
@@ -289,7 +296,6 @@ impl Proxy for MetaZwpKeyboardShortcutsInhibitorV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zwp_keyboard_shortcuts_inhibitor_v1#{}.inactive()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).inactive(&self);
                 } else {

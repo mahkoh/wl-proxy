@@ -32,6 +32,14 @@ impl MetaZwlrForeignToplevelHandleV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwlrForeignToplevelHandleV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwlrForeignToplevelHandleV1 {
@@ -72,7 +80,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_foreign_toplevel_handle_v1#{}.title(title: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -115,7 +122,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_foreign_toplevel_handle_v1#{}.app_id(app_id: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -164,7 +170,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
             return Err(ObjectError::ArgNoClientId("output", client.endpoint.id));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_foreign_toplevel_handle_v1#{}.output_enter(output: wl_output#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -214,7 +219,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
             return Err(ObjectError::ArgNoClientId("output", client.endpoint.id));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_foreign_toplevel_handle_v1#{}.output_leave(output: wl_output#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -246,7 +250,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwlr_foreign_toplevel_handle_v1#{}.set_maximized()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -277,7 +280,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwlr_foreign_toplevel_handle_v1#{}.unset_maximized()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -308,7 +310,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwlr_foreign_toplevel_handle_v1#{}.set_minimized()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -339,7 +340,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwlr_foreign_toplevel_handle_v1#{}.unset_minimized()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -385,7 +385,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
             None => return Err(ObjectError::ArgNoServerId("seat")),
             Some(id) => id,
         };
-        eprintln!("server      <= zwlr_foreign_toplevel_handle_v1#{}.activate(seat: wl_seat#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -430,7 +429,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_foreign_toplevel_handle_v1#{}.state(state: {})", client.endpoint.id, id, debug_array(arg0));
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -467,7 +465,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_foreign_toplevel_handle_v1#{}.done()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -502,7 +499,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwlr_foreign_toplevel_handle_v1#{}.close()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -573,7 +569,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
             None => return Err(ObjectError::ArgNoServerId("surface")),
             Some(id) => id,
         };
-        eprintln!("server      <= zwlr_foreign_toplevel_handle_v1#{}.set_rectangle(surface: wl_surface#{}, x: {}, y: {}, width: {}, height: {})", id, arg0_id, arg1, arg2, arg3, arg4);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -613,7 +608,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_foreign_toplevel_handle_v1#{}.closed()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -647,7 +641,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwlr_foreign_toplevel_handle_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -703,7 +696,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
                 Some(id) => id,
             },
         };
-        eprintln!("server      <= zwlr_foreign_toplevel_handle_v1#{}.set_fullscreen(output: wl_output#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -735,7 +727,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwlr_foreign_toplevel_handle_v1#{}.unset_fullscreen()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -786,7 +777,6 @@ impl MetaZwlrForeignToplevelHandleV1 {
             }
         }
         let arg0_id = arg0.map(|arg0| arg0.client_obj_id.get()).flatten().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_foreign_toplevel_handle_v1#{}.parent(parent: zwlr_foreign_toplevel_handle_v1#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -1231,6 +1221,10 @@ pub trait MetaZwlrForeignToplevelHandleV1MessageHandler {
 }
 
 impl Proxy for MetaZwlrForeignToplevelHandleV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -1242,7 +1236,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwlr_foreign_toplevel_handle_v1#{}.set_maximized()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).set_maximized(&self);
                 } else {
@@ -1253,7 +1246,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwlr_foreign_toplevel_handle_v1#{}.unset_maximized()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).unset_maximized(&self);
                 } else {
@@ -1264,7 +1256,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwlr_foreign_toplevel_handle_v1#{}.set_minimized()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).set_minimized(&self);
                 } else {
@@ -1275,7 +1266,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwlr_foreign_toplevel_handle_v1#{}.unset_minimized()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).unset_minimized(&self);
                 } else {
@@ -1288,7 +1278,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> zwlr_foreign_toplevel_handle_v1#{}.activate(seat: wl_seat#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
@@ -1308,7 +1297,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwlr_foreign_toplevel_handle_v1#{}.close()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).close(&self);
                 } else {
@@ -1329,7 +1317,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
                 let arg4 = arg4 as i32;
-                eprintln!("client#{:04} -> zwlr_foreign_toplevel_handle_v1#{}.set_rectangle(surface: wl_surface#{}, x: {}, y: {}, width: {}, height: {})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
@@ -1349,7 +1336,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwlr_foreign_toplevel_handle_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -1363,7 +1349,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> zwlr_foreign_toplevel_handle_v1#{}.set_fullscreen(output: wl_output#{})", client.endpoint.id, msg[0], arg0);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
@@ -1388,7 +1373,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwlr_foreign_toplevel_handle_v1#{}.unset_fullscreen()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).unset_fullscreen(&self);
                 } else {
@@ -1436,7 +1420,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> zwlr_foreign_toplevel_handle_v1#{}.title(title: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).title(&self, arg0);
                 } else {
@@ -1470,7 +1453,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> zwlr_foreign_toplevel_handle_v1#{}.app_id(app_id: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).app_id(&self, arg0);
                 } else {
@@ -1483,7 +1465,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwlr_foreign_toplevel_handle_v1#{}.output_enter(output: wl_output#{})", msg[0], arg0);
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
                     return Err(ObjectError::NoServerObject(arg0_id));
@@ -1505,7 +1486,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwlr_foreign_toplevel_handle_v1#{}.output_leave(output: wl_output#{})", msg[0], arg0);
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
                     return Err(ObjectError::NoServerObject(arg0_id));
@@ -1540,7 +1520,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> zwlr_foreign_toplevel_handle_v1#{}.state(state: {})", msg[0], debug_array(arg0));
                 if let Some(handler) = handler {
                     (**handler).state(&self, arg0);
                 } else {
@@ -1551,7 +1530,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zwlr_foreign_toplevel_handle_v1#{}.done()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).done(&self);
                 } else {
@@ -1562,7 +1540,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zwlr_foreign_toplevel_handle_v1#{}.closed()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).closed(&self);
                 } else {
@@ -1575,7 +1552,6 @@ impl Proxy for MetaZwlrForeignToplevelHandleV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwlr_foreign_toplevel_handle_v1#{}.parent(parent: zwlr_foreign_toplevel_handle_v1#{})", msg[0], arg0);
                 let arg0 = if arg0 == 0 {
                     None
                 } else {

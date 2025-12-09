@@ -26,6 +26,14 @@ impl MetaXdgToplevelDragV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaXdgToplevelDragV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaXdgToplevelDragV1 {
@@ -57,7 +65,6 @@ impl MetaXdgToplevelDragV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= xdg_toplevel_drag_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -125,7 +132,6 @@ impl MetaXdgToplevelDragV1 {
             None => return Err(ObjectError::ArgNoServerId("toplevel")),
             Some(id) => id,
         };
-        eprintln!("server      <= xdg_toplevel_drag_v1#{}.attach(toplevel: xdg_toplevel#{}, x_offset: {}, y_offset: {})", id, arg0_id, arg1, arg2);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -211,6 +217,10 @@ pub trait MetaXdgToplevelDragV1MessageHandler {
 }
 
 impl Proxy for MetaXdgToplevelDragV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -222,7 +232,6 @@ impl Proxy for MetaXdgToplevelDragV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> xdg_toplevel_drag_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -240,7 +249,6 @@ impl Proxy for MetaXdgToplevelDragV1 {
                 };
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
-                eprintln!("client#{:04} -> xdg_toplevel_drag_v1#{}.attach(toplevel: xdg_toplevel#{}, x_offset: {}, y_offset: {})", client.endpoint.id, msg[0], arg0, arg1, arg2);
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));

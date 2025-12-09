@@ -47,6 +47,14 @@ impl MetaZwpTabletToolV2 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwpTabletToolV2MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwpTabletToolV2 {
@@ -134,7 +142,6 @@ impl MetaZwpTabletToolV2 {
                 Some(id) => id,
             },
         };
-        eprintln!("server      <= zwp_tablet_tool_v2#{}.set_cursor(serial: {}, surface: wl_surface#{}, hotspot_x: {}, hotspot_y: {})", id, arg0, arg1_id, arg2, arg3);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -168,7 +175,6 @@ impl MetaZwpTabletToolV2 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwp_tablet_tool_v2#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -215,7 +221,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.type(tool_type: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -276,7 +281,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.hardware_serial(hardware_serial_hi: {}, hardware_serial_lo: {})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -333,7 +337,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.hardware_id_wacom(hardware_id_hi: {}, hardware_id_lo: {})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -383,7 +386,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.capability(capability: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -418,7 +420,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.done()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -463,7 +464,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.removed()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -531,7 +531,6 @@ impl MetaZwpTabletToolV2 {
         }
         let arg1_id = arg1.client_obj_id.get().unwrap_or(0);
         let arg2_id = arg2.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.proximity_in(serial: {}, tablet: zwp_tablet_v2#{}, surface: wl_surface#{})", client.endpoint.id, id, arg0, arg1_id, arg2_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -577,7 +576,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.proximity_out()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -630,7 +628,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.down(serial: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -678,7 +675,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.up()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -724,7 +720,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.motion(x: {}, y: {})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -772,7 +767,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.pressure(pressure: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -819,7 +813,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.distance(distance: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -869,7 +862,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.tilt(tilt_x: {}, tilt_y: {})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -915,7 +907,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.rotation(degrees: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -962,7 +953,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.slider(position: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -1020,7 +1010,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.wheel(degrees: {}, clicks: {})", client.endpoint.id, id, arg0, arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -1077,7 +1066,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.button(serial: {}, button: {}, state: {:?})", client.endpoint.id, id, arg0, arg1, arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -1125,7 +1113,6 @@ impl MetaZwpTabletToolV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_tool_v2#{}.frame(time: {})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -1770,6 +1757,10 @@ pub trait MetaZwpTabletToolV2MessageHandler {
 }
 
 impl Proxy for MetaZwpTabletToolV2 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -1788,7 +1779,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                 };
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
-                eprintln!("client#{:04} -> zwp_tablet_tool_v2#{}.set_cursor(serial: {}, surface: wl_surface#{}, hotspot_x: {}, hotspot_y: {})", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                 let arg1 = if arg1 == 0 {
                     None
                 } else {
@@ -1813,7 +1803,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwp_tablet_tool_v2#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -1842,7 +1831,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaZwpTabletToolV2Type(arg0);
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.type(tool_type: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).r#type(&self, arg0);
                 } else {
@@ -1856,7 +1844,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.hardware_serial(hardware_serial_hi: {}, hardware_serial_lo: {})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).hardware_serial(&self, arg0, arg1);
                 } else {
@@ -1870,7 +1857,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.hardware_id_wacom(hardware_id_hi: {}, hardware_id_lo: {})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).hardware_id_wacom(&self, arg0, arg1);
                 } else {
@@ -1884,7 +1870,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaZwpTabletToolV2Capability(arg0);
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.capability(capability: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).capability(&self, arg0);
                 } else {
@@ -1895,7 +1880,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.done()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).done(&self);
                 } else {
@@ -1906,7 +1890,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.removed()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).removed(&self);
                 } else {
@@ -1921,7 +1904,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.proximity_in(serial: {}, tablet: zwp_tablet_v2#{}, surface: wl_surface#{})", msg[0], arg0, arg1, arg2);
                 let arg1_id = arg1;
                 let Some(arg1) = self.core.state.server.lookup(arg1_id) else {
                     return Err(ObjectError::NoServerObject(arg1_id));
@@ -1950,7 +1932,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.proximity_out()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).proximity_out(&self);
                 } else {
@@ -1963,7 +1944,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.down(serial: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).down(&self, arg0);
                 } else {
@@ -1974,7 +1954,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.up()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).up(&self);
                 } else {
@@ -1990,7 +1969,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                 };
                 let arg0 = Fixed::from_wire(arg0 as i32);
                 let arg1 = Fixed::from_wire(arg1 as i32);
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.motion(x: {}, y: {})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).motion(&self, arg0, arg1);
                 } else {
@@ -2003,7 +1981,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.pressure(pressure: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).pressure(&self, arg0);
                 } else {
@@ -2016,7 +1993,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.distance(distance: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).distance(&self, arg0);
                 } else {
@@ -2032,7 +2008,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                 };
                 let arg0 = Fixed::from_wire(arg0 as i32);
                 let arg1 = Fixed::from_wire(arg1 as i32);
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.tilt(tilt_x: {}, tilt_y: {})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).tilt(&self, arg0, arg1);
                 } else {
@@ -2046,7 +2021,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = Fixed::from_wire(arg0 as i32);
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.rotation(degrees: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).rotation(&self, arg0);
                 } else {
@@ -2060,7 +2034,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = arg0 as i32;
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.slider(position: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).slider(&self, arg0);
                 } else {
@@ -2076,7 +2049,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                 };
                 let arg0 = Fixed::from_wire(arg0 as i32);
                 let arg1 = arg1 as i32;
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.wheel(degrees: {}, clicks: {})", msg[0], arg0, arg1);
                 if let Some(handler) = handler {
                     (**handler).wheel(&self, arg0, arg1);
                 } else {
@@ -2092,7 +2064,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
                 let arg2 = MetaZwpTabletToolV2ButtonState(arg2);
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.button(serial: {}, button: {}, state: {:?})", msg[0], arg0, arg1, arg2);
                 if let Some(handler) = handler {
                     (**handler).button(&self, arg0, arg1, arg2);
                 } else {
@@ -2105,7 +2076,6 @@ impl Proxy for MetaZwpTabletToolV2 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwp_tablet_tool_v2#{}.frame(time: {})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).frame(&self, arg0);
                 } else {

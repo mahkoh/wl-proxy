@@ -30,6 +30,14 @@ impl MetaZwpTabletSeatV2 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwpTabletSeatV2MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwpTabletSeatV2 {
@@ -59,7 +67,6 @@ impl MetaZwpTabletSeatV2 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwp_tablet_seat_v2#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -106,7 +113,6 @@ impl MetaZwpTabletSeatV2 {
         arg0.generate_client_id(client, arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateClientId("id", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_seat_v2#{}.tablet_added(id: zwp_tablet_v2#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -153,7 +159,6 @@ impl MetaZwpTabletSeatV2 {
         arg0.generate_client_id(client, arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateClientId("id", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_seat_v2#{}.tool_added(id: zwp_tablet_tool_v2#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -206,7 +211,6 @@ impl MetaZwpTabletSeatV2 {
         arg0.generate_client_id(client, arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateClientId("id", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_tablet_seat_v2#{}.pad_added(id: zwp_tablet_pad_v2#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -322,6 +326,10 @@ pub trait MetaZwpTabletSeatV2MessageHandler {
 }
 
 impl Proxy for MetaZwpTabletSeatV2 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -333,7 +341,6 @@ impl Proxy for MetaZwpTabletSeatV2 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwp_tablet_seat_v2#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -361,7 +368,6 @@ impl Proxy for MetaZwpTabletSeatV2 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwp_tablet_seat_v2#{}.tablet_added(id: zwp_tablet_v2#{})", msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaZwpTabletV2::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
@@ -379,7 +385,6 @@ impl Proxy for MetaZwpTabletSeatV2 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwp_tablet_seat_v2#{}.tool_added(id: zwp_tablet_tool_v2#{})", msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaZwpTabletToolV2::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
@@ -397,7 +402,6 @@ impl Proxy for MetaZwpTabletSeatV2 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwp_tablet_seat_v2#{}.pad_added(id: zwp_tablet_pad_v2#{})", msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaZwpTabletPadV2::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())

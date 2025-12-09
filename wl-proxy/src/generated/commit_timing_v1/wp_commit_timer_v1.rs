@@ -28,6 +28,14 @@ impl MetaWpCommitTimerV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWpCommitTimerV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWpCommitTimerV1 {
@@ -87,7 +95,6 @@ impl MetaWpCommitTimerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_commit_timer_v1#{}.set_timestamp(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {})", id, arg0, arg1, arg2);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -123,7 +130,6 @@ impl MetaWpCommitTimerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_commit_timer_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -203,6 +209,10 @@ pub trait MetaWpCommitTimerV1MessageHandler {
 }
 
 impl Proxy for MetaWpCommitTimerV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -218,7 +228,6 @@ impl Proxy for MetaWpCommitTimerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
-                eprintln!("client#{:04} -> wp_commit_timer_v1#{}.set_timestamp(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {})", client.endpoint.id, msg[0], arg0, arg1, arg2);
                 if let Some(handler) = handler {
                     (**handler).set_timestamp(&self, arg0, arg1, arg2);
                 } else {
@@ -229,7 +238,6 @@ impl Proxy for MetaWpCommitTimerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wp_commit_timer_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {

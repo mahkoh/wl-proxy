@@ -52,6 +52,14 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwpLinuxDmabufFeedbackV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwpLinuxDmabufFeedbackV1 {
@@ -81,7 +89,6 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwp_linux_dmabuf_feedback_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -118,7 +125,6 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_linux_dmabuf_feedback_v1#{}.done()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -177,7 +183,6 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_linux_dmabuf_feedback_v1#{}.format_table(fd: {}, size: {})", client.endpoint.id, id, arg0.as_raw_fd(), arg1);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -243,7 +248,6 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_linux_dmabuf_feedback_v1#{}.main_device(device: {})", client.endpoint.id, id, debug_array(arg0));
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -279,7 +283,6 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_linux_dmabuf_feedback_v1#{}.tranche_done()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -346,7 +349,6 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_linux_dmabuf_feedback_v1#{}.tranche_target_device(device: {})", client.endpoint.id, id, debug_array(arg0));
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -412,7 +414,6 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_linux_dmabuf_feedback_v1#{}.tranche_formats(indices: {})", client.endpoint.id, id, debug_array(arg0));
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -462,7 +463,6 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_linux_dmabuf_feedback_v1#{}.tranche_flags(flags: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -735,6 +735,10 @@ pub trait MetaZwpLinuxDmabufFeedbackV1MessageHandler {
 }
 
 impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -746,7 +750,6 @@ impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwp_linux_dmabuf_feedback_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -772,7 +775,6 @@ impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zwp_linux_dmabuf_feedback_v1#{}.done()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).done(&self);
                 } else {
@@ -789,7 +791,6 @@ impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
                     return Err(ObjectError::MissingFd("fd"));
                 };
                 let arg0 = &arg0;
-                eprintln!("server      -> zwp_linux_dmabuf_feedback_v1#{}.format_table(fd: {}, size: {})", msg[0], arg0.as_raw_fd(), arg1);
                 if let Some(handler) = handler {
                     (**handler).format_table(&self, arg0, arg1);
                 } else {
@@ -815,7 +816,6 @@ impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> zwp_linux_dmabuf_feedback_v1#{}.main_device(device: {})", msg[0], debug_array(arg0));
                 if let Some(handler) = handler {
                     (**handler).main_device(&self, arg0);
                 } else {
@@ -826,7 +826,6 @@ impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zwp_linux_dmabuf_feedback_v1#{}.tranche_done()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).tranche_done(&self);
                 } else {
@@ -852,7 +851,6 @@ impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> zwp_linux_dmabuf_feedback_v1#{}.tranche_target_device(device: {})", msg[0], debug_array(arg0));
                 if let Some(handler) = handler {
                     (**handler).tranche_target_device(&self, arg0);
                 } else {
@@ -878,7 +876,6 @@ impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("server      -> zwp_linux_dmabuf_feedback_v1#{}.tranche_formats(indices: {})", msg[0], debug_array(arg0));
                 if let Some(handler) = handler {
                     (**handler).tranche_formats(&self, arg0);
                 } else {
@@ -892,7 +889,6 @@ impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaZwpLinuxDmabufFeedbackV1TrancheFlags(arg0);
-                eprintln!("server      -> zwp_linux_dmabuf_feedback_v1#{}.tranche_flags(flags: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).tranche_flags(&self, arg0);
                 } else {

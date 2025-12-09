@@ -31,6 +31,14 @@ impl MetaZwpRelativePointerV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwpRelativePointerV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwpRelativePointerV1 {
@@ -57,7 +65,6 @@ impl MetaZwpRelativePointerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwp_relative_pointer_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -149,7 +156,6 @@ impl MetaZwpRelativePointerV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_relative_pointer_v1#{}.relative_motion(utime_hi: {}, utime_lo: {}, dx: {}, dy: {}, dx_unaccel: {}, dy_unaccel: {})", client.endpoint.id, id, arg0, arg1, arg2, arg3, arg4, arg5);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -254,6 +260,10 @@ pub trait MetaZwpRelativePointerV1MessageHandler {
 }
 
 impl Proxy for MetaZwpRelativePointerV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -265,7 +275,6 @@ impl Proxy for MetaZwpRelativePointerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwp_relative_pointer_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -302,7 +311,6 @@ impl Proxy for MetaZwpRelativePointerV1 {
                 let arg3 = Fixed::from_wire(arg3 as i32);
                 let arg4 = Fixed::from_wire(arg4 as i32);
                 let arg5 = Fixed::from_wire(arg5 as i32);
-                eprintln!("server      -> zwp_relative_pointer_v1#{}.relative_motion(utime_hi: {}, utime_lo: {}, dx: {}, dy: {}, dx_unaccel: {}, dy_unaccel: {})", msg[0], arg0, arg1, arg2, arg3, arg4, arg5);
                 if let Some(handler) = handler {
                     (**handler).relative_motion(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 } else {

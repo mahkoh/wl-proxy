@@ -38,6 +38,14 @@ impl MetaExtWorkspaceGroupHandleV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaExtWorkspaceGroupHandleV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaExtWorkspaceGroupHandleV1 {
@@ -90,7 +98,6 @@ impl MetaExtWorkspaceGroupHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_workspace_group_handle_v1#{}.capabilities(capabilities: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -140,7 +147,6 @@ impl MetaExtWorkspaceGroupHandleV1 {
             return Err(ObjectError::ArgNoClientId("output", client.endpoint.id));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_workspace_group_handle_v1#{}.output_enter(output: wl_output#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -189,7 +195,6 @@ impl MetaExtWorkspaceGroupHandleV1 {
             return Err(ObjectError::ArgNoClientId("output", client.endpoint.id));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_workspace_group_handle_v1#{}.output_leave(output: wl_output#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -239,7 +244,6 @@ impl MetaExtWorkspaceGroupHandleV1 {
             return Err(ObjectError::ArgNoClientId("workspace", client.endpoint.id));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_workspace_group_handle_v1#{}.workspace_enter(workspace: ext_workspace_handle_v1#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -287,7 +291,6 @@ impl MetaExtWorkspaceGroupHandleV1 {
             return Err(ObjectError::ArgNoClientId("workspace", client.endpoint.id));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_workspace_group_handle_v1#{}.workspace_leave(workspace: ext_workspace_handle_v1#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -327,7 +330,6 @@ impl MetaExtWorkspaceGroupHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= ext_workspace_group_handle_v1#{}.removed()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -371,7 +373,6 @@ impl MetaExtWorkspaceGroupHandleV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= ext_workspace_group_handle_v1#{}.create_workspace(workspace: {:?})", id, arg0);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -406,7 +407,6 @@ impl MetaExtWorkspaceGroupHandleV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= ext_workspace_group_handle_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -656,6 +656,10 @@ pub trait MetaExtWorkspaceGroupHandleV1MessageHandler {
 }
 
 impl Proxy for MetaExtWorkspaceGroupHandleV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -690,7 +694,6 @@ impl Proxy for MetaExtWorkspaceGroupHandleV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
-                eprintln!("client#{:04} -> ext_workspace_group_handle_v1#{}.create_workspace(workspace: {:?})", client.endpoint.id, msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).create_workspace(&self, arg0);
                 } else {
@@ -701,7 +704,6 @@ impl Proxy for MetaExtWorkspaceGroupHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> ext_workspace_group_handle_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -730,7 +732,6 @@ impl Proxy for MetaExtWorkspaceGroupHandleV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaExtWorkspaceGroupHandleV1GroupCapabilities(arg0);
-                eprintln!("server      -> ext_workspace_group_handle_v1#{}.capabilities(capabilities: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).capabilities(&self, arg0);
                 } else {
@@ -743,7 +744,6 @@ impl Proxy for MetaExtWorkspaceGroupHandleV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> ext_workspace_group_handle_v1#{}.output_enter(output: wl_output#{})", msg[0], arg0);
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
                     return Err(ObjectError::NoServerObject(arg0_id));
@@ -765,7 +765,6 @@ impl Proxy for MetaExtWorkspaceGroupHandleV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> ext_workspace_group_handle_v1#{}.output_leave(output: wl_output#{})", msg[0], arg0);
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
                     return Err(ObjectError::NoServerObject(arg0_id));
@@ -787,7 +786,6 @@ impl Proxy for MetaExtWorkspaceGroupHandleV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> ext_workspace_group_handle_v1#{}.workspace_enter(workspace: ext_workspace_handle_v1#{})", msg[0], arg0);
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
                     return Err(ObjectError::NoServerObject(arg0_id));
@@ -809,7 +807,6 @@ impl Proxy for MetaExtWorkspaceGroupHandleV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> ext_workspace_group_handle_v1#{}.workspace_leave(workspace: ext_workspace_handle_v1#{})", msg[0], arg0);
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
                     return Err(ObjectError::NoServerObject(arg0_id));
@@ -829,7 +826,6 @@ impl Proxy for MetaExtWorkspaceGroupHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> ext_workspace_group_handle_v1#{}.removed()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).removed(&self);
                 } else {

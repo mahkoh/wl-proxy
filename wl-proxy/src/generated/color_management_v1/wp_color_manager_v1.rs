@@ -34,6 +34,14 @@ impl MetaWpColorManagerV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaWpColorManagerV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaWpColorManagerV1 {
@@ -63,7 +71,6 @@ impl MetaWpColorManagerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= wp_color_manager_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -121,7 +128,6 @@ impl MetaWpColorManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wp_color_manager_v1#{}.get_output(id: wp_color_management_output_v1#{}, output: wl_output#{})", id, arg0_id, arg1_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -183,7 +189,6 @@ impl MetaWpColorManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wp_color_manager_v1#{}.get_surface(id: wp_color_management_surface_v1#{}, surface: wl_surface#{})", id, arg0_id, arg1_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -243,7 +248,6 @@ impl MetaWpColorManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wp_color_manager_v1#{}.get_surface_feedback(id: wp_color_management_surface_feedback_v1#{}, surface: wl_surface#{})", id, arg0_id, arg1_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -293,7 +297,6 @@ impl MetaWpColorManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("obj", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wp_color_manager_v1#{}.create_icc_creator(obj: wp_image_description_creator_icc_v1#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -342,7 +345,6 @@ impl MetaWpColorManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("obj", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wp_color_manager_v1#{}.create_parametric_creator(obj: wp_image_description_creator_params_v1#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -427,7 +429,6 @@ impl MetaWpColorManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("image_description", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
-        eprintln!("server      <= wp_color_manager_v1#{}.create_windows_scrgb(image_description: wp_image_description_v1#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -471,7 +472,6 @@ impl MetaWpColorManagerV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wp_color_manager_v1#{}.supported_intent(render_intent: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -515,7 +515,6 @@ impl MetaWpColorManagerV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wp_color_manager_v1#{}.supported_feature(feature: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -560,7 +559,6 @@ impl MetaWpColorManagerV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wp_color_manager_v1#{}.supported_tf_named(tf: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -605,7 +603,6 @@ impl MetaWpColorManagerV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wp_color_manager_v1#{}.supported_primaries_named(primaries: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -639,7 +636,6 @@ impl MetaWpColorManagerV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= wp_color_manager_v1#{}.done()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -996,6 +992,10 @@ pub trait MetaWpColorManagerV1MessageHandler {
 }
 
 impl Proxy for MetaWpColorManagerV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -1007,7 +1007,6 @@ impl Proxy for MetaWpColorManagerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> wp_color_manager_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -1022,7 +1021,6 @@ impl Proxy for MetaWpColorManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                eprintln!("client#{:04} -> wp_color_manager_v1#{}.get_output(id: wp_color_management_output_v1#{}, output: wl_output#{})", client.endpoint.id, msg[0], arg0, arg1);
                 let arg0_id = arg0;
                 let arg0 = MetaWpColorManagementOutputV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -1050,7 +1048,6 @@ impl Proxy for MetaWpColorManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                eprintln!("client#{:04} -> wp_color_manager_v1#{}.get_surface(id: wp_color_management_surface_v1#{}, surface: wl_surface#{})", client.endpoint.id, msg[0], arg0, arg1);
                 let arg0_id = arg0;
                 let arg0 = MetaWpColorManagementSurfaceV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -1078,7 +1075,6 @@ impl Proxy for MetaWpColorManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                eprintln!("client#{:04} -> wp_color_manager_v1#{}.get_surface_feedback(id: wp_color_management_surface_feedback_v1#{}, surface: wl_surface#{})", client.endpoint.id, msg[0], arg0, arg1);
                 let arg0_id = arg0;
                 let arg0 = MetaWpColorManagementSurfaceFeedbackV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -1105,7 +1101,6 @@ impl Proxy for MetaWpColorManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> wp_color_manager_v1#{}.create_icc_creator(obj: wp_image_description_creator_icc_v1#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWpImageDescriptionCreatorIccV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -1123,7 +1118,6 @@ impl Proxy for MetaWpColorManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> wp_color_manager_v1#{}.create_parametric_creator(obj: wp_image_description_creator_params_v1#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWpImageDescriptionCreatorParamsV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -1141,7 +1135,6 @@ impl Proxy for MetaWpColorManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> wp_color_manager_v1#{}.create_windows_scrgb(image_description: wp_image_description_v1#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaWpImageDescriptionV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
@@ -1174,7 +1167,6 @@ impl Proxy for MetaWpColorManagerV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWpColorManagerV1RenderIntent(arg0);
-                eprintln!("server      -> wp_color_manager_v1#{}.supported_intent(render_intent: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).supported_intent(&self, arg0);
                 } else {
@@ -1188,7 +1180,6 @@ impl Proxy for MetaWpColorManagerV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWpColorManagerV1Feature(arg0);
-                eprintln!("server      -> wp_color_manager_v1#{}.supported_feature(feature: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).supported_feature(&self, arg0);
                 } else {
@@ -1202,7 +1193,6 @@ impl Proxy for MetaWpColorManagerV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWpColorManagerV1TransferFunction(arg0);
-                eprintln!("server      -> wp_color_manager_v1#{}.supported_tf_named(tf: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).supported_tf_named(&self, arg0);
                 } else {
@@ -1216,7 +1206,6 @@ impl Proxy for MetaWpColorManagerV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaWpColorManagerV1Primaries(arg0);
-                eprintln!("server      -> wp_color_manager_v1#{}.supported_primaries_named(primaries: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).supported_primaries_named(&self, arg0);
                 } else {
@@ -1227,7 +1216,6 @@ impl Proxy for MetaWpColorManagerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> wp_color_manager_v1#{}.done()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).done(&self);
                 } else {

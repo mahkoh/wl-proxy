@@ -43,6 +43,14 @@ impl MetaZwlrScreencopyFrameV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwlrScreencopyFrameV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwlrScreencopyFrameV1 {
@@ -97,7 +105,6 @@ impl MetaZwlrScreencopyFrameV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_screencopy_frame_v1#{}.buffer(format: {:?}, width: {}, height: {}, stride: {})", client.endpoint.id, id, arg0, arg1, arg2, arg3);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -152,7 +159,6 @@ impl MetaZwlrScreencopyFrameV1 {
             None => return Err(ObjectError::ArgNoServerId("buffer")),
             Some(id) => id,
         };
-        eprintln!("server      <= zwlr_screencopy_frame_v1#{}.copy(buffer: wl_buffer#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -196,7 +202,6 @@ impl MetaZwlrScreencopyFrameV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_screencopy_frame_v1#{}.flags(flags: {:?})", client.endpoint.id, id, arg0);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -257,7 +262,6 @@ impl MetaZwlrScreencopyFrameV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_screencopy_frame_v1#{}.ready(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {})", client.endpoint.id, id, arg0, arg1, arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -294,7 +298,6 @@ impl MetaZwlrScreencopyFrameV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_screencopy_frame_v1#{}.failed()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -324,7 +327,6 @@ impl MetaZwlrScreencopyFrameV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        eprintln!("server      <= zwlr_screencopy_frame_v1#{}.destroy()", id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -370,7 +372,6 @@ impl MetaZwlrScreencopyFrameV1 {
             None => return Err(ObjectError::ArgNoServerId("buffer")),
             Some(id) => id,
         };
-        eprintln!("server      <= zwlr_screencopy_frame_v1#{}.copy_with_damage(buffer: wl_buffer#{})", id, arg0_id);
         let endpoint = &self.core.state.server;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -434,7 +435,6 @@ impl MetaZwlrScreencopyFrameV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_screencopy_frame_v1#{}.damage(x: {}, y: {}, width: {}, height: {})", client.endpoint.id, id, arg0, arg1, arg2, arg3);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -490,7 +490,6 @@ impl MetaZwlrScreencopyFrameV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_screencopy_frame_v1#{}.linux_dmabuf(format: {}, width: {}, height: {})", client.endpoint.id, id, arg0, arg1, arg2);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -528,7 +527,6 @@ impl MetaZwlrScreencopyFrameV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwlr_screencopy_frame_v1#{}.buffer_done()", client.endpoint.id, id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -812,6 +810,10 @@ pub trait MetaZwlrScreencopyFrameV1MessageHandler {
 }
 
 impl Proxy for MetaZwlrScreencopyFrameV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -825,7 +827,6 @@ impl Proxy for MetaZwlrScreencopyFrameV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> zwlr_screencopy_frame_v1#{}.copy(buffer: wl_buffer#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
@@ -845,7 +846,6 @@ impl Proxy for MetaZwlrScreencopyFrameV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("client#{:04} -> zwlr_screencopy_frame_v1#{}.destroy()", client.endpoint.id, msg[0]);
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
@@ -859,7 +859,6 @@ impl Proxy for MetaZwlrScreencopyFrameV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("client#{:04} -> zwlr_screencopy_frame_v1#{}.copy_with_damage(buffer: wl_buffer#{})", client.endpoint.id, msg[0], arg0);
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
@@ -899,7 +898,6 @@ impl Proxy for MetaZwlrScreencopyFrameV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
                 let arg0 = MetaWlShmFormat(arg0);
-                eprintln!("server      -> zwlr_screencopy_frame_v1#{}.buffer(format: {:?}, width: {}, height: {}, stride: {})", msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).buffer(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -913,7 +911,6 @@ impl Proxy for MetaZwlrScreencopyFrameV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = MetaZwlrScreencopyFrameV1Flags(arg0);
-                eprintln!("server      -> zwlr_screencopy_frame_v1#{}.flags(flags: {:?})", msg[0], arg0);
                 if let Some(handler) = handler {
                     (**handler).flags(&self, arg0);
                 } else {
@@ -928,7 +925,6 @@ impl Proxy for MetaZwlrScreencopyFrameV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
-                eprintln!("server      -> zwlr_screencopy_frame_v1#{}.ready(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {})", msg[0], arg0, arg1, arg2);
                 if let Some(handler) = handler {
                     (**handler).ready(&self, arg0, arg1, arg2);
                 } else {
@@ -939,7 +935,6 @@ impl Proxy for MetaZwlrScreencopyFrameV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zwlr_screencopy_frame_v1#{}.failed()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).failed(&self);
                 } else {
@@ -955,7 +950,6 @@ impl Proxy for MetaZwlrScreencopyFrameV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
-                eprintln!("server      -> zwlr_screencopy_frame_v1#{}.damage(x: {}, y: {}, width: {}, height: {})", msg[0], arg0, arg1, arg2, arg3);
                 if let Some(handler) = handler {
                     (**handler).damage(&self, arg0, arg1, arg2, arg3);
                 } else {
@@ -970,7 +964,6 @@ impl Proxy for MetaZwlrScreencopyFrameV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
-                eprintln!("server      -> zwlr_screencopy_frame_v1#{}.linux_dmabuf(format: {}, width: {}, height: {})", msg[0], arg0, arg1, arg2);
                 if let Some(handler) = handler {
                     (**handler).linux_dmabuf(&self, arg0, arg1, arg2);
                 } else {
@@ -981,7 +974,6 @@ impl Proxy for MetaZwlrScreencopyFrameV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
-                eprintln!("server      -> zwlr_screencopy_frame_v1#{}.buffer_done()", msg[0]);
                 if let Some(handler) = handler {
                     (**handler).buffer_done(&self);
                 } else {

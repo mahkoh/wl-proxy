@@ -31,6 +31,14 @@ impl MetaZwpInputMethodV1 {
             handler: Default::default(),
         })
     }
+
+    pub fn set_handler(&self, handler: Box<dyn MetaZwpInputMethodV1MessageHandler>) {
+        self.handler.set(Some(handler));
+    }
+
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
+    }
 }
 
 impl Debug for MetaZwpInputMethodV1 {
@@ -73,7 +81,6 @@ impl MetaZwpInputMethodV1 {
         arg0.generate_client_id(client, arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateClientId("id", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_input_method_v1#{}.activate(id: zwp_input_method_context_v1#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -123,7 +130,6 @@ impl MetaZwpInputMethodV1 {
             return Err(ObjectError::ArgNoClientId("context", client.endpoint.id));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
-        eprintln!("client#{:04} <= zwp_input_method_v1#{}.deactivate(context: zwp_input_method_context_v1#{})", client.endpoint.id, id, arg0_id);
         let endpoint = &client.endpoint;
         if !endpoint.has_outgoing.replace(true) {
             self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
@@ -200,6 +206,10 @@ pub trait MetaZwpInputMethodV1MessageHandler {
 }
 
 impl Proxy for MetaZwpInputMethodV1 {
+    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
+        Self::new(state, version)
+    }
+
     fn core(&self) -> &ProxyCore {
         &self.core
     }
@@ -226,7 +236,6 @@ impl Proxy for MetaZwpInputMethodV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwp_input_method_v1#{}.activate(id: zwp_input_method_context_v1#{})", msg[0], arg0);
                 let arg0_id = arg0;
                 let arg0 = MetaZwpInputMethodContextV1::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
@@ -244,7 +253,6 @@ impl Proxy for MetaZwpInputMethodV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                eprintln!("server      -> zwp_input_method_v1#{}.deactivate(context: zwp_input_method_context_v1#{})", msg[0], arg0);
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
                     return Err(ObjectError::NoServerObject(arg0_id));
