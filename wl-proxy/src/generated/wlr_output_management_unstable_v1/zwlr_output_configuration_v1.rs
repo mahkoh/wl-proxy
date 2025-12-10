@@ -17,39 +17,35 @@ use super::super::all_types::*;
 /// A zwlr_output_configuration_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwlrOutputConfigurationV1 {
+pub struct ZwlrOutputConfigurationV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwlrOutputConfigurationV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwlrOutputConfigurationV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwlrOutputConfigurationV1MessageHandler for DefaultMessageHandler { }
+impl ZwlrOutputConfigurationV1Handler for DefaultHandler { }
 
-impl MetaZwlrOutputConfigurationV1 {
+impl ZwlrOutputConfigurationV1 {
     pub const XML_VERSION: u32 = 4;
 }
 
-impl MetaZwlrOutputConfigurationV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwlrOutputConfigurationV1, version),
-            handler: Default::default(),
-        })
+impl ZwlrOutputConfigurationV1 {
+    pub fn set_handler(&self, handler: impl ZwlrOutputConfigurationV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwlrOutputConfigurationV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwlrOutputConfigurationV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwlrOutputConfigurationV1 {
+impl Debug for ZwlrOutputConfigurationV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwlrOutputConfigurationV1")
+        f.debug_struct("ZwlrOutputConfigurationV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -57,7 +53,7 @@ impl Debug for MetaZwlrOutputConfigurationV1 {
     }
 }
 
-impl MetaZwlrOutputConfigurationV1 {
+impl ZwlrOutputConfigurationV1 {
     /// Since when the enable_head message is available.
     #[allow(dead_code)]
     pub const MSG__ENABLE_HEAD__SINCE: u32 = 1;
@@ -74,8 +70,8 @@ impl MetaZwlrOutputConfigurationV1 {
     #[inline]
     pub fn send_enable_head(
         &self,
-        id: &Rc<MetaZwlrOutputConfigurationHeadV1>,
-        head: &Rc<MetaZwlrOutputHeadV1>,
+        id: &Rc<ZwlrOutputConfigurationHeadV1>,
+        head: &Rc<ZwlrOutputHeadV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -98,9 +94,14 @@ impl MetaZwlrOutputConfigurationV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_output_configuration_v1#{}.enable_head(id: zwlr_output_configuration_head_v1#{}, head: zwlr_output_head_v1#{})\n", id, arg0_id, arg1_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -128,7 +129,7 @@ impl MetaZwlrOutputConfigurationV1 {
     #[inline]
     pub fn send_disable_head(
         &self,
-        head: &Rc<MetaZwlrOutputHeadV1>,
+        head: &Rc<ZwlrOutputHeadV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -144,9 +145,14 @@ impl MetaZwlrOutputConfigurationV1 {
             None => return Err(ObjectError::ArgNoServerId("head")),
             Some(id) => id,
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_output_configuration_v1#{}.disable_head(head: zwlr_output_head_v1#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -183,9 +189,14 @@ impl MetaZwlrOutputConfigurationV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_output_configuration_v1#{}.apply()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -220,9 +231,14 @@ impl MetaZwlrOutputConfigurationV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_output_configuration_v1#{}.test()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -257,9 +273,14 @@ impl MetaZwlrOutputConfigurationV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_output_configuration_v1#{}.succeeded()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -292,9 +313,14 @@ impl MetaZwlrOutputConfigurationV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_output_configuration_v1#{}.failed()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -330,9 +356,14 @@ impl MetaZwlrOutputConfigurationV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_output_configuration_v1#{}.cancelled()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -364,9 +395,14 @@ impl MetaZwlrOutputConfigurationV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_output_configuration_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -382,7 +418,7 @@ impl MetaZwlrOutputConfigurationV1 {
 
 /// A message handler for [ZwlrOutputConfigurationV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwlrOutputConfigurationV1MessageHandler {
+pub trait ZwlrOutputConfigurationV1Handler: Any {
     /// enable and configure a head
     ///
     /// Enable a head. This request creates a head configuration object that can
@@ -398,9 +434,9 @@ pub trait MetaZwlrOutputConfigurationV1MessageHandler {
     #[inline]
     fn enable_head(
         &mut self,
-        _slf: &Rc<MetaZwlrOutputConfigurationV1>,
-        id: &Rc<MetaZwlrOutputConfigurationHeadV1>,
-        head: &Rc<MetaZwlrOutputHeadV1>,
+        _slf: &Rc<ZwlrOutputConfigurationV1>,
+        id: &Rc<ZwlrOutputConfigurationHeadV1>,
+        head: &Rc<ZwlrOutputHeadV1>,
     ) {
         let res = _slf.send_enable_head(
             id,
@@ -424,8 +460,8 @@ pub trait MetaZwlrOutputConfigurationV1MessageHandler {
     #[inline]
     fn disable_head(
         &mut self,
-        _slf: &Rc<MetaZwlrOutputConfigurationV1>,
-        head: &Rc<MetaZwlrOutputHeadV1>,
+        _slf: &Rc<ZwlrOutputConfigurationV1>,
+        head: &Rc<ZwlrOutputHeadV1>,
     ) {
         let res = _slf.send_disable_head(
             head,
@@ -450,7 +486,7 @@ pub trait MetaZwlrOutputConfigurationV1MessageHandler {
     #[inline]
     fn apply(
         &mut self,
-        _slf: &Rc<MetaZwlrOutputConfigurationV1>,
+        _slf: &Rc<ZwlrOutputConfigurationV1>,
     ) {
         let res = _slf.send_apply(
         );
@@ -473,7 +509,7 @@ pub trait MetaZwlrOutputConfigurationV1MessageHandler {
     #[inline]
     fn test(
         &mut self,
-        _slf: &Rc<MetaZwlrOutputConfigurationV1>,
+        _slf: &Rc<ZwlrOutputConfigurationV1>,
     ) {
         let res = _slf.send_test(
         );
@@ -494,7 +530,7 @@ pub trait MetaZwlrOutputConfigurationV1MessageHandler {
     #[inline]
     fn succeeded(
         &mut self,
-        _slf: &Rc<MetaZwlrOutputConfigurationV1>,
+        _slf: &Rc<ZwlrOutputConfigurationV1>,
     ) {
         let res = _slf.send_succeeded(
         );
@@ -513,7 +549,7 @@ pub trait MetaZwlrOutputConfigurationV1MessageHandler {
     #[inline]
     fn failed(
         &mut self,
-        _slf: &Rc<MetaZwlrOutputConfigurationV1>,
+        _slf: &Rc<ZwlrOutputConfigurationV1>,
     ) {
         let res = _slf.send_failed(
         );
@@ -535,7 +571,7 @@ pub trait MetaZwlrOutputConfigurationV1MessageHandler {
     #[inline]
     fn cancelled(
         &mut self,
-        _slf: &Rc<MetaZwlrOutputConfigurationV1>,
+        _slf: &Rc<ZwlrOutputConfigurationV1>,
     ) {
         let res = _slf.send_cancelled(
         );
@@ -555,7 +591,7 @@ pub trait MetaZwlrOutputConfigurationV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwlrOutputConfigurationV1>,
+        _slf: &Rc<ZwlrOutputConfigurationV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -565,13 +601,12 @@ pub trait MetaZwlrOutputConfigurationV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwlrOutputConfigurationV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwlrOutputConfigurationV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrOutputConfigurationV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -584,15 +619,20 @@ impl Proxy for MetaZwlrOutputConfigurationV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_output_configuration_v1#{}.enable_head(id: zwlr_output_configuration_head_v1#{}, head: zwlr_output_head_v1#{})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaZwlrOutputConfigurationHeadV1::new(&self.core.state, self.core.version);
+                let arg0 = ZwlrOutputConfigurationHeadV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaZwlrOutputHeadV1>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<ZwlrOutputHeadV1>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("head", o.core().interface, ProxyInterface::ZwlrOutputHeadV1));
                 };
@@ -601,7 +641,7 @@ impl Proxy for MetaZwlrOutputConfigurationV1 {
                 if let Some(handler) = handler {
                     (**handler).enable_head(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.enable_head(&self, arg0, arg1);
+                    DefaultHandler.enable_head(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -610,11 +650,16 @@ impl Proxy for MetaZwlrOutputConfigurationV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_output_configuration_v1#{}.disable_head(head: zwlr_output_head_v1#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaZwlrOutputHeadV1>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ZwlrOutputHeadV1>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("head", o.core().interface, ProxyInterface::ZwlrOutputHeadV1));
                 };
@@ -622,37 +667,52 @@ impl Proxy for MetaZwlrOutputConfigurationV1 {
                 if let Some(handler) = handler {
                     (**handler).disable_head(&self, arg0);
                 } else {
-                    DefaultMessageHandler.disable_head(&self, arg0);
+                    DefaultHandler.disable_head(&self, arg0);
                 }
             }
             2 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_output_configuration_v1#{}.apply()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).apply(&self);
                 } else {
-                    DefaultMessageHandler.apply(&self);
+                    DefaultHandler.apply(&self);
                 }
             }
             3 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_output_configuration_v1#{}.test()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).test(&self);
                 } else {
-                    DefaultMessageHandler.test(&self);
+                    DefaultHandler.test(&self);
                 }
             }
             4 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_output_configuration_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -674,30 +734,45 @@ impl Proxy for MetaZwlrOutputConfigurationV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_output_configuration_v1#{}.succeeded()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).succeeded(&self);
                 } else {
-                    DefaultMessageHandler.succeeded(&self);
+                    DefaultHandler.succeeded(&self);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_output_configuration_v1#{}.failed()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).failed(&self);
                 } else {
-                    DefaultMessageHandler.failed(&self);
+                    DefaultHandler.failed(&self);
                 }
             }
             2 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_output_configuration_v1#{}.cancelled()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).cancelled(&self);
                 } else {
-                    DefaultMessageHandler.cancelled(&self);
+                    DefaultHandler.cancelled(&self);
                 }
             }
             n => {
@@ -733,7 +808,33 @@ impl Proxy for MetaZwlrOutputConfigurationV1 {
     }
 }
 
-impl MetaZwlrOutputConfigurationV1 {
+impl Proxy for ZwlrOutputConfigurationV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl ZwlrOutputConfigurationV1 {
     /// Since when the error.already_configured_head enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_CONFIGURED_HEAD__SINCE: u32 = 1;
@@ -747,9 +848,9 @@ impl MetaZwlrOutputConfigurationV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwlrOutputConfigurationV1Error(pub u32);
+pub struct ZwlrOutputConfigurationV1Error(pub u32);
 
-impl MetaZwlrOutputConfigurationV1Error {
+impl ZwlrOutputConfigurationV1Error {
     /// head has been configured twice
     #[allow(dead_code)]
     pub const ALREADY_CONFIGURED_HEAD: Self = Self(1);
@@ -763,7 +864,7 @@ impl MetaZwlrOutputConfigurationV1Error {
     pub const ALREADY_USED: Self = Self(3);
 }
 
-impl Debug for MetaZwlrOutputConfigurationV1Error {
+impl Debug for ZwlrOutputConfigurationV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::ALREADY_CONFIGURED_HEAD => "ALREADY_CONFIGURED_HEAD",

@@ -19,39 +19,35 @@ use super::super::all_types::*;
 /// A zwp_idle_inhibitor_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwpIdleInhibitorV1 {
+pub struct ZwpIdleInhibitorV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwpIdleInhibitorV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwpIdleInhibitorV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwpIdleInhibitorV1MessageHandler for DefaultMessageHandler { }
+impl ZwpIdleInhibitorV1Handler for DefaultHandler { }
 
-impl MetaZwpIdleInhibitorV1 {
+impl ZwpIdleInhibitorV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwpIdleInhibitorV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwpIdleInhibitorV1, version),
-            handler: Default::default(),
-        })
+impl ZwpIdleInhibitorV1 {
+    pub fn set_handler(&self, handler: impl ZwpIdleInhibitorV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwpIdleInhibitorV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwpIdleInhibitorV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwpIdleInhibitorV1 {
+impl Debug for ZwpIdleInhibitorV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwpIdleInhibitorV1")
+        f.debug_struct("ZwpIdleInhibitorV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -59,7 +55,7 @@ impl Debug for MetaZwpIdleInhibitorV1 {
     }
 }
 
-impl MetaZwpIdleInhibitorV1 {
+impl ZwpIdleInhibitorV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -75,9 +71,14 @@ impl MetaZwpIdleInhibitorV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_idle_inhibitor_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -93,14 +94,14 @@ impl MetaZwpIdleInhibitorV1 {
 
 /// A message handler for [ZwpIdleInhibitorV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwpIdleInhibitorV1MessageHandler {
+pub trait ZwpIdleInhibitorV1Handler: Any {
     /// destroy the idle inhibitor object
     ///
     /// Remove the inhibitor effect from the associated wl_surface.
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwpIdleInhibitorV1>,
+        _slf: &Rc<ZwpIdleInhibitorV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -110,13 +111,12 @@ pub trait MetaZwpIdleInhibitorV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwpIdleInhibitorV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwpIdleInhibitorV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpIdleInhibitorV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -126,10 +126,15 @@ impl Proxy for MetaZwpIdleInhibitorV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_idle_inhibitor_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -167,6 +172,32 @@ impl Proxy for MetaZwpIdleInhibitorV1 {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let _ = id;
         None
+    }
+}
+
+impl Proxy for ZwpIdleInhibitorV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

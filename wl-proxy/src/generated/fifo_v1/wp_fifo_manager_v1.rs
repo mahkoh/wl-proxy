@@ -18,39 +18,35 @@ use super::super::all_types::*;
 /// A wp_fifo_manager_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpFifoManagerV1 {
+pub struct WpFifoManagerV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpFifoManagerV1MessageHandler>,
+    handler: HandlerHolder<dyn WpFifoManagerV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpFifoManagerV1MessageHandler for DefaultMessageHandler { }
+impl WpFifoManagerV1Handler for DefaultHandler { }
 
-impl MetaWpFifoManagerV1 {
+impl WpFifoManagerV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWpFifoManagerV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpFifoManagerV1, version),
-            handler: Default::default(),
-        })
+impl WpFifoManagerV1 {
+    pub fn set_handler(&self, handler: impl WpFifoManagerV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpFifoManagerV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpFifoManagerV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpFifoManagerV1 {
+impl Debug for WpFifoManagerV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpFifoManagerV1")
+        f.debug_struct("WpFifoManagerV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -58,7 +54,7 @@ impl Debug for MetaWpFifoManagerV1 {
     }
 }
 
-impl MetaWpFifoManagerV1 {
+impl WpFifoManagerV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -76,9 +72,14 @@ impl MetaWpFifoManagerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_fifo_manager_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -113,8 +114,8 @@ impl MetaWpFifoManagerV1 {
     #[inline]
     pub fn send_get_fifo(
         &self,
-        id: &Rc<MetaWpFifoV1>,
-        surface: &Rc<MetaWlSurface>,
+        id: &Rc<WpFifoV1>,
+        surface: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -137,9 +138,14 @@ impl MetaWpFifoManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_fifo_manager_v1#{}.get_fifo(id: wp_fifo_v1#{}, surface: wl_surface#{})\n", id, arg0_id, arg1_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -156,7 +162,7 @@ impl MetaWpFifoManagerV1 {
 
 /// A message handler for [WpFifoManagerV1] proxies.
 #[allow(dead_code)]
-pub trait MetaWpFifoManagerV1MessageHandler {
+pub trait WpFifoManagerV1Handler: Any {
     /// unbind from the manager interface
     ///
     /// Informs the server that the client will no longer be using
@@ -165,7 +171,7 @@ pub trait MetaWpFifoManagerV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWpFifoManagerV1>,
+        _slf: &Rc<WpFifoManagerV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -195,9 +201,9 @@ pub trait MetaWpFifoManagerV1MessageHandler {
     #[inline]
     fn get_fifo(
         &mut self,
-        _slf: &Rc<MetaWpFifoManagerV1>,
-        id: &Rc<MetaWpFifoV1>,
-        surface: &Rc<MetaWlSurface>,
+        _slf: &Rc<WpFifoManagerV1>,
+        id: &Rc<WpFifoV1>,
+        surface: &Rc<WlSurface>,
     ) {
         let res = _slf.send_get_fifo(
             id,
@@ -209,13 +215,12 @@ pub trait MetaWpFifoManagerV1MessageHandler {
     }
 }
 
-impl Proxy for MetaWpFifoManagerV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpFifoManagerV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpFifoManagerV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -225,10 +230,15 @@ impl Proxy for MetaWpFifoManagerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_fifo_manager_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -239,15 +249,20 @@ impl Proxy for MetaWpFifoManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_fifo_manager_v1#{}.get_fifo(id: wp_fifo_v1#{}, surface: wl_surface#{})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWpFifoV1::new(&self.core.state, self.core.version);
+                let arg0 = WpFifoV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -256,7 +271,7 @@ impl Proxy for MetaWpFifoManagerV1 {
                 if let Some(handler) = handler {
                     (**handler).get_fifo(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.get_fifo(&self, arg0, arg1);
+                    DefaultHandler.get_fifo(&self, arg0, arg1);
                 }
             }
             n => {
@@ -297,7 +312,33 @@ impl Proxy for MetaWpFifoManagerV1 {
     }
 }
 
-impl MetaWpFifoManagerV1 {
+impl Proxy for WpFifoManagerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WpFifoManagerV1 {
     /// Since when the error.already_exists enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_EXISTS__SINCE: u32 = 1;
@@ -309,15 +350,15 @@ impl MetaWpFifoManagerV1 {
 /// illegal requests.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpFifoManagerV1Error(pub u32);
+pub struct WpFifoManagerV1Error(pub u32);
 
-impl MetaWpFifoManagerV1Error {
+impl WpFifoManagerV1Error {
     /// fifo manager already exists for surface
     #[allow(dead_code)]
     pub const ALREADY_EXISTS: Self = Self(0);
 }
 
-impl Debug for MetaWpFifoManagerV1Error {
+impl Debug for WpFifoManagerV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::ALREADY_EXISTS => "ALREADY_EXISTS",

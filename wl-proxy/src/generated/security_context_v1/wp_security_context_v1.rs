@@ -17,39 +17,35 @@ use super::super::all_types::*;
 /// A wp_security_context_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpSecurityContextV1 {
+pub struct WpSecurityContextV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpSecurityContextV1MessageHandler>,
+    handler: HandlerHolder<dyn WpSecurityContextV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpSecurityContextV1MessageHandler for DefaultMessageHandler { }
+impl WpSecurityContextV1Handler for DefaultHandler { }
 
-impl MetaWpSecurityContextV1 {
+impl WpSecurityContextV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWpSecurityContextV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpSecurityContextV1, version),
-            handler: Default::default(),
-        })
+impl WpSecurityContextV1 {
+    pub fn set_handler(&self, handler: impl WpSecurityContextV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpSecurityContextV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpSecurityContextV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpSecurityContextV1 {
+impl Debug for WpSecurityContextV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpSecurityContextV1")
+        f.debug_struct("WpSecurityContextV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -57,7 +53,7 @@ impl Debug for MetaWpSecurityContextV1 {
     }
 }
 
-impl MetaWpSecurityContextV1 {
+impl WpSecurityContextV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -73,9 +69,14 @@ impl MetaWpSecurityContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_security_context_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -120,9 +121,14 @@ impl MetaWpSecurityContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_security_context_v1#{}.set_sandbox_engine(name: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -172,9 +178,14 @@ impl MetaWpSecurityContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_security_context_v1#{}.set_app_id(app_id: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -222,9 +233,14 @@ impl MetaWpSecurityContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_security_context_v1#{}.set_instance_id(instance_id: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -261,9 +277,14 @@ impl MetaWpSecurityContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_security_context_v1#{}.commit()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -278,14 +299,14 @@ impl MetaWpSecurityContextV1 {
 
 /// A message handler for [WpSecurityContextV1] proxies.
 #[allow(dead_code)]
-pub trait MetaWpSecurityContextV1MessageHandler {
+pub trait WpSecurityContextV1Handler: Any {
     /// destroy the security context object
     ///
     /// Destroy the security context object.
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWpSecurityContextV1>,
+        _slf: &Rc<WpSecurityContextV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -311,7 +332,7 @@ pub trait MetaWpSecurityContextV1MessageHandler {
     #[inline]
     fn set_sandbox_engine(
         &mut self,
-        _slf: &Rc<MetaWpSecurityContextV1>,
+        _slf: &Rc<WpSecurityContextV1>,
         name: &str,
     ) {
         let res = _slf.send_set_sandbox_engine(
@@ -344,7 +365,7 @@ pub trait MetaWpSecurityContextV1MessageHandler {
     #[inline]
     fn set_app_id(
         &mut self,
-        _slf: &Rc<MetaWpSecurityContextV1>,
+        _slf: &Rc<WpSecurityContextV1>,
         app_id: &str,
     ) {
         let res = _slf.send_set_app_id(
@@ -375,7 +396,7 @@ pub trait MetaWpSecurityContextV1MessageHandler {
     #[inline]
     fn set_instance_id(
         &mut self,
-        _slf: &Rc<MetaWpSecurityContextV1>,
+        _slf: &Rc<WpSecurityContextV1>,
         instance_id: &str,
     ) {
         let res = _slf.send_set_instance_id(
@@ -401,7 +422,7 @@ pub trait MetaWpSecurityContextV1MessageHandler {
     #[inline]
     fn commit(
         &mut self,
-        _slf: &Rc<MetaWpSecurityContextV1>,
+        _slf: &Rc<WpSecurityContextV1>,
     ) {
         let res = _slf.send_commit(
         );
@@ -411,13 +432,12 @@ pub trait MetaWpSecurityContextV1MessageHandler {
     }
 }
 
-impl Proxy for MetaWpSecurityContextV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpSecurityContextV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpSecurityContextV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -427,10 +447,15 @@ impl Proxy for MetaWpSecurityContextV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_security_context_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -461,10 +486,15 @@ impl Proxy for MetaWpSecurityContextV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_security_context_v1#{}.set_sandbox_engine(name: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_sandbox_engine(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_sandbox_engine(&self, arg0);
+                    DefaultHandler.set_sandbox_engine(&self, arg0);
                 }
             }
             2 => {
@@ -494,10 +524,15 @@ impl Proxy for MetaWpSecurityContextV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_security_context_v1#{}.set_app_id(app_id: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_app_id(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_app_id(&self, arg0);
+                    DefaultHandler.set_app_id(&self, arg0);
                 }
             }
             3 => {
@@ -527,20 +562,30 @@ impl Proxy for MetaWpSecurityContextV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_security_context_v1#{}.set_instance_id(instance_id: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_instance_id(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_instance_id(&self, arg0);
+                    DefaultHandler.set_instance_id(&self, arg0);
                 }
             }
             4 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_security_context_v1#{}.commit()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).commit(&self);
                 } else {
-                    DefaultMessageHandler.commit(&self);
+                    DefaultHandler.commit(&self);
                 }
             }
             n => {
@@ -584,7 +629,33 @@ impl Proxy for MetaWpSecurityContextV1 {
     }
 }
 
-impl MetaWpSecurityContextV1 {
+impl Proxy for WpSecurityContextV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WpSecurityContextV1 {
     /// Since when the error.already_used enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_USED__SINCE: u32 = 1;
@@ -598,9 +669,9 @@ impl MetaWpSecurityContextV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpSecurityContextV1Error(pub u32);
+pub struct WpSecurityContextV1Error(pub u32);
 
-impl MetaWpSecurityContextV1Error {
+impl WpSecurityContextV1Error {
     /// security context has already been committed
     #[allow(dead_code)]
     pub const ALREADY_USED: Self = Self(1);
@@ -614,7 +685,7 @@ impl MetaWpSecurityContextV1Error {
     pub const INVALID_METADATA: Self = Self(3);
 }
 
-impl Debug for MetaWpSecurityContextV1Error {
+impl Debug for WpSecurityContextV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::ALREADY_USED => "ALREADY_USED",

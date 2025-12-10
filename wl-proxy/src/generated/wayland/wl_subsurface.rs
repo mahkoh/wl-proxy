@@ -59,39 +59,35 @@ use super::super::all_types::*;
 /// A wl_subsurface proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWlSubsurface {
+pub struct WlSubsurface {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWlSubsurfaceMessageHandler>,
+    handler: HandlerHolder<dyn WlSubsurfaceHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWlSubsurfaceMessageHandler for DefaultMessageHandler { }
+impl WlSubsurfaceHandler for DefaultHandler { }
 
-impl MetaWlSubsurface {
+impl WlSubsurface {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWlSubsurface {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WlSubsurface, version),
-            handler: Default::default(),
-        })
+impl WlSubsurface {
+    pub fn set_handler(&self, handler: impl WlSubsurfaceHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWlSubsurfaceMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WlSubsurfaceHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWlSubsurface {
+impl Debug for WlSubsurface {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWlSubsurface")
+        f.debug_struct("WlSubsurface")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -99,7 +95,7 @@ impl Debug for MetaWlSubsurface {
     }
 }
 
-impl MetaWlSubsurface {
+impl WlSubsurface {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -118,9 +114,14 @@ impl MetaWlSubsurface {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_subsurface#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -175,9 +176,14 @@ impl MetaWlSubsurface {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_subsurface#{}.set_position(x: {}, y: {})\n", id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -217,7 +223,7 @@ impl MetaWlSubsurface {
     #[inline]
     pub fn send_place_above(
         &self,
-        sibling: &Rc<MetaWlSurface>,
+        sibling: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -233,9 +239,14 @@ impl MetaWlSubsurface {
             None => return Err(ObjectError::ArgNoServerId("sibling")),
             Some(id) => id,
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_subsurface#{}.place_above(sibling: wl_surface#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -263,7 +274,7 @@ impl MetaWlSubsurface {
     #[inline]
     pub fn send_place_below(
         &self,
-        sibling: &Rc<MetaWlSurface>,
+        sibling: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -279,9 +290,14 @@ impl MetaWlSubsurface {
             None => return Err(ObjectError::ArgNoServerId("sibling")),
             Some(id) => id,
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_subsurface#{}.place_below(sibling: wl_surface#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -321,9 +337,14 @@ impl MetaWlSubsurface {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_subsurface#{}.set_sync()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -368,9 +389,14 @@ impl MetaWlSubsurface {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_subsurface#{}.set_desync()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -385,7 +411,7 @@ impl MetaWlSubsurface {
 
 /// A message handler for [WlSubsurface] proxies.
 #[allow(dead_code)]
-pub trait MetaWlSubsurfaceMessageHandler {
+pub trait WlSubsurfaceHandler: Any {
     /// remove sub-surface interface
     ///
     /// The sub-surface interface is removed from the wl_surface object
@@ -395,7 +421,7 @@ pub trait MetaWlSubsurfaceMessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWlSubsurface>,
+        _slf: &Rc<WlSubsurface>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -428,7 +454,7 @@ pub trait MetaWlSubsurfaceMessageHandler {
     #[inline]
     fn set_position(
         &mut self,
-        _slf: &Rc<MetaWlSubsurface>,
+        _slf: &Rc<WlSubsurface>,
         x: i32,
         y: i32,
     ) {
@@ -466,8 +492,8 @@ pub trait MetaWlSubsurfaceMessageHandler {
     #[inline]
     fn place_above(
         &mut self,
-        _slf: &Rc<MetaWlSubsurface>,
-        sibling: &Rc<MetaWlSurface>,
+        _slf: &Rc<WlSubsurface>,
+        sibling: &Rc<WlSurface>,
     ) {
         let res = _slf.send_place_above(
             sibling,
@@ -491,8 +517,8 @@ pub trait MetaWlSubsurfaceMessageHandler {
     #[inline]
     fn place_below(
         &mut self,
-        _slf: &Rc<MetaWlSubsurface>,
-        sibling: &Rc<MetaWlSurface>,
+        _slf: &Rc<WlSubsurface>,
+        sibling: &Rc<WlSurface>,
     ) {
         let res = _slf.send_place_below(
             sibling,
@@ -520,7 +546,7 @@ pub trait MetaWlSubsurfaceMessageHandler {
     #[inline]
     fn set_sync(
         &mut self,
-        _slf: &Rc<MetaWlSubsurface>,
+        _slf: &Rc<WlSubsurface>,
     ) {
         let res = _slf.send_set_sync(
         );
@@ -553,7 +579,7 @@ pub trait MetaWlSubsurfaceMessageHandler {
     #[inline]
     fn set_desync(
         &mut self,
-        _slf: &Rc<MetaWlSubsurface>,
+        _slf: &Rc<WlSubsurface>,
     ) {
         let res = _slf.send_set_desync(
         );
@@ -563,13 +589,12 @@ pub trait MetaWlSubsurfaceMessageHandler {
     }
 }
 
-impl Proxy for MetaWlSubsurface {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WlSubsurface {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlSubsurface, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -579,10 +604,15 @@ impl Proxy for MetaWlSubsurface {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_subsurface#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -595,10 +625,15 @@ impl Proxy for MetaWlSubsurface {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_subsurface#{}.set_position(x: {}, y: {})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_position(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.set_position(&self, arg0, arg1);
+                    DefaultHandler.set_position(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -607,11 +642,16 @@ impl Proxy for MetaWlSubsurface {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_subsurface#{}.place_above(sibling: wl_surface#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("sibling", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -619,7 +659,7 @@ impl Proxy for MetaWlSubsurface {
                 if let Some(handler) = handler {
                     (**handler).place_above(&self, arg0);
                 } else {
-                    DefaultMessageHandler.place_above(&self, arg0);
+                    DefaultHandler.place_above(&self, arg0);
                 }
             }
             3 => {
@@ -628,11 +668,16 @@ impl Proxy for MetaWlSubsurface {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_subsurface#{}.place_below(sibling: wl_surface#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("sibling", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -640,27 +685,37 @@ impl Proxy for MetaWlSubsurface {
                 if let Some(handler) = handler {
                     (**handler).place_below(&self, arg0);
                 } else {
-                    DefaultMessageHandler.place_below(&self, arg0);
+                    DefaultHandler.place_below(&self, arg0);
                 }
             }
             4 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_subsurface#{}.set_sync()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_sync(&self);
                 } else {
-                    DefaultMessageHandler.set_sync(&self);
+                    DefaultHandler.set_sync(&self);
                 }
             }
             5 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_subsurface#{}.set_desync()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_desync(&self);
                 } else {
-                    DefaultMessageHandler.set_desync(&self);
+                    DefaultHandler.set_desync(&self);
                 }
             }
             n => {
@@ -705,7 +760,33 @@ impl Proxy for MetaWlSubsurface {
     }
 }
 
-impl MetaWlSubsurface {
+impl Proxy for WlSubsurface {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WlSubsurface {
     /// Since when the error.bad_surface enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_BAD_SURFACE__SINCE: u32 = 1;
@@ -713,15 +794,15 @@ impl MetaWlSubsurface {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWlSubsurfaceError(pub u32);
+pub struct WlSubsurfaceError(pub u32);
 
-impl MetaWlSubsurfaceError {
+impl WlSubsurfaceError {
     /// wl_surface is not a sibling or the parent
     #[allow(dead_code)]
     pub const BAD_SURFACE: Self = Self(0);
 }
 
-impl Debug for MetaWlSubsurfaceError {
+impl Debug for WlSubsurfaceError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::BAD_SURFACE => "BAD_SURFACE",

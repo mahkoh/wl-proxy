@@ -17,39 +17,35 @@ use super::super::all_types::*;
 /// A wl_data_device_manager proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWlDataDeviceManager {
+pub struct WlDataDeviceManager {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWlDataDeviceManagerMessageHandler>,
+    handler: HandlerHolder<dyn WlDataDeviceManagerHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWlDataDeviceManagerMessageHandler for DefaultMessageHandler { }
+impl WlDataDeviceManagerHandler for DefaultHandler { }
 
-impl MetaWlDataDeviceManager {
+impl WlDataDeviceManager {
     pub const XML_VERSION: u32 = 3;
 }
 
-impl MetaWlDataDeviceManager {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WlDataDeviceManager, version),
-            handler: Default::default(),
-        })
+impl WlDataDeviceManager {
+    pub fn set_handler(&self, handler: impl WlDataDeviceManagerHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWlDataDeviceManagerMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WlDataDeviceManagerHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWlDataDeviceManager {
+impl Debug for WlDataDeviceManager {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWlDataDeviceManager")
+        f.debug_struct("WlDataDeviceManager")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -57,7 +53,7 @@ impl Debug for MetaWlDataDeviceManager {
     }
 }
 
-impl MetaWlDataDeviceManager {
+impl WlDataDeviceManager {
     /// Since when the create_data_source message is available.
     #[allow(dead_code)]
     pub const MSG__CREATE_DATA_SOURCE__SINCE: u32 = 1;
@@ -68,7 +64,7 @@ impl MetaWlDataDeviceManager {
     #[inline]
     pub fn send_create_data_source(
         &self,
-        id: &Rc<MetaWlDataSource>,
+        id: &Rc<WlDataSource>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -84,9 +80,14 @@ impl MetaWlDataDeviceManager {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_data_device_manager#{}.create_data_source(id: wl_data_source#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -114,8 +115,8 @@ impl MetaWlDataDeviceManager {
     #[inline]
     pub fn send_get_data_device(
         &self,
-        id: &Rc<MetaWlDataDevice>,
-        seat: &Rc<MetaWlSeat>,
+        id: &Rc<WlDataDevice>,
+        seat: &Rc<WlSeat>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -138,9 +139,14 @@ impl MetaWlDataDeviceManager {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_data_device_manager#{}.get_data_device(id: wl_data_device#{}, seat: wl_seat#{})\n", id, arg0_id, arg1_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -157,7 +163,7 @@ impl MetaWlDataDeviceManager {
 
 /// A message handler for [WlDataDeviceManager] proxies.
 #[allow(dead_code)]
-pub trait MetaWlDataDeviceManagerMessageHandler {
+pub trait WlDataDeviceManagerHandler: Any {
     /// create a new data source
     ///
     /// Create a new data source.
@@ -168,8 +174,8 @@ pub trait MetaWlDataDeviceManagerMessageHandler {
     #[inline]
     fn create_data_source(
         &mut self,
-        _slf: &Rc<MetaWlDataDeviceManager>,
-        id: &Rc<MetaWlDataSource>,
+        _slf: &Rc<WlDataDeviceManager>,
+        id: &Rc<WlDataSource>,
     ) {
         let res = _slf.send_create_data_source(
             id,
@@ -193,9 +199,9 @@ pub trait MetaWlDataDeviceManagerMessageHandler {
     #[inline]
     fn get_data_device(
         &mut self,
-        _slf: &Rc<MetaWlDataDeviceManager>,
-        id: &Rc<MetaWlDataDevice>,
-        seat: &Rc<MetaWlSeat>,
+        _slf: &Rc<WlDataDeviceManager>,
+        id: &Rc<WlDataDevice>,
+        seat: &Rc<WlSeat>,
     ) {
         let res = _slf.send_get_data_device(
             id,
@@ -207,13 +213,12 @@ pub trait MetaWlDataDeviceManagerMessageHandler {
     }
 }
 
-impl Proxy for MetaWlDataDeviceManager {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WlDataDeviceManager {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlDataDeviceManager, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -225,15 +230,20 @@ impl Proxy for MetaWlDataDeviceManager {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_data_device_manager#{}.create_data_source(id: wl_data_source#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWlDataSource::new(&self.core.state, self.core.version);
+                let arg0 = WlDataSource::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).create_data_source(&self, arg0);
                 } else {
-                    DefaultMessageHandler.create_data_source(&self, arg0);
+                    DefaultHandler.create_data_source(&self, arg0);
                 }
             }
             1 => {
@@ -243,15 +253,20 @@ impl Proxy for MetaWlDataDeviceManager {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_data_device_manager#{}.get_data_device(id: wl_data_device#{}, seat: wl_seat#{})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWlDataDevice::new(&self.core.state, self.core.version);
+                let arg0 = WlDataDevice::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSeat>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
                 };
@@ -260,7 +275,7 @@ impl Proxy for MetaWlDataDeviceManager {
                 if let Some(handler) = handler {
                     (**handler).get_data_device(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.get_data_device(&self, arg0, arg1);
+                    DefaultHandler.get_data_device(&self, arg0, arg1);
                 }
             }
             n => {
@@ -301,7 +316,33 @@ impl Proxy for MetaWlDataDeviceManager {
     }
 }
 
-impl MetaWlDataDeviceManager {
+impl Proxy for WlDataDeviceManager {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WlDataDeviceManager {
     /// Since when the dnd_action.none enum variant is available.
     #[allow(dead_code)]
     pub const ENM__DND_ACTION_NONE__SINCE: u32 = 1;
@@ -344,15 +385,15 @@ impl MetaWlDataDeviceManager {
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
 #[allow(dead_code)]
-pub struct MetaWlDataDeviceManagerDndAction(pub u32);
+pub struct WlDataDeviceManagerDndAction(pub u32);
 
-/// An iterator over the set bits in a [MetaWlDataDeviceManagerDndAction].
+/// An iterator over the set bits in a [WlDataDeviceManagerDndAction].
 ///
-/// You can construct this with the `IntoIterator` implementation of `MetaWlDataDeviceManagerDndAction`.
+/// You can construct this with the `IntoIterator` implementation of `WlDataDeviceManagerDndAction`.
 #[derive(Clone, Debug)]
-pub struct MetaWlDataDeviceManagerDndActionIter(pub u32);
+pub struct WlDataDeviceManagerDndActionIter(pub u32);
 
-impl MetaWlDataDeviceManagerDndAction {
+impl WlDataDeviceManagerDndAction {
     /// no action
     #[allow(dead_code)]
     pub const NONE: Self = Self(0);
@@ -371,7 +412,7 @@ impl MetaWlDataDeviceManagerDndAction {
 }
 
 #[allow(dead_code)]
-impl MetaWlDataDeviceManagerDndAction {
+impl WlDataDeviceManagerDndAction {
     #[inline]
     pub const fn empty() -> Self {
         Self(0)
@@ -456,8 +497,8 @@ impl MetaWlDataDeviceManagerDndAction {
     }
 }
 
-impl Iterator for MetaWlDataDeviceManagerDndActionIter {
-    type Item = MetaWlDataDeviceManagerDndAction;
+impl Iterator for WlDataDeviceManagerDndActionIter {
+    type Item = WlDataDeviceManagerDndAction;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.0 == 0 {
@@ -465,20 +506,20 @@ impl Iterator for MetaWlDataDeviceManagerDndActionIter {
         }
         let bit = 1 << self.0.trailing_zeros();
         self.0 &= !bit;
-        Some(MetaWlDataDeviceManagerDndAction(bit))
+        Some(WlDataDeviceManagerDndAction(bit))
     }
 }
 
-impl IntoIterator for MetaWlDataDeviceManagerDndAction {
-    type Item = MetaWlDataDeviceManagerDndAction;
-    type IntoIter = MetaWlDataDeviceManagerDndActionIter;
+impl IntoIterator for WlDataDeviceManagerDndAction {
+    type Item = WlDataDeviceManagerDndAction;
+    type IntoIter = WlDataDeviceManagerDndActionIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        MetaWlDataDeviceManagerDndActionIter(self.0)
+        WlDataDeviceManagerDndActionIter(self.0)
     }
 }
 
-impl BitAnd for MetaWlDataDeviceManagerDndAction {
+impl BitAnd for WlDataDeviceManagerDndAction {
     type Output = Self;
 
     fn bitand(self, rhs: Self) -> Self::Output {
@@ -486,13 +527,13 @@ impl BitAnd for MetaWlDataDeviceManagerDndAction {
     }
 }
 
-impl BitAndAssign for MetaWlDataDeviceManagerDndAction {
+impl BitAndAssign for WlDataDeviceManagerDndAction {
     fn bitand_assign(&mut self, rhs: Self) {
         *self = self.intersection(rhs);
     }
 }
 
-impl BitOr for MetaWlDataDeviceManagerDndAction {
+impl BitOr for WlDataDeviceManagerDndAction {
     type Output = Self;
 
     fn bitor(self, rhs: Self) -> Self::Output {
@@ -500,13 +541,13 @@ impl BitOr for MetaWlDataDeviceManagerDndAction {
     }
 }
 
-impl BitOrAssign for MetaWlDataDeviceManagerDndAction {
+impl BitOrAssign for WlDataDeviceManagerDndAction {
     fn bitor_assign(&mut self, rhs: Self) {
         *self = self.union(rhs);
     }
 }
 
-impl BitXor for MetaWlDataDeviceManagerDndAction {
+impl BitXor for WlDataDeviceManagerDndAction {
     type Output = Self;
 
     fn bitxor(self, rhs: Self) -> Self::Output {
@@ -514,13 +555,13 @@ impl BitXor for MetaWlDataDeviceManagerDndAction {
     }
 }
 
-impl BitXorAssign for MetaWlDataDeviceManagerDndAction {
+impl BitXorAssign for WlDataDeviceManagerDndAction {
     fn bitxor_assign(&mut self, rhs: Self) {
         *self = self.symmetric_difference(rhs);
     }
 }
 
-impl Sub for MetaWlDataDeviceManagerDndAction {
+impl Sub for WlDataDeviceManagerDndAction {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -528,13 +569,13 @@ impl Sub for MetaWlDataDeviceManagerDndAction {
     }
 }
 
-impl SubAssign for MetaWlDataDeviceManagerDndAction {
+impl SubAssign for WlDataDeviceManagerDndAction {
     fn sub_assign(&mut self, rhs: Self) {
         *self = self.difference(rhs);
     }
 }
 
-impl Not for MetaWlDataDeviceManagerDndAction {
+impl Not for WlDataDeviceManagerDndAction {
     type Output = Self;
 
     fn not(self) -> Self::Output {
@@ -542,7 +583,7 @@ impl Not for MetaWlDataDeviceManagerDndAction {
     }
 }
 
-impl Debug for MetaWlDataDeviceManagerDndAction {
+impl Debug for WlDataDeviceManagerDndAction {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut v = self.0;
         let mut first = true;

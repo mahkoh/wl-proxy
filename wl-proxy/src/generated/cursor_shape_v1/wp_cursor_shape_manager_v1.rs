@@ -15,39 +15,35 @@ use super::super::all_types::*;
 /// A wp_cursor_shape_manager_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpCursorShapeManagerV1 {
+pub struct WpCursorShapeManagerV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpCursorShapeManagerV1MessageHandler>,
+    handler: HandlerHolder<dyn WpCursorShapeManagerV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpCursorShapeManagerV1MessageHandler for DefaultMessageHandler { }
+impl WpCursorShapeManagerV1Handler for DefaultHandler { }
 
-impl MetaWpCursorShapeManagerV1 {
+impl WpCursorShapeManagerV1 {
     pub const XML_VERSION: u32 = 2;
 }
 
-impl MetaWpCursorShapeManagerV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpCursorShapeManagerV1, version),
-            handler: Default::default(),
-        })
+impl WpCursorShapeManagerV1 {
+    pub fn set_handler(&self, handler: impl WpCursorShapeManagerV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpCursorShapeManagerV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpCursorShapeManagerV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpCursorShapeManagerV1 {
+impl Debug for WpCursorShapeManagerV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpCursorShapeManagerV1")
+        f.debug_struct("WpCursorShapeManagerV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -55,7 +51,7 @@ impl Debug for MetaWpCursorShapeManagerV1 {
     }
 }
 
-impl MetaWpCursorShapeManagerV1 {
+impl WpCursorShapeManagerV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -71,9 +67,14 @@ impl MetaWpCursorShapeManagerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_cursor_shape_manager_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -104,8 +105,8 @@ impl MetaWpCursorShapeManagerV1 {
     #[inline]
     pub fn send_get_pointer(
         &self,
-        cursor_shape_device: &Rc<MetaWpCursorShapeDeviceV1>,
-        pointer: &Rc<MetaWlPointer>,
+        cursor_shape_device: &Rc<WpCursorShapeDeviceV1>,
+        pointer: &Rc<WlPointer>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -128,9 +129,14 @@ impl MetaWpCursorShapeManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("cursor_shape_device", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_cursor_shape_manager_v1#{}.get_pointer(cursor_shape_device: wp_cursor_shape_device_v1#{}, pointer: wl_pointer#{})\n", id, arg0_id, arg1_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -162,8 +168,8 @@ impl MetaWpCursorShapeManagerV1 {
     #[inline]
     pub fn send_get_tablet_tool_v2(
         &self,
-        cursor_shape_device: &Rc<MetaWpCursorShapeDeviceV1>,
-        tablet_tool: &Rc<MetaZwpTabletToolV2>,
+        cursor_shape_device: &Rc<WpCursorShapeDeviceV1>,
+        tablet_tool: &Rc<ZwpTabletToolV2>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -186,9 +192,14 @@ impl MetaWpCursorShapeManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("cursor_shape_device", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_cursor_shape_manager_v1#{}.get_tablet_tool_v2(cursor_shape_device: wp_cursor_shape_device_v1#{}, tablet_tool: zwp_tablet_tool_v2#{})\n", id, arg0_id, arg1_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -205,14 +216,14 @@ impl MetaWpCursorShapeManagerV1 {
 
 /// A message handler for [WpCursorShapeManagerV1] proxies.
 #[allow(dead_code)]
-pub trait MetaWpCursorShapeManagerV1MessageHandler {
+pub trait WpCursorShapeManagerV1Handler: Any {
     /// destroy the manager
     ///
     /// Destroy the cursor shape manager.
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWpCursorShapeManagerV1>,
+        _slf: &Rc<WpCursorShapeManagerV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -238,9 +249,9 @@ pub trait MetaWpCursorShapeManagerV1MessageHandler {
     #[inline]
     fn get_pointer(
         &mut self,
-        _slf: &Rc<MetaWpCursorShapeManagerV1>,
-        cursor_shape_device: &Rc<MetaWpCursorShapeDeviceV1>,
-        pointer: &Rc<MetaWlPointer>,
+        _slf: &Rc<WpCursorShapeManagerV1>,
+        cursor_shape_device: &Rc<WpCursorShapeDeviceV1>,
+        pointer: &Rc<WlPointer>,
     ) {
         let res = _slf.send_get_pointer(
             cursor_shape_device,
@@ -268,9 +279,9 @@ pub trait MetaWpCursorShapeManagerV1MessageHandler {
     #[inline]
     fn get_tablet_tool_v2(
         &mut self,
-        _slf: &Rc<MetaWpCursorShapeManagerV1>,
-        cursor_shape_device: &Rc<MetaWpCursorShapeDeviceV1>,
-        tablet_tool: &Rc<MetaZwpTabletToolV2>,
+        _slf: &Rc<WpCursorShapeManagerV1>,
+        cursor_shape_device: &Rc<WpCursorShapeDeviceV1>,
+        tablet_tool: &Rc<ZwpTabletToolV2>,
     ) {
         let res = _slf.send_get_tablet_tool_v2(
             cursor_shape_device,
@@ -282,13 +293,12 @@ pub trait MetaWpCursorShapeManagerV1MessageHandler {
     }
 }
 
-impl Proxy for MetaWpCursorShapeManagerV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpCursorShapeManagerV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpCursorShapeManagerV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -298,10 +308,15 @@ impl Proxy for MetaWpCursorShapeManagerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_cursor_shape_manager_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -312,15 +327,20 @@ impl Proxy for MetaWpCursorShapeManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_cursor_shape_manager_v1#{}.get_pointer(cursor_shape_device: wp_cursor_shape_device_v1#{}, pointer: wl_pointer#{})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWpCursorShapeDeviceV1::new(&self.core.state, self.core.version);
+                let arg0 = WpCursorShapeDeviceV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "cursor_shape_device", e))?;
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlPointer>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlPointer>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ProxyInterface::WlPointer));
                 };
@@ -329,7 +349,7 @@ impl Proxy for MetaWpCursorShapeManagerV1 {
                 if let Some(handler) = handler {
                     (**handler).get_pointer(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.get_pointer(&self, arg0, arg1);
+                    DefaultHandler.get_pointer(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -339,15 +359,20 @@ impl Proxy for MetaWpCursorShapeManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_cursor_shape_manager_v1#{}.get_tablet_tool_v2(cursor_shape_device: wp_cursor_shape_device_v1#{}, tablet_tool: zwp_tablet_tool_v2#{})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWpCursorShapeDeviceV1::new(&self.core.state, self.core.version);
+                let arg0 = WpCursorShapeDeviceV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "cursor_shape_device", e))?;
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaZwpTabletToolV2>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<ZwpTabletToolV2>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("tablet_tool", o.core().interface, ProxyInterface::ZwpTabletToolV2));
                 };
@@ -356,7 +381,7 @@ impl Proxy for MetaWpCursorShapeManagerV1 {
                 if let Some(handler) = handler {
                     (**handler).get_tablet_tool_v2(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.get_tablet_tool_v2(&self, arg0, arg1);
+                    DefaultHandler.get_tablet_tool_v2(&self, arg0, arg1);
                 }
             }
             n => {
@@ -395,6 +420,32 @@ impl Proxy for MetaWpCursorShapeManagerV1 {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let _ = id;
         None
+    }
+}
+
+impl Proxy for WpCursorShapeManagerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

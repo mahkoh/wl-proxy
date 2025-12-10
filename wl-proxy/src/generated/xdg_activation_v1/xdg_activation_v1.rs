@@ -10,39 +10,35 @@ use super::super::all_types::*;
 /// A xdg_activation_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaXdgActivationV1 {
+pub struct XdgActivationV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaXdgActivationV1MessageHandler>,
+    handler: HandlerHolder<dyn XdgActivationV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaXdgActivationV1MessageHandler for DefaultMessageHandler { }
+impl XdgActivationV1Handler for DefaultHandler { }
 
-impl MetaXdgActivationV1 {
+impl XdgActivationV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaXdgActivationV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::XdgActivationV1, version),
-            handler: Default::default(),
-        })
+impl XdgActivationV1 {
+    pub fn set_handler(&self, handler: impl XdgActivationV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaXdgActivationV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn XdgActivationV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaXdgActivationV1 {
+impl Debug for XdgActivationV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaXdgActivationV1")
+        f.debug_struct("XdgActivationV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -50,7 +46,7 @@ impl Debug for MetaXdgActivationV1 {
     }
 }
 
-impl MetaXdgActivationV1 {
+impl XdgActivationV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -70,9 +66,14 @@ impl MetaXdgActivationV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_activation_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -97,7 +98,7 @@ impl MetaXdgActivationV1 {
     #[inline]
     pub fn send_get_activation_token(
         &self,
-        id: &Rc<MetaXdgActivationTokenV1>,
+        id: &Rc<XdgActivationTokenV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -113,9 +114,14 @@ impl MetaXdgActivationV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_activation_v1#{}.get_activation_token(id: xdg_activation_token_v1#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -153,7 +159,7 @@ impl MetaXdgActivationV1 {
     pub fn send_activate(
         &self,
         token: &str,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -171,9 +177,14 @@ impl MetaXdgActivationV1 {
             None => return Err(ObjectError::ArgNoServerId("surface")),
             Some(id) => id,
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_activation_v1#{}.activate(token: {:?}, surface: wl_surface#{})\n", id, arg0, arg1_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -192,7 +203,7 @@ impl MetaXdgActivationV1 {
 
 /// A message handler for [XdgActivationV1] proxies.
 #[allow(dead_code)]
-pub trait MetaXdgActivationV1MessageHandler {
+pub trait XdgActivationV1Handler: Any {
     /// destroy the xdg_activation object
     ///
     /// Notify the compositor that the xdg_activation object will no longer be
@@ -203,7 +214,7 @@ pub trait MetaXdgActivationV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaXdgActivationV1>,
+        _slf: &Rc<XdgActivationV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -224,8 +235,8 @@ pub trait MetaXdgActivationV1MessageHandler {
     #[inline]
     fn get_activation_token(
         &mut self,
-        _slf: &Rc<MetaXdgActivationV1>,
-        id: &Rc<MetaXdgActivationTokenV1>,
+        _slf: &Rc<XdgActivationV1>,
+        id: &Rc<XdgActivationTokenV1>,
     ) {
         let res = _slf.send_get_activation_token(
             id,
@@ -258,9 +269,9 @@ pub trait MetaXdgActivationV1MessageHandler {
     #[inline]
     fn activate(
         &mut self,
-        _slf: &Rc<MetaXdgActivationV1>,
+        _slf: &Rc<XdgActivationV1>,
         token: &str,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
     ) {
         let res = _slf.send_activate(
             token,
@@ -272,13 +283,12 @@ pub trait MetaXdgActivationV1MessageHandler {
     }
 }
 
-impl Proxy for MetaXdgActivationV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for XdgActivationV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgActivationV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -288,10 +298,15 @@ impl Proxy for MetaXdgActivationV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_activation_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -301,15 +316,20 @@ impl Proxy for MetaXdgActivationV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_activation_v1#{}.get_activation_token(id: xdg_activation_token_v1#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaXdgActivationTokenV1::new(&self.core.state, self.core.version);
+                let arg0 = XdgActivationTokenV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).get_activation_token(&self, arg0);
                 } else {
-                    DefaultMessageHandler.get_activation_token(&self, arg0);
+                    DefaultHandler.get_activation_token(&self, arg0);
                 }
             }
             2 => {
@@ -343,11 +363,16 @@ impl Proxy for MetaXdgActivationV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_activation_v1#{}.activate(token: {:?}, surface: wl_surface#{})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -355,7 +380,7 @@ impl Proxy for MetaXdgActivationV1 {
                 if let Some(handler) = handler {
                     (**handler).activate(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.activate(&self, arg0, arg1);
+                    DefaultHandler.activate(&self, arg0, arg1);
                 }
             }
             n => {
@@ -394,6 +419,32 @@ impl Proxy for MetaXdgActivationV1 {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let _ = id;
         None
+    }
+}
+
+impl Proxy for XdgActivationV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

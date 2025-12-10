@@ -48,39 +48,35 @@ use super::super::all_types::*;
 /// A wp_image_description_creator_params_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpImageDescriptionCreatorParamsV1 {
+pub struct WpImageDescriptionCreatorParamsV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpImageDescriptionCreatorParamsV1MessageHandler>,
+    handler: HandlerHolder<dyn WpImageDescriptionCreatorParamsV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpImageDescriptionCreatorParamsV1MessageHandler for DefaultMessageHandler { }
+impl WpImageDescriptionCreatorParamsV1Handler for DefaultHandler { }
 
-impl MetaWpImageDescriptionCreatorParamsV1 {
+impl WpImageDescriptionCreatorParamsV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWpImageDescriptionCreatorParamsV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpImageDescriptionCreatorParamsV1, version),
-            handler: Default::default(),
-        })
+impl WpImageDescriptionCreatorParamsV1 {
+    pub fn set_handler(&self, handler: impl WpImageDescriptionCreatorParamsV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpImageDescriptionCreatorParamsV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpImageDescriptionCreatorParamsV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpImageDescriptionCreatorParamsV1 {
+impl Debug for WpImageDescriptionCreatorParamsV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpImageDescriptionCreatorParamsV1")
+        f.debug_struct("WpImageDescriptionCreatorParamsV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -88,7 +84,7 @@ impl Debug for MetaWpImageDescriptionCreatorParamsV1 {
     }
 }
 
-impl MetaWpImageDescriptionCreatorParamsV1 {
+impl WpImageDescriptionCreatorParamsV1 {
     /// Since when the create message is available.
     #[allow(dead_code)]
     pub const MSG__CREATE__SINCE: u32 = 1;
@@ -126,7 +122,7 @@ impl MetaWpImageDescriptionCreatorParamsV1 {
     #[inline]
     pub fn send_create(
         &self,
-        image_description: &Rc<MetaWpImageDescriptionV1>,
+        image_description: &Rc<WpImageDescriptionV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -142,9 +138,14 @@ impl MetaWpImageDescriptionCreatorParamsV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("image_description", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_image_description_creator_params_v1#{}.create(image_description: wp_image_description_v1#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -183,7 +184,7 @@ impl MetaWpImageDescriptionCreatorParamsV1 {
     #[inline]
     pub fn send_set_tf_named(
         &self,
-        tf: MetaWpColorManagerV1TransferFunction,
+        tf: WpColorManagerV1TransferFunction,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -194,9 +195,14 @@ impl MetaWpImageDescriptionCreatorParamsV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_image_description_creator_params_v1#{}.set_tf_named(tf: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -251,9 +257,14 @@ impl MetaWpImageDescriptionCreatorParamsV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_image_description_creator_params_v1#{}.set_tf_power(eexp: {})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -289,7 +300,7 @@ impl MetaWpImageDescriptionCreatorParamsV1 {
     #[inline]
     pub fn send_set_primaries_named(
         &self,
-        primaries: MetaWpColorManagerV1Primaries,
+        primaries: WpColorManagerV1Primaries,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -300,9 +311,14 @@ impl MetaWpImageDescriptionCreatorParamsV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_image_description_creator_params_v1#{}.set_primaries_named(primaries: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -380,9 +396,14 @@ impl MetaWpImageDescriptionCreatorParamsV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_image_description_creator_params_v1#{}.set_primaries(r_x: {}, r_y: {}, g_x: {}, g_y: {}, b_x: {}, b_y: {}, w_x: {}, w_y: {})\n", id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -483,9 +504,14 @@ impl MetaWpImageDescriptionCreatorParamsV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_image_description_creator_params_v1#{}.set_luminances(min_lum: {}, max_lum: {}, reference_lum: {})\n", id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -598,9 +624,14 @@ impl MetaWpImageDescriptionCreatorParamsV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_image_description_creator_params_v1#{}.set_mastering_display_primaries(r_x: {}, r_y: {}, g_x: {}, g_y: {}, b_x: {}, b_y: {}, w_x: {}, w_y: {})\n", id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -681,9 +712,14 @@ impl MetaWpImageDescriptionCreatorParamsV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_image_description_creator_params_v1#{}.set_mastering_luminance(min_lum: {}, max_lum: {})\n", id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -724,9 +760,14 @@ impl MetaWpImageDescriptionCreatorParamsV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_image_description_creator_params_v1#{}.set_max_cll(max_cll: {})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -767,9 +808,14 @@ impl MetaWpImageDescriptionCreatorParamsV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_image_description_creator_params_v1#{}.set_max_fall(max_fall: {})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -785,7 +831,7 @@ impl MetaWpImageDescriptionCreatorParamsV1 {
 
 /// A message handler for [WpImageDescriptionCreatorParamsV1] proxies.
 #[allow(dead_code)]
-pub trait MetaWpImageDescriptionCreatorParamsV1MessageHandler {
+pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     /// Create the image description object using params
     ///
     /// Create an image description object based on the parameters previously
@@ -823,8 +869,8 @@ pub trait MetaWpImageDescriptionCreatorParamsV1MessageHandler {
     #[inline]
     fn create(
         &mut self,
-        _slf: &Rc<MetaWpImageDescriptionCreatorParamsV1>,
-        image_description: &Rc<MetaWpImageDescriptionV1>,
+        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
+        image_description: &Rc<WpImageDescriptionV1>,
     ) {
         let res = _slf.send_create(
             image_description,
@@ -855,8 +901,8 @@ pub trait MetaWpImageDescriptionCreatorParamsV1MessageHandler {
     #[inline]
     fn set_tf_named(
         &mut self,
-        _slf: &Rc<MetaWpImageDescriptionCreatorParamsV1>,
-        tf: MetaWpColorManagerV1TransferFunction,
+        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
+        tf: WpColorManagerV1TransferFunction,
     ) {
         let res = _slf.send_set_tf_named(
             tf,
@@ -893,7 +939,7 @@ pub trait MetaWpImageDescriptionCreatorParamsV1MessageHandler {
     #[inline]
     fn set_tf_power(
         &mut self,
-        _slf: &Rc<MetaWpImageDescriptionCreatorParamsV1>,
+        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         eexp: u32,
     ) {
         let res = _slf.send_set_tf_power(
@@ -923,8 +969,8 @@ pub trait MetaWpImageDescriptionCreatorParamsV1MessageHandler {
     #[inline]
     fn set_primaries_named(
         &mut self,
-        _slf: &Rc<MetaWpImageDescriptionCreatorParamsV1>,
-        primaries: MetaWpColorManagerV1Primaries,
+        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
+        primaries: WpColorManagerV1Primaries,
     ) {
         let res = _slf.send_set_primaries_named(
             primaries,
@@ -963,7 +1009,7 @@ pub trait MetaWpImageDescriptionCreatorParamsV1MessageHandler {
     #[inline]
     fn set_primaries(
         &mut self,
-        _slf: &Rc<MetaWpImageDescriptionCreatorParamsV1>,
+        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         r_x: i32,
         r_y: i32,
         g_x: i32,
@@ -1048,7 +1094,7 @@ pub trait MetaWpImageDescriptionCreatorParamsV1MessageHandler {
     #[inline]
     fn set_luminances(
         &mut self,
-        _slf: &Rc<MetaWpImageDescriptionCreatorParamsV1>,
+        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         min_lum: u32,
         max_lum: u32,
         reference_lum: u32,
@@ -1125,7 +1171,7 @@ pub trait MetaWpImageDescriptionCreatorParamsV1MessageHandler {
     #[inline]
     fn set_mastering_display_primaries(
         &mut self,
-        _slf: &Rc<MetaWpImageDescriptionCreatorParamsV1>,
+        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         r_x: i32,
         r_y: i32,
         g_x: i32,
@@ -1193,7 +1239,7 @@ pub trait MetaWpImageDescriptionCreatorParamsV1MessageHandler {
     #[inline]
     fn set_mastering_luminance(
         &mut self,
-        _slf: &Rc<MetaWpImageDescriptionCreatorParamsV1>,
+        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         min_lum: u32,
         max_lum: u32,
     ) {
@@ -1218,7 +1264,7 @@ pub trait MetaWpImageDescriptionCreatorParamsV1MessageHandler {
     #[inline]
     fn set_max_cll(
         &mut self,
-        _slf: &Rc<MetaWpImageDescriptionCreatorParamsV1>,
+        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         max_cll: u32,
     ) {
         let res = _slf.send_set_max_cll(
@@ -1242,7 +1288,7 @@ pub trait MetaWpImageDescriptionCreatorParamsV1MessageHandler {
     #[inline]
     fn set_max_fall(
         &mut self,
-        _slf: &Rc<MetaWpImageDescriptionCreatorParamsV1>,
+        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         max_fall: u32,
     ) {
         let res = _slf.send_set_max_fall(
@@ -1254,13 +1300,12 @@ pub trait MetaWpImageDescriptionCreatorParamsV1MessageHandler {
     }
 }
 
-impl Proxy for MetaWpImageDescriptionCreatorParamsV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpImageDescriptionCreatorParamsV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpImageDescriptionCreatorParamsV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -1272,15 +1317,20 @@ impl Proxy for MetaWpImageDescriptionCreatorParamsV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_image_description_creator_params_v1#{}.create(image_description: wp_image_description_v1#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWpImageDescriptionV1::new(&self.core.state, self.core.version);
+                let arg0 = WpImageDescriptionV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "image_description", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).create(&self, arg0);
                 } else {
-                    DefaultMessageHandler.create(&self, arg0);
+                    DefaultHandler.create(&self, arg0);
                 }
                 self.core.handle_client_destroy();
             }
@@ -1290,11 +1340,16 @@ impl Proxy for MetaWpImageDescriptionCreatorParamsV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaWpColorManagerV1TransferFunction(arg0);
+                let arg0 = WpColorManagerV1TransferFunction(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_image_description_creator_params_v1#{}.set_tf_named(tf: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_tf_named(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_tf_named(&self, arg0);
+                    DefaultHandler.set_tf_named(&self, arg0);
                 }
             }
             2 => {
@@ -1303,10 +1358,15 @@ impl Proxy for MetaWpImageDescriptionCreatorParamsV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_image_description_creator_params_v1#{}.set_tf_power(eexp: {})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_tf_power(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_tf_power(&self, arg0);
+                    DefaultHandler.set_tf_power(&self, arg0);
                 }
             }
             3 => {
@@ -1315,11 +1375,16 @@ impl Proxy for MetaWpImageDescriptionCreatorParamsV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaWpColorManagerV1Primaries(arg0);
+                let arg0 = WpColorManagerV1Primaries(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_image_description_creator_params_v1#{}.set_primaries_named(primaries: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_primaries_named(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_primaries_named(&self, arg0);
+                    DefaultHandler.set_primaries_named(&self, arg0);
                 }
             }
             4 => {
@@ -1343,10 +1408,15 @@ impl Proxy for MetaWpImageDescriptionCreatorParamsV1 {
                 let arg5 = arg5 as i32;
                 let arg6 = arg6 as i32;
                 let arg7 = arg7 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_image_description_creator_params_v1#{}.set_primaries(r_x: {}, r_y: {}, g_x: {}, g_y: {}, b_x: {}, b_y: {}, w_x: {}, w_y: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 } else {
-                    DefaultMessageHandler.set_primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                    DefaultHandler.set_primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 }
             }
             5 => {
@@ -1357,10 +1427,15 @@ impl Proxy for MetaWpImageDescriptionCreatorParamsV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_image_description_creator_params_v1#{}.set_luminances(min_lum: {}, max_lum: {}, reference_lum: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_luminances(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.set_luminances(&self, arg0, arg1, arg2);
+                    DefaultHandler.set_luminances(&self, arg0, arg1, arg2);
                 }
             }
             6 => {
@@ -1384,10 +1459,15 @@ impl Proxy for MetaWpImageDescriptionCreatorParamsV1 {
                 let arg5 = arg5 as i32;
                 let arg6 = arg6 as i32;
                 let arg7 = arg7 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_image_description_creator_params_v1#{}.set_mastering_display_primaries(r_x: {}, r_y: {}, g_x: {}, g_y: {}, b_x: {}, b_y: {}, w_x: {}, w_y: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_mastering_display_primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 } else {
-                    DefaultMessageHandler.set_mastering_display_primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                    DefaultHandler.set_mastering_display_primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 }
             }
             7 => {
@@ -1397,10 +1477,15 @@ impl Proxy for MetaWpImageDescriptionCreatorParamsV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_image_description_creator_params_v1#{}.set_mastering_luminance(min_lum: {}, max_lum: {})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_mastering_luminance(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.set_mastering_luminance(&self, arg0, arg1);
+                    DefaultHandler.set_mastering_luminance(&self, arg0, arg1);
                 }
             }
             8 => {
@@ -1409,10 +1494,15 @@ impl Proxy for MetaWpImageDescriptionCreatorParamsV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_image_description_creator_params_v1#{}.set_max_cll(max_cll: {})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_max_cll(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_max_cll(&self, arg0);
+                    DefaultHandler.set_max_cll(&self, arg0);
                 }
             }
             9 => {
@@ -1421,10 +1511,15 @@ impl Proxy for MetaWpImageDescriptionCreatorParamsV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_image_description_creator_params_v1#{}.set_max_fall(max_fall: {})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_max_fall(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_max_fall(&self, arg0);
+                    DefaultHandler.set_max_fall(&self, arg0);
                 }
             }
             n => {
@@ -1473,7 +1568,33 @@ impl Proxy for MetaWpImageDescriptionCreatorParamsV1 {
     }
 }
 
-impl MetaWpImageDescriptionCreatorParamsV1 {
+impl Proxy for WpImageDescriptionCreatorParamsV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WpImageDescriptionCreatorParamsV1 {
     /// Since when the error.incomplete_set enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_INCOMPLETE_SET__SINCE: u32 = 1;
@@ -1497,9 +1618,9 @@ impl MetaWpImageDescriptionCreatorParamsV1 {
 /// protocol errors
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpImageDescriptionCreatorParamsV1Error(pub u32);
+pub struct WpImageDescriptionCreatorParamsV1Error(pub u32);
 
-impl MetaWpImageDescriptionCreatorParamsV1Error {
+impl WpImageDescriptionCreatorParamsV1Error {
     /// incomplete parameter set
     #[allow(dead_code)]
     pub const INCOMPLETE_SET: Self = Self(0);
@@ -1525,7 +1646,7 @@ impl MetaWpImageDescriptionCreatorParamsV1Error {
     pub const INVALID_LUMINANCE: Self = Self(5);
 }
 
-impl Debug for MetaWpImageDescriptionCreatorParamsV1Error {
+impl Debug for WpImageDescriptionCreatorParamsV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INCOMPLETE_SET => "INCOMPLETE_SET",

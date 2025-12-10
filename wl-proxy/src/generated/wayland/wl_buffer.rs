@@ -22,39 +22,35 @@ use super::super::all_types::*;
 /// A wl_buffer proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWlBuffer {
+pub struct WlBuffer {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWlBufferMessageHandler>,
+    handler: HandlerHolder<dyn WlBufferHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWlBufferMessageHandler for DefaultMessageHandler { }
+impl WlBufferHandler for DefaultHandler { }
 
-impl MetaWlBuffer {
+impl WlBuffer {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWlBuffer {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WlBuffer, version),
-            handler: Default::default(),
-        })
+impl WlBuffer {
+    pub fn set_handler(&self, handler: impl WlBufferHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWlBufferMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WlBufferHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWlBuffer {
+impl Debug for WlBuffer {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWlBuffer")
+        f.debug_struct("WlBuffer")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -62,7 +58,7 @@ impl Debug for MetaWlBuffer {
     }
 }
 
-impl MetaWlBuffer {
+impl WlBuffer {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -81,9 +77,14 @@ impl MetaWlBuffer {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_buffer#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -126,9 +127,14 @@ impl MetaWlBuffer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_buffer#{}.release()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -143,7 +149,7 @@ impl MetaWlBuffer {
 
 /// A message handler for [WlBuffer] proxies.
 #[allow(dead_code)]
-pub trait MetaWlBufferMessageHandler {
+pub trait WlBufferHandler: Any {
     /// destroy a buffer
     ///
     /// Destroy a buffer. If and how you need to release the backing
@@ -153,7 +159,7 @@ pub trait MetaWlBufferMessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWlBuffer>,
+        _slf: &Rc<WlBuffer>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -181,7 +187,7 @@ pub trait MetaWlBufferMessageHandler {
     #[inline]
     fn release(
         &mut self,
-        _slf: &Rc<MetaWlBuffer>,
+        _slf: &Rc<WlBuffer>,
     ) {
         let res = _slf.send_release(
         );
@@ -191,13 +197,12 @@ pub trait MetaWlBufferMessageHandler {
     }
 }
 
-impl Proxy for MetaWlBuffer {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WlBuffer {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlBuffer, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -207,10 +212,15 @@ impl Proxy for MetaWlBuffer {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_buffer#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -232,10 +242,15 @@ impl Proxy for MetaWlBuffer {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_buffer#{}.release()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
-                    DefaultMessageHandler.release(&self);
+                    DefaultHandler.release(&self);
                 }
             }
             n => {
@@ -262,6 +277,32 @@ impl Proxy for MetaWlBuffer {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for WlBuffer {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

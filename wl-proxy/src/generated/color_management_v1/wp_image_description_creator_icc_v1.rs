@@ -25,39 +25,35 @@ use super::super::all_types::*;
 /// A wp_image_description_creator_icc_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpImageDescriptionCreatorIccV1 {
+pub struct WpImageDescriptionCreatorIccV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpImageDescriptionCreatorIccV1MessageHandler>,
+    handler: HandlerHolder<dyn WpImageDescriptionCreatorIccV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpImageDescriptionCreatorIccV1MessageHandler for DefaultMessageHandler { }
+impl WpImageDescriptionCreatorIccV1Handler for DefaultHandler { }
 
-impl MetaWpImageDescriptionCreatorIccV1 {
+impl WpImageDescriptionCreatorIccV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWpImageDescriptionCreatorIccV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpImageDescriptionCreatorIccV1, version),
-            handler: Default::default(),
-        })
+impl WpImageDescriptionCreatorIccV1 {
+    pub fn set_handler(&self, handler: impl WpImageDescriptionCreatorIccV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpImageDescriptionCreatorIccV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpImageDescriptionCreatorIccV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpImageDescriptionCreatorIccV1 {
+impl Debug for WpImageDescriptionCreatorIccV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpImageDescriptionCreatorIccV1")
+        f.debug_struct("WpImageDescriptionCreatorIccV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -65,7 +61,7 @@ impl Debug for MetaWpImageDescriptionCreatorIccV1 {
     }
 }
 
-impl MetaWpImageDescriptionCreatorIccV1 {
+impl WpImageDescriptionCreatorIccV1 {
     /// Since when the create message is available.
     #[allow(dead_code)]
     pub const MSG__CREATE__SINCE: u32 = 1;
@@ -94,7 +90,7 @@ impl MetaWpImageDescriptionCreatorIccV1 {
     #[inline]
     pub fn send_create(
         &self,
-        image_description: &Rc<MetaWpImageDescriptionV1>,
+        image_description: &Rc<WpImageDescriptionV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -110,9 +106,14 @@ impl MetaWpImageDescriptionCreatorIccV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("image_description", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_image_description_creator_icc_v1#{}.create(image_description: wp_image_description_v1#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -197,9 +198,14 @@ impl MetaWpImageDescriptionCreatorIccV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_image_description_creator_icc_v1#{}.set_icc_file(icc_profile: {}, offset: {}, length: {})\n", id, arg0.as_raw_fd(), arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -217,7 +223,7 @@ impl MetaWpImageDescriptionCreatorIccV1 {
 
 /// A message handler for [WpImageDescriptionCreatorIccV1] proxies.
 #[allow(dead_code)]
-pub trait MetaWpImageDescriptionCreatorIccV1MessageHandler {
+pub trait WpImageDescriptionCreatorIccV1Handler: Any {
     /// Create the image description object from ICC data
     ///
     /// Create an image description object based on the ICC information
@@ -246,8 +252,8 @@ pub trait MetaWpImageDescriptionCreatorIccV1MessageHandler {
     #[inline]
     fn create(
         &mut self,
-        _slf: &Rc<MetaWpImageDescriptionCreatorIccV1>,
-        image_description: &Rc<MetaWpImageDescriptionV1>,
+        _slf: &Rc<WpImageDescriptionCreatorIccV1>,
+        image_description: &Rc<WpImageDescriptionV1>,
     ) {
         let res = _slf.send_create(
             image_description,
@@ -307,7 +313,7 @@ pub trait MetaWpImageDescriptionCreatorIccV1MessageHandler {
     #[inline]
     fn set_icc_file(
         &mut self,
-        _slf: &Rc<MetaWpImageDescriptionCreatorIccV1>,
+        _slf: &Rc<WpImageDescriptionCreatorIccV1>,
         icc_profile: &Rc<OwnedFd>,
         offset: u32,
         length: u32,
@@ -323,13 +329,12 @@ pub trait MetaWpImageDescriptionCreatorIccV1MessageHandler {
     }
 }
 
-impl Proxy for MetaWpImageDescriptionCreatorIccV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpImageDescriptionCreatorIccV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpImageDescriptionCreatorIccV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -341,15 +346,20 @@ impl Proxy for MetaWpImageDescriptionCreatorIccV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_image_description_creator_icc_v1#{}.create(image_description: wp_image_description_v1#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWpImageDescriptionV1::new(&self.core.state, self.core.version);
+                let arg0 = WpImageDescriptionV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "image_description", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).create(&self, arg0);
                 } else {
-                    DefaultMessageHandler.create(&self, arg0);
+                    DefaultHandler.create(&self, arg0);
                 }
                 self.core.handle_client_destroy();
             }
@@ -364,10 +374,15 @@ impl Proxy for MetaWpImageDescriptionCreatorIccV1 {
                     return Err(ObjectError::MissingFd("icc_profile"));
                 };
                 let arg0 = &arg0;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_image_description_creator_icc_v1#{}.set_icc_file(icc_profile: {}, offset: {}, length: {})\n", client.endpoint.id, msg[0], arg0.as_raw_fd(), arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_icc_file(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.set_icc_file(&self, arg0, arg1, arg2);
+                    DefaultHandler.set_icc_file(&self, arg0, arg1, arg2);
                 }
             }
             n => {
@@ -408,7 +423,33 @@ impl Proxy for MetaWpImageDescriptionCreatorIccV1 {
     }
 }
 
-impl MetaWpImageDescriptionCreatorIccV1 {
+impl Proxy for WpImageDescriptionCreatorIccV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WpImageDescriptionCreatorIccV1 {
     /// Since when the error.incomplete_set enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_INCOMPLETE_SET__SINCE: u32 = 1;
@@ -429,9 +470,9 @@ impl MetaWpImageDescriptionCreatorIccV1 {
 /// protocol errors
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpImageDescriptionCreatorIccV1Error(pub u32);
+pub struct WpImageDescriptionCreatorIccV1Error(pub u32);
 
-impl MetaWpImageDescriptionCreatorIccV1Error {
+impl WpImageDescriptionCreatorIccV1Error {
     /// incomplete parameter set
     #[allow(dead_code)]
     pub const INCOMPLETE_SET: Self = Self(0);
@@ -453,7 +494,7 @@ impl MetaWpImageDescriptionCreatorIccV1Error {
     pub const OUT_OF_FILE: Self = Self(4);
 }
 
-impl Debug for MetaWpImageDescriptionCreatorIccV1Error {
+impl Debug for WpImageDescriptionCreatorIccV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INCOMPLETE_SET => "INCOMPLETE_SET",

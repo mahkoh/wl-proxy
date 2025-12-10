@@ -13,39 +13,35 @@ use super::super::all_types::*;
 /// A zwlr_foreign_toplevel_manager_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwlrForeignToplevelManagerV1 {
+pub struct ZwlrForeignToplevelManagerV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwlrForeignToplevelManagerV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwlrForeignToplevelManagerV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwlrForeignToplevelManagerV1MessageHandler for DefaultMessageHandler { }
+impl ZwlrForeignToplevelManagerV1Handler for DefaultHandler { }
 
-impl MetaZwlrForeignToplevelManagerV1 {
+impl ZwlrForeignToplevelManagerV1 {
     pub const XML_VERSION: u32 = 3;
 }
 
-impl MetaZwlrForeignToplevelManagerV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwlrForeignToplevelManagerV1, version),
-            handler: Default::default(),
-        })
+impl ZwlrForeignToplevelManagerV1 {
+    pub fn set_handler(&self, handler: impl ZwlrForeignToplevelManagerV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwlrForeignToplevelManagerV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwlrForeignToplevelManagerV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwlrForeignToplevelManagerV1 {
+impl Debug for ZwlrForeignToplevelManagerV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwlrForeignToplevelManagerV1")
+        f.debug_struct("ZwlrForeignToplevelManagerV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -53,7 +49,7 @@ impl Debug for MetaZwlrForeignToplevelManagerV1 {
     }
 }
 
-impl MetaZwlrForeignToplevelManagerV1 {
+impl ZwlrForeignToplevelManagerV1 {
     /// Since when the toplevel message is available.
     #[allow(dead_code)]
     pub const MSG__TOPLEVEL__SINCE: u32 = 1;
@@ -70,7 +66,7 @@ impl MetaZwlrForeignToplevelManagerV1 {
     #[inline]
     pub fn send_toplevel(
         &self,
-        toplevel: &Rc<MetaZwlrForeignToplevelHandleV1>,
+        toplevel: &Rc<ZwlrForeignToplevelHandleV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -88,9 +84,14 @@ impl MetaZwlrForeignToplevelManagerV1 {
         arg0.generate_client_id(client, arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateClientId("toplevel", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_foreign_toplevel_manager_v1#{}.toplevel(toplevel: zwlr_foreign_toplevel_handle_v1#{})\n", client.endpoint.id, id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -122,9 +123,14 @@ impl MetaZwlrForeignToplevelManagerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_foreign_toplevel_manager_v1#{}.stop()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -156,9 +162,14 @@ impl MetaZwlrForeignToplevelManagerV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_foreign_toplevel_manager_v1#{}.finished()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -177,7 +188,7 @@ impl MetaZwlrForeignToplevelManagerV1 {
 
 /// A message handler for [ZwlrForeignToplevelManagerV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwlrForeignToplevelManagerV1MessageHandler {
+pub trait ZwlrForeignToplevelManagerV1Handler: Any {
     /// a toplevel has been created
     ///
     /// This event is emitted whenever a new toplevel window is created. It
@@ -194,8 +205,8 @@ pub trait MetaZwlrForeignToplevelManagerV1MessageHandler {
     #[inline]
     fn toplevel(
         &mut self,
-        _slf: &Rc<MetaZwlrForeignToplevelManagerV1>,
-        toplevel: &Rc<MetaZwlrForeignToplevelHandleV1>,
+        _slf: &Rc<ZwlrForeignToplevelManagerV1>,
+        toplevel: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
         let res = _slf.send_toplevel(
             toplevel,
@@ -215,7 +226,7 @@ pub trait MetaZwlrForeignToplevelManagerV1MessageHandler {
     #[inline]
     fn stop(
         &mut self,
-        _slf: &Rc<MetaZwlrForeignToplevelManagerV1>,
+        _slf: &Rc<ZwlrForeignToplevelManagerV1>,
     ) {
         let res = _slf.send_stop(
         );
@@ -233,7 +244,7 @@ pub trait MetaZwlrForeignToplevelManagerV1MessageHandler {
     #[inline]
     fn finished(
         &mut self,
-        _slf: &Rc<MetaZwlrForeignToplevelManagerV1>,
+        _slf: &Rc<ZwlrForeignToplevelManagerV1>,
     ) {
         let res = _slf.send_finished(
         );
@@ -243,13 +254,12 @@ pub trait MetaZwlrForeignToplevelManagerV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwlrForeignToplevelManagerV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwlrForeignToplevelManagerV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrForeignToplevelManagerV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -259,10 +269,15 @@ impl Proxy for MetaZwlrForeignToplevelManagerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_foreign_toplevel_manager_v1#{}.stop()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).stop(&self);
                 } else {
-                    DefaultMessageHandler.stop(&self);
+                    DefaultHandler.stop(&self);
                 }
             }
             n => {
@@ -285,25 +300,35 @@ impl Proxy for MetaZwlrForeignToplevelManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_foreign_toplevel_manager_v1#{}.toplevel(toplevel: zwlr_foreign_toplevel_handle_v1#{})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaZwlrForeignToplevelHandleV1::new(&self.core.state, self.core.version);
+                let arg0 = ZwlrForeignToplevelHandleV1::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "toplevel", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).toplevel(&self, arg0);
                 } else {
-                    DefaultMessageHandler.toplevel(&self, arg0);
+                    DefaultHandler.toplevel(&self, arg0);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_foreign_toplevel_manager_v1#{}.finished()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).finished(&self);
                 } else {
-                    DefaultMessageHandler.finished(&self);
+                    DefaultHandler.finished(&self);
                 }
                 self.core.handle_server_destroy();
             }
@@ -332,6 +357,32 @@ impl Proxy for MetaZwlrForeignToplevelManagerV1 {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for ZwlrForeignToplevelManagerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

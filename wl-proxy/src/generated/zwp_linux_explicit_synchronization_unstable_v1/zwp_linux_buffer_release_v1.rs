@@ -24,39 +24,35 @@ use super::super::all_types::*;
 /// A zwp_linux_buffer_release_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwpLinuxBufferReleaseV1 {
+pub struct ZwpLinuxBufferReleaseV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwpLinuxBufferReleaseV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwpLinuxBufferReleaseV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwpLinuxBufferReleaseV1MessageHandler for DefaultMessageHandler { }
+impl ZwpLinuxBufferReleaseV1Handler for DefaultHandler { }
 
-impl MetaZwpLinuxBufferReleaseV1 {
+impl ZwpLinuxBufferReleaseV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwpLinuxBufferReleaseV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwpLinuxBufferReleaseV1, version),
-            handler: Default::default(),
-        })
+impl ZwpLinuxBufferReleaseV1 {
+    pub fn set_handler(&self, handler: impl ZwpLinuxBufferReleaseV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwpLinuxBufferReleaseV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwpLinuxBufferReleaseV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwpLinuxBufferReleaseV1 {
+impl Debug for ZwpLinuxBufferReleaseV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwpLinuxBufferReleaseV1")
+        f.debug_struct("ZwpLinuxBufferReleaseV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -64,7 +60,7 @@ impl Debug for MetaZwpLinuxBufferReleaseV1 {
     }
 }
 
-impl MetaZwpLinuxBufferReleaseV1 {
+impl ZwpLinuxBufferReleaseV1 {
     /// Since when the fenced_release message is available.
     #[allow(dead_code)]
     pub const MSG__FENCED_RELEASE__SINCE: u32 = 1;
@@ -102,9 +98,14 @@ impl MetaZwpLinuxBufferReleaseV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_buffer_release_v1#{}.fenced_release(fence: {})\n", client.endpoint.id, id, arg0.as_raw_fd());
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -148,9 +149,14 @@ impl MetaZwpLinuxBufferReleaseV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_buffer_release_v1#{}.immediate_release()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -169,7 +175,7 @@ impl MetaZwpLinuxBufferReleaseV1 {
 
 /// A message handler for [ZwpLinuxBufferReleaseV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwpLinuxBufferReleaseV1MessageHandler {
+pub trait ZwpLinuxBufferReleaseV1Handler: Any {
     /// release buffer with fence
     ///
     /// Sent when the compositor has finalised its usage of the associated
@@ -190,7 +196,7 @@ pub trait MetaZwpLinuxBufferReleaseV1MessageHandler {
     #[inline]
     fn fenced_release(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxBufferReleaseV1>,
+        _slf: &Rc<ZwpLinuxBufferReleaseV1>,
         fence: &Rc<OwnedFd>,
     ) {
         let res = _slf.send_fenced_release(
@@ -217,7 +223,7 @@ pub trait MetaZwpLinuxBufferReleaseV1MessageHandler {
     #[inline]
     fn immediate_release(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxBufferReleaseV1>,
+        _slf: &Rc<ZwpLinuxBufferReleaseV1>,
     ) {
         let res = _slf.send_immediate_release(
         );
@@ -227,13 +233,12 @@ pub trait MetaZwpLinuxBufferReleaseV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwpLinuxBufferReleaseV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwpLinuxBufferReleaseV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpLinuxBufferReleaseV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -260,10 +265,15 @@ impl Proxy for MetaZwpLinuxBufferReleaseV1 {
                     return Err(ObjectError::MissingFd("fence"));
                 };
                 let arg0 = &arg0;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_buffer_release_v1#{}.fenced_release(fence: {})\n", msg[0], arg0.as_raw_fd());
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).fenced_release(&self, arg0);
                 } else {
-                    DefaultMessageHandler.fenced_release(&self, arg0);
+                    DefaultHandler.fenced_release(&self, arg0);
                 }
                 self.core.handle_server_destroy();
             }
@@ -271,10 +281,15 @@ impl Proxy for MetaZwpLinuxBufferReleaseV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_buffer_release_v1#{}.immediate_release()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).immediate_release(&self);
                 } else {
-                    DefaultMessageHandler.immediate_release(&self);
+                    DefaultHandler.immediate_release(&self);
                 }
                 self.core.handle_server_destroy();
             }
@@ -300,6 +315,32 @@ impl Proxy for MetaZwpLinuxBufferReleaseV1 {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for ZwpLinuxBufferReleaseV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

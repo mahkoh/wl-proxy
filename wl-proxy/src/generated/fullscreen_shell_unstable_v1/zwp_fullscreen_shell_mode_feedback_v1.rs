@@ -4,39 +4,35 @@ use super::super::all_types::*;
 /// A zwp_fullscreen_shell_mode_feedback_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwpFullscreenShellModeFeedbackV1 {
+pub struct ZwpFullscreenShellModeFeedbackV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwpFullscreenShellModeFeedbackV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwpFullscreenShellModeFeedbackV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwpFullscreenShellModeFeedbackV1MessageHandler for DefaultMessageHandler { }
+impl ZwpFullscreenShellModeFeedbackV1Handler for DefaultHandler { }
 
-impl MetaZwpFullscreenShellModeFeedbackV1 {
+impl ZwpFullscreenShellModeFeedbackV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwpFullscreenShellModeFeedbackV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwpFullscreenShellModeFeedbackV1, version),
-            handler: Default::default(),
-        })
+impl ZwpFullscreenShellModeFeedbackV1 {
+    pub fn set_handler(&self, handler: impl ZwpFullscreenShellModeFeedbackV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwpFullscreenShellModeFeedbackV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwpFullscreenShellModeFeedbackV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwpFullscreenShellModeFeedbackV1 {
+impl Debug for ZwpFullscreenShellModeFeedbackV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwpFullscreenShellModeFeedbackV1")
+        f.debug_struct("ZwpFullscreenShellModeFeedbackV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -44,7 +40,7 @@ impl Debug for MetaZwpFullscreenShellModeFeedbackV1 {
     }
 }
 
-impl MetaZwpFullscreenShellModeFeedbackV1 {
+impl ZwpFullscreenShellModeFeedbackV1 {
     /// Since when the mode_successful message is available.
     #[allow(dead_code)]
     pub const MSG__MODE_SUCCESSFUL__SINCE: u32 = 1;
@@ -67,9 +63,14 @@ impl MetaZwpFullscreenShellModeFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_fullscreen_shell_mode_feedback_v1#{}.mode_successful()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -107,9 +108,14 @@ impl MetaZwpFullscreenShellModeFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_fullscreen_shell_mode_feedback_v1#{}.mode_failed()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -147,9 +153,14 @@ impl MetaZwpFullscreenShellModeFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_fullscreen_shell_mode_feedback_v1#{}.present_cancelled()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -168,7 +179,7 @@ impl MetaZwpFullscreenShellModeFeedbackV1 {
 
 /// A message handler for [ZwpFullscreenShellModeFeedbackV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwpFullscreenShellModeFeedbackV1MessageHandler {
+pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
     /// mode switch succeeded
     ///
     /// This event indicates that the attempted mode switch operation was
@@ -180,7 +191,7 @@ pub trait MetaZwpFullscreenShellModeFeedbackV1MessageHandler {
     #[inline]
     fn mode_successful(
         &mut self,
-        _slf: &Rc<MetaZwpFullscreenShellModeFeedbackV1>,
+        _slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
         let res = _slf.send_mode_successful(
         );
@@ -200,7 +211,7 @@ pub trait MetaZwpFullscreenShellModeFeedbackV1MessageHandler {
     #[inline]
     fn mode_failed(
         &mut self,
-        _slf: &Rc<MetaZwpFullscreenShellModeFeedbackV1>,
+        _slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
         let res = _slf.send_mode_failed(
         );
@@ -220,7 +231,7 @@ pub trait MetaZwpFullscreenShellModeFeedbackV1MessageHandler {
     #[inline]
     fn present_cancelled(
         &mut self,
-        _slf: &Rc<MetaZwpFullscreenShellModeFeedbackV1>,
+        _slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
         let res = _slf.send_present_cancelled(
         );
@@ -230,13 +241,12 @@ pub trait MetaZwpFullscreenShellModeFeedbackV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwpFullscreenShellModeFeedbackV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwpFullscreenShellModeFeedbackV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpFullscreenShellModeFeedbackV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -259,10 +269,15 @@ impl Proxy for MetaZwpFullscreenShellModeFeedbackV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_fullscreen_shell_mode_feedback_v1#{}.mode_successful()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).mode_successful(&self);
                 } else {
-                    DefaultMessageHandler.mode_successful(&self);
+                    DefaultHandler.mode_successful(&self);
                 }
                 self.core.handle_server_destroy();
             }
@@ -270,10 +285,15 @@ impl Proxy for MetaZwpFullscreenShellModeFeedbackV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_fullscreen_shell_mode_feedback_v1#{}.mode_failed()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).mode_failed(&self);
                 } else {
-                    DefaultMessageHandler.mode_failed(&self);
+                    DefaultHandler.mode_failed(&self);
                 }
                 self.core.handle_server_destroy();
             }
@@ -281,10 +301,15 @@ impl Proxy for MetaZwpFullscreenShellModeFeedbackV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_fullscreen_shell_mode_feedback_v1#{}.present_cancelled()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).present_cancelled(&self);
                 } else {
-                    DefaultMessageHandler.present_cancelled(&self);
+                    DefaultHandler.present_cancelled(&self);
                 }
                 self.core.handle_server_destroy();
             }
@@ -311,6 +336,32 @@ impl Proxy for MetaZwpFullscreenShellModeFeedbackV1 {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for ZwpFullscreenShellModeFeedbackV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

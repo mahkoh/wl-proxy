@@ -18,39 +18,35 @@ use super::super::all_types::*;
 /// A xdg_toplevel_tag_manager_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaXdgToplevelTagManagerV1 {
+pub struct XdgToplevelTagManagerV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaXdgToplevelTagManagerV1MessageHandler>,
+    handler: HandlerHolder<dyn XdgToplevelTagManagerV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaXdgToplevelTagManagerV1MessageHandler for DefaultMessageHandler { }
+impl XdgToplevelTagManagerV1Handler for DefaultHandler { }
 
-impl MetaXdgToplevelTagManagerV1 {
+impl XdgToplevelTagManagerV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaXdgToplevelTagManagerV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::XdgToplevelTagManagerV1, version),
-            handler: Default::default(),
-        })
+impl XdgToplevelTagManagerV1 {
+    pub fn set_handler(&self, handler: impl XdgToplevelTagManagerV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaXdgToplevelTagManagerV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn XdgToplevelTagManagerV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaXdgToplevelTagManagerV1 {
+impl Debug for XdgToplevelTagManagerV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaXdgToplevelTagManagerV1")
+        f.debug_struct("XdgToplevelTagManagerV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -58,7 +54,7 @@ impl Debug for MetaXdgToplevelTagManagerV1 {
     }
 }
 
-impl MetaXdgToplevelTagManagerV1 {
+impl XdgToplevelTagManagerV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -75,9 +71,14 @@ impl MetaXdgToplevelTagManagerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel_tag_manager_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -118,7 +119,7 @@ impl MetaXdgToplevelTagManagerV1 {
     #[inline]
     pub fn send_set_toplevel_tag(
         &self,
-        toplevel: &Rc<MetaXdgToplevel>,
+        toplevel: &Rc<XdgToplevel>,
         tag: &str,
     ) -> Result<(), ObjectError> {
         let (
@@ -137,9 +138,14 @@ impl MetaXdgToplevelTagManagerV1 {
             None => return Err(ObjectError::ArgNoServerId("toplevel")),
             Some(id) => id,
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel_tag_manager_v1#{}.set_toplevel_tag(toplevel: xdg_toplevel#{}, tag: {:?})\n", id, arg0_id, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -175,7 +181,7 @@ impl MetaXdgToplevelTagManagerV1 {
     #[inline]
     pub fn send_set_toplevel_description(
         &self,
-        toplevel: &Rc<MetaXdgToplevel>,
+        toplevel: &Rc<XdgToplevel>,
         description: &str,
     ) -> Result<(), ObjectError> {
         let (
@@ -194,9 +200,14 @@ impl MetaXdgToplevelTagManagerV1 {
             None => return Err(ObjectError::ArgNoServerId("toplevel")),
             Some(id) => id,
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel_tag_manager_v1#{}.set_toplevel_description(toplevel: xdg_toplevel#{}, description: {:?})\n", id, arg0_id, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -213,7 +224,7 @@ impl MetaXdgToplevelTagManagerV1 {
 
 /// A message handler for [XdgToplevelTagManagerV1] proxies.
 #[allow(dead_code)]
-pub trait MetaXdgToplevelTagManagerV1MessageHandler {
+pub trait XdgToplevelTagManagerV1Handler: Any {
     /// destroy toplevel tag object
     ///
     /// Destroy this toplevel tag manager object. This request has no other
@@ -221,7 +232,7 @@ pub trait MetaXdgToplevelTagManagerV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaXdgToplevelTagManagerV1>,
+        _slf: &Rc<XdgToplevelTagManagerV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -257,8 +268,8 @@ pub trait MetaXdgToplevelTagManagerV1MessageHandler {
     #[inline]
     fn set_toplevel_tag(
         &mut self,
-        _slf: &Rc<MetaXdgToplevelTagManagerV1>,
-        toplevel: &Rc<MetaXdgToplevel>,
+        _slf: &Rc<XdgToplevelTagManagerV1>,
+        toplevel: &Rc<XdgToplevel>,
         tag: &str,
     ) {
         let res = _slf.send_set_toplevel_tag(
@@ -291,8 +302,8 @@ pub trait MetaXdgToplevelTagManagerV1MessageHandler {
     #[inline]
     fn set_toplevel_description(
         &mut self,
-        _slf: &Rc<MetaXdgToplevelTagManagerV1>,
-        toplevel: &Rc<MetaXdgToplevel>,
+        _slf: &Rc<XdgToplevelTagManagerV1>,
+        toplevel: &Rc<XdgToplevel>,
         description: &str,
     ) {
         let res = _slf.send_set_toplevel_description(
@@ -305,13 +316,12 @@ pub trait MetaXdgToplevelTagManagerV1MessageHandler {
     }
 }
 
-impl Proxy for MetaXdgToplevelTagManagerV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for XdgToplevelTagManagerV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgToplevelTagManagerV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -321,10 +331,15 @@ impl Proxy for MetaXdgToplevelTagManagerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel_tag_manager_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -359,11 +374,16 @@ impl Proxy for MetaXdgToplevelTagManagerV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel_tag_manager_v1#{}.set_toplevel_tag(toplevel: xdg_toplevel#{}, tag: {:?})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaXdgToplevel>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<XdgToplevel>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("toplevel", o.core().interface, ProxyInterface::XdgToplevel));
                 };
@@ -371,7 +391,7 @@ impl Proxy for MetaXdgToplevelTagManagerV1 {
                 if let Some(handler) = handler {
                     (**handler).set_toplevel_tag(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.set_toplevel_tag(&self, arg0, arg1);
+                    DefaultHandler.set_toplevel_tag(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -405,11 +425,16 @@ impl Proxy for MetaXdgToplevelTagManagerV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel_tag_manager_v1#{}.set_toplevel_description(toplevel: xdg_toplevel#{}, description: {:?})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaXdgToplevel>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<XdgToplevel>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("toplevel", o.core().interface, ProxyInterface::XdgToplevel));
                 };
@@ -417,7 +442,7 @@ impl Proxy for MetaXdgToplevelTagManagerV1 {
                 if let Some(handler) = handler {
                     (**handler).set_toplevel_description(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.set_toplevel_description(&self, arg0, arg1);
+                    DefaultHandler.set_toplevel_description(&self, arg0, arg1);
                 }
             }
             n => {
@@ -456,6 +481,32 @@ impl Proxy for MetaXdgToplevelTagManagerV1 {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let _ = id;
         None
+    }
+}
+
+impl Proxy for XdgToplevelTagManagerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

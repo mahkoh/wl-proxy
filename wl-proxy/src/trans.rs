@@ -66,6 +66,8 @@ pub enum TransError {
     ReadFromSocket(#[source] io::Error),
     #[error("failed to write to socket")]
     WriteToSocket(#[source] io::Error),
+    #[error("the connection is closed")]
+    Closed,
     #[error("message has a supposed length {0} > {MAX_MESSAGE_SIZE}")]
     MessageTooLarge(usize),
     #[error("message has a supposed length {0} that is not a multiple of {WORD_SIZE}")]
@@ -211,7 +213,7 @@ fn write_to_socket(socket: RawFd, buffer: &mut OutputBuffer) -> Result<FlushResu
         control,
         name: sockaddr_none_ref(),
     };
-    match uapi::sendmsg(socket, &msghdr, 0) {
+    match uapi::sendmsg(socket, &msghdr, c::MSG_NOSIGNAL) {
         Ok(n) => {
             if let Some(fdo) = fd_offset {
                 buffer.fds.drain(..fdo.num_fds);
@@ -225,6 +227,7 @@ fn write_to_socket(socket: RawFd, buffer: &mut OutputBuffer) -> Result<FlushResu
             }
             Ok(FlushResult::Blocked)
         }
+        Err(e) if e.0 == c::ECONNRESET => Err(TransError::Closed),
         Err(e) => Err(TransError::WriteToSocket(io::Error::from_raw_os_error(e.0))),
     }
 }

@@ -40,39 +40,35 @@ use super::super::all_types::*;
 /// A zwp_fullscreen_shell_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwpFullscreenShellV1 {
+pub struct ZwpFullscreenShellV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwpFullscreenShellV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwpFullscreenShellV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwpFullscreenShellV1MessageHandler for DefaultMessageHandler { }
+impl ZwpFullscreenShellV1Handler for DefaultHandler { }
 
-impl MetaZwpFullscreenShellV1 {
+impl ZwpFullscreenShellV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwpFullscreenShellV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwpFullscreenShellV1, version),
-            handler: Default::default(),
-        })
+impl ZwpFullscreenShellV1 {
+    pub fn set_handler(&self, handler: impl ZwpFullscreenShellV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwpFullscreenShellV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwpFullscreenShellV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwpFullscreenShellV1 {
+impl Debug for ZwpFullscreenShellV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwpFullscreenShellV1")
+        f.debug_struct("ZwpFullscreenShellV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -80,7 +76,7 @@ impl Debug for MetaZwpFullscreenShellV1 {
     }
 }
 
-impl MetaZwpFullscreenShellV1 {
+impl ZwpFullscreenShellV1 {
     /// Since when the release message is available.
     #[allow(dead_code)]
     pub const MSG__RELEASE__SINCE: u32 = 1;
@@ -100,9 +96,14 @@ impl MetaZwpFullscreenShellV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_fullscreen_shell_v1#{}.release()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -136,7 +137,7 @@ impl MetaZwpFullscreenShellV1 {
     #[inline]
     pub fn send_capability(
         &self,
-        capability: MetaZwpFullscreenShellV1Capability,
+        capability: ZwpFullscreenShellV1Capability,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -149,9 +150,14 @@ impl MetaZwpFullscreenShellV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_fullscreen_shell_v1#{}.capability(capability: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -200,9 +206,9 @@ impl MetaZwpFullscreenShellV1 {
     #[inline]
     pub fn send_present_surface(
         &self,
-        surface: Option<&Rc<MetaWlSurface>>,
-        method: MetaZwpFullscreenShellV1PresentMethod,
-        output: Option<&Rc<MetaWlOutput>>,
+        surface: Option<&Rc<WlSurface>>,
+        method: ZwpFullscreenShellV1PresentMethod,
+        output: Option<&Rc<WlOutput>>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -233,9 +239,14 @@ impl MetaZwpFullscreenShellV1 {
                 Some(id) => id,
             },
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_fullscreen_shell_v1#{}.present_surface(surface: wl_surface#{}, method: {:?}, output: wl_output#{})\n", id, arg0_id, arg1, arg2_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -307,10 +318,10 @@ impl MetaZwpFullscreenShellV1 {
     #[inline]
     pub fn send_present_surface_for_mode(
         &self,
-        surface: &Rc<MetaWlSurface>,
-        output: &Rc<MetaWlOutput>,
+        surface: &Rc<WlSurface>,
+        output: &Rc<WlOutput>,
         framerate: i32,
-        feedback: &Rc<MetaZwpFullscreenShellModeFeedbackV1>,
+        feedback: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -342,9 +353,14 @@ impl MetaZwpFullscreenShellV1 {
         arg3.generate_server_id(arg3_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("feedback", e))?;
         let arg3_id = arg3.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_fullscreen_shell_v1#{}.present_surface_for_mode(surface: wl_surface#{}, output: wl_output#{}, framerate: {}, feedback: zwp_fullscreen_shell_mode_feedback_v1#{})\n", id, arg0_id, arg1_id, arg2, arg3_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -363,7 +379,7 @@ impl MetaZwpFullscreenShellV1 {
 
 /// A message handler for [ZwpFullscreenShellV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwpFullscreenShellV1MessageHandler {
+pub trait ZwpFullscreenShellV1Handler: Any {
     /// release the wl_fullscreen_shell interface
     ///
     /// Release the binding from the wl_fullscreen_shell interface.
@@ -374,7 +390,7 @@ pub trait MetaZwpFullscreenShellV1MessageHandler {
     #[inline]
     fn release(
         &mut self,
-        _slf: &Rc<MetaZwpFullscreenShellV1>,
+        _slf: &Rc<ZwpFullscreenShellV1>,
     ) {
         let res = _slf.send_release(
         );
@@ -400,8 +416,8 @@ pub trait MetaZwpFullscreenShellV1MessageHandler {
     #[inline]
     fn capability(
         &mut self,
-        _slf: &Rc<MetaZwpFullscreenShellV1>,
-        capability: MetaZwpFullscreenShellV1Capability,
+        _slf: &Rc<ZwpFullscreenShellV1>,
+        capability: ZwpFullscreenShellV1Capability,
     ) {
         let res = _slf.send_capability(
             capability,
@@ -446,10 +462,10 @@ pub trait MetaZwpFullscreenShellV1MessageHandler {
     #[inline]
     fn present_surface(
         &mut self,
-        _slf: &Rc<MetaZwpFullscreenShellV1>,
-        surface: Option<&Rc<MetaWlSurface>>,
-        method: MetaZwpFullscreenShellV1PresentMethod,
-        output: Option<&Rc<MetaWlOutput>>,
+        _slf: &Rc<ZwpFullscreenShellV1>,
+        surface: Option<&Rc<WlSurface>>,
+        method: ZwpFullscreenShellV1PresentMethod,
+        output: Option<&Rc<WlOutput>>,
     ) {
         let res = _slf.send_present_surface(
             surface,
@@ -517,11 +533,11 @@ pub trait MetaZwpFullscreenShellV1MessageHandler {
     #[inline]
     fn present_surface_for_mode(
         &mut self,
-        _slf: &Rc<MetaZwpFullscreenShellV1>,
-        surface: &Rc<MetaWlSurface>,
-        output: &Rc<MetaWlOutput>,
+        _slf: &Rc<ZwpFullscreenShellV1>,
+        surface: &Rc<WlSurface>,
+        output: &Rc<WlOutput>,
         framerate: i32,
-        feedback: &Rc<MetaZwpFullscreenShellModeFeedbackV1>,
+        feedback: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
         let res = _slf.send_present_surface_for_mode(
             surface,
@@ -535,13 +551,12 @@ pub trait MetaZwpFullscreenShellV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwpFullscreenShellV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwpFullscreenShellV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpFullscreenShellV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -551,10 +566,15 @@ impl Proxy for MetaZwpFullscreenShellV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_fullscreen_shell_v1#{}.release()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
-                    DefaultMessageHandler.release(&self);
+                    DefaultHandler.release(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -566,7 +586,12 @@ impl Proxy for MetaZwpFullscreenShellV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
-                let arg1 = MetaZwpFullscreenShellV1PresentMethod(arg1);
+                let arg1 = ZwpFullscreenShellV1PresentMethod(arg1);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_fullscreen_shell_v1#{}.present_surface(surface: wl_surface#{}, method: {:?}, output: wl_output#{})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
@@ -574,7 +599,7 @@ impl Proxy for MetaZwpFullscreenShellV1 {
                     let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                         return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                     };
-                    let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                    let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
                         return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                     };
@@ -587,7 +612,7 @@ impl Proxy for MetaZwpFullscreenShellV1 {
                     let Some(arg2) = client.endpoint.lookup(arg2_id) else {
                         return Err(ObjectError::NoClientObject(client.endpoint.id, arg2_id));
                     };
-                    let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<MetaWlOutput>() else {
+                    let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlOutput>() else {
                         let o = client.endpoint.lookup(arg2_id).unwrap();
                         return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
                     };
@@ -598,7 +623,7 @@ impl Proxy for MetaZwpFullscreenShellV1 {
                 if let Some(handler) = handler {
                     (**handler).present_surface(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.present_surface(&self, arg0, arg1, arg2);
+                    DefaultHandler.present_surface(&self, arg0, arg1, arg2);
                 }
             }
             2 => {
@@ -611,11 +636,16 @@ impl Proxy for MetaZwpFullscreenShellV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
                 let arg2 = arg2 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_fullscreen_shell_v1#{}.present_surface_for_mode(surface: wl_surface#{}, output: wl_output#{}, framerate: {}, feedback: zwp_fullscreen_shell_mode_feedback_v1#{})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -623,12 +653,12 @@ impl Proxy for MetaZwpFullscreenShellV1 {
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlOutput>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
                 };
                 let arg3_id = arg3;
-                let arg3 = MetaZwpFullscreenShellModeFeedbackV1::new(&self.core.state, self.core.version);
+                let arg3 = ZwpFullscreenShellModeFeedbackV1::new(&self.core.state, self.core.version);
                 arg3.core().set_client_id(client, arg3_id, arg3.clone())
                     .map_err(|e| ObjectError::SetClientId(arg3_id, "feedback", e))?;
                 let arg0 = &arg0;
@@ -637,7 +667,7 @@ impl Proxy for MetaZwpFullscreenShellV1 {
                 if let Some(handler) = handler {
                     (**handler).present_surface_for_mode(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultMessageHandler.present_surface_for_mode(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.present_surface_for_mode(&self, arg0, arg1, arg2, arg3);
                 }
             }
             n => {
@@ -660,11 +690,16 @@ impl Proxy for MetaZwpFullscreenShellV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaZwpFullscreenShellV1Capability(arg0);
+                let arg0 = ZwpFullscreenShellV1Capability(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_fullscreen_shell_v1#{}.capability(capability: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).capability(&self, arg0);
                 } else {
-                    DefaultMessageHandler.capability(&self, arg0);
+                    DefaultHandler.capability(&self, arg0);
                 }
             }
             n => {
@@ -696,7 +731,33 @@ impl Proxy for MetaZwpFullscreenShellV1 {
     }
 }
 
-impl MetaZwpFullscreenShellV1 {
+impl Proxy for ZwpFullscreenShellV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl ZwpFullscreenShellV1 {
     /// Since when the capability.arbitrary_modes enum variant is available.
     #[allow(dead_code)]
     pub const ENM__CAPABILITY_ARBITRARY_MODES__SINCE: u32 = 1;
@@ -753,9 +814,9 @@ impl MetaZwpFullscreenShellV1 {
 /// its own cursor and set wl_pointer.cursor(NULL).
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwpFullscreenShellV1Capability(pub u32);
+pub struct ZwpFullscreenShellV1Capability(pub u32);
 
-impl MetaZwpFullscreenShellV1Capability {
+impl ZwpFullscreenShellV1Capability {
     /// compositor is capable of almost any output mode
     #[allow(dead_code)]
     pub const ARBITRARY_MODES: Self = Self(1);
@@ -765,7 +826,7 @@ impl MetaZwpFullscreenShellV1Capability {
     pub const CURSOR_PLANE: Self = Self(2);
 }
 
-impl Debug for MetaZwpFullscreenShellV1Capability {
+impl Debug for ZwpFullscreenShellV1Capability {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::ARBITRARY_MODES => "ARBITRARY_MODES",
@@ -783,9 +844,9 @@ impl Debug for MetaZwpFullscreenShellV1Capability {
 /// output. The compositor is free to ignore this parameter.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwpFullscreenShellV1PresentMethod(pub u32);
+pub struct ZwpFullscreenShellV1PresentMethod(pub u32);
 
-impl MetaZwpFullscreenShellV1PresentMethod {
+impl ZwpFullscreenShellV1PresentMethod {
     /// no preference, apply default policy
     #[allow(dead_code)]
     pub const DEFAULT: Self = Self(0);
@@ -807,7 +868,7 @@ impl MetaZwpFullscreenShellV1PresentMethod {
     pub const STRETCH: Self = Self(4);
 }
 
-impl Debug for MetaZwpFullscreenShellV1PresentMethod {
+impl Debug for ZwpFullscreenShellV1PresentMethod {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::DEFAULT => "DEFAULT",
@@ -826,9 +887,9 @@ impl Debug for MetaZwpFullscreenShellV1PresentMethod {
 /// These errors can be emitted in response to wl_fullscreen_shell requests.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwpFullscreenShellV1Error(pub u32);
+pub struct ZwpFullscreenShellV1Error(pub u32);
 
-impl MetaZwpFullscreenShellV1Error {
+impl ZwpFullscreenShellV1Error {
     /// present_method is not known
     #[allow(dead_code)]
     pub const INVALID_METHOD: Self = Self(0);
@@ -838,7 +899,7 @@ impl MetaZwpFullscreenShellV1Error {
     pub const ROLE: Self = Self(1);
 }
 
-impl Debug for MetaZwpFullscreenShellV1Error {
+impl Debug for ZwpFullscreenShellV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INVALID_METHOD => "INVALID_METHOD",

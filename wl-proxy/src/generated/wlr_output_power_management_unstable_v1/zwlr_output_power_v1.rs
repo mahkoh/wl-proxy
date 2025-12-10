@@ -9,39 +9,35 @@ use super::super::all_types::*;
 /// A zwlr_output_power_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwlrOutputPowerV1 {
+pub struct ZwlrOutputPowerV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwlrOutputPowerV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwlrOutputPowerV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwlrOutputPowerV1MessageHandler for DefaultMessageHandler { }
+impl ZwlrOutputPowerV1Handler for DefaultHandler { }
 
-impl MetaZwlrOutputPowerV1 {
+impl ZwlrOutputPowerV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwlrOutputPowerV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwlrOutputPowerV1, version),
-            handler: Default::default(),
-        })
+impl ZwlrOutputPowerV1 {
+    pub fn set_handler(&self, handler: impl ZwlrOutputPowerV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwlrOutputPowerV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwlrOutputPowerV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwlrOutputPowerV1 {
+impl Debug for ZwlrOutputPowerV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwlrOutputPowerV1")
+        f.debug_struct("ZwlrOutputPowerV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -49,7 +45,7 @@ impl Debug for MetaZwlrOutputPowerV1 {
     }
 }
 
-impl MetaZwlrOutputPowerV1 {
+impl ZwlrOutputPowerV1 {
     /// Since when the set_mode message is available.
     #[allow(dead_code)]
     pub const MSG__SET_MODE__SINCE: u32 = 1;
@@ -66,7 +62,7 @@ impl MetaZwlrOutputPowerV1 {
     #[inline]
     pub fn send_set_mode(
         &self,
-        mode: MetaZwlrOutputPowerV1Mode,
+        mode: ZwlrOutputPowerV1Mode,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -77,9 +73,14 @@ impl MetaZwlrOutputPowerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_output_power_v1#{}.set_mode(mode: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -112,7 +113,7 @@ impl MetaZwlrOutputPowerV1 {
     #[inline]
     pub fn send_mode(
         &self,
-        mode: MetaZwlrOutputPowerV1Mode,
+        mode: ZwlrOutputPowerV1Mode,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -125,9 +126,14 @@ impl MetaZwlrOutputPowerV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_output_power_v1#{}.mode(mode: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -165,9 +171,14 @@ impl MetaZwlrOutputPowerV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_output_power_v1#{}.failed()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -194,9 +205,14 @@ impl MetaZwlrOutputPowerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_output_power_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -212,7 +228,7 @@ impl MetaZwlrOutputPowerV1 {
 
 /// A message handler for [ZwlrOutputPowerV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwlrOutputPowerV1MessageHandler {
+pub trait ZwlrOutputPowerV1Handler: Any {
     /// Set an outputs power save mode
     ///
     /// Set an output's power save mode to the given mode. The mode change
@@ -225,8 +241,8 @@ pub trait MetaZwlrOutputPowerV1MessageHandler {
     #[inline]
     fn set_mode(
         &mut self,
-        _slf: &Rc<MetaZwlrOutputPowerV1>,
-        mode: MetaZwlrOutputPowerV1Mode,
+        _slf: &Rc<ZwlrOutputPowerV1>,
+        mode: ZwlrOutputPowerV1Mode,
     ) {
         let res = _slf.send_set_mode(
             mode,
@@ -252,8 +268,8 @@ pub trait MetaZwlrOutputPowerV1MessageHandler {
     #[inline]
     fn mode(
         &mut self,
-        _slf: &Rc<MetaZwlrOutputPowerV1>,
-        mode: MetaZwlrOutputPowerV1Mode,
+        _slf: &Rc<ZwlrOutputPowerV1>,
+        mode: ZwlrOutputPowerV1Mode,
     ) {
         let res = _slf.send_mode(
             mode,
@@ -277,7 +293,7 @@ pub trait MetaZwlrOutputPowerV1MessageHandler {
     #[inline]
     fn failed(
         &mut self,
-        _slf: &Rc<MetaZwlrOutputPowerV1>,
+        _slf: &Rc<ZwlrOutputPowerV1>,
     ) {
         let res = _slf.send_failed(
         );
@@ -292,7 +308,7 @@ pub trait MetaZwlrOutputPowerV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwlrOutputPowerV1>,
+        _slf: &Rc<ZwlrOutputPowerV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -302,13 +318,12 @@ pub trait MetaZwlrOutputPowerV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwlrOutputPowerV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwlrOutputPowerV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrOutputPowerV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -320,21 +335,31 @@ impl Proxy for MetaZwlrOutputPowerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaZwlrOutputPowerV1Mode(arg0);
+                let arg0 = ZwlrOutputPowerV1Mode(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_output_power_v1#{}.set_mode(mode: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_mode(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_mode(&self, arg0);
+                    DefaultHandler.set_mode(&self, arg0);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_output_power_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -358,21 +383,31 @@ impl Proxy for MetaZwlrOutputPowerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaZwlrOutputPowerV1Mode(arg0);
+                let arg0 = ZwlrOutputPowerV1Mode(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_output_power_v1#{}.mode(mode: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).mode(&self, arg0);
                 } else {
-                    DefaultMessageHandler.mode(&self, arg0);
+                    DefaultHandler.mode(&self, arg0);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_output_power_v1#{}.failed()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).failed(&self);
                 } else {
-                    DefaultMessageHandler.failed(&self);
+                    DefaultHandler.failed(&self);
                 }
             }
             n => {
@@ -404,7 +439,33 @@ impl Proxy for MetaZwlrOutputPowerV1 {
     }
 }
 
-impl MetaZwlrOutputPowerV1 {
+impl Proxy for ZwlrOutputPowerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl ZwlrOutputPowerV1 {
     /// Since when the mode.off enum variant is available.
     #[allow(dead_code)]
     pub const ENM__MODE_OFF__SINCE: u32 = 1;
@@ -419,9 +480,9 @@ impl MetaZwlrOutputPowerV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwlrOutputPowerV1Mode(pub u32);
+pub struct ZwlrOutputPowerV1Mode(pub u32);
 
-impl MetaZwlrOutputPowerV1Mode {
+impl ZwlrOutputPowerV1Mode {
     /// Output is turned off.
     #[allow(dead_code)]
     pub const OFF: Self = Self(0);
@@ -431,7 +492,7 @@ impl MetaZwlrOutputPowerV1Mode {
     pub const ON: Self = Self(1);
 }
 
-impl Debug for MetaZwlrOutputPowerV1Mode {
+impl Debug for ZwlrOutputPowerV1Mode {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::OFF => "OFF",
@@ -444,15 +505,15 @@ impl Debug for MetaZwlrOutputPowerV1Mode {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwlrOutputPowerV1Error(pub u32);
+pub struct ZwlrOutputPowerV1Error(pub u32);
 
-impl MetaZwlrOutputPowerV1Error {
+impl ZwlrOutputPowerV1Error {
     /// nonexistent power save mode
     #[allow(dead_code)]
     pub const INVALID_MODE: Self = Self(1);
 }
 
-impl Debug for MetaZwlrOutputPowerV1Error {
+impl Debug for ZwlrOutputPowerV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INVALID_MODE => "INVALID_MODE",

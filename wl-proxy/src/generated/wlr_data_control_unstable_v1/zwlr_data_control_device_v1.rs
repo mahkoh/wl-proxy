@@ -10,39 +10,35 @@ use super::super::all_types::*;
 /// A zwlr_data_control_device_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwlrDataControlDeviceV1 {
+pub struct ZwlrDataControlDeviceV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwlrDataControlDeviceV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwlrDataControlDeviceV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwlrDataControlDeviceV1MessageHandler for DefaultMessageHandler { }
+impl ZwlrDataControlDeviceV1Handler for DefaultHandler { }
 
-impl MetaZwlrDataControlDeviceV1 {
+impl ZwlrDataControlDeviceV1 {
     pub const XML_VERSION: u32 = 2;
 }
 
-impl MetaZwlrDataControlDeviceV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwlrDataControlDeviceV1, version),
-            handler: Default::default(),
-        })
+impl ZwlrDataControlDeviceV1 {
+    pub fn set_handler(&self, handler: impl ZwlrDataControlDeviceV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwlrDataControlDeviceV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwlrDataControlDeviceV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwlrDataControlDeviceV1 {
+impl Debug for ZwlrDataControlDeviceV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwlrDataControlDeviceV1")
+        f.debug_struct("ZwlrDataControlDeviceV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -50,7 +46,7 @@ impl Debug for MetaZwlrDataControlDeviceV1 {
     }
 }
 
-impl MetaZwlrDataControlDeviceV1 {
+impl ZwlrDataControlDeviceV1 {
     /// Since when the set_selection message is available.
     #[allow(dead_code)]
     pub const MSG__SET_SELECTION__SINCE: u32 = 1;
@@ -72,7 +68,7 @@ impl MetaZwlrDataControlDeviceV1 {
     #[inline]
     pub fn send_set_selection(
         &self,
-        source: Option<&Rc<MetaZwlrDataControlSourceV1>>,
+        source: Option<&Rc<ZwlrDataControlSourceV1>>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -91,9 +87,14 @@ impl MetaZwlrDataControlDeviceV1 {
                 Some(id) => id,
             },
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_data_control_device_v1#{}.set_selection(source: zwlr_data_control_source_v1#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -121,9 +122,14 @@ impl MetaZwlrDataControlDeviceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_data_control_device_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -153,7 +159,7 @@ impl MetaZwlrDataControlDeviceV1 {
     #[inline]
     pub fn send_data_offer(
         &self,
-        id: &Rc<MetaZwlrDataControlOfferV1>,
+        id: &Rc<ZwlrDataControlOfferV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -171,9 +177,14 @@ impl MetaZwlrDataControlDeviceV1 {
         arg0.generate_client_id(client, arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateClientId("id", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_data_control_device_v1#{}.data_offer(id: zwlr_data_control_offer_v1#{})\n", client.endpoint.id, id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -211,7 +222,7 @@ impl MetaZwlrDataControlDeviceV1 {
     #[inline]
     pub fn send_selection(
         &self,
-        id: Option<&Rc<MetaZwlrDataControlOfferV1>>,
+        id: Option<&Rc<ZwlrDataControlOfferV1>>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -231,9 +242,14 @@ impl MetaZwlrDataControlDeviceV1 {
             }
         }
         let arg0_id = arg0.map(|arg0| arg0.client_obj_id.get()).flatten().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_data_control_device_v1#{}.selection(id: zwlr_data_control_offer_v1#{})\n", client.endpoint.id, id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -264,9 +280,14 @@ impl MetaZwlrDataControlDeviceV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_data_control_device_v1#{}.finished()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -304,7 +325,7 @@ impl MetaZwlrDataControlDeviceV1 {
     #[inline]
     pub fn send_primary_selection(
         &self,
-        id: Option<&Rc<MetaZwlrDataControlOfferV1>>,
+        id: Option<&Rc<ZwlrDataControlOfferV1>>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -324,9 +345,14 @@ impl MetaZwlrDataControlDeviceV1 {
             }
         }
         let arg0_id = arg0.map(|arg0| arg0.client_obj_id.get()).flatten().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_data_control_device_v1#{}.primary_selection(id: zwlr_data_control_offer_v1#{})\n", client.endpoint.id, id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -363,7 +389,7 @@ impl MetaZwlrDataControlDeviceV1 {
     #[inline]
     pub fn send_set_primary_selection(
         &self,
-        source: Option<&Rc<MetaZwlrDataControlSourceV1>>,
+        source: Option<&Rc<ZwlrDataControlSourceV1>>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -382,9 +408,14 @@ impl MetaZwlrDataControlDeviceV1 {
                 Some(id) => id,
             },
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_data_control_device_v1#{}.set_primary_selection(source: zwlr_data_control_source_v1#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -400,7 +431,7 @@ impl MetaZwlrDataControlDeviceV1 {
 
 /// A message handler for [ZwlrDataControlDeviceV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwlrDataControlDeviceV1MessageHandler {
+pub trait ZwlrDataControlDeviceV1Handler: Any {
     /// copy data to the selection
     ///
     /// This request asks the compositor to set the selection to the data from
@@ -421,8 +452,8 @@ pub trait MetaZwlrDataControlDeviceV1MessageHandler {
     #[inline]
     fn set_selection(
         &mut self,
-        _slf: &Rc<MetaZwlrDataControlDeviceV1>,
-        source: Option<&Rc<MetaZwlrDataControlSourceV1>>,
+        _slf: &Rc<ZwlrDataControlDeviceV1>,
+        source: Option<&Rc<ZwlrDataControlSourceV1>>,
     ) {
         let res = _slf.send_set_selection(
             source,
@@ -438,7 +469,7 @@ pub trait MetaZwlrDataControlDeviceV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwlrDataControlDeviceV1>,
+        _slf: &Rc<ZwlrDataControlDeviceV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -464,8 +495,8 @@ pub trait MetaZwlrDataControlDeviceV1MessageHandler {
     #[inline]
     fn data_offer(
         &mut self,
-        _slf: &Rc<MetaZwlrDataControlDeviceV1>,
-        id: &Rc<MetaZwlrDataControlOfferV1>,
+        _slf: &Rc<ZwlrDataControlDeviceV1>,
+        id: &Rc<ZwlrDataControlOfferV1>,
     ) {
         let res = _slf.send_data_offer(
             id,
@@ -499,8 +530,8 @@ pub trait MetaZwlrDataControlDeviceV1MessageHandler {
     #[inline]
     fn selection(
         &mut self,
-        _slf: &Rc<MetaZwlrDataControlDeviceV1>,
-        id: Option<&Rc<MetaZwlrDataControlOfferV1>>,
+        _slf: &Rc<ZwlrDataControlDeviceV1>,
+        id: Option<&Rc<ZwlrDataControlOfferV1>>,
     ) {
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(id) = id {
@@ -526,7 +557,7 @@ pub trait MetaZwlrDataControlDeviceV1MessageHandler {
     #[inline]
     fn finished(
         &mut self,
-        _slf: &Rc<MetaZwlrDataControlDeviceV1>,
+        _slf: &Rc<ZwlrDataControlDeviceV1>,
     ) {
         let res = _slf.send_finished(
         );
@@ -560,8 +591,8 @@ pub trait MetaZwlrDataControlDeviceV1MessageHandler {
     #[inline]
     fn primary_selection(
         &mut self,
-        _slf: &Rc<MetaZwlrDataControlDeviceV1>,
-        id: Option<&Rc<MetaZwlrDataControlOfferV1>>,
+        _slf: &Rc<ZwlrDataControlDeviceV1>,
+        id: Option<&Rc<ZwlrDataControlOfferV1>>,
     ) {
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(id) = id {
@@ -603,8 +634,8 @@ pub trait MetaZwlrDataControlDeviceV1MessageHandler {
     #[inline]
     fn set_primary_selection(
         &mut self,
-        _slf: &Rc<MetaZwlrDataControlDeviceV1>,
-        source: Option<&Rc<MetaZwlrDataControlSourceV1>>,
+        _slf: &Rc<ZwlrDataControlDeviceV1>,
+        source: Option<&Rc<ZwlrDataControlSourceV1>>,
     ) {
         let res = _slf.send_set_primary_selection(
             source,
@@ -615,13 +646,12 @@ pub trait MetaZwlrDataControlDeviceV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwlrDataControlDeviceV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwlrDataControlDeviceV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrDataControlDeviceV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -633,6 +663,11 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_data_control_device_v1#{}.set_selection(source: zwlr_data_control_source_v1#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
@@ -640,7 +675,7 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                     let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                         return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                     };
-                    let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaZwlrDataControlSourceV1>() else {
+                    let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ZwlrDataControlSourceV1>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
                         return Err(ObjectError::WrongObjectType("source", o.core().interface, ProxyInterface::ZwlrDataControlSourceV1));
                     };
@@ -650,17 +685,22 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                 if let Some(handler) = handler {
                     (**handler).set_selection(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_selection(&self, arg0);
+                    DefaultHandler.set_selection(&self, arg0);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_data_control_device_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -670,6 +710,11 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_data_control_device_v1#{}.set_primary_selection(source: zwlr_data_control_source_v1#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
@@ -677,7 +722,7 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                     let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                         return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                     };
-                    let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaZwlrDataControlSourceV1>() else {
+                    let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ZwlrDataControlSourceV1>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
                         return Err(ObjectError::WrongObjectType("source", o.core().interface, ProxyInterface::ZwlrDataControlSourceV1));
                     };
@@ -687,7 +732,7 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                 if let Some(handler) = handler {
                     (**handler).set_primary_selection(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_primary_selection(&self, arg0);
+                    DefaultHandler.set_primary_selection(&self, arg0);
                 }
             }
             n => {
@@ -710,15 +755,20 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_data_control_device_v1#{}.data_offer(id: zwlr_data_control_offer_v1#{})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaZwlrDataControlOfferV1::new(&self.core.state, self.core.version);
+                let arg0 = ZwlrDataControlOfferV1::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).data_offer(&self, arg0);
                 } else {
-                    DefaultMessageHandler.data_offer(&self, arg0);
+                    DefaultHandler.data_offer(&self, arg0);
                 }
             }
             1 => {
@@ -727,6 +777,11 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_data_control_device_v1#{}.selection(id: zwlr_data_control_offer_v1#{})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
@@ -734,7 +789,7 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                     let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
                         return Err(ObjectError::NoServerObject(arg0_id));
                     };
-                    let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaZwlrDataControlOfferV1>() else {
+                    let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ZwlrDataControlOfferV1>() else {
                         let o = self.core.state.server.lookup(arg0_id).unwrap();
                         return Err(ObjectError::WrongObjectType("id", o.core().interface, ProxyInterface::ZwlrDataControlOfferV1));
                     };
@@ -744,17 +799,22 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                 if let Some(handler) = handler {
                     (**handler).selection(&self, arg0);
                 } else {
-                    DefaultMessageHandler.selection(&self, arg0);
+                    DefaultHandler.selection(&self, arg0);
                 }
             }
             2 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_data_control_device_v1#{}.finished()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).finished(&self);
                 } else {
-                    DefaultMessageHandler.finished(&self);
+                    DefaultHandler.finished(&self);
                 }
             }
             3 => {
@@ -763,6 +823,11 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_data_control_device_v1#{}.primary_selection(id: zwlr_data_control_offer_v1#{})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
@@ -770,7 +835,7 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                     let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
                         return Err(ObjectError::NoServerObject(arg0_id));
                     };
-                    let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaZwlrDataControlOfferV1>() else {
+                    let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ZwlrDataControlOfferV1>() else {
                         let o = self.core.state.server.lookup(arg0_id).unwrap();
                         return Err(ObjectError::WrongObjectType("id", o.core().interface, ProxyInterface::ZwlrDataControlOfferV1));
                     };
@@ -780,7 +845,7 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
                 if let Some(handler) = handler {
                     (**handler).primary_selection(&self, arg0);
                 } else {
-                    DefaultMessageHandler.primary_selection(&self, arg0);
+                    DefaultHandler.primary_selection(&self, arg0);
                 }
             }
             n => {
@@ -815,7 +880,33 @@ impl Proxy for MetaZwlrDataControlDeviceV1 {
     }
 }
 
-impl MetaZwlrDataControlDeviceV1 {
+impl Proxy for ZwlrDataControlDeviceV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl ZwlrDataControlDeviceV1 {
     /// Since when the error.used_source enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_USED_SOURCE__SINCE: u32 = 1;
@@ -823,15 +914,15 @@ impl MetaZwlrDataControlDeviceV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwlrDataControlDeviceV1Error(pub u32);
+pub struct ZwlrDataControlDeviceV1Error(pub u32);
 
-impl MetaZwlrDataControlDeviceV1Error {
+impl ZwlrDataControlDeviceV1Error {
     /// source given to set_selection or set_primary_selection was already used before
     #[allow(dead_code)]
     pub const USED_SOURCE: Self = Self(1);
 }
 
-impl Debug for MetaZwlrDataControlDeviceV1Error {
+impl Debug for ZwlrDataControlDeviceV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::USED_SOURCE => "USED_SOURCE",

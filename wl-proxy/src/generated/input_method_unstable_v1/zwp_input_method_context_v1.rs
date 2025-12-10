@@ -30,39 +30,35 @@ use super::super::all_types::*;
 /// A zwp_input_method_context_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwpInputMethodContextV1 {
+pub struct ZwpInputMethodContextV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwpInputMethodContextV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwpInputMethodContextV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwpInputMethodContextV1MessageHandler for DefaultMessageHandler { }
+impl ZwpInputMethodContextV1Handler for DefaultHandler { }
 
-impl MetaZwpInputMethodContextV1 {
+impl ZwpInputMethodContextV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwpInputMethodContextV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwpInputMethodContextV1, version),
-            handler: Default::default(),
-        })
+impl ZwpInputMethodContextV1 {
+    pub fn set_handler(&self, handler: impl ZwpInputMethodContextV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwpInputMethodContextV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwpInputMethodContextV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwpInputMethodContextV1 {
+impl Debug for ZwpInputMethodContextV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwpInputMethodContextV1")
+        f.debug_struct("ZwpInputMethodContextV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -70,7 +66,7 @@ impl Debug for MetaZwpInputMethodContextV1 {
     }
 }
 
-impl MetaZwpInputMethodContextV1 {
+impl ZwpInputMethodContextV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -83,9 +79,14 @@ impl MetaZwpInputMethodContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_input_method_context_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -135,9 +136,14 @@ impl MetaZwpInputMethodContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_input_method_context_v1#{}.commit_string(serial: {}, text: {:?})\n", id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -190,9 +196,14 @@ impl MetaZwpInputMethodContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_input_method_context_v1#{}.preedit_string(serial: {}, text: {:?}, commit: {:?})\n", id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -245,9 +256,14 @@ impl MetaZwpInputMethodContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_input_method_context_v1#{}.preedit_styling(index: {}, length: {}, style: {})\n", id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -292,9 +308,14 @@ impl MetaZwpInputMethodContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_input_method_context_v1#{}.preedit_cursor(index: {})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -339,9 +360,14 @@ impl MetaZwpInputMethodContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_input_method_context_v1#{}.delete_surrounding_text(index: {}, length: {})\n", id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -393,9 +419,14 @@ impl MetaZwpInputMethodContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_input_method_context_v1#{}.cursor_position(index: {}, anchor: {})\n", id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -430,9 +461,14 @@ impl MetaZwpInputMethodContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_input_method_context_v1#{}.modifiers_map(map: {})\n", id, debug_array(arg0));
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -489,9 +525,14 @@ impl MetaZwpInputMethodContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_input_method_context_v1#{}.keysym(serial: {}, time: {}, sym: {}, state: {}, modifiers: {})\n", id, arg0, arg1, arg2, arg3, arg4);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -521,7 +562,7 @@ impl MetaZwpInputMethodContextV1 {
     #[inline]
     pub fn send_grab_keyboard(
         &self,
-        keyboard: &Rc<MetaWlKeyboard>,
+        keyboard: &Rc<WlKeyboard>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -537,9 +578,14 @@ impl MetaZwpInputMethodContextV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("keyboard", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_input_method_context_v1#{}.grab_keyboard(keyboard: wl_keyboard#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -594,9 +640,14 @@ impl MetaZwpInputMethodContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_input_method_context_v1#{}.key(serial: {}, time: {}, key: {}, state: {})\n", id, arg0, arg1, arg2, arg3);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -656,9 +707,14 @@ impl MetaZwpInputMethodContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_input_method_context_v1#{}.modifiers(serial: {}, mods_depressed: {}, mods_latched: {}, mods_locked: {}, group: {})\n", id, arg0, arg1, arg2, arg3, arg4);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -700,9 +756,14 @@ impl MetaZwpInputMethodContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_input_method_context_v1#{}.language(serial: {}, language: {:?})\n", id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -741,9 +802,14 @@ impl MetaZwpInputMethodContextV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_input_method_context_v1#{}.text_direction(serial: {}, direction: {})\n", id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -796,9 +862,14 @@ impl MetaZwpInputMethodContextV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_input_method_context_v1#{}.surrounding_text(text: {:?}, cursor: {}, anchor: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -829,9 +900,14 @@ impl MetaZwpInputMethodContextV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_input_method_context_v1#{}.reset()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -870,9 +946,14 @@ impl MetaZwpInputMethodContextV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_input_method_context_v1#{}.content_type(hint: {}, purpose: {})\n", client.endpoint.id, id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -913,9 +994,14 @@ impl MetaZwpInputMethodContextV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_input_method_context_v1#{}.invoke_action(button: {}, index: {})\n", client.endpoint.id, id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -952,9 +1038,14 @@ impl MetaZwpInputMethodContextV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_input_method_context_v1#{}.commit_state(serial: {})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -990,9 +1081,14 @@ impl MetaZwpInputMethodContextV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_input_method_context_v1#{}.preferred_language(language: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -1008,11 +1104,11 @@ impl MetaZwpInputMethodContextV1 {
 
 /// A message handler for [ZwpInputMethodContextV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwpInputMethodContextV1MessageHandler {
+pub trait ZwpInputMethodContextV1Handler: Any {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -1040,7 +1136,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn commit_string(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
         serial: u32,
         text: &str,
     ) {
@@ -1071,7 +1167,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn preedit_string(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
         serial: u32,
         text: &str,
         commit: &str,
@@ -1103,7 +1199,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn preedit_styling(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
         index: u32,
         length: u32,
         style: u32,
@@ -1133,7 +1229,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn preedit_cursor(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
         index: i32,
     ) {
         let res = _slf.send_preedit_cursor(
@@ -1158,7 +1254,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn delete_surrounding_text(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
         index: i32,
         length: u32,
     ) {
@@ -1191,7 +1287,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn cursor_position(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
         index: i32,
         anchor: i32,
     ) {
@@ -1210,7 +1306,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn modifiers_map(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
         map: &[u8],
     ) {
         let res = _slf.send_modifiers_map(
@@ -1238,7 +1334,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn keysym(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
         serial: u32,
         time: u32,
         sym: u32,
@@ -1270,8 +1366,8 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn grab_keyboard(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
-        keyboard: &Rc<MetaWlKeyboard>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
+        keyboard: &Rc<WlKeyboard>,
     ) {
         let res = _slf.send_grab_keyboard(
             keyboard,
@@ -1299,7 +1395,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn key(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
         serial: u32,
         time: u32,
         key: u32,
@@ -1333,7 +1429,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn modifiers(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
         serial: u32,
         mods_depressed: u32,
         mods_latched: u32,
@@ -1359,7 +1455,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn language(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
         serial: u32,
         language: &str,
     ) {
@@ -1379,7 +1475,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn text_direction(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
         serial: u32,
         direction: u32,
     ) {
@@ -1408,7 +1504,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn surrounding_text(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
         text: &str,
         cursor: u32,
         anchor: u32,
@@ -1426,7 +1522,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn reset(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
     ) {
         let res = _slf.send_reset(
         );
@@ -1442,7 +1538,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn content_type(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
         hint: u32,
         purpose: u32,
     ) {
@@ -1462,7 +1558,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn invoke_action(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
         button: u32,
         index: u32,
     ) {
@@ -1481,7 +1577,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn commit_state(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
         serial: u32,
     ) {
         let res = _slf.send_commit_state(
@@ -1498,7 +1594,7 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     #[inline]
     fn preferred_language(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodContextV1>,
         language: &str,
     ) {
         let res = _slf.send_preferred_language(
@@ -1510,13 +1606,12 @@ pub trait MetaZwpInputMethodContextV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwpInputMethodContextV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwpInputMethodContextV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpInputMethodContextV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -1526,10 +1621,15 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_input_method_context_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -1564,10 +1664,15 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_input_method_context_v1#{}.commit_string(serial: {}, text: {:?})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).commit_string(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.commit_string(&self, arg0, arg1);
+                    DefaultHandler.commit_string(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -1623,10 +1728,15 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_input_method_context_v1#{}.preedit_string(serial: {}, text: {:?}, commit: {:?})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).preedit_string(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.preedit_string(&self, arg0, arg1, arg2);
+                    DefaultHandler.preedit_string(&self, arg0, arg1, arg2);
                 }
             }
             3 => {
@@ -1637,10 +1747,15 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_input_method_context_v1#{}.preedit_styling(index: {}, length: {}, style: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).preedit_styling(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.preedit_styling(&self, arg0, arg1, arg2);
+                    DefaultHandler.preedit_styling(&self, arg0, arg1, arg2);
                 }
             }
             4 => {
@@ -1650,10 +1765,15 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = arg0 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_input_method_context_v1#{}.preedit_cursor(index: {})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).preedit_cursor(&self, arg0);
                 } else {
-                    DefaultMessageHandler.preedit_cursor(&self, arg0);
+                    DefaultHandler.preedit_cursor(&self, arg0);
                 }
             }
             5 => {
@@ -1664,10 +1784,15 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 let arg0 = arg0 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_input_method_context_v1#{}.delete_surrounding_text(index: {}, length: {})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).delete_surrounding_text(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.delete_surrounding_text(&self, arg0, arg1);
+                    DefaultHandler.delete_surrounding_text(&self, arg0, arg1);
                 }
             }
             6 => {
@@ -1679,10 +1804,15 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_input_method_context_v1#{}.cursor_position(index: {}, anchor: {})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).cursor_position(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.cursor_position(&self, arg0, arg1);
+                    DefaultHandler.cursor_position(&self, arg0, arg1);
                 }
             }
             7 => {
@@ -1704,10 +1834,15 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_input_method_context_v1#{}.modifiers_map(map: {})\n", client.endpoint.id, msg[0], debug_array(arg0));
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).modifiers_map(&self, arg0);
                 } else {
-                    DefaultMessageHandler.modifiers_map(&self, arg0);
+                    DefaultHandler.modifiers_map(&self, arg0);
                 }
             }
             8 => {
@@ -1720,10 +1855,15 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 28));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_input_method_context_v1#{}.keysym(serial: {}, time: {}, sym: {}, state: {}, modifiers: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).keysym(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultMessageHandler.keysym(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.keysym(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             9 => {
@@ -1732,15 +1872,20 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_input_method_context_v1#{}.grab_keyboard(keyboard: wl_keyboard#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWlKeyboard::new(&self.core.state, self.core.version);
+                let arg0 = WlKeyboard::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "keyboard", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).grab_keyboard(&self, arg0);
                 } else {
-                    DefaultMessageHandler.grab_keyboard(&self, arg0);
+                    DefaultHandler.grab_keyboard(&self, arg0);
                 }
             }
             10 => {
@@ -1752,10 +1897,15 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_input_method_context_v1#{}.key(serial: {}, time: {}, key: {}, state: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).key(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultMessageHandler.key(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.key(&self, arg0, arg1, arg2, arg3);
                 }
             }
             11 => {
@@ -1768,10 +1918,15 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 28));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_input_method_context_v1#{}.modifiers(serial: {}, mods_depressed: {}, mods_latched: {}, mods_locked: {}, group: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).modifiers(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultMessageHandler.modifiers(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.modifiers(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             12 => {
@@ -1805,10 +1960,15 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_input_method_context_v1#{}.language(serial: {}, language: {:?})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).language(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.language(&self, arg0, arg1);
+                    DefaultHandler.language(&self, arg0, arg1);
                 }
             }
             13 => {
@@ -1818,10 +1978,15 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_input_method_context_v1#{}.text_direction(serial: {}, direction: {})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).text_direction(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.text_direction(&self, arg0, arg1);
+                    DefaultHandler.text_direction(&self, arg0, arg1);
                 }
             }
             n => {
@@ -1873,20 +2038,30 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_input_method_context_v1#{}.surrounding_text(text: {:?}, cursor: {}, anchor: {})\n", msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).surrounding_text(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.surrounding_text(&self, arg0, arg1, arg2);
+                    DefaultHandler.surrounding_text(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_input_method_context_v1#{}.reset()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).reset(&self);
                 } else {
-                    DefaultMessageHandler.reset(&self);
+                    DefaultHandler.reset(&self);
                 }
             }
             2 => {
@@ -1896,10 +2071,15 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_input_method_context_v1#{}.content_type(hint: {}, purpose: {})\n", msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).content_type(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.content_type(&self, arg0, arg1);
+                    DefaultHandler.content_type(&self, arg0, arg1);
                 }
             }
             3 => {
@@ -1909,10 +2089,15 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_input_method_context_v1#{}.invoke_action(button: {}, index: {})\n", msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).invoke_action(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.invoke_action(&self, arg0, arg1);
+                    DefaultHandler.invoke_action(&self, arg0, arg1);
                 }
             }
             4 => {
@@ -1921,10 +2106,15 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_input_method_context_v1#{}.commit_state(serial: {})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).commit_state(&self, arg0);
                 } else {
-                    DefaultMessageHandler.commit_state(&self, arg0);
+                    DefaultHandler.commit_state(&self, arg0);
                 }
             }
             5 => {
@@ -1954,10 +2144,15 @@ impl Proxy for MetaZwpInputMethodContextV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_input_method_context_v1#{}.preferred_language(language: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).preferred_language(&self, arg0);
                 } else {
-                    DefaultMessageHandler.preferred_language(&self, arg0);
+                    DefaultHandler.preferred_language(&self, arg0);
                 }
             }
             n => {
@@ -2002,6 +2197,32 @@ impl Proxy for MetaZwpInputMethodContextV1 {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for ZwpInputMethodContextV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

@@ -16,39 +16,35 @@ use super::super::all_types::*;
 /// A wl_shm proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWlShm {
+pub struct WlShm {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWlShmMessageHandler>,
+    handler: HandlerHolder<dyn WlShmHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWlShmMessageHandler for DefaultMessageHandler { }
+impl WlShmHandler for DefaultHandler { }
 
-impl MetaWlShm {
+impl WlShm {
     pub const XML_VERSION: u32 = 2;
 }
 
-impl MetaWlShm {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WlShm, version),
-            handler: Default::default(),
-        })
+impl WlShm {
+    pub fn set_handler(&self, handler: impl WlShmHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWlShmMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WlShmHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWlShm {
+impl Debug for WlShm {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWlShm")
+        f.debug_struct("WlShm")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -56,7 +52,7 @@ impl Debug for MetaWlShm {
     }
 }
 
-impl MetaWlShm {
+impl WlShm {
     /// Since when the create_pool message is available.
     #[allow(dead_code)]
     pub const MSG__CREATE_POOL__SINCE: u32 = 1;
@@ -77,7 +73,7 @@ impl MetaWlShm {
     #[inline]
     pub fn send_create_pool(
         &self,
-        id: &Rc<MetaWlShmPool>,
+        id: &Rc<WlShmPool>,
         fd: &Rc<OwnedFd>,
         size: i32,
     ) -> Result<(), ObjectError> {
@@ -99,9 +95,14 @@ impl MetaWlShm {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_shm#{}.create_pool(id: wl_shm_pool#{}, fd: {}, size: {})\n", id, arg0_id, arg1.as_raw_fd(), arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -132,7 +133,7 @@ impl MetaWlShm {
     #[inline]
     pub fn send_format(
         &self,
-        format: MetaWlShmFormat,
+        format: WlShmFormat,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -145,9 +146,14 @@ impl MetaWlShm {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_shm#{}.format(format: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -178,9 +184,14 @@ impl MetaWlShm {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_shm#{}.release()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -196,7 +207,7 @@ impl MetaWlShm {
 
 /// A message handler for [WlShm] proxies.
 #[allow(dead_code)]
-pub trait MetaWlShmMessageHandler {
+pub trait WlShmHandler: Any {
     /// create a shm pool
     ///
     /// Create a new wl_shm_pool object.
@@ -213,8 +224,8 @@ pub trait MetaWlShmMessageHandler {
     #[inline]
     fn create_pool(
         &mut self,
-        _slf: &Rc<MetaWlShm>,
-        id: &Rc<MetaWlShmPool>,
+        _slf: &Rc<WlShm>,
+        id: &Rc<WlShmPool>,
         fd: &Rc<OwnedFd>,
         size: i32,
     ) {
@@ -240,8 +251,8 @@ pub trait MetaWlShmMessageHandler {
     #[inline]
     fn format(
         &mut self,
-        _slf: &Rc<MetaWlShm>,
-        format: MetaWlShmFormat,
+        _slf: &Rc<WlShm>,
+        format: WlShmFormat,
     ) {
         let res = _slf.send_format(
             format,
@@ -260,7 +271,7 @@ pub trait MetaWlShmMessageHandler {
     #[inline]
     fn release(
         &mut self,
-        _slf: &Rc<MetaWlShm>,
+        _slf: &Rc<WlShm>,
     ) {
         let res = _slf.send_release(
         );
@@ -270,13 +281,12 @@ pub trait MetaWlShmMessageHandler {
     }
 }
 
-impl Proxy for MetaWlShm {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WlShm {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlShm, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -294,25 +304,35 @@ impl Proxy for MetaWlShm {
                 };
                 let arg1 = &arg1;
                 let arg2 = arg2 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_shm#{}.create_pool(id: wl_shm_pool#{}, fd: {}, size: {})\n", client.endpoint.id, msg[0], arg0, arg1.as_raw_fd(), arg2);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWlShmPool::new(&self.core.state, self.core.version);
+                let arg0 = WlShmPool::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).create_pool(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.create_pool(&self, arg0, arg1, arg2);
+                    DefaultHandler.create_pool(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_shm#{}.release()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
-                    DefaultMessageHandler.release(&self);
+                    DefaultHandler.release(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -336,11 +356,16 @@ impl Proxy for MetaWlShm {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaWlShmFormat(arg0);
+                let arg0 = WlShmFormat(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_shm#{}.format(format: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).format(&self, arg0);
                 } else {
-                    DefaultMessageHandler.format(&self, arg0);
+                    DefaultHandler.format(&self, arg0);
                 }
             }
             n => {
@@ -371,7 +396,33 @@ impl Proxy for MetaWlShm {
     }
 }
 
-impl MetaWlShm {
+impl Proxy for WlShm {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WlShm {
     /// Since when the error.invalid_format enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_FORMAT__SINCE: u32 = 1;
@@ -758,9 +809,9 @@ impl MetaWlShm {
 /// These errors can be emitted in response to wl_shm requests.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWlShmError(pub u32);
+pub struct WlShmError(pub u32);
 
-impl MetaWlShmError {
+impl WlShmError {
     /// buffer format is not known
     #[allow(dead_code)]
     pub const INVALID_FORMAT: Self = Self(0);
@@ -774,7 +825,7 @@ impl MetaWlShmError {
     pub const INVALID_FD: Self = Self(2);
 }
 
-impl Debug for MetaWlShmError {
+impl Debug for WlShmError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INVALID_FORMAT => "INVALID_FORMAT",
@@ -802,9 +853,9 @@ impl Debug for MetaWlShmError {
 /// extension, pre-multiplied alpha is used for pixel values.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWlShmFormat(pub u32);
+pub struct WlShmFormat(pub u32);
 
-impl MetaWlShmFormat {
+impl WlShmFormat {
     /// 32-bit ARGB format, [31:0] A:R:G:B 8:8:8:8 little endian
     #[allow(dead_code)]
     pub const ARGB8888: Self = Self(0);
@@ -1286,7 +1337,7 @@ impl MetaWlShmFormat {
     pub const P030: Self = Self(0x30333050);
 }
 
-impl Debug for MetaWlShmFormat {
+impl Debug for WlShmFormat {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::ARGB8888 => "ARGB8888",

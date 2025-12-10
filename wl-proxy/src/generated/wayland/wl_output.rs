@@ -13,39 +13,35 @@ use super::super::all_types::*;
 /// A wl_output proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWlOutput {
+pub struct WlOutput {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWlOutputMessageHandler>,
+    handler: HandlerHolder<dyn WlOutputHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWlOutputMessageHandler for DefaultMessageHandler { }
+impl WlOutputHandler for DefaultHandler { }
 
-impl MetaWlOutput {
+impl WlOutput {
     pub const XML_VERSION: u32 = 4;
 }
 
-impl MetaWlOutput {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WlOutput, version),
-            handler: Default::default(),
-        })
+impl WlOutput {
+    pub fn set_handler(&self, handler: impl WlOutputHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWlOutputMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WlOutputHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWlOutput {
+impl Debug for WlOutput {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWlOutput")
+        f.debug_struct("WlOutput")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -53,7 +49,7 @@ impl Debug for MetaWlOutput {
     }
 }
 
-impl MetaWlOutput {
+impl WlOutput {
     /// Since when the geometry message is available.
     #[allow(dead_code)]
     pub const MSG__GEOMETRY__SINCE: u32 = 1;
@@ -98,10 +94,10 @@ impl MetaWlOutput {
         y: i32,
         physical_width: i32,
         physical_height: i32,
-        subpixel: MetaWlOutputSubpixel,
+        subpixel: WlOutputSubpixel,
         make: &str,
         model: &str,
-        transform: MetaWlOutputTransform,
+        transform: WlOutputTransform,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -128,9 +124,14 @@ impl MetaWlOutput {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_output#{}.geometry(x: {}, y: {}, physical_width: {}, physical_height: {}, subpixel: {:?}, make: {:?}, model: {:?}, transform: {:?})\n", client.endpoint.id, id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -201,7 +202,7 @@ impl MetaWlOutput {
     #[inline]
     pub fn send_mode(
         &self,
-        flags: MetaWlOutputMode,
+        flags: WlOutputMode,
         width: i32,
         height: i32,
         refresh: i32,
@@ -223,9 +224,14 @@ impl MetaWlOutput {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_output#{}.mode(flags: {:?}, width: {}, height: {}, refresh: {})\n", client.endpoint.id, id, arg0, arg1, arg2, arg3);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -262,9 +268,14 @@ impl MetaWlOutput {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_output#{}.done()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -320,9 +331,14 @@ impl MetaWlOutput {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_output#{}.scale(factor: {})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -351,9 +367,14 @@ impl MetaWlOutput {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_output#{}.release()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -420,9 +441,14 @@ impl MetaWlOutput {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_output#{}.name(name: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -475,9 +501,14 @@ impl MetaWlOutput {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_output#{}.description(description: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -493,7 +524,7 @@ impl MetaWlOutput {
 
 /// A message handler for [WlOutput] proxies.
 #[allow(dead_code)]
-pub trait MetaWlOutputMessageHandler {
+pub trait WlOutputHandler: Any {
     /// properties of the output
     ///
     /// The geometry event describes geometric properties of the output.
@@ -530,15 +561,15 @@ pub trait MetaWlOutputMessageHandler {
     #[inline]
     fn geometry(
         &mut self,
-        _slf: &Rc<MetaWlOutput>,
+        _slf: &Rc<WlOutput>,
         x: i32,
         y: i32,
         physical_width: i32,
         physical_height: i32,
-        subpixel: MetaWlOutputSubpixel,
+        subpixel: WlOutputSubpixel,
         make: &str,
         model: &str,
-        transform: MetaWlOutputTransform,
+        transform: WlOutputTransform,
     ) {
         let res = _slf.send_geometry(
             x,
@@ -600,8 +631,8 @@ pub trait MetaWlOutputMessageHandler {
     #[inline]
     fn mode(
         &mut self,
-        _slf: &Rc<MetaWlOutput>,
-        flags: MetaWlOutputMode,
+        _slf: &Rc<WlOutput>,
+        flags: WlOutputMode,
         width: i32,
         height: i32,
         refresh: i32,
@@ -627,7 +658,7 @@ pub trait MetaWlOutputMessageHandler {
     #[inline]
     fn done(
         &mut self,
-        _slf: &Rc<MetaWlOutput>,
+        _slf: &Rc<WlOutput>,
     ) {
         let res = _slf.send_done(
         );
@@ -663,7 +694,7 @@ pub trait MetaWlOutputMessageHandler {
     #[inline]
     fn scale(
         &mut self,
-        _slf: &Rc<MetaWlOutput>,
+        _slf: &Rc<WlOutput>,
         factor: i32,
     ) {
         let res = _slf.send_scale(
@@ -681,7 +712,7 @@ pub trait MetaWlOutputMessageHandler {
     #[inline]
     fn release(
         &mut self,
-        _slf: &Rc<MetaWlOutput>,
+        _slf: &Rc<WlOutput>,
     ) {
         let res = _slf.send_release(
         );
@@ -727,7 +758,7 @@ pub trait MetaWlOutputMessageHandler {
     #[inline]
     fn name(
         &mut self,
-        _slf: &Rc<MetaWlOutput>,
+        _slf: &Rc<WlOutput>,
         name: &str,
     ) {
         let res = _slf.send_name(
@@ -761,7 +792,7 @@ pub trait MetaWlOutputMessageHandler {
     #[inline]
     fn description(
         &mut self,
-        _slf: &Rc<MetaWlOutput>,
+        _slf: &Rc<WlOutput>,
         description: &str,
     ) {
         let res = _slf.send_description(
@@ -773,13 +804,12 @@ pub trait MetaWlOutputMessageHandler {
     }
 }
 
-impl Proxy for MetaWlOutput {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WlOutput {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlOutput, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -789,10 +819,15 @@ impl Proxy for MetaWlOutput {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_output#{}.release()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
-                    DefaultMessageHandler.release(&self);
+                    DefaultHandler.release(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -887,12 +922,17 @@ impl Proxy for MetaWlOutput {
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
-                let arg4 = MetaWlOutputSubpixel(arg4);
-                let arg7 = MetaWlOutputTransform(arg7);
+                let arg4 = WlOutputSubpixel(arg4);
+                let arg7 = WlOutputTransform(arg7);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_output#{}.geometry(x: {}, y: {}, physical_width: {}, physical_height: {}, subpixel: {:?}, make: {:?}, model: {:?}, transform: {:?})\n", msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).geometry(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 } else {
-                    DefaultMessageHandler.geometry(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                    DefaultHandler.geometry(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 }
             }
             1 => {
@@ -904,24 +944,34 @@ impl Proxy for MetaWlOutput {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
-                let arg0 = MetaWlOutputMode(arg0);
+                let arg0 = WlOutputMode(arg0);
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_output#{}.mode(flags: {:?}, width: {}, height: {}, refresh: {})\n", msg[0], arg0, arg1, arg2, arg3);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).mode(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultMessageHandler.mode(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.mode(&self, arg0, arg1, arg2, arg3);
                 }
             }
             2 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_output#{}.done()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).done(&self);
                 } else {
-                    DefaultMessageHandler.done(&self);
+                    DefaultHandler.done(&self);
                 }
             }
             3 => {
@@ -931,10 +981,15 @@ impl Proxy for MetaWlOutput {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 let arg0 = arg0 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_output#{}.scale(factor: {})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).scale(&self, arg0);
                 } else {
-                    DefaultMessageHandler.scale(&self, arg0);
+                    DefaultHandler.scale(&self, arg0);
                 }
             }
             4 => {
@@ -964,10 +1019,15 @@ impl Proxy for MetaWlOutput {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_output#{}.name(name: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).name(&self, arg0);
                 } else {
-                    DefaultMessageHandler.name(&self, arg0);
+                    DefaultHandler.name(&self, arg0);
                 }
             }
             5 => {
@@ -997,10 +1057,15 @@ impl Proxy for MetaWlOutput {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_output#{}.description(description: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).description(&self, arg0);
                 } else {
-                    DefaultMessageHandler.description(&self, arg0);
+                    DefaultHandler.description(&self, arg0);
                 }
             }
             n => {
@@ -1035,7 +1100,33 @@ impl Proxy for MetaWlOutput {
     }
 }
 
-impl MetaWlOutput {
+impl Proxy for WlOutput {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WlOutput {
     /// Since when the subpixel.unknown enum variant is available.
     #[allow(dead_code)]
     pub const ENM__SUBPIXEL_UNKNOWN__SINCE: u32 = 1;
@@ -1094,9 +1185,9 @@ impl MetaWlOutput {
 /// pixels on an output are laid out.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWlOutputSubpixel(pub u32);
+pub struct WlOutputSubpixel(pub u32);
 
-impl MetaWlOutputSubpixel {
+impl WlOutputSubpixel {
     /// unknown geometry
     #[allow(dead_code)]
     pub const UNKNOWN: Self = Self(0);
@@ -1122,7 +1213,7 @@ impl MetaWlOutputSubpixel {
     pub const VERTICAL_BGR: Self = Self(5);
 }
 
-impl Debug for MetaWlOutputSubpixel {
+impl Debug for WlOutputSubpixel {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::UNKNOWN => "UNKNOWN",
@@ -1151,9 +1242,9 @@ impl Debug for MetaWlOutputSubpixel {
 /// surfaces.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWlOutputTransform(pub u32);
+pub struct WlOutputTransform(pub u32);
 
-impl MetaWlOutputTransform {
+impl WlOutputTransform {
     /// no transform
     #[allow(dead_code)]
     pub const NORMAL: Self = Self(0);
@@ -1187,7 +1278,7 @@ impl MetaWlOutputTransform {
     pub const FLIPPED_270: Self = Self(7);
 }
 
-impl Debug for MetaWlOutputTransform {
+impl Debug for WlOutputTransform {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::NORMAL => "NORMAL",
@@ -1211,15 +1302,15 @@ impl Debug for MetaWlOutputTransform {
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
 #[allow(dead_code)]
-pub struct MetaWlOutputMode(pub u32);
+pub struct WlOutputMode(pub u32);
 
-/// An iterator over the set bits in a [MetaWlOutputMode].
+/// An iterator over the set bits in a [WlOutputMode].
 ///
-/// You can construct this with the `IntoIterator` implementation of `MetaWlOutputMode`.
+/// You can construct this with the `IntoIterator` implementation of `WlOutputMode`.
 #[derive(Clone, Debug)]
-pub struct MetaWlOutputModeIter(pub u32);
+pub struct WlOutputModeIter(pub u32);
 
-impl MetaWlOutputMode {
+impl WlOutputMode {
     /// indicates this is the current mode
     #[allow(dead_code)]
     pub const CURRENT: Self = Self(0x1);
@@ -1230,7 +1321,7 @@ impl MetaWlOutputMode {
 }
 
 #[allow(dead_code)]
-impl MetaWlOutputMode {
+impl WlOutputMode {
     #[inline]
     pub const fn empty() -> Self {
         Self(0)
@@ -1315,8 +1406,8 @@ impl MetaWlOutputMode {
     }
 }
 
-impl Iterator for MetaWlOutputModeIter {
-    type Item = MetaWlOutputMode;
+impl Iterator for WlOutputModeIter {
+    type Item = WlOutputMode;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.0 == 0 {
@@ -1324,20 +1415,20 @@ impl Iterator for MetaWlOutputModeIter {
         }
         let bit = 1 << self.0.trailing_zeros();
         self.0 &= !bit;
-        Some(MetaWlOutputMode(bit))
+        Some(WlOutputMode(bit))
     }
 }
 
-impl IntoIterator for MetaWlOutputMode {
-    type Item = MetaWlOutputMode;
-    type IntoIter = MetaWlOutputModeIter;
+impl IntoIterator for WlOutputMode {
+    type Item = WlOutputMode;
+    type IntoIter = WlOutputModeIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        MetaWlOutputModeIter(self.0)
+        WlOutputModeIter(self.0)
     }
 }
 
-impl BitAnd for MetaWlOutputMode {
+impl BitAnd for WlOutputMode {
     type Output = Self;
 
     fn bitand(self, rhs: Self) -> Self::Output {
@@ -1345,13 +1436,13 @@ impl BitAnd for MetaWlOutputMode {
     }
 }
 
-impl BitAndAssign for MetaWlOutputMode {
+impl BitAndAssign for WlOutputMode {
     fn bitand_assign(&mut self, rhs: Self) {
         *self = self.intersection(rhs);
     }
 }
 
-impl BitOr for MetaWlOutputMode {
+impl BitOr for WlOutputMode {
     type Output = Self;
 
     fn bitor(self, rhs: Self) -> Self::Output {
@@ -1359,13 +1450,13 @@ impl BitOr for MetaWlOutputMode {
     }
 }
 
-impl BitOrAssign for MetaWlOutputMode {
+impl BitOrAssign for WlOutputMode {
     fn bitor_assign(&mut self, rhs: Self) {
         *self = self.union(rhs);
     }
 }
 
-impl BitXor for MetaWlOutputMode {
+impl BitXor for WlOutputMode {
     type Output = Self;
 
     fn bitxor(self, rhs: Self) -> Self::Output {
@@ -1373,13 +1464,13 @@ impl BitXor for MetaWlOutputMode {
     }
 }
 
-impl BitXorAssign for MetaWlOutputMode {
+impl BitXorAssign for WlOutputMode {
     fn bitxor_assign(&mut self, rhs: Self) {
         *self = self.symmetric_difference(rhs);
     }
 }
 
-impl Sub for MetaWlOutputMode {
+impl Sub for WlOutputMode {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -1387,13 +1478,13 @@ impl Sub for MetaWlOutputMode {
     }
 }
 
-impl SubAssign for MetaWlOutputMode {
+impl SubAssign for WlOutputMode {
     fn sub_assign(&mut self, rhs: Self) {
         *self = self.difference(rhs);
     }
 }
 
-impl Not for MetaWlOutputMode {
+impl Not for WlOutputMode {
     type Output = Self;
 
     fn not(self) -> Self::Output {
@@ -1401,7 +1492,7 @@ impl Not for MetaWlOutputMode {
     }
 }
 
-impl Debug for MetaWlOutputMode {
+impl Debug for WlOutputMode {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut v = self.0;
         let mut first = true;

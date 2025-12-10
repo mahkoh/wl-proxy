@@ -28,39 +28,35 @@ use super::super::all_types::*;
 /// A zwp_tablet_pad_group_v2 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwpTabletPadGroupV2 {
+pub struct ZwpTabletPadGroupV2 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwpTabletPadGroupV2MessageHandler>,
+    handler: HandlerHolder<dyn ZwpTabletPadGroupV2Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwpTabletPadGroupV2MessageHandler for DefaultMessageHandler { }
+impl ZwpTabletPadGroupV2Handler for DefaultHandler { }
 
-impl MetaZwpTabletPadGroupV2 {
+impl ZwpTabletPadGroupV2 {
     pub const XML_VERSION: u32 = 2;
 }
 
-impl MetaZwpTabletPadGroupV2 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwpTabletPadGroupV2, version),
-            handler: Default::default(),
-        })
+impl ZwpTabletPadGroupV2 {
+    pub fn set_handler(&self, handler: impl ZwpTabletPadGroupV2Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwpTabletPadGroupV2MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwpTabletPadGroupV2Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwpTabletPadGroupV2 {
+impl Debug for ZwpTabletPadGroupV2 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwpTabletPadGroupV2")
+        f.debug_struct("ZwpTabletPadGroupV2")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -68,7 +64,7 @@ impl Debug for MetaZwpTabletPadGroupV2 {
     }
 }
 
-impl MetaZwpTabletPadGroupV2 {
+impl ZwpTabletPadGroupV2 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -85,9 +81,14 @@ impl MetaZwpTabletPadGroupV2 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_tablet_pad_group_v2#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -138,9 +139,14 @@ impl MetaZwpTabletPadGroupV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_tablet_pad_group_v2#{}.buttons(buttons: {})\n", client.endpoint.id, id, debug_array(arg0));
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -167,7 +173,7 @@ impl MetaZwpTabletPadGroupV2 {
     #[inline]
     pub fn send_ring(
         &self,
-        ring: &Rc<MetaZwpTabletPadRingV2>,
+        ring: &Rc<ZwpTabletPadRingV2>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -185,9 +191,14 @@ impl MetaZwpTabletPadGroupV2 {
         arg0.generate_client_id(client, arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateClientId("ring", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_tablet_pad_group_v2#{}.ring(ring: zwp_tablet_pad_ring_v2#{})\n", client.endpoint.id, id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -214,7 +225,7 @@ impl MetaZwpTabletPadGroupV2 {
     #[inline]
     pub fn send_strip(
         &self,
-        strip: &Rc<MetaZwpTabletPadStripV2>,
+        strip: &Rc<ZwpTabletPadStripV2>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -232,9 +243,14 @@ impl MetaZwpTabletPadGroupV2 {
         arg0.generate_client_id(client, arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateClientId("strip", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_tablet_pad_group_v2#{}.strip(strip: zwp_tablet_pad_strip_v2#{})\n", client.endpoint.id, id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -285,9 +301,14 @@ impl MetaZwpTabletPadGroupV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_tablet_pad_group_v2#{}.modes(modes: {})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -320,9 +341,14 @@ impl MetaZwpTabletPadGroupV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_tablet_pad_group_v2#{}.done()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -395,9 +421,14 @@ impl MetaZwpTabletPadGroupV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_tablet_pad_group_v2#{}.mode_switch(time: {}, serial: {}, mode: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -426,7 +457,7 @@ impl MetaZwpTabletPadGroupV2 {
     #[inline]
     pub fn send_dial(
         &self,
-        dial: &Rc<MetaZwpTabletPadDialV2>,
+        dial: &Rc<ZwpTabletPadDialV2>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -444,9 +475,14 @@ impl MetaZwpTabletPadGroupV2 {
         arg0.generate_client_id(client, arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateClientId("dial", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_tablet_pad_group_v2#{}.dial(dial: zwp_tablet_pad_dial_v2#{})\n", client.endpoint.id, id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -462,7 +498,7 @@ impl MetaZwpTabletPadGroupV2 {
 
 /// A message handler for [ZwpTabletPadGroupV2] proxies.
 #[allow(dead_code)]
-pub trait MetaZwpTabletPadGroupV2MessageHandler {
+pub trait ZwpTabletPadGroupV2Handler: Any {
     /// destroy the pad object
     ///
     /// Destroy the zwp_tablet_pad_group_v2 object. Objects created from this object
@@ -470,7 +506,7 @@ pub trait MetaZwpTabletPadGroupV2MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwpTabletPadGroupV2>,
+        _slf: &Rc<ZwpTabletPadGroupV2>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -500,7 +536,7 @@ pub trait MetaZwpTabletPadGroupV2MessageHandler {
     #[inline]
     fn buttons(
         &mut self,
-        _slf: &Rc<MetaZwpTabletPadGroupV2>,
+        _slf: &Rc<ZwpTabletPadGroupV2>,
         buttons: &[u8],
     ) {
         let res = _slf.send_buttons(
@@ -525,8 +561,8 @@ pub trait MetaZwpTabletPadGroupV2MessageHandler {
     #[inline]
     fn ring(
         &mut self,
-        _slf: &Rc<MetaZwpTabletPadGroupV2>,
-        ring: &Rc<MetaZwpTabletPadRingV2>,
+        _slf: &Rc<ZwpTabletPadGroupV2>,
+        ring: &Rc<ZwpTabletPadRingV2>,
     ) {
         let res = _slf.send_ring(
             ring,
@@ -550,8 +586,8 @@ pub trait MetaZwpTabletPadGroupV2MessageHandler {
     #[inline]
     fn strip(
         &mut self,
-        _slf: &Rc<MetaZwpTabletPadGroupV2>,
-        strip: &Rc<MetaZwpTabletPadStripV2>,
+        _slf: &Rc<ZwpTabletPadGroupV2>,
+        strip: &Rc<ZwpTabletPadStripV2>,
     ) {
         let res = _slf.send_strip(
             strip,
@@ -582,7 +618,7 @@ pub trait MetaZwpTabletPadGroupV2MessageHandler {
     #[inline]
     fn modes(
         &mut self,
-        _slf: &Rc<MetaZwpTabletPadGroupV2>,
+        _slf: &Rc<ZwpTabletPadGroupV2>,
         modes: u32,
     ) {
         let res = _slf.send_modes(
@@ -602,7 +638,7 @@ pub trait MetaZwpTabletPadGroupV2MessageHandler {
     #[inline]
     fn done(
         &mut self,
-        _slf: &Rc<MetaZwpTabletPadGroupV2>,
+        _slf: &Rc<ZwpTabletPadGroupV2>,
     ) {
         let res = _slf.send_done(
         );
@@ -649,7 +685,7 @@ pub trait MetaZwpTabletPadGroupV2MessageHandler {
     #[inline]
     fn mode_switch(
         &mut self,
-        _slf: &Rc<MetaZwpTabletPadGroupV2>,
+        _slf: &Rc<ZwpTabletPadGroupV2>,
         time: u32,
         serial: u32,
         mode: u32,
@@ -678,8 +714,8 @@ pub trait MetaZwpTabletPadGroupV2MessageHandler {
     #[inline]
     fn dial(
         &mut self,
-        _slf: &Rc<MetaZwpTabletPadGroupV2>,
-        dial: &Rc<MetaZwpTabletPadDialV2>,
+        _slf: &Rc<ZwpTabletPadGroupV2>,
+        dial: &Rc<ZwpTabletPadDialV2>,
     ) {
         let res = _slf.send_dial(
             dial,
@@ -690,13 +726,12 @@ pub trait MetaZwpTabletPadGroupV2MessageHandler {
     }
 }
 
-impl Proxy for MetaZwpTabletPadGroupV2 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwpTabletPadGroupV2 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpTabletPadGroupV2, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -706,10 +741,15 @@ impl Proxy for MetaZwpTabletPadGroupV2 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_tablet_pad_group_v2#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -746,10 +786,15 @@ impl Proxy for MetaZwpTabletPadGroupV2 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_tablet_pad_group_v2#{}.buttons(buttons: {})\n", msg[0], debug_array(arg0));
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).buttons(&self, arg0);
                 } else {
-                    DefaultMessageHandler.buttons(&self, arg0);
+                    DefaultHandler.buttons(&self, arg0);
                 }
             }
             1 => {
@@ -758,15 +803,20 @@ impl Proxy for MetaZwpTabletPadGroupV2 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_tablet_pad_group_v2#{}.ring(ring: zwp_tablet_pad_ring_v2#{})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaZwpTabletPadRingV2::new(&self.core.state, self.core.version);
+                let arg0 = ZwpTabletPadRingV2::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "ring", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).ring(&self, arg0);
                 } else {
-                    DefaultMessageHandler.ring(&self, arg0);
+                    DefaultHandler.ring(&self, arg0);
                 }
             }
             2 => {
@@ -775,15 +825,20 @@ impl Proxy for MetaZwpTabletPadGroupV2 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_tablet_pad_group_v2#{}.strip(strip: zwp_tablet_pad_strip_v2#{})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaZwpTabletPadStripV2::new(&self.core.state, self.core.version);
+                let arg0 = ZwpTabletPadStripV2::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "strip", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).strip(&self, arg0);
                 } else {
-                    DefaultMessageHandler.strip(&self, arg0);
+                    DefaultHandler.strip(&self, arg0);
                 }
             }
             3 => {
@@ -792,20 +847,30 @@ impl Proxy for MetaZwpTabletPadGroupV2 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_tablet_pad_group_v2#{}.modes(modes: {})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).modes(&self, arg0);
                 } else {
-                    DefaultMessageHandler.modes(&self, arg0);
+                    DefaultHandler.modes(&self, arg0);
                 }
             }
             4 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_tablet_pad_group_v2#{}.done()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).done(&self);
                 } else {
-                    DefaultMessageHandler.done(&self);
+                    DefaultHandler.done(&self);
                 }
             }
             5 => {
@@ -816,10 +881,15 @@ impl Proxy for MetaZwpTabletPadGroupV2 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_tablet_pad_group_v2#{}.mode_switch(time: {}, serial: {}, mode: {})\n", msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).mode_switch(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.mode_switch(&self, arg0, arg1, arg2);
+                    DefaultHandler.mode_switch(&self, arg0, arg1, arg2);
                 }
             }
             6 => {
@@ -828,15 +898,20 @@ impl Proxy for MetaZwpTabletPadGroupV2 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_tablet_pad_group_v2#{}.dial(dial: zwp_tablet_pad_dial_v2#{})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaZwpTabletPadDialV2::new(&self.core.state, self.core.version);
+                let arg0 = ZwpTabletPadDialV2::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "dial", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).dial(&self, arg0);
                 } else {
-                    DefaultMessageHandler.dial(&self, arg0);
+                    DefaultHandler.dial(&self, arg0);
                 }
             }
             n => {
@@ -869,6 +944,32 @@ impl Proxy for MetaZwpTabletPadGroupV2 {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for ZwpTabletPadGroupV2 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

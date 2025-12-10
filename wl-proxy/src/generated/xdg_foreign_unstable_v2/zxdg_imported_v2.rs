@@ -10,39 +10,35 @@ use super::super::all_types::*;
 /// A zxdg_imported_v2 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZxdgImportedV2 {
+pub struct ZxdgImportedV2 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZxdgImportedV2MessageHandler>,
+    handler: HandlerHolder<dyn ZxdgImportedV2Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZxdgImportedV2MessageHandler for DefaultMessageHandler { }
+impl ZxdgImportedV2Handler for DefaultHandler { }
 
-impl MetaZxdgImportedV2 {
+impl ZxdgImportedV2 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZxdgImportedV2 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZxdgImportedV2, version),
-            handler: Default::default(),
-        })
+impl ZxdgImportedV2 {
+    pub fn set_handler(&self, handler: impl ZxdgImportedV2Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZxdgImportedV2MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZxdgImportedV2Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZxdgImportedV2 {
+impl Debug for ZxdgImportedV2 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZxdgImportedV2")
+        f.debug_struct("ZxdgImportedV2")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -50,7 +46,7 @@ impl Debug for MetaZxdgImportedV2 {
     }
 }
 
-impl MetaZxdgImportedV2 {
+impl ZxdgImportedV2 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -68,9 +64,14 @@ impl MetaZxdgImportedV2 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zxdg_imported_v2#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -101,7 +102,7 @@ impl MetaZxdgImportedV2 {
     #[inline]
     pub fn send_set_parent_of(
         &self,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -117,9 +118,14 @@ impl MetaZxdgImportedV2 {
             None => return Err(ObjectError::ArgNoServerId("surface")),
             Some(id) => id,
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zxdg_imported_v2#{}.set_parent_of(surface: wl_surface#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -152,9 +158,14 @@ impl MetaZxdgImportedV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zxdg_imported_v2#{}.destroyed()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -169,7 +180,7 @@ impl MetaZxdgImportedV2 {
 
 /// A message handler for [ZxdgImportedV2] proxies.
 #[allow(dead_code)]
-pub trait MetaZxdgImportedV2MessageHandler {
+pub trait ZxdgImportedV2Handler: Any {
     /// destroy the xdg_imported object
     ///
     /// Notify the compositor that it will no longer use the xdg_imported
@@ -178,7 +189,7 @@ pub trait MetaZxdgImportedV2MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZxdgImportedV2>,
+        _slf: &Rc<ZxdgImportedV2>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -204,8 +215,8 @@ pub trait MetaZxdgImportedV2MessageHandler {
     #[inline]
     fn set_parent_of(
         &mut self,
-        _slf: &Rc<MetaZxdgImportedV2>,
-        surface: &Rc<MetaWlSurface>,
+        _slf: &Rc<ZxdgImportedV2>,
+        surface: &Rc<WlSurface>,
     ) {
         let res = _slf.send_set_parent_of(
             surface,
@@ -224,7 +235,7 @@ pub trait MetaZxdgImportedV2MessageHandler {
     #[inline]
     fn destroyed(
         &mut self,
-        _slf: &Rc<MetaZxdgImportedV2>,
+        _slf: &Rc<ZxdgImportedV2>,
     ) {
         let res = _slf.send_destroyed(
         );
@@ -234,13 +245,12 @@ pub trait MetaZxdgImportedV2MessageHandler {
     }
 }
 
-impl Proxy for MetaZxdgImportedV2 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZxdgImportedV2 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZxdgImportedV2, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -250,10 +260,15 @@ impl Proxy for MetaZxdgImportedV2 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zxdg_imported_v2#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -263,11 +278,16 @@ impl Proxy for MetaZxdgImportedV2 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zxdg_imported_v2#{}.set_parent_of(surface: wl_surface#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -275,7 +295,7 @@ impl Proxy for MetaZxdgImportedV2 {
                 if let Some(handler) = handler {
                     (**handler).set_parent_of(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_parent_of(&self, arg0);
+                    DefaultHandler.set_parent_of(&self, arg0);
                 }
             }
             n => {
@@ -296,10 +316,15 @@ impl Proxy for MetaZxdgImportedV2 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zxdg_imported_v2#{}.destroyed()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroyed(&self);
                 } else {
-                    DefaultMessageHandler.destroyed(&self);
+                    DefaultHandler.destroyed(&self);
                 }
             }
             n => {
@@ -330,7 +355,33 @@ impl Proxy for MetaZxdgImportedV2 {
     }
 }
 
-impl MetaZxdgImportedV2 {
+impl Proxy for ZxdgImportedV2 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl ZxdgImportedV2 {
     /// Since when the error.invalid_surface enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_SURFACE__SINCE: u32 = 1;
@@ -342,15 +393,15 @@ impl MetaZxdgImportedV2 {
 /// requests.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZxdgImportedV2Error(pub u32);
+pub struct ZxdgImportedV2Error(pub u32);
 
-impl MetaZxdgImportedV2Error {
+impl ZxdgImportedV2Error {
     /// surface is not an xdg_toplevel
     #[allow(dead_code)]
     pub const INVALID_SURFACE: Self = Self(0);
 }
 
-impl Debug for MetaZxdgImportedV2Error {
+impl Debug for ZxdgImportedV2Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INVALID_SURFACE => "INVALID_SURFACE",

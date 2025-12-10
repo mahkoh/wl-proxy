@@ -27,39 +27,35 @@ use super::super::all_types::*;
 /// A wl_registry proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWlRegistry {
+pub struct WlRegistry {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWlRegistryMessageHandler>,
+    handler: HandlerHolder<dyn WlRegistryHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWlRegistryMessageHandler for DefaultMessageHandler { }
+impl WlRegistryHandler for DefaultHandler { }
 
-impl MetaWlRegistry {
+impl WlRegistry {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWlRegistry {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WlRegistry, version),
-            handler: Default::default(),
-        })
+impl WlRegistry {
+    pub fn set_handler(&self, handler: impl WlRegistryHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWlRegistryMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WlRegistryHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWlRegistry {
+impl Debug for WlRegistry {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWlRegistry")
+        f.debug_struct("WlRegistry")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -67,7 +63,7 @@ impl Debug for MetaWlRegistry {
     }
 }
 
-impl MetaWlRegistry {
+impl WlRegistry {
     /// Since when the bind message is available.
     #[allow(dead_code)]
     pub const MSG__BIND__SINCE: u32 = 1;
@@ -103,9 +99,14 @@ impl MetaWlRegistry {
         arg1.generate_server_id(arg1_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg1_id = arg1.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_registry#{}.bind(name: {}, id: {}#{} (version: {}))\n", id, arg0, arg1.interface.name(), arg1_id, arg1.version);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -162,9 +163,14 @@ impl MetaWlRegistry {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_registry#{}.global(name: {}, interface: {:?}, version: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -217,9 +223,14 @@ impl MetaWlRegistry {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_registry#{}.global_remove(name: {})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -235,7 +246,7 @@ impl MetaWlRegistry {
 
 /// A message handler for [WlRegistry] proxies.
 #[allow(dead_code)]
-pub trait MetaWlRegistryMessageHandler {
+pub trait WlRegistryHandler: Any {
     /// bind an object to the display
     ///
     /// Binds a new, client-created object to the server using the
@@ -248,7 +259,7 @@ pub trait MetaWlRegistryMessageHandler {
     #[inline]
     fn bind(
         &mut self,
-        _slf: &Rc<MetaWlRegistry>,
+        _slf: &Rc<WlRegistry>,
         name: u32,
         id: Rc<dyn Proxy>,
     ) {
@@ -277,7 +288,7 @@ pub trait MetaWlRegistryMessageHandler {
     #[inline]
     fn global(
         &mut self,
-        _slf: &Rc<MetaWlRegistry>,
+        _slf: &Rc<WlRegistry>,
         name: u32,
         interface: &str,
         version: u32,
@@ -311,7 +322,7 @@ pub trait MetaWlRegistryMessageHandler {
     #[inline]
     fn global_remove(
         &mut self,
-        _slf: &Rc<MetaWlRegistry>,
+        _slf: &Rc<WlRegistry>,
         name: u32,
     ) {
         let res = _slf.send_global_remove(
@@ -323,13 +334,12 @@ pub trait MetaWlRegistryMessageHandler {
     }
 }
 
-impl Proxy for MetaWlRegistry {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WlRegistry {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlRegistry, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -374,6 +384,11 @@ impl Proxy for MetaWlRegistry {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_registry#{}.bind(name: {}, id: {}#{} (version: {}))\n", client.endpoint.id, msg[0], arg0, arg1_interface, arg1, arg1_version);
+                    self.core.state.log(args);
+                }
                 let arg1_id = arg1;
                 let arg1 = create_proxy_for_interface(&self.core.state, arg1_interface, arg1_version)?;
                 arg1.core().set_client_id(client, arg1_id, arg1.clone())
@@ -381,7 +396,7 @@ impl Proxy for MetaWlRegistry {
                 if let Some(handler) = handler {
                     (**handler).bind(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.bind(&self, arg0, arg1);
+                    DefaultHandler.bind(&self, arg0, arg1);
                 }
             }
             n => {
@@ -433,6 +448,11 @@ impl Proxy for MetaWlRegistry {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_registry#{}.global(name: {}, interface: {:?}, version: {})\n", msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 let arg2 = match proxy_interface(arg1) {
                     Some(i) => i.xml_version().min(arg2),
                     _ => return Ok(()),
@@ -440,7 +460,7 @@ impl Proxy for MetaWlRegistry {
                 if let Some(handler) = handler {
                     (**handler).global(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.global(&self, arg0, arg1, arg2);
+                    DefaultHandler.global(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
@@ -449,10 +469,15 @@ impl Proxy for MetaWlRegistry {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_registry#{}.global_remove(name: {})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).global_remove(&self, arg0);
                 } else {
-                    DefaultMessageHandler.global_remove(&self, arg0);
+                    DefaultHandler.global_remove(&self, arg0);
                 }
             }
             n => {
@@ -480,6 +505,32 @@ impl Proxy for MetaWlRegistry {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for WlRegistry {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

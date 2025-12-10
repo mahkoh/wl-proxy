@@ -14,39 +14,35 @@ use super::super::all_types::*;
 /// A wp_content_type_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpContentTypeV1 {
+pub struct WpContentTypeV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpContentTypeV1MessageHandler>,
+    handler: HandlerHolder<dyn WpContentTypeV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpContentTypeV1MessageHandler for DefaultMessageHandler { }
+impl WpContentTypeV1Handler for DefaultHandler { }
 
-impl MetaWpContentTypeV1 {
+impl WpContentTypeV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWpContentTypeV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpContentTypeV1, version),
-            handler: Default::default(),
-        })
+impl WpContentTypeV1 {
+    pub fn set_handler(&self, handler: impl WpContentTypeV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpContentTypeV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpContentTypeV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpContentTypeV1 {
+impl Debug for WpContentTypeV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpContentTypeV1")
+        f.debug_struct("WpContentTypeV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -54,7 +50,7 @@ impl Debug for MetaWpContentTypeV1 {
     }
 }
 
-impl MetaWpContentTypeV1 {
+impl WpContentTypeV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -72,9 +68,14 @@ impl MetaWpContentTypeV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_content_type_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -108,7 +109,7 @@ impl MetaWpContentTypeV1 {
     #[inline]
     pub fn send_set_content_type(
         &self,
-        content_type: MetaWpContentTypeV1Type,
+        content_type: WpContentTypeV1Type,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -119,9 +120,14 @@ impl MetaWpContentTypeV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_content_type_v1#{}.set_content_type(content_type: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -137,7 +143,7 @@ impl MetaWpContentTypeV1 {
 
 /// A message handler for [WpContentTypeV1] proxies.
 #[allow(dead_code)]
-pub trait MetaWpContentTypeV1MessageHandler {
+pub trait WpContentTypeV1Handler: Any {
     /// destroy the content type object
     ///
     /// Switch back to not specifying the content type of this surface. This is
@@ -146,7 +152,7 @@ pub trait MetaWpContentTypeV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWpContentTypeV1>,
+        _slf: &Rc<WpContentTypeV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -172,8 +178,8 @@ pub trait MetaWpContentTypeV1MessageHandler {
     #[inline]
     fn set_content_type(
         &mut self,
-        _slf: &Rc<MetaWpContentTypeV1>,
-        content_type: MetaWpContentTypeV1Type,
+        _slf: &Rc<WpContentTypeV1>,
+        content_type: WpContentTypeV1Type,
     ) {
         let res = _slf.send_set_content_type(
             content_type,
@@ -184,13 +190,12 @@ pub trait MetaWpContentTypeV1MessageHandler {
     }
 }
 
-impl Proxy for MetaWpContentTypeV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpContentTypeV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpContentTypeV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -200,10 +205,15 @@ impl Proxy for MetaWpContentTypeV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_content_type_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -213,11 +223,16 @@ impl Proxy for MetaWpContentTypeV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaWpContentTypeV1Type(arg0);
+                let arg0 = WpContentTypeV1Type(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_content_type_v1#{}.set_content_type(content_type: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_content_type(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_content_type(&self, arg0);
+                    DefaultHandler.set_content_type(&self, arg0);
                 }
             }
             n => {
@@ -258,7 +273,33 @@ impl Proxy for MetaWpContentTypeV1 {
     }
 }
 
-impl MetaWpContentTypeV1 {
+impl Proxy for WpContentTypeV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WpContentTypeV1 {
     /// Since when the type.none enum variant is available.
     #[allow(dead_code)]
     pub const ENM__TYPE_NONE__SINCE: u32 = 1;
@@ -278,9 +319,9 @@ impl MetaWpContentTypeV1 {
 /// These values describe the available content types for a surface.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpContentTypeV1Type(pub u32);
+pub struct WpContentTypeV1Type(pub u32);
 
-impl MetaWpContentTypeV1Type {
+impl WpContentTypeV1Type {
     /// no content type applies
     ///
     /// The content type none means that either the application has no data
@@ -312,7 +353,7 @@ impl MetaWpContentTypeV1Type {
     pub const GAME: Self = Self(3);
 }
 
-impl Debug for MetaWpContentTypeV1Type {
+impl Debug for WpContentTypeV1Type {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::NONE => "NONE",

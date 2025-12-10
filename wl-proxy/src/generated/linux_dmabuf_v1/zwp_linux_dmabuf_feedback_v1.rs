@@ -32,39 +32,35 @@ use super::super::all_types::*;
 /// A zwp_linux_dmabuf_feedback_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwpLinuxDmabufFeedbackV1 {
+pub struct ZwpLinuxDmabufFeedbackV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwpLinuxDmabufFeedbackV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwpLinuxDmabufFeedbackV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwpLinuxDmabufFeedbackV1MessageHandler for DefaultMessageHandler { }
+impl ZwpLinuxDmabufFeedbackV1Handler for DefaultHandler { }
 
-impl MetaZwpLinuxDmabufFeedbackV1 {
+impl ZwpLinuxDmabufFeedbackV1 {
     pub const XML_VERSION: u32 = 5;
 }
 
-impl MetaZwpLinuxDmabufFeedbackV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwpLinuxDmabufFeedbackV1, version),
-            handler: Default::default(),
-        })
+impl ZwpLinuxDmabufFeedbackV1 {
+    pub fn set_handler(&self, handler: impl ZwpLinuxDmabufFeedbackV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwpLinuxDmabufFeedbackV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwpLinuxDmabufFeedbackV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwpLinuxDmabufFeedbackV1 {
+impl Debug for ZwpLinuxDmabufFeedbackV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwpLinuxDmabufFeedbackV1")
+        f.debug_struct("ZwpLinuxDmabufFeedbackV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -72,7 +68,7 @@ impl Debug for MetaZwpLinuxDmabufFeedbackV1 {
     }
 }
 
-impl MetaZwpLinuxDmabufFeedbackV1 {
+impl ZwpLinuxDmabufFeedbackV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -89,9 +85,14 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_linux_dmabuf_feedback_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -125,9 +126,14 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.done()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -183,9 +189,14 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.format_table(fd: {}, size: {})\n", client.endpoint.id, id, arg0.as_raw_fd(), arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -248,9 +259,14 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.main_device(device: {})\n", client.endpoint.id, id, debug_array(arg0));
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -283,9 +299,14 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.tranche_done()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -349,9 +370,14 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.tranche_target_device(device: {})\n", client.endpoint.id, id, debug_array(arg0));
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -414,9 +440,14 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.tranche_formats(indices: {})\n", client.endpoint.id, id, debug_array(arg0));
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -450,7 +481,7 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
     #[inline]
     pub fn send_tranche_flags(
         &self,
-        flags: MetaZwpLinuxDmabufFeedbackV1TrancheFlags,
+        flags: ZwpLinuxDmabufFeedbackV1TrancheFlags,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -463,9 +494,14 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.tranche_flags(flags: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -481,7 +517,7 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
 
 /// A message handler for [ZwpLinuxDmabufFeedbackV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwpLinuxDmabufFeedbackV1MessageHandler {
+pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
     /// destroy the feedback object
     ///
     /// Using this request a client can tell the server that it is not going to
@@ -489,7 +525,7 @@ pub trait MetaZwpLinuxDmabufFeedbackV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxDmabufFeedbackV1>,
+        _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -508,7 +544,7 @@ pub trait MetaZwpLinuxDmabufFeedbackV1MessageHandler {
     #[inline]
     fn done(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxDmabufFeedbackV1>,
+        _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
     ) {
         let res = _slf.send_done(
         );
@@ -541,7 +577,7 @@ pub trait MetaZwpLinuxDmabufFeedbackV1MessageHandler {
     #[inline]
     fn format_table(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxDmabufFeedbackV1>,
+        _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
         fd: &Rc<OwnedFd>,
         size: u32,
     ) {
@@ -586,7 +622,7 @@ pub trait MetaZwpLinuxDmabufFeedbackV1MessageHandler {
     #[inline]
     fn main_device(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxDmabufFeedbackV1>,
+        _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
         device: &[u8],
     ) {
         let res = _slf.send_main_device(
@@ -606,7 +642,7 @@ pub trait MetaZwpLinuxDmabufFeedbackV1MessageHandler {
     #[inline]
     fn tranche_done(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxDmabufFeedbackV1>,
+        _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
     ) {
         let res = _slf.send_tranche_done(
         );
@@ -650,7 +686,7 @@ pub trait MetaZwpLinuxDmabufFeedbackV1MessageHandler {
     #[inline]
     fn tranche_target_device(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxDmabufFeedbackV1>,
+        _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
         device: &[u8],
     ) {
         let res = _slf.send_tranche_target_device(
@@ -694,7 +730,7 @@ pub trait MetaZwpLinuxDmabufFeedbackV1MessageHandler {
     #[inline]
     fn tranche_formats(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxDmabufFeedbackV1>,
+        _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
         indices: &[u8],
     ) {
         let res = _slf.send_tranche_formats(
@@ -722,8 +758,8 @@ pub trait MetaZwpLinuxDmabufFeedbackV1MessageHandler {
     #[inline]
     fn tranche_flags(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxDmabufFeedbackV1>,
-        flags: MetaZwpLinuxDmabufFeedbackV1TrancheFlags,
+        _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
+        flags: ZwpLinuxDmabufFeedbackV1TrancheFlags,
     ) {
         let res = _slf.send_tranche_flags(
             flags,
@@ -734,13 +770,12 @@ pub trait MetaZwpLinuxDmabufFeedbackV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwpLinuxDmabufFeedbackV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpLinuxDmabufFeedbackV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -750,10 +785,15 @@ impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_linux_dmabuf_feedback_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -775,10 +815,15 @@ impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_dmabuf_feedback_v1#{}.done()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).done(&self);
                 } else {
-                    DefaultMessageHandler.done(&self);
+                    DefaultHandler.done(&self);
                 }
             }
             1 => {
@@ -791,10 +836,15 @@ impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
                     return Err(ObjectError::MissingFd("fd"));
                 };
                 let arg0 = &arg0;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_dmabuf_feedback_v1#{}.format_table(fd: {}, size: {})\n", msg[0], arg0.as_raw_fd(), arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).format_table(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.format_table(&self, arg0, arg1);
+                    DefaultHandler.format_table(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -816,20 +866,30 @@ impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_dmabuf_feedback_v1#{}.main_device(device: {})\n", msg[0], debug_array(arg0));
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).main_device(&self, arg0);
                 } else {
-                    DefaultMessageHandler.main_device(&self, arg0);
+                    DefaultHandler.main_device(&self, arg0);
                 }
             }
             3 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_dmabuf_feedback_v1#{}.tranche_done()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).tranche_done(&self);
                 } else {
-                    DefaultMessageHandler.tranche_done(&self);
+                    DefaultHandler.tranche_done(&self);
                 }
             }
             4 => {
@@ -851,10 +911,15 @@ impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_dmabuf_feedback_v1#{}.tranche_target_device(device: {})\n", msg[0], debug_array(arg0));
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).tranche_target_device(&self, arg0);
                 } else {
-                    DefaultMessageHandler.tranche_target_device(&self, arg0);
+                    DefaultHandler.tranche_target_device(&self, arg0);
                 }
             }
             5 => {
@@ -876,10 +941,15 @@ impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_dmabuf_feedback_v1#{}.tranche_formats(indices: {})\n", msg[0], debug_array(arg0));
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).tranche_formats(&self, arg0);
                 } else {
-                    DefaultMessageHandler.tranche_formats(&self, arg0);
+                    DefaultHandler.tranche_formats(&self, arg0);
                 }
             }
             6 => {
@@ -888,11 +958,16 @@ impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaZwpLinuxDmabufFeedbackV1TrancheFlags(arg0);
+                let arg0 = ZwpLinuxDmabufFeedbackV1TrancheFlags(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_dmabuf_feedback_v1#{}.tranche_flags(flags: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).tranche_flags(&self, arg0);
                 } else {
-                    DefaultMessageHandler.tranche_flags(&self, arg0);
+                    DefaultHandler.tranche_flags(&self, arg0);
                 }
             }
             n => {
@@ -928,7 +1003,33 @@ impl Proxy for MetaZwpLinuxDmabufFeedbackV1 {
     }
 }
 
-impl MetaZwpLinuxDmabufFeedbackV1 {
+impl Proxy for ZwpLinuxDmabufFeedbackV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl ZwpLinuxDmabufFeedbackV1 {
     /// Since when the tranche_flags.scanout enum variant is available.
     #[allow(dead_code)]
     pub const ENM__TRANCHE_FLAGS_SCANOUT__SINCE: u32 = 1;
@@ -937,22 +1038,22 @@ impl MetaZwpLinuxDmabufFeedbackV1 {
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
 #[allow(dead_code)]
-pub struct MetaZwpLinuxDmabufFeedbackV1TrancheFlags(pub u32);
+pub struct ZwpLinuxDmabufFeedbackV1TrancheFlags(pub u32);
 
-/// An iterator over the set bits in a [MetaZwpLinuxDmabufFeedbackV1TrancheFlags].
+/// An iterator over the set bits in a [ZwpLinuxDmabufFeedbackV1TrancheFlags].
 ///
-/// You can construct this with the `IntoIterator` implementation of `MetaZwpLinuxDmabufFeedbackV1TrancheFlags`.
+/// You can construct this with the `IntoIterator` implementation of `ZwpLinuxDmabufFeedbackV1TrancheFlags`.
 #[derive(Clone, Debug)]
-pub struct MetaZwpLinuxDmabufFeedbackV1TrancheFlagsIter(pub u32);
+pub struct ZwpLinuxDmabufFeedbackV1TrancheFlagsIter(pub u32);
 
-impl MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
+impl ZwpLinuxDmabufFeedbackV1TrancheFlags {
     /// direct scan-out tranche
     #[allow(dead_code)]
     pub const SCANOUT: Self = Self(1);
 }
 
 #[allow(dead_code)]
-impl MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
+impl ZwpLinuxDmabufFeedbackV1TrancheFlags {
     #[inline]
     pub const fn empty() -> Self {
         Self(0)
@@ -1037,8 +1138,8 @@ impl MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
     }
 }
 
-impl Iterator for MetaZwpLinuxDmabufFeedbackV1TrancheFlagsIter {
-    type Item = MetaZwpLinuxDmabufFeedbackV1TrancheFlags;
+impl Iterator for ZwpLinuxDmabufFeedbackV1TrancheFlagsIter {
+    type Item = ZwpLinuxDmabufFeedbackV1TrancheFlags;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.0 == 0 {
@@ -1046,20 +1147,20 @@ impl Iterator for MetaZwpLinuxDmabufFeedbackV1TrancheFlagsIter {
         }
         let bit = 1 << self.0.trailing_zeros();
         self.0 &= !bit;
-        Some(MetaZwpLinuxDmabufFeedbackV1TrancheFlags(bit))
+        Some(ZwpLinuxDmabufFeedbackV1TrancheFlags(bit))
     }
 }
 
-impl IntoIterator for MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
-    type Item = MetaZwpLinuxDmabufFeedbackV1TrancheFlags;
-    type IntoIter = MetaZwpLinuxDmabufFeedbackV1TrancheFlagsIter;
+impl IntoIterator for ZwpLinuxDmabufFeedbackV1TrancheFlags {
+    type Item = ZwpLinuxDmabufFeedbackV1TrancheFlags;
+    type IntoIter = ZwpLinuxDmabufFeedbackV1TrancheFlagsIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        MetaZwpLinuxDmabufFeedbackV1TrancheFlagsIter(self.0)
+        ZwpLinuxDmabufFeedbackV1TrancheFlagsIter(self.0)
     }
 }
 
-impl BitAnd for MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
+impl BitAnd for ZwpLinuxDmabufFeedbackV1TrancheFlags {
     type Output = Self;
 
     fn bitand(self, rhs: Self) -> Self::Output {
@@ -1067,13 +1168,13 @@ impl BitAnd for MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
     }
 }
 
-impl BitAndAssign for MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
+impl BitAndAssign for ZwpLinuxDmabufFeedbackV1TrancheFlags {
     fn bitand_assign(&mut self, rhs: Self) {
         *self = self.intersection(rhs);
     }
 }
 
-impl BitOr for MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
+impl BitOr for ZwpLinuxDmabufFeedbackV1TrancheFlags {
     type Output = Self;
 
     fn bitor(self, rhs: Self) -> Self::Output {
@@ -1081,13 +1182,13 @@ impl BitOr for MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
     }
 }
 
-impl BitOrAssign for MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
+impl BitOrAssign for ZwpLinuxDmabufFeedbackV1TrancheFlags {
     fn bitor_assign(&mut self, rhs: Self) {
         *self = self.union(rhs);
     }
 }
 
-impl BitXor for MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
+impl BitXor for ZwpLinuxDmabufFeedbackV1TrancheFlags {
     type Output = Self;
 
     fn bitxor(self, rhs: Self) -> Self::Output {
@@ -1095,13 +1196,13 @@ impl BitXor for MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
     }
 }
 
-impl BitXorAssign for MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
+impl BitXorAssign for ZwpLinuxDmabufFeedbackV1TrancheFlags {
     fn bitxor_assign(&mut self, rhs: Self) {
         *self = self.symmetric_difference(rhs);
     }
 }
 
-impl Sub for MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
+impl Sub for ZwpLinuxDmabufFeedbackV1TrancheFlags {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -1109,13 +1210,13 @@ impl Sub for MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
     }
 }
 
-impl SubAssign for MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
+impl SubAssign for ZwpLinuxDmabufFeedbackV1TrancheFlags {
     fn sub_assign(&mut self, rhs: Self) {
         *self = self.difference(rhs);
     }
 }
 
-impl Not for MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
+impl Not for ZwpLinuxDmabufFeedbackV1TrancheFlags {
     type Output = Self;
 
     fn not(self) -> Self::Output {
@@ -1123,7 +1224,7 @@ impl Not for MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
     }
 }
 
-impl Debug for MetaZwpLinuxDmabufFeedbackV1TrancheFlags {
+impl Debug for ZwpLinuxDmabufFeedbackV1TrancheFlags {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut v = self.0;
         let mut first = true;

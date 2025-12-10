@@ -9,39 +9,35 @@ use super::super::all_types::*;
 /// A wp_fifo_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpFifoV1 {
+pub struct WpFifoV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpFifoV1MessageHandler>,
+    handler: HandlerHolder<dyn WpFifoV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpFifoV1MessageHandler for DefaultMessageHandler { }
+impl WpFifoV1Handler for DefaultHandler { }
 
-impl MetaWpFifoV1 {
+impl WpFifoV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWpFifoV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpFifoV1, version),
-            handler: Default::default(),
-        })
+impl WpFifoV1 {
+    pub fn set_handler(&self, handler: impl WpFifoV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpFifoV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpFifoV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpFifoV1 {
+impl Debug for WpFifoV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpFifoV1")
+        f.debug_struct("WpFifoV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -49,7 +45,7 @@ impl Debug for MetaWpFifoV1 {
     }
 }
 
-impl MetaWpFifoV1 {
+impl WpFifoV1 {
     /// Since when the set_barrier message is available.
     #[allow(dead_code)]
     pub const MSG__SET_BARRIER__SINCE: u32 = 1;
@@ -78,9 +74,14 @@ impl MetaWpFifoV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_fifo_v1#{}.set_barrier()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -126,9 +127,14 @@ impl MetaWpFifoV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_fifo_v1#{}.wait_barrier()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -159,9 +165,14 @@ impl MetaWpFifoV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_fifo_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -177,7 +188,7 @@ impl MetaWpFifoV1 {
 
 /// A message handler for [WpFifoV1] proxies.
 #[allow(dead_code)]
-pub trait MetaWpFifoV1MessageHandler {
+pub trait WpFifoV1Handler: Any {
     /// sets the start point for a fifo constraint
     ///
     /// When the content update containing the "set_barrier" is applied,
@@ -197,7 +208,7 @@ pub trait MetaWpFifoV1MessageHandler {
     #[inline]
     fn set_barrier(
         &mut self,
-        _slf: &Rc<MetaWpFifoV1>,
+        _slf: &Rc<WpFifoV1>,
     ) {
         let res = _slf.send_set_barrier(
         );
@@ -231,7 +242,7 @@ pub trait MetaWpFifoV1MessageHandler {
     #[inline]
     fn wait_barrier(
         &mut self,
-        _slf: &Rc<MetaWpFifoV1>,
+        _slf: &Rc<WpFifoV1>,
     ) {
         let res = _slf.send_wait_barrier(
         );
@@ -250,7 +261,7 @@ pub trait MetaWpFifoV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWpFifoV1>,
+        _slf: &Rc<WpFifoV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -260,13 +271,12 @@ pub trait MetaWpFifoV1MessageHandler {
     }
 }
 
-impl Proxy for MetaWpFifoV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpFifoV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpFifoV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -276,30 +286,45 @@ impl Proxy for MetaWpFifoV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_fifo_v1#{}.set_barrier()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_barrier(&self);
                 } else {
-                    DefaultMessageHandler.set_barrier(&self);
+                    DefaultHandler.set_barrier(&self);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_fifo_v1#{}.wait_barrier()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).wait_barrier(&self);
                 } else {
-                    DefaultMessageHandler.wait_barrier(&self);
+                    DefaultHandler.wait_barrier(&self);
                 }
             }
             2 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_fifo_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -342,7 +367,33 @@ impl Proxy for MetaWpFifoV1 {
     }
 }
 
-impl MetaWpFifoV1 {
+impl Proxy for WpFifoV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WpFifoV1 {
     /// Since when the error.surface_destroyed enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_SURFACE_DESTROYED__SINCE: u32 = 1;
@@ -354,15 +405,15 @@ impl MetaWpFifoV1 {
 /// illegal requests.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpFifoV1Error(pub u32);
+pub struct WpFifoV1Error(pub u32);
 
-impl MetaWpFifoV1Error {
+impl WpFifoV1Error {
     /// the associated surface no longer exists
     #[allow(dead_code)]
     pub const SURFACE_DESTROYED: Self = Self(0);
 }
 
-impl Debug for MetaWpFifoV1Error {
+impl Debug for WpFifoV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::SURFACE_DESTROYED => "SURFACE_DESTROYED",

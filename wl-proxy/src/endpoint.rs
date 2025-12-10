@@ -5,6 +5,7 @@ use {
         generated::ProxyInterface,
         object_error::ObjectError,
         proxy::Proxy,
+        state::HandlerLock,
         trans::{self, FlushResult, InputBuffer, OutputSwapchain, TransError},
     },
     std::{
@@ -23,7 +24,7 @@ pub struct Endpoint {
     pub id: u64,
     pub socket: Rc<OwnedFd>,
     pub outgoing: RefCell<OutputSwapchain>,
-    pub has_outgoing: Cell<bool>,
+    pub flush_queued: Cell<bool>,
     pub objects: RefCell<HashMap<u32, Rc<dyn Proxy>>>,
     pub idl: FreeList<u32, 3>,
     pub current_interest: Cell<c::c_int>,
@@ -88,12 +89,12 @@ impl Error for MessageError {
 }
 
 impl Endpoint {
-    pub fn new(id: u64, socket: OwnedFd) -> Rc<Self> {
+    pub(crate) fn new(id: u64, socket: OwnedFd) -> Rc<Self> {
         Rc::new(Endpoint {
             id,
             socket: Rc::new(socket),
             outgoing: Default::default(),
-            has_outgoing: Default::default(),
+            flush_queued: Default::default(),
             objects: Default::default(),
             idl: Default::default(),
             current_interest: Default::default(),
@@ -103,18 +104,22 @@ impl Endpoint {
         })
     }
 
-    pub fn lookup(&self, id: u32) -> Option<Rc<dyn Proxy>> {
+    pub(crate) fn lookup(&self, id: u32) -> Option<Rc<dyn Proxy>> {
         self.objects.borrow().get(&id).cloned()
     }
 
-    pub fn flush(&self) -> Result<FlushResult, EndpointError> {
+    pub(crate) fn flush(&self) -> Result<FlushResult, EndpointError> {
         self.outgoing
             .borrow_mut()
             .flush(self.socket.as_raw_fd())
             .map_err(EndpointError::Flush)
     }
 
-    pub fn dispatch(&self, client: Option<&Rc<Client>>) -> Result<(), EndpointError> {
+    pub(crate) fn read_messages(
+        &self,
+        _lock: &HandlerLock<'_>,
+        client: Option<&Rc<Client>>,
+    ) -> Result<(), EndpointError> {
         let incoming = &mut *self.incoming.borrow_mut();
         let buffer = &mut *incoming.buffer;
         let fds = &mut incoming.fds;

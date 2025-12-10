@@ -61,39 +61,35 @@ use super::super::all_types::*;
 /// A wp_viewport proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpViewport {
+pub struct WpViewport {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpViewportMessageHandler>,
+    handler: HandlerHolder<dyn WpViewportHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpViewportMessageHandler for DefaultMessageHandler { }
+impl WpViewportHandler for DefaultHandler { }
 
-impl MetaWpViewport {
+impl WpViewport {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWpViewport {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpViewport, version),
-            handler: Default::default(),
-        })
+impl WpViewport {
+    pub fn set_handler(&self, handler: impl WpViewportHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpViewportMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpViewportHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpViewport {
+impl Debug for WpViewport {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpViewport")
+        f.debug_struct("WpViewport")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -101,7 +97,7 @@ impl Debug for MetaWpViewport {
     }
 }
 
-impl MetaWpViewport {
+impl WpViewport {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -118,9 +114,14 @@ impl MetaWpViewport {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_viewport#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -179,9 +180,14 @@ impl MetaWpViewport {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_viewport#{}.set_source(x: {}, y: {}, width: {}, height: {})\n", id, arg0, arg1, arg2, arg3);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -235,9 +241,14 @@ impl MetaWpViewport {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_viewport#{}.set_destination(width: {}, height: {})\n", id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -254,7 +265,7 @@ impl MetaWpViewport {
 
 /// A message handler for [WpViewport] proxies.
 #[allow(dead_code)]
-pub trait MetaWpViewportMessageHandler {
+pub trait WpViewportHandler: Any {
     /// remove scaling and cropping from the surface
     ///
     /// The associated wl_surface's crop and scale state is removed.
@@ -262,7 +273,7 @@ pub trait MetaWpViewportMessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWpViewport>,
+        _slf: &Rc<WpViewport>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -293,7 +304,7 @@ pub trait MetaWpViewportMessageHandler {
     #[inline]
     fn set_source(
         &mut self,
-        _slf: &Rc<MetaWpViewport>,
+        _slf: &Rc<WpViewport>,
         x: Fixed,
         y: Fixed,
         width: Fixed,
@@ -330,7 +341,7 @@ pub trait MetaWpViewportMessageHandler {
     #[inline]
     fn set_destination(
         &mut self,
-        _slf: &Rc<MetaWpViewport>,
+        _slf: &Rc<WpViewport>,
         width: i32,
         height: i32,
     ) {
@@ -344,13 +355,12 @@ pub trait MetaWpViewportMessageHandler {
     }
 }
 
-impl Proxy for MetaWpViewport {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpViewport {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpViewport, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -360,10 +370,15 @@ impl Proxy for MetaWpViewport {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_viewport#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -380,10 +395,15 @@ impl Proxy for MetaWpViewport {
                 let arg1 = Fixed::from_wire(arg1 as i32);
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 let arg3 = Fixed::from_wire(arg3 as i32);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_viewport#{}.set_source(x: {}, y: {}, width: {}, height: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_source(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultMessageHandler.set_source(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.set_source(&self, arg0, arg1, arg2, arg3);
                 }
             }
             2 => {
@@ -395,10 +415,15 @@ impl Proxy for MetaWpViewport {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_viewport#{}.set_destination(width: {}, height: {})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_destination(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.set_destination(&self, arg0, arg1);
+                    DefaultHandler.set_destination(&self, arg0, arg1);
                 }
             }
             n => {
@@ -440,7 +465,33 @@ impl Proxy for MetaWpViewport {
     }
 }
 
-impl MetaWpViewport {
+impl Proxy for WpViewport {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WpViewport {
     /// Since when the error.bad_value enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_BAD_VALUE__SINCE: u32 = 1;
@@ -457,9 +508,9 @@ impl MetaWpViewport {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpViewportError(pub u32);
+pub struct WpViewportError(pub u32);
 
-impl MetaWpViewportError {
+impl WpViewportError {
     /// negative or zero values in width or height
     #[allow(dead_code)]
     pub const BAD_VALUE: Self = Self(0);
@@ -477,7 +528,7 @@ impl MetaWpViewportError {
     pub const NO_SURFACE: Self = Self(3);
 }
 
-impl Debug for MetaWpViewportError {
+impl Debug for WpViewportError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::BAD_VALUE => "BAD_VALUE",

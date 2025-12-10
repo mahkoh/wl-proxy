@@ -13,39 +13,35 @@ use super::super::all_types::*;
 /// A xdg_system_bell_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaXdgSystemBellV1 {
+pub struct XdgSystemBellV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaXdgSystemBellV1MessageHandler>,
+    handler: HandlerHolder<dyn XdgSystemBellV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaXdgSystemBellV1MessageHandler for DefaultMessageHandler { }
+impl XdgSystemBellV1Handler for DefaultHandler { }
 
-impl MetaXdgSystemBellV1 {
+impl XdgSystemBellV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaXdgSystemBellV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::XdgSystemBellV1, version),
-            handler: Default::default(),
-        })
+impl XdgSystemBellV1 {
+    pub fn set_handler(&self, handler: impl XdgSystemBellV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaXdgSystemBellV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn XdgSystemBellV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaXdgSystemBellV1 {
+impl Debug for XdgSystemBellV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaXdgSystemBellV1")
+        f.debug_struct("XdgSystemBellV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -53,7 +49,7 @@ impl Debug for MetaXdgSystemBellV1 {
     }
 }
 
-impl MetaXdgSystemBellV1 {
+impl XdgSystemBellV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -69,9 +65,14 @@ impl MetaXdgSystemBellV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_system_bell_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -106,7 +107,7 @@ impl MetaXdgSystemBellV1 {
     #[inline]
     pub fn send_ring(
         &self,
-        surface: Option<&Rc<MetaWlSurface>>,
+        surface: Option<&Rc<WlSurface>>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -125,9 +126,14 @@ impl MetaXdgSystemBellV1 {
                 Some(id) => id,
             },
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_system_bell_v1#{}.ring(surface: wl_surface#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -143,14 +149,14 @@ impl MetaXdgSystemBellV1 {
 
 /// A message handler for [XdgSystemBellV1] proxies.
 #[allow(dead_code)]
-pub trait MetaXdgSystemBellV1MessageHandler {
+pub trait XdgSystemBellV1Handler: Any {
     /// destroy the system bell object
     ///
     /// Notify that the object will no longer be used.
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaXdgSystemBellV1>,
+        _slf: &Rc<XdgSystemBellV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -180,8 +186,8 @@ pub trait MetaXdgSystemBellV1MessageHandler {
     #[inline]
     fn ring(
         &mut self,
-        _slf: &Rc<MetaXdgSystemBellV1>,
-        surface: Option<&Rc<MetaWlSurface>>,
+        _slf: &Rc<XdgSystemBellV1>,
+        surface: Option<&Rc<WlSurface>>,
     ) {
         let res = _slf.send_ring(
             surface,
@@ -192,13 +198,12 @@ pub trait MetaXdgSystemBellV1MessageHandler {
     }
 }
 
-impl Proxy for MetaXdgSystemBellV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for XdgSystemBellV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgSystemBellV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -208,10 +213,15 @@ impl Proxy for MetaXdgSystemBellV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_system_bell_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -221,6 +231,11 @@ impl Proxy for MetaXdgSystemBellV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_system_bell_v1#{}.ring(surface: wl_surface#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
@@ -228,7 +243,7 @@ impl Proxy for MetaXdgSystemBellV1 {
                     let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                         return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                     };
-                    let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                    let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
                         return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                     };
@@ -238,7 +253,7 @@ impl Proxy for MetaXdgSystemBellV1 {
                 if let Some(handler) = handler {
                     (**handler).ring(&self, arg0);
                 } else {
-                    DefaultMessageHandler.ring(&self, arg0);
+                    DefaultHandler.ring(&self, arg0);
                 }
             }
             n => {
@@ -276,6 +291,32 @@ impl Proxy for MetaXdgSystemBellV1 {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let _ = id;
         None
+    }
+}
+
+impl Proxy for XdgSystemBellV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

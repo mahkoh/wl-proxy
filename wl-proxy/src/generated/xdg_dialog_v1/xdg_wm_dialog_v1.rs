@@ -18,39 +18,35 @@ use super::super::all_types::*;
 /// A xdg_wm_dialog_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaXdgWmDialogV1 {
+pub struct XdgWmDialogV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaXdgWmDialogV1MessageHandler>,
+    handler: HandlerHolder<dyn XdgWmDialogV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaXdgWmDialogV1MessageHandler for DefaultMessageHandler { }
+impl XdgWmDialogV1Handler for DefaultHandler { }
 
-impl MetaXdgWmDialogV1 {
+impl XdgWmDialogV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaXdgWmDialogV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::XdgWmDialogV1, version),
-            handler: Default::default(),
-        })
+impl XdgWmDialogV1 {
+    pub fn set_handler(&self, handler: impl XdgWmDialogV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaXdgWmDialogV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn XdgWmDialogV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaXdgWmDialogV1 {
+impl Debug for XdgWmDialogV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaXdgWmDialogV1")
+        f.debug_struct("XdgWmDialogV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -58,7 +54,7 @@ impl Debug for MetaXdgWmDialogV1 {
     }
 }
 
-impl MetaXdgWmDialogV1 {
+impl XdgWmDialogV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -75,9 +71,14 @@ impl MetaXdgWmDialogV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_wm_dialog_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -109,8 +110,8 @@ impl MetaXdgWmDialogV1 {
     #[inline]
     pub fn send_get_xdg_dialog(
         &self,
-        id: &Rc<MetaXdgDialogV1>,
-        toplevel: &Rc<MetaXdgToplevel>,
+        id: &Rc<XdgDialogV1>,
+        toplevel: &Rc<XdgToplevel>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -133,9 +134,14 @@ impl MetaXdgWmDialogV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_wm_dialog_v1#{}.get_xdg_dialog(id: xdg_dialog_v1#{}, toplevel: xdg_toplevel#{})\n", id, arg0_id, arg1_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -152,7 +158,7 @@ impl MetaXdgWmDialogV1 {
 
 /// A message handler for [XdgWmDialogV1] proxies.
 #[allow(dead_code)]
-pub trait MetaXdgWmDialogV1MessageHandler {
+pub trait XdgWmDialogV1Handler: Any {
     /// destroy the dialog manager object
     ///
     /// Destroys the xdg_wm_dialog_v1 object. This does not affect
@@ -160,7 +166,7 @@ pub trait MetaXdgWmDialogV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaXdgWmDialogV1>,
+        _slf: &Rc<XdgWmDialogV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -187,9 +193,9 @@ pub trait MetaXdgWmDialogV1MessageHandler {
     #[inline]
     fn get_xdg_dialog(
         &mut self,
-        _slf: &Rc<MetaXdgWmDialogV1>,
-        id: &Rc<MetaXdgDialogV1>,
-        toplevel: &Rc<MetaXdgToplevel>,
+        _slf: &Rc<XdgWmDialogV1>,
+        id: &Rc<XdgDialogV1>,
+        toplevel: &Rc<XdgToplevel>,
     ) {
         let res = _slf.send_get_xdg_dialog(
             id,
@@ -201,13 +207,12 @@ pub trait MetaXdgWmDialogV1MessageHandler {
     }
 }
 
-impl Proxy for MetaXdgWmDialogV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for XdgWmDialogV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgWmDialogV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -217,10 +222,15 @@ impl Proxy for MetaXdgWmDialogV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_wm_dialog_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -231,15 +241,20 @@ impl Proxy for MetaXdgWmDialogV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_wm_dialog_v1#{}.get_xdg_dialog(id: xdg_dialog_v1#{}, toplevel: xdg_toplevel#{})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaXdgDialogV1::new(&self.core.state, self.core.version);
+                let arg0 = XdgDialogV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaXdgToplevel>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<XdgToplevel>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("toplevel", o.core().interface, ProxyInterface::XdgToplevel));
                 };
@@ -248,7 +263,7 @@ impl Proxy for MetaXdgWmDialogV1 {
                 if let Some(handler) = handler {
                     (**handler).get_xdg_dialog(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.get_xdg_dialog(&self, arg0, arg1);
+                    DefaultHandler.get_xdg_dialog(&self, arg0, arg1);
                 }
             }
             n => {
@@ -289,7 +304,33 @@ impl Proxy for MetaXdgWmDialogV1 {
     }
 }
 
-impl MetaXdgWmDialogV1 {
+impl Proxy for XdgWmDialogV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl XdgWmDialogV1 {
     /// Since when the error.already_used enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_USED__SINCE: u32 = 1;
@@ -297,15 +338,15 @@ impl MetaXdgWmDialogV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaXdgWmDialogV1Error(pub u32);
+pub struct XdgWmDialogV1Error(pub u32);
 
-impl MetaXdgWmDialogV1Error {
+impl XdgWmDialogV1Error {
     /// the xdg_toplevel object has already been used to create a xdg_dialog_v1
     #[allow(dead_code)]
     pub const ALREADY_USED: Self = Self(0);
 }
 
-impl Debug for MetaXdgWmDialogV1Error {
+impl Debug for XdgWmDialogV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::ALREADY_USED => "ALREADY_USED",

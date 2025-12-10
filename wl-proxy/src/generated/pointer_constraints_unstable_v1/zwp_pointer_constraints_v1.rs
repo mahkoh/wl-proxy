@@ -20,39 +20,35 @@ use super::super::all_types::*;
 /// A zwp_pointer_constraints_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwpPointerConstraintsV1 {
+pub struct ZwpPointerConstraintsV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwpPointerConstraintsV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwpPointerConstraintsV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwpPointerConstraintsV1MessageHandler for DefaultMessageHandler { }
+impl ZwpPointerConstraintsV1Handler for DefaultHandler { }
 
-impl MetaZwpPointerConstraintsV1 {
+impl ZwpPointerConstraintsV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwpPointerConstraintsV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwpPointerConstraintsV1, version),
-            handler: Default::default(),
-        })
+impl ZwpPointerConstraintsV1 {
+    pub fn set_handler(&self, handler: impl ZwpPointerConstraintsV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwpPointerConstraintsV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwpPointerConstraintsV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwpPointerConstraintsV1 {
+impl Debug for ZwpPointerConstraintsV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwpPointerConstraintsV1")
+        f.debug_struct("ZwpPointerConstraintsV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -60,7 +56,7 @@ impl Debug for MetaZwpPointerConstraintsV1 {
     }
 }
 
-impl MetaZwpPointerConstraintsV1 {
+impl ZwpPointerConstraintsV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -77,9 +73,14 @@ impl MetaZwpPointerConstraintsV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_pointer_constraints_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -143,11 +144,11 @@ impl MetaZwpPointerConstraintsV1 {
     #[inline]
     pub fn send_lock_pointer(
         &self,
-        id: &Rc<MetaZwpLockedPointerV1>,
-        surface: &Rc<MetaWlSurface>,
-        pointer: &Rc<MetaWlPointer>,
-        region: Option<&Rc<MetaWlRegion>>,
-        lifetime: MetaZwpPointerConstraintsV1Lifetime,
+        id: &Rc<ZwpLockedPointerV1>,
+        surface: &Rc<WlSurface>,
+        pointer: &Rc<WlPointer>,
+        region: Option<&Rc<WlRegion>>,
+        lifetime: ZwpPointerConstraintsV1Lifetime,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -189,9 +190,14 @@ impl MetaZwpPointerConstraintsV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_pointer_constraints_v1#{}.lock_pointer(id: zwp_locked_pointer_v1#{}, surface: wl_surface#{}, pointer: wl_pointer#{}, region: wl_region#{}, lifetime: {:?})\n", id, arg0_id, arg1_id, arg2_id, arg3_id, arg4);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -242,11 +248,11 @@ impl MetaZwpPointerConstraintsV1 {
     #[inline]
     pub fn send_confine_pointer(
         &self,
-        id: &Rc<MetaZwpConfinedPointerV1>,
-        surface: &Rc<MetaWlSurface>,
-        pointer: &Rc<MetaWlPointer>,
-        region: Option<&Rc<MetaWlRegion>>,
-        lifetime: MetaZwpPointerConstraintsV1Lifetime,
+        id: &Rc<ZwpConfinedPointerV1>,
+        surface: &Rc<WlSurface>,
+        pointer: &Rc<WlPointer>,
+        region: Option<&Rc<WlRegion>>,
+        lifetime: ZwpPointerConstraintsV1Lifetime,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -288,9 +294,14 @@ impl MetaZwpPointerConstraintsV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_pointer_constraints_v1#{}.confine_pointer(id: zwp_confined_pointer_v1#{}, surface: wl_surface#{}, pointer: wl_pointer#{}, region: wl_region#{}, lifetime: {:?})\n", id, arg0_id, arg1_id, arg2_id, arg3_id, arg4);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -310,7 +321,7 @@ impl MetaZwpPointerConstraintsV1 {
 
 /// A message handler for [ZwpPointerConstraintsV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwpPointerConstraintsV1MessageHandler {
+pub trait ZwpPointerConstraintsV1Handler: Any {
     /// destroy the pointer constraints manager object
     ///
     /// Used by the client to notify the server that it will no longer use this
@@ -318,7 +329,7 @@ pub trait MetaZwpPointerConstraintsV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwpPointerConstraintsV1>,
+        _slf: &Rc<ZwpPointerConstraintsV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -377,12 +388,12 @@ pub trait MetaZwpPointerConstraintsV1MessageHandler {
     #[inline]
     fn lock_pointer(
         &mut self,
-        _slf: &Rc<MetaZwpPointerConstraintsV1>,
-        id: &Rc<MetaZwpLockedPointerV1>,
-        surface: &Rc<MetaWlSurface>,
-        pointer: &Rc<MetaWlPointer>,
-        region: Option<&Rc<MetaWlRegion>>,
-        lifetime: MetaZwpPointerConstraintsV1Lifetime,
+        _slf: &Rc<ZwpPointerConstraintsV1>,
+        id: &Rc<ZwpLockedPointerV1>,
+        surface: &Rc<WlSurface>,
+        pointer: &Rc<WlPointer>,
+        region: Option<&Rc<WlRegion>>,
+        lifetime: ZwpPointerConstraintsV1Lifetime,
     ) {
         let res = _slf.send_lock_pointer(
             id,
@@ -429,12 +440,12 @@ pub trait MetaZwpPointerConstraintsV1MessageHandler {
     #[inline]
     fn confine_pointer(
         &mut self,
-        _slf: &Rc<MetaZwpPointerConstraintsV1>,
-        id: &Rc<MetaZwpConfinedPointerV1>,
-        surface: &Rc<MetaWlSurface>,
-        pointer: &Rc<MetaWlPointer>,
-        region: Option<&Rc<MetaWlRegion>>,
-        lifetime: MetaZwpPointerConstraintsV1Lifetime,
+        _slf: &Rc<ZwpPointerConstraintsV1>,
+        id: &Rc<ZwpConfinedPointerV1>,
+        surface: &Rc<WlSurface>,
+        pointer: &Rc<WlPointer>,
+        region: Option<&Rc<WlRegion>>,
+        lifetime: ZwpPointerConstraintsV1Lifetime,
     ) {
         let res = _slf.send_confine_pointer(
             id,
@@ -449,13 +460,12 @@ pub trait MetaZwpPointerConstraintsV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwpPointerConstraintsV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwpPointerConstraintsV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpPointerConstraintsV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -465,10 +475,15 @@ impl Proxy for MetaZwpPointerConstraintsV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_pointer_constraints_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -482,16 +497,21 @@ impl Proxy for MetaZwpPointerConstraintsV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 28));
                 };
-                let arg4 = MetaZwpPointerConstraintsV1Lifetime(arg4);
+                let arg4 = ZwpPointerConstraintsV1Lifetime(arg4);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_pointer_constraints_v1#{}.lock_pointer(id: zwp_locked_pointer_v1#{}, surface: wl_surface#{}, pointer: wl_pointer#{}, region: wl_region#{}, lifetime: {:?})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaZwpLockedPointerV1::new(&self.core.state, self.core.version);
+                let arg0 = ZwpLockedPointerV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -499,7 +519,7 @@ impl Proxy for MetaZwpPointerConstraintsV1 {
                 let Some(arg2) = client.endpoint.lookup(arg2_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg2_id));
                 };
-                let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<MetaWlPointer>() else {
+                let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlPointer>() else {
                     let o = client.endpoint.lookup(arg2_id).unwrap();
                     return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ProxyInterface::WlPointer));
                 };
@@ -510,7 +530,7 @@ impl Proxy for MetaZwpPointerConstraintsV1 {
                     let Some(arg3) = client.endpoint.lookup(arg3_id) else {
                         return Err(ObjectError::NoClientObject(client.endpoint.id, arg3_id));
                     };
-                    let Ok(arg3) = (arg3 as Rc<dyn Any>).downcast::<MetaWlRegion>() else {
+                    let Ok(arg3) = (arg3 as Rc<dyn Any>).downcast::<WlRegion>() else {
                         let o = client.endpoint.lookup(arg3_id).unwrap();
                         return Err(ObjectError::WrongObjectType("region", o.core().interface, ProxyInterface::WlRegion));
                     };
@@ -523,7 +543,7 @@ impl Proxy for MetaZwpPointerConstraintsV1 {
                 if let Some(handler) = handler {
                     (**handler).lock_pointer(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultMessageHandler.lock_pointer(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.lock_pointer(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             2 => {
@@ -536,16 +556,21 @@ impl Proxy for MetaZwpPointerConstraintsV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 28));
                 };
-                let arg4 = MetaZwpPointerConstraintsV1Lifetime(arg4);
+                let arg4 = ZwpPointerConstraintsV1Lifetime(arg4);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_pointer_constraints_v1#{}.confine_pointer(id: zwp_confined_pointer_v1#{}, surface: wl_surface#{}, pointer: wl_pointer#{}, region: wl_region#{}, lifetime: {:?})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaZwpConfinedPointerV1::new(&self.core.state, self.core.version);
+                let arg0 = ZwpConfinedPointerV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -553,7 +578,7 @@ impl Proxy for MetaZwpPointerConstraintsV1 {
                 let Some(arg2) = client.endpoint.lookup(arg2_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg2_id));
                 };
-                let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<MetaWlPointer>() else {
+                let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlPointer>() else {
                     let o = client.endpoint.lookup(arg2_id).unwrap();
                     return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ProxyInterface::WlPointer));
                 };
@@ -564,7 +589,7 @@ impl Proxy for MetaZwpPointerConstraintsV1 {
                     let Some(arg3) = client.endpoint.lookup(arg3_id) else {
                         return Err(ObjectError::NoClientObject(client.endpoint.id, arg3_id));
                     };
-                    let Ok(arg3) = (arg3 as Rc<dyn Any>).downcast::<MetaWlRegion>() else {
+                    let Ok(arg3) = (arg3 as Rc<dyn Any>).downcast::<WlRegion>() else {
                         let o = client.endpoint.lookup(arg3_id).unwrap();
                         return Err(ObjectError::WrongObjectType("region", o.core().interface, ProxyInterface::WlRegion));
                     };
@@ -577,7 +602,7 @@ impl Proxy for MetaZwpPointerConstraintsV1 {
                 if let Some(handler) = handler {
                     (**handler).confine_pointer(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultMessageHandler.confine_pointer(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.confine_pointer(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             n => {
@@ -619,7 +644,33 @@ impl Proxy for MetaZwpPointerConstraintsV1 {
     }
 }
 
-impl MetaZwpPointerConstraintsV1 {
+impl Proxy for ZwpPointerConstraintsV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl ZwpPointerConstraintsV1 {
     /// Since when the error.already_constrained enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_CONSTRAINED__SINCE: u32 = 1;
@@ -638,15 +689,15 @@ impl MetaZwpPointerConstraintsV1 {
 /// requests.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwpPointerConstraintsV1Error(pub u32);
+pub struct ZwpPointerConstraintsV1Error(pub u32);
 
-impl MetaZwpPointerConstraintsV1Error {
+impl ZwpPointerConstraintsV1Error {
     /// pointer constraint already requested on that surface
     #[allow(dead_code)]
     pub const ALREADY_CONSTRAINED: Self = Self(1);
 }
 
-impl Debug for MetaZwpPointerConstraintsV1Error {
+impl Debug for ZwpPointerConstraintsV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::ALREADY_CONSTRAINED => "ALREADY_CONSTRAINED",
@@ -663,9 +714,9 @@ impl Debug for MetaZwpPointerConstraintsV1Error {
 /// lifetimes should be managed.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwpPointerConstraintsV1Lifetime(pub u32);
+pub struct ZwpPointerConstraintsV1Lifetime(pub u32);
 
-impl MetaZwpPointerConstraintsV1Lifetime {
+impl ZwpPointerConstraintsV1Lifetime {
     /// the pointer constraint is defunct once deactivated
     ///
     /// A oneshot pointer constraint will never reactivate once it has been
@@ -685,7 +736,7 @@ impl MetaZwpPointerConstraintsV1Lifetime {
     pub const PERSISTENT: Self = Self(2);
 }
 
-impl Debug for MetaZwpPointerConstraintsV1Lifetime {
+impl Debug for ZwpPointerConstraintsV1Lifetime {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::ONESHOT => "ONESHOT",

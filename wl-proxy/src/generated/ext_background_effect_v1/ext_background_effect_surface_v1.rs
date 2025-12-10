@@ -12,39 +12,35 @@ use super::super::all_types::*;
 /// A ext_background_effect_surface_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaExtBackgroundEffectSurfaceV1 {
+pub struct ExtBackgroundEffectSurfaceV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaExtBackgroundEffectSurfaceV1MessageHandler>,
+    handler: HandlerHolder<dyn ExtBackgroundEffectSurfaceV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaExtBackgroundEffectSurfaceV1MessageHandler for DefaultMessageHandler { }
+impl ExtBackgroundEffectSurfaceV1Handler for DefaultHandler { }
 
-impl MetaExtBackgroundEffectSurfaceV1 {
+impl ExtBackgroundEffectSurfaceV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaExtBackgroundEffectSurfaceV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ExtBackgroundEffectSurfaceV1, version),
-            handler: Default::default(),
-        })
+impl ExtBackgroundEffectSurfaceV1 {
+    pub fn set_handler(&self, handler: impl ExtBackgroundEffectSurfaceV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaExtBackgroundEffectSurfaceV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ExtBackgroundEffectSurfaceV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaExtBackgroundEffectSurfaceV1 {
+impl Debug for ExtBackgroundEffectSurfaceV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaExtBackgroundEffectSurfaceV1")
+        f.debug_struct("ExtBackgroundEffectSurfaceV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -52,7 +48,7 @@ impl Debug for MetaExtBackgroundEffectSurfaceV1 {
     }
 }
 
-impl MetaExtBackgroundEffectSurfaceV1 {
+impl ExtBackgroundEffectSurfaceV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -69,9 +65,14 @@ impl MetaExtBackgroundEffectSurfaceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= ext_background_effect_surface_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -114,7 +115,7 @@ impl MetaExtBackgroundEffectSurfaceV1 {
     #[inline]
     pub fn send_set_blur_region(
         &self,
-        region: Option<&Rc<MetaWlRegion>>,
+        region: Option<&Rc<WlRegion>>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -133,9 +134,14 @@ impl MetaExtBackgroundEffectSurfaceV1 {
                 Some(id) => id,
             },
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= ext_background_effect_surface_v1#{}.set_blur_region(region: wl_region#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -151,7 +157,7 @@ impl MetaExtBackgroundEffectSurfaceV1 {
 
 /// A message handler for [ExtBackgroundEffectSurfaceV1] proxies.
 #[allow(dead_code)]
-pub trait MetaExtBackgroundEffectSurfaceV1MessageHandler {
+pub trait ExtBackgroundEffectSurfaceV1Handler: Any {
     /// release the blur object
     ///
     /// Informs the server that the client will no longer be using this protocol
@@ -159,7 +165,7 @@ pub trait MetaExtBackgroundEffectSurfaceV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaExtBackgroundEffectSurfaceV1>,
+        _slf: &Rc<ExtBackgroundEffectSurfaceV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -197,8 +203,8 @@ pub trait MetaExtBackgroundEffectSurfaceV1MessageHandler {
     #[inline]
     fn set_blur_region(
         &mut self,
-        _slf: &Rc<MetaExtBackgroundEffectSurfaceV1>,
-        region: Option<&Rc<MetaWlRegion>>,
+        _slf: &Rc<ExtBackgroundEffectSurfaceV1>,
+        region: Option<&Rc<WlRegion>>,
     ) {
         let res = _slf.send_set_blur_region(
             region,
@@ -209,13 +215,12 @@ pub trait MetaExtBackgroundEffectSurfaceV1MessageHandler {
     }
 }
 
-impl Proxy for MetaExtBackgroundEffectSurfaceV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ExtBackgroundEffectSurfaceV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtBackgroundEffectSurfaceV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -225,10 +230,15 @@ impl Proxy for MetaExtBackgroundEffectSurfaceV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> ext_background_effect_surface_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -238,6 +248,11 @@ impl Proxy for MetaExtBackgroundEffectSurfaceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> ext_background_effect_surface_v1#{}.set_blur_region(region: wl_region#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
@@ -245,7 +260,7 @@ impl Proxy for MetaExtBackgroundEffectSurfaceV1 {
                     let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                         return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                     };
-                    let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlRegion>() else {
+                    let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlRegion>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
                         return Err(ObjectError::WrongObjectType("region", o.core().interface, ProxyInterface::WlRegion));
                     };
@@ -255,7 +270,7 @@ impl Proxy for MetaExtBackgroundEffectSurfaceV1 {
                 if let Some(handler) = handler {
                     (**handler).set_blur_region(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_blur_region(&self, arg0);
+                    DefaultHandler.set_blur_region(&self, arg0);
                 }
             }
             n => {
@@ -296,7 +311,33 @@ impl Proxy for MetaExtBackgroundEffectSurfaceV1 {
     }
 }
 
-impl MetaExtBackgroundEffectSurfaceV1 {
+impl Proxy for ExtBackgroundEffectSurfaceV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl ExtBackgroundEffectSurfaceV1 {
     /// Since when the error.surface_destroyed enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_SURFACE_DESTROYED__SINCE: u32 = 1;
@@ -304,15 +345,15 @@ impl MetaExtBackgroundEffectSurfaceV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaExtBackgroundEffectSurfaceV1Error(pub u32);
+pub struct ExtBackgroundEffectSurfaceV1Error(pub u32);
 
-impl MetaExtBackgroundEffectSurfaceV1Error {
+impl ExtBackgroundEffectSurfaceV1Error {
     /// the associated surface has been destroyed
     #[allow(dead_code)]
     pub const SURFACE_DESTROYED: Self = Self(0);
 }
 
-impl Debug for MetaExtBackgroundEffectSurfaceV1Error {
+impl Debug for ExtBackgroundEffectSurfaceV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::SURFACE_DESTROYED => "SURFACE_DESTROYED",

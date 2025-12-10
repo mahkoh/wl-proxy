@@ -40,39 +40,35 @@ use super::super::all_types::*;
 /// A xdg_toplevel_drag_manager_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaXdgToplevelDragManagerV1 {
+pub struct XdgToplevelDragManagerV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaXdgToplevelDragManagerV1MessageHandler>,
+    handler: HandlerHolder<dyn XdgToplevelDragManagerV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaXdgToplevelDragManagerV1MessageHandler for DefaultMessageHandler { }
+impl XdgToplevelDragManagerV1Handler for DefaultHandler { }
 
-impl MetaXdgToplevelDragManagerV1 {
+impl XdgToplevelDragManagerV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaXdgToplevelDragManagerV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::XdgToplevelDragManagerV1, version),
-            handler: Default::default(),
-        })
+impl XdgToplevelDragManagerV1 {
+    pub fn set_handler(&self, handler: impl XdgToplevelDragManagerV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaXdgToplevelDragManagerV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn XdgToplevelDragManagerV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaXdgToplevelDragManagerV1 {
+impl Debug for XdgToplevelDragManagerV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaXdgToplevelDragManagerV1")
+        f.debug_struct("XdgToplevelDragManagerV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -80,7 +76,7 @@ impl Debug for MetaXdgToplevelDragManagerV1 {
     }
 }
 
-impl MetaXdgToplevelDragManagerV1 {
+impl XdgToplevelDragManagerV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -98,9 +94,14 @@ impl MetaXdgToplevelDragManagerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel_drag_manager_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -137,8 +138,8 @@ impl MetaXdgToplevelDragManagerV1 {
     #[inline]
     pub fn send_get_xdg_toplevel_drag(
         &self,
-        id: &Rc<MetaXdgToplevelDragV1>,
-        data_source: &Rc<MetaWlDataSource>,
+        id: &Rc<XdgToplevelDragV1>,
+        data_source: &Rc<WlDataSource>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -161,9 +162,14 @@ impl MetaXdgToplevelDragManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel_drag_manager_v1#{}.get_xdg_toplevel_drag(id: xdg_toplevel_drag_v1#{}, data_source: wl_data_source#{})\n", id, arg0_id, arg1_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -180,7 +186,7 @@ impl MetaXdgToplevelDragManagerV1 {
 
 /// A message handler for [XdgToplevelDragManagerV1] proxies.
 #[allow(dead_code)]
-pub trait MetaXdgToplevelDragManagerV1MessageHandler {
+pub trait XdgToplevelDragManagerV1Handler: Any {
     /// destroy the xdg_toplevel_drag_manager_v1 object
     ///
     /// Destroy this xdg_toplevel_drag_manager_v1 object. Other objects,
@@ -189,7 +195,7 @@ pub trait MetaXdgToplevelDragManagerV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaXdgToplevelDragManagerV1>,
+        _slf: &Rc<XdgToplevelDragManagerV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -221,9 +227,9 @@ pub trait MetaXdgToplevelDragManagerV1MessageHandler {
     #[inline]
     fn get_xdg_toplevel_drag(
         &mut self,
-        _slf: &Rc<MetaXdgToplevelDragManagerV1>,
-        id: &Rc<MetaXdgToplevelDragV1>,
-        data_source: &Rc<MetaWlDataSource>,
+        _slf: &Rc<XdgToplevelDragManagerV1>,
+        id: &Rc<XdgToplevelDragV1>,
+        data_source: &Rc<WlDataSource>,
     ) {
         let res = _slf.send_get_xdg_toplevel_drag(
             id,
@@ -235,13 +241,12 @@ pub trait MetaXdgToplevelDragManagerV1MessageHandler {
     }
 }
 
-impl Proxy for MetaXdgToplevelDragManagerV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for XdgToplevelDragManagerV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgToplevelDragManagerV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -251,10 +256,15 @@ impl Proxy for MetaXdgToplevelDragManagerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel_drag_manager_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -265,15 +275,20 @@ impl Proxy for MetaXdgToplevelDragManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel_drag_manager_v1#{}.get_xdg_toplevel_drag(id: xdg_toplevel_drag_v1#{}, data_source: wl_data_source#{})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaXdgToplevelDragV1::new(&self.core.state, self.core.version);
+                let arg0 = XdgToplevelDragV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlDataSource>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlDataSource>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("data_source", o.core().interface, ProxyInterface::WlDataSource));
                 };
@@ -282,7 +297,7 @@ impl Proxy for MetaXdgToplevelDragManagerV1 {
                 if let Some(handler) = handler {
                     (**handler).get_xdg_toplevel_drag(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.get_xdg_toplevel_drag(&self, arg0, arg1);
+                    DefaultHandler.get_xdg_toplevel_drag(&self, arg0, arg1);
                 }
             }
             n => {
@@ -323,7 +338,33 @@ impl Proxy for MetaXdgToplevelDragManagerV1 {
     }
 }
 
-impl MetaXdgToplevelDragManagerV1 {
+impl Proxy for XdgToplevelDragManagerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl XdgToplevelDragManagerV1 {
     /// Since when the error.invalid_source enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_SOURCE__SINCE: u32 = 1;
@@ -331,15 +372,15 @@ impl MetaXdgToplevelDragManagerV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaXdgToplevelDragManagerV1Error(pub u32);
+pub struct XdgToplevelDragManagerV1Error(pub u32);
 
-impl MetaXdgToplevelDragManagerV1Error {
+impl XdgToplevelDragManagerV1Error {
     /// data_source already used for toplevel drag
     #[allow(dead_code)]
     pub const INVALID_SOURCE: Self = Self(0);
 }
 
-impl Debug for MetaXdgToplevelDragManagerV1Error {
+impl Debug for XdgToplevelDragManagerV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INVALID_SOURCE => "INVALID_SOURCE",

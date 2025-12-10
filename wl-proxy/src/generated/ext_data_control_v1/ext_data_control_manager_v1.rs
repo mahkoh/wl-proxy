@@ -9,39 +9,35 @@ use super::super::all_types::*;
 /// A ext_data_control_manager_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaExtDataControlManagerV1 {
+pub struct ExtDataControlManagerV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaExtDataControlManagerV1MessageHandler>,
+    handler: HandlerHolder<dyn ExtDataControlManagerV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaExtDataControlManagerV1MessageHandler for DefaultMessageHandler { }
+impl ExtDataControlManagerV1Handler for DefaultHandler { }
 
-impl MetaExtDataControlManagerV1 {
+impl ExtDataControlManagerV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaExtDataControlManagerV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ExtDataControlManagerV1, version),
-            handler: Default::default(),
-        })
+impl ExtDataControlManagerV1 {
+    pub fn set_handler(&self, handler: impl ExtDataControlManagerV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaExtDataControlManagerV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ExtDataControlManagerV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaExtDataControlManagerV1 {
+impl Debug for ExtDataControlManagerV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaExtDataControlManagerV1")
+        f.debug_struct("ExtDataControlManagerV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -49,7 +45,7 @@ impl Debug for MetaExtDataControlManagerV1 {
     }
 }
 
-impl MetaExtDataControlManagerV1 {
+impl ExtDataControlManagerV1 {
     /// Since when the create_data_source message is available.
     #[allow(dead_code)]
     pub const MSG__CREATE_DATA_SOURCE__SINCE: u32 = 1;
@@ -60,7 +56,7 @@ impl MetaExtDataControlManagerV1 {
     #[inline]
     pub fn send_create_data_source(
         &self,
-        id: &Rc<MetaExtDataControlSourceV1>,
+        id: &Rc<ExtDataControlSourceV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -76,9 +72,14 @@ impl MetaExtDataControlManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= ext_data_control_manager_v1#{}.create_data_source(id: ext_data_control_source_v1#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -106,8 +107,8 @@ impl MetaExtDataControlManagerV1 {
     #[inline]
     pub fn send_get_data_device(
         &self,
-        id: &Rc<MetaExtDataControlDeviceV1>,
-        seat: &Rc<MetaWlSeat>,
+        id: &Rc<ExtDataControlDeviceV1>,
+        seat: &Rc<WlSeat>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -130,9 +131,14 @@ impl MetaExtDataControlManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= ext_data_control_manager_v1#{}.get_data_device(id: ext_data_control_device_v1#{}, seat: wl_seat#{})\n", id, arg0_id, arg1_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -162,9 +168,14 @@ impl MetaExtDataControlManagerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= ext_data_control_manager_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -180,7 +191,7 @@ impl MetaExtDataControlManagerV1 {
 
 /// A message handler for [ExtDataControlManagerV1] proxies.
 #[allow(dead_code)]
-pub trait MetaExtDataControlManagerV1MessageHandler {
+pub trait ExtDataControlManagerV1Handler: Any {
     /// create a new data source
     ///
     /// Create a new data source.
@@ -191,8 +202,8 @@ pub trait MetaExtDataControlManagerV1MessageHandler {
     #[inline]
     fn create_data_source(
         &mut self,
-        _slf: &Rc<MetaExtDataControlManagerV1>,
-        id: &Rc<MetaExtDataControlSourceV1>,
+        _slf: &Rc<ExtDataControlManagerV1>,
+        id: &Rc<ExtDataControlSourceV1>,
     ) {
         let res = _slf.send_create_data_source(
             id,
@@ -216,9 +227,9 @@ pub trait MetaExtDataControlManagerV1MessageHandler {
     #[inline]
     fn get_data_device(
         &mut self,
-        _slf: &Rc<MetaExtDataControlManagerV1>,
-        id: &Rc<MetaExtDataControlDeviceV1>,
-        seat: &Rc<MetaWlSeat>,
+        _slf: &Rc<ExtDataControlManagerV1>,
+        id: &Rc<ExtDataControlDeviceV1>,
+        seat: &Rc<WlSeat>,
     ) {
         let res = _slf.send_get_data_device(
             id,
@@ -236,7 +247,7 @@ pub trait MetaExtDataControlManagerV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaExtDataControlManagerV1>,
+        _slf: &Rc<ExtDataControlManagerV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -246,13 +257,12 @@ pub trait MetaExtDataControlManagerV1MessageHandler {
     }
 }
 
-impl Proxy for MetaExtDataControlManagerV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ExtDataControlManagerV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtDataControlManagerV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -264,15 +274,20 @@ impl Proxy for MetaExtDataControlManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> ext_data_control_manager_v1#{}.create_data_source(id: ext_data_control_source_v1#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaExtDataControlSourceV1::new(&self.core.state, self.core.version);
+                let arg0 = ExtDataControlSourceV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).create_data_source(&self, arg0);
                 } else {
-                    DefaultMessageHandler.create_data_source(&self, arg0);
+                    DefaultHandler.create_data_source(&self, arg0);
                 }
             }
             1 => {
@@ -282,15 +297,20 @@ impl Proxy for MetaExtDataControlManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> ext_data_control_manager_v1#{}.get_data_device(id: ext_data_control_device_v1#{}, seat: wl_seat#{})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaExtDataControlDeviceV1::new(&self.core.state, self.core.version);
+                let arg0 = ExtDataControlDeviceV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSeat>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
                 };
@@ -299,17 +319,22 @@ impl Proxy for MetaExtDataControlManagerV1 {
                 if let Some(handler) = handler {
                     (**handler).get_data_device(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.get_data_device(&self, arg0, arg1);
+                    DefaultHandler.get_data_device(&self, arg0, arg1);
                 }
             }
             2 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> ext_data_control_manager_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -349,6 +374,32 @@ impl Proxy for MetaExtDataControlManagerV1 {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let _ = id;
         None
+    }
+}
+
+impl Proxy for ExtDataControlManagerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

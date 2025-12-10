@@ -9,39 +9,35 @@ use super::super::all_types::*;
 /// A ext_foreign_toplevel_handle_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaExtForeignToplevelHandleV1 {
+pub struct ExtForeignToplevelHandleV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaExtForeignToplevelHandleV1MessageHandler>,
+    handler: HandlerHolder<dyn ExtForeignToplevelHandleV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaExtForeignToplevelHandleV1MessageHandler for DefaultMessageHandler { }
+impl ExtForeignToplevelHandleV1Handler for DefaultHandler { }
 
-impl MetaExtForeignToplevelHandleV1 {
+impl ExtForeignToplevelHandleV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaExtForeignToplevelHandleV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ExtForeignToplevelHandleV1, version),
-            handler: Default::default(),
-        })
+impl ExtForeignToplevelHandleV1 {
+    pub fn set_handler(&self, handler: impl ExtForeignToplevelHandleV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaExtForeignToplevelHandleV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ExtForeignToplevelHandleV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaExtForeignToplevelHandleV1 {
+impl Debug for ExtForeignToplevelHandleV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaExtForeignToplevelHandleV1")
+        f.debug_struct("ExtForeignToplevelHandleV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -49,7 +45,7 @@ impl Debug for MetaExtForeignToplevelHandleV1 {
     }
 }
 
-impl MetaExtForeignToplevelHandleV1 {
+impl ExtForeignToplevelHandleV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -77,9 +73,14 @@ impl MetaExtForeignToplevelHandleV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= ext_foreign_toplevel_handle_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -114,9 +115,14 @@ impl MetaExtForeignToplevelHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_foreign_toplevel_handle_v1#{}.closed()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -154,9 +160,14 @@ impl MetaExtForeignToplevelHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_foreign_toplevel_handle_v1#{}.done()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -198,9 +209,14 @@ impl MetaExtForeignToplevelHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_foreign_toplevel_handle_v1#{}.title(title: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -243,9 +259,14 @@ impl MetaExtForeignToplevelHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_foreign_toplevel_handle_v1#{}.app_id(app_id: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -304,9 +325,14 @@ impl MetaExtForeignToplevelHandleV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_foreign_toplevel_handle_v1#{}.identifier(identifier: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -322,7 +348,7 @@ impl MetaExtForeignToplevelHandleV1 {
 
 /// A message handler for [ExtForeignToplevelHandleV1] proxies.
 #[allow(dead_code)]
-pub trait MetaExtForeignToplevelHandleV1MessageHandler {
+pub trait ExtForeignToplevelHandleV1Handler: Any {
     /// destroy the ext_foreign_toplevel_handle_v1 object
     ///
     /// This request should be used when the client will no longer use the handle
@@ -341,7 +367,7 @@ pub trait MetaExtForeignToplevelHandleV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaExtForeignToplevelHandleV1>,
+        _slf: &Rc<ExtForeignToplevelHandleV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -361,7 +387,7 @@ pub trait MetaExtForeignToplevelHandleV1MessageHandler {
     #[inline]
     fn closed(
         &mut self,
-        _slf: &Rc<MetaExtForeignToplevelHandleV1>,
+        _slf: &Rc<ExtForeignToplevelHandleV1>,
     ) {
         let res = _slf.send_closed(
         );
@@ -385,7 +411,7 @@ pub trait MetaExtForeignToplevelHandleV1MessageHandler {
     #[inline]
     fn done(
         &mut self,
-        _slf: &Rc<MetaExtForeignToplevelHandleV1>,
+        _slf: &Rc<ExtForeignToplevelHandleV1>,
     ) {
         let res = _slf.send_done(
         );
@@ -407,7 +433,7 @@ pub trait MetaExtForeignToplevelHandleV1MessageHandler {
     #[inline]
     fn title(
         &mut self,
-        _slf: &Rc<MetaExtForeignToplevelHandleV1>,
+        _slf: &Rc<ExtForeignToplevelHandleV1>,
         title: &str,
     ) {
         let res = _slf.send_title(
@@ -431,7 +457,7 @@ pub trait MetaExtForeignToplevelHandleV1MessageHandler {
     #[inline]
     fn app_id(
         &mut self,
-        _slf: &Rc<MetaExtForeignToplevelHandleV1>,
+        _slf: &Rc<ExtForeignToplevelHandleV1>,
         app_id: &str,
     ) {
         let res = _slf.send_app_id(
@@ -471,7 +497,7 @@ pub trait MetaExtForeignToplevelHandleV1MessageHandler {
     #[inline]
     fn identifier(
         &mut self,
-        _slf: &Rc<MetaExtForeignToplevelHandleV1>,
+        _slf: &Rc<ExtForeignToplevelHandleV1>,
         identifier: &str,
     ) {
         let res = _slf.send_identifier(
@@ -483,13 +509,12 @@ pub trait MetaExtForeignToplevelHandleV1MessageHandler {
     }
 }
 
-impl Proxy for MetaExtForeignToplevelHandleV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ExtForeignToplevelHandleV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtForeignToplevelHandleV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -499,10 +524,15 @@ impl Proxy for MetaExtForeignToplevelHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> ext_foreign_toplevel_handle_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -524,20 +554,30 @@ impl Proxy for MetaExtForeignToplevelHandleV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_foreign_toplevel_handle_v1#{}.closed()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).closed(&self);
                 } else {
-                    DefaultMessageHandler.closed(&self);
+                    DefaultHandler.closed(&self);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_foreign_toplevel_handle_v1#{}.done()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).done(&self);
                 } else {
-                    DefaultMessageHandler.done(&self);
+                    DefaultHandler.done(&self);
                 }
             }
             2 => {
@@ -567,10 +607,15 @@ impl Proxy for MetaExtForeignToplevelHandleV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_foreign_toplevel_handle_v1#{}.title(title: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).title(&self, arg0);
                 } else {
-                    DefaultMessageHandler.title(&self, arg0);
+                    DefaultHandler.title(&self, arg0);
                 }
             }
             3 => {
@@ -600,10 +645,15 @@ impl Proxy for MetaExtForeignToplevelHandleV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_foreign_toplevel_handle_v1#{}.app_id(app_id: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).app_id(&self, arg0);
                 } else {
-                    DefaultMessageHandler.app_id(&self, arg0);
+                    DefaultHandler.app_id(&self, arg0);
                 }
             }
             4 => {
@@ -633,10 +683,15 @@ impl Proxy for MetaExtForeignToplevelHandleV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_foreign_toplevel_handle_v1#{}.identifier(identifier: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).identifier(&self, arg0);
                 } else {
-                    DefaultMessageHandler.identifier(&self, arg0);
+                    DefaultHandler.identifier(&self, arg0);
                 }
             }
             n => {
@@ -667,6 +722,32 @@ impl Proxy for MetaExtForeignToplevelHandleV1 {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for ExtForeignToplevelHandleV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

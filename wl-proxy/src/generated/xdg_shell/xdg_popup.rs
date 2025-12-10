@@ -31,39 +31,35 @@ use super::super::all_types::*;
 /// A xdg_popup proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaXdgPopup {
+pub struct XdgPopup {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaXdgPopupMessageHandler>,
+    handler: HandlerHolder<dyn XdgPopupHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaXdgPopupMessageHandler for DefaultMessageHandler { }
+impl XdgPopupHandler for DefaultHandler { }
 
-impl MetaXdgPopup {
+impl XdgPopup {
     pub const XML_VERSION: u32 = 7;
 }
 
-impl MetaXdgPopup {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::XdgPopup, version),
-            handler: Default::default(),
-        })
+impl XdgPopup {
+    pub fn set_handler(&self, handler: impl XdgPopupHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaXdgPopupMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn XdgPopupHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaXdgPopup {
+impl Debug for XdgPopup {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaXdgPopup")
+        f.debug_struct("XdgPopup")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -71,7 +67,7 @@ impl Debug for MetaXdgPopup {
     }
 }
 
-impl MetaXdgPopup {
+impl XdgPopup {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -91,9 +87,14 @@ impl MetaXdgPopup {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_popup#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -157,7 +158,7 @@ impl MetaXdgPopup {
     #[inline]
     pub fn send_grab(
         &self,
-        seat: &Rc<MetaWlSeat>,
+        seat: &Rc<WlSeat>,
         serial: u32,
     ) -> Result<(), ObjectError> {
         let (
@@ -176,9 +177,14 @@ impl MetaXdgPopup {
             None => return Err(ObjectError::ArgNoServerId("seat")),
             Some(id) => id,
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_popup#{}.grab(seat: wl_seat#{}, serial: {})\n", id, arg0_id, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -242,9 +248,14 @@ impl MetaXdgPopup {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= xdg_popup#{}.configure(x: {}, y: {}, width: {}, height: {})\n", client.endpoint.id, id, arg0, arg1, arg2, arg3);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -279,9 +290,14 @@ impl MetaXdgPopup {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= xdg_popup#{}.popup_done()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -330,7 +346,7 @@ impl MetaXdgPopup {
     #[inline]
     pub fn send_reposition(
         &self,
-        positioner: &Rc<MetaXdgPositioner>,
+        positioner: &Rc<XdgPositioner>,
         token: u32,
     ) -> Result<(), ObjectError> {
         let (
@@ -349,9 +365,14 @@ impl MetaXdgPopup {
             None => return Err(ObjectError::ArgNoServerId("positioner")),
             Some(id) => id,
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_popup#{}.reposition(positioner: xdg_positioner#{}, token: {})\n", id, arg0_id, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -406,9 +427,14 @@ impl MetaXdgPopup {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= xdg_popup#{}.repositioned(token: {})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -424,7 +450,7 @@ impl MetaXdgPopup {
 
 /// A message handler for [XdgPopup] proxies.
 #[allow(dead_code)]
-pub trait MetaXdgPopupMessageHandler {
+pub trait XdgPopupHandler: Any {
     /// remove xdg_popup interface
     ///
     /// This destroys the popup. Explicitly destroying the xdg_popup
@@ -435,7 +461,7 @@ pub trait MetaXdgPopupMessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaXdgPopup>,
+        _slf: &Rc<XdgPopup>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -494,8 +520,8 @@ pub trait MetaXdgPopupMessageHandler {
     #[inline]
     fn grab(
         &mut self,
-        _slf: &Rc<MetaXdgPopup>,
-        seat: &Rc<MetaWlSeat>,
+        _slf: &Rc<XdgPopup>,
+        seat: &Rc<WlSeat>,
         serial: u32,
     ) {
         let res = _slf.send_grab(
@@ -531,7 +557,7 @@ pub trait MetaXdgPopupMessageHandler {
     #[inline]
     fn configure(
         &mut self,
-        _slf: &Rc<MetaXdgPopup>,
+        _slf: &Rc<XdgPopup>,
         x: i32,
         y: i32,
         width: i32,
@@ -556,7 +582,7 @@ pub trait MetaXdgPopupMessageHandler {
     #[inline]
     fn popup_done(
         &mut self,
-        _slf: &Rc<MetaXdgPopup>,
+        _slf: &Rc<XdgPopup>,
     ) {
         let res = _slf.send_popup_done(
         );
@@ -601,8 +627,8 @@ pub trait MetaXdgPopupMessageHandler {
     #[inline]
     fn reposition(
         &mut self,
-        _slf: &Rc<MetaXdgPopup>,
-        positioner: &Rc<MetaXdgPositioner>,
+        _slf: &Rc<XdgPopup>,
+        positioner: &Rc<XdgPositioner>,
         token: u32,
     ) {
         let res = _slf.send_reposition(
@@ -638,7 +664,7 @@ pub trait MetaXdgPopupMessageHandler {
     #[inline]
     fn repositioned(
         &mut self,
-        _slf: &Rc<MetaXdgPopup>,
+        _slf: &Rc<XdgPopup>,
         token: u32,
     ) {
         let res = _slf.send_repositioned(
@@ -650,13 +676,12 @@ pub trait MetaXdgPopupMessageHandler {
     }
 }
 
-impl Proxy for MetaXdgPopup {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for XdgPopup {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgPopup, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -666,10 +691,15 @@ impl Proxy for MetaXdgPopup {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_popup#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -680,11 +710,16 @@ impl Proxy for MetaXdgPopup {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_popup#{}.grab(seat: wl_seat#{}, serial: {})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSeat>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
                 };
@@ -692,7 +727,7 @@ impl Proxy for MetaXdgPopup {
                 if let Some(handler) = handler {
                     (**handler).grab(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.grab(&self, arg0, arg1);
+                    DefaultHandler.grab(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -702,11 +737,16 @@ impl Proxy for MetaXdgPopup {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_popup#{}.reposition(positioner: xdg_positioner#{}, token: {})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaXdgPositioner>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<XdgPositioner>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("positioner", o.core().interface, ProxyInterface::XdgPositioner));
                 };
@@ -714,7 +754,7 @@ impl Proxy for MetaXdgPopup {
                 if let Some(handler) = handler {
                     (**handler).reposition(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.reposition(&self, arg0, arg1);
+                    DefaultHandler.reposition(&self, arg0, arg1);
                 }
             }
             n => {
@@ -744,20 +784,30 @@ impl Proxy for MetaXdgPopup {
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> xdg_popup#{}.configure(x: {}, y: {}, width: {}, height: {})\n", msg[0], arg0, arg1, arg2, arg3);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).configure(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultMessageHandler.configure(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.configure(&self, arg0, arg1, arg2, arg3);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> xdg_popup#{}.popup_done()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).popup_done(&self);
                 } else {
-                    DefaultMessageHandler.popup_done(&self);
+                    DefaultHandler.popup_done(&self);
                 }
             }
             2 => {
@@ -766,10 +816,15 @@ impl Proxy for MetaXdgPopup {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> xdg_popup#{}.repositioned(token: {})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).repositioned(&self, arg0);
                 } else {
-                    DefaultMessageHandler.repositioned(&self, arg0);
+                    DefaultHandler.repositioned(&self, arg0);
                 }
             }
             n => {
@@ -803,7 +858,33 @@ impl Proxy for MetaXdgPopup {
     }
 }
 
-impl MetaXdgPopup {
+impl Proxy for XdgPopup {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl XdgPopup {
     /// Since when the error.invalid_grab enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_GRAB__SINCE: u32 = 1;
@@ -811,15 +892,15 @@ impl MetaXdgPopup {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaXdgPopupError(pub u32);
+pub struct XdgPopupError(pub u32);
 
-impl MetaXdgPopupError {
+impl XdgPopupError {
     /// tried to grab after being mapped
     #[allow(dead_code)]
     pub const INVALID_GRAB: Self = Self(0);
 }
 
-impl Debug for MetaXdgPopupError {
+impl Debug for XdgPopupError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INVALID_GRAB => "INVALID_GRAB",

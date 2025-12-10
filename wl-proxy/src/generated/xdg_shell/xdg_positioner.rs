@@ -26,39 +26,35 @@ use super::super::all_types::*;
 /// A xdg_positioner proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaXdgPositioner {
+pub struct XdgPositioner {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaXdgPositionerMessageHandler>,
+    handler: HandlerHolder<dyn XdgPositionerHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaXdgPositionerMessageHandler for DefaultMessageHandler { }
+impl XdgPositionerHandler for DefaultHandler { }
 
-impl MetaXdgPositioner {
+impl XdgPositioner {
     pub const XML_VERSION: u32 = 7;
 }
 
-impl MetaXdgPositioner {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::XdgPositioner, version),
-            handler: Default::default(),
-        })
+impl XdgPositioner {
+    pub fn set_handler(&self, handler: impl XdgPositionerHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaXdgPositionerMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn XdgPositionerHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaXdgPositioner {
+impl Debug for XdgPositioner {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaXdgPositioner")
+        f.debug_struct("XdgPositioner")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -66,7 +62,7 @@ impl Debug for MetaXdgPositioner {
     }
 }
 
-impl MetaXdgPositioner {
+impl XdgPositioner {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -82,9 +78,14 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_positioner#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -130,9 +131,14 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_positioner#{}.set_size(width: {}, height: {})\n", id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -192,9 +198,14 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_positioner#{}.set_anchor_rect(x: {}, y: {}, width: {}, height: {})\n", id, arg0, arg1, arg2, arg3);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -229,7 +240,7 @@ impl MetaXdgPositioner {
     #[inline]
     pub fn send_set_anchor(
         &self,
-        anchor: MetaXdgPositionerAnchor,
+        anchor: XdgPositionerAnchor,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -240,9 +251,14 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_positioner#{}.set_anchor(anchor: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -275,7 +291,7 @@ impl MetaXdgPositioner {
     #[inline]
     pub fn send_set_gravity(
         &self,
-        gravity: MetaXdgPositionerGravity,
+        gravity: XdgPositionerGravity,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -286,9 +302,14 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_positioner#{}.set_gravity(gravity: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -327,7 +348,7 @@ impl MetaXdgPositioner {
     #[inline]
     pub fn send_set_constraint_adjustment(
         &self,
-        constraint_adjustment: MetaXdgPositionerConstraintAdjustment,
+        constraint_adjustment: XdgPositionerConstraintAdjustment,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -338,9 +359,14 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_positioner#{}.set_constraint_adjustment(constraint_adjustment: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -392,9 +418,14 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_positioner#{}.set_offset(x: {}, y: {})\n", id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -428,9 +459,14 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_positioner#{}.set_reactive()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -476,9 +512,14 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_positioner#{}.set_parent_size(parent_width: {}, parent_height: {})\n", id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -520,9 +561,14 @@ impl MetaXdgPositioner {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_positioner#{}.set_parent_configure(serial: {})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -538,14 +584,14 @@ impl MetaXdgPositioner {
 
 /// A message handler for [XdgPositioner] proxies.
 #[allow(dead_code)]
-pub trait MetaXdgPositionerMessageHandler {
+pub trait XdgPositionerHandler: Any {
     /// destroy the xdg_positioner object
     ///
     /// Notify the compositor that the xdg_positioner will no longer be used.
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaXdgPositioner>,
+        _slf: &Rc<XdgPositioner>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -569,7 +615,7 @@ pub trait MetaXdgPositionerMessageHandler {
     #[inline]
     fn set_size(
         &mut self,
-        _slf: &Rc<MetaXdgPositioner>,
+        _slf: &Rc<XdgPositioner>,
         width: i32,
         height: i32,
     ) {
@@ -604,7 +650,7 @@ pub trait MetaXdgPositionerMessageHandler {
     #[inline]
     fn set_anchor_rect(
         &mut self,
-        _slf: &Rc<MetaXdgPositioner>,
+        _slf: &Rc<XdgPositioner>,
         x: i32,
         y: i32,
         width: i32,
@@ -636,8 +682,8 @@ pub trait MetaXdgPositionerMessageHandler {
     #[inline]
     fn set_anchor(
         &mut self,
-        _slf: &Rc<MetaXdgPositioner>,
-        anchor: MetaXdgPositionerAnchor,
+        _slf: &Rc<XdgPositioner>,
+        anchor: XdgPositionerAnchor,
     ) {
         let res = _slf.send_set_anchor(
             anchor,
@@ -663,8 +709,8 @@ pub trait MetaXdgPositionerMessageHandler {
     #[inline]
     fn set_gravity(
         &mut self,
-        _slf: &Rc<MetaXdgPositioner>,
-        gravity: MetaXdgPositionerGravity,
+        _slf: &Rc<XdgPositioner>,
+        gravity: XdgPositionerGravity,
     ) {
         let res = _slf.send_set_gravity(
             gravity,
@@ -696,8 +742,8 @@ pub trait MetaXdgPositionerMessageHandler {
     #[inline]
     fn set_constraint_adjustment(
         &mut self,
-        _slf: &Rc<MetaXdgPositioner>,
-        constraint_adjustment: MetaXdgPositionerConstraintAdjustment,
+        _slf: &Rc<XdgPositioner>,
+        constraint_adjustment: XdgPositionerConstraintAdjustment,
     ) {
         let res = _slf.send_set_constraint_adjustment(
             constraint_adjustment,
@@ -728,7 +774,7 @@ pub trait MetaXdgPositionerMessageHandler {
     #[inline]
     fn set_offset(
         &mut self,
-        _slf: &Rc<MetaXdgPositioner>,
+        _slf: &Rc<XdgPositioner>,
         x: i32,
         y: i32,
     ) {
@@ -752,7 +798,7 @@ pub trait MetaXdgPositionerMessageHandler {
     #[inline]
     fn set_reactive(
         &mut self,
-        _slf: &Rc<MetaXdgPositioner>,
+        _slf: &Rc<XdgPositioner>,
     ) {
         let res = _slf.send_set_reactive(
         );
@@ -777,7 +823,7 @@ pub trait MetaXdgPositionerMessageHandler {
     #[inline]
     fn set_parent_size(
         &mut self,
-        _slf: &Rc<MetaXdgPositioner>,
+        _slf: &Rc<XdgPositioner>,
         parent_width: i32,
         parent_height: i32,
     ) {
@@ -803,7 +849,7 @@ pub trait MetaXdgPositionerMessageHandler {
     #[inline]
     fn set_parent_configure(
         &mut self,
-        _slf: &Rc<MetaXdgPositioner>,
+        _slf: &Rc<XdgPositioner>,
         serial: u32,
     ) {
         let res = _slf.send_set_parent_configure(
@@ -815,13 +861,12 @@ pub trait MetaXdgPositionerMessageHandler {
     }
 }
 
-impl Proxy for MetaXdgPositioner {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for XdgPositioner {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgPositioner, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -831,10 +876,15 @@ impl Proxy for MetaXdgPositioner {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_positioner#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -847,10 +897,15 @@ impl Proxy for MetaXdgPositioner {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_positioner#{}.set_size(width: {}, height: {})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_size(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.set_size(&self, arg0, arg1);
+                    DefaultHandler.set_size(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -866,10 +921,15 @@ impl Proxy for MetaXdgPositioner {
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_positioner#{}.set_anchor_rect(x: {}, y: {}, width: {}, height: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_anchor_rect(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultMessageHandler.set_anchor_rect(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.set_anchor_rect(&self, arg0, arg1, arg2, arg3);
                 }
             }
             3 => {
@@ -878,11 +938,16 @@ impl Proxy for MetaXdgPositioner {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaXdgPositionerAnchor(arg0);
+                let arg0 = XdgPositionerAnchor(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_positioner#{}.set_anchor(anchor: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_anchor(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_anchor(&self, arg0);
+                    DefaultHandler.set_anchor(&self, arg0);
                 }
             }
             4 => {
@@ -891,11 +956,16 @@ impl Proxy for MetaXdgPositioner {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaXdgPositionerGravity(arg0);
+                let arg0 = XdgPositionerGravity(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_positioner#{}.set_gravity(gravity: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_gravity(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_gravity(&self, arg0);
+                    DefaultHandler.set_gravity(&self, arg0);
                 }
             }
             5 => {
@@ -904,11 +974,16 @@ impl Proxy for MetaXdgPositioner {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaXdgPositionerConstraintAdjustment(arg0);
+                let arg0 = XdgPositionerConstraintAdjustment(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_positioner#{}.set_constraint_adjustment(constraint_adjustment: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_constraint_adjustment(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_constraint_adjustment(&self, arg0);
+                    DefaultHandler.set_constraint_adjustment(&self, arg0);
                 }
             }
             6 => {
@@ -920,20 +995,30 @@ impl Proxy for MetaXdgPositioner {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_positioner#{}.set_offset(x: {}, y: {})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_offset(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.set_offset(&self, arg0, arg1);
+                    DefaultHandler.set_offset(&self, arg0, arg1);
                 }
             }
             7 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_positioner#{}.set_reactive()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_reactive(&self);
                 } else {
-                    DefaultMessageHandler.set_reactive(&self);
+                    DefaultHandler.set_reactive(&self);
                 }
             }
             8 => {
@@ -945,10 +1030,15 @@ impl Proxy for MetaXdgPositioner {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_positioner#{}.set_parent_size(parent_width: {}, parent_height: {})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_parent_size(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.set_parent_size(&self, arg0, arg1);
+                    DefaultHandler.set_parent_size(&self, arg0, arg1);
                 }
             }
             9 => {
@@ -957,10 +1047,15 @@ impl Proxy for MetaXdgPositioner {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_positioner#{}.set_parent_configure(serial: {})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_parent_configure(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_parent_configure(&self, arg0);
+                    DefaultHandler.set_parent_configure(&self, arg0);
                 }
             }
             n => {
@@ -1009,7 +1104,33 @@ impl Proxy for MetaXdgPositioner {
     }
 }
 
-impl MetaXdgPositioner {
+impl Proxy for XdgPositioner {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl XdgPositioner {
     /// Since when the error.invalid_input enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_INPUT__SINCE: u32 = 1;
@@ -1095,15 +1216,15 @@ impl MetaXdgPositioner {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaXdgPositionerError(pub u32);
+pub struct XdgPositionerError(pub u32);
 
-impl MetaXdgPositionerError {
+impl XdgPositionerError {
     /// invalid input provided
     #[allow(dead_code)]
     pub const INVALID_INPUT: Self = Self(0);
 }
 
-impl Debug for MetaXdgPositionerError {
+impl Debug for XdgPositionerError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INVALID_INPUT => "INVALID_INPUT",
@@ -1115,9 +1236,9 @@ impl Debug for MetaXdgPositionerError {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaXdgPositionerAnchor(pub u32);
+pub struct XdgPositionerAnchor(pub u32);
 
-impl MetaXdgPositionerAnchor {
+impl XdgPositionerAnchor {
     #[allow(dead_code)]
     pub const NONE: Self = Self(0);
 
@@ -1146,7 +1267,7 @@ impl MetaXdgPositionerAnchor {
     pub const BOTTOM_RIGHT: Self = Self(8);
 }
 
-impl Debug for MetaXdgPositionerAnchor {
+impl Debug for XdgPositionerAnchor {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::NONE => "NONE",
@@ -1166,9 +1287,9 @@ impl Debug for MetaXdgPositionerAnchor {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaXdgPositionerGravity(pub u32);
+pub struct XdgPositionerGravity(pub u32);
 
-impl MetaXdgPositionerGravity {
+impl XdgPositionerGravity {
     #[allow(dead_code)]
     pub const NONE: Self = Self(0);
 
@@ -1197,7 +1318,7 @@ impl MetaXdgPositionerGravity {
     pub const BOTTOM_RIGHT: Self = Self(8);
 }
 
-impl Debug for MetaXdgPositionerGravity {
+impl Debug for XdgPositionerGravity {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::NONE => "NONE",
@@ -1231,15 +1352,15 @@ impl Debug for MetaXdgPositionerGravity {
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
 #[allow(dead_code)]
-pub struct MetaXdgPositionerConstraintAdjustment(pub u32);
+pub struct XdgPositionerConstraintAdjustment(pub u32);
 
-/// An iterator over the set bits in a [MetaXdgPositionerConstraintAdjustment].
+/// An iterator over the set bits in a [XdgPositionerConstraintAdjustment].
 ///
-/// You can construct this with the `IntoIterator` implementation of `MetaXdgPositionerConstraintAdjustment`.
+/// You can construct this with the `IntoIterator` implementation of `XdgPositionerConstraintAdjustment`.
 #[derive(Clone, Debug)]
-pub struct MetaXdgPositionerConstraintAdjustmentIter(pub u32);
+pub struct XdgPositionerConstraintAdjustmentIter(pub u32);
 
-impl MetaXdgPositionerConstraintAdjustment {
+impl XdgPositionerConstraintAdjustment {
     /// don't move the child surface when constrained
     ///
     /// Don't alter the surface position even if it is constrained on some
@@ -1324,7 +1445,7 @@ impl MetaXdgPositionerConstraintAdjustment {
 }
 
 #[allow(dead_code)]
-impl MetaXdgPositionerConstraintAdjustment {
+impl XdgPositionerConstraintAdjustment {
     #[inline]
     pub const fn empty() -> Self {
         Self(0)
@@ -1409,8 +1530,8 @@ impl MetaXdgPositionerConstraintAdjustment {
     }
 }
 
-impl Iterator for MetaXdgPositionerConstraintAdjustmentIter {
-    type Item = MetaXdgPositionerConstraintAdjustment;
+impl Iterator for XdgPositionerConstraintAdjustmentIter {
+    type Item = XdgPositionerConstraintAdjustment;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.0 == 0 {
@@ -1418,20 +1539,20 @@ impl Iterator for MetaXdgPositionerConstraintAdjustmentIter {
         }
         let bit = 1 << self.0.trailing_zeros();
         self.0 &= !bit;
-        Some(MetaXdgPositionerConstraintAdjustment(bit))
+        Some(XdgPositionerConstraintAdjustment(bit))
     }
 }
 
-impl IntoIterator for MetaXdgPositionerConstraintAdjustment {
-    type Item = MetaXdgPositionerConstraintAdjustment;
-    type IntoIter = MetaXdgPositionerConstraintAdjustmentIter;
+impl IntoIterator for XdgPositionerConstraintAdjustment {
+    type Item = XdgPositionerConstraintAdjustment;
+    type IntoIter = XdgPositionerConstraintAdjustmentIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        MetaXdgPositionerConstraintAdjustmentIter(self.0)
+        XdgPositionerConstraintAdjustmentIter(self.0)
     }
 }
 
-impl BitAnd for MetaXdgPositionerConstraintAdjustment {
+impl BitAnd for XdgPositionerConstraintAdjustment {
     type Output = Self;
 
     fn bitand(self, rhs: Self) -> Self::Output {
@@ -1439,13 +1560,13 @@ impl BitAnd for MetaXdgPositionerConstraintAdjustment {
     }
 }
 
-impl BitAndAssign for MetaXdgPositionerConstraintAdjustment {
+impl BitAndAssign for XdgPositionerConstraintAdjustment {
     fn bitand_assign(&mut self, rhs: Self) {
         *self = self.intersection(rhs);
     }
 }
 
-impl BitOr for MetaXdgPositionerConstraintAdjustment {
+impl BitOr for XdgPositionerConstraintAdjustment {
     type Output = Self;
 
     fn bitor(self, rhs: Self) -> Self::Output {
@@ -1453,13 +1574,13 @@ impl BitOr for MetaXdgPositionerConstraintAdjustment {
     }
 }
 
-impl BitOrAssign for MetaXdgPositionerConstraintAdjustment {
+impl BitOrAssign for XdgPositionerConstraintAdjustment {
     fn bitor_assign(&mut self, rhs: Self) {
         *self = self.union(rhs);
     }
 }
 
-impl BitXor for MetaXdgPositionerConstraintAdjustment {
+impl BitXor for XdgPositionerConstraintAdjustment {
     type Output = Self;
 
     fn bitxor(self, rhs: Self) -> Self::Output {
@@ -1467,13 +1588,13 @@ impl BitXor for MetaXdgPositionerConstraintAdjustment {
     }
 }
 
-impl BitXorAssign for MetaXdgPositionerConstraintAdjustment {
+impl BitXorAssign for XdgPositionerConstraintAdjustment {
     fn bitxor_assign(&mut self, rhs: Self) {
         *self = self.symmetric_difference(rhs);
     }
 }
 
-impl Sub for MetaXdgPositionerConstraintAdjustment {
+impl Sub for XdgPositionerConstraintAdjustment {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -1481,13 +1602,13 @@ impl Sub for MetaXdgPositionerConstraintAdjustment {
     }
 }
 
-impl SubAssign for MetaXdgPositionerConstraintAdjustment {
+impl SubAssign for XdgPositionerConstraintAdjustment {
     fn sub_assign(&mut self, rhs: Self) {
         *self = self.difference(rhs);
     }
 }
 
-impl Not for MetaXdgPositionerConstraintAdjustment {
+impl Not for XdgPositionerConstraintAdjustment {
     type Output = Self;
 
     fn not(self) -> Self::Output {
@@ -1495,7 +1616,7 @@ impl Not for MetaXdgPositionerConstraintAdjustment {
     }
 }
 
-impl Debug for MetaXdgPositionerConstraintAdjustment {
+impl Debug for XdgPositionerConstraintAdjustment {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut v = self.0;
         let mut first = true;

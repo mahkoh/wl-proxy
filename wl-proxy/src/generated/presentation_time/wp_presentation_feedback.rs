@@ -18,39 +18,35 @@ use super::super::all_types::*;
 /// A wp_presentation_feedback proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpPresentationFeedback {
+pub struct WpPresentationFeedback {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpPresentationFeedbackMessageHandler>,
+    handler: HandlerHolder<dyn WpPresentationFeedbackHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpPresentationFeedbackMessageHandler for DefaultMessageHandler { }
+impl WpPresentationFeedbackHandler for DefaultHandler { }
 
-impl MetaWpPresentationFeedback {
+impl WpPresentationFeedback {
     pub const XML_VERSION: u32 = 2;
 }
 
-impl MetaWpPresentationFeedback {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpPresentationFeedback, version),
-            handler: Default::default(),
-        })
+impl WpPresentationFeedback {
+    pub fn set_handler(&self, handler: impl WpPresentationFeedbackHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpPresentationFeedbackMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpPresentationFeedbackHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpPresentationFeedback {
+impl Debug for WpPresentationFeedback {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpPresentationFeedback")
+        f.debug_struct("WpPresentationFeedback")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -58,7 +54,7 @@ impl Debug for MetaWpPresentationFeedback {
     }
 }
 
-impl MetaWpPresentationFeedback {
+impl WpPresentationFeedback {
     /// Since when the sync_output message is available.
     #[allow(dead_code)]
     pub const MSG__SYNC_OUTPUT__SINCE: u32 = 1;
@@ -80,7 +76,7 @@ impl MetaWpPresentationFeedback {
     #[inline]
     pub fn send_sync_output(
         &self,
-        output: &Rc<MetaWlOutput>,
+        output: &Rc<WlOutput>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -98,9 +94,14 @@ impl MetaWpPresentationFeedback {
             return Err(ObjectError::ArgNoClientId("output", client.endpoint.id));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wp_presentation_feedback#{}.sync_output(output: wl_output#{})\n", client.endpoint.id, id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -182,7 +183,7 @@ impl MetaWpPresentationFeedback {
         refresh: u32,
         seq_hi: u32,
         seq_lo: u32,
-        flags: MetaWpPresentationFeedbackKind,
+        flags: WpPresentationFeedbackKind,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -207,9 +208,14 @@ impl MetaWpPresentationFeedback {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wp_presentation_feedback#{}.presented(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {}, refresh: {}, seq_hi: {}, seq_lo: {}, flags: {:?})\n", client.endpoint.id, id, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -249,9 +255,14 @@ impl MetaWpPresentationFeedback {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wp_presentation_feedback#{}.discarded()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -270,7 +281,7 @@ impl MetaWpPresentationFeedback {
 
 /// A message handler for [WpPresentationFeedback] proxies.
 #[allow(dead_code)]
-pub trait MetaWpPresentationFeedbackMessageHandler {
+pub trait WpPresentationFeedbackHandler: Any {
     /// presentation synchronized to this output
     ///
     /// As presentation can be synchronized to only one output at a
@@ -291,8 +302,8 @@ pub trait MetaWpPresentationFeedbackMessageHandler {
     #[inline]
     fn sync_output(
         &mut self,
-        _slf: &Rc<MetaWpPresentationFeedback>,
-        output: &Rc<MetaWlOutput>,
+        _slf: &Rc<WpPresentationFeedback>,
+        output: &Rc<WlOutput>,
     ) {
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
@@ -368,14 +379,14 @@ pub trait MetaWpPresentationFeedbackMessageHandler {
     #[inline]
     fn presented(
         &mut self,
-        _slf: &Rc<MetaWpPresentationFeedback>,
+        _slf: &Rc<WpPresentationFeedback>,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
         tv_nsec: u32,
         refresh: u32,
         seq_hi: u32,
         seq_lo: u32,
-        flags: MetaWpPresentationFeedbackKind,
+        flags: WpPresentationFeedbackKind,
     ) {
         let res = _slf.send_presented(
             tv_sec_hi,
@@ -397,7 +408,7 @@ pub trait MetaWpPresentationFeedbackMessageHandler {
     #[inline]
     fn discarded(
         &mut self,
-        _slf: &Rc<MetaWpPresentationFeedback>,
+        _slf: &Rc<WpPresentationFeedback>,
     ) {
         let res = _slf.send_discarded(
         );
@@ -407,13 +418,12 @@ pub trait MetaWpPresentationFeedbackMessageHandler {
     }
 }
 
-impl Proxy for MetaWpPresentationFeedback {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpPresentationFeedback {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpPresentationFeedback, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -438,11 +448,16 @@ impl Proxy for MetaWpPresentationFeedback {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wp_presentation_feedback#{}.sync_output(output: wl_output#{})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
                     return Err(ObjectError::NoServerObject(arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlOutput>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = self.core.state.server.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
                 };
@@ -450,7 +465,7 @@ impl Proxy for MetaWpPresentationFeedback {
                 if let Some(handler) = handler {
                     (**handler).sync_output(&self, arg0);
                 } else {
-                    DefaultMessageHandler.sync_output(&self, arg0);
+                    DefaultHandler.sync_output(&self, arg0);
                 }
             }
             1 => {
@@ -465,11 +480,16 @@ impl Proxy for MetaWpPresentationFeedback {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 36));
                 };
-                let arg6 = MetaWpPresentationFeedbackKind(arg6);
+                let arg6 = WpPresentationFeedbackKind(arg6);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wp_presentation_feedback#{}.presented(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {}, refresh: {}, seq_hi: {}, seq_lo: {}, flags: {:?})\n", msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).presented(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
                 } else {
-                    DefaultMessageHandler.presented(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+                    DefaultHandler.presented(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
                 }
                 self.core.handle_server_destroy();
             }
@@ -477,10 +497,15 @@ impl Proxy for MetaWpPresentationFeedback {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wp_presentation_feedback#{}.discarded()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).discarded(&self);
                 } else {
-                    DefaultMessageHandler.discarded(&self);
+                    DefaultHandler.discarded(&self);
                 }
                 self.core.handle_server_destroy();
             }
@@ -510,7 +535,33 @@ impl Proxy for MetaWpPresentationFeedback {
     }
 }
 
-impl MetaWpPresentationFeedback {
+impl Proxy for WpPresentationFeedback {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WpPresentationFeedback {
     /// Since when the kind.vsync enum variant is available.
     #[allow(dead_code)]
     pub const ENM__KIND_VSYNC__SINCE: u32 = 1;
@@ -534,15 +585,15 @@ impl MetaWpPresentationFeedback {
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
 #[allow(dead_code)]
-pub struct MetaWpPresentationFeedbackKind(pub u32);
+pub struct WpPresentationFeedbackKind(pub u32);
 
-/// An iterator over the set bits in a [MetaWpPresentationFeedbackKind].
+/// An iterator over the set bits in a [WpPresentationFeedbackKind].
 ///
-/// You can construct this with the `IntoIterator` implementation of `MetaWpPresentationFeedbackKind`.
+/// You can construct this with the `IntoIterator` implementation of `WpPresentationFeedbackKind`.
 #[derive(Clone, Debug)]
-pub struct MetaWpPresentationFeedbackKindIter(pub u32);
+pub struct WpPresentationFeedbackKindIter(pub u32);
 
-impl MetaWpPresentationFeedbackKind {
+impl WpPresentationFeedbackKind {
     /// presentation was vsync'd
     ///
     /// The presentation was synchronized to the "vertical retrace" by
@@ -584,7 +635,7 @@ impl MetaWpPresentationFeedbackKind {
 }
 
 #[allow(dead_code)]
-impl MetaWpPresentationFeedbackKind {
+impl WpPresentationFeedbackKind {
     #[inline]
     pub const fn empty() -> Self {
         Self(0)
@@ -669,8 +720,8 @@ impl MetaWpPresentationFeedbackKind {
     }
 }
 
-impl Iterator for MetaWpPresentationFeedbackKindIter {
-    type Item = MetaWpPresentationFeedbackKind;
+impl Iterator for WpPresentationFeedbackKindIter {
+    type Item = WpPresentationFeedbackKind;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.0 == 0 {
@@ -678,20 +729,20 @@ impl Iterator for MetaWpPresentationFeedbackKindIter {
         }
         let bit = 1 << self.0.trailing_zeros();
         self.0 &= !bit;
-        Some(MetaWpPresentationFeedbackKind(bit))
+        Some(WpPresentationFeedbackKind(bit))
     }
 }
 
-impl IntoIterator for MetaWpPresentationFeedbackKind {
-    type Item = MetaWpPresentationFeedbackKind;
-    type IntoIter = MetaWpPresentationFeedbackKindIter;
+impl IntoIterator for WpPresentationFeedbackKind {
+    type Item = WpPresentationFeedbackKind;
+    type IntoIter = WpPresentationFeedbackKindIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        MetaWpPresentationFeedbackKindIter(self.0)
+        WpPresentationFeedbackKindIter(self.0)
     }
 }
 
-impl BitAnd for MetaWpPresentationFeedbackKind {
+impl BitAnd for WpPresentationFeedbackKind {
     type Output = Self;
 
     fn bitand(self, rhs: Self) -> Self::Output {
@@ -699,13 +750,13 @@ impl BitAnd for MetaWpPresentationFeedbackKind {
     }
 }
 
-impl BitAndAssign for MetaWpPresentationFeedbackKind {
+impl BitAndAssign for WpPresentationFeedbackKind {
     fn bitand_assign(&mut self, rhs: Self) {
         *self = self.intersection(rhs);
     }
 }
 
-impl BitOr for MetaWpPresentationFeedbackKind {
+impl BitOr for WpPresentationFeedbackKind {
     type Output = Self;
 
     fn bitor(self, rhs: Self) -> Self::Output {
@@ -713,13 +764,13 @@ impl BitOr for MetaWpPresentationFeedbackKind {
     }
 }
 
-impl BitOrAssign for MetaWpPresentationFeedbackKind {
+impl BitOrAssign for WpPresentationFeedbackKind {
     fn bitor_assign(&mut self, rhs: Self) {
         *self = self.union(rhs);
     }
 }
 
-impl BitXor for MetaWpPresentationFeedbackKind {
+impl BitXor for WpPresentationFeedbackKind {
     type Output = Self;
 
     fn bitxor(self, rhs: Self) -> Self::Output {
@@ -727,13 +778,13 @@ impl BitXor for MetaWpPresentationFeedbackKind {
     }
 }
 
-impl BitXorAssign for MetaWpPresentationFeedbackKind {
+impl BitXorAssign for WpPresentationFeedbackKind {
     fn bitxor_assign(&mut self, rhs: Self) {
         *self = self.symmetric_difference(rhs);
     }
 }
 
-impl Sub for MetaWpPresentationFeedbackKind {
+impl Sub for WpPresentationFeedbackKind {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -741,13 +792,13 @@ impl Sub for MetaWpPresentationFeedbackKind {
     }
 }
 
-impl SubAssign for MetaWpPresentationFeedbackKind {
+impl SubAssign for WpPresentationFeedbackKind {
     fn sub_assign(&mut self, rhs: Self) {
         *self = self.difference(rhs);
     }
 }
 
-impl Not for MetaWpPresentationFeedbackKind {
+impl Not for WpPresentationFeedbackKind {
     type Output = Self;
 
     fn not(self) -> Self::Output {
@@ -755,7 +806,7 @@ impl Not for MetaWpPresentationFeedbackKind {
     }
 }
 
-impl Debug for MetaWpPresentationFeedbackKind {
+impl Debug for WpPresentationFeedbackKind {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut v = self.0;
         let mut first = true;

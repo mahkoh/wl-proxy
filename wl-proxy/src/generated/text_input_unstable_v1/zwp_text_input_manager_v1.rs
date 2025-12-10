@@ -8,39 +8,35 @@ use super::super::all_types::*;
 /// A zwp_text_input_manager_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwpTextInputManagerV1 {
+pub struct ZwpTextInputManagerV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwpTextInputManagerV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwpTextInputManagerV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwpTextInputManagerV1MessageHandler for DefaultMessageHandler { }
+impl ZwpTextInputManagerV1Handler for DefaultHandler { }
 
-impl MetaZwpTextInputManagerV1 {
+impl ZwpTextInputManagerV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwpTextInputManagerV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwpTextInputManagerV1, version),
-            handler: Default::default(),
-        })
+impl ZwpTextInputManagerV1 {
+    pub fn set_handler(&self, handler: impl ZwpTextInputManagerV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwpTextInputManagerV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwpTextInputManagerV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwpTextInputManagerV1 {
+impl Debug for ZwpTextInputManagerV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwpTextInputManagerV1")
+        f.debug_struct("ZwpTextInputManagerV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -48,7 +44,7 @@ impl Debug for MetaZwpTextInputManagerV1 {
     }
 }
 
-impl MetaZwpTextInputManagerV1 {
+impl ZwpTextInputManagerV1 {
     /// Since when the create_text_input message is available.
     #[allow(dead_code)]
     pub const MSG__CREATE_TEXT_INPUT__SINCE: u32 = 1;
@@ -59,7 +55,7 @@ impl MetaZwpTextInputManagerV1 {
     #[inline]
     pub fn send_create_text_input(
         &self,
-        id: &Rc<MetaZwpTextInputV1>,
+        id: &Rc<ZwpTextInputV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -75,9 +71,14 @@ impl MetaZwpTextInputManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_text_input_manager_v1#{}.create_text_input(id: zwp_text_input_v1#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -93,7 +94,7 @@ impl MetaZwpTextInputManagerV1 {
 
 /// A message handler for [ZwpTextInputManagerV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwpTextInputManagerV1MessageHandler {
+pub trait ZwpTextInputManagerV1Handler: Any {
     /// create text input
     ///
     /// Creates a new text_input object.
@@ -104,8 +105,8 @@ pub trait MetaZwpTextInputManagerV1MessageHandler {
     #[inline]
     fn create_text_input(
         &mut self,
-        _slf: &Rc<MetaZwpTextInputManagerV1>,
-        id: &Rc<MetaZwpTextInputV1>,
+        _slf: &Rc<ZwpTextInputManagerV1>,
+        id: &Rc<ZwpTextInputV1>,
     ) {
         let res = _slf.send_create_text_input(
             id,
@@ -116,13 +117,12 @@ pub trait MetaZwpTextInputManagerV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwpTextInputManagerV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwpTextInputManagerV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpTextInputManagerV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -134,15 +134,20 @@ impl Proxy for MetaZwpTextInputManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_text_input_manager_v1#{}.create_text_input(id: zwp_text_input_v1#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaZwpTextInputV1::new(&self.core.state, self.core.version);
+                let arg0 = ZwpTextInputV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).create_text_input(&self, arg0);
                 } else {
-                    DefaultMessageHandler.create_text_input(&self, arg0);
+                    DefaultHandler.create_text_input(&self, arg0);
                 }
             }
             n => {
@@ -179,6 +184,32 @@ impl Proxy for MetaZwpTextInputManagerV1 {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let _ = id;
         None
+    }
+}
+
+impl Proxy for ZwpTextInputManagerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

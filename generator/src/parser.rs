@@ -349,6 +349,7 @@ fn parse_interface(
     Ok(Interface {
         is_wl_display: name == "wl_display",
         is_wl_registry: name == "wl_registry",
+        is_wl_fixes: name == "wl_fixes",
         name,
         version: version.ok_or(InterfaceError::MissingVersion)?,
         description,

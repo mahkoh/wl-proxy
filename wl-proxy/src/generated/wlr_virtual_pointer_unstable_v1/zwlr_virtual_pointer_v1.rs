@@ -9,39 +9,35 @@ use super::super::all_types::*;
 /// A zwlr_virtual_pointer_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwlrVirtualPointerV1 {
+pub struct ZwlrVirtualPointerV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwlrVirtualPointerV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwlrVirtualPointerV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwlrVirtualPointerV1MessageHandler for DefaultMessageHandler { }
+impl ZwlrVirtualPointerV1Handler for DefaultHandler { }
 
-impl MetaZwlrVirtualPointerV1 {
+impl ZwlrVirtualPointerV1 {
     pub const XML_VERSION: u32 = 2;
 }
 
-impl MetaZwlrVirtualPointerV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwlrVirtualPointerV1, version),
-            handler: Default::default(),
-        })
+impl ZwlrVirtualPointerV1 {
+    pub fn set_handler(&self, handler: impl ZwlrVirtualPointerV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwlrVirtualPointerV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwlrVirtualPointerV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwlrVirtualPointerV1 {
+impl Debug for ZwlrVirtualPointerV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwlrVirtualPointerV1")
+        f.debug_struct("ZwlrVirtualPointerV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -49,7 +45,7 @@ impl Debug for MetaZwlrVirtualPointerV1 {
     }
 }
 
-impl MetaZwlrVirtualPointerV1 {
+impl ZwlrVirtualPointerV1 {
     /// Since when the motion message is available.
     #[allow(dead_code)]
     pub const MSG__MOTION__SINCE: u32 = 1;
@@ -85,9 +81,14 @@ impl MetaZwlrVirtualPointerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.motion(time: {}, dx: {}, dy: {})\n", id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -146,9 +147,14 @@ impl MetaZwlrVirtualPointerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.motion_absolute(time: {}, x: {}, y: {}, x_extent: {}, y_extent: {})\n", id, arg0, arg1, arg2, arg3, arg4);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -183,7 +189,7 @@ impl MetaZwlrVirtualPointerV1 {
         &self,
         time: u32,
         button: u32,
-        state: MetaWlPointerButtonState,
+        state: WlPointerButtonState,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -198,9 +204,14 @@ impl MetaZwlrVirtualPointerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.button(time: {}, button: {}, state: {:?})\n", id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -232,7 +243,7 @@ impl MetaZwlrVirtualPointerV1 {
     pub fn send_axis(
         &self,
         time: u32,
-        axis: MetaWlPointerAxis,
+        axis: WlPointerAxis,
         value: Fixed,
     ) -> Result<(), ObjectError> {
         let (
@@ -248,9 +259,14 @@ impl MetaZwlrVirtualPointerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.axis(time: {}, axis: {:?}, value: {})\n", id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -280,9 +296,14 @@ impl MetaZwlrVirtualPointerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.frame()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -308,7 +329,7 @@ impl MetaZwlrVirtualPointerV1 {
     #[inline]
     pub fn send_axis_source(
         &self,
-        axis_source: MetaWlPointerAxisSource,
+        axis_source: WlPointerAxisSource,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -319,9 +340,14 @@ impl MetaZwlrVirtualPointerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.axis_source(axis_source: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -350,7 +376,7 @@ impl MetaZwlrVirtualPointerV1 {
     pub fn send_axis_stop(
         &self,
         time: u32,
-        axis: MetaWlPointerAxis,
+        axis: WlPointerAxis,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -363,9 +389,14 @@ impl MetaZwlrVirtualPointerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.axis_stop(time: {}, axis: {:?})\n", id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -400,7 +431,7 @@ impl MetaZwlrVirtualPointerV1 {
     pub fn send_axis_discrete(
         &self,
         time: u32,
-        axis: MetaWlPointerAxis,
+        axis: WlPointerAxis,
         value: Fixed,
         discrete: i32,
     ) -> Result<(), ObjectError> {
@@ -419,9 +450,14 @@ impl MetaZwlrVirtualPointerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.axis_discrete(time: {}, axis: {:?}, value: {}, discrete: {})\n", id, arg0, arg1, arg2, arg3);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -450,9 +486,14 @@ impl MetaZwlrVirtualPointerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -468,7 +509,7 @@ impl MetaZwlrVirtualPointerV1 {
 
 /// A message handler for [ZwlrVirtualPointerV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwlrVirtualPointerV1MessageHandler {
+pub trait ZwlrVirtualPointerV1Handler: Any {
     /// pointer relative motion event
     ///
     /// The pointer has moved by a relative amount to the previous request.
@@ -483,7 +524,7 @@ pub trait MetaZwlrVirtualPointerV1MessageHandler {
     #[inline]
     fn motion(
         &mut self,
-        _slf: &Rc<MetaZwlrVirtualPointerV1>,
+        _slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
         dx: Fixed,
         dy: Fixed,
@@ -515,7 +556,7 @@ pub trait MetaZwlrVirtualPointerV1MessageHandler {
     #[inline]
     fn motion_absolute(
         &mut self,
-        _slf: &Rc<MetaZwlrVirtualPointerV1>,
+        _slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
         x: u32,
         y: u32,
@@ -546,10 +587,10 @@ pub trait MetaZwlrVirtualPointerV1MessageHandler {
     #[inline]
     fn button(
         &mut self,
-        _slf: &Rc<MetaZwlrVirtualPointerV1>,
+        _slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
         button: u32,
-        state: MetaWlPointerButtonState,
+        state: WlPointerButtonState,
     ) {
         let res = _slf.send_button(
             time,
@@ -573,9 +614,9 @@ pub trait MetaZwlrVirtualPointerV1MessageHandler {
     #[inline]
     fn axis(
         &mut self,
-        _slf: &Rc<MetaZwlrVirtualPointerV1>,
+        _slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
-        axis: MetaWlPointerAxis,
+        axis: WlPointerAxis,
         value: Fixed,
     ) {
         let res = _slf.send_axis(
@@ -594,7 +635,7 @@ pub trait MetaZwlrVirtualPointerV1MessageHandler {
     #[inline]
     fn frame(
         &mut self,
-        _slf: &Rc<MetaZwlrVirtualPointerV1>,
+        _slf: &Rc<ZwlrVirtualPointerV1>,
     ) {
         let res = _slf.send_frame(
         );
@@ -613,8 +654,8 @@ pub trait MetaZwlrVirtualPointerV1MessageHandler {
     #[inline]
     fn axis_source(
         &mut self,
-        _slf: &Rc<MetaZwlrVirtualPointerV1>,
-        axis_source: MetaWlPointerAxisSource,
+        _slf: &Rc<ZwlrVirtualPointerV1>,
+        axis_source: WlPointerAxisSource,
     ) {
         let res = _slf.send_axis_source(
             axis_source,
@@ -635,9 +676,9 @@ pub trait MetaZwlrVirtualPointerV1MessageHandler {
     #[inline]
     fn axis_stop(
         &mut self,
-        _slf: &Rc<MetaZwlrVirtualPointerV1>,
+        _slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
-        axis: MetaWlPointerAxis,
+        axis: WlPointerAxis,
     ) {
         let res = _slf.send_axis_stop(
             time,
@@ -664,9 +705,9 @@ pub trait MetaZwlrVirtualPointerV1MessageHandler {
     #[inline]
     fn axis_discrete(
         &mut self,
-        _slf: &Rc<MetaZwlrVirtualPointerV1>,
+        _slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
-        axis: MetaWlPointerAxis,
+        axis: WlPointerAxis,
         value: Fixed,
         discrete: i32,
     ) {
@@ -685,7 +726,7 @@ pub trait MetaZwlrVirtualPointerV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwlrVirtualPointerV1>,
+        _slf: &Rc<ZwlrVirtualPointerV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -695,13 +736,12 @@ pub trait MetaZwlrVirtualPointerV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwlrVirtualPointerV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwlrVirtualPointerV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrVirtualPointerV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -717,10 +757,15 @@ impl Proxy for MetaZwlrVirtualPointerV1 {
                 };
                 let arg1 = Fixed::from_wire(arg1 as i32);
                 let arg2 = Fixed::from_wire(arg2 as i32);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.motion(time: {}, dx: {}, dy: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).motion(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.motion(&self, arg0, arg1, arg2);
+                    DefaultHandler.motion(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
@@ -733,10 +778,15 @@ impl Proxy for MetaZwlrVirtualPointerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 28));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.motion_absolute(time: {}, x: {}, y: {}, x_extent: {}, y_extent: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).motion_absolute(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultMessageHandler.motion_absolute(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.motion_absolute(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             2 => {
@@ -747,11 +797,16 @@ impl Proxy for MetaZwlrVirtualPointerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
-                let arg2 = MetaWlPointerButtonState(arg2);
+                let arg2 = WlPointerButtonState(arg2);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.button(time: {}, button: {}, state: {:?})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).button(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.button(&self, arg0, arg1, arg2);
+                    DefaultHandler.button(&self, arg0, arg1, arg2);
                 }
             }
             3 => {
@@ -762,22 +817,32 @@ impl Proxy for MetaZwlrVirtualPointerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
-                let arg1 = MetaWlPointerAxis(arg1);
+                let arg1 = WlPointerAxis(arg1);
                 let arg2 = Fixed::from_wire(arg2 as i32);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.axis(time: {}, axis: {:?}, value: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).axis(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.axis(&self, arg0, arg1, arg2);
+                    DefaultHandler.axis(&self, arg0, arg1, arg2);
                 }
             }
             4 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.frame()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).frame(&self);
                 } else {
-                    DefaultMessageHandler.frame(&self);
+                    DefaultHandler.frame(&self);
                 }
             }
             5 => {
@@ -786,11 +851,16 @@ impl Proxy for MetaZwlrVirtualPointerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaWlPointerAxisSource(arg0);
+                let arg0 = WlPointerAxisSource(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.axis_source(axis_source: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).axis_source(&self, arg0);
                 } else {
-                    DefaultMessageHandler.axis_source(&self, arg0);
+                    DefaultHandler.axis_source(&self, arg0);
                 }
             }
             6 => {
@@ -800,11 +870,16 @@ impl Proxy for MetaZwlrVirtualPointerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                let arg1 = MetaWlPointerAxis(arg1);
+                let arg1 = WlPointerAxis(arg1);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.axis_stop(time: {}, axis: {:?})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).axis_stop(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.axis_stop(&self, arg0, arg1);
+                    DefaultHandler.axis_stop(&self, arg0, arg1);
                 }
             }
             7 => {
@@ -816,23 +891,33 @@ impl Proxy for MetaZwlrVirtualPointerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
-                let arg1 = MetaWlPointerAxis(arg1);
+                let arg1 = WlPointerAxis(arg1);
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 let arg3 = arg3 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.axis_discrete(time: {}, axis: {:?}, value: {}, discrete: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).axis_discrete(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultMessageHandler.axis_discrete(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.axis_discrete(&self, arg0, arg1, arg2, arg3);
                 }
             }
             8 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -881,7 +966,33 @@ impl Proxy for MetaZwlrVirtualPointerV1 {
     }
 }
 
-impl MetaZwlrVirtualPointerV1 {
+impl Proxy for ZwlrVirtualPointerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl ZwlrVirtualPointerV1 {
     /// Since when the error.invalid_axis enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_AXIS__SINCE: u32 = 1;
@@ -892,9 +1003,9 @@ impl MetaZwlrVirtualPointerV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwlrVirtualPointerV1Error(pub u32);
+pub struct ZwlrVirtualPointerV1Error(pub u32);
 
-impl MetaZwlrVirtualPointerV1Error {
+impl ZwlrVirtualPointerV1Error {
     /// client sent invalid axis enumeration value
     #[allow(dead_code)]
     pub const INVALID_AXIS: Self = Self(0);
@@ -904,7 +1015,7 @@ impl MetaZwlrVirtualPointerV1Error {
     pub const INVALID_AXIS_SOURCE: Self = Self(1);
 }
 
-impl Debug for MetaZwlrVirtualPointerV1Error {
+impl Debug for ZwlrVirtualPointerV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INVALID_AXIS => "INVALID_AXIS",

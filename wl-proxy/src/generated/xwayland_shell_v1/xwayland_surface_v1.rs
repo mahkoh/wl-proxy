@@ -15,39 +15,35 @@ use super::super::all_types::*;
 /// A xwayland_surface_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaXwaylandSurfaceV1 {
+pub struct XwaylandSurfaceV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaXwaylandSurfaceV1MessageHandler>,
+    handler: HandlerHolder<dyn XwaylandSurfaceV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaXwaylandSurfaceV1MessageHandler for DefaultMessageHandler { }
+impl XwaylandSurfaceV1Handler for DefaultHandler { }
 
-impl MetaXwaylandSurfaceV1 {
+impl XwaylandSurfaceV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaXwaylandSurfaceV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::XwaylandSurfaceV1, version),
-            handler: Default::default(),
-        })
+impl XwaylandSurfaceV1 {
+    pub fn set_handler(&self, handler: impl XwaylandSurfaceV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaXwaylandSurfaceV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn XwaylandSurfaceV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaXwaylandSurfaceV1 {
+impl Debug for XwaylandSurfaceV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaXwaylandSurfaceV1")
+        f.debug_struct("XwaylandSurfaceV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -55,7 +51,7 @@ impl Debug for MetaXwaylandSurfaceV1 {
     }
 }
 
-impl MetaXwaylandSurfaceV1 {
+impl XwaylandSurfaceV1 {
     /// Since when the set_serial message is available.
     #[allow(dead_code)]
     pub const MSG__SET_SERIAL__SINCE: u32 = 1;
@@ -105,9 +101,14 @@ impl MetaXwaylandSurfaceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xwayland_surface_v1#{}.set_serial(serial_lo: {}, serial_hi: {})\n", id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -138,9 +139,14 @@ impl MetaXwaylandSurfaceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xwayland_surface_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -156,7 +162,7 @@ impl MetaXwaylandSurfaceV1 {
 
 /// A message handler for [XwaylandSurfaceV1] proxies.
 #[allow(dead_code)]
-pub trait MetaXwaylandSurfaceV1MessageHandler {
+pub trait XwaylandSurfaceV1Handler: Any {
     /// associates a Xwayland window to a wl_surface
     ///
     /// Associates an Xwayland window to a wl_surface.
@@ -188,7 +194,7 @@ pub trait MetaXwaylandSurfaceV1MessageHandler {
     #[inline]
     fn set_serial(
         &mut self,
-        _slf: &Rc<MetaXwaylandSurfaceV1>,
+        _slf: &Rc<XwaylandSurfaceV1>,
         serial_lo: u32,
         serial_hi: u32,
     ) {
@@ -209,7 +215,7 @@ pub trait MetaXwaylandSurfaceV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaXwaylandSurfaceV1>,
+        _slf: &Rc<XwaylandSurfaceV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -219,13 +225,12 @@ pub trait MetaXwaylandSurfaceV1MessageHandler {
     }
 }
 
-impl Proxy for MetaXwaylandSurfaceV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for XwaylandSurfaceV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XwaylandSurfaceV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -238,20 +243,30 @@ impl Proxy for MetaXwaylandSurfaceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xwayland_surface_v1#{}.set_serial(serial_lo: {}, serial_hi: {})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_serial(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.set_serial(&self, arg0, arg1);
+                    DefaultHandler.set_serial(&self, arg0, arg1);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xwayland_surface_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -293,7 +308,33 @@ impl Proxy for MetaXwaylandSurfaceV1 {
     }
 }
 
-impl MetaXwaylandSurfaceV1 {
+impl Proxy for XwaylandSurfaceV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl XwaylandSurfaceV1 {
     /// Since when the error.already_associated enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_ASSOCIATED__SINCE: u32 = 1;
@@ -304,9 +345,9 @@ impl MetaXwaylandSurfaceV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaXwaylandSurfaceV1Error(pub u32);
+pub struct XwaylandSurfaceV1Error(pub u32);
 
-impl MetaXwaylandSurfaceV1Error {
+impl XwaylandSurfaceV1Error {
     /// given wl_surface is already associated with an X11 window
     #[allow(dead_code)]
     pub const ALREADY_ASSOCIATED: Self = Self(0);
@@ -316,7 +357,7 @@ impl MetaXwaylandSurfaceV1Error {
     pub const INVALID_SERIAL: Self = Self(1);
 }
 
-impl Debug for MetaXwaylandSurfaceV1Error {
+impl Debug for XwaylandSurfaceV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::ALREADY_ASSOCIATED => "ALREADY_ASSOCIATED",

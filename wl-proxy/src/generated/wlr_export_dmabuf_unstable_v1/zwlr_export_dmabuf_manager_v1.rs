@@ -8,39 +8,35 @@ use super::super::all_types::*;
 /// A zwlr_export_dmabuf_manager_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwlrExportDmabufManagerV1 {
+pub struct ZwlrExportDmabufManagerV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwlrExportDmabufManagerV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwlrExportDmabufManagerV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwlrExportDmabufManagerV1MessageHandler for DefaultMessageHandler { }
+impl ZwlrExportDmabufManagerV1Handler for DefaultHandler { }
 
-impl MetaZwlrExportDmabufManagerV1 {
+impl ZwlrExportDmabufManagerV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwlrExportDmabufManagerV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwlrExportDmabufManagerV1, version),
-            handler: Default::default(),
-        })
+impl ZwlrExportDmabufManagerV1 {
+    pub fn set_handler(&self, handler: impl ZwlrExportDmabufManagerV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwlrExportDmabufManagerV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwlrExportDmabufManagerV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwlrExportDmabufManagerV1 {
+impl Debug for ZwlrExportDmabufManagerV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwlrExportDmabufManagerV1")
+        f.debug_struct("ZwlrExportDmabufManagerV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -48,7 +44,7 @@ impl Debug for MetaZwlrExportDmabufManagerV1 {
     }
 }
 
-impl MetaZwlrExportDmabufManagerV1 {
+impl ZwlrExportDmabufManagerV1 {
     /// Since when the capture_output message is available.
     #[allow(dead_code)]
     pub const MSG__CAPTURE_OUTPUT__SINCE: u32 = 1;
@@ -65,9 +61,9 @@ impl MetaZwlrExportDmabufManagerV1 {
     #[inline]
     pub fn send_capture_output(
         &self,
-        frame: &Rc<MetaZwlrExportDmabufFrameV1>,
+        frame: &Rc<ZwlrExportDmabufFrameV1>,
         overlay_cursor: i32,
-        output: &Rc<MetaWlOutput>,
+        output: &Rc<WlOutput>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -92,9 +88,14 @@ impl MetaZwlrExportDmabufManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("frame", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_export_dmabuf_manager_v1#{}.capture_output(frame: zwlr_export_dmabuf_frame_v1#{}, overlay_cursor: {}, output: wl_output#{})\n", id, arg0_id, arg1, arg2_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -125,9 +126,14 @@ impl MetaZwlrExportDmabufManagerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_export_dmabuf_manager_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -143,7 +149,7 @@ impl MetaZwlrExportDmabufManagerV1 {
 
 /// A message handler for [ZwlrExportDmabufManagerV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwlrExportDmabufManagerV1MessageHandler {
+pub trait ZwlrExportDmabufManagerV1Handler: Any {
     /// capture a frame from an output
     ///
     /// Capture the next frame of an entire output.
@@ -159,10 +165,10 @@ pub trait MetaZwlrExportDmabufManagerV1MessageHandler {
     #[inline]
     fn capture_output(
         &mut self,
-        _slf: &Rc<MetaZwlrExportDmabufManagerV1>,
-        frame: &Rc<MetaZwlrExportDmabufFrameV1>,
+        _slf: &Rc<ZwlrExportDmabufManagerV1>,
+        frame: &Rc<ZwlrExportDmabufFrameV1>,
         overlay_cursor: i32,
-        output: &Rc<MetaWlOutput>,
+        output: &Rc<WlOutput>,
     ) {
         let res = _slf.send_capture_output(
             frame,
@@ -181,7 +187,7 @@ pub trait MetaZwlrExportDmabufManagerV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwlrExportDmabufManagerV1>,
+        _slf: &Rc<ZwlrExportDmabufManagerV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -191,13 +197,12 @@ pub trait MetaZwlrExportDmabufManagerV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwlrExportDmabufManagerV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwlrExportDmabufManagerV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrExportDmabufManagerV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -212,15 +217,20 @@ impl Proxy for MetaZwlrExportDmabufManagerV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
                 let arg1 = arg1 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_export_dmabuf_manager_v1#{}.capture_output(frame: zwlr_export_dmabuf_frame_v1#{}, overlay_cursor: {}, output: wl_output#{})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaZwlrExportDmabufFrameV1::new(&self.core.state, self.core.version);
+                let arg0 = ZwlrExportDmabufFrameV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "frame", e))?;
                 let arg2_id = arg2;
                 let Some(arg2) = client.endpoint.lookup(arg2_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg2_id));
                 };
-                let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<MetaWlOutput>() else {
+                let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = client.endpoint.lookup(arg2_id).unwrap();
                     return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
                 };
@@ -229,17 +239,22 @@ impl Proxy for MetaZwlrExportDmabufManagerV1 {
                 if let Some(handler) = handler {
                     (**handler).capture_output(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.capture_output(&self, arg0, arg1, arg2);
+                    DefaultHandler.capture_output(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_export_dmabuf_manager_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -278,6 +293,32 @@ impl Proxy for MetaZwlrExportDmabufManagerV1 {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let _ = id;
         None
+    }
+}
+
+impl Proxy for ZwlrExportDmabufManagerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

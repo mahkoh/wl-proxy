@@ -6,39 +6,35 @@ use super::super::all_types::*;
 /// A xdg_toplevel_drag_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaXdgToplevelDragV1 {
+pub struct XdgToplevelDragV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaXdgToplevelDragV1MessageHandler>,
+    handler: HandlerHolder<dyn XdgToplevelDragV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaXdgToplevelDragV1MessageHandler for DefaultMessageHandler { }
+impl XdgToplevelDragV1Handler for DefaultHandler { }
 
-impl MetaXdgToplevelDragV1 {
+impl XdgToplevelDragV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaXdgToplevelDragV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::XdgToplevelDragV1, version),
-            handler: Default::default(),
-        })
+impl XdgToplevelDragV1 {
+    pub fn set_handler(&self, handler: impl XdgToplevelDragV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaXdgToplevelDragV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn XdgToplevelDragV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaXdgToplevelDragV1 {
+impl Debug for XdgToplevelDragV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaXdgToplevelDragV1")
+        f.debug_struct("XdgToplevelDragV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -46,7 +42,7 @@ impl Debug for MetaXdgToplevelDragV1 {
     }
 }
 
-impl MetaXdgToplevelDragV1 {
+impl XdgToplevelDragV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -65,9 +61,14 @@ impl MetaXdgToplevelDragV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel_drag_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -110,7 +111,7 @@ impl MetaXdgToplevelDragV1 {
     #[inline]
     pub fn send_attach(
         &self,
-        toplevel: &Rc<MetaXdgToplevel>,
+        toplevel: &Rc<XdgToplevel>,
         x_offset: i32,
         y_offset: i32,
     ) -> Result<(), ObjectError> {
@@ -132,9 +133,14 @@ impl MetaXdgToplevelDragV1 {
             None => return Err(ObjectError::ArgNoServerId("toplevel")),
             Some(id) => id,
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel_drag_v1#{}.attach(toplevel: xdg_toplevel#{}, x_offset: {}, y_offset: {})\n", id, arg0_id, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -152,7 +158,7 @@ impl MetaXdgToplevelDragV1 {
 
 /// A message handler for [XdgToplevelDragV1] proxies.
 #[allow(dead_code)]
-pub trait MetaXdgToplevelDragV1MessageHandler {
+pub trait XdgToplevelDragV1Handler: Any {
     /// destroy an xdg_toplevel_drag_v1 object
     ///
     /// Destroy this xdg_toplevel_drag_v1 object. This request must only be
@@ -162,7 +168,7 @@ pub trait MetaXdgToplevelDragV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaXdgToplevelDragV1>,
+        _slf: &Rc<XdgToplevelDragV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -200,8 +206,8 @@ pub trait MetaXdgToplevelDragV1MessageHandler {
     #[inline]
     fn attach(
         &mut self,
-        _slf: &Rc<MetaXdgToplevelDragV1>,
-        toplevel: &Rc<MetaXdgToplevel>,
+        _slf: &Rc<XdgToplevelDragV1>,
+        toplevel: &Rc<XdgToplevel>,
         x_offset: i32,
         y_offset: i32,
     ) {
@@ -216,13 +222,12 @@ pub trait MetaXdgToplevelDragV1MessageHandler {
     }
 }
 
-impl Proxy for MetaXdgToplevelDragV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for XdgToplevelDragV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgToplevelDragV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -232,10 +237,15 @@ impl Proxy for MetaXdgToplevelDragV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel_drag_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -249,11 +259,16 @@ impl Proxy for MetaXdgToplevelDragV1 {
                 };
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel_drag_v1#{}.attach(toplevel: xdg_toplevel#{}, x_offset: {}, y_offset: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaXdgToplevel>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<XdgToplevel>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("toplevel", o.core().interface, ProxyInterface::XdgToplevel));
                 };
@@ -261,7 +276,7 @@ impl Proxy for MetaXdgToplevelDragV1 {
                 if let Some(handler) = handler {
                     (**handler).attach(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.attach(&self, arg0, arg1, arg2);
+                    DefaultHandler.attach(&self, arg0, arg1, arg2);
                 }
             }
             n => {
@@ -302,7 +317,33 @@ impl Proxy for MetaXdgToplevelDragV1 {
     }
 }
 
-impl MetaXdgToplevelDragV1 {
+impl Proxy for XdgToplevelDragV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl XdgToplevelDragV1 {
     /// Since when the error.toplevel_attached enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_TOPLEVEL_ATTACHED__SINCE: u32 = 1;
@@ -313,9 +354,9 @@ impl MetaXdgToplevelDragV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaXdgToplevelDragV1Error(pub u32);
+pub struct XdgToplevelDragV1Error(pub u32);
 
-impl MetaXdgToplevelDragV1Error {
+impl XdgToplevelDragV1Error {
     /// valid toplevel already attached
     #[allow(dead_code)]
     pub const TOPLEVEL_ATTACHED: Self = Self(0);
@@ -325,7 +366,7 @@ impl MetaXdgToplevelDragV1Error {
     pub const ONGOING_DRAG: Self = Self(1);
 }
 
-impl Debug for MetaXdgToplevelDragV1Error {
+impl Debug for XdgToplevelDragV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::TOPLEVEL_ATTACHED => "TOPLEVEL_ATTACHED",

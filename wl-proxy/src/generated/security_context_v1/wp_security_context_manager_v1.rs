@@ -25,39 +25,35 @@ use super::super::all_types::*;
 /// A wp_security_context_manager_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpSecurityContextManagerV1 {
+pub struct WpSecurityContextManagerV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpSecurityContextManagerV1MessageHandler>,
+    handler: HandlerHolder<dyn WpSecurityContextManagerV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpSecurityContextManagerV1MessageHandler for DefaultMessageHandler { }
+impl WpSecurityContextManagerV1Handler for DefaultHandler { }
 
-impl MetaWpSecurityContextManagerV1 {
+impl WpSecurityContextManagerV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWpSecurityContextManagerV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpSecurityContextManagerV1, version),
-            handler: Default::default(),
-        })
+impl WpSecurityContextManagerV1 {
+    pub fn set_handler(&self, handler: impl WpSecurityContextManagerV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpSecurityContextManagerV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpSecurityContextManagerV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpSecurityContextManagerV1 {
+impl Debug for WpSecurityContextManagerV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpSecurityContextManagerV1")
+        f.debug_struct("WpSecurityContextManagerV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -65,7 +61,7 @@ impl Debug for MetaWpSecurityContextManagerV1 {
     }
 }
 
-impl MetaWpSecurityContextManagerV1 {
+impl WpSecurityContextManagerV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -82,9 +78,14 @@ impl MetaWpSecurityContextManagerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_security_context_manager_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -127,7 +128,7 @@ impl MetaWpSecurityContextManagerV1 {
     #[inline]
     pub fn send_create_listener(
         &self,
-        id: &Rc<MetaWpSecurityContextV1>,
+        id: &Rc<WpSecurityContextV1>,
         listen_fd: &Rc<OwnedFd>,
         close_fd: &Rc<OwnedFd>,
     ) -> Result<(), ObjectError> {
@@ -149,9 +150,14 @@ impl MetaWpSecurityContextManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_security_context_manager_v1#{}.create_listener(id: wp_security_context_v1#{}, listen_fd: {}, close_fd: {})\n", id, arg0_id, arg1.as_raw_fd(), arg2.as_raw_fd());
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -169,7 +175,7 @@ impl MetaWpSecurityContextManagerV1 {
 
 /// A message handler for [WpSecurityContextManagerV1] proxies.
 #[allow(dead_code)]
-pub trait MetaWpSecurityContextManagerV1MessageHandler {
+pub trait WpSecurityContextManagerV1Handler: Any {
     /// destroy the manager object
     ///
     /// Destroy the manager. This doesn't destroy objects created with the
@@ -177,7 +183,7 @@ pub trait MetaWpSecurityContextManagerV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWpSecurityContextManagerV1>,
+        _slf: &Rc<WpSecurityContextManagerV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -212,8 +218,8 @@ pub trait MetaWpSecurityContextManagerV1MessageHandler {
     #[inline]
     fn create_listener(
         &mut self,
-        _slf: &Rc<MetaWpSecurityContextManagerV1>,
-        id: &Rc<MetaWpSecurityContextV1>,
+        _slf: &Rc<WpSecurityContextManagerV1>,
+        id: &Rc<WpSecurityContextV1>,
         listen_fd: &Rc<OwnedFd>,
         close_fd: &Rc<OwnedFd>,
     ) {
@@ -228,13 +234,12 @@ pub trait MetaWpSecurityContextManagerV1MessageHandler {
     }
 }
 
-impl Proxy for MetaWpSecurityContextManagerV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpSecurityContextManagerV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpSecurityContextManagerV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -244,10 +249,15 @@ impl Proxy for MetaWpSecurityContextManagerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_security_context_manager_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -265,15 +275,20 @@ impl Proxy for MetaWpSecurityContextManagerV1 {
                 };
                 let arg1 = &arg1;
                 let arg2 = &arg2;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_security_context_manager_v1#{}.create_listener(id: wp_security_context_v1#{}, listen_fd: {}, close_fd: {})\n", client.endpoint.id, msg[0], arg0, arg1.as_raw_fd(), arg2.as_raw_fd());
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWpSecurityContextV1::new(&self.core.state, self.core.version);
+                let arg0 = WpSecurityContextV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).create_listener(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.create_listener(&self, arg0, arg1, arg2);
+                    DefaultHandler.create_listener(&self, arg0, arg1, arg2);
                 }
             }
             n => {
@@ -314,7 +329,33 @@ impl Proxy for MetaWpSecurityContextManagerV1 {
     }
 }
 
-impl MetaWpSecurityContextManagerV1 {
+impl Proxy for WpSecurityContextManagerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WpSecurityContextManagerV1 {
     /// Since when the error.invalid_listen_fd enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_LISTEN_FD__SINCE: u32 = 1;
@@ -325,9 +366,9 @@ impl MetaWpSecurityContextManagerV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpSecurityContextManagerV1Error(pub u32);
+pub struct WpSecurityContextManagerV1Error(pub u32);
 
-impl MetaWpSecurityContextManagerV1Error {
+impl WpSecurityContextManagerV1Error {
     /// listening socket FD is invalid
     #[allow(dead_code)]
     pub const INVALID_LISTEN_FD: Self = Self(1);
@@ -337,7 +378,7 @@ impl MetaWpSecurityContextManagerV1Error {
     pub const NESTED: Self = Self(2);
 }
 
-impl Debug for MetaWpSecurityContextManagerV1Error {
+impl Debug for WpSecurityContextManagerV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INVALID_LISTEN_FD => "INVALID_LISTEN_FD",

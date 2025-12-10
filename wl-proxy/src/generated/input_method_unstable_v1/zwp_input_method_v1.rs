@@ -11,39 +11,35 @@ use super::super::all_types::*;
 /// A zwp_input_method_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwpInputMethodV1 {
+pub struct ZwpInputMethodV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwpInputMethodV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwpInputMethodV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwpInputMethodV1MessageHandler for DefaultMessageHandler { }
+impl ZwpInputMethodV1Handler for DefaultHandler { }
 
-impl MetaZwpInputMethodV1 {
+impl ZwpInputMethodV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwpInputMethodV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwpInputMethodV1, version),
-            handler: Default::default(),
-        })
+impl ZwpInputMethodV1 {
+    pub fn set_handler(&self, handler: impl ZwpInputMethodV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwpInputMethodV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwpInputMethodV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwpInputMethodV1 {
+impl Debug for ZwpInputMethodV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwpInputMethodV1")
+        f.debug_struct("ZwpInputMethodV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -51,7 +47,7 @@ impl Debug for MetaZwpInputMethodV1 {
     }
 }
 
-impl MetaZwpInputMethodV1 {
+impl ZwpInputMethodV1 {
     /// Since when the activate message is available.
     #[allow(dead_code)]
     pub const MSG__ACTIVATE__SINCE: u32 = 1;
@@ -63,7 +59,7 @@ impl MetaZwpInputMethodV1 {
     #[inline]
     pub fn send_activate(
         &self,
-        id: &Rc<MetaZwpInputMethodContextV1>,
+        id: &Rc<ZwpInputMethodContextV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -81,9 +77,14 @@ impl MetaZwpInputMethodV1 {
         arg0.generate_client_id(client, arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateClientId("id", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_input_method_v1#{}.activate(id: zwp_input_method_context_v1#{})\n", client.endpoint.id, id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -112,7 +113,7 @@ impl MetaZwpInputMethodV1 {
     #[inline]
     pub fn send_deactivate(
         &self,
-        context: &Rc<MetaZwpInputMethodContextV1>,
+        context: &Rc<ZwpInputMethodContextV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -130,9 +131,14 @@ impl MetaZwpInputMethodV1 {
             return Err(ObjectError::ArgNoClientId("context", client.endpoint.id));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_input_method_v1#{}.deactivate(context: zwp_input_method_context_v1#{})\n", client.endpoint.id, id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -148,7 +154,7 @@ impl MetaZwpInputMethodV1 {
 
 /// A message handler for [ZwpInputMethodV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwpInputMethodV1MessageHandler {
+pub trait ZwpInputMethodV1Handler: Any {
     /// activate event
     ///
     /// A text input was activated. Creates an input method context object
@@ -160,8 +166,8 @@ pub trait MetaZwpInputMethodV1MessageHandler {
     #[inline]
     fn activate(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodV1>,
-        id: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodV1>,
+        id: &Rc<ZwpInputMethodContextV1>,
     ) {
         let res = _slf.send_activate(
             id,
@@ -186,8 +192,8 @@ pub trait MetaZwpInputMethodV1MessageHandler {
     #[inline]
     fn deactivate(
         &mut self,
-        _slf: &Rc<MetaZwpInputMethodV1>,
-        context: &Rc<MetaZwpInputMethodContextV1>,
+        _slf: &Rc<ZwpInputMethodV1>,
+        context: &Rc<ZwpInputMethodContextV1>,
     ) {
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = context.core().client_id.get() {
@@ -205,13 +211,12 @@ pub trait MetaZwpInputMethodV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwpInputMethodV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwpInputMethodV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpInputMethodV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -236,15 +241,20 @@ impl Proxy for MetaZwpInputMethodV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_input_method_v1#{}.activate(id: zwp_input_method_context_v1#{})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaZwpInputMethodContextV1::new(&self.core.state, self.core.version);
+                let arg0 = ZwpInputMethodContextV1::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).activate(&self, arg0);
                 } else {
-                    DefaultMessageHandler.activate(&self, arg0);
+                    DefaultHandler.activate(&self, arg0);
                 }
             }
             1 => {
@@ -253,11 +263,16 @@ impl Proxy for MetaZwpInputMethodV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_input_method_v1#{}.deactivate(context: zwp_input_method_context_v1#{})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
                     return Err(ObjectError::NoServerObject(arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaZwpInputMethodContextV1>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ZwpInputMethodContextV1>() else {
                     let o = self.core.state.server.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("context", o.core().interface, ProxyInterface::ZwpInputMethodContextV1));
                 };
@@ -265,7 +280,7 @@ impl Proxy for MetaZwpInputMethodV1 {
                 if let Some(handler) = handler {
                     (**handler).deactivate(&self, arg0);
                 } else {
-                    DefaultMessageHandler.deactivate(&self, arg0);
+                    DefaultHandler.deactivate(&self, arg0);
                 }
             }
             n => {
@@ -290,6 +305,32 @@ impl Proxy for MetaZwpInputMethodV1 {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for ZwpInputMethodV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

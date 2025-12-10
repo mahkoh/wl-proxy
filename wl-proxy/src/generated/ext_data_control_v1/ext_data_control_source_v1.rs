@@ -11,39 +11,35 @@ use super::super::all_types::*;
 /// A ext_data_control_source_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaExtDataControlSourceV1 {
+pub struct ExtDataControlSourceV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaExtDataControlSourceV1MessageHandler>,
+    handler: HandlerHolder<dyn ExtDataControlSourceV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaExtDataControlSourceV1MessageHandler for DefaultMessageHandler { }
+impl ExtDataControlSourceV1Handler for DefaultHandler { }
 
-impl MetaExtDataControlSourceV1 {
+impl ExtDataControlSourceV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaExtDataControlSourceV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ExtDataControlSourceV1, version),
-            handler: Default::default(),
-        })
+impl ExtDataControlSourceV1 {
+    pub fn set_handler(&self, handler: impl ExtDataControlSourceV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaExtDataControlSourceV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ExtDataControlSourceV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaExtDataControlSourceV1 {
+impl Debug for ExtDataControlSourceV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaExtDataControlSourceV1")
+        f.debug_struct("ExtDataControlSourceV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -51,7 +47,7 @@ impl Debug for MetaExtDataControlSourceV1 {
     }
 }
 
-impl MetaExtDataControlSourceV1 {
+impl ExtDataControlSourceV1 {
     /// Since when the offer message is available.
     #[allow(dead_code)]
     pub const MSG__OFFER__SINCE: u32 = 1;
@@ -81,9 +77,14 @@ impl MetaExtDataControlSourceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= ext_data_control_source_v1#{}.offer(mime_type: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -111,9 +112,14 @@ impl MetaExtDataControlSourceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= ext_data_control_source_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -158,9 +164,14 @@ impl MetaExtDataControlSourceV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_data_control_source_v1#{}.send(mime_type: {:?}, fd: {})\n", client.endpoint.id, id, arg0, arg1.as_raw_fd());
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -194,9 +205,14 @@ impl MetaExtDataControlSourceV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_data_control_source_v1#{}.cancelled()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -211,7 +227,7 @@ impl MetaExtDataControlSourceV1 {
 
 /// A message handler for [ExtDataControlSourceV1] proxies.
 #[allow(dead_code)]
-pub trait MetaExtDataControlSourceV1MessageHandler {
+pub trait ExtDataControlSourceV1Handler: Any {
     /// add an offered MIME type
     ///
     /// This request adds a MIME type to the set of MIME types advertised to
@@ -226,7 +242,7 @@ pub trait MetaExtDataControlSourceV1MessageHandler {
     #[inline]
     fn offer(
         &mut self,
-        _slf: &Rc<MetaExtDataControlSourceV1>,
+        _slf: &Rc<ExtDataControlSourceV1>,
         mime_type: &str,
     ) {
         let res = _slf.send_offer(
@@ -243,7 +259,7 @@ pub trait MetaExtDataControlSourceV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaExtDataControlSourceV1>,
+        _slf: &Rc<ExtDataControlSourceV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -264,7 +280,7 @@ pub trait MetaExtDataControlSourceV1MessageHandler {
     #[inline]
     fn send(
         &mut self,
-        _slf: &Rc<MetaExtDataControlSourceV1>,
+        _slf: &Rc<ExtDataControlSourceV1>,
         mime_type: &str,
         fd: &Rc<OwnedFd>,
     ) {
@@ -286,7 +302,7 @@ pub trait MetaExtDataControlSourceV1MessageHandler {
     #[inline]
     fn cancelled(
         &mut self,
-        _slf: &Rc<MetaExtDataControlSourceV1>,
+        _slf: &Rc<ExtDataControlSourceV1>,
     ) {
         let res = _slf.send_cancelled(
         );
@@ -296,13 +312,12 @@ pub trait MetaExtDataControlSourceV1MessageHandler {
     }
 }
 
-impl Proxy for MetaExtDataControlSourceV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ExtDataControlSourceV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtDataControlSourceV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -335,20 +350,30 @@ impl Proxy for MetaExtDataControlSourceV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> ext_data_control_source_v1#{}.offer(mime_type: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).offer(&self, arg0);
                 } else {
-                    DefaultMessageHandler.offer(&self, arg0);
+                    DefaultHandler.offer(&self, arg0);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> ext_data_control_source_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -397,20 +422,30 @@ impl Proxy for MetaExtDataControlSourceV1 {
                     return Err(ObjectError::MissingFd("fd"));
                 };
                 let arg1 = &arg1;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_data_control_source_v1#{}.send(mime_type: {:?}, fd: {})\n", msg[0], arg0, arg1.as_raw_fd());
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).send(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.send(&self, arg0, arg1);
+                    DefaultHandler.send(&self, arg0, arg1);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_data_control_source_v1#{}.cancelled()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).cancelled(&self);
                 } else {
-                    DefaultMessageHandler.cancelled(&self);
+                    DefaultHandler.cancelled(&self);
                 }
             }
             n => {
@@ -442,7 +477,33 @@ impl Proxy for MetaExtDataControlSourceV1 {
     }
 }
 
-impl MetaExtDataControlSourceV1 {
+impl Proxy for ExtDataControlSourceV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl ExtDataControlSourceV1 {
     /// Since when the error.invalid_offer enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_OFFER__SINCE: u32 = 1;
@@ -450,15 +511,15 @@ impl MetaExtDataControlSourceV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaExtDataControlSourceV1Error(pub u32);
+pub struct ExtDataControlSourceV1Error(pub u32);
 
-impl MetaExtDataControlSourceV1Error {
+impl ExtDataControlSourceV1Error {
     /// offer sent after ext_data_control_device.set_selection
     #[allow(dead_code)]
     pub const INVALID_OFFER: Self = Self(1);
 }
 
-impl Debug for MetaExtDataControlSourceV1Error {
+impl Debug for ExtDataControlSourceV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INVALID_OFFER => "INVALID_OFFER",

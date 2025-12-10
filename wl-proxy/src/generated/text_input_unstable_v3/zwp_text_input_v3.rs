@@ -33,39 +33,35 @@ use super::super::all_types::*;
 /// A zwp_text_input_v3 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwpTextInputV3 {
+pub struct ZwpTextInputV3 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwpTextInputV3MessageHandler>,
+    handler: HandlerHolder<dyn ZwpTextInputV3Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwpTextInputV3MessageHandler for DefaultMessageHandler { }
+impl ZwpTextInputV3Handler for DefaultHandler { }
 
-impl MetaZwpTextInputV3 {
+impl ZwpTextInputV3 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwpTextInputV3 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwpTextInputV3, version),
-            handler: Default::default(),
-        })
+impl ZwpTextInputV3 {
+    pub fn set_handler(&self, handler: impl ZwpTextInputV3Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwpTextInputV3MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwpTextInputV3Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwpTextInputV3 {
+impl Debug for ZwpTextInputV3 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwpTextInputV3")
+        f.debug_struct("ZwpTextInputV3")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -73,7 +69,7 @@ impl Debug for MetaZwpTextInputV3 {
     }
 }
 
-impl MetaZwpTextInputV3 {
+impl ZwpTextInputV3 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -90,9 +86,14 @@ impl MetaZwpTextInputV3 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_text_input_v3#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -147,9 +148,14 @@ impl MetaZwpTextInputV3 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_text_input_v3#{}.enable()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -180,9 +186,14 @@ impl MetaZwpTextInputV3 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_text_input_v3#{}.disable()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -257,9 +268,14 @@ impl MetaZwpTextInputV3 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_text_input_v3#{}.set_surrounding_text(text: {:?}, cursor: {}, anchor: {})\n", id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -303,7 +319,7 @@ impl MetaZwpTextInputV3 {
     #[inline]
     pub fn send_set_text_change_cause(
         &self,
-        cause: MetaZwpTextInputV3ChangeCause,
+        cause: ZwpTextInputV3ChangeCause,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -314,9 +330,14 @@ impl MetaZwpTextInputV3 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_text_input_v3#{}.set_text_change_cause(cause: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -354,8 +375,8 @@ impl MetaZwpTextInputV3 {
     #[inline]
     pub fn send_set_content_type(
         &self,
-        hint: MetaZwpTextInputV3ContentHint,
-        purpose: MetaZwpTextInputV3ContentPurpose,
+        hint: ZwpTextInputV3ContentHint,
+        purpose: ZwpTextInputV3ContentPurpose,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -368,9 +389,14 @@ impl MetaZwpTextInputV3 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_text_input_v3#{}.set_content_type(hint: {:?}, purpose: {:?})\n", id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -437,9 +463,14 @@ impl MetaZwpTextInputV3 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_text_input_v3#{}.set_cursor_rectangle(x: {}, y: {}, width: {}, height: {})\n", id, arg0, arg1, arg2, arg3);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -492,9 +523,14 @@ impl MetaZwpTextInputV3 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_text_input_v3#{}.commit()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -527,7 +563,7 @@ impl MetaZwpTextInputV3 {
     #[inline]
     pub fn send_enter(
         &self,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -545,9 +581,14 @@ impl MetaZwpTextInputV3 {
             return Err(ObjectError::ArgNoClientId("surface", client.endpoint.id));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_text_input_v3#{}.enter(surface: wl_surface#{})\n", client.endpoint.id, id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -584,7 +625,7 @@ impl MetaZwpTextInputV3 {
     #[inline]
     pub fn send_leave(
         &self,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -602,9 +643,14 @@ impl MetaZwpTextInputV3 {
             return Err(ObjectError::ArgNoClientId("surface", client.endpoint.id));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_text_input_v3#{}.leave(surface: wl_surface#{})\n", client.endpoint.id, id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -669,9 +715,14 @@ impl MetaZwpTextInputV3 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_text_input_v3#{}.preedit_string(text: {:?}, cursor_begin: {}, cursor_end: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -726,9 +777,14 @@ impl MetaZwpTextInputV3 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_text_input_v3#{}.commit_string(text: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -789,9 +845,14 @@ impl MetaZwpTextInputV3 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_text_input_v3#{}.delete_surrounding_text(before_length: {}, after_length: {})\n", client.endpoint.id, id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -858,9 +919,14 @@ impl MetaZwpTextInputV3 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_text_input_v3#{}.done(serial: {})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -876,7 +942,7 @@ impl MetaZwpTextInputV3 {
 
 /// A message handler for [ZwpTextInputV3] proxies.
 #[allow(dead_code)]
-pub trait MetaZwpTextInputV3MessageHandler {
+pub trait ZwpTextInputV3Handler: Any {
     /// Destroy the wp_text_input
     ///
     /// Destroy the wp_text_input object. Also disables all surfaces enabled
@@ -884,7 +950,7 @@ pub trait MetaZwpTextInputV3MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwpTextInputV3>,
+        _slf: &Rc<ZwpTextInputV3>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -926,7 +992,7 @@ pub trait MetaZwpTextInputV3MessageHandler {
     #[inline]
     fn enable(
         &mut self,
-        _slf: &Rc<MetaZwpTextInputV3>,
+        _slf: &Rc<ZwpTextInputV3>,
     ) {
         let res = _slf.send_enable(
         );
@@ -945,7 +1011,7 @@ pub trait MetaZwpTextInputV3MessageHandler {
     #[inline]
     fn disable(
         &mut self,
-        _slf: &Rc<MetaZwpTextInputV3>,
+        _slf: &Rc<ZwpTextInputV3>,
     ) {
         let res = _slf.send_disable(
         );
@@ -996,7 +1062,7 @@ pub trait MetaZwpTextInputV3MessageHandler {
     #[inline]
     fn set_surrounding_text(
         &mut self,
-        _slf: &Rc<MetaZwpTextInputV3>,
+        _slf: &Rc<ZwpTextInputV3>,
         text: &str,
         cursor: i32,
         anchor: i32,
@@ -1034,8 +1100,8 @@ pub trait MetaZwpTextInputV3MessageHandler {
     #[inline]
     fn set_text_change_cause(
         &mut self,
-        _slf: &Rc<MetaZwpTextInputV3>,
-        cause: MetaZwpTextInputV3ChangeCause,
+        _slf: &Rc<ZwpTextInputV3>,
+        cause: ZwpTextInputV3ChangeCause,
     ) {
         let res = _slf.send_set_text_change_cause(
             cause,
@@ -1066,9 +1132,9 @@ pub trait MetaZwpTextInputV3MessageHandler {
     #[inline]
     fn set_content_type(
         &mut self,
-        _slf: &Rc<MetaZwpTextInputV3>,
-        hint: MetaZwpTextInputV3ContentHint,
-        purpose: MetaZwpTextInputV3ContentPurpose,
+        _slf: &Rc<ZwpTextInputV3>,
+        hint: ZwpTextInputV3ContentHint,
+        purpose: ZwpTextInputV3ContentPurpose,
     ) {
         let res = _slf.send_set_content_type(
             hint,
@@ -1108,7 +1174,7 @@ pub trait MetaZwpTextInputV3MessageHandler {
     #[inline]
     fn set_cursor_rectangle(
         &mut self,
-        _slf: &Rc<MetaZwpTextInputV3>,
+        _slf: &Rc<ZwpTextInputV3>,
         x: i32,
         y: i32,
         width: i32,
@@ -1153,7 +1219,7 @@ pub trait MetaZwpTextInputV3MessageHandler {
     #[inline]
     fn commit(
         &mut self,
-        _slf: &Rc<MetaZwpTextInputV3>,
+        _slf: &Rc<ZwpTextInputV3>,
     ) {
         let res = _slf.send_commit(
         );
@@ -1182,8 +1248,8 @@ pub trait MetaZwpTextInputV3MessageHandler {
     #[inline]
     fn enter(
         &mut self,
-        _slf: &Rc<MetaZwpTextInputV3>,
-        surface: &Rc<MetaWlSurface>,
+        _slf: &Rc<ZwpTextInputV3>,
+        surface: &Rc<WlSurface>,
     ) {
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
@@ -1223,8 +1289,8 @@ pub trait MetaZwpTextInputV3MessageHandler {
     #[inline]
     fn leave(
         &mut self,
-        _slf: &Rc<MetaZwpTextInputV3>,
-        surface: &Rc<MetaWlSurface>,
+        _slf: &Rc<ZwpTextInputV3>,
+        surface: &Rc<WlSurface>,
     ) {
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
@@ -1270,7 +1336,7 @@ pub trait MetaZwpTextInputV3MessageHandler {
     #[inline]
     fn preedit_string(
         &mut self,
-        _slf: &Rc<MetaZwpTextInputV3>,
+        _slf: &Rc<ZwpTextInputV3>,
         text: Option<&str>,
         cursor_begin: i32,
         cursor_end: i32,
@@ -1302,7 +1368,7 @@ pub trait MetaZwpTextInputV3MessageHandler {
     #[inline]
     fn commit_string(
         &mut self,
-        _slf: &Rc<MetaZwpTextInputV3>,
+        _slf: &Rc<ZwpTextInputV3>,
         text: Option<&str>,
     ) {
         let res = _slf.send_commit_string(
@@ -1337,7 +1403,7 @@ pub trait MetaZwpTextInputV3MessageHandler {
     #[inline]
     fn delete_surrounding_text(
         &mut self,
-        _slf: &Rc<MetaZwpTextInputV3>,
+        _slf: &Rc<ZwpTextInputV3>,
         before_length: u32,
         after_length: u32,
     ) {
@@ -1386,7 +1452,7 @@ pub trait MetaZwpTextInputV3MessageHandler {
     #[inline]
     fn done(
         &mut self,
-        _slf: &Rc<MetaZwpTextInputV3>,
+        _slf: &Rc<ZwpTextInputV3>,
         serial: u32,
     ) {
         let res = _slf.send_done(
@@ -1398,13 +1464,12 @@ pub trait MetaZwpTextInputV3MessageHandler {
     }
 }
 
-impl Proxy for MetaZwpTextInputV3 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwpTextInputV3 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpTextInputV3, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -1414,10 +1479,15 @@ impl Proxy for MetaZwpTextInputV3 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_text_input_v3#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -1425,20 +1495,30 @@ impl Proxy for MetaZwpTextInputV3 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_text_input_v3#{}.enable()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).enable(&self);
                 } else {
-                    DefaultMessageHandler.enable(&self);
+                    DefaultHandler.enable(&self);
                 }
             }
             2 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_text_input_v3#{}.disable()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).disable(&self);
                 } else {
-                    DefaultMessageHandler.disable(&self);
+                    DefaultHandler.disable(&self);
                 }
             }
             3 => {
@@ -1478,10 +1558,15 @@ impl Proxy for MetaZwpTextInputV3 {
                 }
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_text_input_v3#{}.set_surrounding_text(text: {:?}, cursor: {}, anchor: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_surrounding_text(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.set_surrounding_text(&self, arg0, arg1, arg2);
+                    DefaultHandler.set_surrounding_text(&self, arg0, arg1, arg2);
                 }
             }
             4 => {
@@ -1490,11 +1575,16 @@ impl Proxy for MetaZwpTextInputV3 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaZwpTextInputV3ChangeCause(arg0);
+                let arg0 = ZwpTextInputV3ChangeCause(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_text_input_v3#{}.set_text_change_cause(cause: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_text_change_cause(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_text_change_cause(&self, arg0);
+                    DefaultHandler.set_text_change_cause(&self, arg0);
                 }
             }
             5 => {
@@ -1504,12 +1594,17 @@ impl Proxy for MetaZwpTextInputV3 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                let arg0 = MetaZwpTextInputV3ContentHint(arg0);
-                let arg1 = MetaZwpTextInputV3ContentPurpose(arg1);
+                let arg0 = ZwpTextInputV3ContentHint(arg0);
+                let arg1 = ZwpTextInputV3ContentPurpose(arg1);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_text_input_v3#{}.set_content_type(hint: {:?}, purpose: {:?})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_content_type(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.set_content_type(&self, arg0, arg1);
+                    DefaultHandler.set_content_type(&self, arg0, arg1);
                 }
             }
             6 => {
@@ -1525,20 +1620,30 @@ impl Proxy for MetaZwpTextInputV3 {
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_text_input_v3#{}.set_cursor_rectangle(x: {}, y: {}, width: {}, height: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_cursor_rectangle(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultMessageHandler.set_cursor_rectangle(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.set_cursor_rectangle(&self, arg0, arg1, arg2, arg3);
                 }
             }
             7 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_text_input_v3#{}.commit()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).commit(&self);
                 } else {
-                    DefaultMessageHandler.commit(&self);
+                    DefaultHandler.commit(&self);
                 }
             }
             n => {
@@ -1561,11 +1666,16 @@ impl Proxy for MetaZwpTextInputV3 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_text_input_v3#{}.enter(surface: wl_surface#{})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
                     return Err(ObjectError::NoServerObject(arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = self.core.state.server.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -1573,7 +1683,7 @@ impl Proxy for MetaZwpTextInputV3 {
                 if let Some(handler) = handler {
                     (**handler).enter(&self, arg0);
                 } else {
-                    DefaultMessageHandler.enter(&self, arg0);
+                    DefaultHandler.enter(&self, arg0);
                 }
             }
             1 => {
@@ -1582,11 +1692,16 @@ impl Proxy for MetaZwpTextInputV3 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_text_input_v3#{}.leave(surface: wl_surface#{})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
                     return Err(ObjectError::NoServerObject(arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = self.core.state.server.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -1594,7 +1709,7 @@ impl Proxy for MetaZwpTextInputV3 {
                 if let Some(handler) = handler {
                     (**handler).leave(&self, arg0);
                 } else {
-                    DefaultMessageHandler.leave(&self, arg0);
+                    DefaultHandler.leave(&self, arg0);
                 }
             }
             2 => {
@@ -1634,10 +1749,15 @@ impl Proxy for MetaZwpTextInputV3 {
                 }
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_text_input_v3#{}.preedit_string(text: {:?}, cursor_begin: {}, cursor_end: {})\n", msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).preedit_string(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.preedit_string(&self, arg0, arg1, arg2);
+                    DefaultHandler.preedit_string(&self, arg0, arg1, arg2);
                 }
             }
             3 => {
@@ -1667,10 +1787,15 @@ impl Proxy for MetaZwpTextInputV3 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_text_input_v3#{}.commit_string(text: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).commit_string(&self, arg0);
                 } else {
-                    DefaultMessageHandler.commit_string(&self, arg0);
+                    DefaultHandler.commit_string(&self, arg0);
                 }
             }
             4 => {
@@ -1680,10 +1805,15 @@ impl Proxy for MetaZwpTextInputV3 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_text_input_v3#{}.delete_surrounding_text(before_length: {}, after_length: {})\n", msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).delete_surrounding_text(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.delete_surrounding_text(&self, arg0, arg1);
+                    DefaultHandler.delete_surrounding_text(&self, arg0, arg1);
                 }
             }
             5 => {
@@ -1692,10 +1822,15 @@ impl Proxy for MetaZwpTextInputV3 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_text_input_v3#{}.done(serial: {})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).done(&self, arg0);
                 } else {
-                    DefaultMessageHandler.done(&self, arg0);
+                    DefaultHandler.done(&self, arg0);
                 }
             }
             n => {
@@ -1737,7 +1872,33 @@ impl Proxy for MetaZwpTextInputV3 {
     }
 }
 
-impl MetaZwpTextInputV3 {
+impl Proxy for ZwpTextInputV3 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl ZwpTextInputV3 {
     /// Since when the change_cause.input_method enum variant is available.
     #[allow(dead_code)]
     pub const ENM__CHANGE_CAUSE_INPUT_METHOD__SINCE: u32 = 1;
@@ -1828,9 +1989,9 @@ impl MetaZwpTextInputV3 {
 /// Reason for the change of surrounding text or cursor posision.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwpTextInputV3ChangeCause(pub u32);
+pub struct ZwpTextInputV3ChangeCause(pub u32);
 
-impl MetaZwpTextInputV3ChangeCause {
+impl ZwpTextInputV3ChangeCause {
     /// input method caused the change
     #[allow(dead_code)]
     pub const INPUT_METHOD: Self = Self(0);
@@ -1840,7 +2001,7 @@ impl MetaZwpTextInputV3ChangeCause {
     pub const OTHER: Self = Self(1);
 }
 
-impl Debug for MetaZwpTextInputV3ChangeCause {
+impl Debug for ZwpTextInputV3ChangeCause {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INPUT_METHOD => "INPUT_METHOD",
@@ -1858,15 +2019,15 @@ impl Debug for MetaZwpTextInputV3ChangeCause {
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
 #[allow(dead_code)]
-pub struct MetaZwpTextInputV3ContentHint(pub u32);
+pub struct ZwpTextInputV3ContentHint(pub u32);
 
-/// An iterator over the set bits in a [MetaZwpTextInputV3ContentHint].
+/// An iterator over the set bits in a [ZwpTextInputV3ContentHint].
 ///
-/// You can construct this with the `IntoIterator` implementation of `MetaZwpTextInputV3ContentHint`.
+/// You can construct this with the `IntoIterator` implementation of `ZwpTextInputV3ContentHint`.
 #[derive(Clone, Debug)]
-pub struct MetaZwpTextInputV3ContentHintIter(pub u32);
+pub struct ZwpTextInputV3ContentHintIter(pub u32);
 
-impl MetaZwpTextInputV3ContentHint {
+impl ZwpTextInputV3ContentHint {
     /// no special behavior
     #[allow(dead_code)]
     pub const NONE: Self = Self(0x0);
@@ -1913,7 +2074,7 @@ impl MetaZwpTextInputV3ContentHint {
 }
 
 #[allow(dead_code)]
-impl MetaZwpTextInputV3ContentHint {
+impl ZwpTextInputV3ContentHint {
     #[inline]
     pub const fn empty() -> Self {
         Self(0)
@@ -1998,8 +2159,8 @@ impl MetaZwpTextInputV3ContentHint {
     }
 }
 
-impl Iterator for MetaZwpTextInputV3ContentHintIter {
-    type Item = MetaZwpTextInputV3ContentHint;
+impl Iterator for ZwpTextInputV3ContentHintIter {
+    type Item = ZwpTextInputV3ContentHint;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.0 == 0 {
@@ -2007,20 +2168,20 @@ impl Iterator for MetaZwpTextInputV3ContentHintIter {
         }
         let bit = 1 << self.0.trailing_zeros();
         self.0 &= !bit;
-        Some(MetaZwpTextInputV3ContentHint(bit))
+        Some(ZwpTextInputV3ContentHint(bit))
     }
 }
 
-impl IntoIterator for MetaZwpTextInputV3ContentHint {
-    type Item = MetaZwpTextInputV3ContentHint;
-    type IntoIter = MetaZwpTextInputV3ContentHintIter;
+impl IntoIterator for ZwpTextInputV3ContentHint {
+    type Item = ZwpTextInputV3ContentHint;
+    type IntoIter = ZwpTextInputV3ContentHintIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        MetaZwpTextInputV3ContentHintIter(self.0)
+        ZwpTextInputV3ContentHintIter(self.0)
     }
 }
 
-impl BitAnd for MetaZwpTextInputV3ContentHint {
+impl BitAnd for ZwpTextInputV3ContentHint {
     type Output = Self;
 
     fn bitand(self, rhs: Self) -> Self::Output {
@@ -2028,13 +2189,13 @@ impl BitAnd for MetaZwpTextInputV3ContentHint {
     }
 }
 
-impl BitAndAssign for MetaZwpTextInputV3ContentHint {
+impl BitAndAssign for ZwpTextInputV3ContentHint {
     fn bitand_assign(&mut self, rhs: Self) {
         *self = self.intersection(rhs);
     }
 }
 
-impl BitOr for MetaZwpTextInputV3ContentHint {
+impl BitOr for ZwpTextInputV3ContentHint {
     type Output = Self;
 
     fn bitor(self, rhs: Self) -> Self::Output {
@@ -2042,13 +2203,13 @@ impl BitOr for MetaZwpTextInputV3ContentHint {
     }
 }
 
-impl BitOrAssign for MetaZwpTextInputV3ContentHint {
+impl BitOrAssign for ZwpTextInputV3ContentHint {
     fn bitor_assign(&mut self, rhs: Self) {
         *self = self.union(rhs);
     }
 }
 
-impl BitXor for MetaZwpTextInputV3ContentHint {
+impl BitXor for ZwpTextInputV3ContentHint {
     type Output = Self;
 
     fn bitxor(self, rhs: Self) -> Self::Output {
@@ -2056,13 +2217,13 @@ impl BitXor for MetaZwpTextInputV3ContentHint {
     }
 }
 
-impl BitXorAssign for MetaZwpTextInputV3ContentHint {
+impl BitXorAssign for ZwpTextInputV3ContentHint {
     fn bitxor_assign(&mut self, rhs: Self) {
         *self = self.symmetric_difference(rhs);
     }
 }
 
-impl Sub for MetaZwpTextInputV3ContentHint {
+impl Sub for ZwpTextInputV3ContentHint {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -2070,13 +2231,13 @@ impl Sub for MetaZwpTextInputV3ContentHint {
     }
 }
 
-impl SubAssign for MetaZwpTextInputV3ContentHint {
+impl SubAssign for ZwpTextInputV3ContentHint {
     fn sub_assign(&mut self, rhs: Self) {
         *self = self.difference(rhs);
     }
 }
 
-impl Not for MetaZwpTextInputV3ContentHint {
+impl Not for ZwpTextInputV3ContentHint {
     type Output = Self;
 
     fn not(self) -> Self::Output {
@@ -2084,7 +2245,7 @@ impl Not for MetaZwpTextInputV3ContentHint {
     }
 }
 
-impl Debug for MetaZwpTextInputV3ContentHint {
+impl Debug for ZwpTextInputV3ContentHint {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut v = self.0;
         let mut first = true;
@@ -2202,9 +2363,9 @@ impl Debug for MetaZwpTextInputV3ContentHint {
 /// extra characters or to disallow some characters.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwpTextInputV3ContentPurpose(pub u32);
+pub struct ZwpTextInputV3ContentPurpose(pub u32);
 
-impl MetaZwpTextInputV3ContentPurpose {
+impl ZwpTextInputV3ContentPurpose {
     /// default input, allowing all characters
     #[allow(dead_code)]
     pub const NORMAL: Self = Self(0);
@@ -2262,7 +2423,7 @@ impl MetaZwpTextInputV3ContentPurpose {
     pub const TERMINAL: Self = Self(13);
 }
 
-impl Debug for MetaZwpTextInputV3ContentPurpose {
+impl Debug for ZwpTextInputV3ContentPurpose {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::NORMAL => "NORMAL",

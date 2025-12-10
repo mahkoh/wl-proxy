@@ -1,24 +1,31 @@
 use {
-    crate::{
-        client::Client, generated::ProxyInterface, object_error::ObjectError, state::InnerState,
-    },
+    crate::{client::Client, generated::ProxyInterface, object_error::ObjectError, state::State},
     std::{
         any::Any,
-        cell::{Cell, RefCell, RefMut},
+        cell::{Cell, Ref, RefCell, RefMut},
         collections::{VecDeque, hash_map::Entry},
         mem,
         ops::{Deref, DerefMut},
         os::fd::OwnedFd,
-        rc::Rc,
+        rc::{Rc, Weak},
     },
     thiserror::Error,
 };
 
-pub trait Proxy: Any {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self>
+#[derive(Debug, Error)]
+pub enum HandlerAccessError {
+    #[error("the handler is already borrowed")]
+    AlreadyBorrowed,
+    #[error("the proxy has no handler")]
+    NoHandler,
+    #[error("the handler has a different type")]
+    InvalidType,
+}
+
+pub trait ProxyPrivate: Any {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self>
     where
         Self: Sized;
-    fn core(&self) -> &ProxyCore;
     fn handle_request(
         self: Rc<Self>,
         client: &Rc<Client>,
@@ -34,8 +41,57 @@ pub trait Proxy: Any {
     fn get_event_name(&self, id: u32) -> Option<&'static str>;
 }
 
+pub trait Proxy: ProxyPrivate {
+    fn core(&self) -> &ProxyCore;
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError>;
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError>;
+    fn unset_handler(&self);
+}
+
+pub trait ProxyUtils: Proxy {
+    fn state(&self) -> &Rc<State> {
+        &self.core().state
+    }
+
+    fn create_child<P>(&self) -> Rc<P>
+    where
+        P: Proxy,
+    {
+        self.core().create_child()
+    }
+
+    fn get_handler_ref<T>(&self) -> Result<Ref<'_, T>, HandlerAccessError>
+    where
+        T: 'static,
+    {
+        let handler = self.get_handler_any_ref()?;
+        handler
+            .downcast_ref::<T>()
+            .ok_or(HandlerAccessError::InvalidType)?;
+        Ok(Ref::map(handler, |h| unsafe {
+            mem::transmute(h as *const dyn Any as *const u8)
+        }))
+    }
+
+    fn get_handler_mut<T>(&self) -> Result<RefMut<'_, T>, HandlerAccessError>
+    where
+        T: 'static,
+    {
+        let mut handler = self.get_handler_any_mut()?;
+        handler
+            .downcast_mut::<T>()
+            .ok_or(HandlerAccessError::InvalidType)?;
+        Ok(RefMut::map(handler, |h| unsafe {
+            mem::transmute(h as *mut dyn Any as *mut u8)
+        }))
+    }
+}
+
+impl<T> ProxyUtils for T where T: Proxy + ?Sized {}
+
 pub struct ProxyCore {
-    pub state: Rc<InnerState>,
+    pub state: Rc<State>,
+    pub proxy_id: u64,
     pub interface: ProxyInterface,
     pub version: u32,
     pub server_obj_id: Cell<Option<u32>>,
@@ -46,6 +102,10 @@ pub struct ProxyCore {
 
 #[derive(Debug, Error)]
 pub enum IdError {
+    #[error("the state is already destroyed")]
+    StateDestroyed,
+    #[error("the client is already destroyed")]
+    ClientDestroyed,
     #[error("object already has the server id {0}")]
     HasServerId(u32),
     #[error("there are no server ids available")]
@@ -67,9 +127,18 @@ pub enum IdError {
 const MIN_SERVER_ID: u32 = 0xff000000;
 
 impl ProxyCore {
-    pub(crate) fn new(state: &Rc<InnerState>, interface: ProxyInterface, version: u32) -> Self {
+    pub(crate) fn new(
+        state: &Rc<State>,
+        slf: Weak<dyn Proxy>,
+        interface: ProxyInterface,
+        version: u32,
+    ) -> Self {
+        let proxy_id = state.next_proxy_id.get();
+        state.next_proxy_id.set(proxy_id + 1);
+        state.all_proxies.borrow_mut().insert(proxy_id, slf);
         Self {
             state: state.clone(),
+            proxy_id,
             interface,
             version,
             server_obj_id: Default::default(),
@@ -79,7 +148,15 @@ impl ProxyCore {
         }
     }
 
+    fn check_server_destroyed(&self) -> Result<(), IdError> {
+        if self.state.destroyed.get() {
+            return Err(IdError::StateDestroyed);
+        }
+        Ok(())
+    }
+
     pub(crate) fn generate_server_id(&self, slf: Rc<dyn Proxy>) -> Result<(), IdError> {
+        self.check_server_destroyed()?;
         if let Some(id) = self.server_obj_id.get() {
             return Err(IdError::HasServerId(id));
         }
@@ -105,6 +182,7 @@ impl ProxyCore {
         id: u32,
         slf: Rc<dyn Proxy>,
     ) -> Result<(), IdError> {
+        self.check_server_destroyed()?;
         if let Some(id) = self.server_obj_id.get() {
             return Err(IdError::HasServerId(id));
         }
@@ -117,11 +195,19 @@ impl ProxyCore {
         Ok(())
     }
 
+    fn check_client_destroyed(&self, client: &Client) -> Result<(), IdError> {
+        if client.destroyed.get() {
+            return Err(IdError::ClientDestroyed);
+        }
+        Ok(())
+    }
+
     pub(crate) fn generate_client_id(
         &self,
         client: &Rc<Client>,
         slf: Rc<dyn Proxy>,
     ) -> Result<(), IdError> {
+        self.check_client_destroyed(client)?;
         if let Some(id) = self.client_obj_id.get() {
             return Err(IdError::HasClientId(id));
         }
@@ -141,6 +227,7 @@ impl ProxyCore {
         id: u32,
         slf: Rc<dyn Proxy>,
     ) -> Result<(), IdError> {
+        self.check_client_destroyed(client)?;
         if id >= MIN_SERVER_ID {
             return Err(IdError::NotClientId(id));
         }
@@ -182,19 +269,32 @@ impl ProxyCore {
         self.server_obj_id.take();
         self.state.server.objects.borrow_mut().remove(&id);
     }
+
+    pub fn create_child<P>(&self) -> Rc<P>
+    where
+        P: Proxy,
+    {
+        self.state.create_proxy::<P>(self.version)
+    }
 }
 
-pub struct MessageHandlerHolder<T: ?Sized> {
-    handler: RefCell<Option<Box<T>>>,
+impl Drop for ProxyCore {
+    fn drop(&mut self) {
+        self.state.all_proxies.borrow_mut().remove(&self.proxy_id);
+    }
+}
+
+pub struct HandlerHolder<T: ?Sized> {
+    pub handler: RefCell<Option<Box<T>>>,
     new: Cell<Option<Option<Box<T>>>>,
 }
 
-pub struct MessageHandlerHolderBorrow<'a, T: ?Sized> {
+pub struct HandlerHolderBorrow<'a, T: ?Sized> {
     handler: RefMut<'a, Option<Box<T>>>,
     new: &'a Cell<Option<Option<Box<T>>>>,
 }
 
-impl<T: ?Sized> Default for MessageHandlerHolder<T> {
+impl<T: ?Sized> Default for HandlerHolder<T> {
     fn default() -> Self {
         Self {
             handler: Default::default(),
@@ -203,9 +303,9 @@ impl<T: ?Sized> Default for MessageHandlerHolder<T> {
     }
 }
 
-impl<T: ?Sized> MessageHandlerHolder<T> {
-    pub fn borrow(&self) -> MessageHandlerHolderBorrow<'_, T> {
-        MessageHandlerHolderBorrow {
+impl<T: ?Sized> HandlerHolder<T> {
+    pub fn borrow(&self) -> HandlerHolderBorrow<'_, T> {
+        HandlerHolderBorrow {
             handler: self.handler.borrow_mut(),
             new: &self.new,
         }
@@ -221,7 +321,7 @@ impl<T: ?Sized> MessageHandlerHolder<T> {
     }
 }
 
-impl<T: ?Sized> Deref for MessageHandlerHolderBorrow<'_, T> {
+impl<T: ?Sized> Deref for HandlerHolderBorrow<'_, T> {
     type Target = Option<Box<T>>;
 
     fn deref(&self) -> &Self::Target {
@@ -229,13 +329,13 @@ impl<T: ?Sized> Deref for MessageHandlerHolderBorrow<'_, T> {
     }
 }
 
-impl<T: ?Sized> DerefMut for MessageHandlerHolderBorrow<'_, T> {
+impl<T: ?Sized> DerefMut for HandlerHolderBorrow<'_, T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.handler
     }
 }
 
-impl<T: ?Sized> Drop for MessageHandlerHolderBorrow<'_, T> {
+impl<T: ?Sized> Drop for HandlerHolderBorrow<'_, T> {
     fn drop(&mut self) {
         if let Some(new) = self.new.take() {
             *self.handler = new;

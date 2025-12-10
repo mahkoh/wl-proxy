@@ -15,39 +15,35 @@ use super::super::all_types::*;
 /// A xdg_toplevel_icon_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaXdgToplevelIconV1 {
+pub struct XdgToplevelIconV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaXdgToplevelIconV1MessageHandler>,
+    handler: HandlerHolder<dyn XdgToplevelIconV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaXdgToplevelIconV1MessageHandler for DefaultMessageHandler { }
+impl XdgToplevelIconV1Handler for DefaultHandler { }
 
-impl MetaXdgToplevelIconV1 {
+impl XdgToplevelIconV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaXdgToplevelIconV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::XdgToplevelIconV1, version),
-            handler: Default::default(),
-        })
+impl XdgToplevelIconV1 {
+    pub fn set_handler(&self, handler: impl XdgToplevelIconV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaXdgToplevelIconV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn XdgToplevelIconV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaXdgToplevelIconV1 {
+impl Debug for XdgToplevelIconV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaXdgToplevelIconV1")
+        f.debug_struct("XdgToplevelIconV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -55,7 +51,7 @@ impl Debug for MetaXdgToplevelIconV1 {
     }
 }
 
-impl MetaXdgToplevelIconV1 {
+impl XdgToplevelIconV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -73,9 +69,14 @@ impl MetaXdgToplevelIconV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel_icon_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -127,9 +128,14 @@ impl MetaXdgToplevelIconV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel_icon_v1#{}.set_name(icon_name: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -180,7 +186,7 @@ impl MetaXdgToplevelIconV1 {
     #[inline]
     pub fn send_add_buffer(
         &self,
-        buffer: &Rc<MetaWlBuffer>,
+        buffer: &Rc<WlBuffer>,
         scale: i32,
     ) -> Result<(), ObjectError> {
         let (
@@ -199,9 +205,14 @@ impl MetaXdgToplevelIconV1 {
             None => return Err(ObjectError::ArgNoServerId("buffer")),
             Some(id) => id,
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel_icon_v1#{}.add_buffer(buffer: wl_buffer#{}, scale: {})\n", id, arg0_id, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -218,7 +229,7 @@ impl MetaXdgToplevelIconV1 {
 
 /// A message handler for [XdgToplevelIconV1] proxies.
 #[allow(dead_code)]
-pub trait MetaXdgToplevelIconV1MessageHandler {
+pub trait XdgToplevelIconV1Handler: Any {
     /// destroy the icon object
     ///
     /// Destroys the 'xdg_toplevel_icon_v1' object.
@@ -227,7 +238,7 @@ pub trait MetaXdgToplevelIconV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaXdgToplevelIconV1>,
+        _slf: &Rc<XdgToplevelIconV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -260,7 +271,7 @@ pub trait MetaXdgToplevelIconV1MessageHandler {
     #[inline]
     fn set_name(
         &mut self,
-        _slf: &Rc<MetaXdgToplevelIconV1>,
+        _slf: &Rc<XdgToplevelIconV1>,
         icon_name: &str,
     ) {
         let res = _slf.send_set_name(
@@ -308,8 +319,8 @@ pub trait MetaXdgToplevelIconV1MessageHandler {
     #[inline]
     fn add_buffer(
         &mut self,
-        _slf: &Rc<MetaXdgToplevelIconV1>,
-        buffer: &Rc<MetaWlBuffer>,
+        _slf: &Rc<XdgToplevelIconV1>,
+        buffer: &Rc<WlBuffer>,
         scale: i32,
     ) {
         let res = _slf.send_add_buffer(
@@ -322,13 +333,12 @@ pub trait MetaXdgToplevelIconV1MessageHandler {
     }
 }
 
-impl Proxy for MetaXdgToplevelIconV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for XdgToplevelIconV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgToplevelIconV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -338,10 +348,15 @@ impl Proxy for MetaXdgToplevelIconV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel_icon_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -372,10 +387,15 @@ impl Proxy for MetaXdgToplevelIconV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel_icon_v1#{}.set_name(icon_name: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_name(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_name(&self, arg0);
+                    DefaultHandler.set_name(&self, arg0);
                 }
             }
             2 => {
@@ -386,11 +406,16 @@ impl Proxy for MetaXdgToplevelIconV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 let arg1 = arg1 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel_icon_v1#{}.add_buffer(buffer: wl_buffer#{}, scale: {})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlBuffer>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlBuffer>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("buffer", o.core().interface, ProxyInterface::WlBuffer));
                 };
@@ -398,7 +423,7 @@ impl Proxy for MetaXdgToplevelIconV1 {
                 if let Some(handler) = handler {
                     (**handler).add_buffer(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.add_buffer(&self, arg0, arg1);
+                    DefaultHandler.add_buffer(&self, arg0, arg1);
                 }
             }
             n => {
@@ -440,7 +465,33 @@ impl Proxy for MetaXdgToplevelIconV1 {
     }
 }
 
-impl MetaXdgToplevelIconV1 {
+impl Proxy for XdgToplevelIconV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl XdgToplevelIconV1 {
     /// Since when the error.invalid_buffer enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_BUFFER__SINCE: u32 = 1;
@@ -454,9 +505,9 @@ impl MetaXdgToplevelIconV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaXdgToplevelIconV1Error(pub u32);
+pub struct XdgToplevelIconV1Error(pub u32);
 
-impl MetaXdgToplevelIconV1Error {
+impl XdgToplevelIconV1Error {
     /// the provided buffer does not satisfy requirements
     #[allow(dead_code)]
     pub const INVALID_BUFFER: Self = Self(1);
@@ -470,7 +521,7 @@ impl MetaXdgToplevelIconV1Error {
     pub const NO_BUFFER: Self = Self(3);
 }
 
-impl Debug for MetaXdgToplevelIconV1Error {
+impl Debug for XdgToplevelIconV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INVALID_BUFFER => "INVALID_BUFFER",

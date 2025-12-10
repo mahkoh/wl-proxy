@@ -11,39 +11,35 @@ use super::super::all_types::*;
 /// A wp_drm_lease_request_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpDrmLeaseRequestV1 {
+pub struct WpDrmLeaseRequestV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpDrmLeaseRequestV1MessageHandler>,
+    handler: HandlerHolder<dyn WpDrmLeaseRequestV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpDrmLeaseRequestV1MessageHandler for DefaultMessageHandler { }
+impl WpDrmLeaseRequestV1Handler for DefaultHandler { }
 
-impl MetaWpDrmLeaseRequestV1 {
+impl WpDrmLeaseRequestV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWpDrmLeaseRequestV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpDrmLeaseRequestV1, version),
-            handler: Default::default(),
-        })
+impl WpDrmLeaseRequestV1 {
+    pub fn set_handler(&self, handler: impl WpDrmLeaseRequestV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpDrmLeaseRequestV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpDrmLeaseRequestV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpDrmLeaseRequestV1 {
+impl Debug for WpDrmLeaseRequestV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpDrmLeaseRequestV1")
+        f.debug_struct("WpDrmLeaseRequestV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -51,7 +47,7 @@ impl Debug for MetaWpDrmLeaseRequestV1 {
     }
 }
 
-impl MetaWpDrmLeaseRequestV1 {
+impl WpDrmLeaseRequestV1 {
     /// Since when the request_connector message is available.
     #[allow(dead_code)]
     pub const MSG__REQUEST_CONNECTOR__SINCE: u32 = 1;
@@ -75,7 +71,7 @@ impl MetaWpDrmLeaseRequestV1 {
     #[inline]
     pub fn send_request_connector(
         &self,
-        connector: &Rc<MetaWpDrmLeaseConnectorV1>,
+        connector: &Rc<WpDrmLeaseConnectorV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -91,9 +87,14 @@ impl MetaWpDrmLeaseRequestV1 {
             None => return Err(ObjectError::ArgNoServerId("connector")),
             Some(id) => id,
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_drm_lease_request_v1#{}.request_connector(connector: wp_drm_lease_connector_v1#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -122,7 +123,7 @@ impl MetaWpDrmLeaseRequestV1 {
     #[inline]
     pub fn send_submit(
         &self,
-        id: &Rc<MetaWpDrmLeaseV1>,
+        id: &Rc<WpDrmLeaseV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -138,9 +139,14 @@ impl MetaWpDrmLeaseRequestV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_drm_lease_request_v1#{}.submit(id: wp_drm_lease_v1#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -157,7 +163,7 @@ impl MetaWpDrmLeaseRequestV1 {
 
 /// A message handler for [WpDrmLeaseRequestV1] proxies.
 #[allow(dead_code)]
-pub trait MetaWpDrmLeaseRequestV1MessageHandler {
+pub trait WpDrmLeaseRequestV1Handler: Any {
     /// request a connector for this lease
     ///
     /// Indicates that the client would like to lease the given connector.
@@ -180,8 +186,8 @@ pub trait MetaWpDrmLeaseRequestV1MessageHandler {
     #[inline]
     fn request_connector(
         &mut self,
-        _slf: &Rc<MetaWpDrmLeaseRequestV1>,
-        connector: &Rc<MetaWpDrmLeaseConnectorV1>,
+        _slf: &Rc<WpDrmLeaseRequestV1>,
+        connector: &Rc<WpDrmLeaseConnectorV1>,
     ) {
         let res = _slf.send_request_connector(
             connector,
@@ -207,8 +213,8 @@ pub trait MetaWpDrmLeaseRequestV1MessageHandler {
     #[inline]
     fn submit(
         &mut self,
-        _slf: &Rc<MetaWpDrmLeaseRequestV1>,
-        id: &Rc<MetaWpDrmLeaseV1>,
+        _slf: &Rc<WpDrmLeaseRequestV1>,
+        id: &Rc<WpDrmLeaseV1>,
     ) {
         let res = _slf.send_submit(
             id,
@@ -219,13 +225,12 @@ pub trait MetaWpDrmLeaseRequestV1MessageHandler {
     }
 }
 
-impl Proxy for MetaWpDrmLeaseRequestV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpDrmLeaseRequestV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpDrmLeaseRequestV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -237,11 +242,16 @@ impl Proxy for MetaWpDrmLeaseRequestV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_drm_lease_request_v1#{}.request_connector(connector: wp_drm_lease_connector_v1#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWpDrmLeaseConnectorV1>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WpDrmLeaseConnectorV1>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("connector", o.core().interface, ProxyInterface::WpDrmLeaseConnectorV1));
                 };
@@ -249,7 +259,7 @@ impl Proxy for MetaWpDrmLeaseRequestV1 {
                 if let Some(handler) = handler {
                     (**handler).request_connector(&self, arg0);
                 } else {
-                    DefaultMessageHandler.request_connector(&self, arg0);
+                    DefaultHandler.request_connector(&self, arg0);
                 }
             }
             1 => {
@@ -258,15 +268,20 @@ impl Proxy for MetaWpDrmLeaseRequestV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_drm_lease_request_v1#{}.submit(id: wp_drm_lease_v1#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWpDrmLeaseV1::new(&self.core.state, self.core.version);
+                let arg0 = WpDrmLeaseV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).submit(&self, arg0);
                 } else {
-                    DefaultMessageHandler.submit(&self, arg0);
+                    DefaultHandler.submit(&self, arg0);
                 }
                 self.core.handle_client_destroy();
             }
@@ -308,7 +323,33 @@ impl Proxy for MetaWpDrmLeaseRequestV1 {
     }
 }
 
-impl MetaWpDrmLeaseRequestV1 {
+impl Proxy for WpDrmLeaseRequestV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WpDrmLeaseRequestV1 {
     /// Since when the error.wrong_device enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_WRONG_DEVICE__SINCE: u32 = 1;
@@ -322,9 +363,9 @@ impl MetaWpDrmLeaseRequestV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpDrmLeaseRequestV1Error(pub u32);
+pub struct WpDrmLeaseRequestV1Error(pub u32);
 
-impl MetaWpDrmLeaseRequestV1Error {
+impl WpDrmLeaseRequestV1Error {
     /// requested a connector from a different lease device
     #[allow(dead_code)]
     pub const WRONG_DEVICE: Self = Self(0);
@@ -338,7 +379,7 @@ impl MetaWpDrmLeaseRequestV1Error {
     pub const EMPTY_LEASE: Self = Self(2);
 }
 
-impl Debug for MetaWpDrmLeaseRequestV1Error {
+impl Debug for WpDrmLeaseRequestV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::WRONG_DEVICE => "WRONG_DEVICE",

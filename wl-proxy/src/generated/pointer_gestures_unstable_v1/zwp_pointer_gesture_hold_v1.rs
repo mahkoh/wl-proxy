@@ -24,39 +24,35 @@ use super::super::all_types::*;
 /// A zwp_pointer_gesture_hold_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwpPointerGestureHoldV1 {
+pub struct ZwpPointerGestureHoldV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwpPointerGestureHoldV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwpPointerGestureHoldV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwpPointerGestureHoldV1MessageHandler for DefaultMessageHandler { }
+impl ZwpPointerGestureHoldV1Handler for DefaultHandler { }
 
-impl MetaZwpPointerGestureHoldV1 {
+impl ZwpPointerGestureHoldV1 {
     pub const XML_VERSION: u32 = 3;
 }
 
-impl MetaZwpPointerGestureHoldV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwpPointerGestureHoldV1, version),
-            handler: Default::default(),
-        })
+impl ZwpPointerGestureHoldV1 {
+    pub fn set_handler(&self, handler: impl ZwpPointerGestureHoldV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwpPointerGestureHoldV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwpPointerGestureHoldV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwpPointerGestureHoldV1 {
+impl Debug for ZwpPointerGestureHoldV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwpPointerGestureHoldV1")
+        f.debug_struct("ZwpPointerGestureHoldV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -64,7 +60,7 @@ impl Debug for MetaZwpPointerGestureHoldV1 {
     }
 }
 
-impl MetaZwpPointerGestureHoldV1 {
+impl ZwpPointerGestureHoldV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 3;
@@ -78,9 +74,14 @@ impl MetaZwpPointerGestureHoldV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_pointer_gesture_hold_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -112,7 +113,7 @@ impl MetaZwpPointerGestureHoldV1 {
         &self,
         serial: u32,
         time: u32,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
         fingers: u32,
     ) -> Result<(), ObjectError> {
         let (
@@ -137,9 +138,14 @@ impl MetaZwpPointerGestureHoldV1 {
             return Err(ObjectError::ArgNoClientId("surface", client.endpoint.id));
         }
         let arg2_id = arg2.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_pointer_gesture_hold_v1#{}.begin(serial: {}, time: {}, surface: wl_surface#{}, fingers: {})\n", client.endpoint.id, id, arg0, arg1, arg2_id, arg3);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -198,9 +204,14 @@ impl MetaZwpPointerGestureHoldV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_pointer_gesture_hold_v1#{}.end(serial: {}, time: {}, cancelled: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -218,12 +229,12 @@ impl MetaZwpPointerGestureHoldV1 {
 
 /// A message handler for [ZwpPointerGestureHoldV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwpPointerGestureHoldV1MessageHandler {
+pub trait ZwpPointerGestureHoldV1Handler: Any {
     /// destroy the hold gesture object
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwpPointerGestureHoldV1>,
+        _slf: &Rc<ZwpPointerGestureHoldV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -248,10 +259,10 @@ pub trait MetaZwpPointerGestureHoldV1MessageHandler {
     #[inline]
     fn begin(
         &mut self,
-        _slf: &Rc<MetaZwpPointerGestureHoldV1>,
+        _slf: &Rc<ZwpPointerGestureHoldV1>,
         serial: u32,
         time: u32,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
         fingers: u32,
     ) {
         if let Some(client_id) = _slf.core.client_id.get() {
@@ -292,7 +303,7 @@ pub trait MetaZwpPointerGestureHoldV1MessageHandler {
     #[inline]
     fn end(
         &mut self,
-        _slf: &Rc<MetaZwpPointerGestureHoldV1>,
+        _slf: &Rc<ZwpPointerGestureHoldV1>,
         serial: u32,
         time: u32,
         cancelled: i32,
@@ -308,13 +319,12 @@ pub trait MetaZwpPointerGestureHoldV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwpPointerGestureHoldV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwpPointerGestureHoldV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpPointerGestureHoldV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -324,10 +334,15 @@ impl Proxy for MetaZwpPointerGestureHoldV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_pointer_gesture_hold_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -354,11 +369,16 @@ impl Proxy for MetaZwpPointerGestureHoldV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_pointer_gesture_hold_v1#{}.begin(serial: {}, time: {}, surface: wl_surface#{}, fingers: {})\n", msg[0], arg0, arg1, arg2, arg3);
+                    self.core.state.log(args);
+                }
                 let arg2_id = arg2;
                 let Some(arg2) = self.core.state.server.lookup(arg2_id) else {
                     return Err(ObjectError::NoServerObject(arg2_id));
                 };
-                let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = self.core.state.server.lookup(arg2_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -366,7 +386,7 @@ impl Proxy for MetaZwpPointerGestureHoldV1 {
                 if let Some(handler) = handler {
                     (**handler).begin(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultMessageHandler.begin(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.begin(&self, arg0, arg1, arg2, arg3);
                 }
             }
             1 => {
@@ -378,10 +398,15 @@ impl Proxy for MetaZwpPointerGestureHoldV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
                 let arg2 = arg2 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_pointer_gesture_hold_v1#{}.end(serial: {}, time: {}, cancelled: {})\n", msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).end(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.end(&self, arg0, arg1, arg2);
+                    DefaultHandler.end(&self, arg0, arg1, arg2);
                 }
             }
             n => {
@@ -409,6 +434,32 @@ impl Proxy for MetaZwpPointerGestureHoldV1 {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for ZwpPointerGestureHoldV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

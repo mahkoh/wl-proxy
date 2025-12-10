@@ -15,39 +15,35 @@ use super::super::all_types::*;
 /// A wp_tearing_control_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpTearingControlV1 {
+pub struct WpTearingControlV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpTearingControlV1MessageHandler>,
+    handler: HandlerHolder<dyn WpTearingControlV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpTearingControlV1MessageHandler for DefaultMessageHandler { }
+impl WpTearingControlV1Handler for DefaultHandler { }
 
-impl MetaWpTearingControlV1 {
+impl WpTearingControlV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWpTearingControlV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpTearingControlV1, version),
-            handler: Default::default(),
-        })
+impl WpTearingControlV1 {
+    pub fn set_handler(&self, handler: impl WpTearingControlV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpTearingControlV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpTearingControlV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpTearingControlV1 {
+impl Debug for WpTearingControlV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpTearingControlV1")
+        f.debug_struct("WpTearingControlV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -55,7 +51,7 @@ impl Debug for MetaWpTearingControlV1 {
     }
 }
 
-impl MetaWpTearingControlV1 {
+impl WpTearingControlV1 {
     /// Since when the set_presentation_hint message is available.
     #[allow(dead_code)]
     pub const MSG__SET_PRESENTATION_HINT__SINCE: u32 = 1;
@@ -75,7 +71,7 @@ impl MetaWpTearingControlV1 {
     #[inline]
     pub fn send_set_presentation_hint(
         &self,
-        hint: MetaWpTearingControlV1PresentationHint,
+        hint: WpTearingControlV1PresentationHint,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -86,9 +82,14 @@ impl MetaWpTearingControlV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_tearing_control_v1#{}.set_presentation_hint(hint: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -117,9 +118,14 @@ impl MetaWpTearingControlV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_tearing_control_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -135,7 +141,7 @@ impl MetaWpTearingControlV1 {
 
 /// A message handler for [WpTearingControlV1] proxies.
 #[allow(dead_code)]
-pub trait MetaWpTearingControlV1MessageHandler {
+pub trait WpTearingControlV1Handler: Any {
     /// set presentation hint
     ///
     /// Set the presentation hint for the associated wl_surface. This state is
@@ -151,8 +157,8 @@ pub trait MetaWpTearingControlV1MessageHandler {
     #[inline]
     fn set_presentation_hint(
         &mut self,
-        _slf: &Rc<MetaWpTearingControlV1>,
-        hint: MetaWpTearingControlV1PresentationHint,
+        _slf: &Rc<WpTearingControlV1>,
+        hint: WpTearingControlV1PresentationHint,
     ) {
         let res = _slf.send_set_presentation_hint(
             hint,
@@ -169,7 +175,7 @@ pub trait MetaWpTearingControlV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWpTearingControlV1>,
+        _slf: &Rc<WpTearingControlV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -179,13 +185,12 @@ pub trait MetaWpTearingControlV1MessageHandler {
     }
 }
 
-impl Proxy for MetaWpTearingControlV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpTearingControlV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpTearingControlV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -197,21 +202,31 @@ impl Proxy for MetaWpTearingControlV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaWpTearingControlV1PresentationHint(arg0);
+                let arg0 = WpTearingControlV1PresentationHint(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_tearing_control_v1#{}.set_presentation_hint(hint: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_presentation_hint(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_presentation_hint(&self, arg0);
+                    DefaultHandler.set_presentation_hint(&self, arg0);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_tearing_control_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -253,7 +268,33 @@ impl Proxy for MetaWpTearingControlV1 {
     }
 }
 
-impl MetaWpTearingControlV1 {
+impl Proxy for WpTearingControlV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WpTearingControlV1 {
     /// Since when the presentation_hint.vsync enum variant is available.
     #[allow(dead_code)]
     pub const ENM__PRESENTATION_HINT_VSYNC__SINCE: u32 = 1;
@@ -268,9 +309,9 @@ impl MetaWpTearingControlV1 {
 /// may be presented with tearing.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpTearingControlV1PresentationHint(pub u32);
+pub struct WpTearingControlV1PresentationHint(pub u32);
 
-impl MetaWpTearingControlV1PresentationHint {
+impl WpTearingControlV1PresentationHint {
     /// tearing-free presentation
     ///
     /// The content of this surface is meant to be synchronized to the
@@ -287,7 +328,7 @@ impl MetaWpTearingControlV1PresentationHint {
     pub const ASYNC: Self = Self(1);
 }
 
-impl Debug for MetaWpTearingControlV1PresentationHint {
+impl Debug for WpTearingControlV1PresentationHint {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::VSYNC => "VSYNC",

@@ -37,39 +37,35 @@ use super::super::all_types::*;
 /// A zwp_linux_surface_synchronization_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwpLinuxSurfaceSynchronizationV1 {
+pub struct ZwpLinuxSurfaceSynchronizationV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwpLinuxSurfaceSynchronizationV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwpLinuxSurfaceSynchronizationV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwpLinuxSurfaceSynchronizationV1MessageHandler for DefaultMessageHandler { }
+impl ZwpLinuxSurfaceSynchronizationV1Handler for DefaultHandler { }
 
-impl MetaZwpLinuxSurfaceSynchronizationV1 {
+impl ZwpLinuxSurfaceSynchronizationV1 {
     pub const XML_VERSION: u32 = 2;
 }
 
-impl MetaZwpLinuxSurfaceSynchronizationV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwpLinuxSurfaceSynchronizationV1, version),
-            handler: Default::default(),
-        })
+impl ZwpLinuxSurfaceSynchronizationV1 {
+    pub fn set_handler(&self, handler: impl ZwpLinuxSurfaceSynchronizationV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwpLinuxSurfaceSynchronizationV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwpLinuxSurfaceSynchronizationV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwpLinuxSurfaceSynchronizationV1 {
+impl Debug for ZwpLinuxSurfaceSynchronizationV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwpLinuxSurfaceSynchronizationV1")
+        f.debug_struct("ZwpLinuxSurfaceSynchronizationV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -77,7 +73,7 @@ impl Debug for MetaZwpLinuxSurfaceSynchronizationV1 {
     }
 }
 
-impl MetaZwpLinuxSurfaceSynchronizationV1 {
+impl ZwpLinuxSurfaceSynchronizationV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -100,9 +96,14 @@ impl MetaZwpLinuxSurfaceSynchronizationV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_linux_surface_synchronization_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -162,9 +163,14 @@ impl MetaZwpLinuxSurfaceSynchronizationV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_linux_surface_synchronization_v1#{}.set_acquire_fence(fd: {})\n", id, arg0.as_raw_fd());
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -203,7 +209,7 @@ impl MetaZwpLinuxSurfaceSynchronizationV1 {
     #[inline]
     pub fn send_get_release(
         &self,
-        release: &Rc<MetaZwpLinuxBufferReleaseV1>,
+        release: &Rc<ZwpLinuxBufferReleaseV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -219,9 +225,14 @@ impl MetaZwpLinuxSurfaceSynchronizationV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("release", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_linux_surface_synchronization_v1#{}.get_release(release: zwp_linux_buffer_release_v1#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -237,7 +248,7 @@ impl MetaZwpLinuxSurfaceSynchronizationV1 {
 
 /// A message handler for [ZwpLinuxSurfaceSynchronizationV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwpLinuxSurfaceSynchronizationV1MessageHandler {
+pub trait ZwpLinuxSurfaceSynchronizationV1Handler: Any {
     /// destroy synchronization object
     ///
     /// Destroy this explicit synchronization object.
@@ -251,7 +262,7 @@ pub trait MetaZwpLinuxSurfaceSynchronizationV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxSurfaceSynchronizationV1>,
+        _slf: &Rc<ZwpLinuxSurfaceSynchronizationV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -292,7 +303,7 @@ pub trait MetaZwpLinuxSurfaceSynchronizationV1MessageHandler {
     #[inline]
     fn set_acquire_fence(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxSurfaceSynchronizationV1>,
+        _slf: &Rc<ZwpLinuxSurfaceSynchronizationV1>,
         fd: &Rc<OwnedFd>,
     ) {
         let res = _slf.send_set_acquire_fence(
@@ -329,8 +340,8 @@ pub trait MetaZwpLinuxSurfaceSynchronizationV1MessageHandler {
     #[inline]
     fn get_release(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxSurfaceSynchronizationV1>,
-        release: &Rc<MetaZwpLinuxBufferReleaseV1>,
+        _slf: &Rc<ZwpLinuxSurfaceSynchronizationV1>,
+        release: &Rc<ZwpLinuxBufferReleaseV1>,
     ) {
         let res = _slf.send_get_release(
             release,
@@ -341,13 +352,12 @@ pub trait MetaZwpLinuxSurfaceSynchronizationV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwpLinuxSurfaceSynchronizationV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwpLinuxSurfaceSynchronizationV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpLinuxSurfaceSynchronizationV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -357,10 +367,15 @@ impl Proxy for MetaZwpLinuxSurfaceSynchronizationV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_linux_surface_synchronization_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -372,10 +387,15 @@ impl Proxy for MetaZwpLinuxSurfaceSynchronizationV1 {
                     return Err(ObjectError::MissingFd("fd"));
                 };
                 let arg0 = &arg0;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_linux_surface_synchronization_v1#{}.set_acquire_fence(fd: {})\n", client.endpoint.id, msg[0], arg0.as_raw_fd());
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_acquire_fence(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_acquire_fence(&self, arg0);
+                    DefaultHandler.set_acquire_fence(&self, arg0);
                 }
             }
             2 => {
@@ -384,15 +404,20 @@ impl Proxy for MetaZwpLinuxSurfaceSynchronizationV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_linux_surface_synchronization_v1#{}.get_release(release: zwp_linux_buffer_release_v1#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaZwpLinuxBufferReleaseV1::new(&self.core.state, self.core.version);
+                let arg0 = ZwpLinuxBufferReleaseV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "release", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).get_release(&self, arg0);
                 } else {
-                    DefaultMessageHandler.get_release(&self, arg0);
+                    DefaultHandler.get_release(&self, arg0);
                 }
             }
             n => {
@@ -434,7 +459,33 @@ impl Proxy for MetaZwpLinuxSurfaceSynchronizationV1 {
     }
 }
 
-impl MetaZwpLinuxSurfaceSynchronizationV1 {
+impl Proxy for ZwpLinuxSurfaceSynchronizationV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl ZwpLinuxSurfaceSynchronizationV1 {
     /// Since when the error.invalid_fence enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_FENCE__SINCE: u32 = 1;
@@ -457,9 +508,9 @@ impl MetaZwpLinuxSurfaceSynchronizationV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwpLinuxSurfaceSynchronizationV1Error(pub u32);
+pub struct ZwpLinuxSurfaceSynchronizationV1Error(pub u32);
 
-impl MetaZwpLinuxSurfaceSynchronizationV1Error {
+impl ZwpLinuxSurfaceSynchronizationV1Error {
     /// the fence specified by the client could not be imported
     #[allow(dead_code)]
     pub const INVALID_FENCE: Self = Self(0);
@@ -485,7 +536,7 @@ impl MetaZwpLinuxSurfaceSynchronizationV1Error {
     pub const NO_BUFFER: Self = Self(5);
 }
 
-impl Debug for MetaZwpLinuxSurfaceSynchronizationV1Error {
+impl Debug for ZwpLinuxSurfaceSynchronizationV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INVALID_FENCE => "INVALID_FENCE",

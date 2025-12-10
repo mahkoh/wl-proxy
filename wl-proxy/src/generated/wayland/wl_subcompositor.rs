@@ -26,39 +26,35 @@ use super::super::all_types::*;
 /// A wl_subcompositor proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWlSubcompositor {
+pub struct WlSubcompositor {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWlSubcompositorMessageHandler>,
+    handler: HandlerHolder<dyn WlSubcompositorHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWlSubcompositorMessageHandler for DefaultMessageHandler { }
+impl WlSubcompositorHandler for DefaultHandler { }
 
-impl MetaWlSubcompositor {
+impl WlSubcompositor {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWlSubcompositor {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WlSubcompositor, version),
-            handler: Default::default(),
-        })
+impl WlSubcompositor {
+    pub fn set_handler(&self, handler: impl WlSubcompositorHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWlSubcompositorMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WlSubcompositorHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWlSubcompositor {
+impl Debug for WlSubcompositor {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWlSubcompositor")
+        f.debug_struct("WlSubcompositor")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -66,7 +62,7 @@ impl Debug for MetaWlSubcompositor {
     }
 }
 
-impl MetaWlSubcompositor {
+impl WlSubcompositor {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -84,9 +80,14 @@ impl MetaWlSubcompositor {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_subcompositor#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -133,9 +134,9 @@ impl MetaWlSubcompositor {
     #[inline]
     pub fn send_get_subsurface(
         &self,
-        id: &Rc<MetaWlSubsurface>,
-        surface: &Rc<MetaWlSurface>,
-        parent: &Rc<MetaWlSurface>,
+        id: &Rc<WlSubsurface>,
+        surface: &Rc<WlSurface>,
+        parent: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -165,9 +166,14 @@ impl MetaWlSubcompositor {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_subcompositor#{}.get_subsurface(id: wl_subsurface#{}, surface: wl_surface#{}, parent: wl_surface#{})\n", id, arg0_id, arg1_id, arg2_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -185,7 +191,7 @@ impl MetaWlSubcompositor {
 
 /// A message handler for [WlSubcompositor] proxies.
 #[allow(dead_code)]
-pub trait MetaWlSubcompositorMessageHandler {
+pub trait WlSubcompositorHandler: Any {
     /// unbind from the subcompositor interface
     ///
     /// Informs the server that the client will not be using this
@@ -194,7 +200,7 @@ pub trait MetaWlSubcompositorMessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWlSubcompositor>,
+        _slf: &Rc<WlSubcompositor>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -236,10 +242,10 @@ pub trait MetaWlSubcompositorMessageHandler {
     #[inline]
     fn get_subsurface(
         &mut self,
-        _slf: &Rc<MetaWlSubcompositor>,
-        id: &Rc<MetaWlSubsurface>,
-        surface: &Rc<MetaWlSurface>,
-        parent: &Rc<MetaWlSurface>,
+        _slf: &Rc<WlSubcompositor>,
+        id: &Rc<WlSubsurface>,
+        surface: &Rc<WlSurface>,
+        parent: &Rc<WlSurface>,
     ) {
         let res = _slf.send_get_subsurface(
             id,
@@ -252,13 +258,12 @@ pub trait MetaWlSubcompositorMessageHandler {
     }
 }
 
-impl Proxy for MetaWlSubcompositor {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WlSubcompositor {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlSubcompositor, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -268,10 +273,15 @@ impl Proxy for MetaWlSubcompositor {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_subcompositor#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -283,15 +293,20 @@ impl Proxy for MetaWlSubcompositor {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_subcompositor#{}.get_subsurface(id: wl_subsurface#{}, surface: wl_surface#{}, parent: wl_surface#{})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWlSubsurface::new(&self.core.state, self.core.version);
+                let arg0 = WlSubsurface::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -299,7 +314,7 @@ impl Proxy for MetaWlSubcompositor {
                 let Some(arg2) = client.endpoint.lookup(arg2_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg2_id));
                 };
-                let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg2_id).unwrap();
                     return Err(ObjectError::WrongObjectType("parent", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -309,7 +324,7 @@ impl Proxy for MetaWlSubcompositor {
                 if let Some(handler) = handler {
                     (**handler).get_subsurface(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.get_subsurface(&self, arg0, arg1, arg2);
+                    DefaultHandler.get_subsurface(&self, arg0, arg1, arg2);
                 }
             }
             n => {
@@ -350,7 +365,33 @@ impl Proxy for MetaWlSubcompositor {
     }
 }
 
-impl MetaWlSubcompositor {
+impl Proxy for WlSubcompositor {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WlSubcompositor {
     /// Since when the error.bad_surface enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_BAD_SURFACE__SINCE: u32 = 1;
@@ -361,9 +402,9 @@ impl MetaWlSubcompositor {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWlSubcompositorError(pub u32);
+pub struct WlSubcompositorError(pub u32);
 
-impl MetaWlSubcompositorError {
+impl WlSubcompositorError {
     /// the to-be sub-surface is invalid
     #[allow(dead_code)]
     pub const BAD_SURFACE: Self = Self(0);
@@ -373,7 +414,7 @@ impl MetaWlSubcompositorError {
     pub const BAD_PARENT: Self = Self(1);
 }
 
-impl Debug for MetaWlSubcompositorError {
+impl Debug for WlSubcompositorError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::BAD_SURFACE => "BAD_SURFACE",

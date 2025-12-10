@@ -12,39 +12,35 @@ use super::super::all_types::*;
 /// A wl_callback proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWlCallback {
+pub struct WlCallback {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWlCallbackMessageHandler>,
+    handler: HandlerHolder<dyn WlCallbackHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWlCallbackMessageHandler for DefaultMessageHandler { }
+impl WlCallbackHandler for DefaultHandler { }
 
-impl MetaWlCallback {
+impl WlCallback {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWlCallback {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WlCallback, version),
-            handler: Default::default(),
-        })
+impl WlCallback {
+    pub fn set_handler(&self, handler: impl WlCallbackHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWlCallbackMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WlCallbackHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWlCallback {
+impl Debug for WlCallback {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWlCallback")
+        f.debug_struct("WlCallback")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -52,7 +48,7 @@ impl Debug for MetaWlCallback {
     }
 }
 
-impl MetaWlCallback {
+impl WlCallback {
     /// Since when the done message is available.
     #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
@@ -80,9 +76,14 @@ impl MetaWlCallback {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_callback#{}.done(callback_data: {})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -102,7 +103,7 @@ impl MetaWlCallback {
 
 /// A message handler for [WlCallback] proxies.
 #[allow(dead_code)]
-pub trait MetaWlCallbackMessageHandler {
+pub trait WlCallbackHandler: Any {
     /// done event
     ///
     /// Notify the client when the related request is done.
@@ -113,7 +114,7 @@ pub trait MetaWlCallbackMessageHandler {
     #[inline]
     fn done(
         &mut self,
-        _slf: &Rc<MetaWlCallback>,
+        _slf: &Rc<WlCallback>,
         callback_data: u32,
     ) {
         let res = _slf.send_done(
@@ -125,13 +126,12 @@ pub trait MetaWlCallbackMessageHandler {
     }
 }
 
-impl Proxy for MetaWlCallback {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WlCallback {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlCallback, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -156,10 +156,15 @@ impl Proxy for MetaWlCallback {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_callback#{}.done(callback_data: {})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).done(&self, arg0);
                 } else {
-                    DefaultMessageHandler.done(&self, arg0);
+                    DefaultHandler.done(&self, arg0);
                 }
                 self.core.handle_server_destroy();
             }
@@ -184,6 +189,32 @@ impl Proxy for MetaWlCallback {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for WlCallback {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

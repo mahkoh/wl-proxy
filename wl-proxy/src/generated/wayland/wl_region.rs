@@ -11,39 +11,35 @@ use super::super::all_types::*;
 /// A wl_region proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWlRegion {
+pub struct WlRegion {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWlRegionMessageHandler>,
+    handler: HandlerHolder<dyn WlRegionHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWlRegionMessageHandler for DefaultMessageHandler { }
+impl WlRegionHandler for DefaultHandler { }
 
-impl MetaWlRegion {
+impl WlRegion {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWlRegion {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WlRegion, version),
-            handler: Default::default(),
-        })
+impl WlRegion {
+    pub fn set_handler(&self, handler: impl WlRegionHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWlRegionMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WlRegionHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWlRegion {
+impl Debug for WlRegion {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWlRegion")
+        f.debug_struct("WlRegion")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -51,7 +47,7 @@ impl Debug for MetaWlRegion {
     }
 }
 
-impl MetaWlRegion {
+impl WlRegion {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -67,9 +63,14 @@ impl MetaWlRegion {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_region#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -119,9 +120,14 @@ impl MetaWlRegion {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_region#{}.add(x: {}, y: {}, width: {}, height: {})\n", id, arg0, arg1, arg2, arg3);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -174,9 +180,14 @@ impl MetaWlRegion {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_region#{}.subtract(x: {}, y: {}, width: {}, height: {})\n", id, arg0, arg1, arg2, arg3);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -195,14 +206,14 @@ impl MetaWlRegion {
 
 /// A message handler for [WlRegion] proxies.
 #[allow(dead_code)]
-pub trait MetaWlRegionMessageHandler {
+pub trait WlRegionHandler: Any {
     /// destroy region
     ///
     /// Destroy the region.  This will invalidate the object ID.
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWlRegion>,
+        _slf: &Rc<WlRegion>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -224,7 +235,7 @@ pub trait MetaWlRegionMessageHandler {
     #[inline]
     fn add(
         &mut self,
-        _slf: &Rc<MetaWlRegion>,
+        _slf: &Rc<WlRegion>,
         x: i32,
         y: i32,
         width: i32,
@@ -254,7 +265,7 @@ pub trait MetaWlRegionMessageHandler {
     #[inline]
     fn subtract(
         &mut self,
-        _slf: &Rc<MetaWlRegion>,
+        _slf: &Rc<WlRegion>,
         x: i32,
         y: i32,
         width: i32,
@@ -272,13 +283,12 @@ pub trait MetaWlRegionMessageHandler {
     }
 }
 
-impl Proxy for MetaWlRegion {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WlRegion {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlRegion, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -288,10 +298,15 @@ impl Proxy for MetaWlRegion {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_region#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -308,10 +323,15 @@ impl Proxy for MetaWlRegion {
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_region#{}.add(x: {}, y: {}, width: {}, height: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).add(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultMessageHandler.add(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.add(&self, arg0, arg1, arg2, arg3);
                 }
             }
             2 => {
@@ -327,10 +347,15 @@ impl Proxy for MetaWlRegion {
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_region#{}.subtract(x: {}, y: {}, width: {}, height: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).subtract(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultMessageHandler.subtract(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.subtract(&self, arg0, arg1, arg2, arg3);
                 }
             }
             n => {
@@ -369,6 +394,32 @@ impl Proxy for MetaWlRegion {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let _ = id;
         None
+    }
+}
+
+impl Proxy for WlRegion {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

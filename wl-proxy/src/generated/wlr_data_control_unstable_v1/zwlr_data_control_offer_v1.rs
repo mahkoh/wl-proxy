@@ -11,39 +11,35 @@ use super::super::all_types::*;
 /// A zwlr_data_control_offer_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwlrDataControlOfferV1 {
+pub struct ZwlrDataControlOfferV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwlrDataControlOfferV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwlrDataControlOfferV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwlrDataControlOfferV1MessageHandler for DefaultMessageHandler { }
+impl ZwlrDataControlOfferV1Handler for DefaultHandler { }
 
-impl MetaZwlrDataControlOfferV1 {
+impl ZwlrDataControlOfferV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwlrDataControlOfferV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwlrDataControlOfferV1, version),
-            handler: Default::default(),
-        })
+impl ZwlrDataControlOfferV1 {
+    pub fn set_handler(&self, handler: impl ZwlrDataControlOfferV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwlrDataControlOfferV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwlrDataControlOfferV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwlrDataControlOfferV1 {
+impl Debug for ZwlrDataControlOfferV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwlrDataControlOfferV1")
+        f.debug_struct("ZwlrDataControlOfferV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -51,7 +47,7 @@ impl Debug for MetaZwlrDataControlOfferV1 {
     }
 }
 
-impl MetaZwlrDataControlOfferV1 {
+impl ZwlrDataControlOfferV1 {
     /// Since when the receive message is available.
     #[allow(dead_code)]
     pub const MSG__RECEIVE__SINCE: u32 = 1;
@@ -90,9 +86,14 @@ impl MetaZwlrDataControlOfferV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_data_control_offer_v1#{}.receive(mime_type: {:?}, fd: {})\n", id, arg0, arg1.as_raw_fd());
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -121,9 +122,14 @@ impl MetaZwlrDataControlOfferV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_data_control_offer_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -164,9 +170,14 @@ impl MetaZwlrDataControlOfferV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_data_control_offer_v1#{}.offer(mime_type: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -182,7 +193,7 @@ impl MetaZwlrDataControlOfferV1 {
 
 /// A message handler for [ZwlrDataControlOfferV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwlrDataControlOfferV1MessageHandler {
+pub trait ZwlrDataControlOfferV1Handler: Any {
     /// request that the data is transferred
     ///
     /// To transfer the offered data, the client issues this request and
@@ -203,7 +214,7 @@ pub trait MetaZwlrDataControlOfferV1MessageHandler {
     #[inline]
     fn receive(
         &mut self,
-        _slf: &Rc<MetaZwlrDataControlOfferV1>,
+        _slf: &Rc<ZwlrDataControlOfferV1>,
         mime_type: &str,
         fd: &Rc<OwnedFd>,
     ) {
@@ -222,7 +233,7 @@ pub trait MetaZwlrDataControlOfferV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwlrDataControlOfferV1>,
+        _slf: &Rc<ZwlrDataControlOfferV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -242,7 +253,7 @@ pub trait MetaZwlrDataControlOfferV1MessageHandler {
     #[inline]
     fn offer(
         &mut self,
-        _slf: &Rc<MetaZwlrDataControlOfferV1>,
+        _slf: &Rc<ZwlrDataControlOfferV1>,
         mime_type: &str,
     ) {
         let res = _slf.send_offer(
@@ -254,13 +265,12 @@ pub trait MetaZwlrDataControlOfferV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwlrDataControlOfferV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwlrDataControlOfferV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrDataControlOfferV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -297,20 +307,30 @@ impl Proxy for MetaZwlrDataControlOfferV1 {
                     return Err(ObjectError::MissingFd("fd"));
                 };
                 let arg1 = &arg1;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_data_control_offer_v1#{}.receive(mime_type: {:?}, fd: {})\n", client.endpoint.id, msg[0], arg0, arg1.as_raw_fd());
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).receive(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.receive(&self, arg0, arg1);
+                    DefaultHandler.receive(&self, arg0, arg1);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_data_control_offer_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -355,10 +375,15 @@ impl Proxy for MetaZwlrDataControlOfferV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_data_control_offer_v1#{}.offer(mime_type: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).offer(&self, arg0);
                 } else {
-                    DefaultMessageHandler.offer(&self, arg0);
+                    DefaultHandler.offer(&self, arg0);
                 }
             }
             n => {
@@ -386,6 +411,32 @@ impl Proxy for MetaZwlrDataControlOfferV1 {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for ZwlrDataControlOfferV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

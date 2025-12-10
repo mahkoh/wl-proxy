@@ -23,39 +23,35 @@ use super::super::all_types::*;
 /// A zwp_linux_buffer_params_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwpLinuxBufferParamsV1 {
+pub struct ZwpLinuxBufferParamsV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwpLinuxBufferParamsV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwpLinuxBufferParamsV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwpLinuxBufferParamsV1MessageHandler for DefaultMessageHandler { }
+impl ZwpLinuxBufferParamsV1Handler for DefaultHandler { }
 
-impl MetaZwpLinuxBufferParamsV1 {
+impl ZwpLinuxBufferParamsV1 {
     pub const XML_VERSION: u32 = 5;
 }
 
-impl MetaZwpLinuxBufferParamsV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwpLinuxBufferParamsV1, version),
-            handler: Default::default(),
-        })
+impl ZwpLinuxBufferParamsV1 {
+    pub fn set_handler(&self, handler: impl ZwpLinuxBufferParamsV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwpLinuxBufferParamsV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwpLinuxBufferParamsV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwpLinuxBufferParamsV1 {
+impl Debug for ZwpLinuxBufferParamsV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwpLinuxBufferParamsV1")
+        f.debug_struct("ZwpLinuxBufferParamsV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -63,7 +59,7 @@ impl Debug for MetaZwpLinuxBufferParamsV1 {
     }
 }
 
-impl MetaZwpLinuxBufferParamsV1 {
+impl ZwpLinuxBufferParamsV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -80,9 +76,14 @@ impl MetaZwpLinuxBufferParamsV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_linux_buffer_params_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -158,9 +159,14 @@ impl MetaZwpLinuxBufferParamsV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_linux_buffer_params_v1#{}.add(fd: {}, plane_idx: {}, offset: {}, stride: {}, modifier_hi: {}, modifier_lo: {})\n", id, arg0.as_raw_fd(), arg1, arg2, arg3, arg4, arg5);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -256,7 +262,7 @@ impl MetaZwpLinuxBufferParamsV1 {
         width: i32,
         height: i32,
         format: u32,
-        flags: MetaZwpLinuxBufferParamsV1Flags,
+        flags: ZwpLinuxBufferParamsV1Flags,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -273,9 +279,14 @@ impl MetaZwpLinuxBufferParamsV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_linux_buffer_params_v1#{}.create(width: {}, height: {}, format: {}, flags: {:?})\n", id, arg0, arg1, arg2, arg3);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -305,7 +316,7 @@ impl MetaZwpLinuxBufferParamsV1 {
     #[inline]
     pub fn send_created(
         &self,
-        buffer: &Rc<MetaWlBuffer>,
+        buffer: &Rc<WlBuffer>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -323,9 +334,14 @@ impl MetaZwpLinuxBufferParamsV1 {
         arg0.generate_client_id(client, arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateClientId("buffer", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_buffer_params_v1#{}.created(buffer: wl_buffer#{})\n", client.endpoint.id, id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -360,9 +376,14 @@ impl MetaZwpLinuxBufferParamsV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_buffer_params_v1#{}.failed()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -415,11 +436,11 @@ impl MetaZwpLinuxBufferParamsV1 {
     #[inline]
     pub fn send_create_immed(
         &self,
-        buffer_id: &Rc<MetaWlBuffer>,
+        buffer_id: &Rc<WlBuffer>,
         width: i32,
         height: i32,
         format: u32,
-        flags: MetaZwpLinuxBufferParamsV1Flags,
+        flags: ZwpLinuxBufferParamsV1Flags,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -443,9 +464,14 @@ impl MetaZwpLinuxBufferParamsV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("buffer_id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_linux_buffer_params_v1#{}.create_immed(buffer_id: wl_buffer#{}, width: {}, height: {}, format: {}, flags: {:?})\n", id, arg0_id, arg1, arg2, arg3, arg4);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -465,7 +491,7 @@ impl MetaZwpLinuxBufferParamsV1 {
 
 /// A message handler for [ZwpLinuxBufferParamsV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwpLinuxBufferParamsV1MessageHandler {
+pub trait ZwpLinuxBufferParamsV1Handler: Any {
     /// delete this object, used or not
     ///
     /// Cleans up the temporary data sent to the server for dmabuf-based
@@ -473,7 +499,7 @@ pub trait MetaZwpLinuxBufferParamsV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxBufferParamsV1>,
+        _slf: &Rc<ZwpLinuxBufferParamsV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -515,7 +541,7 @@ pub trait MetaZwpLinuxBufferParamsV1MessageHandler {
     #[inline]
     fn add(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxBufferParamsV1>,
+        _slf: &Rc<ZwpLinuxBufferParamsV1>,
         fd: &Rc<OwnedFd>,
         plane_idx: u32,
         offset: u32,
@@ -607,11 +633,11 @@ pub trait MetaZwpLinuxBufferParamsV1MessageHandler {
     #[inline]
     fn create(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxBufferParamsV1>,
+        _slf: &Rc<ZwpLinuxBufferParamsV1>,
         width: i32,
         height: i32,
         format: u32,
-        flags: MetaZwpLinuxBufferParamsV1Flags,
+        flags: ZwpLinuxBufferParamsV1Flags,
     ) {
         let res = _slf.send_create(
             width,
@@ -638,8 +664,8 @@ pub trait MetaZwpLinuxBufferParamsV1MessageHandler {
     #[inline]
     fn created(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxBufferParamsV1>,
-        buffer: &Rc<MetaWlBuffer>,
+        _slf: &Rc<ZwpLinuxBufferParamsV1>,
+        buffer: &Rc<WlBuffer>,
     ) {
         let res = _slf.send_created(
             buffer,
@@ -660,7 +686,7 @@ pub trait MetaZwpLinuxBufferParamsV1MessageHandler {
     #[inline]
     fn failed(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxBufferParamsV1>,
+        _slf: &Rc<ZwpLinuxBufferParamsV1>,
     ) {
         let res = _slf.send_failed(
         );
@@ -706,12 +732,12 @@ pub trait MetaZwpLinuxBufferParamsV1MessageHandler {
     #[inline]
     fn create_immed(
         &mut self,
-        _slf: &Rc<MetaZwpLinuxBufferParamsV1>,
-        buffer_id: &Rc<MetaWlBuffer>,
+        _slf: &Rc<ZwpLinuxBufferParamsV1>,
+        buffer_id: &Rc<WlBuffer>,
         width: i32,
         height: i32,
         format: u32,
-        flags: MetaZwpLinuxBufferParamsV1Flags,
+        flags: ZwpLinuxBufferParamsV1Flags,
     ) {
         let res = _slf.send_create_immed(
             buffer_id,
@@ -726,13 +752,12 @@ pub trait MetaZwpLinuxBufferParamsV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwpLinuxBufferParamsV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwpLinuxBufferParamsV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpLinuxBufferParamsV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -742,10 +767,15 @@ impl Proxy for MetaZwpLinuxBufferParamsV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_linux_buffer_params_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -763,10 +793,15 @@ impl Proxy for MetaZwpLinuxBufferParamsV1 {
                     return Err(ObjectError::MissingFd("fd"));
                 };
                 let arg0 = &arg0;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_linux_buffer_params_v1#{}.add(fd: {}, plane_idx: {}, offset: {}, stride: {}, modifier_hi: {}, modifier_lo: {})\n", client.endpoint.id, msg[0], arg0.as_raw_fd(), arg1, arg2, arg3, arg4, arg5);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).add(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 } else {
-                    DefaultMessageHandler.add(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    DefaultHandler.add(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 }
             }
             2 => {
@@ -780,11 +815,16 @@ impl Proxy for MetaZwpLinuxBufferParamsV1 {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
-                let arg3 = MetaZwpLinuxBufferParamsV1Flags(arg3);
+                let arg3 = ZwpLinuxBufferParamsV1Flags(arg3);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_linux_buffer_params_v1#{}.create(width: {}, height: {}, format: {}, flags: {:?})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).create(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultMessageHandler.create(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.create(&self, arg0, arg1, arg2, arg3);
                 }
             }
             3 => {
@@ -799,16 +839,21 @@ impl Proxy for MetaZwpLinuxBufferParamsV1 {
                 };
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
-                let arg4 = MetaZwpLinuxBufferParamsV1Flags(arg4);
+                let arg4 = ZwpLinuxBufferParamsV1Flags(arg4);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_linux_buffer_params_v1#{}.create_immed(buffer_id: wl_buffer#{}, width: {}, height: {}, format: {}, flags: {:?})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWlBuffer::new(&self.core.state, self.core.version);
+                let arg0 = WlBuffer::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "buffer_id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).create_immed(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultMessageHandler.create_immed(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.create_immed(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             n => {
@@ -831,25 +876,35 @@ impl Proxy for MetaZwpLinuxBufferParamsV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_buffer_params_v1#{}.created(buffer: wl_buffer#{})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWlBuffer::new(&self.core.state, self.core.version);
+                let arg0 = WlBuffer::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "buffer", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).created(&self, arg0);
                 } else {
-                    DefaultMessageHandler.created(&self, arg0);
+                    DefaultHandler.created(&self, arg0);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_buffer_params_v1#{}.failed()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).failed(&self);
                 } else {
-                    DefaultMessageHandler.failed(&self);
+                    DefaultHandler.failed(&self);
                 }
             }
             n => {
@@ -883,7 +938,33 @@ impl Proxy for MetaZwpLinuxBufferParamsV1 {
     }
 }
 
-impl MetaZwpLinuxBufferParamsV1 {
+impl Proxy for ZwpLinuxBufferParamsV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl ZwpLinuxBufferParamsV1 {
     /// Since when the error.already_used enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_USED__SINCE: u32 = 1;
@@ -922,9 +1003,9 @@ impl MetaZwpLinuxBufferParamsV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwpLinuxBufferParamsV1Error(pub u32);
+pub struct ZwpLinuxBufferParamsV1Error(pub u32);
 
-impl MetaZwpLinuxBufferParamsV1Error {
+impl ZwpLinuxBufferParamsV1Error {
     /// the dmabuf_batch object has already been used to create a wl_buffer
     #[allow(dead_code)]
     pub const ALREADY_USED: Self = Self(0);
@@ -959,7 +1040,7 @@ impl MetaZwpLinuxBufferParamsV1Error {
     pub const INVALID_WL_BUFFER: Self = Self(7);
 }
 
-impl Debug for MetaZwpLinuxBufferParamsV1Error {
+impl Debug for ZwpLinuxBufferParamsV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::ALREADY_USED => "ALREADY_USED",
@@ -979,15 +1060,15 @@ impl Debug for MetaZwpLinuxBufferParamsV1Error {
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
 #[allow(dead_code)]
-pub struct MetaZwpLinuxBufferParamsV1Flags(pub u32);
+pub struct ZwpLinuxBufferParamsV1Flags(pub u32);
 
-/// An iterator over the set bits in a [MetaZwpLinuxBufferParamsV1Flags].
+/// An iterator over the set bits in a [ZwpLinuxBufferParamsV1Flags].
 ///
-/// You can construct this with the `IntoIterator` implementation of `MetaZwpLinuxBufferParamsV1Flags`.
+/// You can construct this with the `IntoIterator` implementation of `ZwpLinuxBufferParamsV1Flags`.
 #[derive(Clone, Debug)]
-pub struct MetaZwpLinuxBufferParamsV1FlagsIter(pub u32);
+pub struct ZwpLinuxBufferParamsV1FlagsIter(pub u32);
 
-impl MetaZwpLinuxBufferParamsV1Flags {
+impl ZwpLinuxBufferParamsV1Flags {
     /// contents are y-inverted
     #[allow(dead_code)]
     pub const Y_INVERT: Self = Self(1);
@@ -1002,7 +1083,7 @@ impl MetaZwpLinuxBufferParamsV1Flags {
 }
 
 #[allow(dead_code)]
-impl MetaZwpLinuxBufferParamsV1Flags {
+impl ZwpLinuxBufferParamsV1Flags {
     #[inline]
     pub const fn empty() -> Self {
         Self(0)
@@ -1087,8 +1168,8 @@ impl MetaZwpLinuxBufferParamsV1Flags {
     }
 }
 
-impl Iterator for MetaZwpLinuxBufferParamsV1FlagsIter {
-    type Item = MetaZwpLinuxBufferParamsV1Flags;
+impl Iterator for ZwpLinuxBufferParamsV1FlagsIter {
+    type Item = ZwpLinuxBufferParamsV1Flags;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.0 == 0 {
@@ -1096,20 +1177,20 @@ impl Iterator for MetaZwpLinuxBufferParamsV1FlagsIter {
         }
         let bit = 1 << self.0.trailing_zeros();
         self.0 &= !bit;
-        Some(MetaZwpLinuxBufferParamsV1Flags(bit))
+        Some(ZwpLinuxBufferParamsV1Flags(bit))
     }
 }
 
-impl IntoIterator for MetaZwpLinuxBufferParamsV1Flags {
-    type Item = MetaZwpLinuxBufferParamsV1Flags;
-    type IntoIter = MetaZwpLinuxBufferParamsV1FlagsIter;
+impl IntoIterator for ZwpLinuxBufferParamsV1Flags {
+    type Item = ZwpLinuxBufferParamsV1Flags;
+    type IntoIter = ZwpLinuxBufferParamsV1FlagsIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        MetaZwpLinuxBufferParamsV1FlagsIter(self.0)
+        ZwpLinuxBufferParamsV1FlagsIter(self.0)
     }
 }
 
-impl BitAnd for MetaZwpLinuxBufferParamsV1Flags {
+impl BitAnd for ZwpLinuxBufferParamsV1Flags {
     type Output = Self;
 
     fn bitand(self, rhs: Self) -> Self::Output {
@@ -1117,13 +1198,13 @@ impl BitAnd for MetaZwpLinuxBufferParamsV1Flags {
     }
 }
 
-impl BitAndAssign for MetaZwpLinuxBufferParamsV1Flags {
+impl BitAndAssign for ZwpLinuxBufferParamsV1Flags {
     fn bitand_assign(&mut self, rhs: Self) {
         *self = self.intersection(rhs);
     }
 }
 
-impl BitOr for MetaZwpLinuxBufferParamsV1Flags {
+impl BitOr for ZwpLinuxBufferParamsV1Flags {
     type Output = Self;
 
     fn bitor(self, rhs: Self) -> Self::Output {
@@ -1131,13 +1212,13 @@ impl BitOr for MetaZwpLinuxBufferParamsV1Flags {
     }
 }
 
-impl BitOrAssign for MetaZwpLinuxBufferParamsV1Flags {
+impl BitOrAssign for ZwpLinuxBufferParamsV1Flags {
     fn bitor_assign(&mut self, rhs: Self) {
         *self = self.union(rhs);
     }
 }
 
-impl BitXor for MetaZwpLinuxBufferParamsV1Flags {
+impl BitXor for ZwpLinuxBufferParamsV1Flags {
     type Output = Self;
 
     fn bitxor(self, rhs: Self) -> Self::Output {
@@ -1145,13 +1226,13 @@ impl BitXor for MetaZwpLinuxBufferParamsV1Flags {
     }
 }
 
-impl BitXorAssign for MetaZwpLinuxBufferParamsV1Flags {
+impl BitXorAssign for ZwpLinuxBufferParamsV1Flags {
     fn bitxor_assign(&mut self, rhs: Self) {
         *self = self.symmetric_difference(rhs);
     }
 }
 
-impl Sub for MetaZwpLinuxBufferParamsV1Flags {
+impl Sub for ZwpLinuxBufferParamsV1Flags {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -1159,13 +1240,13 @@ impl Sub for MetaZwpLinuxBufferParamsV1Flags {
     }
 }
 
-impl SubAssign for MetaZwpLinuxBufferParamsV1Flags {
+impl SubAssign for ZwpLinuxBufferParamsV1Flags {
     fn sub_assign(&mut self, rhs: Self) {
         *self = self.difference(rhs);
     }
 }
 
-impl Not for MetaZwpLinuxBufferParamsV1Flags {
+impl Not for ZwpLinuxBufferParamsV1Flags {
     type Output = Self;
 
     fn not(self) -> Self::Output {
@@ -1173,7 +1254,7 @@ impl Not for MetaZwpLinuxBufferParamsV1Flags {
     }
 }
 
-impl Debug for MetaZwpLinuxBufferParamsV1Flags {
+impl Debug for ZwpLinuxBufferParamsV1Flags {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut v = self.0;
         let mut first = true;

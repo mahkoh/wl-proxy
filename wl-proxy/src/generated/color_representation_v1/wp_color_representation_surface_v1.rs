@@ -17,39 +17,35 @@ use super::super::all_types::*;
 /// A wp_color_representation_surface_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpColorRepresentationSurfaceV1 {
+pub struct WpColorRepresentationSurfaceV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpColorRepresentationSurfaceV1MessageHandler>,
+    handler: HandlerHolder<dyn WpColorRepresentationSurfaceV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpColorRepresentationSurfaceV1MessageHandler for DefaultMessageHandler { }
+impl WpColorRepresentationSurfaceV1Handler for DefaultHandler { }
 
-impl MetaWpColorRepresentationSurfaceV1 {
+impl WpColorRepresentationSurfaceV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWpColorRepresentationSurfaceV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpColorRepresentationSurfaceV1, version),
-            handler: Default::default(),
-        })
+impl WpColorRepresentationSurfaceV1 {
+    pub fn set_handler(&self, handler: impl WpColorRepresentationSurfaceV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpColorRepresentationSurfaceV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpColorRepresentationSurfaceV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpColorRepresentationSurfaceV1 {
+impl Debug for WpColorRepresentationSurfaceV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpColorRepresentationSurfaceV1")
+        f.debug_struct("WpColorRepresentationSurfaceV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -57,7 +53,7 @@ impl Debug for MetaWpColorRepresentationSurfaceV1 {
     }
 }
 
-impl MetaWpColorRepresentationSurfaceV1 {
+impl WpColorRepresentationSurfaceV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -79,9 +75,14 @@ impl MetaWpColorRepresentationSurfaceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_color_representation_surface_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -118,7 +119,7 @@ impl MetaWpColorRepresentationSurfaceV1 {
     #[inline]
     pub fn send_set_alpha_mode(
         &self,
-        alpha_mode: MetaWpColorRepresentationSurfaceV1AlphaMode,
+        alpha_mode: WpColorRepresentationSurfaceV1AlphaMode,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -129,9 +130,14 @@ impl MetaWpColorRepresentationSurfaceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_color_representation_surface_v1#{}.set_alpha_mode(alpha_mode: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -184,8 +190,8 @@ impl MetaWpColorRepresentationSurfaceV1 {
     #[inline]
     pub fn send_set_coefficients_and_range(
         &self,
-        coefficients: MetaWpColorRepresentationSurfaceV1Coefficients,
-        range: MetaWpColorRepresentationSurfaceV1Range,
+        coefficients: WpColorRepresentationSurfaceV1Coefficients,
+        range: WpColorRepresentationSurfaceV1Range,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -198,9 +204,14 @@ impl MetaWpColorRepresentationSurfaceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_color_representation_surface_v1#{}.set_coefficients_and_range(coefficients: {:?}, range: {:?})\n", id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -244,7 +255,7 @@ impl MetaWpColorRepresentationSurfaceV1 {
     #[inline]
     pub fn send_set_chroma_location(
         &self,
-        chroma_location: MetaWpColorRepresentationSurfaceV1ChromaLocation,
+        chroma_location: WpColorRepresentationSurfaceV1ChromaLocation,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -255,9 +266,14 @@ impl MetaWpColorRepresentationSurfaceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_color_representation_surface_v1#{}.set_chroma_location(chroma_location: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -273,7 +289,7 @@ impl MetaWpColorRepresentationSurfaceV1 {
 
 /// A message handler for [WpColorRepresentationSurfaceV1] proxies.
 #[allow(dead_code)]
-pub trait MetaWpColorRepresentationSurfaceV1MessageHandler {
+pub trait WpColorRepresentationSurfaceV1Handler: Any {
     /// destroy the color representation
     ///
     /// Destroy the wp_color_representation_surface_v1 object.
@@ -286,7 +302,7 @@ pub trait MetaWpColorRepresentationSurfaceV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWpColorRepresentationSurfaceV1>,
+        _slf: &Rc<WpColorRepresentationSurfaceV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -315,8 +331,8 @@ pub trait MetaWpColorRepresentationSurfaceV1MessageHandler {
     #[inline]
     fn set_alpha_mode(
         &mut self,
-        _slf: &Rc<MetaWpColorRepresentationSurfaceV1>,
-        alpha_mode: MetaWpColorRepresentationSurfaceV1AlphaMode,
+        _slf: &Rc<WpColorRepresentationSurfaceV1>,
+        alpha_mode: WpColorRepresentationSurfaceV1AlphaMode,
     ) {
         let res = _slf.send_set_alpha_mode(
             alpha_mode,
@@ -362,9 +378,9 @@ pub trait MetaWpColorRepresentationSurfaceV1MessageHandler {
     #[inline]
     fn set_coefficients_and_range(
         &mut self,
-        _slf: &Rc<MetaWpColorRepresentationSurfaceV1>,
-        coefficients: MetaWpColorRepresentationSurfaceV1Coefficients,
-        range: MetaWpColorRepresentationSurfaceV1Range,
+        _slf: &Rc<WpColorRepresentationSurfaceV1>,
+        coefficients: WpColorRepresentationSurfaceV1Coefficients,
+        range: WpColorRepresentationSurfaceV1Range,
     ) {
         let res = _slf.send_set_coefficients_and_range(
             coefficients,
@@ -401,8 +417,8 @@ pub trait MetaWpColorRepresentationSurfaceV1MessageHandler {
     #[inline]
     fn set_chroma_location(
         &mut self,
-        _slf: &Rc<MetaWpColorRepresentationSurfaceV1>,
-        chroma_location: MetaWpColorRepresentationSurfaceV1ChromaLocation,
+        _slf: &Rc<WpColorRepresentationSurfaceV1>,
+        chroma_location: WpColorRepresentationSurfaceV1ChromaLocation,
     ) {
         let res = _slf.send_set_chroma_location(
             chroma_location,
@@ -413,13 +429,12 @@ pub trait MetaWpColorRepresentationSurfaceV1MessageHandler {
     }
 }
 
-impl Proxy for MetaWpColorRepresentationSurfaceV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpColorRepresentationSurfaceV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpColorRepresentationSurfaceV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -429,10 +444,15 @@ impl Proxy for MetaWpColorRepresentationSurfaceV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_color_representation_surface_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -442,11 +462,16 @@ impl Proxy for MetaWpColorRepresentationSurfaceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaWpColorRepresentationSurfaceV1AlphaMode(arg0);
+                let arg0 = WpColorRepresentationSurfaceV1AlphaMode(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_color_representation_surface_v1#{}.set_alpha_mode(alpha_mode: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_alpha_mode(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_alpha_mode(&self, arg0);
+                    DefaultHandler.set_alpha_mode(&self, arg0);
                 }
             }
             2 => {
@@ -456,12 +481,17 @@ impl Proxy for MetaWpColorRepresentationSurfaceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                let arg0 = MetaWpColorRepresentationSurfaceV1Coefficients(arg0);
-                let arg1 = MetaWpColorRepresentationSurfaceV1Range(arg1);
+                let arg0 = WpColorRepresentationSurfaceV1Coefficients(arg0);
+                let arg1 = WpColorRepresentationSurfaceV1Range(arg1);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_color_representation_surface_v1#{}.set_coefficients_and_range(coefficients: {:?}, range: {:?})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_coefficients_and_range(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.set_coefficients_and_range(&self, arg0, arg1);
+                    DefaultHandler.set_coefficients_and_range(&self, arg0, arg1);
                 }
             }
             3 => {
@@ -470,11 +500,16 @@ impl Proxy for MetaWpColorRepresentationSurfaceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaWpColorRepresentationSurfaceV1ChromaLocation(arg0);
+                let arg0 = WpColorRepresentationSurfaceV1ChromaLocation(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_color_representation_surface_v1#{}.set_chroma_location(chroma_location: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_chroma_location(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_chroma_location(&self, arg0);
+                    DefaultHandler.set_chroma_location(&self, arg0);
                 }
             }
             n => {
@@ -517,7 +552,33 @@ impl Proxy for MetaWpColorRepresentationSurfaceV1 {
     }
 }
 
-impl MetaWpColorRepresentationSurfaceV1 {
+impl Proxy for WpColorRepresentationSurfaceV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WpColorRepresentationSurfaceV1 {
     /// Since when the error.alpha_mode enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_ALPHA_MODE__SINCE: u32 = 1;
@@ -599,9 +660,9 @@ impl MetaWpColorRepresentationSurfaceV1 {
 /// protocol errors
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpColorRepresentationSurfaceV1Error(pub u32);
+pub struct WpColorRepresentationSurfaceV1Error(pub u32);
 
-impl MetaWpColorRepresentationSurfaceV1Error {
+impl WpColorRepresentationSurfaceV1Error {
     /// unsupported alpha mode
     #[allow(dead_code)]
     pub const ALPHA_MODE: Self = Self(1);
@@ -623,7 +684,7 @@ impl MetaWpColorRepresentationSurfaceV1Error {
     pub const CHROMA_LOCATION: Self = Self(5);
 }
 
-impl Debug for MetaWpColorRepresentationSurfaceV1Error {
+impl Debug for WpColorRepresentationSurfaceV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::ALPHA_MODE => "ALPHA_MODE",
@@ -642,9 +703,9 @@ impl Debug for MetaWpColorRepresentationSurfaceV1Error {
 /// Specifies how the alpha channel affects the color channels.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpColorRepresentationSurfaceV1AlphaMode(pub u32);
+pub struct WpColorRepresentationSurfaceV1AlphaMode(pub u32);
 
-impl MetaWpColorRepresentationSurfaceV1AlphaMode {
+impl WpColorRepresentationSurfaceV1AlphaMode {
     /// premultiplied alpha in electrical values
     ///
     /// Electrical color channel values (after transfer function encoding)
@@ -666,7 +727,7 @@ impl MetaWpColorRepresentationSurfaceV1AlphaMode {
     pub const STRAIGHT: Self = Self(2);
 }
 
-impl Debug for MetaWpColorRepresentationSurfaceV1AlphaMode {
+impl Debug for WpColorRepresentationSurfaceV1AlphaMode {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::PREMULTIPLIED_ELECTRICAL => "PREMULTIPLIED_ELECTRICAL",
@@ -690,9 +751,9 @@ impl Debug for MetaWpColorRepresentationSurfaceV1AlphaMode {
 /// Descriptions do list the specifications for convenience.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpColorRepresentationSurfaceV1Coefficients(pub u32);
+pub struct WpColorRepresentationSurfaceV1Coefficients(pub u32);
 
-impl MetaWpColorRepresentationSurfaceV1Coefficients {
+impl WpColorRepresentationSurfaceV1Coefficients {
     /// The identity matrix
     ///
     /// Coefficients as defined by
@@ -791,7 +852,7 @@ impl MetaWpColorRepresentationSurfaceV1Coefficients {
     pub const ICTCP: Self = Self(8);
 }
 
-impl Debug for MetaWpColorRepresentationSurfaceV1Coefficients {
+impl Debug for WpColorRepresentationSurfaceV1Coefficients {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::IDENTITY => "IDENTITY",
@@ -815,9 +876,9 @@ impl Debug for MetaWpColorRepresentationSurfaceV1Coefficients {
 /// A value of 0 is invalid and will never be present in the list of enums.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpColorRepresentationSurfaceV1Range(pub u32);
+pub struct WpColorRepresentationSurfaceV1Range(pub u32);
 
-impl MetaWpColorRepresentationSurfaceV1Range {
+impl WpColorRepresentationSurfaceV1Range {
     /// Full color range
     #[allow(dead_code)]
     pub const FULL: Self = Self(1);
@@ -827,7 +888,7 @@ impl MetaWpColorRepresentationSurfaceV1Range {
     pub const LIMITED: Self = Self(2);
 }
 
-impl Debug for MetaWpColorRepresentationSurfaceV1Range {
+impl Debug for WpColorRepresentationSurfaceV1Range {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::FULL => "FULL",
@@ -848,9 +909,9 @@ impl Debug for MetaWpColorRepresentationSurfaceV1Range {
 /// for convenience.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpColorRepresentationSurfaceV1ChromaLocation(pub u32);
+pub struct WpColorRepresentationSurfaceV1ChromaLocation(pub u32);
 
-impl MetaWpColorRepresentationSurfaceV1ChromaLocation {
+impl WpColorRepresentationSurfaceV1ChromaLocation {
     /// Horizontal offset of 0, vertical offset of 0.5
     ///
     /// Corresponding to VkChromaLocations:
@@ -904,7 +965,7 @@ impl MetaWpColorRepresentationSurfaceV1ChromaLocation {
     pub const TYPE_5: Self = Self(6);
 }
 
-impl Debug for MetaWpColorRepresentationSurfaceV1ChromaLocation {
+impl Debug for WpColorRepresentationSurfaceV1ChromaLocation {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::TYPE_0 => "TYPE_0",

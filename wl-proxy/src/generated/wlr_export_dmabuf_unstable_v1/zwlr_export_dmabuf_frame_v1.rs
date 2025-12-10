@@ -21,39 +21,35 @@ use super::super::all_types::*;
 /// A zwlr_export_dmabuf_frame_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwlrExportDmabufFrameV1 {
+pub struct ZwlrExportDmabufFrameV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwlrExportDmabufFrameV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwlrExportDmabufFrameV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwlrExportDmabufFrameV1MessageHandler for DefaultMessageHandler { }
+impl ZwlrExportDmabufFrameV1Handler for DefaultHandler { }
 
-impl MetaZwlrExportDmabufFrameV1 {
+impl ZwlrExportDmabufFrameV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwlrExportDmabufFrameV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwlrExportDmabufFrameV1, version),
-            handler: Default::default(),
-        })
+impl ZwlrExportDmabufFrameV1 {
+    pub fn set_handler(&self, handler: impl ZwlrExportDmabufFrameV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwlrExportDmabufFrameV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwlrExportDmabufFrameV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwlrExportDmabufFrameV1 {
+impl Debug for ZwlrExportDmabufFrameV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwlrExportDmabufFrameV1")
+        f.debug_struct("ZwlrExportDmabufFrameV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -61,7 +57,7 @@ impl Debug for MetaZwlrExportDmabufFrameV1 {
     }
 }
 
-impl MetaZwlrExportDmabufFrameV1 {
+impl ZwlrExportDmabufFrameV1 {
     /// Since when the frame message is available.
     #[allow(dead_code)]
     pub const MSG__FRAME__SINCE: u32 = 1;
@@ -96,7 +92,7 @@ impl MetaZwlrExportDmabufFrameV1 {
         offset_x: u32,
         offset_y: u32,
         buffer_flags: u32,
-        flags: MetaZwlrExportDmabufFrameV1Flags,
+        flags: ZwlrExportDmabufFrameV1Flags,
         format: u32,
         mod_high: u32,
         mod_low: u32,
@@ -131,9 +127,14 @@ impl MetaZwlrExportDmabufFrameV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_export_dmabuf_frame_v1#{}.frame(width: {}, height: {}, offset_x: {}, offset_y: {}, buffer_flags: {}, flags: {:?}, format: {}, mod_high: {}, mod_low: {}, num_objects: {})\n", client.endpoint.id, id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -206,9 +207,14 @@ impl MetaZwlrExportDmabufFrameV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_export_dmabuf_frame_v1#{}.object(index: {}, fd: {}, size: {}, offset: {}, stride: {}, plane_index: {})\n", client.endpoint.id, id, arg0, arg1.as_raw_fd(), arg2, arg3, arg4, arg5);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -272,9 +278,14 @@ impl MetaZwlrExportDmabufFrameV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_export_dmabuf_frame_v1#{}.ready(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -311,7 +322,7 @@ impl MetaZwlrExportDmabufFrameV1 {
     #[inline]
     pub fn send_cancel(
         &self,
-        reason: MetaZwlrExportDmabufFrameV1CancelReason,
+        reason: ZwlrExportDmabufFrameV1CancelReason,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -324,9 +335,14 @@ impl MetaZwlrExportDmabufFrameV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_export_dmabuf_frame_v1#{}.cancel(reason: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -358,9 +374,14 @@ impl MetaZwlrExportDmabufFrameV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_export_dmabuf_frame_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -376,7 +397,7 @@ impl MetaZwlrExportDmabufFrameV1 {
 
 /// A message handler for [ZwlrExportDmabufFrameV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwlrExportDmabufFrameV1MessageHandler {
+pub trait ZwlrExportDmabufFrameV1Handler: Any {
     /// a frame description
     ///
     /// Main event supplying the client with information about the frame. If the
@@ -402,13 +423,13 @@ pub trait MetaZwlrExportDmabufFrameV1MessageHandler {
     #[inline]
     fn frame(
         &mut self,
-        _slf: &Rc<MetaZwlrExportDmabufFrameV1>,
+        _slf: &Rc<ZwlrExportDmabufFrameV1>,
         width: u32,
         height: u32,
         offset_x: u32,
         offset_y: u32,
         buffer_flags: u32,
-        flags: MetaZwlrExportDmabufFrameV1Flags,
+        flags: ZwlrExportDmabufFrameV1Flags,
         format: u32,
         mod_high: u32,
         mod_low: u32,
@@ -450,7 +471,7 @@ pub trait MetaZwlrExportDmabufFrameV1MessageHandler {
     #[inline]
     fn object(
         &mut self,
-        _slf: &Rc<MetaZwlrExportDmabufFrameV1>,
+        _slf: &Rc<ZwlrExportDmabufFrameV1>,
         index: u32,
         fd: &Rc<OwnedFd>,
         size: u32,
@@ -494,7 +515,7 @@ pub trait MetaZwlrExportDmabufFrameV1MessageHandler {
     #[inline]
     fn ready(
         &mut self,
-        _slf: &Rc<MetaZwlrExportDmabufFrameV1>,
+        _slf: &Rc<ZwlrExportDmabufFrameV1>,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
         tv_nsec: u32,
@@ -527,8 +548,8 @@ pub trait MetaZwlrExportDmabufFrameV1MessageHandler {
     #[inline]
     fn cancel(
         &mut self,
-        _slf: &Rc<MetaZwlrExportDmabufFrameV1>,
-        reason: MetaZwlrExportDmabufFrameV1CancelReason,
+        _slf: &Rc<ZwlrExportDmabufFrameV1>,
+        reason: ZwlrExportDmabufFrameV1CancelReason,
     ) {
         let res = _slf.send_cancel(
             reason,
@@ -548,7 +569,7 @@ pub trait MetaZwlrExportDmabufFrameV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwlrExportDmabufFrameV1>,
+        _slf: &Rc<ZwlrExportDmabufFrameV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -558,13 +579,12 @@ pub trait MetaZwlrExportDmabufFrameV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwlrExportDmabufFrameV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwlrExportDmabufFrameV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrExportDmabufFrameV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -574,10 +594,15 @@ impl Proxy for MetaZwlrExportDmabufFrameV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_export_dmabuf_frame_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -610,11 +635,16 @@ impl Proxy for MetaZwlrExportDmabufFrameV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 48));
                 };
-                let arg5 = MetaZwlrExportDmabufFrameV1Flags(arg5);
+                let arg5 = ZwlrExportDmabufFrameV1Flags(arg5);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_export_dmabuf_frame_v1#{}.frame(width: {}, height: {}, offset_x: {}, offset_y: {}, buffer_flags: {}, flags: {:?}, format: {}, mod_high: {}, mod_low: {}, num_objects: {})\n", msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).frame(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
                 } else {
-                    DefaultMessageHandler.frame(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+                    DefaultHandler.frame(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
                 }
             }
             1 => {
@@ -631,10 +661,15 @@ impl Proxy for MetaZwlrExportDmabufFrameV1 {
                     return Err(ObjectError::MissingFd("fd"));
                 };
                 let arg1 = &arg1;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_export_dmabuf_frame_v1#{}.object(index: {}, fd: {}, size: {}, offset: {}, stride: {}, plane_index: {})\n", msg[0], arg0, arg1.as_raw_fd(), arg2, arg3, arg4, arg5);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).object(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 } else {
-                    DefaultMessageHandler.object(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    DefaultHandler.object(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 }
             }
             2 => {
@@ -645,10 +680,15 @@ impl Proxy for MetaZwlrExportDmabufFrameV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_export_dmabuf_frame_v1#{}.ready(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {})\n", msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).ready(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.ready(&self, arg0, arg1, arg2);
+                    DefaultHandler.ready(&self, arg0, arg1, arg2);
                 }
             }
             3 => {
@@ -657,11 +697,16 @@ impl Proxy for MetaZwlrExportDmabufFrameV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaZwlrExportDmabufFrameV1CancelReason(arg0);
+                let arg0 = ZwlrExportDmabufFrameV1CancelReason(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_export_dmabuf_frame_v1#{}.cancel(reason: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).cancel(&self, arg0);
                 } else {
-                    DefaultMessageHandler.cancel(&self, arg0);
+                    DefaultHandler.cancel(&self, arg0);
                 }
             }
             n => {
@@ -694,7 +739,33 @@ impl Proxy for MetaZwlrExportDmabufFrameV1 {
     }
 }
 
-impl MetaZwlrExportDmabufFrameV1 {
+impl Proxy for ZwlrExportDmabufFrameV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl ZwlrExportDmabufFrameV1 {
     /// Since when the flags.transient enum variant is available.
     #[allow(dead_code)]
     pub const ENM__FLAGS_TRANSIENT__SINCE: u32 = 1;
@@ -715,15 +786,15 @@ impl MetaZwlrExportDmabufFrameV1 {
 /// Special flags that should be respected by the client.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwlrExportDmabufFrameV1Flags(pub u32);
+pub struct ZwlrExportDmabufFrameV1Flags(pub u32);
 
-impl MetaZwlrExportDmabufFrameV1Flags {
+impl ZwlrExportDmabufFrameV1Flags {
     /// clients should copy frame before processing
     #[allow(dead_code)]
     pub const TRANSIENT: Self = Self(0x1);
 }
 
-impl Debug for MetaZwlrExportDmabufFrameV1Flags {
+impl Debug for ZwlrExportDmabufFrameV1Flags {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::TRANSIENT => "TRANSIENT",
@@ -738,9 +809,9 @@ impl Debug for MetaZwlrExportDmabufFrameV1Flags {
 /// Indicates reason for cancelling the frame.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwlrExportDmabufFrameV1CancelReason(pub u32);
+pub struct ZwlrExportDmabufFrameV1CancelReason(pub u32);
 
-impl MetaZwlrExportDmabufFrameV1CancelReason {
+impl ZwlrExportDmabufFrameV1CancelReason {
     /// temporary error, source will produce more frames
     #[allow(dead_code)]
     pub const TEMPORARY: Self = Self(0);
@@ -754,7 +825,7 @@ impl MetaZwlrExportDmabufFrameV1CancelReason {
     pub const RESIZING: Self = Self(2);
 }
 
-impl Debug for MetaZwlrExportDmabufFrameV1CancelReason {
+impl Debug for ZwlrExportDmabufFrameV1CancelReason {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::TEMPORARY => "TEMPORARY",

@@ -101,6 +101,8 @@ fn format_enum_variant(s: &str) -> impl Display + use<'_> {
     })
 }
 
+const PREFIX: &str = "";
+
 fn format_interface_types(w: &mut impl Write, interface: &Interface) -> io::Result<()> {
     define_w!(w);
     let snake = &interface.name;
@@ -108,18 +110,18 @@ fn format_interface_types(w: &mut impl Write, interface: &Interface) -> io::Resu
     wl!(r#"/// A {snake} proxy."#)?;
     wl!(r#"///"#)?;
     wl!(r#"/// See the documentation of [the module][self] for the interface description."#)?;
-    wl!(r#"pub struct Meta{camel} {{"#)?;
+    wl!(r#"pub struct {PREFIX}{camel} {{"#)?;
     wl!(r#"    core: ProxyCore,"#)?;
-    wl!(r#"    handler: MessageHandlerHolder<dyn Meta{camel}MessageHandler>,"#)?;
+    wl!(r#"    handler: HandlerHolder<dyn {PREFIX}{camel}Handler>,"#)?;
     wl!(r#"}}"#)?;
     if interface.messages.len() > 0 {
         wl!()?;
-        wl!(r#"struct DefaultMessageHandler;"#)?;
+        wl!(r#"struct DefaultHandler;"#)?;
         wl!()?;
-        wl!(r#"impl Meta{camel}MessageHandler for DefaultMessageHandler {{ }}"#)?;
+        wl!(r#"impl {PREFIX}{camel}Handler for DefaultHandler {{ }}"#)?;
     }
     wl!()?;
-    wl!(r#"impl Meta{camel} {{"#)?;
+    wl!(r#"impl {PREFIX}{camel} {{"#)?;
     wl!(r#"    pub const XML_VERSION: u32 = {};"#, interface.version)?;
     wl!(r#"}}"#)?;
     Ok(())
@@ -129,20 +131,16 @@ fn format_interface_constructors(w: &mut impl Write, interface: &Interface) -> i
     define_w!(w);
     let snake = &interface.name;
     let camel = format_camel(snake).to_string();
-    wl!(r#"impl Meta{camel} {{"#)?;
-    wl!(r#"    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {{"#)?;
-    wl!(r#"        Rc::new(Self {{"#)?;
-    wl!(r#"            core: ProxyCore::new(state, ProxyInterface::{camel}, version),"#)?;
-    wl!(r#"            handler: Default::default(),"#)?;
-    wl!(r#"        }})"#)?;
+    wl!(r#"impl {PREFIX}{camel} {{"#)?;
+    wl!(r#"    pub fn set_handler(&self, handler: impl {PREFIX}{camel}Handler + 'static) {{"#)?;
+    wl!(r#"        self.set_boxed_handler(Box::new(handler));"#)?;
     wl!(r#"    }}"#)?;
     wl!()?;
-    wl!(r#"    pub fn set_handler(&self, handler: Box<dyn Meta{camel}MessageHandler>) {{"#)?;
+    wl!(r#"    pub fn set_boxed_handler(&self, handler: Box<dyn {PREFIX}{camel}Handler>) {{"#)?;
+    wl!(r#"        if self.core.state.destroyed.get() {{"#)?;
+    wl!(r#"            return;"#)?;
+    wl!(r#"        }}"#)?;
     wl!(r#"        self.handler.set(Some(handler));"#)?;
-    wl!(r#"    }}"#)?;
-    wl!()?;
-    wl!(r#"    pub fn unset_handler(&self) {{"#)?;
-    wl!(r#"        self.handler.set(None);"#)?;
     wl!(r#"    }}"#)?;
     wl!(r#"}}"#)?;
     Ok(())
@@ -155,7 +153,7 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
     }
     let snake = &interface.name;
     let name = format_camel(snake).to_string();
-    wl!(r#"impl Meta{name} {{"#)?;
+    wl!(r#"impl {PREFIX}{name} {{"#)?;
     for (idx, message) in interface.messages.iter().enumerate() {
         if idx > 0 {
             wl!()?;
@@ -300,10 +298,12 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
         } else {
             wl!(r#"        let endpoint = &client.endpoint;"#)?;
         }
-        wl!(r#"        if !endpoint.has_outgoing.replace(true) {{"#)?;
-        wl!(
-            r#"            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());"#
-        )?;
+        wl!(r#"        if !endpoint.flush_queued.replace(true) {{"#)?;
+        if message.is_request {
+            wl!(r#"            self.core.state.add_flushable_endpoint(endpoint, None);"#)?;
+        } else {
+            wl!(r#"            self.core.state.add_flushable_endpoint(endpoint, Some(client));"#)?;
+        }
         wl!(r#"        }}"#)?;
         wl!(r#"        let mut outgoing_ref = endpoint.outgoing.borrow_mut();"#)?;
         wl!(r#"        let outgoing = &mut *outgoing_ref;"#)?;
@@ -370,6 +370,9 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
                 wl!(r#"        self.core.handle_client_destroy();"#)?;
             }
         }
+        if interface.is_wl_fixes && message.name == "destroy_registry" {
+            wl!(r#"        arg0.handle_server_destroy();"#)?;
+        }
         wl!(r#"        Ok(())"#)?;
         wl!(r#"    }}"#)?;
     }
@@ -424,7 +427,7 @@ fn format_interface_message_handler(
     let camel = format_camel(snake).to_string();
     wl!(r#"/// A message handler for [{camel}] proxies."#)?;
     wl!(r#"#[allow(dead_code)]"#)?;
-    wl!(r#"pub trait Meta{camel}MessageHandler {{"#)?;
+    wl!(r#"pub trait {PREFIX}{camel}Handler: Any {{"#)?;
     if mutable_data {
         wl!(r#"    type Data: 'static;"#)?;
         wl!()?;
@@ -440,7 +443,7 @@ fn format_interface_message_handler(
         if mutable_data {
             wl!(r#"        _data: &mut Self::Data,"#)?;
         }
-        wl!(r#"        _slf: &Rc<Meta{camel}>,"#)?;
+        wl!(r#"        _slf: &Rc<{PREFIX}{camel}>,"#)?;
         for arg in &msg.args {
             wl!(
                 r#"        {}: {},"#,
@@ -499,11 +502,11 @@ fn arg_type<'a>(interface: &'a Interface, arg: &'a Arg) -> impl Display + use<'a
     debug_fn(move |f| {
         if let Some(enum_) = &arg.enum_ {
             if enum_.contains('.') {
-                return write!(f, "Meta{}", format_camel(enum_));
+                return write!(f, "{PREFIX}{}", format_camel(enum_));
             }
             return write!(
                 f,
-                "Meta{}{}",
+                "{PREFIX}{}{}",
                 format_camel(&interface.name),
                 format_camel(enum_)
             );
@@ -511,7 +514,7 @@ fn arg_type<'a>(interface: &'a Interface, arg: &'a Arg) -> impl Display + use<'a
         let s = match &arg.ty {
             ArgType::NewId => match &arg.interface {
                 None => "Rc<dyn Proxy>",
-                Some(s) => return write!(f, "&Rc<Meta{}>", format_camel(s)),
+                Some(s) => return write!(f, "&Rc<{PREFIX}{}>", format_camel(s)),
             },
             ArgType::Int => "i32",
             ArgType::Uint => "u32",
@@ -521,13 +524,13 @@ fn arg_type<'a>(interface: &'a Interface, arg: &'a Arg) -> impl Display + use<'a
             ArgType::Object if arg.allow_null => match &arg.interface {
                 None => "Option<Rc<dyn Proxy>>",
                 Some(s) => {
-                    return write!(f, "Option<&Rc<Meta{}>>", format_camel(s));
+                    return write!(f, "Option<&Rc<{PREFIX}{}>>", format_camel(s));
                 }
             },
             ArgType::Object => match &arg.interface {
                 None => "Rc<dyn Proxy>",
                 Some(s) => {
-                    return write!(f, "&Rc<Meta{}>", format_camel(s));
+                    return write!(f, "&Rc<{PREFIX}{}>", format_camel(s));
                 }
             },
             ArgType::Array => "&[u8]",
@@ -555,7 +558,7 @@ pub fn format_mod_file(
             let prefix = debug_fn(|f| {
                 write!(
                     f,
-                    r#"    pub(super) use super::{proto}::{snake}::Meta{camel}"#
+                    r#"    pub(super) use super::{proto}::{snake}::{PREFIX}{camel}"#
                 )
             });
             wl!(r#"{prefix};"#)?;
@@ -568,21 +571,21 @@ pub fn format_mod_file(
     wl!("    use crate::generated_helper::prelude::*;")?;
     wl!()?;
     wl!(
-        "    pub(super) fn create_proxy_for_interface(state: &Rc<InnerState>, interface: &str, version: u32) -> Result<Rc<dyn Proxy>, ObjectError> {{"
+        "    pub(super) fn create_proxy_for_interface(state: &Rc<State>, interface: &str, version: u32) -> Result<Rc<dyn Proxy>, ObjectError> {{"
     )?;
     wl!(
-        "        static INTERFACES: phf::Map<&'static str, fn(&Rc<InnerState>, u32) -> Result<Rc<dyn Proxy>, ObjectError>> = phf::phf_map! {{"
+        "        static INTERFACES: phf::Map<&'static str, fn(&Rc<State>, u32) -> Result<Rc<dyn Proxy>, ObjectError>> = phf::phf_map! {{"
     )?;
     for (_, interfaces) in protocols {
         for (snake, _, _) in interfaces {
             let camel = format_camel(snake).to_string();
             wl!(r#"            "{snake}" => |s, v| {{"#)?;
-            wl!(r#"                if v > Meta{camel}::XML_VERSION {{"#)?;
+            wl!(r#"                if v > {PREFIX}{camel}::XML_VERSION {{"#)?;
             wl!(
                 r#"                    return Err(ObjectError::MaxVersion(ProxyInterface::{camel}, v));"#
             )?;
             wl!(r#"                }}"#)?;
-            wl!(r#"                Ok(Meta{camel}::new(s, v))"#)?;
+            wl!(r#"                Ok({PREFIX}{camel}::new(s, v))"#)?;
             wl!(r#"            }},"#)?;
         }
     }
@@ -787,13 +790,14 @@ fn format_proxy_impl(w: &mut impl Write, interface: &Interface) -> io::Result<()
     define_w!(w);
     let snake = &interface.name;
     let camel = format_camel(snake).to_string();
-    wl!(r#"impl Proxy for Meta{camel} {{"#)?;
-    wl!(r#"    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {{"#)?;
-    wl!(r#"        Self::new(state, version)"#)?;
-    wl!(r#"    }}"#)?;
-    wl!()?;
-    wl!(r#"    fn core(&self) -> &ProxyCore {{"#)?;
-    wl!(r#"        &self.core"#)?;
+    wl!(r#"impl ProxyPrivate for {PREFIX}{camel} {{"#)?;
+    wl!(r#"    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {{"#)?;
+    wl!(r#"        Rc::<Self>::new_cyclic(|slf| Self {{"#)?;
+    wl!(
+        r#"            core: ProxyCore::new(state, slf.clone(), ProxyInterface::{camel}, version),"#
+    )?;
+    wl!(r#"            handler: Default::default(),"#)?;
+    wl!(r#"        }})"#)?;
     wl!(r#"    }}"#)?;
     wl!()?;
     wl!(
@@ -816,6 +820,49 @@ fn format_proxy_impl(w: &mut impl Write, interface: &Interface) -> io::Result<()
     format_proxy_message_name(w, interface, false)?;
     wl!(r#"    }}"#)?;
     wl!(r#"}}"#)?;
+    wl!()?;
+    wl!(r#"impl Proxy for {PREFIX}{camel} {{"#)?;
+    wl!(r#"    fn core(&self) -> &ProxyCore {{"#)?;
+    wl!(r#"        &self.core"#)?;
+    wl!(r#"    }}"#)?;
+    wl!()?;
+    wl!(r#"    fn unset_handler(&self) {{"#)?;
+    wl!(r#"        self.handler.set(None);"#)?;
+    wl!(r#"    }}"#)?;
+    wl!()?;
+    wl!(r#"    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {{"#)?;
+    format_proxy_get_handler(w, false)?;
+    wl!(r#"    }}"#)?;
+    wl!()?;
+    wl!(
+        r#"    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {{"#
+    )?;
+    format_proxy_get_handler(w, true)?;
+    wl!(r#"    }}"#)?;
+    wl!(r#"}}"#)?;
+    Ok(())
+}
+
+fn format_proxy_get_handler(w: &mut impl Write, mutable: bool) -> io::Result<()> {
+    define_w!(w);
+    let p = "        ";
+    let mut suffix = "";
+    if mutable {
+        suffix = "_mut";
+    }
+    wl!(
+        r#"{p}let borrowed = self.handler.handler.try_borrow{suffix}().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;"#
+    )?;
+    wl!(r#"{p}if borrowed.is_none() {{"#)?;
+    wl!(r#"{p}    return Err(HandlerAccessError::NoHandler);"#)?;
+    wl!(r#"{p}}}"#)?;
+    if mutable {
+        wl!(
+            r#"{p}Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))"#
+        )?;
+    } else {
+        wl!(r#"{p}Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))"#)?;
+    }
     Ok(())
 }
 
@@ -850,14 +897,16 @@ fn format_wayland_debug(
     msg: &Message,
     outgoing: bool,
 ) -> io::Result<()> {
-    return Ok(());
     define_w!(w);
+    let mut prefix = "        ";
     if !outgoing {
-        w!(r#"        "#)?;
+        prefix = "                ";
     }
-    w!(r#"        eprintln!(""#)?;
+    wl!(r#"{prefix}if self.core.state.log {{"#)?;
+    wl!(r#"{prefix}    let (millis, micros) = time_since_epoch();"#)?;
+    w!(r#"{prefix}    let args = format_args!("[{{millis:7}}.{{micros:03}}] "#)?;
     if msg.is_request ^ outgoing {
-        w!(r#"client#{{:04}}"#)?;
+        w!(r#"client#{{:<4}}"#)?;
     } else {
         w!(r#"server     "#)?;
     }
@@ -893,7 +942,7 @@ fn format_wayland_debug(
             ArgType::String => w!(r#"{{:?}}"#)?,
         }
     }
-    w!(r#")""#)?;
+    w!(r#")\n""#)?;
     if msg.is_request ^ outgoing {
         w!(r#", client.endpoint.id"#)?;
     }
@@ -938,6 +987,8 @@ fn format_wayland_debug(
         }
     }
     wl!(r#");"#)?;
+    wl!(r#"{prefix}    self.core.state.log(args);"#)?;
+    wl!(r#"{prefix}}}"#)?;
     Ok(())
 }
 
@@ -1142,7 +1193,7 @@ fn format_proxy_message_handler_body<W: Write>(
                         Some(interface) => {
                             let camel = format_camel(interface);
                             wl!(
-                                r#"{p}        let arg{idx} = Meta{camel}::new(&self.core.state, self.core.version);"#
+                                r#"{p}        let arg{idx} = {PREFIX}{camel}::new(&self.core.state, self.core.version);"#
                             )?;
                         }
                         _ => {
@@ -1197,7 +1248,7 @@ fn format_proxy_message_handler_body<W: Write>(
                     if let Some(interface) = &arg.interface {
                         let camel = format_camel(interface);
                         wl!(
-                            r#"{p}        {prefix}let Ok(arg{idx}) = (arg{idx} as Rc<dyn Any>).downcast::<Meta{camel}>() else {{"#
+                            r#"{p}        {prefix}let Ok(arg{idx}) = (arg{idx} as Rc<dyn Any>).downcast::<{PREFIX}{camel}>() else {{"#
                         )?;
                         if msg.is_request {
                             wl!(
@@ -1251,7 +1302,9 @@ fn format_proxy_message_handler_body<W: Write>(
             if msg.name == "delete_id" {
                 wl!(r#"{p}        self.core.state.handle_delete_id(arg0);"#)?;
             } else if msg.name == "error" {
-                wl!(r#"{p}        self.core.state.handle_error(arg0, arg1, arg2);"#)?;
+                wl!(
+                    r#"{p}        return Err(ObjectError::ServerError(arg0.core().interface, arg0_id, arg1, StringError(arg2.to_string())));"#
+                )?;
             }
         } else {
             macro_rules! format_call {
@@ -1267,7 +1320,7 @@ fn format_proxy_message_handler_body<W: Write>(
             wl!(r#"{p}        if let Some(handler) = handler {{"#)?;
             format_call!("(**handler)");
             wl!(r#"{p}        }} else {{"#)?;
-            format_call!("DefaultMessageHandler");
+            format_call!("DefaultHandler");
             wl!(r#"{p}        }}"#)?;
             if msg.ty == Some(MessageType::Destructor) {
                 if msg.is_request {
@@ -1275,6 +1328,9 @@ fn format_proxy_message_handler_body<W: Write>(
                 } else {
                     wl!(r#"{p}        self.core.handle_server_destroy();"#)?;
                 }
+            }
+            if interface.is_wl_fixes && msg.name == "destroy_registry" {
+                wl!(r#"{p}        arg0.core().handle_client_destroy();"#)?;
             }
         }
         wl!(r#"{p}    }}"#)?;
@@ -1299,7 +1355,7 @@ fn format_interface_enums(w: &mut impl Write, interface: &Interface) -> io::Resu
     define_w!(w);
     let camel = format_camel(&interface.name).to_string();
     if interface.enums.len() > 0 {
-        wl!(r#"impl Meta{camel} {{"#)?;
+        wl!(r#"impl {PREFIX}{camel} {{"#)?;
         for (idx, enum_) in interface.enums.iter().enumerate() {
             if idx > 0 {
                 wl!()?;
@@ -1339,20 +1395,20 @@ fn format_interface_enums(w: &mut impl Write, interface: &Interface) -> io::Resu
             wl!(r#"#[derive(Default)]"#)?;
         }
         wl!(r#"#[allow(dead_code)]"#)?;
-        wl!(r#"pub struct Meta{camel}(pub u32);"#)?;
+        wl!(r#"pub struct {PREFIX}{camel}(pub u32);"#)?;
         if enum_.bitfield {
             wl!()?;
-            wl!(r#"/// An iterator over the set bits in a [Meta{camel}]."#)?;
+            wl!(r#"/// An iterator over the set bits in a [{PREFIX}{camel}]."#)?;
             wl!(r#"///"#)?;
             wl!(
-                r#"/// You can construct this with the `IntoIterator` implementation of `Meta{camel}`."#
+                r#"/// You can construct this with the `IntoIterator` implementation of `{PREFIX}{camel}`."#
             )?;
             wl!(r#"#[derive(Clone, Debug)]"#)?;
-            wl!(r#"pub struct Meta{camel}Iter(pub u32);"#)?;
+            wl!(r#"pub struct {PREFIX}{camel}Iter(pub u32);"#)?;
         }
         if enum_.entries.len() > 0 {
             wl!()?;
-            wl!(r#"impl Meta{camel} {{"#)?;
+            wl!(r#"impl {PREFIX}{camel} {{"#)?;
             for (idx, entry) in enum_.entries.iter().enumerate() {
                 if idx > 0 {
                     wl!()?;
@@ -1382,7 +1438,7 @@ fn format_interface_enums(w: &mut impl Write, interface: &Interface) -> io::Resu
         if enum_.bitfield {
             wl!()?;
             wl!(r#"#[allow(dead_code)]"#)?;
-            wl!(r#"impl Meta{camel} {{"#)?;
+            wl!(r#"impl {PREFIX}{camel} {{"#)?;
             wl!(r#"    #[inline]"#)?;
             wl!(r#"    pub const fn empty() -> Self {{"#)?;
             wl!(r#"        Self(0)"#)?;
@@ -1471,8 +1527,8 @@ fn format_interface_enums(w: &mut impl Write, interface: &Interface) -> io::Resu
             wl!(r#"    }}"#)?;
             wl!(r#"}}"#)?;
             wl!()?;
-            wl!(r#"impl Iterator for Meta{camel}Iter {{"#)?;
-            wl!(r#"    type Item = Meta{camel};"#)?;
+            wl!(r#"impl Iterator for {PREFIX}{camel}Iter {{"#)?;
+            wl!(r#"    type Item = {PREFIX}{camel};"#)?;
             wl!()?;
             wl!(r#"    fn next(&mut self) -> Option<Self::Item> {{"#)?;
             wl!(r#"        if self.0 == 0 {{"#)?;
@@ -1480,22 +1536,22 @@ fn format_interface_enums(w: &mut impl Write, interface: &Interface) -> io::Resu
             wl!(r#"        }}"#)?;
             wl!(r#"        let bit = 1 << self.0.trailing_zeros();"#)?;
             wl!(r#"        self.0 &= !bit;"#)?;
-            wl!(r#"        Some(Meta{camel}(bit))"#)?;
+            wl!(r#"        Some({PREFIX}{camel}(bit))"#)?;
             wl!(r#"    }}"#)?;
             wl!(r#"}}"#)?;
             wl!()?;
-            wl!(r#"impl IntoIterator for Meta{camel} {{"#)?;
-            wl!(r#"    type Item = Meta{camel};"#)?;
-            wl!(r#"    type IntoIter = Meta{camel}Iter;"#)?;
+            wl!(r#"impl IntoIterator for {PREFIX}{camel} {{"#)?;
+            wl!(r#"    type Item = {PREFIX}{camel};"#)?;
+            wl!(r#"    type IntoIter = {PREFIX}{camel}Iter;"#)?;
             wl!()?;
             wl!(r#"    fn into_iter(self) -> Self::IntoIter {{"#)?;
-            wl!(r#"        Meta{camel}Iter(self.0)"#)?;
+            wl!(r#"        {PREFIX}{camel}Iter(self.0)"#)?;
             wl!(r#"    }}"#)?;
             wl!(r#"}}"#)?;
             macro_rules! bitop {
                 ($capital:literal, $lower:literal, $op:literal) => {{
                     wl!()?;
-                    wl!(r#"impl Bit{} for Meta{camel} {{"#, $capital)?;
+                    wl!(r#"impl Bit{} for {PREFIX}{camel} {{"#, $capital)?;
                     wl!(r#"    type Output = Self;"#)?;
                     wl!()?;
                     wl!(
@@ -1506,7 +1562,7 @@ fn format_interface_enums(w: &mut impl Write, interface: &Interface) -> io::Resu
                     wl!(r#"    }}"#)?;
                     wl!(r#"}}"#)?;
                     wl!()?;
-                    wl!(r#"impl Bit{}Assign for Meta{camel} {{"#, $capital)?;
+                    wl!(r#"impl Bit{}Assign for {PREFIX}{camel} {{"#, $capital)?;
                     wl!(r#"    fn bit{}_assign(&mut self, rhs: Self) {{"#, $lower)?;
                     wl!(r#"        *self = self.{}(rhs);"#, $op)?;
                     wl!(r#"    }}"#)?;
@@ -1517,7 +1573,7 @@ fn format_interface_enums(w: &mut impl Write, interface: &Interface) -> io::Resu
             bitop!("Or", "or", "union");
             bitop!("Xor", "xor", "symmetric_difference");
             wl!()?;
-            wl!(r#"impl Sub for Meta{camel} {{"#)?;
+            wl!(r#"impl Sub for {PREFIX}{camel} {{"#)?;
             wl!(r#"    type Output = Self;"#)?;
             wl!()?;
             wl!(r#"    fn sub(self, rhs: Self) -> Self::Output {{"#)?;
@@ -1525,13 +1581,13 @@ fn format_interface_enums(w: &mut impl Write, interface: &Interface) -> io::Resu
             wl!(r#"    }}"#)?;
             wl!(r#"}}"#)?;
             wl!()?;
-            wl!(r#"impl SubAssign for Meta{camel} {{"#)?;
+            wl!(r#"impl SubAssign for {PREFIX}{camel} {{"#)?;
             wl!(r#"    fn sub_assign(&mut self, rhs: Self) {{"#)?;
             wl!(r#"        *self = self.difference(rhs);"#)?;
             wl!(r#"    }}"#)?;
             wl!(r#"}}"#)?;
             wl!()?;
-            wl!(r#"impl Not for Meta{camel} {{"#)?;
+            wl!(r#"impl Not for {PREFIX}{camel} {{"#)?;
             wl!(r#"    type Output = Self;"#)?;
             wl!()?;
             wl!(r#"    fn not(self) -> Self::Output {{"#)?;
@@ -1540,7 +1596,7 @@ fn format_interface_enums(w: &mut impl Write, interface: &Interface) -> io::Resu
             wl!(r#"}}"#)?;
         }
         wl!()?;
-        wl!(r#"impl Debug for Meta{camel} {{"#)?;
+        wl!(r#"impl Debug for {PREFIX}{camel} {{"#)?;
         wl!(r#"    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {{"#)?;
         if enum_.bitfield {
             wl!(r#"        let mut v = self.0;"#)?;
@@ -1603,9 +1659,9 @@ fn format_interface_trait_impls(w: &mut impl Write, interface: &Interface) -> io
     define_w!(w);
     let snake = &interface.name;
     let camel = format_camel(snake).to_string();
-    wl!(r#"impl Debug for Meta{camel} {{"#)?;
+    wl!(r#"impl Debug for {PREFIX}{camel} {{"#)?;
     wl!(r#"    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {{"#)?;
-    wl!(r#"        f.debug_struct("Meta{camel}")"#)?;
+    wl!(r#"        f.debug_struct("{PREFIX}{camel}")"#)?;
     wl!(r#"            .field("server_obj_id", &self.core.server_obj_id.get())"#)?;
     wl!(r#"            .field("client_id", &self.core.client_id.get())"#)?;
     wl!(r#"            .field("client_obj_id", &self.core.client_obj_id.get())"#)?;

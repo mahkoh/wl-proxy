@@ -15,39 +15,35 @@ use super::super::all_types::*;
 /// A wl_pointer proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWlPointer {
+pub struct WlPointer {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWlPointerMessageHandler>,
+    handler: HandlerHolder<dyn WlPointerHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWlPointerMessageHandler for DefaultMessageHandler { }
+impl WlPointerHandler for DefaultHandler { }
 
-impl MetaWlPointer {
+impl WlPointer {
     pub const XML_VERSION: u32 = 10;
 }
 
-impl MetaWlPointer {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WlPointer, version),
-            handler: Default::default(),
-        })
+impl WlPointer {
+    pub fn set_handler(&self, handler: impl WlPointerHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWlPointerMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WlPointerHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWlPointer {
+impl Debug for WlPointer {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWlPointer")
+        f.debug_struct("WlPointer")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -55,7 +51,7 @@ impl Debug for MetaWlPointer {
     }
 }
 
-impl MetaWlPointer {
+impl WlPointer {
     /// Since when the set_cursor message is available.
     #[allow(dead_code)]
     pub const MSG__SET_CURSOR__SINCE: u32 = 1;
@@ -106,7 +102,7 @@ impl MetaWlPointer {
     pub fn send_set_cursor(
         &self,
         serial: u32,
-        surface: Option<&Rc<MetaWlSurface>>,
+        surface: Option<&Rc<WlSurface>>,
         hotspot_x: i32,
         hotspot_y: i32,
     ) -> Result<(), ObjectError> {
@@ -133,9 +129,14 @@ impl MetaWlPointer {
                 Some(id) => id,
             },
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_pointer#{}.set_cursor(serial: {}, surface: wl_surface#{}, hotspot_x: {}, hotspot_y: {})\n", id, arg0, arg1_id, arg2, arg3);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -174,7 +175,7 @@ impl MetaWlPointer {
     pub fn send_enter(
         &self,
         serial: u32,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
         surface_x: Fixed,
         surface_y: Fixed,
     ) -> Result<(), ObjectError> {
@@ -200,9 +201,14 @@ impl MetaWlPointer {
             return Err(ObjectError::ArgNoClientId("surface", client.endpoint.id));
         }
         let arg1_id = arg1.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_pointer#{}.enter(serial: {}, surface: wl_surface#{}, surface_x: {}, surface_y: {})\n", client.endpoint.id, id, arg0, arg1_id, arg2, arg3);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -238,7 +244,7 @@ impl MetaWlPointer {
     pub fn send_leave(
         &self,
         serial: u32,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -258,9 +264,14 @@ impl MetaWlPointer {
             return Err(ObjectError::ArgNoClientId("surface", client.endpoint.id));
         }
         let arg1_id = arg1.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_pointer#{}.leave(serial: {}, surface: wl_surface#{})\n", client.endpoint.id, id, arg0, arg1_id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -311,9 +322,14 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_pointer#{}.motion(time: {}, surface_x: {}, surface_y: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -361,7 +377,7 @@ impl MetaWlPointer {
         serial: u32,
         time: u32,
         button: u32,
-        state: MetaWlPointerButtonState,
+        state: WlPointerButtonState,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -380,9 +396,14 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_pointer#{}.button(serial: {}, time: {}, button: {}, state: {:?})\n", client.endpoint.id, id, arg0, arg1, arg2, arg3);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -430,7 +451,7 @@ impl MetaWlPointer {
     pub fn send_axis(
         &self,
         time: u32,
-        axis: MetaWlPointerAxis,
+        axis: WlPointerAxis,
         value: Fixed,
     ) -> Result<(), ObjectError> {
         let (
@@ -448,9 +469,14 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_pointer#{}.axis(time: {}, axis: {:?}, value: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -484,9 +510,14 @@ impl MetaWlPointer {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_pointer#{}.release()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -549,9 +580,14 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_pointer#{}.frame()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -601,7 +637,7 @@ impl MetaWlPointer {
     #[inline]
     pub fn send_axis_source(
         &self,
-        axis_source: MetaWlPointerAxisSource,
+        axis_source: WlPointerAxisSource,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -614,9 +650,14 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_pointer#{}.axis_source(axis_source: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -658,7 +699,7 @@ impl MetaWlPointer {
     pub fn send_axis_stop(
         &self,
         time: u32,
-        axis: MetaWlPointerAxis,
+        axis: WlPointerAxis,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -673,9 +714,14 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_pointer#{}.axis_stop(time: {}, axis: {:?})\n", client.endpoint.id, id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -737,7 +783,7 @@ impl MetaWlPointer {
     #[inline]
     pub fn send_axis_discrete(
         &self,
-        axis: MetaWlPointerAxis,
+        axis: WlPointerAxis,
         discrete: i32,
     ) -> Result<(), ObjectError> {
         let (
@@ -753,9 +799,14 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_pointer#{}.axis_discrete(axis: {:?}, discrete: {})\n", client.endpoint.id, id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -804,7 +855,7 @@ impl MetaWlPointer {
     #[inline]
     pub fn send_axis_value120(
         &self,
-        axis: MetaWlPointerAxis,
+        axis: WlPointerAxis,
         value120: i32,
     ) -> Result<(), ObjectError> {
         let (
@@ -820,9 +871,14 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_pointer#{}.axis_value120(axis: {:?}, value120: {})\n", client.endpoint.id, id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -885,8 +941,8 @@ impl MetaWlPointer {
     #[inline]
     pub fn send_axis_relative_direction(
         &self,
-        axis: MetaWlPointerAxis,
-        direction: MetaWlPointerAxisRelativeDirection,
+        axis: WlPointerAxis,
+        direction: WlPointerAxisRelativeDirection,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -901,9 +957,14 @@ impl MetaWlPointer {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_pointer#{}.axis_relative_direction(axis: {:?}, direction: {:?})\n", client.endpoint.id, id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -920,7 +981,7 @@ impl MetaWlPointer {
 
 /// A message handler for [WlPointer] proxies.
 #[allow(dead_code)]
-pub trait MetaWlPointerMessageHandler {
+pub trait WlPointerHandler: Any {
     /// set the pointer surface
     ///
     /// Set the pointer surface, i.e., the surface that contains the
@@ -969,9 +1030,9 @@ pub trait MetaWlPointerMessageHandler {
     #[inline]
     fn set_cursor(
         &mut self,
-        _slf: &Rc<MetaWlPointer>,
+        _slf: &Rc<WlPointer>,
         serial: u32,
-        surface: Option<&Rc<MetaWlSurface>>,
+        surface: Option<&Rc<WlSurface>>,
         hotspot_x: i32,
         hotspot_y: i32,
     ) {
@@ -1007,9 +1068,9 @@ pub trait MetaWlPointerMessageHandler {
     #[inline]
     fn enter(
         &mut self,
-        _slf: &Rc<MetaWlPointer>,
+        _slf: &Rc<WlPointer>,
         serial: u32,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
         surface_x: Fixed,
         surface_y: Fixed,
     ) {
@@ -1049,9 +1110,9 @@ pub trait MetaWlPointerMessageHandler {
     #[inline]
     fn leave(
         &mut self,
-        _slf: &Rc<MetaWlPointer>,
+        _slf: &Rc<WlPointer>,
         serial: u32,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
     ) {
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
@@ -1083,7 +1144,7 @@ pub trait MetaWlPointerMessageHandler {
     #[inline]
     fn motion(
         &mut self,
-        _slf: &Rc<MetaWlPointer>,
+        _slf: &Rc<WlPointer>,
         time: u32,
         surface_x: Fixed,
         surface_y: Fixed,
@@ -1124,11 +1185,11 @@ pub trait MetaWlPointerMessageHandler {
     #[inline]
     fn button(
         &mut self,
-        _slf: &Rc<MetaWlPointer>,
+        _slf: &Rc<WlPointer>,
         serial: u32,
         time: u32,
         button: u32,
-        state: MetaWlPointerButtonState,
+        state: WlPointerButtonState,
     ) {
         let res = _slf.send_button(
             serial,
@@ -1168,9 +1229,9 @@ pub trait MetaWlPointerMessageHandler {
     #[inline]
     fn axis(
         &mut self,
-        _slf: &Rc<MetaWlPointer>,
+        _slf: &Rc<WlPointer>,
         time: u32,
-        axis: MetaWlPointerAxis,
+        axis: WlPointerAxis,
         value: Fixed,
     ) {
         let res = _slf.send_axis(
@@ -1193,7 +1254,7 @@ pub trait MetaWlPointerMessageHandler {
     #[inline]
     fn release(
         &mut self,
-        _slf: &Rc<MetaWlPointer>,
+        _slf: &Rc<WlPointer>,
     ) {
         let res = _slf.send_release(
         );
@@ -1241,7 +1302,7 @@ pub trait MetaWlPointerMessageHandler {
     #[inline]
     fn frame(
         &mut self,
-        _slf: &Rc<MetaWlPointer>,
+        _slf: &Rc<WlPointer>,
     ) {
         let res = _slf.send_frame(
         );
@@ -1284,8 +1345,8 @@ pub trait MetaWlPointerMessageHandler {
     #[inline]
     fn axis_source(
         &mut self,
-        _slf: &Rc<MetaWlPointer>,
-        axis_source: MetaWlPointerAxisSource,
+        _slf: &Rc<WlPointer>,
+        axis_source: WlPointerAxisSource,
     ) {
         let res = _slf.send_axis_source(
             axis_source,
@@ -1319,9 +1380,9 @@ pub trait MetaWlPointerMessageHandler {
     #[inline]
     fn axis_stop(
         &mut self,
-        _slf: &Rc<MetaWlPointer>,
+        _slf: &Rc<WlPointer>,
         time: u32,
-        axis: MetaWlPointerAxis,
+        axis: WlPointerAxis,
     ) {
         let res = _slf.send_axis_stop(
             time,
@@ -1372,8 +1433,8 @@ pub trait MetaWlPointerMessageHandler {
     #[inline]
     fn axis_discrete(
         &mut self,
-        _slf: &Rc<MetaWlPointer>,
-        axis: MetaWlPointerAxis,
+        _slf: &Rc<WlPointer>,
+        axis: WlPointerAxis,
         discrete: i32,
     ) {
         let res = _slf.send_axis_discrete(
@@ -1416,8 +1477,8 @@ pub trait MetaWlPointerMessageHandler {
     #[inline]
     fn axis_value120(
         &mut self,
-        _slf: &Rc<MetaWlPointer>,
-        axis: MetaWlPointerAxis,
+        _slf: &Rc<WlPointer>,
+        axis: WlPointerAxis,
         value120: i32,
     ) {
         let res = _slf.send_axis_value120(
@@ -1474,9 +1535,9 @@ pub trait MetaWlPointerMessageHandler {
     #[inline]
     fn axis_relative_direction(
         &mut self,
-        _slf: &Rc<MetaWlPointer>,
-        axis: MetaWlPointerAxis,
-        direction: MetaWlPointerAxisRelativeDirection,
+        _slf: &Rc<WlPointer>,
+        axis: WlPointerAxis,
+        direction: WlPointerAxisRelativeDirection,
     ) {
         let res = _slf.send_axis_relative_direction(
             axis,
@@ -1488,13 +1549,12 @@ pub trait MetaWlPointerMessageHandler {
     }
 }
 
-impl Proxy for MetaWlPointer {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WlPointer {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlPointer, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -1511,6 +1571,11 @@ impl Proxy for MetaWlPointer {
                 };
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_pointer#{}.set_cursor(serial: {}, surface: wl_surface#{}, hotspot_x: {}, hotspot_y: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
+                    self.core.state.log(args);
+                }
                 let arg1 = if arg1 == 0 {
                     None
                 } else {
@@ -1518,7 +1583,7 @@ impl Proxy for MetaWlPointer {
                     let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                         return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                     };
-                    let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                    let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                         let o = client.endpoint.lookup(arg1_id).unwrap();
                         return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                     };
@@ -1528,17 +1593,22 @@ impl Proxy for MetaWlPointer {
                 if let Some(handler) = handler {
                     (**handler).set_cursor(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultMessageHandler.set_cursor(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.set_cursor(&self, arg0, arg1, arg2, arg3);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_pointer#{}.release()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
-                    DefaultMessageHandler.release(&self);
+                    DefaultHandler.release(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -1567,11 +1637,16 @@ impl Proxy for MetaWlPointer {
                 };
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 let arg3 = Fixed::from_wire(arg3 as i32);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_pointer#{}.enter(serial: {}, surface: wl_surface#{}, surface_x: {}, surface_y: {})\n", msg[0], arg0, arg1, arg2, arg3);
+                    self.core.state.log(args);
+                }
                 let arg1_id = arg1;
                 let Some(arg1) = self.core.state.server.lookup(arg1_id) else {
                     return Err(ObjectError::NoServerObject(arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = self.core.state.server.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -1579,7 +1654,7 @@ impl Proxy for MetaWlPointer {
                 if let Some(handler) = handler {
                     (**handler).enter(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultMessageHandler.enter(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.enter(&self, arg0, arg1, arg2, arg3);
                 }
             }
             1 => {
@@ -1589,11 +1664,16 @@ impl Proxy for MetaWlPointer {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_pointer#{}.leave(serial: {}, surface: wl_surface#{})\n", msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg1_id = arg1;
                 let Some(arg1) = self.core.state.server.lookup(arg1_id) else {
                     return Err(ObjectError::NoServerObject(arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = self.core.state.server.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -1601,7 +1681,7 @@ impl Proxy for MetaWlPointer {
                 if let Some(handler) = handler {
                     (**handler).leave(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.leave(&self, arg0, arg1);
+                    DefaultHandler.leave(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -1614,10 +1694,15 @@ impl Proxy for MetaWlPointer {
                 };
                 let arg1 = Fixed::from_wire(arg1 as i32);
                 let arg2 = Fixed::from_wire(arg2 as i32);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_pointer#{}.motion(time: {}, surface_x: {}, surface_y: {})\n", msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).motion(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.motion(&self, arg0, arg1, arg2);
+                    DefaultHandler.motion(&self, arg0, arg1, arg2);
                 }
             }
             3 => {
@@ -1629,11 +1714,16 @@ impl Proxy for MetaWlPointer {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
-                let arg3 = MetaWlPointerButtonState(arg3);
+                let arg3 = WlPointerButtonState(arg3);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_pointer#{}.button(serial: {}, time: {}, button: {}, state: {:?})\n", msg[0], arg0, arg1, arg2, arg3);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).button(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultMessageHandler.button(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.button(&self, arg0, arg1, arg2, arg3);
                 }
             }
             4 => {
@@ -1644,22 +1734,32 @@ impl Proxy for MetaWlPointer {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
-                let arg1 = MetaWlPointerAxis(arg1);
+                let arg1 = WlPointerAxis(arg1);
                 let arg2 = Fixed::from_wire(arg2 as i32);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_pointer#{}.axis(time: {}, axis: {:?}, value: {})\n", msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).axis(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.axis(&self, arg0, arg1, arg2);
+                    DefaultHandler.axis(&self, arg0, arg1, arg2);
                 }
             }
             5 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_pointer#{}.frame()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).frame(&self);
                 } else {
-                    DefaultMessageHandler.frame(&self);
+                    DefaultHandler.frame(&self);
                 }
             }
             6 => {
@@ -1668,11 +1768,16 @@ impl Proxy for MetaWlPointer {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaWlPointerAxisSource(arg0);
+                let arg0 = WlPointerAxisSource(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_pointer#{}.axis_source(axis_source: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).axis_source(&self, arg0);
                 } else {
-                    DefaultMessageHandler.axis_source(&self, arg0);
+                    DefaultHandler.axis_source(&self, arg0);
                 }
             }
             7 => {
@@ -1682,11 +1787,16 @@ impl Proxy for MetaWlPointer {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                let arg1 = MetaWlPointerAxis(arg1);
+                let arg1 = WlPointerAxis(arg1);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_pointer#{}.axis_stop(time: {}, axis: {:?})\n", msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).axis_stop(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.axis_stop(&self, arg0, arg1);
+                    DefaultHandler.axis_stop(&self, arg0, arg1);
                 }
             }
             8 => {
@@ -1696,12 +1806,17 @@ impl Proxy for MetaWlPointer {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                let arg0 = MetaWlPointerAxis(arg0);
+                let arg0 = WlPointerAxis(arg0);
                 let arg1 = arg1 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_pointer#{}.axis_discrete(axis: {:?}, discrete: {})\n", msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).axis_discrete(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.axis_discrete(&self, arg0, arg1);
+                    DefaultHandler.axis_discrete(&self, arg0, arg1);
                 }
             }
             9 => {
@@ -1711,12 +1826,17 @@ impl Proxy for MetaWlPointer {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                let arg0 = MetaWlPointerAxis(arg0);
+                let arg0 = WlPointerAxis(arg0);
                 let arg1 = arg1 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_pointer#{}.axis_value120(axis: {:?}, value120: {})\n", msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).axis_value120(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.axis_value120(&self, arg0, arg1);
+                    DefaultHandler.axis_value120(&self, arg0, arg1);
                 }
             }
             10 => {
@@ -1726,12 +1846,17 @@ impl Proxy for MetaWlPointer {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                let arg0 = MetaWlPointerAxis(arg0);
-                let arg1 = MetaWlPointerAxisRelativeDirection(arg1);
+                let arg0 = WlPointerAxis(arg0);
+                let arg1 = WlPointerAxisRelativeDirection(arg1);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_pointer#{}.axis_relative_direction(axis: {:?}, direction: {:?})\n", msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).axis_relative_direction(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.axis_relative_direction(&self, arg0, arg1);
+                    DefaultHandler.axis_relative_direction(&self, arg0, arg1);
                 }
             }
             n => {
@@ -1772,7 +1897,33 @@ impl Proxy for MetaWlPointer {
     }
 }
 
-impl MetaWlPointer {
+impl Proxy for WlPointer {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WlPointer {
     /// Since when the error.role enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_ROLE__SINCE: u32 = 1;
@@ -1814,15 +1965,15 @@ impl MetaWlPointer {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWlPointerError(pub u32);
+pub struct WlPointerError(pub u32);
 
-impl MetaWlPointerError {
+impl WlPointerError {
     /// given wl_surface has another role
     #[allow(dead_code)]
     pub const ROLE: Self = Self(0);
 }
 
-impl Debug for MetaWlPointerError {
+impl Debug for WlPointerError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::ROLE => "ROLE",
@@ -1838,9 +1989,9 @@ impl Debug for MetaWlPointerError {
 /// event.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWlPointerButtonState(pub u32);
+pub struct WlPointerButtonState(pub u32);
 
-impl MetaWlPointerButtonState {
+impl WlPointerButtonState {
     /// the button is not pressed
     #[allow(dead_code)]
     pub const RELEASED: Self = Self(0);
@@ -1850,7 +2001,7 @@ impl MetaWlPointerButtonState {
     pub const PRESSED: Self = Self(1);
 }
 
-impl Debug for MetaWlPointerButtonState {
+impl Debug for WlPointerButtonState {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::RELEASED => "RELEASED",
@@ -1866,9 +2017,9 @@ impl Debug for MetaWlPointerButtonState {
 /// Describes the axis types of scroll events.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWlPointerAxis(pub u32);
+pub struct WlPointerAxis(pub u32);
 
-impl MetaWlPointerAxis {
+impl WlPointerAxis {
     /// vertical axis
     #[allow(dead_code)]
     pub const VERTICAL_SCROLL: Self = Self(0);
@@ -1878,7 +2029,7 @@ impl MetaWlPointerAxis {
     pub const HORIZONTAL_SCROLL: Self = Self(1);
 }
 
-impl Debug for MetaWlPointerAxis {
+impl Debug for WlPointerAxis {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::VERTICAL_SCROLL => "VERTICAL_SCROLL",
@@ -1909,9 +2060,9 @@ impl Debug for MetaWlPointerAxis {
 /// (usually sideways) tilt of the wheel.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWlPointerAxisSource(pub u32);
+pub struct WlPointerAxisSource(pub u32);
 
-impl MetaWlPointerAxisSource {
+impl WlPointerAxisSource {
     /// a physical wheel rotation
     #[allow(dead_code)]
     pub const WHEEL: Self = Self(0);
@@ -1929,7 +2080,7 @@ impl MetaWlPointerAxisSource {
     pub const WHEEL_TILT: Self = Self(3);
 }
 
-impl Debug for MetaWlPointerAxisSource {
+impl Debug for WlPointerAxisSource {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::WHEEL => "WHEEL",
@@ -1948,9 +2099,9 @@ impl Debug for MetaWlPointerAxisSource {
 /// wl_pointer.axis event, relative to the wl_pointer.axis direction.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWlPointerAxisRelativeDirection(pub u32);
+pub struct WlPointerAxisRelativeDirection(pub u32);
 
-impl MetaWlPointerAxisRelativeDirection {
+impl WlPointerAxisRelativeDirection {
     /// physical motion matches axis direction
     #[allow(dead_code)]
     pub const IDENTICAL: Self = Self(0);
@@ -1960,7 +2111,7 @@ impl MetaWlPointerAxisRelativeDirection {
     pub const INVERTED: Self = Self(1);
 }
 
-impl Debug for MetaWlPointerAxisRelativeDirection {
+impl Debug for WlPointerAxisRelativeDirection {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::IDENTICAL => "IDENTICAL",

@@ -8,39 +8,35 @@ use super::super::all_types::*;
 /// A wp_cursor_shape_device_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpCursorShapeDeviceV1 {
+pub struct WpCursorShapeDeviceV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpCursorShapeDeviceV1MessageHandler>,
+    handler: HandlerHolder<dyn WpCursorShapeDeviceV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpCursorShapeDeviceV1MessageHandler for DefaultMessageHandler { }
+impl WpCursorShapeDeviceV1Handler for DefaultHandler { }
 
-impl MetaWpCursorShapeDeviceV1 {
+impl WpCursorShapeDeviceV1 {
     pub const XML_VERSION: u32 = 2;
 }
 
-impl MetaWpCursorShapeDeviceV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpCursorShapeDeviceV1, version),
-            handler: Default::default(),
-        })
+impl WpCursorShapeDeviceV1 {
+    pub fn set_handler(&self, handler: impl WpCursorShapeDeviceV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpCursorShapeDeviceV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpCursorShapeDeviceV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpCursorShapeDeviceV1 {
+impl Debug for WpCursorShapeDeviceV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpCursorShapeDeviceV1")
+        f.debug_struct("WpCursorShapeDeviceV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -48,7 +44,7 @@ impl Debug for MetaWpCursorShapeDeviceV1 {
     }
 }
 
-impl MetaWpCursorShapeDeviceV1 {
+impl WpCursorShapeDeviceV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -66,9 +62,14 @@ impl MetaWpCursorShapeDeviceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_cursor_shape_device_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -114,7 +115,7 @@ impl MetaWpCursorShapeDeviceV1 {
     pub fn send_set_shape(
         &self,
         serial: u32,
-        shape: MetaWpCursorShapeDeviceV1Shape,
+        shape: WpCursorShapeDeviceV1Shape,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -127,9 +128,14 @@ impl MetaWpCursorShapeDeviceV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_cursor_shape_device_v1#{}.set_shape(serial: {}, shape: {:?})\n", id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -146,7 +152,7 @@ impl MetaWpCursorShapeDeviceV1 {
 
 /// A message handler for [WpCursorShapeDeviceV1] proxies.
 #[allow(dead_code)]
-pub trait MetaWpCursorShapeDeviceV1MessageHandler {
+pub trait WpCursorShapeDeviceV1Handler: Any {
     /// destroy the cursor shape device
     ///
     /// Destroy the cursor shape device.
@@ -155,7 +161,7 @@ pub trait MetaWpCursorShapeDeviceV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWpCursorShapeDeviceV1>,
+        _slf: &Rc<WpCursorShapeDeviceV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -192,9 +198,9 @@ pub trait MetaWpCursorShapeDeviceV1MessageHandler {
     #[inline]
     fn set_shape(
         &mut self,
-        _slf: &Rc<MetaWpCursorShapeDeviceV1>,
+        _slf: &Rc<WpCursorShapeDeviceV1>,
         serial: u32,
-        shape: MetaWpCursorShapeDeviceV1Shape,
+        shape: WpCursorShapeDeviceV1Shape,
     ) {
         let res = _slf.send_set_shape(
             serial,
@@ -206,13 +212,12 @@ pub trait MetaWpCursorShapeDeviceV1MessageHandler {
     }
 }
 
-impl Proxy for MetaWpCursorShapeDeviceV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpCursorShapeDeviceV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpCursorShapeDeviceV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -222,10 +227,15 @@ impl Proxy for MetaWpCursorShapeDeviceV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_cursor_shape_device_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -236,11 +246,16 @@ impl Proxy for MetaWpCursorShapeDeviceV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
-                let arg1 = MetaWpCursorShapeDeviceV1Shape(arg1);
+                let arg1 = WpCursorShapeDeviceV1Shape(arg1);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_cursor_shape_device_v1#{}.set_shape(serial: {}, shape: {:?})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_shape(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.set_shape(&self, arg0, arg1);
+                    DefaultHandler.set_shape(&self, arg0, arg1);
                 }
             }
             n => {
@@ -281,7 +296,33 @@ impl Proxy for MetaWpCursorShapeDeviceV1 {
     }
 }
 
-impl MetaWpCursorShapeDeviceV1 {
+impl Proxy for WpCursorShapeDeviceV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WpCursorShapeDeviceV1 {
     /// Since when the shape.default enum variant is available.
     #[allow(dead_code)]
     pub const ENM__SHAPE_DEFAULT__SINCE: u32 = 1;
@@ -412,9 +453,9 @@ impl MetaWpCursorShapeDeviceV1 {
 /// should use visually compatible images and metaphors.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpCursorShapeDeviceV1Shape(pub u32);
+pub struct WpCursorShapeDeviceV1Shape(pub u32);
 
-impl MetaWpCursorShapeDeviceV1Shape {
+impl WpCursorShapeDeviceV1Shape {
     /// default cursor
     #[allow(dead_code)]
     pub const DEFAULT: Self = Self(1);
@@ -560,7 +601,7 @@ impl MetaWpCursorShapeDeviceV1Shape {
     pub const ALL_RESIZE: Self = Self(36);
 }
 
-impl Debug for MetaWpCursorShapeDeviceV1Shape {
+impl Debug for WpCursorShapeDeviceV1Shape {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::DEFAULT => "DEFAULT",
@@ -607,15 +648,15 @@ impl Debug for MetaWpCursorShapeDeviceV1Shape {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpCursorShapeDeviceV1Error(pub u32);
+pub struct WpCursorShapeDeviceV1Error(pub u32);
 
-impl MetaWpCursorShapeDeviceV1Error {
+impl WpCursorShapeDeviceV1Error {
     /// the specified shape value is invalid
     #[allow(dead_code)]
     pub const INVALID_SHAPE: Self = Self(1);
 }
 
-impl Debug for MetaWpCursorShapeDeviceV1Error {
+impl Debug for WpCursorShapeDeviceV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INVALID_SHAPE => "INVALID_SHAPE",

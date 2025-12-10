@@ -16,39 +16,35 @@ use super::super::all_types::*;
 /// A xdg_dialog_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaXdgDialogV1 {
+pub struct XdgDialogV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaXdgDialogV1MessageHandler>,
+    handler: HandlerHolder<dyn XdgDialogV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaXdgDialogV1MessageHandler for DefaultMessageHandler { }
+impl XdgDialogV1Handler for DefaultHandler { }
 
-impl MetaXdgDialogV1 {
+impl XdgDialogV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaXdgDialogV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::XdgDialogV1, version),
-            handler: Default::default(),
-        })
+impl XdgDialogV1 {
+    pub fn set_handler(&self, handler: impl XdgDialogV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaXdgDialogV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn XdgDialogV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaXdgDialogV1 {
+impl Debug for XdgDialogV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaXdgDialogV1")
+        f.debug_struct("XdgDialogV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -56,7 +52,7 @@ impl Debug for MetaXdgDialogV1 {
     }
 }
 
-impl MetaXdgDialogV1 {
+impl XdgDialogV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -74,9 +70,14 @@ impl MetaXdgDialogV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_dialog_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -114,9 +115,14 @@ impl MetaXdgDialogV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_dialog_v1#{}.set_modal()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -144,9 +150,14 @@ impl MetaXdgDialogV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_dialog_v1#{}.unset_modal()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -161,7 +172,7 @@ impl MetaXdgDialogV1 {
 
 /// A message handler for [XdgDialogV1] proxies.
 #[allow(dead_code)]
-pub trait MetaXdgDialogV1MessageHandler {
+pub trait XdgDialogV1Handler: Any {
     /// destroy the dialog object
     ///
     /// Destroys the xdg_dialog_v1 object. If this object is destroyed
@@ -170,7 +181,7 @@ pub trait MetaXdgDialogV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaXdgDialogV1>,
+        _slf: &Rc<XdgDialogV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -195,7 +206,7 @@ pub trait MetaXdgDialogV1MessageHandler {
     #[inline]
     fn set_modal(
         &mut self,
-        _slf: &Rc<MetaXdgDialogV1>,
+        _slf: &Rc<XdgDialogV1>,
     ) {
         let res = _slf.send_set_modal(
         );
@@ -211,7 +222,7 @@ pub trait MetaXdgDialogV1MessageHandler {
     #[inline]
     fn unset_modal(
         &mut self,
-        _slf: &Rc<MetaXdgDialogV1>,
+        _slf: &Rc<XdgDialogV1>,
     ) {
         let res = _slf.send_unset_modal(
         );
@@ -221,13 +232,12 @@ pub trait MetaXdgDialogV1MessageHandler {
     }
 }
 
-impl Proxy for MetaXdgDialogV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for XdgDialogV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgDialogV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -237,10 +247,15 @@ impl Proxy for MetaXdgDialogV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_dialog_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -248,20 +263,30 @@ impl Proxy for MetaXdgDialogV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_dialog_v1#{}.set_modal()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_modal(&self);
                 } else {
-                    DefaultMessageHandler.set_modal(&self);
+                    DefaultHandler.set_modal(&self);
                 }
             }
             2 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_dialog_v1#{}.unset_modal()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).unset_modal(&self);
                 } else {
-                    DefaultMessageHandler.unset_modal(&self);
+                    DefaultHandler.unset_modal(&self);
                 }
             }
             n => {
@@ -300,6 +325,32 @@ impl Proxy for MetaXdgDialogV1 {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let _ = id;
         None
+    }
+}
+
+impl Proxy for XdgDialogV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

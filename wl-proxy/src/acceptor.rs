@@ -2,8 +2,9 @@ use {
     crate::xrd::xrd,
     error_reporter::Report,
     std::{
+        env::set_var,
         io,
-        os::fd::{AsRawFd, OwnedFd},
+        os::fd::{AsFd, AsRawFd, BorrowedFd, OwnedFd},
         rc::Rc,
     },
     thiserror::Error,
@@ -11,9 +12,9 @@ use {
 };
 
 pub struct Acceptor {
-    pub id: u64,
-    pub socket: OwnedFd,
-    pub display: String,
+    pub(crate) id: u64,
+    pub(crate) socket: OwnedFd,
+    pub(crate) display: String,
 }
 
 #[derive(Debug, Error)]
@@ -41,19 +42,27 @@ pub enum AcceptorError {
 }
 
 impl Acceptor {
-    pub fn new(id: u64) -> Result<Rc<Self>, AcceptorError> {
+    pub fn new(max_tries: u32, non_blocking: bool) -> Result<Rc<Self>, AcceptorError> {
+        Self::create(0, max_tries, non_blocking)
+    }
+
+    pub(crate) fn create(
+        id: u64,
+        max_tries: u32,
+        non_blocking: bool,
+    ) -> Result<Rc<Self>, AcceptorError> {
         let xrd = match xrd() {
             Some(d) => d,
             _ => return Err(AcceptorError::XrdNotSet),
         };
-        let socket = uapi::socket(
-            c::AF_UNIX,
-            c::SOCK_STREAM | c::SOCK_NONBLOCK | c::SOCK_CLOEXEC,
-            0,
-        )
-        .map_err(|e| AcceptorError::CreateSocket(e.into()))?;
+        let mut ty = c::SOCK_STREAM | c::SOCK_CLOEXEC;
+        if non_blocking {
+            ty |= c::SOCK_NONBLOCK;
+        }
+        let socket =
+            uapi::socket(c::AF_UNIX, ty, 0).map_err(|e| AcceptorError::CreateSocket(e.into()))?;
         let socket = socket.into();
-        for i in 1..1000 {
+        for i in 1..max_tries {
             if let Err(e) = bind_socket(&socket, &xrd, i) {
                 log::debug!("Cannot use the wayland-{} socket: {}", i, Report::new(e));
                 continue;
@@ -70,16 +79,33 @@ impl Acceptor {
         Err(AcceptorError::AddressesInUse)
     }
 
+    pub fn display(&self) -> &str {
+        &self.display
+    }
+
+    pub fn socket(&self) -> BorrowedFd<'_> {
+        self.socket.as_fd()
+    }
+
+    pub unsafe fn setenv(&self) {
+        unsafe {
+            set_var("WAYLAND_DISPLAY", &self.display);
+        }
+    }
+
     pub fn accept(&self) -> Result<Option<OwnedFd>, AcceptorError> {
-        let res = uapi::accept4(
-            self.socket.as_raw_fd(),
-            sockaddr_none_mut(),
-            c::SOCK_NONBLOCK | c::SOCK_CLOEXEC,
-        );
-        match res {
-            Ok((s, _)) => Ok(Some(s.into())),
-            Err(Errno(c::EAGAIN)) => Ok(None),
-            Err(e) => Err(AcceptorError::Accept(e.into())),
+        loop {
+            let res = uapi::accept4(
+                self.socket.as_raw_fd(),
+                sockaddr_none_mut(),
+                c::SOCK_NONBLOCK | c::SOCK_CLOEXEC,
+            );
+            match res {
+                Ok((s, _)) => return Ok(Some(s.into())),
+                Err(Errno(c::EAGAIN)) => return Ok(None),
+                Err(Errno(c::EINTR)) => {}
+                Err(e) => return Err(AcceptorError::Accept(e.into())),
+            }
         }
     }
 }

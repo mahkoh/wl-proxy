@@ -11,39 +11,35 @@ use super::super::all_types::*;
 /// A zxdg_exported_v2 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZxdgExportedV2 {
+pub struct ZxdgExportedV2 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZxdgExportedV2MessageHandler>,
+    handler: HandlerHolder<dyn ZxdgExportedV2Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZxdgExportedV2MessageHandler for DefaultMessageHandler { }
+impl ZxdgExportedV2Handler for DefaultHandler { }
 
-impl MetaZxdgExportedV2 {
+impl ZxdgExportedV2 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZxdgExportedV2 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZxdgExportedV2, version),
-            handler: Default::default(),
-        })
+impl ZxdgExportedV2 {
+    pub fn set_handler(&self, handler: impl ZxdgExportedV2Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZxdgExportedV2MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZxdgExportedV2Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZxdgExportedV2 {
+impl Debug for ZxdgExportedV2 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZxdgExportedV2")
+        f.debug_struct("ZxdgExportedV2")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -51,7 +47,7 @@ impl Debug for MetaZxdgExportedV2 {
     }
 }
 
-impl MetaZxdgExportedV2 {
+impl ZxdgExportedV2 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -69,9 +65,14 @@ impl MetaZxdgExportedV2 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zxdg_exported_v2#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -114,9 +115,14 @@ impl MetaZxdgExportedV2 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zxdg_exported_v2#{}.handle(handle: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -132,7 +138,7 @@ impl MetaZxdgExportedV2 {
 
 /// A message handler for [ZxdgExportedV2] proxies.
 #[allow(dead_code)]
-pub trait MetaZxdgExportedV2MessageHandler {
+pub trait ZxdgExportedV2Handler: Any {
     /// unexport the exported surface
     ///
     /// Revoke the previously exported surface. This invalidates any
@@ -141,7 +147,7 @@ pub trait MetaZxdgExportedV2MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZxdgExportedV2>,
+        _slf: &Rc<ZxdgExportedV2>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -163,7 +169,7 @@ pub trait MetaZxdgExportedV2MessageHandler {
     #[inline]
     fn handle(
         &mut self,
-        _slf: &Rc<MetaZxdgExportedV2>,
+        _slf: &Rc<ZxdgExportedV2>,
         handle: &str,
     ) {
         let res = _slf.send_handle(
@@ -175,13 +181,12 @@ pub trait MetaZxdgExportedV2MessageHandler {
     }
 }
 
-impl Proxy for MetaZxdgExportedV2 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZxdgExportedV2 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZxdgExportedV2, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -191,10 +196,15 @@ impl Proxy for MetaZxdgExportedV2 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zxdg_exported_v2#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -239,10 +249,15 @@ impl Proxy for MetaZxdgExportedV2 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zxdg_exported_v2#{}.handle(handle: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).handle(&self, arg0);
                 } else {
-                    DefaultMessageHandler.handle(&self, arg0);
+                    DefaultHandler.handle(&self, arg0);
                 }
             }
             n => {
@@ -269,6 +284,32 @@ impl Proxy for MetaZxdgExportedV2 {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for ZxdgExportedV2 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

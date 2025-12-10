@@ -15,39 +15,35 @@ use super::super::all_types::*;
 /// A xdg_activation_token_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaXdgActivationTokenV1 {
+pub struct XdgActivationTokenV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaXdgActivationTokenV1MessageHandler>,
+    handler: HandlerHolder<dyn XdgActivationTokenV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaXdgActivationTokenV1MessageHandler for DefaultMessageHandler { }
+impl XdgActivationTokenV1Handler for DefaultHandler { }
 
-impl MetaXdgActivationTokenV1 {
+impl XdgActivationTokenV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaXdgActivationTokenV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::XdgActivationTokenV1, version),
-            handler: Default::default(),
-        })
+impl XdgActivationTokenV1 {
+    pub fn set_handler(&self, handler: impl XdgActivationTokenV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaXdgActivationTokenV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn XdgActivationTokenV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaXdgActivationTokenV1 {
+impl Debug for XdgActivationTokenV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaXdgActivationTokenV1")
+        f.debug_struct("XdgActivationTokenV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -55,7 +51,7 @@ impl Debug for MetaXdgActivationTokenV1 {
     }
 }
 
-impl MetaXdgActivationTokenV1 {
+impl XdgActivationTokenV1 {
     /// Since when the set_serial message is available.
     #[allow(dead_code)]
     pub const MSG__SET_SERIAL__SINCE: u32 = 1;
@@ -83,7 +79,7 @@ impl MetaXdgActivationTokenV1 {
     pub fn send_set_serial(
         &self,
         serial: u32,
-        seat: &Rc<MetaWlSeat>,
+        seat: &Rc<WlSeat>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -101,9 +97,14 @@ impl MetaXdgActivationTokenV1 {
             None => return Err(ObjectError::ArgNoServerId("seat")),
             Some(id) => id,
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_activation_token_v1#{}.set_serial(serial: {}, seat: wl_seat#{})\n", id, arg0, arg1_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -145,9 +146,14 @@ impl MetaXdgActivationTokenV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_activation_token_v1#{}.set_app_id(app_id: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -180,7 +186,7 @@ impl MetaXdgActivationTokenV1 {
     #[inline]
     pub fn send_set_surface(
         &self,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -196,9 +202,14 @@ impl MetaXdgActivationTokenV1 {
             None => return Err(ObjectError::ArgNoServerId("surface")),
             Some(id) => id,
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_activation_token_v1#{}.set_surface(surface: wl_surface#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -227,9 +238,14 @@ impl MetaXdgActivationTokenV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_activation_token_v1#{}.commit()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -269,9 +285,14 @@ impl MetaXdgActivationTokenV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= xdg_activation_token_v1#{}.done(token: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -300,9 +321,14 @@ impl MetaXdgActivationTokenV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_activation_token_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -318,7 +344,7 @@ impl MetaXdgActivationTokenV1 {
 
 /// A message handler for [XdgActivationTokenV1] proxies.
 #[allow(dead_code)]
-pub trait MetaXdgActivationTokenV1MessageHandler {
+pub trait XdgActivationTokenV1Handler: Any {
     /// specifies the seat and serial of the activating event
     ///
     /// Provides information about the seat and serial event that requested the
@@ -344,9 +370,9 @@ pub trait MetaXdgActivationTokenV1MessageHandler {
     #[inline]
     fn set_serial(
         &mut self,
-        _slf: &Rc<MetaXdgActivationTokenV1>,
+        _slf: &Rc<XdgActivationTokenV1>,
         serial: u32,
-        seat: &Rc<MetaWlSeat>,
+        seat: &Rc<WlSeat>,
     ) {
         let res = _slf.send_set_serial(
             serial,
@@ -370,7 +396,7 @@ pub trait MetaXdgActivationTokenV1MessageHandler {
     #[inline]
     fn set_app_id(
         &mut self,
-        _slf: &Rc<MetaXdgActivationTokenV1>,
+        _slf: &Rc<XdgActivationTokenV1>,
         app_id: &str,
     ) {
         let res = _slf.send_set_app_id(
@@ -400,8 +426,8 @@ pub trait MetaXdgActivationTokenV1MessageHandler {
     #[inline]
     fn set_surface(
         &mut self,
-        _slf: &Rc<MetaXdgActivationTokenV1>,
-        surface: &Rc<MetaWlSurface>,
+        _slf: &Rc<XdgActivationTokenV1>,
+        surface: &Rc<WlSurface>,
     ) {
         let res = _slf.send_set_surface(
             surface,
@@ -418,7 +444,7 @@ pub trait MetaXdgActivationTokenV1MessageHandler {
     #[inline]
     fn commit(
         &mut self,
-        _slf: &Rc<MetaXdgActivationTokenV1>,
+        _slf: &Rc<XdgActivationTokenV1>,
     ) {
         let res = _slf.send_commit(
         );
@@ -438,7 +464,7 @@ pub trait MetaXdgActivationTokenV1MessageHandler {
     #[inline]
     fn done(
         &mut self,
-        _slf: &Rc<MetaXdgActivationTokenV1>,
+        _slf: &Rc<XdgActivationTokenV1>,
         token: &str,
     ) {
         let res = _slf.send_done(
@@ -456,7 +482,7 @@ pub trait MetaXdgActivationTokenV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaXdgActivationTokenV1>,
+        _slf: &Rc<XdgActivationTokenV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -466,13 +492,12 @@ pub trait MetaXdgActivationTokenV1MessageHandler {
     }
 }
 
-impl Proxy for MetaXdgActivationTokenV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for XdgActivationTokenV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgActivationTokenV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -485,11 +510,16 @@ impl Proxy for MetaXdgActivationTokenV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_activation_token_v1#{}.set_serial(serial: {}, seat: wl_seat#{})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSeat>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
                 };
@@ -497,7 +527,7 @@ impl Proxy for MetaXdgActivationTokenV1 {
                 if let Some(handler) = handler {
                     (**handler).set_serial(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.set_serial(&self, arg0, arg1);
+                    DefaultHandler.set_serial(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -527,10 +557,15 @@ impl Proxy for MetaXdgActivationTokenV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_activation_token_v1#{}.set_app_id(app_id: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_app_id(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_app_id(&self, arg0);
+                    DefaultHandler.set_app_id(&self, arg0);
                 }
             }
             2 => {
@@ -539,11 +574,16 @@ impl Proxy for MetaXdgActivationTokenV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_activation_token_v1#{}.set_surface(surface: wl_surface#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -551,27 +591,37 @@ impl Proxy for MetaXdgActivationTokenV1 {
                 if let Some(handler) = handler {
                     (**handler).set_surface(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_surface(&self, arg0);
+                    DefaultHandler.set_surface(&self, arg0);
                 }
             }
             3 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_activation_token_v1#{}.commit()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).commit(&self);
                 } else {
-                    DefaultMessageHandler.commit(&self);
+                    DefaultHandler.commit(&self);
                 }
             }
             4 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_activation_token_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -616,10 +666,15 @@ impl Proxy for MetaXdgActivationTokenV1 {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> xdg_activation_token_v1#{}.done(token: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).done(&self, arg0);
                 } else {
-                    DefaultMessageHandler.done(&self, arg0);
+                    DefaultHandler.done(&self, arg0);
                 }
             }
             n => {
@@ -653,7 +708,33 @@ impl Proxy for MetaXdgActivationTokenV1 {
     }
 }
 
-impl MetaXdgActivationTokenV1 {
+impl Proxy for XdgActivationTokenV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl XdgActivationTokenV1 {
     /// Since when the error.already_used enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_USED__SINCE: u32 = 1;
@@ -661,15 +742,15 @@ impl MetaXdgActivationTokenV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaXdgActivationTokenV1Error(pub u32);
+pub struct XdgActivationTokenV1Error(pub u32);
 
-impl MetaXdgActivationTokenV1Error {
+impl XdgActivationTokenV1Error {
     /// The token has already been used previously
     #[allow(dead_code)]
     pub const ALREADY_USED: Self = Self(0);
 }
 
-impl Debug for MetaXdgActivationTokenV1Error {
+impl Debug for XdgActivationTokenV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::ALREADY_USED => "ALREADY_USED",

@@ -29,39 +29,35 @@ use super::super::all_types::*;
 /// A zxdg_decoration_manager_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZxdgDecorationManagerV1 {
+pub struct ZxdgDecorationManagerV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZxdgDecorationManagerV1MessageHandler>,
+    handler: HandlerHolder<dyn ZxdgDecorationManagerV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZxdgDecorationManagerV1MessageHandler for DefaultMessageHandler { }
+impl ZxdgDecorationManagerV1Handler for DefaultHandler { }
 
-impl MetaZxdgDecorationManagerV1 {
+impl ZxdgDecorationManagerV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZxdgDecorationManagerV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZxdgDecorationManagerV1, version),
-            handler: Default::default(),
-        })
+impl ZxdgDecorationManagerV1 {
+    pub fn set_handler(&self, handler: impl ZxdgDecorationManagerV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZxdgDecorationManagerV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZxdgDecorationManagerV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZxdgDecorationManagerV1 {
+impl Debug for ZxdgDecorationManagerV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZxdgDecorationManagerV1")
+        f.debug_struct("ZxdgDecorationManagerV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -69,7 +65,7 @@ impl Debug for MetaZxdgDecorationManagerV1 {
     }
 }
 
-impl MetaZxdgDecorationManagerV1 {
+impl ZxdgDecorationManagerV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -86,9 +82,14 @@ impl MetaZxdgDecorationManagerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zxdg_decoration_manager_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -122,8 +123,8 @@ impl MetaZxdgDecorationManagerV1 {
     #[inline]
     pub fn send_get_toplevel_decoration(
         &self,
-        id: &Rc<MetaZxdgToplevelDecorationV1>,
-        toplevel: &Rc<MetaXdgToplevel>,
+        id: &Rc<ZxdgToplevelDecorationV1>,
+        toplevel: &Rc<XdgToplevel>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -146,9 +147,14 @@ impl MetaZxdgDecorationManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zxdg_decoration_manager_v1#{}.get_toplevel_decoration(id: zxdg_toplevel_decoration_v1#{}, toplevel: xdg_toplevel#{})\n", id, arg0_id, arg1_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -165,7 +171,7 @@ impl MetaZxdgDecorationManagerV1 {
 
 /// A message handler for [ZxdgDecorationManagerV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZxdgDecorationManagerV1MessageHandler {
+pub trait ZxdgDecorationManagerV1Handler: Any {
     /// destroy the decoration manager object
     ///
     /// Destroy the decoration manager. This doesn't destroy objects created
@@ -173,7 +179,7 @@ pub trait MetaZxdgDecorationManagerV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZxdgDecorationManagerV1>,
+        _slf: &Rc<ZxdgDecorationManagerV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -202,9 +208,9 @@ pub trait MetaZxdgDecorationManagerV1MessageHandler {
     #[inline]
     fn get_toplevel_decoration(
         &mut self,
-        _slf: &Rc<MetaZxdgDecorationManagerV1>,
-        id: &Rc<MetaZxdgToplevelDecorationV1>,
-        toplevel: &Rc<MetaXdgToplevel>,
+        _slf: &Rc<ZxdgDecorationManagerV1>,
+        id: &Rc<ZxdgToplevelDecorationV1>,
+        toplevel: &Rc<XdgToplevel>,
     ) {
         let res = _slf.send_get_toplevel_decoration(
             id,
@@ -216,13 +222,12 @@ pub trait MetaZxdgDecorationManagerV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZxdgDecorationManagerV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZxdgDecorationManagerV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZxdgDecorationManagerV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -232,10 +237,15 @@ impl Proxy for MetaZxdgDecorationManagerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zxdg_decoration_manager_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -246,15 +256,20 @@ impl Proxy for MetaZxdgDecorationManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zxdg_decoration_manager_v1#{}.get_toplevel_decoration(id: zxdg_toplevel_decoration_v1#{}, toplevel: xdg_toplevel#{})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaZxdgToplevelDecorationV1::new(&self.core.state, self.core.version);
+                let arg0 = ZxdgToplevelDecorationV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaXdgToplevel>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<XdgToplevel>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("toplevel", o.core().interface, ProxyInterface::XdgToplevel));
                 };
@@ -263,7 +278,7 @@ impl Proxy for MetaZxdgDecorationManagerV1 {
                 if let Some(handler) = handler {
                     (**handler).get_toplevel_decoration(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.get_toplevel_decoration(&self, arg0, arg1);
+                    DefaultHandler.get_toplevel_decoration(&self, arg0, arg1);
                 }
             }
             n => {
@@ -301,6 +316,32 @@ impl Proxy for MetaZxdgDecorationManagerV1 {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let _ = id;
         None
+    }
+}
+
+impl Proxy for ZxdgDecorationManagerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

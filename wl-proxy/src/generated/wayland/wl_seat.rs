@@ -11,39 +11,35 @@ use super::super::all_types::*;
 /// A wl_seat proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWlSeat {
+pub struct WlSeat {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWlSeatMessageHandler>,
+    handler: HandlerHolder<dyn WlSeatHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWlSeatMessageHandler for DefaultMessageHandler { }
+impl WlSeatHandler for DefaultHandler { }
 
-impl MetaWlSeat {
+impl WlSeat {
     pub const XML_VERSION: u32 = 10;
 }
 
-impl MetaWlSeat {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WlSeat, version),
-            handler: Default::default(),
-        })
+impl WlSeat {
+    pub fn set_handler(&self, handler: impl WlSeatHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWlSeatMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WlSeatHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWlSeat {
+impl Debug for WlSeat {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWlSeat")
+        f.debug_struct("WlSeat")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -51,7 +47,7 @@ impl Debug for MetaWlSeat {
     }
 }
 
-impl MetaWlSeat {
+impl WlSeat {
     /// Since when the capabilities message is available.
     #[allow(dead_code)]
     pub const MSG__CAPABILITIES__SINCE: u32 = 1;
@@ -90,7 +86,7 @@ impl MetaWlSeat {
     #[inline]
     pub fn send_capabilities(
         &self,
-        capabilities: MetaWlSeatCapability,
+        capabilities: WlSeatCapability,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -103,9 +99,14 @@ impl MetaWlSeat {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_seat#{}.capabilities(capabilities: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -135,7 +136,7 @@ impl MetaWlSeat {
     #[inline]
     pub fn send_get_pointer(
         &self,
-        id: &Rc<MetaWlPointer>,
+        id: &Rc<WlPointer>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -151,9 +152,14 @@ impl MetaWlSeat {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_seat#{}.get_pointer(id: wl_pointer#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -183,7 +189,7 @@ impl MetaWlSeat {
     #[inline]
     pub fn send_get_keyboard(
         &self,
-        id: &Rc<MetaWlKeyboard>,
+        id: &Rc<WlKeyboard>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -199,9 +205,14 @@ impl MetaWlSeat {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_seat#{}.get_keyboard(id: wl_keyboard#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -231,7 +242,7 @@ impl MetaWlSeat {
     #[inline]
     pub fn send_get_touch(
         &self,
-        id: &Rc<MetaWlTouch>,
+        id: &Rc<WlTouch>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -247,9 +258,14 @@ impl MetaWlSeat {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_seat#{}.get_touch(id: wl_touch#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -304,9 +320,14 @@ impl MetaWlSeat {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_seat#{}.name(name: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -335,9 +356,14 @@ impl MetaWlSeat {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_seat#{}.release()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -353,7 +379,7 @@ impl MetaWlSeat {
 
 /// A message handler for [WlSeat] proxies.
 #[allow(dead_code)]
-pub trait MetaWlSeatMessageHandler {
+pub trait WlSeatHandler: Any {
     /// seat capabilities changed
     ///
     /// This is sent on binding to the seat global or whenever a seat gains
@@ -388,8 +414,8 @@ pub trait MetaWlSeatMessageHandler {
     #[inline]
     fn capabilities(
         &mut self,
-        _slf: &Rc<MetaWlSeat>,
-        capabilities: MetaWlSeatCapability,
+        _slf: &Rc<WlSeat>,
+        capabilities: WlSeatCapability,
     ) {
         let res = _slf.send_capabilities(
             capabilities,
@@ -416,8 +442,8 @@ pub trait MetaWlSeatMessageHandler {
     #[inline]
     fn get_pointer(
         &mut self,
-        _slf: &Rc<MetaWlSeat>,
-        id: &Rc<MetaWlPointer>,
+        _slf: &Rc<WlSeat>,
+        id: &Rc<WlPointer>,
     ) {
         let res = _slf.send_get_pointer(
             id,
@@ -444,8 +470,8 @@ pub trait MetaWlSeatMessageHandler {
     #[inline]
     fn get_keyboard(
         &mut self,
-        _slf: &Rc<MetaWlSeat>,
-        id: &Rc<MetaWlKeyboard>,
+        _slf: &Rc<WlSeat>,
+        id: &Rc<WlKeyboard>,
     ) {
         let res = _slf.send_get_keyboard(
             id,
@@ -472,8 +498,8 @@ pub trait MetaWlSeatMessageHandler {
     #[inline]
     fn get_touch(
         &mut self,
-        _slf: &Rc<MetaWlSeat>,
-        id: &Rc<MetaWlTouch>,
+        _slf: &Rc<WlSeat>,
+        id: &Rc<WlTouch>,
     ) {
         let res = _slf.send_get_touch(
             id,
@@ -508,7 +534,7 @@ pub trait MetaWlSeatMessageHandler {
     #[inline]
     fn name(
         &mut self,
-        _slf: &Rc<MetaWlSeat>,
+        _slf: &Rc<WlSeat>,
         name: &str,
     ) {
         let res = _slf.send_name(
@@ -526,7 +552,7 @@ pub trait MetaWlSeatMessageHandler {
     #[inline]
     fn release(
         &mut self,
-        _slf: &Rc<MetaWlSeat>,
+        _slf: &Rc<WlSeat>,
     ) {
         let res = _slf.send_release(
         );
@@ -536,13 +562,12 @@ pub trait MetaWlSeatMessageHandler {
     }
 }
 
-impl Proxy for MetaWlSeat {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WlSeat {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlSeat, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -554,15 +579,20 @@ impl Proxy for MetaWlSeat {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_seat#{}.get_pointer(id: wl_pointer#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWlPointer::new(&self.core.state, self.core.version);
+                let arg0 = WlPointer::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).get_pointer(&self, arg0);
                 } else {
-                    DefaultMessageHandler.get_pointer(&self, arg0);
+                    DefaultHandler.get_pointer(&self, arg0);
                 }
             }
             1 => {
@@ -571,15 +601,20 @@ impl Proxy for MetaWlSeat {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_seat#{}.get_keyboard(id: wl_keyboard#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWlKeyboard::new(&self.core.state, self.core.version);
+                let arg0 = WlKeyboard::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).get_keyboard(&self, arg0);
                 } else {
-                    DefaultMessageHandler.get_keyboard(&self, arg0);
+                    DefaultHandler.get_keyboard(&self, arg0);
                 }
             }
             2 => {
@@ -588,25 +623,35 @@ impl Proxy for MetaWlSeat {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_seat#{}.get_touch(id: wl_touch#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWlTouch::new(&self.core.state, self.core.version);
+                let arg0 = WlTouch::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).get_touch(&self, arg0);
                 } else {
-                    DefaultMessageHandler.get_touch(&self, arg0);
+                    DefaultHandler.get_touch(&self, arg0);
                 }
             }
             3 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_seat#{}.release()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
-                    DefaultMessageHandler.release(&self);
+                    DefaultHandler.release(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -630,11 +675,16 @@ impl Proxy for MetaWlSeat {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaWlSeatCapability(arg0);
+                let arg0 = WlSeatCapability(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_seat#{}.capabilities(capabilities: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).capabilities(&self, arg0);
                 } else {
-                    DefaultMessageHandler.capabilities(&self, arg0);
+                    DefaultHandler.capabilities(&self, arg0);
                 }
             }
             1 => {
@@ -664,10 +714,15 @@ impl Proxy for MetaWlSeat {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_seat#{}.name(name: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).name(&self, arg0);
                 } else {
-                    DefaultMessageHandler.name(&self, arg0);
+                    DefaultHandler.name(&self, arg0);
                 }
             }
             n => {
@@ -701,7 +756,33 @@ impl Proxy for MetaWlSeat {
     }
 }
 
-impl MetaWlSeat {
+impl Proxy for WlSeat {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WlSeat {
     /// Since when the capability.pointer enum variant is available.
     #[allow(dead_code)]
     pub const ENM__CAPABILITY_POINTER__SINCE: u32 = 1;
@@ -724,15 +805,15 @@ impl MetaWlSeat {
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
 #[allow(dead_code)]
-pub struct MetaWlSeatCapability(pub u32);
+pub struct WlSeatCapability(pub u32);
 
-/// An iterator over the set bits in a [MetaWlSeatCapability].
+/// An iterator over the set bits in a [WlSeatCapability].
 ///
-/// You can construct this with the `IntoIterator` implementation of `MetaWlSeatCapability`.
+/// You can construct this with the `IntoIterator` implementation of `WlSeatCapability`.
 #[derive(Clone, Debug)]
-pub struct MetaWlSeatCapabilityIter(pub u32);
+pub struct WlSeatCapabilityIter(pub u32);
 
-impl MetaWlSeatCapability {
+impl WlSeatCapability {
     /// the seat has pointer devices
     #[allow(dead_code)]
     pub const POINTER: Self = Self(1);
@@ -747,7 +828,7 @@ impl MetaWlSeatCapability {
 }
 
 #[allow(dead_code)]
-impl MetaWlSeatCapability {
+impl WlSeatCapability {
     #[inline]
     pub const fn empty() -> Self {
         Self(0)
@@ -832,8 +913,8 @@ impl MetaWlSeatCapability {
     }
 }
 
-impl Iterator for MetaWlSeatCapabilityIter {
-    type Item = MetaWlSeatCapability;
+impl Iterator for WlSeatCapabilityIter {
+    type Item = WlSeatCapability;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.0 == 0 {
@@ -841,20 +922,20 @@ impl Iterator for MetaWlSeatCapabilityIter {
         }
         let bit = 1 << self.0.trailing_zeros();
         self.0 &= !bit;
-        Some(MetaWlSeatCapability(bit))
+        Some(WlSeatCapability(bit))
     }
 }
 
-impl IntoIterator for MetaWlSeatCapability {
-    type Item = MetaWlSeatCapability;
-    type IntoIter = MetaWlSeatCapabilityIter;
+impl IntoIterator for WlSeatCapability {
+    type Item = WlSeatCapability;
+    type IntoIter = WlSeatCapabilityIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        MetaWlSeatCapabilityIter(self.0)
+        WlSeatCapabilityIter(self.0)
     }
 }
 
-impl BitAnd for MetaWlSeatCapability {
+impl BitAnd for WlSeatCapability {
     type Output = Self;
 
     fn bitand(self, rhs: Self) -> Self::Output {
@@ -862,13 +943,13 @@ impl BitAnd for MetaWlSeatCapability {
     }
 }
 
-impl BitAndAssign for MetaWlSeatCapability {
+impl BitAndAssign for WlSeatCapability {
     fn bitand_assign(&mut self, rhs: Self) {
         *self = self.intersection(rhs);
     }
 }
 
-impl BitOr for MetaWlSeatCapability {
+impl BitOr for WlSeatCapability {
     type Output = Self;
 
     fn bitor(self, rhs: Self) -> Self::Output {
@@ -876,13 +957,13 @@ impl BitOr for MetaWlSeatCapability {
     }
 }
 
-impl BitOrAssign for MetaWlSeatCapability {
+impl BitOrAssign for WlSeatCapability {
     fn bitor_assign(&mut self, rhs: Self) {
         *self = self.union(rhs);
     }
 }
 
-impl BitXor for MetaWlSeatCapability {
+impl BitXor for WlSeatCapability {
     type Output = Self;
 
     fn bitxor(self, rhs: Self) -> Self::Output {
@@ -890,13 +971,13 @@ impl BitXor for MetaWlSeatCapability {
     }
 }
 
-impl BitXorAssign for MetaWlSeatCapability {
+impl BitXorAssign for WlSeatCapability {
     fn bitxor_assign(&mut self, rhs: Self) {
         *self = self.symmetric_difference(rhs);
     }
 }
 
-impl Sub for MetaWlSeatCapability {
+impl Sub for WlSeatCapability {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -904,13 +985,13 @@ impl Sub for MetaWlSeatCapability {
     }
 }
 
-impl SubAssign for MetaWlSeatCapability {
+impl SubAssign for WlSeatCapability {
     fn sub_assign(&mut self, rhs: Self) {
         *self = self.difference(rhs);
     }
 }
 
-impl Not for MetaWlSeatCapability {
+impl Not for WlSeatCapability {
     type Output = Self;
 
     fn not(self) -> Self::Output {
@@ -918,7 +999,7 @@ impl Not for MetaWlSeatCapability {
     }
 }
 
-impl Debug for MetaWlSeatCapability {
+impl Debug for WlSeatCapability {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut v = self.0;
         let mut first = true;
@@ -969,15 +1050,15 @@ impl Debug for MetaWlSeatCapability {
 /// These errors can be emitted in response to wl_seat requests.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWlSeatError(pub u32);
+pub struct WlSeatError(pub u32);
 
-impl MetaWlSeatError {
+impl WlSeatError {
     /// get_pointer, get_keyboard or get_touch called on seat without the matching capability
     #[allow(dead_code)]
     pub const MISSING_CAPABILITY: Self = Self(0);
 }
 
-impl Debug for MetaWlSeatError {
+impl Debug for WlSeatError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::MISSING_CAPABILITY => "MISSING_CAPABILITY",

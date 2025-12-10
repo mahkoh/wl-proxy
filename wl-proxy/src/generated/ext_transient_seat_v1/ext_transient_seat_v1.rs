@@ -9,39 +9,35 @@ use super::super::all_types::*;
 /// A ext_transient_seat_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaExtTransientSeatV1 {
+pub struct ExtTransientSeatV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaExtTransientSeatV1MessageHandler>,
+    handler: HandlerHolder<dyn ExtTransientSeatV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaExtTransientSeatV1MessageHandler for DefaultMessageHandler { }
+impl ExtTransientSeatV1Handler for DefaultHandler { }
 
-impl MetaExtTransientSeatV1 {
+impl ExtTransientSeatV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaExtTransientSeatV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ExtTransientSeatV1, version),
-            handler: Default::default(),
-        })
+impl ExtTransientSeatV1 {
+    pub fn set_handler(&self, handler: impl ExtTransientSeatV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaExtTransientSeatV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ExtTransientSeatV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaExtTransientSeatV1 {
+impl Debug for ExtTransientSeatV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaExtTransientSeatV1")
+        f.debug_struct("ExtTransientSeatV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -49,7 +45,7 @@ impl Debug for MetaExtTransientSeatV1 {
     }
 }
 
-impl MetaExtTransientSeatV1 {
+impl ExtTransientSeatV1 {
     /// Since when the ready message is available.
     #[allow(dead_code)]
     pub const MSG__READY__SINCE: u32 = 1;
@@ -82,9 +78,14 @@ impl MetaExtTransientSeatV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_transient_seat_v1#{}.ready(global_name: {})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -120,9 +121,14 @@ impl MetaExtTransientSeatV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_transient_seat_v1#{}.denied()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -150,9 +156,14 @@ impl MetaExtTransientSeatV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= ext_transient_seat_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -168,7 +179,7 @@ impl MetaExtTransientSeatV1 {
 
 /// A message handler for [ExtTransientSeatV1] proxies.
 #[allow(dead_code)]
-pub trait MetaExtTransientSeatV1MessageHandler {
+pub trait ExtTransientSeatV1Handler: Any {
     /// transient seat is ready
     ///
     /// This event advertises the global name for the wl_seat to be used with
@@ -184,7 +195,7 @@ pub trait MetaExtTransientSeatV1MessageHandler {
     #[inline]
     fn ready(
         &mut self,
-        _slf: &Rc<MetaExtTransientSeatV1>,
+        _slf: &Rc<ExtTransientSeatV1>,
         global_name: u32,
     ) {
         let res = _slf.send_ready(
@@ -207,7 +218,7 @@ pub trait MetaExtTransientSeatV1MessageHandler {
     #[inline]
     fn denied(
         &mut self,
-        _slf: &Rc<MetaExtTransientSeatV1>,
+        _slf: &Rc<ExtTransientSeatV1>,
     ) {
         let res = _slf.send_denied(
         );
@@ -223,7 +234,7 @@ pub trait MetaExtTransientSeatV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaExtTransientSeatV1>,
+        _slf: &Rc<ExtTransientSeatV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -233,13 +244,12 @@ pub trait MetaExtTransientSeatV1MessageHandler {
     }
 }
 
-impl Proxy for MetaExtTransientSeatV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ExtTransientSeatV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtTransientSeatV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -249,10 +259,15 @@ impl Proxy for MetaExtTransientSeatV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> ext_transient_seat_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -276,20 +291,30 @@ impl Proxy for MetaExtTransientSeatV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_transient_seat_v1#{}.ready(global_name: {})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).ready(&self, arg0);
                 } else {
-                    DefaultMessageHandler.ready(&self, arg0);
+                    DefaultHandler.ready(&self, arg0);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_transient_seat_v1#{}.denied()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).denied(&self);
                 } else {
-                    DefaultMessageHandler.denied(&self);
+                    DefaultHandler.denied(&self);
                 }
             }
             n => {
@@ -317,6 +342,32 @@ impl Proxy for MetaExtTransientSeatV1 {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for ExtTransientSeatV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

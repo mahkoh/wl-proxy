@@ -13,39 +13,35 @@ use super::super::all_types::*;
 /// A zxdg_toplevel_decoration_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZxdgToplevelDecorationV1 {
+pub struct ZxdgToplevelDecorationV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZxdgToplevelDecorationV1MessageHandler>,
+    handler: HandlerHolder<dyn ZxdgToplevelDecorationV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZxdgToplevelDecorationV1MessageHandler for DefaultMessageHandler { }
+impl ZxdgToplevelDecorationV1Handler for DefaultHandler { }
 
-impl MetaZxdgToplevelDecorationV1 {
+impl ZxdgToplevelDecorationV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZxdgToplevelDecorationV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZxdgToplevelDecorationV1, version),
-            handler: Default::default(),
-        })
+impl ZxdgToplevelDecorationV1 {
+    pub fn set_handler(&self, handler: impl ZxdgToplevelDecorationV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZxdgToplevelDecorationV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZxdgToplevelDecorationV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZxdgToplevelDecorationV1 {
+impl Debug for ZxdgToplevelDecorationV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZxdgToplevelDecorationV1")
+        f.debug_struct("ZxdgToplevelDecorationV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -53,7 +49,7 @@ impl Debug for MetaZxdgToplevelDecorationV1 {
     }
 }
 
-impl MetaZxdgToplevelDecorationV1 {
+impl ZxdgToplevelDecorationV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -70,9 +66,14 @@ impl MetaZxdgToplevelDecorationV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zxdg_toplevel_decoration_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -119,7 +120,7 @@ impl MetaZxdgToplevelDecorationV1 {
     #[inline]
     pub fn send_set_mode(
         &self,
-        mode: MetaZxdgToplevelDecorationV1Mode,
+        mode: ZxdgToplevelDecorationV1Mode,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -130,9 +131,14 @@ impl MetaZxdgToplevelDecorationV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zxdg_toplevel_decoration_v1#{}.set_mode(mode: {:?})\n", id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -163,9 +169,14 @@ impl MetaZxdgToplevelDecorationV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zxdg_toplevel_decoration_v1#{}.unset_mode()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -197,7 +208,7 @@ impl MetaZxdgToplevelDecorationV1 {
     #[inline]
     pub fn send_configure(
         &self,
-        mode: MetaZxdgToplevelDecorationV1Mode,
+        mode: ZxdgToplevelDecorationV1Mode,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -210,9 +221,14 @@ impl MetaZxdgToplevelDecorationV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zxdg_toplevel_decoration_v1#{}.configure(mode: {:?})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -228,7 +244,7 @@ impl MetaZxdgToplevelDecorationV1 {
 
 /// A message handler for [ZxdgToplevelDecorationV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZxdgToplevelDecorationV1MessageHandler {
+pub trait ZxdgToplevelDecorationV1Handler: Any {
     /// destroy the decoration object
     ///
     /// Switch back to a mode without any server-side decorations at the next
@@ -236,7 +252,7 @@ pub trait MetaZxdgToplevelDecorationV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZxdgToplevelDecorationV1>,
+        _slf: &Rc<ZxdgToplevelDecorationV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -275,8 +291,8 @@ pub trait MetaZxdgToplevelDecorationV1MessageHandler {
     #[inline]
     fn set_mode(
         &mut self,
-        _slf: &Rc<MetaZxdgToplevelDecorationV1>,
-        mode: MetaZxdgToplevelDecorationV1Mode,
+        _slf: &Rc<ZxdgToplevelDecorationV1>,
+        mode: ZxdgToplevelDecorationV1Mode,
     ) {
         let res = _slf.send_set_mode(
             mode,
@@ -295,7 +311,7 @@ pub trait MetaZxdgToplevelDecorationV1MessageHandler {
     #[inline]
     fn unset_mode(
         &mut self,
-        _slf: &Rc<MetaZxdgToplevelDecorationV1>,
+        _slf: &Rc<ZxdgToplevelDecorationV1>,
     ) {
         let res = _slf.send_unset_mode(
         );
@@ -320,8 +336,8 @@ pub trait MetaZxdgToplevelDecorationV1MessageHandler {
     #[inline]
     fn configure(
         &mut self,
-        _slf: &Rc<MetaZxdgToplevelDecorationV1>,
-        mode: MetaZxdgToplevelDecorationV1Mode,
+        _slf: &Rc<ZxdgToplevelDecorationV1>,
+        mode: ZxdgToplevelDecorationV1Mode,
     ) {
         let res = _slf.send_configure(
             mode,
@@ -332,13 +348,12 @@ pub trait MetaZxdgToplevelDecorationV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZxdgToplevelDecorationV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZxdgToplevelDecorationV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZxdgToplevelDecorationV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -348,10 +363,15 @@ impl Proxy for MetaZxdgToplevelDecorationV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zxdg_toplevel_decoration_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -361,21 +381,31 @@ impl Proxy for MetaZxdgToplevelDecorationV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaZxdgToplevelDecorationV1Mode(arg0);
+                let arg0 = ZxdgToplevelDecorationV1Mode(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zxdg_toplevel_decoration_v1#{}.set_mode(mode: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_mode(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_mode(&self, arg0);
+                    DefaultHandler.set_mode(&self, arg0);
                 }
             }
             2 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zxdg_toplevel_decoration_v1#{}.unset_mode()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).unset_mode(&self);
                 } else {
-                    DefaultMessageHandler.unset_mode(&self);
+                    DefaultHandler.unset_mode(&self);
                 }
             }
             n => {
@@ -398,11 +428,16 @@ impl Proxy for MetaZxdgToplevelDecorationV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
-                let arg0 = MetaZxdgToplevelDecorationV1Mode(arg0);
+                let arg0 = ZxdgToplevelDecorationV1Mode(arg0);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zxdg_toplevel_decoration_v1#{}.configure(mode: {:?})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).configure(&self, arg0);
                 } else {
-                    DefaultMessageHandler.configure(&self, arg0);
+                    DefaultHandler.configure(&self, arg0);
                 }
             }
             n => {
@@ -434,7 +469,33 @@ impl Proxy for MetaZxdgToplevelDecorationV1 {
     }
 }
 
-impl MetaZxdgToplevelDecorationV1 {
+impl Proxy for ZxdgToplevelDecorationV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl ZxdgToplevelDecorationV1 {
     /// Since when the error.unconfigured_buffer enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_UNCONFIGURED_BUFFER__SINCE: u32 = 1;
@@ -458,9 +519,9 @@ impl MetaZxdgToplevelDecorationV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZxdgToplevelDecorationV1Error(pub u32);
+pub struct ZxdgToplevelDecorationV1Error(pub u32);
 
-impl MetaZxdgToplevelDecorationV1Error {
+impl ZxdgToplevelDecorationV1Error {
     /// xdg_toplevel has a buffer attached before configure
     #[allow(dead_code)]
     pub const UNCONFIGURED_BUFFER: Self = Self(0);
@@ -478,7 +539,7 @@ impl MetaZxdgToplevelDecorationV1Error {
     pub const INVALID_MODE: Self = Self(3);
 }
 
-impl Debug for MetaZxdgToplevelDecorationV1Error {
+impl Debug for ZxdgToplevelDecorationV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::UNCONFIGURED_BUFFER => "UNCONFIGURED_BUFFER",
@@ -496,9 +557,9 @@ impl Debug for MetaZxdgToplevelDecorationV1Error {
 /// These values describe window decoration modes.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZxdgToplevelDecorationV1Mode(pub u32);
+pub struct ZxdgToplevelDecorationV1Mode(pub u32);
 
-impl MetaZxdgToplevelDecorationV1Mode {
+impl ZxdgToplevelDecorationV1Mode {
     /// no server-side window decoration
     #[allow(dead_code)]
     pub const CLIENT_SIDE: Self = Self(1);
@@ -508,7 +569,7 @@ impl MetaZxdgToplevelDecorationV1Mode {
     pub const SERVER_SIDE: Self = Self(2);
 }
 
-impl Debug for MetaZxdgToplevelDecorationV1Mode {
+impl Debug for ZxdgToplevelDecorationV1Mode {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::CLIENT_SIDE => "CLIENT_SIDE",

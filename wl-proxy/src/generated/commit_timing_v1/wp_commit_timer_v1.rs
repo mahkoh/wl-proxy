@@ -8,39 +8,35 @@ use super::super::all_types::*;
 /// A wp_commit_timer_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpCommitTimerV1 {
+pub struct WpCommitTimerV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpCommitTimerV1MessageHandler>,
+    handler: HandlerHolder<dyn WpCommitTimerV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpCommitTimerV1MessageHandler for DefaultMessageHandler { }
+impl WpCommitTimerV1Handler for DefaultHandler { }
 
-impl MetaWpCommitTimerV1 {
+impl WpCommitTimerV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWpCommitTimerV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpCommitTimerV1, version),
-            handler: Default::default(),
-        })
+impl WpCommitTimerV1 {
+    pub fn set_handler(&self, handler: impl WpCommitTimerV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpCommitTimerV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpCommitTimerV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpCommitTimerV1 {
+impl Debug for WpCommitTimerV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpCommitTimerV1")
+        f.debug_struct("WpCommitTimerV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -48,7 +44,7 @@ impl Debug for MetaWpCommitTimerV1 {
     }
 }
 
-impl MetaWpCommitTimerV1 {
+impl WpCommitTimerV1 {
     /// Since when the set_timestamp message is available.
     #[allow(dead_code)]
     pub const MSG__SET_TIMESTAMP__SINCE: u32 = 1;
@@ -95,9 +91,14 @@ impl MetaWpCommitTimerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_commit_timer_v1#{}.set_timestamp(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {})\n", id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -130,9 +131,14 @@ impl MetaWpCommitTimerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_commit_timer_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -148,7 +154,7 @@ impl MetaWpCommitTimerV1 {
 
 /// A message handler for [WpCommitTimerV1] proxies.
 #[allow(dead_code)]
-pub trait MetaWpCommitTimerV1MessageHandler {
+pub trait WpCommitTimerV1Handler: Any {
     /// Specify time the following commit takes effect
     ///
     /// Provide a timing constraint for a surface content update.
@@ -174,7 +180,7 @@ pub trait MetaWpCommitTimerV1MessageHandler {
     #[inline]
     fn set_timestamp(
         &mut self,
-        _slf: &Rc<MetaWpCommitTimerV1>,
+        _slf: &Rc<WpCommitTimerV1>,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
         tv_nsec: u32,
@@ -198,7 +204,7 @@ pub trait MetaWpCommitTimerV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWpCommitTimerV1>,
+        _slf: &Rc<WpCommitTimerV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -208,13 +214,12 @@ pub trait MetaWpCommitTimerV1MessageHandler {
     }
 }
 
-impl Proxy for MetaWpCommitTimerV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpCommitTimerV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpCommitTimerV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -228,20 +233,30 @@ impl Proxy for MetaWpCommitTimerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_commit_timer_v1#{}.set_timestamp(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_timestamp(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.set_timestamp(&self, arg0, arg1, arg2);
+                    DefaultHandler.set_timestamp(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_commit_timer_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -283,7 +298,33 @@ impl Proxy for MetaWpCommitTimerV1 {
     }
 }
 
-impl MetaWpCommitTimerV1 {
+impl Proxy for WpCommitTimerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WpCommitTimerV1 {
     /// Since when the error.invalid_timestamp enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_TIMESTAMP__SINCE: u32 = 1;
@@ -297,9 +338,9 @@ impl MetaWpCommitTimerV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpCommitTimerV1Error(pub u32);
+pub struct WpCommitTimerV1Error(pub u32);
 
-impl MetaWpCommitTimerV1Error {
+impl WpCommitTimerV1Error {
     /// timestamp contains an invalid value
     #[allow(dead_code)]
     pub const INVALID_TIMESTAMP: Self = Self(0);
@@ -313,7 +354,7 @@ impl MetaWpCommitTimerV1Error {
     pub const SURFACE_DESTROYED: Self = Self(2);
 }
 
-impl Debug for MetaWpCommitTimerV1Error {
+impl Debug for WpCommitTimerV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INVALID_TIMESTAMP => "INVALID_TIMESTAMP",

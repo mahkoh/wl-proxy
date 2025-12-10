@@ -23,39 +23,35 @@ use super::super::all_types::*;
 /// A zwp_confined_pointer_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwpConfinedPointerV1 {
+pub struct ZwpConfinedPointerV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwpConfinedPointerV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwpConfinedPointerV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwpConfinedPointerV1MessageHandler for DefaultMessageHandler { }
+impl ZwpConfinedPointerV1Handler for DefaultHandler { }
 
-impl MetaZwpConfinedPointerV1 {
+impl ZwpConfinedPointerV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwpConfinedPointerV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwpConfinedPointerV1, version),
-            handler: Default::default(),
-        })
+impl ZwpConfinedPointerV1 {
+    pub fn set_handler(&self, handler: impl ZwpConfinedPointerV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwpConfinedPointerV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwpConfinedPointerV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwpConfinedPointerV1 {
+impl Debug for ZwpConfinedPointerV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwpConfinedPointerV1")
+        f.debug_struct("ZwpConfinedPointerV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -63,7 +59,7 @@ impl Debug for MetaZwpConfinedPointerV1 {
     }
 }
 
-impl MetaZwpConfinedPointerV1 {
+impl ZwpConfinedPointerV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -80,9 +76,14 @@ impl MetaZwpConfinedPointerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_confined_pointer_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -122,7 +123,7 @@ impl MetaZwpConfinedPointerV1 {
     #[inline]
     pub fn send_set_region(
         &self,
-        region: Option<&Rc<MetaWlRegion>>,
+        region: Option<&Rc<WlRegion>>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -141,9 +142,14 @@ impl MetaZwpConfinedPointerV1 {
                 Some(id) => id,
             },
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_confined_pointer_v1#{}.set_region(region: wl_region#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -174,9 +180,14 @@ impl MetaZwpConfinedPointerV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_confined_pointer_v1#{}.confined()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -210,9 +221,14 @@ impl MetaZwpConfinedPointerV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_confined_pointer_v1#{}.unconfined()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -227,7 +243,7 @@ impl MetaZwpConfinedPointerV1 {
 
 /// A message handler for [ZwpConfinedPointerV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwpConfinedPointerV1MessageHandler {
+pub trait ZwpConfinedPointerV1Handler: Any {
     /// destroy the confined pointer object
     ///
     /// Destroy the confined pointer object. If applicable, the compositor will
@@ -235,7 +251,7 @@ pub trait MetaZwpConfinedPointerV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwpConfinedPointerV1>,
+        _slf: &Rc<ZwpConfinedPointerV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -270,8 +286,8 @@ pub trait MetaZwpConfinedPointerV1MessageHandler {
     #[inline]
     fn set_region(
         &mut self,
-        _slf: &Rc<MetaZwpConfinedPointerV1>,
-        region: Option<&Rc<MetaWlRegion>>,
+        _slf: &Rc<ZwpConfinedPointerV1>,
+        region: Option<&Rc<WlRegion>>,
     ) {
         let res = _slf.send_set_region(
             region,
@@ -288,7 +304,7 @@ pub trait MetaZwpConfinedPointerV1MessageHandler {
     #[inline]
     fn confined(
         &mut self,
-        _slf: &Rc<MetaZwpConfinedPointerV1>,
+        _slf: &Rc<ZwpConfinedPointerV1>,
     ) {
         let res = _slf.send_confined(
         );
@@ -308,7 +324,7 @@ pub trait MetaZwpConfinedPointerV1MessageHandler {
     #[inline]
     fn unconfined(
         &mut self,
-        _slf: &Rc<MetaZwpConfinedPointerV1>,
+        _slf: &Rc<ZwpConfinedPointerV1>,
     ) {
         let res = _slf.send_unconfined(
         );
@@ -318,13 +334,12 @@ pub trait MetaZwpConfinedPointerV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwpConfinedPointerV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwpConfinedPointerV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpConfinedPointerV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -334,10 +349,15 @@ impl Proxy for MetaZwpConfinedPointerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_confined_pointer_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -347,6 +367,11 @@ impl Proxy for MetaZwpConfinedPointerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_confined_pointer_v1#{}.set_region(region: wl_region#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0 = if arg0 == 0 {
                     None
                 } else {
@@ -354,7 +379,7 @@ impl Proxy for MetaZwpConfinedPointerV1 {
                     let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                         return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                     };
-                    let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlRegion>() else {
+                    let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlRegion>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
                         return Err(ObjectError::WrongObjectType("region", o.core().interface, ProxyInterface::WlRegion));
                     };
@@ -364,7 +389,7 @@ impl Proxy for MetaZwpConfinedPointerV1 {
                 if let Some(handler) = handler {
                     (**handler).set_region(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_region(&self, arg0);
+                    DefaultHandler.set_region(&self, arg0);
                 }
             }
             n => {
@@ -385,20 +410,30 @@ impl Proxy for MetaZwpConfinedPointerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_confined_pointer_v1#{}.confined()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).confined(&self);
                 } else {
-                    DefaultMessageHandler.confined(&self);
+                    DefaultHandler.confined(&self);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_confined_pointer_v1#{}.unconfined()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).unconfined(&self);
                 } else {
-                    DefaultMessageHandler.unconfined(&self);
+                    DefaultHandler.unconfined(&self);
                 }
             }
             n => {
@@ -427,6 +462,32 @@ impl Proxy for MetaZwpConfinedPointerV1 {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for ZwpConfinedPointerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

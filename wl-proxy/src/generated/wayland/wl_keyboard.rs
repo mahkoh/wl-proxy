@@ -19,39 +19,35 @@ use super::super::all_types::*;
 /// A wl_keyboard proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWlKeyboard {
+pub struct WlKeyboard {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWlKeyboardMessageHandler>,
+    handler: HandlerHolder<dyn WlKeyboardHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWlKeyboardMessageHandler for DefaultMessageHandler { }
+impl WlKeyboardHandler for DefaultHandler { }
 
-impl MetaWlKeyboard {
+impl WlKeyboard {
     pub const XML_VERSION: u32 = 10;
 }
 
-impl MetaWlKeyboard {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WlKeyboard, version),
-            handler: Default::default(),
-        })
+impl WlKeyboard {
+    pub fn set_handler(&self, handler: impl WlKeyboardHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWlKeyboardMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WlKeyboardHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWlKeyboard {
+impl Debug for WlKeyboard {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWlKeyboard")
+        f.debug_struct("WlKeyboard")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -59,7 +55,7 @@ impl Debug for MetaWlKeyboard {
     }
 }
 
-impl MetaWlKeyboard {
+impl WlKeyboard {
     /// Since when the keymap message is available.
     #[allow(dead_code)]
     pub const MSG__KEYMAP__SINCE: u32 = 1;
@@ -81,7 +77,7 @@ impl MetaWlKeyboard {
     #[inline]
     pub fn send_keymap(
         &self,
-        format: MetaWlKeyboardKeymapFormat,
+        format: WlKeyboardKeymapFormat,
         fd: &Rc<OwnedFd>,
         size: u32,
     ) -> Result<(), ObjectError> {
@@ -100,9 +96,14 @@ impl MetaWlKeyboard {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_keyboard#{}.keymap(format: {:?}, fd: {}, size: {})\n", client.endpoint.id, id, arg0, arg1.as_raw_fd(), arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -146,7 +147,7 @@ impl MetaWlKeyboard {
     pub fn send_enter(
         &self,
         serial: u32,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
         keys: &[u8],
     ) -> Result<(), ObjectError> {
         let (
@@ -169,9 +170,14 @@ impl MetaWlKeyboard {
             return Err(ObjectError::ArgNoClientId("surface", client.endpoint.id));
         }
         let arg1_id = arg1.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_keyboard#{}.enter(serial: {}, surface: wl_surface#{}, keys: {})\n", client.endpoint.id, id, arg0, arg1_id, debug_array(arg2));
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -211,7 +217,7 @@ impl MetaWlKeyboard {
     pub fn send_leave(
         &self,
         serial: u32,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -231,9 +237,14 @@ impl MetaWlKeyboard {
             return Err(ObjectError::ArgNoClientId("surface", client.endpoint.id));
         }
         let arg1_id = arg1.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_keyboard#{}.leave(serial: {}, surface: wl_surface#{})\n", client.endpoint.id, id, arg0, arg1_id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -289,7 +300,7 @@ impl MetaWlKeyboard {
         serial: u32,
         time: u32,
         key: u32,
-        state: MetaWlKeyboardKeyState,
+        state: WlKeyboardKeyState,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -308,9 +319,14 @@ impl MetaWlKeyboard {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_keyboard#{}.key(serial: {}, time: {}, key: {}, state: {:?})\n", client.endpoint.id, id, arg0, arg1, arg2, arg3);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -381,9 +397,14 @@ impl MetaWlKeyboard {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_keyboard#{}.modifiers(serial: {}, mods_depressed: {}, mods_latched: {}, mods_locked: {}, group: {})\n", client.endpoint.id, id, arg0, arg1, arg2, arg3, arg4);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -413,9 +434,14 @@ impl MetaWlKeyboard {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_keyboard#{}.release()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -470,9 +496,14 @@ impl MetaWlKeyboard {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_keyboard#{}.repeat_info(rate: {}, delay: {})\n", client.endpoint.id, id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -489,7 +520,7 @@ impl MetaWlKeyboard {
 
 /// A message handler for [WlKeyboard] proxies.
 #[allow(dead_code)]
-pub trait MetaWlKeyboardMessageHandler {
+pub trait WlKeyboardHandler: Any {
     /// keyboard mapping
     ///
     /// This event provides a file descriptor to the client which can be
@@ -507,8 +538,8 @@ pub trait MetaWlKeyboardMessageHandler {
     #[inline]
     fn keymap(
         &mut self,
-        _slf: &Rc<MetaWlKeyboard>,
-        format: MetaWlKeyboardKeymapFormat,
+        _slf: &Rc<WlKeyboard>,
+        format: WlKeyboardKeymapFormat,
         fd: &Rc<OwnedFd>,
         size: u32,
     ) {
@@ -549,9 +580,9 @@ pub trait MetaWlKeyboardMessageHandler {
     #[inline]
     fn enter(
         &mut self,
-        _slf: &Rc<MetaWlKeyboard>,
+        _slf: &Rc<WlKeyboard>,
         serial: u32,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
         keys: &[u8],
     ) {
         if let Some(client_id) = _slf.core.client_id.get() {
@@ -594,9 +625,9 @@ pub trait MetaWlKeyboardMessageHandler {
     #[inline]
     fn leave(
         &mut self,
-        _slf: &Rc<MetaWlKeyboard>,
+        _slf: &Rc<WlKeyboard>,
         serial: u32,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
     ) {
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
@@ -649,11 +680,11 @@ pub trait MetaWlKeyboardMessageHandler {
     #[inline]
     fn key(
         &mut self,
-        _slf: &Rc<MetaWlKeyboard>,
+        _slf: &Rc<WlKeyboard>,
         serial: u32,
         time: u32,
         key: u32,
-        state: MetaWlKeyboardKeyState,
+        state: WlKeyboardKeyState,
     ) {
         let res = _slf.send_key(
             serial,
@@ -692,7 +723,7 @@ pub trait MetaWlKeyboardMessageHandler {
     #[inline]
     fn modifiers(
         &mut self,
-        _slf: &Rc<MetaWlKeyboard>,
+        _slf: &Rc<WlKeyboard>,
         serial: u32,
         mods_depressed: u32,
         mods_latched: u32,
@@ -715,7 +746,7 @@ pub trait MetaWlKeyboardMessageHandler {
     #[inline]
     fn release(
         &mut self,
-        _slf: &Rc<MetaWlKeyboard>,
+        _slf: &Rc<WlKeyboard>,
     ) {
         let res = _slf.send_release(
         );
@@ -746,7 +777,7 @@ pub trait MetaWlKeyboardMessageHandler {
     #[inline]
     fn repeat_info(
         &mut self,
-        _slf: &Rc<MetaWlKeyboard>,
+        _slf: &Rc<WlKeyboard>,
         rate: i32,
         delay: i32,
     ) {
@@ -760,13 +791,12 @@ pub trait MetaWlKeyboardMessageHandler {
     }
 }
 
-impl Proxy for MetaWlKeyboard {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WlKeyboard {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlKeyboard, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -776,10 +806,15 @@ impl Proxy for MetaWlKeyboard {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_keyboard#{}.release()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
-                    DefaultMessageHandler.release(&self);
+                    DefaultHandler.release(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -807,12 +842,17 @@ impl Proxy for MetaWlKeyboard {
                 let Some(arg1) = fds.pop_front() else {
                     return Err(ObjectError::MissingFd("fd"));
                 };
-                let arg0 = MetaWlKeyboardKeymapFormat(arg0);
+                let arg0 = WlKeyboardKeymapFormat(arg0);
                 let arg1 = &arg1;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_keyboard#{}.keymap(format: {:?}, fd: {}, size: {})\n", msg[0], arg0, arg1.as_raw_fd(), arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).keymap(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.keymap(&self, arg0, arg1, arg2);
+                    DefaultHandler.keymap(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
@@ -842,11 +882,16 @@ impl Proxy for MetaWlKeyboard {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_keyboard#{}.enter(serial: {}, surface: wl_surface#{}, keys: {})\n", msg[0], arg0, arg1, debug_array(arg2));
+                    self.core.state.log(args);
+                }
                 let arg1_id = arg1;
                 let Some(arg1) = self.core.state.server.lookup(arg1_id) else {
                     return Err(ObjectError::NoServerObject(arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = self.core.state.server.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -854,7 +899,7 @@ impl Proxy for MetaWlKeyboard {
                 if let Some(handler) = handler {
                     (**handler).enter(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.enter(&self, arg0, arg1, arg2);
+                    DefaultHandler.enter(&self, arg0, arg1, arg2);
                 }
             }
             2 => {
@@ -864,11 +909,16 @@ impl Proxy for MetaWlKeyboard {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_keyboard#{}.leave(serial: {}, surface: wl_surface#{})\n", msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg1_id = arg1;
                 let Some(arg1) = self.core.state.server.lookup(arg1_id) else {
                     return Err(ObjectError::NoServerObject(arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = self.core.state.server.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -876,7 +926,7 @@ impl Proxy for MetaWlKeyboard {
                 if let Some(handler) = handler {
                     (**handler).leave(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.leave(&self, arg0, arg1);
+                    DefaultHandler.leave(&self, arg0, arg1);
                 }
             }
             3 => {
@@ -888,11 +938,16 @@ impl Proxy for MetaWlKeyboard {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
                 };
-                let arg3 = MetaWlKeyboardKeyState(arg3);
+                let arg3 = WlKeyboardKeyState(arg3);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_keyboard#{}.key(serial: {}, time: {}, key: {}, state: {:?})\n", msg[0], arg0, arg1, arg2, arg3);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).key(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultMessageHandler.key(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.key(&self, arg0, arg1, arg2, arg3);
                 }
             }
             4 => {
@@ -905,10 +960,15 @@ impl Proxy for MetaWlKeyboard {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 28));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_keyboard#{}.modifiers(serial: {}, mods_depressed: {}, mods_latched: {}, mods_locked: {}, group: {})\n", msg[0], arg0, arg1, arg2, arg3, arg4);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).modifiers(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultMessageHandler.modifiers(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.modifiers(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             5 => {
@@ -920,10 +980,15 @@ impl Proxy for MetaWlKeyboard {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_keyboard#{}.repeat_info(rate: {}, delay: {})\n", msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).repeat_info(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.repeat_info(&self, arg0, arg1);
+                    DefaultHandler.repeat_info(&self, arg0, arg1);
                 }
             }
             n => {
@@ -958,7 +1023,33 @@ impl Proxy for MetaWlKeyboard {
     }
 }
 
-impl MetaWlKeyboard {
+impl Proxy for WlKeyboard {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WlKeyboard {
     /// Since when the keymap_format.no_keymap enum variant is available.
     #[allow(dead_code)]
     pub const ENM__KEYMAP_FORMAT_NO_KEYMAP__SINCE: u32 = 1;
@@ -983,9 +1074,9 @@ impl MetaWlKeyboard {
 /// client with the wl_keyboard.keymap event.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWlKeyboardKeymapFormat(pub u32);
+pub struct WlKeyboardKeymapFormat(pub u32);
 
-impl MetaWlKeyboardKeymapFormat {
+impl WlKeyboardKeymapFormat {
     /// no keymap; client must understand how to interpret the raw keycode
     #[allow(dead_code)]
     pub const NO_KEYMAP: Self = Self(0);
@@ -995,7 +1086,7 @@ impl MetaWlKeyboardKeymapFormat {
     pub const XKB_V1: Self = Self(1);
 }
 
-impl Debug for MetaWlKeyboardKeymapFormat {
+impl Debug for WlKeyboardKeymapFormat {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::NO_KEYMAP => "NO_KEYMAP",
@@ -1019,9 +1110,9 @@ impl Debug for MetaWlKeyboardKeymapFormat {
 /// generated multiple times while the key is down.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWlKeyboardKeyState(pub u32);
+pub struct WlKeyboardKeyState(pub u32);
 
-impl MetaWlKeyboardKeyState {
+impl WlKeyboardKeyState {
     /// key is not pressed
     #[allow(dead_code)]
     pub const RELEASED: Self = Self(0);
@@ -1035,7 +1126,7 @@ impl MetaWlKeyboardKeyState {
     pub const REPEATED: Self = Self(2);
 }
 
-impl Debug for MetaWlKeyboardKeyState {
+impl Debug for WlKeyboardKeyState {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::RELEASED => "RELEASED",

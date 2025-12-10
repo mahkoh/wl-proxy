@@ -10,39 +10,35 @@ use super::super::all_types::*;
 /// A zwp_input_timestamps_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwpInputTimestampsV1 {
+pub struct ZwpInputTimestampsV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwpInputTimestampsV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwpInputTimestampsV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwpInputTimestampsV1MessageHandler for DefaultMessageHandler { }
+impl ZwpInputTimestampsV1Handler for DefaultHandler { }
 
-impl MetaZwpInputTimestampsV1 {
+impl ZwpInputTimestampsV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwpInputTimestampsV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwpInputTimestampsV1, version),
-            handler: Default::default(),
-        })
+impl ZwpInputTimestampsV1 {
+    pub fn set_handler(&self, handler: impl ZwpInputTimestampsV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwpInputTimestampsV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwpInputTimestampsV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwpInputTimestampsV1 {
+impl Debug for ZwpInputTimestampsV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwpInputTimestampsV1")
+        f.debug_struct("ZwpInputTimestampsV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -50,7 +46,7 @@ impl Debug for MetaZwpInputTimestampsV1 {
     }
 }
 
-impl MetaZwpInputTimestampsV1 {
+impl ZwpInputTimestampsV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -68,9 +64,14 @@ impl MetaZwpInputTimestampsV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_input_timestamps_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -131,9 +132,14 @@ impl MetaZwpInputTimestampsV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_input_timestamps_v1#{}.timestamp(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -151,7 +157,7 @@ impl MetaZwpInputTimestampsV1 {
 
 /// A message handler for [ZwpInputTimestampsV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwpInputTimestampsV1MessageHandler {
+pub trait ZwpInputTimestampsV1Handler: Any {
     /// destroy the input timestamps object
     ///
     /// Informs the server that the client will no longer be using this
@@ -160,7 +166,7 @@ pub trait MetaZwpInputTimestampsV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwpInputTimestampsV1>,
+        _slf: &Rc<ZwpInputTimestampsV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -194,7 +200,7 @@ pub trait MetaZwpInputTimestampsV1MessageHandler {
     #[inline]
     fn timestamp(
         &mut self,
-        _slf: &Rc<MetaZwpInputTimestampsV1>,
+        _slf: &Rc<ZwpInputTimestampsV1>,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
         tv_nsec: u32,
@@ -210,13 +216,12 @@ pub trait MetaZwpInputTimestampsV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwpInputTimestampsV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwpInputTimestampsV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpInputTimestampsV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -226,10 +231,15 @@ impl Proxy for MetaZwpInputTimestampsV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_input_timestamps_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -255,10 +265,15 @@ impl Proxy for MetaZwpInputTimestampsV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_input_timestamps_v1#{}.timestamp(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {})\n", msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).timestamp(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.timestamp(&self, arg0, arg1, arg2);
+                    DefaultHandler.timestamp(&self, arg0, arg1, arg2);
                 }
             }
             n => {
@@ -285,6 +300,32 @@ impl Proxy for MetaZwpInputTimestampsV1 {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for ZwpInputTimestampsV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

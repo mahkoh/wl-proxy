@@ -19,39 +19,35 @@ use super::super::all_types::*;
 /// A wp_pointer_warp_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpPointerWarpV1 {
+pub struct WpPointerWarpV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpPointerWarpV1MessageHandler>,
+    handler: HandlerHolder<dyn WpPointerWarpV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpPointerWarpV1MessageHandler for DefaultMessageHandler { }
+impl WpPointerWarpV1Handler for DefaultHandler { }
 
-impl MetaWpPointerWarpV1 {
+impl WpPointerWarpV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWpPointerWarpV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpPointerWarpV1, version),
-            handler: Default::default(),
-        })
+impl WpPointerWarpV1 {
+    pub fn set_handler(&self, handler: impl WpPointerWarpV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpPointerWarpV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpPointerWarpV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpPointerWarpV1 {
+impl Debug for WpPointerWarpV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpPointerWarpV1")
+        f.debug_struct("WpPointerWarpV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -59,7 +55,7 @@ impl Debug for MetaWpPointerWarpV1 {
     }
 }
 
-impl MetaWpPointerWarpV1 {
+impl WpPointerWarpV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -75,9 +71,14 @@ impl MetaWpPointerWarpV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_pointer_warp_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -117,8 +118,8 @@ impl MetaWpPointerWarpV1 {
     #[inline]
     pub fn send_warp_pointer(
         &self,
-        surface: &Rc<MetaWlSurface>,
-        pointer: &Rc<MetaWlPointer>,
+        surface: &Rc<WlSurface>,
+        pointer: &Rc<WlPointer>,
         x: Fixed,
         y: Fixed,
         serial: u32,
@@ -150,9 +151,14 @@ impl MetaWpPointerWarpV1 {
             None => return Err(ObjectError::ArgNoServerId("pointer")),
             Some(id) => id,
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_pointer_warp_v1#{}.warp_pointer(surface: wl_surface#{}, pointer: wl_pointer#{}, x: {}, y: {}, serial: {})\n", id, arg0_id, arg1_id, arg2, arg3, arg4);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -172,14 +178,14 @@ impl MetaWpPointerWarpV1 {
 
 /// A message handler for [WpPointerWarpV1] proxies.
 #[allow(dead_code)]
-pub trait MetaWpPointerWarpV1MessageHandler {
+pub trait WpPointerWarpV1Handler: Any {
     /// destroy the warp manager
     ///
     /// Destroy the pointer warp manager.
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWpPointerWarpV1>,
+        _slf: &Rc<WpPointerWarpV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -214,9 +220,9 @@ pub trait MetaWpPointerWarpV1MessageHandler {
     #[inline]
     fn warp_pointer(
         &mut self,
-        _slf: &Rc<MetaWpPointerWarpV1>,
-        surface: &Rc<MetaWlSurface>,
-        pointer: &Rc<MetaWlPointer>,
+        _slf: &Rc<WpPointerWarpV1>,
+        surface: &Rc<WlSurface>,
+        pointer: &Rc<WlPointer>,
         x: Fixed,
         y: Fixed,
         serial: u32,
@@ -234,13 +240,12 @@ pub trait MetaWpPointerWarpV1MessageHandler {
     }
 }
 
-impl Proxy for MetaWpPointerWarpV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpPointerWarpV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpPointerWarpV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -250,10 +255,15 @@ impl Proxy for MetaWpPointerWarpV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_pointer_warp_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -269,11 +279,16 @@ impl Proxy for MetaWpPointerWarpV1 {
                 };
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 let arg3 = Fixed::from_wire(arg3 as i32);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_pointer_warp_v1#{}.warp_pointer(surface: wl_surface#{}, pointer: wl_pointer#{}, x: {}, y: {}, serial: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -281,7 +296,7 @@ impl Proxy for MetaWpPointerWarpV1 {
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlPointer>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlPointer>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ProxyInterface::WlPointer));
                 };
@@ -290,7 +305,7 @@ impl Proxy for MetaWpPointerWarpV1 {
                 if let Some(handler) = handler {
                     (**handler).warp_pointer(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultMessageHandler.warp_pointer(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.warp_pointer(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             n => {
@@ -328,6 +343,32 @@ impl Proxy for MetaWpPointerWarpV1 {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let _ = id;
         None
+    }
+}
+
+impl Proxy for WpPointerWarpV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

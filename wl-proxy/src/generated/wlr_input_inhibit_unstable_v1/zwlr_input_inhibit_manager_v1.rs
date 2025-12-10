@@ -14,39 +14,35 @@ use super::super::all_types::*;
 /// A zwlr_input_inhibit_manager_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwlrInputInhibitManagerV1 {
+pub struct ZwlrInputInhibitManagerV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwlrInputInhibitManagerV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwlrInputInhibitManagerV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwlrInputInhibitManagerV1MessageHandler for DefaultMessageHandler { }
+impl ZwlrInputInhibitManagerV1Handler for DefaultHandler { }
 
-impl MetaZwlrInputInhibitManagerV1 {
+impl ZwlrInputInhibitManagerV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwlrInputInhibitManagerV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwlrInputInhibitManagerV1, version),
-            handler: Default::default(),
-        })
+impl ZwlrInputInhibitManagerV1 {
+    pub fn set_handler(&self, handler: impl ZwlrInputInhibitManagerV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwlrInputInhibitManagerV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwlrInputInhibitManagerV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwlrInputInhibitManagerV1 {
+impl Debug for ZwlrInputInhibitManagerV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwlrInputInhibitManagerV1")
+        f.debug_struct("ZwlrInputInhibitManagerV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -54,7 +50,7 @@ impl Debug for MetaZwlrInputInhibitManagerV1 {
     }
 }
 
-impl MetaZwlrInputInhibitManagerV1 {
+impl ZwlrInputInhibitManagerV1 {
     /// Since when the get_inhibitor message is available.
     #[allow(dead_code)]
     pub const MSG__GET_INHIBITOR__SINCE: u32 = 1;
@@ -66,7 +62,7 @@ impl MetaZwlrInputInhibitManagerV1 {
     #[inline]
     pub fn send_get_inhibitor(
         &self,
-        id: &Rc<MetaZwlrInputInhibitorV1>,
+        id: &Rc<ZwlrInputInhibitorV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -82,9 +78,14 @@ impl MetaZwlrInputInhibitManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_input_inhibit_manager_v1#{}.get_inhibitor(id: zwlr_input_inhibitor_v1#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -100,7 +101,7 @@ impl MetaZwlrInputInhibitManagerV1 {
 
 /// A message handler for [ZwlrInputInhibitManagerV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwlrInputInhibitManagerV1MessageHandler {
+pub trait ZwlrInputInhibitManagerV1Handler: Any {
     /// inhibit input to other clients
     ///
     /// Activates the input inhibitor. As long as the inhibitor is active, the
@@ -112,8 +113,8 @@ pub trait MetaZwlrInputInhibitManagerV1MessageHandler {
     #[inline]
     fn get_inhibitor(
         &mut self,
-        _slf: &Rc<MetaZwlrInputInhibitManagerV1>,
-        id: &Rc<MetaZwlrInputInhibitorV1>,
+        _slf: &Rc<ZwlrInputInhibitManagerV1>,
+        id: &Rc<ZwlrInputInhibitorV1>,
     ) {
         let res = _slf.send_get_inhibitor(
             id,
@@ -124,13 +125,12 @@ pub trait MetaZwlrInputInhibitManagerV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwlrInputInhibitManagerV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwlrInputInhibitManagerV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrInputInhibitManagerV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -142,15 +142,20 @@ impl Proxy for MetaZwlrInputInhibitManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_input_inhibit_manager_v1#{}.get_inhibitor(id: zwlr_input_inhibitor_v1#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaZwlrInputInhibitorV1::new(&self.core.state, self.core.version);
+                let arg0 = ZwlrInputInhibitorV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).get_inhibitor(&self, arg0);
                 } else {
-                    DefaultMessageHandler.get_inhibitor(&self, arg0);
+                    DefaultHandler.get_inhibitor(&self, arg0);
                 }
             }
             n => {
@@ -190,7 +195,33 @@ impl Proxy for MetaZwlrInputInhibitManagerV1 {
     }
 }
 
-impl MetaZwlrInputInhibitManagerV1 {
+impl Proxy for ZwlrInputInhibitManagerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl ZwlrInputInhibitManagerV1 {
     /// Since when the error.already_inhibited enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_INHIBITED__SINCE: u32 = 1;
@@ -198,15 +229,15 @@ impl MetaZwlrInputInhibitManagerV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwlrInputInhibitManagerV1Error(pub u32);
+pub struct ZwlrInputInhibitManagerV1Error(pub u32);
 
-impl MetaZwlrInputInhibitManagerV1Error {
+impl ZwlrInputInhibitManagerV1Error {
     /// an input inhibitor is already in use on the compositor
     #[allow(dead_code)]
     pub const ALREADY_INHIBITED: Self = Self(0);
 }
 
-impl Debug for MetaZwlrInputInhibitManagerV1Error {
+impl Debug for ZwlrInputInhibitManagerV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::ALREADY_INHIBITED => "ALREADY_INHIBITED",

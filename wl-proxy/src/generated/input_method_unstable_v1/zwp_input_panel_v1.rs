@@ -8,39 +8,35 @@ use super::super::all_types::*;
 /// A zwp_input_panel_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwpInputPanelV1 {
+pub struct ZwpInputPanelV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwpInputPanelV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwpInputPanelV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwpInputPanelV1MessageHandler for DefaultMessageHandler { }
+impl ZwpInputPanelV1Handler for DefaultHandler { }
 
-impl MetaZwpInputPanelV1 {
+impl ZwpInputPanelV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwpInputPanelV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwpInputPanelV1, version),
-            handler: Default::default(),
-        })
+impl ZwpInputPanelV1 {
+    pub fn set_handler(&self, handler: impl ZwpInputPanelV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwpInputPanelV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwpInputPanelV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwpInputPanelV1 {
+impl Debug for ZwpInputPanelV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwpInputPanelV1")
+        f.debug_struct("ZwpInputPanelV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -48,7 +44,7 @@ impl Debug for MetaZwpInputPanelV1 {
     }
 }
 
-impl MetaZwpInputPanelV1 {
+impl ZwpInputPanelV1 {
     /// Since when the get_input_panel_surface message is available.
     #[allow(dead_code)]
     pub const MSG__GET_INPUT_PANEL_SURFACE__SINCE: u32 = 1;
@@ -60,8 +56,8 @@ impl MetaZwpInputPanelV1 {
     #[inline]
     pub fn send_get_input_panel_surface(
         &self,
-        id: &Rc<MetaZwpInputPanelSurfaceV1>,
-        surface: &Rc<MetaWlSurface>,
+        id: &Rc<ZwpInputPanelSurfaceV1>,
+        surface: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -84,9 +80,14 @@ impl MetaZwpInputPanelV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_input_panel_v1#{}.get_input_panel_surface(id: zwp_input_panel_surface_v1#{}, surface: wl_surface#{})\n", id, arg0_id, arg1_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -103,7 +104,7 @@ impl MetaZwpInputPanelV1 {
 
 /// A message handler for [ZwpInputPanelV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwpInputPanelV1MessageHandler {
+pub trait ZwpInputPanelV1Handler: Any {
     /// # Arguments
     ///
     /// - `id`:
@@ -114,9 +115,9 @@ pub trait MetaZwpInputPanelV1MessageHandler {
     #[inline]
     fn get_input_panel_surface(
         &mut self,
-        _slf: &Rc<MetaZwpInputPanelV1>,
-        id: &Rc<MetaZwpInputPanelSurfaceV1>,
-        surface: &Rc<MetaWlSurface>,
+        _slf: &Rc<ZwpInputPanelV1>,
+        id: &Rc<ZwpInputPanelSurfaceV1>,
+        surface: &Rc<WlSurface>,
     ) {
         let res = _slf.send_get_input_panel_surface(
             id,
@@ -128,13 +129,12 @@ pub trait MetaZwpInputPanelV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwpInputPanelV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwpInputPanelV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpInputPanelV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -147,15 +147,20 @@ impl Proxy for MetaZwpInputPanelV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_input_panel_v1#{}.get_input_panel_surface(id: zwp_input_panel_surface_v1#{}, surface: wl_surface#{})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaZwpInputPanelSurfaceV1::new(&self.core.state, self.core.version);
+                let arg0 = ZwpInputPanelSurfaceV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -164,7 +169,7 @@ impl Proxy for MetaZwpInputPanelV1 {
                 if let Some(handler) = handler {
                     (**handler).get_input_panel_surface(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.get_input_panel_surface(&self, arg0, arg1);
+                    DefaultHandler.get_input_panel_surface(&self, arg0, arg1);
                 }
             }
             n => {
@@ -201,6 +206,32 @@ impl Proxy for MetaZwpInputPanelV1 {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let _ = id;
         None
+    }
+}
+
+impl Proxy for ZwpInputPanelV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

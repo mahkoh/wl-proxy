@@ -63,1442 +63,1442 @@ pub mod xwayland_shell_v1;
 
 #[allow(unused_imports)]
 mod all_types {
-    pub(super) use super::alpha_modifier_v1::wp_alpha_modifier_surface_v1::MetaWpAlphaModifierSurfaceV1;
-    pub(super) use super::alpha_modifier_v1::wp_alpha_modifier_surface_v1::MetaWpAlphaModifierSurfaceV1Error;
-    pub(super) use super::alpha_modifier_v1::wp_alpha_modifier_v1::MetaWpAlphaModifierV1;
-    pub(super) use super::alpha_modifier_v1::wp_alpha_modifier_v1::MetaWpAlphaModifierV1Error;
-    pub(super) use super::color_management_v1::wp_color_management_output_v1::MetaWpColorManagementOutputV1;
-    pub(super) use super::color_management_v1::wp_color_management_surface_feedback_v1::MetaWpColorManagementSurfaceFeedbackV1;
-    pub(super) use super::color_management_v1::wp_color_management_surface_feedback_v1::MetaWpColorManagementSurfaceFeedbackV1Error;
-    pub(super) use super::color_management_v1::wp_color_management_surface_v1::MetaWpColorManagementSurfaceV1;
-    pub(super) use super::color_management_v1::wp_color_management_surface_v1::MetaWpColorManagementSurfaceV1Error;
-    pub(super) use super::color_management_v1::wp_color_manager_v1::MetaWpColorManagerV1;
-    pub(super) use super::color_management_v1::wp_color_manager_v1::MetaWpColorManagerV1Error;
-    pub(super) use super::color_management_v1::wp_color_manager_v1::MetaWpColorManagerV1RenderIntent;
-    pub(super) use super::color_management_v1::wp_color_manager_v1::MetaWpColorManagerV1Feature;
-    pub(super) use super::color_management_v1::wp_color_manager_v1::MetaWpColorManagerV1Primaries;
-    pub(super) use super::color_management_v1::wp_color_manager_v1::MetaWpColorManagerV1TransferFunction;
-    pub(super) use super::color_management_v1::wp_image_description_creator_icc_v1::MetaWpImageDescriptionCreatorIccV1;
-    pub(super) use super::color_management_v1::wp_image_description_creator_icc_v1::MetaWpImageDescriptionCreatorIccV1Error;
-    pub(super) use super::color_management_v1::wp_image_description_creator_params_v1::MetaWpImageDescriptionCreatorParamsV1;
-    pub(super) use super::color_management_v1::wp_image_description_creator_params_v1::MetaWpImageDescriptionCreatorParamsV1Error;
-    pub(super) use super::color_management_v1::wp_image_description_info_v1::MetaWpImageDescriptionInfoV1;
-    pub(super) use super::color_management_v1::wp_image_description_v1::MetaWpImageDescriptionV1;
-    pub(super) use super::color_management_v1::wp_image_description_v1::MetaWpImageDescriptionV1Error;
-    pub(super) use super::color_management_v1::wp_image_description_v1::MetaWpImageDescriptionV1Cause;
-    pub(super) use super::color_representation_v1::wp_color_representation_manager_v1::MetaWpColorRepresentationManagerV1;
-    pub(super) use super::color_representation_v1::wp_color_representation_manager_v1::MetaWpColorRepresentationManagerV1Error;
-    pub(super) use super::color_representation_v1::wp_color_representation_surface_v1::MetaWpColorRepresentationSurfaceV1;
-    pub(super) use super::color_representation_v1::wp_color_representation_surface_v1::MetaWpColorRepresentationSurfaceV1Error;
-    pub(super) use super::color_representation_v1::wp_color_representation_surface_v1::MetaWpColorRepresentationSurfaceV1AlphaMode;
-    pub(super) use super::color_representation_v1::wp_color_representation_surface_v1::MetaWpColorRepresentationSurfaceV1Coefficients;
-    pub(super) use super::color_representation_v1::wp_color_representation_surface_v1::MetaWpColorRepresentationSurfaceV1Range;
-    pub(super) use super::color_representation_v1::wp_color_representation_surface_v1::MetaWpColorRepresentationSurfaceV1ChromaLocation;
-    pub(super) use super::commit_timing_v1::wp_commit_timer_v1::MetaWpCommitTimerV1;
-    pub(super) use super::commit_timing_v1::wp_commit_timer_v1::MetaWpCommitTimerV1Error;
-    pub(super) use super::commit_timing_v1::wp_commit_timing_manager_v1::MetaWpCommitTimingManagerV1;
-    pub(super) use super::commit_timing_v1::wp_commit_timing_manager_v1::MetaWpCommitTimingManagerV1Error;
-    pub(super) use super::content_type_v1::wp_content_type_manager_v1::MetaWpContentTypeManagerV1;
-    pub(super) use super::content_type_v1::wp_content_type_manager_v1::MetaWpContentTypeManagerV1Error;
-    pub(super) use super::content_type_v1::wp_content_type_v1::MetaWpContentTypeV1;
-    pub(super) use super::content_type_v1::wp_content_type_v1::MetaWpContentTypeV1Type;
-    pub(super) use super::cursor_shape_v1::wp_cursor_shape_device_v1::MetaWpCursorShapeDeviceV1;
-    pub(super) use super::cursor_shape_v1::wp_cursor_shape_device_v1::MetaWpCursorShapeDeviceV1Shape;
-    pub(super) use super::cursor_shape_v1::wp_cursor_shape_device_v1::MetaWpCursorShapeDeviceV1Error;
-    pub(super) use super::cursor_shape_v1::wp_cursor_shape_manager_v1::MetaWpCursorShapeManagerV1;
-    pub(super) use super::drm_lease_v1::wp_drm_lease_connector_v1::MetaWpDrmLeaseConnectorV1;
-    pub(super) use super::drm_lease_v1::wp_drm_lease_device_v1::MetaWpDrmLeaseDeviceV1;
-    pub(super) use super::drm_lease_v1::wp_drm_lease_request_v1::MetaWpDrmLeaseRequestV1;
-    pub(super) use super::drm_lease_v1::wp_drm_lease_request_v1::MetaWpDrmLeaseRequestV1Error;
-    pub(super) use super::drm_lease_v1::wp_drm_lease_v1::MetaWpDrmLeaseV1;
-    pub(super) use super::ext_background_effect_v1::ext_background_effect_manager_v1::MetaExtBackgroundEffectManagerV1;
-    pub(super) use super::ext_background_effect_v1::ext_background_effect_manager_v1::MetaExtBackgroundEffectManagerV1Error;
-    pub(super) use super::ext_background_effect_v1::ext_background_effect_manager_v1::MetaExtBackgroundEffectManagerV1Capability;
-    pub(super) use super::ext_background_effect_v1::ext_background_effect_surface_v1::MetaExtBackgroundEffectSurfaceV1;
-    pub(super) use super::ext_background_effect_v1::ext_background_effect_surface_v1::MetaExtBackgroundEffectSurfaceV1Error;
-    pub(super) use super::ext_data_control_v1::ext_data_control_device_v1::MetaExtDataControlDeviceV1;
-    pub(super) use super::ext_data_control_v1::ext_data_control_device_v1::MetaExtDataControlDeviceV1Error;
-    pub(super) use super::ext_data_control_v1::ext_data_control_manager_v1::MetaExtDataControlManagerV1;
-    pub(super) use super::ext_data_control_v1::ext_data_control_offer_v1::MetaExtDataControlOfferV1;
-    pub(super) use super::ext_data_control_v1::ext_data_control_source_v1::MetaExtDataControlSourceV1;
-    pub(super) use super::ext_data_control_v1::ext_data_control_source_v1::MetaExtDataControlSourceV1Error;
-    pub(super) use super::ext_foreign_toplevel_list_v1::ext_foreign_toplevel_handle_v1::MetaExtForeignToplevelHandleV1;
-    pub(super) use super::ext_foreign_toplevel_list_v1::ext_foreign_toplevel_list_v1::MetaExtForeignToplevelListV1;
-    pub(super) use super::ext_idle_notify_v1::ext_idle_notification_v1::MetaExtIdleNotificationV1;
-    pub(super) use super::ext_idle_notify_v1::ext_idle_notifier_v1::MetaExtIdleNotifierV1;
-    pub(super) use super::ext_image_capture_source_v1::ext_foreign_toplevel_image_capture_source_manager_v1::MetaExtForeignToplevelImageCaptureSourceManagerV1;
-    pub(super) use super::ext_image_capture_source_v1::ext_image_capture_source_v1::MetaExtImageCaptureSourceV1;
-    pub(super) use super::ext_image_capture_source_v1::ext_output_image_capture_source_manager_v1::MetaExtOutputImageCaptureSourceManagerV1;
-    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_cursor_session_v1::MetaExtImageCopyCaptureCursorSessionV1;
-    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_cursor_session_v1::MetaExtImageCopyCaptureCursorSessionV1Error;
-    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_frame_v1::MetaExtImageCopyCaptureFrameV1;
-    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_frame_v1::MetaExtImageCopyCaptureFrameV1Error;
-    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_frame_v1::MetaExtImageCopyCaptureFrameV1FailureReason;
-    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_manager_v1::MetaExtImageCopyCaptureManagerV1;
-    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_manager_v1::MetaExtImageCopyCaptureManagerV1Error;
-    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_manager_v1::MetaExtImageCopyCaptureManagerV1Options;
-    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_session_v1::MetaExtImageCopyCaptureSessionV1;
-    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_session_v1::MetaExtImageCopyCaptureSessionV1Error;
-    pub(super) use super::ext_session_lock_v1::ext_session_lock_manager_v1::MetaExtSessionLockManagerV1;
-    pub(super) use super::ext_session_lock_v1::ext_session_lock_surface_v1::MetaExtSessionLockSurfaceV1;
-    pub(super) use super::ext_session_lock_v1::ext_session_lock_surface_v1::MetaExtSessionLockSurfaceV1Error;
-    pub(super) use super::ext_session_lock_v1::ext_session_lock_v1::MetaExtSessionLockV1;
-    pub(super) use super::ext_session_lock_v1::ext_session_lock_v1::MetaExtSessionLockV1Error;
-    pub(super) use super::ext_transient_seat_v1::ext_transient_seat_manager_v1::MetaExtTransientSeatManagerV1;
-    pub(super) use super::ext_transient_seat_v1::ext_transient_seat_v1::MetaExtTransientSeatV1;
-    pub(super) use super::ext_workspace_v1::ext_workspace_group_handle_v1::MetaExtWorkspaceGroupHandleV1;
-    pub(super) use super::ext_workspace_v1::ext_workspace_group_handle_v1::MetaExtWorkspaceGroupHandleV1GroupCapabilities;
-    pub(super) use super::ext_workspace_v1::ext_workspace_handle_v1::MetaExtWorkspaceHandleV1;
-    pub(super) use super::ext_workspace_v1::ext_workspace_handle_v1::MetaExtWorkspaceHandleV1State;
-    pub(super) use super::ext_workspace_v1::ext_workspace_handle_v1::MetaExtWorkspaceHandleV1WorkspaceCapabilities;
-    pub(super) use super::ext_workspace_v1::ext_workspace_manager_v1::MetaExtWorkspaceManagerV1;
-    pub(super) use super::fifo_v1::wp_fifo_manager_v1::MetaWpFifoManagerV1;
-    pub(super) use super::fifo_v1::wp_fifo_manager_v1::MetaWpFifoManagerV1Error;
-    pub(super) use super::fifo_v1::wp_fifo_v1::MetaWpFifoV1;
-    pub(super) use super::fifo_v1::wp_fifo_v1::MetaWpFifoV1Error;
-    pub(super) use super::fractional_scale_v1::wp_fractional_scale_manager_v1::MetaWpFractionalScaleManagerV1;
-    pub(super) use super::fractional_scale_v1::wp_fractional_scale_manager_v1::MetaWpFractionalScaleManagerV1Error;
-    pub(super) use super::fractional_scale_v1::wp_fractional_scale_v1::MetaWpFractionalScaleV1;
-    pub(super) use super::fullscreen_shell_unstable_v1::zwp_fullscreen_shell_mode_feedback_v1::MetaZwpFullscreenShellModeFeedbackV1;
-    pub(super) use super::fullscreen_shell_unstable_v1::zwp_fullscreen_shell_v1::MetaZwpFullscreenShellV1;
-    pub(super) use super::fullscreen_shell_unstable_v1::zwp_fullscreen_shell_v1::MetaZwpFullscreenShellV1Capability;
-    pub(super) use super::fullscreen_shell_unstable_v1::zwp_fullscreen_shell_v1::MetaZwpFullscreenShellV1PresentMethod;
-    pub(super) use super::fullscreen_shell_unstable_v1::zwp_fullscreen_shell_v1::MetaZwpFullscreenShellV1Error;
-    pub(super) use super::idle_inhibit_unstable_v1::zwp_idle_inhibit_manager_v1::MetaZwpIdleInhibitManagerV1;
-    pub(super) use super::idle_inhibit_unstable_v1::zwp_idle_inhibitor_v1::MetaZwpIdleInhibitorV1;
-    pub(super) use super::input_method_unstable_v1::zwp_input_method_context_v1::MetaZwpInputMethodContextV1;
-    pub(super) use super::input_method_unstable_v1::zwp_input_method_v1::MetaZwpInputMethodV1;
-    pub(super) use super::input_method_unstable_v1::zwp_input_panel_surface_v1::MetaZwpInputPanelSurfaceV1;
-    pub(super) use super::input_method_unstable_v1::zwp_input_panel_surface_v1::MetaZwpInputPanelSurfaceV1Position;
-    pub(super) use super::input_method_unstable_v1::zwp_input_panel_v1::MetaZwpInputPanelV1;
-    pub(super) use super::input_timestamps_unstable_v1::zwp_input_timestamps_manager_v1::MetaZwpInputTimestampsManagerV1;
-    pub(super) use super::input_timestamps_unstable_v1::zwp_input_timestamps_v1::MetaZwpInputTimestampsV1;
-    pub(super) use super::keyboard_shortcuts_inhibit_unstable_v1::zwp_keyboard_shortcuts_inhibit_manager_v1::MetaZwpKeyboardShortcutsInhibitManagerV1;
-    pub(super) use super::keyboard_shortcuts_inhibit_unstable_v1::zwp_keyboard_shortcuts_inhibit_manager_v1::MetaZwpKeyboardShortcutsInhibitManagerV1Error;
-    pub(super) use super::keyboard_shortcuts_inhibit_unstable_v1::zwp_keyboard_shortcuts_inhibitor_v1::MetaZwpKeyboardShortcutsInhibitorV1;
-    pub(super) use super::linux_dmabuf_v1::zwp_linux_buffer_params_v1::MetaZwpLinuxBufferParamsV1;
-    pub(super) use super::linux_dmabuf_v1::zwp_linux_buffer_params_v1::MetaZwpLinuxBufferParamsV1Error;
-    pub(super) use super::linux_dmabuf_v1::zwp_linux_buffer_params_v1::MetaZwpLinuxBufferParamsV1Flags;
-    pub(super) use super::linux_dmabuf_v1::zwp_linux_dmabuf_feedback_v1::MetaZwpLinuxDmabufFeedbackV1;
-    pub(super) use super::linux_dmabuf_v1::zwp_linux_dmabuf_feedback_v1::MetaZwpLinuxDmabufFeedbackV1TrancheFlags;
-    pub(super) use super::linux_dmabuf_v1::zwp_linux_dmabuf_v1::MetaZwpLinuxDmabufV1;
-    pub(super) use super::linux_drm_syncobj_v1::wp_linux_drm_syncobj_manager_v1::MetaWpLinuxDrmSyncobjManagerV1;
-    pub(super) use super::linux_drm_syncobj_v1::wp_linux_drm_syncobj_manager_v1::MetaWpLinuxDrmSyncobjManagerV1Error;
-    pub(super) use super::linux_drm_syncobj_v1::wp_linux_drm_syncobj_surface_v1::MetaWpLinuxDrmSyncobjSurfaceV1;
-    pub(super) use super::linux_drm_syncobj_v1::wp_linux_drm_syncobj_surface_v1::MetaWpLinuxDrmSyncobjSurfaceV1Error;
-    pub(super) use super::linux_drm_syncobj_v1::wp_linux_drm_syncobj_timeline_v1::MetaWpLinuxDrmSyncobjTimelineV1;
-    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_buffer_release_v1::MetaZwpLinuxBufferReleaseV1;
-    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_explicit_synchronization_v1::MetaZwpLinuxExplicitSynchronizationV1;
-    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_explicit_synchronization_v1::MetaZwpLinuxExplicitSynchronizationV1Error;
-    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_surface_synchronization_v1::MetaZwpLinuxSurfaceSynchronizationV1;
-    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_surface_synchronization_v1::MetaZwpLinuxSurfaceSynchronizationV1Error;
-    pub(super) use super::pointer_constraints_unstable_v1::zwp_confined_pointer_v1::MetaZwpConfinedPointerV1;
-    pub(super) use super::pointer_constraints_unstable_v1::zwp_locked_pointer_v1::MetaZwpLockedPointerV1;
-    pub(super) use super::pointer_constraints_unstable_v1::zwp_pointer_constraints_v1::MetaZwpPointerConstraintsV1;
-    pub(super) use super::pointer_constraints_unstable_v1::zwp_pointer_constraints_v1::MetaZwpPointerConstraintsV1Error;
-    pub(super) use super::pointer_constraints_unstable_v1::zwp_pointer_constraints_v1::MetaZwpPointerConstraintsV1Lifetime;
-    pub(super) use super::pointer_gestures_unstable_v1::zwp_pointer_gesture_hold_v1::MetaZwpPointerGestureHoldV1;
-    pub(super) use super::pointer_gestures_unstable_v1::zwp_pointer_gesture_pinch_v1::MetaZwpPointerGesturePinchV1;
-    pub(super) use super::pointer_gestures_unstable_v1::zwp_pointer_gesture_swipe_v1::MetaZwpPointerGestureSwipeV1;
-    pub(super) use super::pointer_gestures_unstable_v1::zwp_pointer_gestures_v1::MetaZwpPointerGesturesV1;
-    pub(super) use super::pointer_warp_v1::wp_pointer_warp_v1::MetaWpPointerWarpV1;
-    pub(super) use super::presentation_time::wp_presentation::MetaWpPresentation;
-    pub(super) use super::presentation_time::wp_presentation::MetaWpPresentationError;
-    pub(super) use super::presentation_time::wp_presentation_feedback::MetaWpPresentationFeedback;
-    pub(super) use super::presentation_time::wp_presentation_feedback::MetaWpPresentationFeedbackKind;
-    pub(super) use super::wp_primary_selection_unstable_v1::zwp_primary_selection_device_manager_v1::MetaZwpPrimarySelectionDeviceManagerV1;
-    pub(super) use super::wp_primary_selection_unstable_v1::zwp_primary_selection_device_v1::MetaZwpPrimarySelectionDeviceV1;
-    pub(super) use super::wp_primary_selection_unstable_v1::zwp_primary_selection_offer_v1::MetaZwpPrimarySelectionOfferV1;
-    pub(super) use super::wp_primary_selection_unstable_v1::zwp_primary_selection_source_v1::MetaZwpPrimarySelectionSourceV1;
-    pub(super) use super::relative_pointer_unstable_v1::zwp_relative_pointer_manager_v1::MetaZwpRelativePointerManagerV1;
-    pub(super) use super::relative_pointer_unstable_v1::zwp_relative_pointer_v1::MetaZwpRelativePointerV1;
-    pub(super) use super::security_context_v1::wp_security_context_manager_v1::MetaWpSecurityContextManagerV1;
-    pub(super) use super::security_context_v1::wp_security_context_manager_v1::MetaWpSecurityContextManagerV1Error;
-    pub(super) use super::security_context_v1::wp_security_context_v1::MetaWpSecurityContextV1;
-    pub(super) use super::security_context_v1::wp_security_context_v1::MetaWpSecurityContextV1Error;
-    pub(super) use super::single_pixel_buffer_v1::wp_single_pixel_buffer_manager_v1::MetaWpSinglePixelBufferManagerV1;
-    pub(super) use super::tablet_v2::zwp_tablet_manager_v2::MetaZwpTabletManagerV2;
-    pub(super) use super::tablet_v2::zwp_tablet_pad_dial_v2::MetaZwpTabletPadDialV2;
-    pub(super) use super::tablet_v2::zwp_tablet_pad_group_v2::MetaZwpTabletPadGroupV2;
-    pub(super) use super::tablet_v2::zwp_tablet_pad_ring_v2::MetaZwpTabletPadRingV2;
-    pub(super) use super::tablet_v2::zwp_tablet_pad_ring_v2::MetaZwpTabletPadRingV2Source;
-    pub(super) use super::tablet_v2::zwp_tablet_pad_strip_v2::MetaZwpTabletPadStripV2;
-    pub(super) use super::tablet_v2::zwp_tablet_pad_strip_v2::MetaZwpTabletPadStripV2Source;
-    pub(super) use super::tablet_v2::zwp_tablet_pad_v2::MetaZwpTabletPadV2;
-    pub(super) use super::tablet_v2::zwp_tablet_pad_v2::MetaZwpTabletPadV2ButtonState;
-    pub(super) use super::tablet_v2::zwp_tablet_seat_v2::MetaZwpTabletSeatV2;
-    pub(super) use super::tablet_v2::zwp_tablet_tool_v2::MetaZwpTabletToolV2;
-    pub(super) use super::tablet_v2::zwp_tablet_tool_v2::MetaZwpTabletToolV2Type;
-    pub(super) use super::tablet_v2::zwp_tablet_tool_v2::MetaZwpTabletToolV2Capability;
-    pub(super) use super::tablet_v2::zwp_tablet_tool_v2::MetaZwpTabletToolV2ButtonState;
-    pub(super) use super::tablet_v2::zwp_tablet_tool_v2::MetaZwpTabletToolV2Error;
-    pub(super) use super::tablet_v2::zwp_tablet_v2::MetaZwpTabletV2;
-    pub(super) use super::tablet_v2::zwp_tablet_v2::MetaZwpTabletV2Bustype;
-    pub(super) use super::tearing_control_v1::wp_tearing_control_manager_v1::MetaWpTearingControlManagerV1;
-    pub(super) use super::tearing_control_v1::wp_tearing_control_manager_v1::MetaWpTearingControlManagerV1Error;
-    pub(super) use super::tearing_control_v1::wp_tearing_control_v1::MetaWpTearingControlV1;
-    pub(super) use super::tearing_control_v1::wp_tearing_control_v1::MetaWpTearingControlV1PresentationHint;
-    pub(super) use super::text_input_unstable_v1::zwp_text_input_manager_v1::MetaZwpTextInputManagerV1;
-    pub(super) use super::text_input_unstable_v1::zwp_text_input_v1::MetaZwpTextInputV1;
-    pub(super) use super::text_input_unstable_v1::zwp_text_input_v1::MetaZwpTextInputV1ContentHint;
-    pub(super) use super::text_input_unstable_v1::zwp_text_input_v1::MetaZwpTextInputV1ContentPurpose;
-    pub(super) use super::text_input_unstable_v1::zwp_text_input_v1::MetaZwpTextInputV1PreeditStyle;
-    pub(super) use super::text_input_unstable_v1::zwp_text_input_v1::MetaZwpTextInputV1TextDirection;
-    pub(super) use super::text_input_unstable_v3::zwp_text_input_manager_v3::MetaZwpTextInputManagerV3;
-    pub(super) use super::text_input_unstable_v3::zwp_text_input_v3::MetaZwpTextInputV3;
-    pub(super) use super::text_input_unstable_v3::zwp_text_input_v3::MetaZwpTextInputV3ChangeCause;
-    pub(super) use super::text_input_unstable_v3::zwp_text_input_v3::MetaZwpTextInputV3ContentHint;
-    pub(super) use super::text_input_unstable_v3::zwp_text_input_v3::MetaZwpTextInputV3ContentPurpose;
-    pub(super) use super::viewporter::wp_viewport::MetaWpViewport;
-    pub(super) use super::viewporter::wp_viewport::MetaWpViewportError;
-    pub(super) use super::viewporter::wp_viewporter::MetaWpViewporter;
-    pub(super) use super::viewporter::wp_viewporter::MetaWpViewporterError;
-    pub(super) use super::wayland::wl_buffer::MetaWlBuffer;
-    pub(super) use super::wayland::wl_callback::MetaWlCallback;
-    pub(super) use super::wayland::wl_compositor::MetaWlCompositor;
-    pub(super) use super::wayland::wl_data_device::MetaWlDataDevice;
-    pub(super) use super::wayland::wl_data_device::MetaWlDataDeviceError;
-    pub(super) use super::wayland::wl_data_device_manager::MetaWlDataDeviceManager;
-    pub(super) use super::wayland::wl_data_device_manager::MetaWlDataDeviceManagerDndAction;
-    pub(super) use super::wayland::wl_data_offer::MetaWlDataOffer;
-    pub(super) use super::wayland::wl_data_offer::MetaWlDataOfferError;
-    pub(super) use super::wayland::wl_data_source::MetaWlDataSource;
-    pub(super) use super::wayland::wl_data_source::MetaWlDataSourceError;
-    pub(super) use super::wayland::wl_display::MetaWlDisplay;
-    pub(super) use super::wayland::wl_display::MetaWlDisplayError;
-    pub(super) use super::wayland::wl_fixes::MetaWlFixes;
-    pub(super) use super::wayland::wl_keyboard::MetaWlKeyboard;
-    pub(super) use super::wayland::wl_keyboard::MetaWlKeyboardKeymapFormat;
-    pub(super) use super::wayland::wl_keyboard::MetaWlKeyboardKeyState;
-    pub(super) use super::wayland::wl_output::MetaWlOutput;
-    pub(super) use super::wayland::wl_output::MetaWlOutputSubpixel;
-    pub(super) use super::wayland::wl_output::MetaWlOutputTransform;
-    pub(super) use super::wayland::wl_output::MetaWlOutputMode;
-    pub(super) use super::wayland::wl_pointer::MetaWlPointer;
-    pub(super) use super::wayland::wl_pointer::MetaWlPointerError;
-    pub(super) use super::wayland::wl_pointer::MetaWlPointerButtonState;
-    pub(super) use super::wayland::wl_pointer::MetaWlPointerAxis;
-    pub(super) use super::wayland::wl_pointer::MetaWlPointerAxisSource;
-    pub(super) use super::wayland::wl_pointer::MetaWlPointerAxisRelativeDirection;
-    pub(super) use super::wayland::wl_region::MetaWlRegion;
-    pub(super) use super::wayland::wl_registry::MetaWlRegistry;
-    pub(super) use super::wayland::wl_seat::MetaWlSeat;
-    pub(super) use super::wayland::wl_seat::MetaWlSeatCapability;
-    pub(super) use super::wayland::wl_seat::MetaWlSeatError;
-    pub(super) use super::wayland::wl_shell::MetaWlShell;
-    pub(super) use super::wayland::wl_shell::MetaWlShellError;
-    pub(super) use super::wayland::wl_shell_surface::MetaWlShellSurface;
-    pub(super) use super::wayland::wl_shell_surface::MetaWlShellSurfaceResize;
-    pub(super) use super::wayland::wl_shell_surface::MetaWlShellSurfaceTransient;
-    pub(super) use super::wayland::wl_shell_surface::MetaWlShellSurfaceFullscreenMethod;
-    pub(super) use super::wayland::wl_shm::MetaWlShm;
-    pub(super) use super::wayland::wl_shm::MetaWlShmError;
-    pub(super) use super::wayland::wl_shm::MetaWlShmFormat;
-    pub(super) use super::wayland::wl_shm_pool::MetaWlShmPool;
-    pub(super) use super::wayland::wl_subcompositor::MetaWlSubcompositor;
-    pub(super) use super::wayland::wl_subcompositor::MetaWlSubcompositorError;
-    pub(super) use super::wayland::wl_subsurface::MetaWlSubsurface;
-    pub(super) use super::wayland::wl_subsurface::MetaWlSubsurfaceError;
-    pub(super) use super::wayland::wl_surface::MetaWlSurface;
-    pub(super) use super::wayland::wl_surface::MetaWlSurfaceError;
-    pub(super) use super::wayland::wl_touch::MetaWlTouch;
-    pub(super) use super::wlr_data_control_unstable_v1::zwlr_data_control_device_v1::MetaZwlrDataControlDeviceV1;
-    pub(super) use super::wlr_data_control_unstable_v1::zwlr_data_control_device_v1::MetaZwlrDataControlDeviceV1Error;
-    pub(super) use super::wlr_data_control_unstable_v1::zwlr_data_control_manager_v1::MetaZwlrDataControlManagerV1;
-    pub(super) use super::wlr_data_control_unstable_v1::zwlr_data_control_offer_v1::MetaZwlrDataControlOfferV1;
-    pub(super) use super::wlr_data_control_unstable_v1::zwlr_data_control_source_v1::MetaZwlrDataControlSourceV1;
-    pub(super) use super::wlr_data_control_unstable_v1::zwlr_data_control_source_v1::MetaZwlrDataControlSourceV1Error;
-    pub(super) use super::wlr_export_dmabuf_unstable_v1::zwlr_export_dmabuf_frame_v1::MetaZwlrExportDmabufFrameV1;
-    pub(super) use super::wlr_export_dmabuf_unstable_v1::zwlr_export_dmabuf_frame_v1::MetaZwlrExportDmabufFrameV1Flags;
-    pub(super) use super::wlr_export_dmabuf_unstable_v1::zwlr_export_dmabuf_frame_v1::MetaZwlrExportDmabufFrameV1CancelReason;
-    pub(super) use super::wlr_export_dmabuf_unstable_v1::zwlr_export_dmabuf_manager_v1::MetaZwlrExportDmabufManagerV1;
-    pub(super) use super::wlr_foreign_toplevel_management_unstable_v1::zwlr_foreign_toplevel_handle_v1::MetaZwlrForeignToplevelHandleV1;
-    pub(super) use super::wlr_foreign_toplevel_management_unstable_v1::zwlr_foreign_toplevel_handle_v1::MetaZwlrForeignToplevelHandleV1State;
-    pub(super) use super::wlr_foreign_toplevel_management_unstable_v1::zwlr_foreign_toplevel_handle_v1::MetaZwlrForeignToplevelHandleV1Error;
-    pub(super) use super::wlr_foreign_toplevel_management_unstable_v1::zwlr_foreign_toplevel_manager_v1::MetaZwlrForeignToplevelManagerV1;
-    pub(super) use super::wlr_gamma_control_unstable_v1::zwlr_gamma_control_manager_v1::MetaZwlrGammaControlManagerV1;
-    pub(super) use super::wlr_gamma_control_unstable_v1::zwlr_gamma_control_v1::MetaZwlrGammaControlV1;
-    pub(super) use super::wlr_gamma_control_unstable_v1::zwlr_gamma_control_v1::MetaZwlrGammaControlV1Error;
-    pub(super) use super::wlr_input_inhibit_unstable_v1::zwlr_input_inhibit_manager_v1::MetaZwlrInputInhibitManagerV1;
-    pub(super) use super::wlr_input_inhibit_unstable_v1::zwlr_input_inhibit_manager_v1::MetaZwlrInputInhibitManagerV1Error;
-    pub(super) use super::wlr_input_inhibit_unstable_v1::zwlr_input_inhibitor_v1::MetaZwlrInputInhibitorV1;
-    pub(super) use super::wlr_layer_shell_unstable_v1::zwlr_layer_shell_v1::MetaZwlrLayerShellV1;
-    pub(super) use super::wlr_layer_shell_unstable_v1::zwlr_layer_shell_v1::MetaZwlrLayerShellV1Error;
-    pub(super) use super::wlr_layer_shell_unstable_v1::zwlr_layer_shell_v1::MetaZwlrLayerShellV1Layer;
-    pub(super) use super::wlr_layer_shell_unstable_v1::zwlr_layer_surface_v1::MetaZwlrLayerSurfaceV1;
-    pub(super) use super::wlr_layer_shell_unstable_v1::zwlr_layer_surface_v1::MetaZwlrLayerSurfaceV1KeyboardInteractivity;
-    pub(super) use super::wlr_layer_shell_unstable_v1::zwlr_layer_surface_v1::MetaZwlrLayerSurfaceV1Error;
-    pub(super) use super::wlr_layer_shell_unstable_v1::zwlr_layer_surface_v1::MetaZwlrLayerSurfaceV1Anchor;
-    pub(super) use super::wlr_output_management_unstable_v1::zwlr_output_configuration_head_v1::MetaZwlrOutputConfigurationHeadV1;
-    pub(super) use super::wlr_output_management_unstable_v1::zwlr_output_configuration_head_v1::MetaZwlrOutputConfigurationHeadV1Error;
-    pub(super) use super::wlr_output_management_unstable_v1::zwlr_output_configuration_v1::MetaZwlrOutputConfigurationV1;
-    pub(super) use super::wlr_output_management_unstable_v1::zwlr_output_configuration_v1::MetaZwlrOutputConfigurationV1Error;
-    pub(super) use super::wlr_output_management_unstable_v1::zwlr_output_head_v1::MetaZwlrOutputHeadV1;
-    pub(super) use super::wlr_output_management_unstable_v1::zwlr_output_head_v1::MetaZwlrOutputHeadV1AdaptiveSyncState;
-    pub(super) use super::wlr_output_management_unstable_v1::zwlr_output_manager_v1::MetaZwlrOutputManagerV1;
-    pub(super) use super::wlr_output_management_unstable_v1::zwlr_output_mode_v1::MetaZwlrOutputModeV1;
-    pub(super) use super::wlr_output_power_management_unstable_v1::zwlr_output_power_manager_v1::MetaZwlrOutputPowerManagerV1;
-    pub(super) use super::wlr_output_power_management_unstable_v1::zwlr_output_power_v1::MetaZwlrOutputPowerV1;
-    pub(super) use super::wlr_output_power_management_unstable_v1::zwlr_output_power_v1::MetaZwlrOutputPowerV1Mode;
-    pub(super) use super::wlr_output_power_management_unstable_v1::zwlr_output_power_v1::MetaZwlrOutputPowerV1Error;
-    pub(super) use super::wlr_screencopy_unstable_v1::zwlr_screencopy_frame_v1::MetaZwlrScreencopyFrameV1;
-    pub(super) use super::wlr_screencopy_unstable_v1::zwlr_screencopy_frame_v1::MetaZwlrScreencopyFrameV1Error;
-    pub(super) use super::wlr_screencopy_unstable_v1::zwlr_screencopy_frame_v1::MetaZwlrScreencopyFrameV1Flags;
-    pub(super) use super::wlr_screencopy_unstable_v1::zwlr_screencopy_manager_v1::MetaZwlrScreencopyManagerV1;
-    pub(super) use super::wlr_virtual_pointer_unstable_v1::zwlr_virtual_pointer_manager_v1::MetaZwlrVirtualPointerManagerV1;
-    pub(super) use super::wlr_virtual_pointer_unstable_v1::zwlr_virtual_pointer_v1::MetaZwlrVirtualPointerV1;
-    pub(super) use super::wlr_virtual_pointer_unstable_v1::zwlr_virtual_pointer_v1::MetaZwlrVirtualPointerV1Error;
-    pub(super) use super::xdg_activation_v1::xdg_activation_token_v1::MetaXdgActivationTokenV1;
-    pub(super) use super::xdg_activation_v1::xdg_activation_token_v1::MetaXdgActivationTokenV1Error;
-    pub(super) use super::xdg_activation_v1::xdg_activation_v1::MetaXdgActivationV1;
-    pub(super) use super::xdg_decoration_unstable_v1::zxdg_decoration_manager_v1::MetaZxdgDecorationManagerV1;
-    pub(super) use super::xdg_decoration_unstable_v1::zxdg_toplevel_decoration_v1::MetaZxdgToplevelDecorationV1;
-    pub(super) use super::xdg_decoration_unstable_v1::zxdg_toplevel_decoration_v1::MetaZxdgToplevelDecorationV1Error;
-    pub(super) use super::xdg_decoration_unstable_v1::zxdg_toplevel_decoration_v1::MetaZxdgToplevelDecorationV1Mode;
-    pub(super) use super::xdg_dialog_v1::xdg_dialog_v1::MetaXdgDialogV1;
-    pub(super) use super::xdg_dialog_v1::xdg_wm_dialog_v1::MetaXdgWmDialogV1;
-    pub(super) use super::xdg_dialog_v1::xdg_wm_dialog_v1::MetaXdgWmDialogV1Error;
-    pub(super) use super::xdg_foreign_unstable_v2::zxdg_exported_v2::MetaZxdgExportedV2;
-    pub(super) use super::xdg_foreign_unstable_v2::zxdg_exporter_v2::MetaZxdgExporterV2;
-    pub(super) use super::xdg_foreign_unstable_v2::zxdg_exporter_v2::MetaZxdgExporterV2Error;
-    pub(super) use super::xdg_foreign_unstable_v2::zxdg_imported_v2::MetaZxdgImportedV2;
-    pub(super) use super::xdg_foreign_unstable_v2::zxdg_imported_v2::MetaZxdgImportedV2Error;
-    pub(super) use super::xdg_foreign_unstable_v2::zxdg_importer_v2::MetaZxdgImporterV2;
-    pub(super) use super::xdg_output_unstable_v1::zxdg_output_manager_v1::MetaZxdgOutputManagerV1;
-    pub(super) use super::xdg_output_unstable_v1::zxdg_output_v1::MetaZxdgOutputV1;
-    pub(super) use super::xdg_shell::xdg_popup::MetaXdgPopup;
-    pub(super) use super::xdg_shell::xdg_popup::MetaXdgPopupError;
-    pub(super) use super::xdg_shell::xdg_positioner::MetaXdgPositioner;
-    pub(super) use super::xdg_shell::xdg_positioner::MetaXdgPositionerError;
-    pub(super) use super::xdg_shell::xdg_positioner::MetaXdgPositionerAnchor;
-    pub(super) use super::xdg_shell::xdg_positioner::MetaXdgPositionerGravity;
-    pub(super) use super::xdg_shell::xdg_positioner::MetaXdgPositionerConstraintAdjustment;
-    pub(super) use super::xdg_shell::xdg_surface::MetaXdgSurface;
-    pub(super) use super::xdg_shell::xdg_surface::MetaXdgSurfaceError;
-    pub(super) use super::xdg_shell::xdg_toplevel::MetaXdgToplevel;
-    pub(super) use super::xdg_shell::xdg_toplevel::MetaXdgToplevelError;
-    pub(super) use super::xdg_shell::xdg_toplevel::MetaXdgToplevelResizeEdge;
-    pub(super) use super::xdg_shell::xdg_toplevel::MetaXdgToplevelState;
-    pub(super) use super::xdg_shell::xdg_toplevel::MetaXdgToplevelWmCapabilities;
-    pub(super) use super::xdg_shell::xdg_wm_base::MetaXdgWmBase;
-    pub(super) use super::xdg_shell::xdg_wm_base::MetaXdgWmBaseError;
-    pub(super) use super::xdg_system_bell_v1::xdg_system_bell_v1::MetaXdgSystemBellV1;
-    pub(super) use super::xdg_toplevel_drag_v1::xdg_toplevel_drag_manager_v1::MetaXdgToplevelDragManagerV1;
-    pub(super) use super::xdg_toplevel_drag_v1::xdg_toplevel_drag_manager_v1::MetaXdgToplevelDragManagerV1Error;
-    pub(super) use super::xdg_toplevel_drag_v1::xdg_toplevel_drag_v1::MetaXdgToplevelDragV1;
-    pub(super) use super::xdg_toplevel_drag_v1::xdg_toplevel_drag_v1::MetaXdgToplevelDragV1Error;
-    pub(super) use super::xdg_toplevel_icon_v1::xdg_toplevel_icon_manager_v1::MetaXdgToplevelIconManagerV1;
-    pub(super) use super::xdg_toplevel_icon_v1::xdg_toplevel_icon_v1::MetaXdgToplevelIconV1;
-    pub(super) use super::xdg_toplevel_icon_v1::xdg_toplevel_icon_v1::MetaXdgToplevelIconV1Error;
-    pub(super) use super::xdg_toplevel_tag_v1::xdg_toplevel_tag_manager_v1::MetaXdgToplevelTagManagerV1;
-    pub(super) use super::xwayland_keyboard_grab_unstable_v1::zwp_xwayland_keyboard_grab_manager_v1::MetaZwpXwaylandKeyboardGrabManagerV1;
-    pub(super) use super::xwayland_keyboard_grab_unstable_v1::zwp_xwayland_keyboard_grab_v1::MetaZwpXwaylandKeyboardGrabV1;
-    pub(super) use super::xwayland_shell_v1::xwayland_shell_v1::MetaXwaylandShellV1;
-    pub(super) use super::xwayland_shell_v1::xwayland_shell_v1::MetaXwaylandShellV1Error;
-    pub(super) use super::xwayland_shell_v1::xwayland_surface_v1::MetaXwaylandSurfaceV1;
-    pub(super) use super::xwayland_shell_v1::xwayland_surface_v1::MetaXwaylandSurfaceV1Error;
+    pub(super) use super::alpha_modifier_v1::wp_alpha_modifier_surface_v1::WpAlphaModifierSurfaceV1;
+    pub(super) use super::alpha_modifier_v1::wp_alpha_modifier_surface_v1::WpAlphaModifierSurfaceV1Error;
+    pub(super) use super::alpha_modifier_v1::wp_alpha_modifier_v1::WpAlphaModifierV1;
+    pub(super) use super::alpha_modifier_v1::wp_alpha_modifier_v1::WpAlphaModifierV1Error;
+    pub(super) use super::color_management_v1::wp_color_management_output_v1::WpColorManagementOutputV1;
+    pub(super) use super::color_management_v1::wp_color_management_surface_feedback_v1::WpColorManagementSurfaceFeedbackV1;
+    pub(super) use super::color_management_v1::wp_color_management_surface_feedback_v1::WpColorManagementSurfaceFeedbackV1Error;
+    pub(super) use super::color_management_v1::wp_color_management_surface_v1::WpColorManagementSurfaceV1;
+    pub(super) use super::color_management_v1::wp_color_management_surface_v1::WpColorManagementSurfaceV1Error;
+    pub(super) use super::color_management_v1::wp_color_manager_v1::WpColorManagerV1;
+    pub(super) use super::color_management_v1::wp_color_manager_v1::WpColorManagerV1Error;
+    pub(super) use super::color_management_v1::wp_color_manager_v1::WpColorManagerV1RenderIntent;
+    pub(super) use super::color_management_v1::wp_color_manager_v1::WpColorManagerV1Feature;
+    pub(super) use super::color_management_v1::wp_color_manager_v1::WpColorManagerV1Primaries;
+    pub(super) use super::color_management_v1::wp_color_manager_v1::WpColorManagerV1TransferFunction;
+    pub(super) use super::color_management_v1::wp_image_description_creator_icc_v1::WpImageDescriptionCreatorIccV1;
+    pub(super) use super::color_management_v1::wp_image_description_creator_icc_v1::WpImageDescriptionCreatorIccV1Error;
+    pub(super) use super::color_management_v1::wp_image_description_creator_params_v1::WpImageDescriptionCreatorParamsV1;
+    pub(super) use super::color_management_v1::wp_image_description_creator_params_v1::WpImageDescriptionCreatorParamsV1Error;
+    pub(super) use super::color_management_v1::wp_image_description_info_v1::WpImageDescriptionInfoV1;
+    pub(super) use super::color_management_v1::wp_image_description_v1::WpImageDescriptionV1;
+    pub(super) use super::color_management_v1::wp_image_description_v1::WpImageDescriptionV1Error;
+    pub(super) use super::color_management_v1::wp_image_description_v1::WpImageDescriptionV1Cause;
+    pub(super) use super::color_representation_v1::wp_color_representation_manager_v1::WpColorRepresentationManagerV1;
+    pub(super) use super::color_representation_v1::wp_color_representation_manager_v1::WpColorRepresentationManagerV1Error;
+    pub(super) use super::color_representation_v1::wp_color_representation_surface_v1::WpColorRepresentationSurfaceV1;
+    pub(super) use super::color_representation_v1::wp_color_representation_surface_v1::WpColorRepresentationSurfaceV1Error;
+    pub(super) use super::color_representation_v1::wp_color_representation_surface_v1::WpColorRepresentationSurfaceV1AlphaMode;
+    pub(super) use super::color_representation_v1::wp_color_representation_surface_v1::WpColorRepresentationSurfaceV1Coefficients;
+    pub(super) use super::color_representation_v1::wp_color_representation_surface_v1::WpColorRepresentationSurfaceV1Range;
+    pub(super) use super::color_representation_v1::wp_color_representation_surface_v1::WpColorRepresentationSurfaceV1ChromaLocation;
+    pub(super) use super::commit_timing_v1::wp_commit_timer_v1::WpCommitTimerV1;
+    pub(super) use super::commit_timing_v1::wp_commit_timer_v1::WpCommitTimerV1Error;
+    pub(super) use super::commit_timing_v1::wp_commit_timing_manager_v1::WpCommitTimingManagerV1;
+    pub(super) use super::commit_timing_v1::wp_commit_timing_manager_v1::WpCommitTimingManagerV1Error;
+    pub(super) use super::content_type_v1::wp_content_type_manager_v1::WpContentTypeManagerV1;
+    pub(super) use super::content_type_v1::wp_content_type_manager_v1::WpContentTypeManagerV1Error;
+    pub(super) use super::content_type_v1::wp_content_type_v1::WpContentTypeV1;
+    pub(super) use super::content_type_v1::wp_content_type_v1::WpContentTypeV1Type;
+    pub(super) use super::cursor_shape_v1::wp_cursor_shape_device_v1::WpCursorShapeDeviceV1;
+    pub(super) use super::cursor_shape_v1::wp_cursor_shape_device_v1::WpCursorShapeDeviceV1Shape;
+    pub(super) use super::cursor_shape_v1::wp_cursor_shape_device_v1::WpCursorShapeDeviceV1Error;
+    pub(super) use super::cursor_shape_v1::wp_cursor_shape_manager_v1::WpCursorShapeManagerV1;
+    pub(super) use super::drm_lease_v1::wp_drm_lease_connector_v1::WpDrmLeaseConnectorV1;
+    pub(super) use super::drm_lease_v1::wp_drm_lease_device_v1::WpDrmLeaseDeviceV1;
+    pub(super) use super::drm_lease_v1::wp_drm_lease_request_v1::WpDrmLeaseRequestV1;
+    pub(super) use super::drm_lease_v1::wp_drm_lease_request_v1::WpDrmLeaseRequestV1Error;
+    pub(super) use super::drm_lease_v1::wp_drm_lease_v1::WpDrmLeaseV1;
+    pub(super) use super::ext_background_effect_v1::ext_background_effect_manager_v1::ExtBackgroundEffectManagerV1;
+    pub(super) use super::ext_background_effect_v1::ext_background_effect_manager_v1::ExtBackgroundEffectManagerV1Error;
+    pub(super) use super::ext_background_effect_v1::ext_background_effect_manager_v1::ExtBackgroundEffectManagerV1Capability;
+    pub(super) use super::ext_background_effect_v1::ext_background_effect_surface_v1::ExtBackgroundEffectSurfaceV1;
+    pub(super) use super::ext_background_effect_v1::ext_background_effect_surface_v1::ExtBackgroundEffectSurfaceV1Error;
+    pub(super) use super::ext_data_control_v1::ext_data_control_device_v1::ExtDataControlDeviceV1;
+    pub(super) use super::ext_data_control_v1::ext_data_control_device_v1::ExtDataControlDeviceV1Error;
+    pub(super) use super::ext_data_control_v1::ext_data_control_manager_v1::ExtDataControlManagerV1;
+    pub(super) use super::ext_data_control_v1::ext_data_control_offer_v1::ExtDataControlOfferV1;
+    pub(super) use super::ext_data_control_v1::ext_data_control_source_v1::ExtDataControlSourceV1;
+    pub(super) use super::ext_data_control_v1::ext_data_control_source_v1::ExtDataControlSourceV1Error;
+    pub(super) use super::ext_foreign_toplevel_list_v1::ext_foreign_toplevel_handle_v1::ExtForeignToplevelHandleV1;
+    pub(super) use super::ext_foreign_toplevel_list_v1::ext_foreign_toplevel_list_v1::ExtForeignToplevelListV1;
+    pub(super) use super::ext_idle_notify_v1::ext_idle_notification_v1::ExtIdleNotificationV1;
+    pub(super) use super::ext_idle_notify_v1::ext_idle_notifier_v1::ExtIdleNotifierV1;
+    pub(super) use super::ext_image_capture_source_v1::ext_foreign_toplevel_image_capture_source_manager_v1::ExtForeignToplevelImageCaptureSourceManagerV1;
+    pub(super) use super::ext_image_capture_source_v1::ext_image_capture_source_v1::ExtImageCaptureSourceV1;
+    pub(super) use super::ext_image_capture_source_v1::ext_output_image_capture_source_manager_v1::ExtOutputImageCaptureSourceManagerV1;
+    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_cursor_session_v1::ExtImageCopyCaptureCursorSessionV1;
+    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_cursor_session_v1::ExtImageCopyCaptureCursorSessionV1Error;
+    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_frame_v1::ExtImageCopyCaptureFrameV1;
+    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_frame_v1::ExtImageCopyCaptureFrameV1Error;
+    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_frame_v1::ExtImageCopyCaptureFrameV1FailureReason;
+    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_manager_v1::ExtImageCopyCaptureManagerV1;
+    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_manager_v1::ExtImageCopyCaptureManagerV1Error;
+    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_manager_v1::ExtImageCopyCaptureManagerV1Options;
+    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_session_v1::ExtImageCopyCaptureSessionV1;
+    pub(super) use super::ext_image_copy_capture_v1::ext_image_copy_capture_session_v1::ExtImageCopyCaptureSessionV1Error;
+    pub(super) use super::ext_session_lock_v1::ext_session_lock_manager_v1::ExtSessionLockManagerV1;
+    pub(super) use super::ext_session_lock_v1::ext_session_lock_surface_v1::ExtSessionLockSurfaceV1;
+    pub(super) use super::ext_session_lock_v1::ext_session_lock_surface_v1::ExtSessionLockSurfaceV1Error;
+    pub(super) use super::ext_session_lock_v1::ext_session_lock_v1::ExtSessionLockV1;
+    pub(super) use super::ext_session_lock_v1::ext_session_lock_v1::ExtSessionLockV1Error;
+    pub(super) use super::ext_transient_seat_v1::ext_transient_seat_manager_v1::ExtTransientSeatManagerV1;
+    pub(super) use super::ext_transient_seat_v1::ext_transient_seat_v1::ExtTransientSeatV1;
+    pub(super) use super::ext_workspace_v1::ext_workspace_group_handle_v1::ExtWorkspaceGroupHandleV1;
+    pub(super) use super::ext_workspace_v1::ext_workspace_group_handle_v1::ExtWorkspaceGroupHandleV1GroupCapabilities;
+    pub(super) use super::ext_workspace_v1::ext_workspace_handle_v1::ExtWorkspaceHandleV1;
+    pub(super) use super::ext_workspace_v1::ext_workspace_handle_v1::ExtWorkspaceHandleV1State;
+    pub(super) use super::ext_workspace_v1::ext_workspace_handle_v1::ExtWorkspaceHandleV1WorkspaceCapabilities;
+    pub(super) use super::ext_workspace_v1::ext_workspace_manager_v1::ExtWorkspaceManagerV1;
+    pub(super) use super::fifo_v1::wp_fifo_manager_v1::WpFifoManagerV1;
+    pub(super) use super::fifo_v1::wp_fifo_manager_v1::WpFifoManagerV1Error;
+    pub(super) use super::fifo_v1::wp_fifo_v1::WpFifoV1;
+    pub(super) use super::fifo_v1::wp_fifo_v1::WpFifoV1Error;
+    pub(super) use super::fractional_scale_v1::wp_fractional_scale_manager_v1::WpFractionalScaleManagerV1;
+    pub(super) use super::fractional_scale_v1::wp_fractional_scale_manager_v1::WpFractionalScaleManagerV1Error;
+    pub(super) use super::fractional_scale_v1::wp_fractional_scale_v1::WpFractionalScaleV1;
+    pub(super) use super::fullscreen_shell_unstable_v1::zwp_fullscreen_shell_mode_feedback_v1::ZwpFullscreenShellModeFeedbackV1;
+    pub(super) use super::fullscreen_shell_unstable_v1::zwp_fullscreen_shell_v1::ZwpFullscreenShellV1;
+    pub(super) use super::fullscreen_shell_unstable_v1::zwp_fullscreen_shell_v1::ZwpFullscreenShellV1Capability;
+    pub(super) use super::fullscreen_shell_unstable_v1::zwp_fullscreen_shell_v1::ZwpFullscreenShellV1PresentMethod;
+    pub(super) use super::fullscreen_shell_unstable_v1::zwp_fullscreen_shell_v1::ZwpFullscreenShellV1Error;
+    pub(super) use super::idle_inhibit_unstable_v1::zwp_idle_inhibit_manager_v1::ZwpIdleInhibitManagerV1;
+    pub(super) use super::idle_inhibit_unstable_v1::zwp_idle_inhibitor_v1::ZwpIdleInhibitorV1;
+    pub(super) use super::input_method_unstable_v1::zwp_input_method_context_v1::ZwpInputMethodContextV1;
+    pub(super) use super::input_method_unstable_v1::zwp_input_method_v1::ZwpInputMethodV1;
+    pub(super) use super::input_method_unstable_v1::zwp_input_panel_surface_v1::ZwpInputPanelSurfaceV1;
+    pub(super) use super::input_method_unstable_v1::zwp_input_panel_surface_v1::ZwpInputPanelSurfaceV1Position;
+    pub(super) use super::input_method_unstable_v1::zwp_input_panel_v1::ZwpInputPanelV1;
+    pub(super) use super::input_timestamps_unstable_v1::zwp_input_timestamps_manager_v1::ZwpInputTimestampsManagerV1;
+    pub(super) use super::input_timestamps_unstable_v1::zwp_input_timestamps_v1::ZwpInputTimestampsV1;
+    pub(super) use super::keyboard_shortcuts_inhibit_unstable_v1::zwp_keyboard_shortcuts_inhibit_manager_v1::ZwpKeyboardShortcutsInhibitManagerV1;
+    pub(super) use super::keyboard_shortcuts_inhibit_unstable_v1::zwp_keyboard_shortcuts_inhibit_manager_v1::ZwpKeyboardShortcutsInhibitManagerV1Error;
+    pub(super) use super::keyboard_shortcuts_inhibit_unstable_v1::zwp_keyboard_shortcuts_inhibitor_v1::ZwpKeyboardShortcutsInhibitorV1;
+    pub(super) use super::linux_dmabuf_v1::zwp_linux_buffer_params_v1::ZwpLinuxBufferParamsV1;
+    pub(super) use super::linux_dmabuf_v1::zwp_linux_buffer_params_v1::ZwpLinuxBufferParamsV1Error;
+    pub(super) use super::linux_dmabuf_v1::zwp_linux_buffer_params_v1::ZwpLinuxBufferParamsV1Flags;
+    pub(super) use super::linux_dmabuf_v1::zwp_linux_dmabuf_feedback_v1::ZwpLinuxDmabufFeedbackV1;
+    pub(super) use super::linux_dmabuf_v1::zwp_linux_dmabuf_feedback_v1::ZwpLinuxDmabufFeedbackV1TrancheFlags;
+    pub(super) use super::linux_dmabuf_v1::zwp_linux_dmabuf_v1::ZwpLinuxDmabufV1;
+    pub(super) use super::linux_drm_syncobj_v1::wp_linux_drm_syncobj_manager_v1::WpLinuxDrmSyncobjManagerV1;
+    pub(super) use super::linux_drm_syncobj_v1::wp_linux_drm_syncobj_manager_v1::WpLinuxDrmSyncobjManagerV1Error;
+    pub(super) use super::linux_drm_syncobj_v1::wp_linux_drm_syncobj_surface_v1::WpLinuxDrmSyncobjSurfaceV1;
+    pub(super) use super::linux_drm_syncobj_v1::wp_linux_drm_syncobj_surface_v1::WpLinuxDrmSyncobjSurfaceV1Error;
+    pub(super) use super::linux_drm_syncobj_v1::wp_linux_drm_syncobj_timeline_v1::WpLinuxDrmSyncobjTimelineV1;
+    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_buffer_release_v1::ZwpLinuxBufferReleaseV1;
+    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_explicit_synchronization_v1::ZwpLinuxExplicitSynchronizationV1;
+    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_explicit_synchronization_v1::ZwpLinuxExplicitSynchronizationV1Error;
+    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_surface_synchronization_v1::ZwpLinuxSurfaceSynchronizationV1;
+    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_surface_synchronization_v1::ZwpLinuxSurfaceSynchronizationV1Error;
+    pub(super) use super::pointer_constraints_unstable_v1::zwp_confined_pointer_v1::ZwpConfinedPointerV1;
+    pub(super) use super::pointer_constraints_unstable_v1::zwp_locked_pointer_v1::ZwpLockedPointerV1;
+    pub(super) use super::pointer_constraints_unstable_v1::zwp_pointer_constraints_v1::ZwpPointerConstraintsV1;
+    pub(super) use super::pointer_constraints_unstable_v1::zwp_pointer_constraints_v1::ZwpPointerConstraintsV1Error;
+    pub(super) use super::pointer_constraints_unstable_v1::zwp_pointer_constraints_v1::ZwpPointerConstraintsV1Lifetime;
+    pub(super) use super::pointer_gestures_unstable_v1::zwp_pointer_gesture_hold_v1::ZwpPointerGestureHoldV1;
+    pub(super) use super::pointer_gestures_unstable_v1::zwp_pointer_gesture_pinch_v1::ZwpPointerGesturePinchV1;
+    pub(super) use super::pointer_gestures_unstable_v1::zwp_pointer_gesture_swipe_v1::ZwpPointerGestureSwipeV1;
+    pub(super) use super::pointer_gestures_unstable_v1::zwp_pointer_gestures_v1::ZwpPointerGesturesV1;
+    pub(super) use super::pointer_warp_v1::wp_pointer_warp_v1::WpPointerWarpV1;
+    pub(super) use super::presentation_time::wp_presentation::WpPresentation;
+    pub(super) use super::presentation_time::wp_presentation::WpPresentationError;
+    pub(super) use super::presentation_time::wp_presentation_feedback::WpPresentationFeedback;
+    pub(super) use super::presentation_time::wp_presentation_feedback::WpPresentationFeedbackKind;
+    pub(super) use super::wp_primary_selection_unstable_v1::zwp_primary_selection_device_manager_v1::ZwpPrimarySelectionDeviceManagerV1;
+    pub(super) use super::wp_primary_selection_unstable_v1::zwp_primary_selection_device_v1::ZwpPrimarySelectionDeviceV1;
+    pub(super) use super::wp_primary_selection_unstable_v1::zwp_primary_selection_offer_v1::ZwpPrimarySelectionOfferV1;
+    pub(super) use super::wp_primary_selection_unstable_v1::zwp_primary_selection_source_v1::ZwpPrimarySelectionSourceV1;
+    pub(super) use super::relative_pointer_unstable_v1::zwp_relative_pointer_manager_v1::ZwpRelativePointerManagerV1;
+    pub(super) use super::relative_pointer_unstable_v1::zwp_relative_pointer_v1::ZwpRelativePointerV1;
+    pub(super) use super::security_context_v1::wp_security_context_manager_v1::WpSecurityContextManagerV1;
+    pub(super) use super::security_context_v1::wp_security_context_manager_v1::WpSecurityContextManagerV1Error;
+    pub(super) use super::security_context_v1::wp_security_context_v1::WpSecurityContextV1;
+    pub(super) use super::security_context_v1::wp_security_context_v1::WpSecurityContextV1Error;
+    pub(super) use super::single_pixel_buffer_v1::wp_single_pixel_buffer_manager_v1::WpSinglePixelBufferManagerV1;
+    pub(super) use super::tablet_v2::zwp_tablet_manager_v2::ZwpTabletManagerV2;
+    pub(super) use super::tablet_v2::zwp_tablet_pad_dial_v2::ZwpTabletPadDialV2;
+    pub(super) use super::tablet_v2::zwp_tablet_pad_group_v2::ZwpTabletPadGroupV2;
+    pub(super) use super::tablet_v2::zwp_tablet_pad_ring_v2::ZwpTabletPadRingV2;
+    pub(super) use super::tablet_v2::zwp_tablet_pad_ring_v2::ZwpTabletPadRingV2Source;
+    pub(super) use super::tablet_v2::zwp_tablet_pad_strip_v2::ZwpTabletPadStripV2;
+    pub(super) use super::tablet_v2::zwp_tablet_pad_strip_v2::ZwpTabletPadStripV2Source;
+    pub(super) use super::tablet_v2::zwp_tablet_pad_v2::ZwpTabletPadV2;
+    pub(super) use super::tablet_v2::zwp_tablet_pad_v2::ZwpTabletPadV2ButtonState;
+    pub(super) use super::tablet_v2::zwp_tablet_seat_v2::ZwpTabletSeatV2;
+    pub(super) use super::tablet_v2::zwp_tablet_tool_v2::ZwpTabletToolV2;
+    pub(super) use super::tablet_v2::zwp_tablet_tool_v2::ZwpTabletToolV2Type;
+    pub(super) use super::tablet_v2::zwp_tablet_tool_v2::ZwpTabletToolV2Capability;
+    pub(super) use super::tablet_v2::zwp_tablet_tool_v2::ZwpTabletToolV2ButtonState;
+    pub(super) use super::tablet_v2::zwp_tablet_tool_v2::ZwpTabletToolV2Error;
+    pub(super) use super::tablet_v2::zwp_tablet_v2::ZwpTabletV2;
+    pub(super) use super::tablet_v2::zwp_tablet_v2::ZwpTabletV2Bustype;
+    pub(super) use super::tearing_control_v1::wp_tearing_control_manager_v1::WpTearingControlManagerV1;
+    pub(super) use super::tearing_control_v1::wp_tearing_control_manager_v1::WpTearingControlManagerV1Error;
+    pub(super) use super::tearing_control_v1::wp_tearing_control_v1::WpTearingControlV1;
+    pub(super) use super::tearing_control_v1::wp_tearing_control_v1::WpTearingControlV1PresentationHint;
+    pub(super) use super::text_input_unstable_v1::zwp_text_input_manager_v1::ZwpTextInputManagerV1;
+    pub(super) use super::text_input_unstable_v1::zwp_text_input_v1::ZwpTextInputV1;
+    pub(super) use super::text_input_unstable_v1::zwp_text_input_v1::ZwpTextInputV1ContentHint;
+    pub(super) use super::text_input_unstable_v1::zwp_text_input_v1::ZwpTextInputV1ContentPurpose;
+    pub(super) use super::text_input_unstable_v1::zwp_text_input_v1::ZwpTextInputV1PreeditStyle;
+    pub(super) use super::text_input_unstable_v1::zwp_text_input_v1::ZwpTextInputV1TextDirection;
+    pub(super) use super::text_input_unstable_v3::zwp_text_input_manager_v3::ZwpTextInputManagerV3;
+    pub(super) use super::text_input_unstable_v3::zwp_text_input_v3::ZwpTextInputV3;
+    pub(super) use super::text_input_unstable_v3::zwp_text_input_v3::ZwpTextInputV3ChangeCause;
+    pub(super) use super::text_input_unstable_v3::zwp_text_input_v3::ZwpTextInputV3ContentHint;
+    pub(super) use super::text_input_unstable_v3::zwp_text_input_v3::ZwpTextInputV3ContentPurpose;
+    pub(super) use super::viewporter::wp_viewport::WpViewport;
+    pub(super) use super::viewporter::wp_viewport::WpViewportError;
+    pub(super) use super::viewporter::wp_viewporter::WpViewporter;
+    pub(super) use super::viewporter::wp_viewporter::WpViewporterError;
+    pub(super) use super::wayland::wl_buffer::WlBuffer;
+    pub(super) use super::wayland::wl_callback::WlCallback;
+    pub(super) use super::wayland::wl_compositor::WlCompositor;
+    pub(super) use super::wayland::wl_data_device::WlDataDevice;
+    pub(super) use super::wayland::wl_data_device::WlDataDeviceError;
+    pub(super) use super::wayland::wl_data_device_manager::WlDataDeviceManager;
+    pub(super) use super::wayland::wl_data_device_manager::WlDataDeviceManagerDndAction;
+    pub(super) use super::wayland::wl_data_offer::WlDataOffer;
+    pub(super) use super::wayland::wl_data_offer::WlDataOfferError;
+    pub(super) use super::wayland::wl_data_source::WlDataSource;
+    pub(super) use super::wayland::wl_data_source::WlDataSourceError;
+    pub(super) use super::wayland::wl_display::WlDisplay;
+    pub(super) use super::wayland::wl_display::WlDisplayError;
+    pub(super) use super::wayland::wl_fixes::WlFixes;
+    pub(super) use super::wayland::wl_keyboard::WlKeyboard;
+    pub(super) use super::wayland::wl_keyboard::WlKeyboardKeymapFormat;
+    pub(super) use super::wayland::wl_keyboard::WlKeyboardKeyState;
+    pub(super) use super::wayland::wl_output::WlOutput;
+    pub(super) use super::wayland::wl_output::WlOutputSubpixel;
+    pub(super) use super::wayland::wl_output::WlOutputTransform;
+    pub(super) use super::wayland::wl_output::WlOutputMode;
+    pub(super) use super::wayland::wl_pointer::WlPointer;
+    pub(super) use super::wayland::wl_pointer::WlPointerError;
+    pub(super) use super::wayland::wl_pointer::WlPointerButtonState;
+    pub(super) use super::wayland::wl_pointer::WlPointerAxis;
+    pub(super) use super::wayland::wl_pointer::WlPointerAxisSource;
+    pub(super) use super::wayland::wl_pointer::WlPointerAxisRelativeDirection;
+    pub(super) use super::wayland::wl_region::WlRegion;
+    pub(super) use super::wayland::wl_registry::WlRegistry;
+    pub(super) use super::wayland::wl_seat::WlSeat;
+    pub(super) use super::wayland::wl_seat::WlSeatCapability;
+    pub(super) use super::wayland::wl_seat::WlSeatError;
+    pub(super) use super::wayland::wl_shell::WlShell;
+    pub(super) use super::wayland::wl_shell::WlShellError;
+    pub(super) use super::wayland::wl_shell_surface::WlShellSurface;
+    pub(super) use super::wayland::wl_shell_surface::WlShellSurfaceResize;
+    pub(super) use super::wayland::wl_shell_surface::WlShellSurfaceTransient;
+    pub(super) use super::wayland::wl_shell_surface::WlShellSurfaceFullscreenMethod;
+    pub(super) use super::wayland::wl_shm::WlShm;
+    pub(super) use super::wayland::wl_shm::WlShmError;
+    pub(super) use super::wayland::wl_shm::WlShmFormat;
+    pub(super) use super::wayland::wl_shm_pool::WlShmPool;
+    pub(super) use super::wayland::wl_subcompositor::WlSubcompositor;
+    pub(super) use super::wayland::wl_subcompositor::WlSubcompositorError;
+    pub(super) use super::wayland::wl_subsurface::WlSubsurface;
+    pub(super) use super::wayland::wl_subsurface::WlSubsurfaceError;
+    pub(super) use super::wayland::wl_surface::WlSurface;
+    pub(super) use super::wayland::wl_surface::WlSurfaceError;
+    pub(super) use super::wayland::wl_touch::WlTouch;
+    pub(super) use super::wlr_data_control_unstable_v1::zwlr_data_control_device_v1::ZwlrDataControlDeviceV1;
+    pub(super) use super::wlr_data_control_unstable_v1::zwlr_data_control_device_v1::ZwlrDataControlDeviceV1Error;
+    pub(super) use super::wlr_data_control_unstable_v1::zwlr_data_control_manager_v1::ZwlrDataControlManagerV1;
+    pub(super) use super::wlr_data_control_unstable_v1::zwlr_data_control_offer_v1::ZwlrDataControlOfferV1;
+    pub(super) use super::wlr_data_control_unstable_v1::zwlr_data_control_source_v1::ZwlrDataControlSourceV1;
+    pub(super) use super::wlr_data_control_unstable_v1::zwlr_data_control_source_v1::ZwlrDataControlSourceV1Error;
+    pub(super) use super::wlr_export_dmabuf_unstable_v1::zwlr_export_dmabuf_frame_v1::ZwlrExportDmabufFrameV1;
+    pub(super) use super::wlr_export_dmabuf_unstable_v1::zwlr_export_dmabuf_frame_v1::ZwlrExportDmabufFrameV1Flags;
+    pub(super) use super::wlr_export_dmabuf_unstable_v1::zwlr_export_dmabuf_frame_v1::ZwlrExportDmabufFrameV1CancelReason;
+    pub(super) use super::wlr_export_dmabuf_unstable_v1::zwlr_export_dmabuf_manager_v1::ZwlrExportDmabufManagerV1;
+    pub(super) use super::wlr_foreign_toplevel_management_unstable_v1::zwlr_foreign_toplevel_handle_v1::ZwlrForeignToplevelHandleV1;
+    pub(super) use super::wlr_foreign_toplevel_management_unstable_v1::zwlr_foreign_toplevel_handle_v1::ZwlrForeignToplevelHandleV1State;
+    pub(super) use super::wlr_foreign_toplevel_management_unstable_v1::zwlr_foreign_toplevel_handle_v1::ZwlrForeignToplevelHandleV1Error;
+    pub(super) use super::wlr_foreign_toplevel_management_unstable_v1::zwlr_foreign_toplevel_manager_v1::ZwlrForeignToplevelManagerV1;
+    pub(super) use super::wlr_gamma_control_unstable_v1::zwlr_gamma_control_manager_v1::ZwlrGammaControlManagerV1;
+    pub(super) use super::wlr_gamma_control_unstable_v1::zwlr_gamma_control_v1::ZwlrGammaControlV1;
+    pub(super) use super::wlr_gamma_control_unstable_v1::zwlr_gamma_control_v1::ZwlrGammaControlV1Error;
+    pub(super) use super::wlr_input_inhibit_unstable_v1::zwlr_input_inhibit_manager_v1::ZwlrInputInhibitManagerV1;
+    pub(super) use super::wlr_input_inhibit_unstable_v1::zwlr_input_inhibit_manager_v1::ZwlrInputInhibitManagerV1Error;
+    pub(super) use super::wlr_input_inhibit_unstable_v1::zwlr_input_inhibitor_v1::ZwlrInputInhibitorV1;
+    pub(super) use super::wlr_layer_shell_unstable_v1::zwlr_layer_shell_v1::ZwlrLayerShellV1;
+    pub(super) use super::wlr_layer_shell_unstable_v1::zwlr_layer_shell_v1::ZwlrLayerShellV1Error;
+    pub(super) use super::wlr_layer_shell_unstable_v1::zwlr_layer_shell_v1::ZwlrLayerShellV1Layer;
+    pub(super) use super::wlr_layer_shell_unstable_v1::zwlr_layer_surface_v1::ZwlrLayerSurfaceV1;
+    pub(super) use super::wlr_layer_shell_unstable_v1::zwlr_layer_surface_v1::ZwlrLayerSurfaceV1KeyboardInteractivity;
+    pub(super) use super::wlr_layer_shell_unstable_v1::zwlr_layer_surface_v1::ZwlrLayerSurfaceV1Error;
+    pub(super) use super::wlr_layer_shell_unstable_v1::zwlr_layer_surface_v1::ZwlrLayerSurfaceV1Anchor;
+    pub(super) use super::wlr_output_management_unstable_v1::zwlr_output_configuration_head_v1::ZwlrOutputConfigurationHeadV1;
+    pub(super) use super::wlr_output_management_unstable_v1::zwlr_output_configuration_head_v1::ZwlrOutputConfigurationHeadV1Error;
+    pub(super) use super::wlr_output_management_unstable_v1::zwlr_output_configuration_v1::ZwlrOutputConfigurationV1;
+    pub(super) use super::wlr_output_management_unstable_v1::zwlr_output_configuration_v1::ZwlrOutputConfigurationV1Error;
+    pub(super) use super::wlr_output_management_unstable_v1::zwlr_output_head_v1::ZwlrOutputHeadV1;
+    pub(super) use super::wlr_output_management_unstable_v1::zwlr_output_head_v1::ZwlrOutputHeadV1AdaptiveSyncState;
+    pub(super) use super::wlr_output_management_unstable_v1::zwlr_output_manager_v1::ZwlrOutputManagerV1;
+    pub(super) use super::wlr_output_management_unstable_v1::zwlr_output_mode_v1::ZwlrOutputModeV1;
+    pub(super) use super::wlr_output_power_management_unstable_v1::zwlr_output_power_manager_v1::ZwlrOutputPowerManagerV1;
+    pub(super) use super::wlr_output_power_management_unstable_v1::zwlr_output_power_v1::ZwlrOutputPowerV1;
+    pub(super) use super::wlr_output_power_management_unstable_v1::zwlr_output_power_v1::ZwlrOutputPowerV1Mode;
+    pub(super) use super::wlr_output_power_management_unstable_v1::zwlr_output_power_v1::ZwlrOutputPowerV1Error;
+    pub(super) use super::wlr_screencopy_unstable_v1::zwlr_screencopy_frame_v1::ZwlrScreencopyFrameV1;
+    pub(super) use super::wlr_screencopy_unstable_v1::zwlr_screencopy_frame_v1::ZwlrScreencopyFrameV1Error;
+    pub(super) use super::wlr_screencopy_unstable_v1::zwlr_screencopy_frame_v1::ZwlrScreencopyFrameV1Flags;
+    pub(super) use super::wlr_screencopy_unstable_v1::zwlr_screencopy_manager_v1::ZwlrScreencopyManagerV1;
+    pub(super) use super::wlr_virtual_pointer_unstable_v1::zwlr_virtual_pointer_manager_v1::ZwlrVirtualPointerManagerV1;
+    pub(super) use super::wlr_virtual_pointer_unstable_v1::zwlr_virtual_pointer_v1::ZwlrVirtualPointerV1;
+    pub(super) use super::wlr_virtual_pointer_unstable_v1::zwlr_virtual_pointer_v1::ZwlrVirtualPointerV1Error;
+    pub(super) use super::xdg_activation_v1::xdg_activation_token_v1::XdgActivationTokenV1;
+    pub(super) use super::xdg_activation_v1::xdg_activation_token_v1::XdgActivationTokenV1Error;
+    pub(super) use super::xdg_activation_v1::xdg_activation_v1::XdgActivationV1;
+    pub(super) use super::xdg_decoration_unstable_v1::zxdg_decoration_manager_v1::ZxdgDecorationManagerV1;
+    pub(super) use super::xdg_decoration_unstable_v1::zxdg_toplevel_decoration_v1::ZxdgToplevelDecorationV1;
+    pub(super) use super::xdg_decoration_unstable_v1::zxdg_toplevel_decoration_v1::ZxdgToplevelDecorationV1Error;
+    pub(super) use super::xdg_decoration_unstable_v1::zxdg_toplevel_decoration_v1::ZxdgToplevelDecorationV1Mode;
+    pub(super) use super::xdg_dialog_v1::xdg_dialog_v1::XdgDialogV1;
+    pub(super) use super::xdg_dialog_v1::xdg_wm_dialog_v1::XdgWmDialogV1;
+    pub(super) use super::xdg_dialog_v1::xdg_wm_dialog_v1::XdgWmDialogV1Error;
+    pub(super) use super::xdg_foreign_unstable_v2::zxdg_exported_v2::ZxdgExportedV2;
+    pub(super) use super::xdg_foreign_unstable_v2::zxdg_exporter_v2::ZxdgExporterV2;
+    pub(super) use super::xdg_foreign_unstable_v2::zxdg_exporter_v2::ZxdgExporterV2Error;
+    pub(super) use super::xdg_foreign_unstable_v2::zxdg_imported_v2::ZxdgImportedV2;
+    pub(super) use super::xdg_foreign_unstable_v2::zxdg_imported_v2::ZxdgImportedV2Error;
+    pub(super) use super::xdg_foreign_unstable_v2::zxdg_importer_v2::ZxdgImporterV2;
+    pub(super) use super::xdg_output_unstable_v1::zxdg_output_manager_v1::ZxdgOutputManagerV1;
+    pub(super) use super::xdg_output_unstable_v1::zxdg_output_v1::ZxdgOutputV1;
+    pub(super) use super::xdg_shell::xdg_popup::XdgPopup;
+    pub(super) use super::xdg_shell::xdg_popup::XdgPopupError;
+    pub(super) use super::xdg_shell::xdg_positioner::XdgPositioner;
+    pub(super) use super::xdg_shell::xdg_positioner::XdgPositionerError;
+    pub(super) use super::xdg_shell::xdg_positioner::XdgPositionerAnchor;
+    pub(super) use super::xdg_shell::xdg_positioner::XdgPositionerGravity;
+    pub(super) use super::xdg_shell::xdg_positioner::XdgPositionerConstraintAdjustment;
+    pub(super) use super::xdg_shell::xdg_surface::XdgSurface;
+    pub(super) use super::xdg_shell::xdg_surface::XdgSurfaceError;
+    pub(super) use super::xdg_shell::xdg_toplevel::XdgToplevel;
+    pub(super) use super::xdg_shell::xdg_toplevel::XdgToplevelError;
+    pub(super) use super::xdg_shell::xdg_toplevel::XdgToplevelResizeEdge;
+    pub(super) use super::xdg_shell::xdg_toplevel::XdgToplevelState;
+    pub(super) use super::xdg_shell::xdg_toplevel::XdgToplevelWmCapabilities;
+    pub(super) use super::xdg_shell::xdg_wm_base::XdgWmBase;
+    pub(super) use super::xdg_shell::xdg_wm_base::XdgWmBaseError;
+    pub(super) use super::xdg_system_bell_v1::xdg_system_bell_v1::XdgSystemBellV1;
+    pub(super) use super::xdg_toplevel_drag_v1::xdg_toplevel_drag_manager_v1::XdgToplevelDragManagerV1;
+    pub(super) use super::xdg_toplevel_drag_v1::xdg_toplevel_drag_manager_v1::XdgToplevelDragManagerV1Error;
+    pub(super) use super::xdg_toplevel_drag_v1::xdg_toplevel_drag_v1::XdgToplevelDragV1;
+    pub(super) use super::xdg_toplevel_drag_v1::xdg_toplevel_drag_v1::XdgToplevelDragV1Error;
+    pub(super) use super::xdg_toplevel_icon_v1::xdg_toplevel_icon_manager_v1::XdgToplevelIconManagerV1;
+    pub(super) use super::xdg_toplevel_icon_v1::xdg_toplevel_icon_v1::XdgToplevelIconV1;
+    pub(super) use super::xdg_toplevel_icon_v1::xdg_toplevel_icon_v1::XdgToplevelIconV1Error;
+    pub(super) use super::xdg_toplevel_tag_v1::xdg_toplevel_tag_manager_v1::XdgToplevelTagManagerV1;
+    pub(super) use super::xwayland_keyboard_grab_unstable_v1::zwp_xwayland_keyboard_grab_manager_v1::ZwpXwaylandKeyboardGrabManagerV1;
+    pub(super) use super::xwayland_keyboard_grab_unstable_v1::zwp_xwayland_keyboard_grab_v1::ZwpXwaylandKeyboardGrabV1;
+    pub(super) use super::xwayland_shell_v1::xwayland_shell_v1::XwaylandShellV1;
+    pub(super) use super::xwayland_shell_v1::xwayland_shell_v1::XwaylandShellV1Error;
+    pub(super) use super::xwayland_shell_v1::xwayland_surface_v1::XwaylandSurfaceV1;
+    pub(super) use super::xwayland_shell_v1::xwayland_surface_v1::XwaylandSurfaceV1Error;
 
     use crate::generated_helper::prelude::*;
 
-    pub(super) fn create_proxy_for_interface(state: &Rc<InnerState>, interface: &str, version: u32) -> Result<Rc<dyn Proxy>, ObjectError> {
-        static INTERFACES: phf::Map<&'static str, fn(&Rc<InnerState>, u32) -> Result<Rc<dyn Proxy>, ObjectError>> = phf::phf_map! {
+    pub(super) fn create_proxy_for_interface(state: &Rc<State>, interface: &str, version: u32) -> Result<Rc<dyn Proxy>, ObjectError> {
+        static INTERFACES: phf::Map<&'static str, fn(&Rc<State>, u32) -> Result<Rc<dyn Proxy>, ObjectError>> = phf::phf_map! {
             "wp_alpha_modifier_surface_v1" => |s, v| {
-                if v > MetaWpAlphaModifierSurfaceV1::XML_VERSION {
+                if v > WpAlphaModifierSurfaceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpAlphaModifierSurfaceV1, v));
                 }
-                Ok(MetaWpAlphaModifierSurfaceV1::new(s, v))
+                Ok(WpAlphaModifierSurfaceV1::new(s, v))
             },
             "wp_alpha_modifier_v1" => |s, v| {
-                if v > MetaWpAlphaModifierV1::XML_VERSION {
+                if v > WpAlphaModifierV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpAlphaModifierV1, v));
                 }
-                Ok(MetaWpAlphaModifierV1::new(s, v))
+                Ok(WpAlphaModifierV1::new(s, v))
             },
             "wp_color_management_output_v1" => |s, v| {
-                if v > MetaWpColorManagementOutputV1::XML_VERSION {
+                if v > WpColorManagementOutputV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpColorManagementOutputV1, v));
                 }
-                Ok(MetaWpColorManagementOutputV1::new(s, v))
+                Ok(WpColorManagementOutputV1::new(s, v))
             },
             "wp_color_management_surface_feedback_v1" => |s, v| {
-                if v > MetaWpColorManagementSurfaceFeedbackV1::XML_VERSION {
+                if v > WpColorManagementSurfaceFeedbackV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpColorManagementSurfaceFeedbackV1, v));
                 }
-                Ok(MetaWpColorManagementSurfaceFeedbackV1::new(s, v))
+                Ok(WpColorManagementSurfaceFeedbackV1::new(s, v))
             },
             "wp_color_management_surface_v1" => |s, v| {
-                if v > MetaWpColorManagementSurfaceV1::XML_VERSION {
+                if v > WpColorManagementSurfaceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpColorManagementSurfaceV1, v));
                 }
-                Ok(MetaWpColorManagementSurfaceV1::new(s, v))
+                Ok(WpColorManagementSurfaceV1::new(s, v))
             },
             "wp_color_manager_v1" => |s, v| {
-                if v > MetaWpColorManagerV1::XML_VERSION {
+                if v > WpColorManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpColorManagerV1, v));
                 }
-                Ok(MetaWpColorManagerV1::new(s, v))
+                Ok(WpColorManagerV1::new(s, v))
             },
             "wp_image_description_creator_icc_v1" => |s, v| {
-                if v > MetaWpImageDescriptionCreatorIccV1::XML_VERSION {
+                if v > WpImageDescriptionCreatorIccV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpImageDescriptionCreatorIccV1, v));
                 }
-                Ok(MetaWpImageDescriptionCreatorIccV1::new(s, v))
+                Ok(WpImageDescriptionCreatorIccV1::new(s, v))
             },
             "wp_image_description_creator_params_v1" => |s, v| {
-                if v > MetaWpImageDescriptionCreatorParamsV1::XML_VERSION {
+                if v > WpImageDescriptionCreatorParamsV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpImageDescriptionCreatorParamsV1, v));
                 }
-                Ok(MetaWpImageDescriptionCreatorParamsV1::new(s, v))
+                Ok(WpImageDescriptionCreatorParamsV1::new(s, v))
             },
             "wp_image_description_info_v1" => |s, v| {
-                if v > MetaWpImageDescriptionInfoV1::XML_VERSION {
+                if v > WpImageDescriptionInfoV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpImageDescriptionInfoV1, v));
                 }
-                Ok(MetaWpImageDescriptionInfoV1::new(s, v))
+                Ok(WpImageDescriptionInfoV1::new(s, v))
             },
             "wp_image_description_v1" => |s, v| {
-                if v > MetaWpImageDescriptionV1::XML_VERSION {
+                if v > WpImageDescriptionV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpImageDescriptionV1, v));
                 }
-                Ok(MetaWpImageDescriptionV1::new(s, v))
+                Ok(WpImageDescriptionV1::new(s, v))
             },
             "wp_color_representation_manager_v1" => |s, v| {
-                if v > MetaWpColorRepresentationManagerV1::XML_VERSION {
+                if v > WpColorRepresentationManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpColorRepresentationManagerV1, v));
                 }
-                Ok(MetaWpColorRepresentationManagerV1::new(s, v))
+                Ok(WpColorRepresentationManagerV1::new(s, v))
             },
             "wp_color_representation_surface_v1" => |s, v| {
-                if v > MetaWpColorRepresentationSurfaceV1::XML_VERSION {
+                if v > WpColorRepresentationSurfaceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpColorRepresentationSurfaceV1, v));
                 }
-                Ok(MetaWpColorRepresentationSurfaceV1::new(s, v))
+                Ok(WpColorRepresentationSurfaceV1::new(s, v))
             },
             "wp_commit_timer_v1" => |s, v| {
-                if v > MetaWpCommitTimerV1::XML_VERSION {
+                if v > WpCommitTimerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpCommitTimerV1, v));
                 }
-                Ok(MetaWpCommitTimerV1::new(s, v))
+                Ok(WpCommitTimerV1::new(s, v))
             },
             "wp_commit_timing_manager_v1" => |s, v| {
-                if v > MetaWpCommitTimingManagerV1::XML_VERSION {
+                if v > WpCommitTimingManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpCommitTimingManagerV1, v));
                 }
-                Ok(MetaWpCommitTimingManagerV1::new(s, v))
+                Ok(WpCommitTimingManagerV1::new(s, v))
             },
             "wp_content_type_manager_v1" => |s, v| {
-                if v > MetaWpContentTypeManagerV1::XML_VERSION {
+                if v > WpContentTypeManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpContentTypeManagerV1, v));
                 }
-                Ok(MetaWpContentTypeManagerV1::new(s, v))
+                Ok(WpContentTypeManagerV1::new(s, v))
             },
             "wp_content_type_v1" => |s, v| {
-                if v > MetaWpContentTypeV1::XML_VERSION {
+                if v > WpContentTypeV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpContentTypeV1, v));
                 }
-                Ok(MetaWpContentTypeV1::new(s, v))
+                Ok(WpContentTypeV1::new(s, v))
             },
             "wp_cursor_shape_device_v1" => |s, v| {
-                if v > MetaWpCursorShapeDeviceV1::XML_VERSION {
+                if v > WpCursorShapeDeviceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpCursorShapeDeviceV1, v));
                 }
-                Ok(MetaWpCursorShapeDeviceV1::new(s, v))
+                Ok(WpCursorShapeDeviceV1::new(s, v))
             },
             "wp_cursor_shape_manager_v1" => |s, v| {
-                if v > MetaWpCursorShapeManagerV1::XML_VERSION {
+                if v > WpCursorShapeManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpCursorShapeManagerV1, v));
                 }
-                Ok(MetaWpCursorShapeManagerV1::new(s, v))
+                Ok(WpCursorShapeManagerV1::new(s, v))
             },
             "wp_drm_lease_connector_v1" => |s, v| {
-                if v > MetaWpDrmLeaseConnectorV1::XML_VERSION {
+                if v > WpDrmLeaseConnectorV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpDrmLeaseConnectorV1, v));
                 }
-                Ok(MetaWpDrmLeaseConnectorV1::new(s, v))
+                Ok(WpDrmLeaseConnectorV1::new(s, v))
             },
             "wp_drm_lease_device_v1" => |s, v| {
-                if v > MetaWpDrmLeaseDeviceV1::XML_VERSION {
+                if v > WpDrmLeaseDeviceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpDrmLeaseDeviceV1, v));
                 }
-                Ok(MetaWpDrmLeaseDeviceV1::new(s, v))
+                Ok(WpDrmLeaseDeviceV1::new(s, v))
             },
             "wp_drm_lease_request_v1" => |s, v| {
-                if v > MetaWpDrmLeaseRequestV1::XML_VERSION {
+                if v > WpDrmLeaseRequestV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpDrmLeaseRequestV1, v));
                 }
-                Ok(MetaWpDrmLeaseRequestV1::new(s, v))
+                Ok(WpDrmLeaseRequestV1::new(s, v))
             },
             "wp_drm_lease_v1" => |s, v| {
-                if v > MetaWpDrmLeaseV1::XML_VERSION {
+                if v > WpDrmLeaseV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpDrmLeaseV1, v));
                 }
-                Ok(MetaWpDrmLeaseV1::new(s, v))
+                Ok(WpDrmLeaseV1::new(s, v))
             },
             "ext_background_effect_manager_v1" => |s, v| {
-                if v > MetaExtBackgroundEffectManagerV1::XML_VERSION {
+                if v > ExtBackgroundEffectManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtBackgroundEffectManagerV1, v));
                 }
-                Ok(MetaExtBackgroundEffectManagerV1::new(s, v))
+                Ok(ExtBackgroundEffectManagerV1::new(s, v))
             },
             "ext_background_effect_surface_v1" => |s, v| {
-                if v > MetaExtBackgroundEffectSurfaceV1::XML_VERSION {
+                if v > ExtBackgroundEffectSurfaceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtBackgroundEffectSurfaceV1, v));
                 }
-                Ok(MetaExtBackgroundEffectSurfaceV1::new(s, v))
+                Ok(ExtBackgroundEffectSurfaceV1::new(s, v))
             },
             "ext_data_control_device_v1" => |s, v| {
-                if v > MetaExtDataControlDeviceV1::XML_VERSION {
+                if v > ExtDataControlDeviceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtDataControlDeviceV1, v));
                 }
-                Ok(MetaExtDataControlDeviceV1::new(s, v))
+                Ok(ExtDataControlDeviceV1::new(s, v))
             },
             "ext_data_control_manager_v1" => |s, v| {
-                if v > MetaExtDataControlManagerV1::XML_VERSION {
+                if v > ExtDataControlManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtDataControlManagerV1, v));
                 }
-                Ok(MetaExtDataControlManagerV1::new(s, v))
+                Ok(ExtDataControlManagerV1::new(s, v))
             },
             "ext_data_control_offer_v1" => |s, v| {
-                if v > MetaExtDataControlOfferV1::XML_VERSION {
+                if v > ExtDataControlOfferV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtDataControlOfferV1, v));
                 }
-                Ok(MetaExtDataControlOfferV1::new(s, v))
+                Ok(ExtDataControlOfferV1::new(s, v))
             },
             "ext_data_control_source_v1" => |s, v| {
-                if v > MetaExtDataControlSourceV1::XML_VERSION {
+                if v > ExtDataControlSourceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtDataControlSourceV1, v));
                 }
-                Ok(MetaExtDataControlSourceV1::new(s, v))
+                Ok(ExtDataControlSourceV1::new(s, v))
             },
             "ext_foreign_toplevel_handle_v1" => |s, v| {
-                if v > MetaExtForeignToplevelHandleV1::XML_VERSION {
+                if v > ExtForeignToplevelHandleV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtForeignToplevelHandleV1, v));
                 }
-                Ok(MetaExtForeignToplevelHandleV1::new(s, v))
+                Ok(ExtForeignToplevelHandleV1::new(s, v))
             },
             "ext_foreign_toplevel_list_v1" => |s, v| {
-                if v > MetaExtForeignToplevelListV1::XML_VERSION {
+                if v > ExtForeignToplevelListV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtForeignToplevelListV1, v));
                 }
-                Ok(MetaExtForeignToplevelListV1::new(s, v))
+                Ok(ExtForeignToplevelListV1::new(s, v))
             },
             "ext_idle_notification_v1" => |s, v| {
-                if v > MetaExtIdleNotificationV1::XML_VERSION {
+                if v > ExtIdleNotificationV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtIdleNotificationV1, v));
                 }
-                Ok(MetaExtIdleNotificationV1::new(s, v))
+                Ok(ExtIdleNotificationV1::new(s, v))
             },
             "ext_idle_notifier_v1" => |s, v| {
-                if v > MetaExtIdleNotifierV1::XML_VERSION {
+                if v > ExtIdleNotifierV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtIdleNotifierV1, v));
                 }
-                Ok(MetaExtIdleNotifierV1::new(s, v))
+                Ok(ExtIdleNotifierV1::new(s, v))
             },
             "ext_foreign_toplevel_image_capture_source_manager_v1" => |s, v| {
-                if v > MetaExtForeignToplevelImageCaptureSourceManagerV1::XML_VERSION {
+                if v > ExtForeignToplevelImageCaptureSourceManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtForeignToplevelImageCaptureSourceManagerV1, v));
                 }
-                Ok(MetaExtForeignToplevelImageCaptureSourceManagerV1::new(s, v))
+                Ok(ExtForeignToplevelImageCaptureSourceManagerV1::new(s, v))
             },
             "ext_image_capture_source_v1" => |s, v| {
-                if v > MetaExtImageCaptureSourceV1::XML_VERSION {
+                if v > ExtImageCaptureSourceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtImageCaptureSourceV1, v));
                 }
-                Ok(MetaExtImageCaptureSourceV1::new(s, v))
+                Ok(ExtImageCaptureSourceV1::new(s, v))
             },
             "ext_output_image_capture_source_manager_v1" => |s, v| {
-                if v > MetaExtOutputImageCaptureSourceManagerV1::XML_VERSION {
+                if v > ExtOutputImageCaptureSourceManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtOutputImageCaptureSourceManagerV1, v));
                 }
-                Ok(MetaExtOutputImageCaptureSourceManagerV1::new(s, v))
+                Ok(ExtOutputImageCaptureSourceManagerV1::new(s, v))
             },
             "ext_image_copy_capture_cursor_session_v1" => |s, v| {
-                if v > MetaExtImageCopyCaptureCursorSessionV1::XML_VERSION {
+                if v > ExtImageCopyCaptureCursorSessionV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtImageCopyCaptureCursorSessionV1, v));
                 }
-                Ok(MetaExtImageCopyCaptureCursorSessionV1::new(s, v))
+                Ok(ExtImageCopyCaptureCursorSessionV1::new(s, v))
             },
             "ext_image_copy_capture_frame_v1" => |s, v| {
-                if v > MetaExtImageCopyCaptureFrameV1::XML_VERSION {
+                if v > ExtImageCopyCaptureFrameV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtImageCopyCaptureFrameV1, v));
                 }
-                Ok(MetaExtImageCopyCaptureFrameV1::new(s, v))
+                Ok(ExtImageCopyCaptureFrameV1::new(s, v))
             },
             "ext_image_copy_capture_manager_v1" => |s, v| {
-                if v > MetaExtImageCopyCaptureManagerV1::XML_VERSION {
+                if v > ExtImageCopyCaptureManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtImageCopyCaptureManagerV1, v));
                 }
-                Ok(MetaExtImageCopyCaptureManagerV1::new(s, v))
+                Ok(ExtImageCopyCaptureManagerV1::new(s, v))
             },
             "ext_image_copy_capture_session_v1" => |s, v| {
-                if v > MetaExtImageCopyCaptureSessionV1::XML_VERSION {
+                if v > ExtImageCopyCaptureSessionV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtImageCopyCaptureSessionV1, v));
                 }
-                Ok(MetaExtImageCopyCaptureSessionV1::new(s, v))
+                Ok(ExtImageCopyCaptureSessionV1::new(s, v))
             },
             "ext_session_lock_manager_v1" => |s, v| {
-                if v > MetaExtSessionLockManagerV1::XML_VERSION {
+                if v > ExtSessionLockManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtSessionLockManagerV1, v));
                 }
-                Ok(MetaExtSessionLockManagerV1::new(s, v))
+                Ok(ExtSessionLockManagerV1::new(s, v))
             },
             "ext_session_lock_surface_v1" => |s, v| {
-                if v > MetaExtSessionLockSurfaceV1::XML_VERSION {
+                if v > ExtSessionLockSurfaceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtSessionLockSurfaceV1, v));
                 }
-                Ok(MetaExtSessionLockSurfaceV1::new(s, v))
+                Ok(ExtSessionLockSurfaceV1::new(s, v))
             },
             "ext_session_lock_v1" => |s, v| {
-                if v > MetaExtSessionLockV1::XML_VERSION {
+                if v > ExtSessionLockV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtSessionLockV1, v));
                 }
-                Ok(MetaExtSessionLockV1::new(s, v))
+                Ok(ExtSessionLockV1::new(s, v))
             },
             "ext_transient_seat_manager_v1" => |s, v| {
-                if v > MetaExtTransientSeatManagerV1::XML_VERSION {
+                if v > ExtTransientSeatManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtTransientSeatManagerV1, v));
                 }
-                Ok(MetaExtTransientSeatManagerV1::new(s, v))
+                Ok(ExtTransientSeatManagerV1::new(s, v))
             },
             "ext_transient_seat_v1" => |s, v| {
-                if v > MetaExtTransientSeatV1::XML_VERSION {
+                if v > ExtTransientSeatV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtTransientSeatV1, v));
                 }
-                Ok(MetaExtTransientSeatV1::new(s, v))
+                Ok(ExtTransientSeatV1::new(s, v))
             },
             "ext_workspace_group_handle_v1" => |s, v| {
-                if v > MetaExtWorkspaceGroupHandleV1::XML_VERSION {
+                if v > ExtWorkspaceGroupHandleV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtWorkspaceGroupHandleV1, v));
                 }
-                Ok(MetaExtWorkspaceGroupHandleV1::new(s, v))
+                Ok(ExtWorkspaceGroupHandleV1::new(s, v))
             },
             "ext_workspace_handle_v1" => |s, v| {
-                if v > MetaExtWorkspaceHandleV1::XML_VERSION {
+                if v > ExtWorkspaceHandleV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtWorkspaceHandleV1, v));
                 }
-                Ok(MetaExtWorkspaceHandleV1::new(s, v))
+                Ok(ExtWorkspaceHandleV1::new(s, v))
             },
             "ext_workspace_manager_v1" => |s, v| {
-                if v > MetaExtWorkspaceManagerV1::XML_VERSION {
+                if v > ExtWorkspaceManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ExtWorkspaceManagerV1, v));
                 }
-                Ok(MetaExtWorkspaceManagerV1::new(s, v))
+                Ok(ExtWorkspaceManagerV1::new(s, v))
             },
             "wp_fifo_manager_v1" => |s, v| {
-                if v > MetaWpFifoManagerV1::XML_VERSION {
+                if v > WpFifoManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpFifoManagerV1, v));
                 }
-                Ok(MetaWpFifoManagerV1::new(s, v))
+                Ok(WpFifoManagerV1::new(s, v))
             },
             "wp_fifo_v1" => |s, v| {
-                if v > MetaWpFifoV1::XML_VERSION {
+                if v > WpFifoV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpFifoV1, v));
                 }
-                Ok(MetaWpFifoV1::new(s, v))
+                Ok(WpFifoV1::new(s, v))
             },
             "wp_fractional_scale_manager_v1" => |s, v| {
-                if v > MetaWpFractionalScaleManagerV1::XML_VERSION {
+                if v > WpFractionalScaleManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpFractionalScaleManagerV1, v));
                 }
-                Ok(MetaWpFractionalScaleManagerV1::new(s, v))
+                Ok(WpFractionalScaleManagerV1::new(s, v))
             },
             "wp_fractional_scale_v1" => |s, v| {
-                if v > MetaWpFractionalScaleV1::XML_VERSION {
+                if v > WpFractionalScaleV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpFractionalScaleV1, v));
                 }
-                Ok(MetaWpFractionalScaleV1::new(s, v))
+                Ok(WpFractionalScaleV1::new(s, v))
             },
             "zwp_fullscreen_shell_mode_feedback_v1" => |s, v| {
-                if v > MetaZwpFullscreenShellModeFeedbackV1::XML_VERSION {
+                if v > ZwpFullscreenShellModeFeedbackV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpFullscreenShellModeFeedbackV1, v));
                 }
-                Ok(MetaZwpFullscreenShellModeFeedbackV1::new(s, v))
+                Ok(ZwpFullscreenShellModeFeedbackV1::new(s, v))
             },
             "zwp_fullscreen_shell_v1" => |s, v| {
-                if v > MetaZwpFullscreenShellV1::XML_VERSION {
+                if v > ZwpFullscreenShellV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpFullscreenShellV1, v));
                 }
-                Ok(MetaZwpFullscreenShellV1::new(s, v))
+                Ok(ZwpFullscreenShellV1::new(s, v))
             },
             "zwp_idle_inhibit_manager_v1" => |s, v| {
-                if v > MetaZwpIdleInhibitManagerV1::XML_VERSION {
+                if v > ZwpIdleInhibitManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpIdleInhibitManagerV1, v));
                 }
-                Ok(MetaZwpIdleInhibitManagerV1::new(s, v))
+                Ok(ZwpIdleInhibitManagerV1::new(s, v))
             },
             "zwp_idle_inhibitor_v1" => |s, v| {
-                if v > MetaZwpIdleInhibitorV1::XML_VERSION {
+                if v > ZwpIdleInhibitorV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpIdleInhibitorV1, v));
                 }
-                Ok(MetaZwpIdleInhibitorV1::new(s, v))
+                Ok(ZwpIdleInhibitorV1::new(s, v))
             },
             "zwp_input_method_context_v1" => |s, v| {
-                if v > MetaZwpInputMethodContextV1::XML_VERSION {
+                if v > ZwpInputMethodContextV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpInputMethodContextV1, v));
                 }
-                Ok(MetaZwpInputMethodContextV1::new(s, v))
+                Ok(ZwpInputMethodContextV1::new(s, v))
             },
             "zwp_input_method_v1" => |s, v| {
-                if v > MetaZwpInputMethodV1::XML_VERSION {
+                if v > ZwpInputMethodV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpInputMethodV1, v));
                 }
-                Ok(MetaZwpInputMethodV1::new(s, v))
+                Ok(ZwpInputMethodV1::new(s, v))
             },
             "zwp_input_panel_surface_v1" => |s, v| {
-                if v > MetaZwpInputPanelSurfaceV1::XML_VERSION {
+                if v > ZwpInputPanelSurfaceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpInputPanelSurfaceV1, v));
                 }
-                Ok(MetaZwpInputPanelSurfaceV1::new(s, v))
+                Ok(ZwpInputPanelSurfaceV1::new(s, v))
             },
             "zwp_input_panel_v1" => |s, v| {
-                if v > MetaZwpInputPanelV1::XML_VERSION {
+                if v > ZwpInputPanelV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpInputPanelV1, v));
                 }
-                Ok(MetaZwpInputPanelV1::new(s, v))
+                Ok(ZwpInputPanelV1::new(s, v))
             },
             "zwp_input_timestamps_manager_v1" => |s, v| {
-                if v > MetaZwpInputTimestampsManagerV1::XML_VERSION {
+                if v > ZwpInputTimestampsManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpInputTimestampsManagerV1, v));
                 }
-                Ok(MetaZwpInputTimestampsManagerV1::new(s, v))
+                Ok(ZwpInputTimestampsManagerV1::new(s, v))
             },
             "zwp_input_timestamps_v1" => |s, v| {
-                if v > MetaZwpInputTimestampsV1::XML_VERSION {
+                if v > ZwpInputTimestampsV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpInputTimestampsV1, v));
                 }
-                Ok(MetaZwpInputTimestampsV1::new(s, v))
+                Ok(ZwpInputTimestampsV1::new(s, v))
             },
             "zwp_keyboard_shortcuts_inhibit_manager_v1" => |s, v| {
-                if v > MetaZwpKeyboardShortcutsInhibitManagerV1::XML_VERSION {
+                if v > ZwpKeyboardShortcutsInhibitManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpKeyboardShortcutsInhibitManagerV1, v));
                 }
-                Ok(MetaZwpKeyboardShortcutsInhibitManagerV1::new(s, v))
+                Ok(ZwpKeyboardShortcutsInhibitManagerV1::new(s, v))
             },
             "zwp_keyboard_shortcuts_inhibitor_v1" => |s, v| {
-                if v > MetaZwpKeyboardShortcutsInhibitorV1::XML_VERSION {
+                if v > ZwpKeyboardShortcutsInhibitorV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpKeyboardShortcutsInhibitorV1, v));
                 }
-                Ok(MetaZwpKeyboardShortcutsInhibitorV1::new(s, v))
+                Ok(ZwpKeyboardShortcutsInhibitorV1::new(s, v))
             },
             "zwp_linux_buffer_params_v1" => |s, v| {
-                if v > MetaZwpLinuxBufferParamsV1::XML_VERSION {
+                if v > ZwpLinuxBufferParamsV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpLinuxBufferParamsV1, v));
                 }
-                Ok(MetaZwpLinuxBufferParamsV1::new(s, v))
+                Ok(ZwpLinuxBufferParamsV1::new(s, v))
             },
             "zwp_linux_dmabuf_feedback_v1" => |s, v| {
-                if v > MetaZwpLinuxDmabufFeedbackV1::XML_VERSION {
+                if v > ZwpLinuxDmabufFeedbackV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpLinuxDmabufFeedbackV1, v));
                 }
-                Ok(MetaZwpLinuxDmabufFeedbackV1::new(s, v))
+                Ok(ZwpLinuxDmabufFeedbackV1::new(s, v))
             },
             "zwp_linux_dmabuf_v1" => |s, v| {
-                if v > MetaZwpLinuxDmabufV1::XML_VERSION {
+                if v > ZwpLinuxDmabufV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpLinuxDmabufV1, v));
                 }
-                Ok(MetaZwpLinuxDmabufV1::new(s, v))
+                Ok(ZwpLinuxDmabufV1::new(s, v))
             },
             "wp_linux_drm_syncobj_manager_v1" => |s, v| {
-                if v > MetaWpLinuxDrmSyncobjManagerV1::XML_VERSION {
+                if v > WpLinuxDrmSyncobjManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpLinuxDrmSyncobjManagerV1, v));
                 }
-                Ok(MetaWpLinuxDrmSyncobjManagerV1::new(s, v))
+                Ok(WpLinuxDrmSyncobjManagerV1::new(s, v))
             },
             "wp_linux_drm_syncobj_surface_v1" => |s, v| {
-                if v > MetaWpLinuxDrmSyncobjSurfaceV1::XML_VERSION {
+                if v > WpLinuxDrmSyncobjSurfaceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpLinuxDrmSyncobjSurfaceV1, v));
                 }
-                Ok(MetaWpLinuxDrmSyncobjSurfaceV1::new(s, v))
+                Ok(WpLinuxDrmSyncobjSurfaceV1::new(s, v))
             },
             "wp_linux_drm_syncobj_timeline_v1" => |s, v| {
-                if v > MetaWpLinuxDrmSyncobjTimelineV1::XML_VERSION {
+                if v > WpLinuxDrmSyncobjTimelineV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpLinuxDrmSyncobjTimelineV1, v));
                 }
-                Ok(MetaWpLinuxDrmSyncobjTimelineV1::new(s, v))
+                Ok(WpLinuxDrmSyncobjTimelineV1::new(s, v))
             },
             "zwp_linux_buffer_release_v1" => |s, v| {
-                if v > MetaZwpLinuxBufferReleaseV1::XML_VERSION {
+                if v > ZwpLinuxBufferReleaseV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpLinuxBufferReleaseV1, v));
                 }
-                Ok(MetaZwpLinuxBufferReleaseV1::new(s, v))
+                Ok(ZwpLinuxBufferReleaseV1::new(s, v))
             },
             "zwp_linux_explicit_synchronization_v1" => |s, v| {
-                if v > MetaZwpLinuxExplicitSynchronizationV1::XML_VERSION {
+                if v > ZwpLinuxExplicitSynchronizationV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpLinuxExplicitSynchronizationV1, v));
                 }
-                Ok(MetaZwpLinuxExplicitSynchronizationV1::new(s, v))
+                Ok(ZwpLinuxExplicitSynchronizationV1::new(s, v))
             },
             "zwp_linux_surface_synchronization_v1" => |s, v| {
-                if v > MetaZwpLinuxSurfaceSynchronizationV1::XML_VERSION {
+                if v > ZwpLinuxSurfaceSynchronizationV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpLinuxSurfaceSynchronizationV1, v));
                 }
-                Ok(MetaZwpLinuxSurfaceSynchronizationV1::new(s, v))
+                Ok(ZwpLinuxSurfaceSynchronizationV1::new(s, v))
             },
             "zwp_confined_pointer_v1" => |s, v| {
-                if v > MetaZwpConfinedPointerV1::XML_VERSION {
+                if v > ZwpConfinedPointerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpConfinedPointerV1, v));
                 }
-                Ok(MetaZwpConfinedPointerV1::new(s, v))
+                Ok(ZwpConfinedPointerV1::new(s, v))
             },
             "zwp_locked_pointer_v1" => |s, v| {
-                if v > MetaZwpLockedPointerV1::XML_VERSION {
+                if v > ZwpLockedPointerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpLockedPointerV1, v));
                 }
-                Ok(MetaZwpLockedPointerV1::new(s, v))
+                Ok(ZwpLockedPointerV1::new(s, v))
             },
             "zwp_pointer_constraints_v1" => |s, v| {
-                if v > MetaZwpPointerConstraintsV1::XML_VERSION {
+                if v > ZwpPointerConstraintsV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpPointerConstraintsV1, v));
                 }
-                Ok(MetaZwpPointerConstraintsV1::new(s, v))
+                Ok(ZwpPointerConstraintsV1::new(s, v))
             },
             "zwp_pointer_gesture_hold_v1" => |s, v| {
-                if v > MetaZwpPointerGestureHoldV1::XML_VERSION {
+                if v > ZwpPointerGestureHoldV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpPointerGestureHoldV1, v));
                 }
-                Ok(MetaZwpPointerGestureHoldV1::new(s, v))
+                Ok(ZwpPointerGestureHoldV1::new(s, v))
             },
             "zwp_pointer_gesture_pinch_v1" => |s, v| {
-                if v > MetaZwpPointerGesturePinchV1::XML_VERSION {
+                if v > ZwpPointerGesturePinchV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpPointerGesturePinchV1, v));
                 }
-                Ok(MetaZwpPointerGesturePinchV1::new(s, v))
+                Ok(ZwpPointerGesturePinchV1::new(s, v))
             },
             "zwp_pointer_gesture_swipe_v1" => |s, v| {
-                if v > MetaZwpPointerGestureSwipeV1::XML_VERSION {
+                if v > ZwpPointerGestureSwipeV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpPointerGestureSwipeV1, v));
                 }
-                Ok(MetaZwpPointerGestureSwipeV1::new(s, v))
+                Ok(ZwpPointerGestureSwipeV1::new(s, v))
             },
             "zwp_pointer_gestures_v1" => |s, v| {
-                if v > MetaZwpPointerGesturesV1::XML_VERSION {
+                if v > ZwpPointerGesturesV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpPointerGesturesV1, v));
                 }
-                Ok(MetaZwpPointerGesturesV1::new(s, v))
+                Ok(ZwpPointerGesturesV1::new(s, v))
             },
             "wp_pointer_warp_v1" => |s, v| {
-                if v > MetaWpPointerWarpV1::XML_VERSION {
+                if v > WpPointerWarpV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpPointerWarpV1, v));
                 }
-                Ok(MetaWpPointerWarpV1::new(s, v))
+                Ok(WpPointerWarpV1::new(s, v))
             },
             "wp_presentation" => |s, v| {
-                if v > MetaWpPresentation::XML_VERSION {
+                if v > WpPresentation::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpPresentation, v));
                 }
-                Ok(MetaWpPresentation::new(s, v))
+                Ok(WpPresentation::new(s, v))
             },
             "wp_presentation_feedback" => |s, v| {
-                if v > MetaWpPresentationFeedback::XML_VERSION {
+                if v > WpPresentationFeedback::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpPresentationFeedback, v));
                 }
-                Ok(MetaWpPresentationFeedback::new(s, v))
+                Ok(WpPresentationFeedback::new(s, v))
             },
             "zwp_primary_selection_device_manager_v1" => |s, v| {
-                if v > MetaZwpPrimarySelectionDeviceManagerV1::XML_VERSION {
+                if v > ZwpPrimarySelectionDeviceManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpPrimarySelectionDeviceManagerV1, v));
                 }
-                Ok(MetaZwpPrimarySelectionDeviceManagerV1::new(s, v))
+                Ok(ZwpPrimarySelectionDeviceManagerV1::new(s, v))
             },
             "zwp_primary_selection_device_v1" => |s, v| {
-                if v > MetaZwpPrimarySelectionDeviceV1::XML_VERSION {
+                if v > ZwpPrimarySelectionDeviceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpPrimarySelectionDeviceV1, v));
                 }
-                Ok(MetaZwpPrimarySelectionDeviceV1::new(s, v))
+                Ok(ZwpPrimarySelectionDeviceV1::new(s, v))
             },
             "zwp_primary_selection_offer_v1" => |s, v| {
-                if v > MetaZwpPrimarySelectionOfferV1::XML_VERSION {
+                if v > ZwpPrimarySelectionOfferV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpPrimarySelectionOfferV1, v));
                 }
-                Ok(MetaZwpPrimarySelectionOfferV1::new(s, v))
+                Ok(ZwpPrimarySelectionOfferV1::new(s, v))
             },
             "zwp_primary_selection_source_v1" => |s, v| {
-                if v > MetaZwpPrimarySelectionSourceV1::XML_VERSION {
+                if v > ZwpPrimarySelectionSourceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpPrimarySelectionSourceV1, v));
                 }
-                Ok(MetaZwpPrimarySelectionSourceV1::new(s, v))
+                Ok(ZwpPrimarySelectionSourceV1::new(s, v))
             },
             "zwp_relative_pointer_manager_v1" => |s, v| {
-                if v > MetaZwpRelativePointerManagerV1::XML_VERSION {
+                if v > ZwpRelativePointerManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpRelativePointerManagerV1, v));
                 }
-                Ok(MetaZwpRelativePointerManagerV1::new(s, v))
+                Ok(ZwpRelativePointerManagerV1::new(s, v))
             },
             "zwp_relative_pointer_v1" => |s, v| {
-                if v > MetaZwpRelativePointerV1::XML_VERSION {
+                if v > ZwpRelativePointerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpRelativePointerV1, v));
                 }
-                Ok(MetaZwpRelativePointerV1::new(s, v))
+                Ok(ZwpRelativePointerV1::new(s, v))
             },
             "wp_security_context_manager_v1" => |s, v| {
-                if v > MetaWpSecurityContextManagerV1::XML_VERSION {
+                if v > WpSecurityContextManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpSecurityContextManagerV1, v));
                 }
-                Ok(MetaWpSecurityContextManagerV1::new(s, v))
+                Ok(WpSecurityContextManagerV1::new(s, v))
             },
             "wp_security_context_v1" => |s, v| {
-                if v > MetaWpSecurityContextV1::XML_VERSION {
+                if v > WpSecurityContextV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpSecurityContextV1, v));
                 }
-                Ok(MetaWpSecurityContextV1::new(s, v))
+                Ok(WpSecurityContextV1::new(s, v))
             },
             "wp_single_pixel_buffer_manager_v1" => |s, v| {
-                if v > MetaWpSinglePixelBufferManagerV1::XML_VERSION {
+                if v > WpSinglePixelBufferManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpSinglePixelBufferManagerV1, v));
                 }
-                Ok(MetaWpSinglePixelBufferManagerV1::new(s, v))
+                Ok(WpSinglePixelBufferManagerV1::new(s, v))
             },
             "zwp_tablet_manager_v2" => |s, v| {
-                if v > MetaZwpTabletManagerV2::XML_VERSION {
+                if v > ZwpTabletManagerV2::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpTabletManagerV2, v));
                 }
-                Ok(MetaZwpTabletManagerV2::new(s, v))
+                Ok(ZwpTabletManagerV2::new(s, v))
             },
             "zwp_tablet_pad_dial_v2" => |s, v| {
-                if v > MetaZwpTabletPadDialV2::XML_VERSION {
+                if v > ZwpTabletPadDialV2::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpTabletPadDialV2, v));
                 }
-                Ok(MetaZwpTabletPadDialV2::new(s, v))
+                Ok(ZwpTabletPadDialV2::new(s, v))
             },
             "zwp_tablet_pad_group_v2" => |s, v| {
-                if v > MetaZwpTabletPadGroupV2::XML_VERSION {
+                if v > ZwpTabletPadGroupV2::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpTabletPadGroupV2, v));
                 }
-                Ok(MetaZwpTabletPadGroupV2::new(s, v))
+                Ok(ZwpTabletPadGroupV2::new(s, v))
             },
             "zwp_tablet_pad_ring_v2" => |s, v| {
-                if v > MetaZwpTabletPadRingV2::XML_VERSION {
+                if v > ZwpTabletPadRingV2::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpTabletPadRingV2, v));
                 }
-                Ok(MetaZwpTabletPadRingV2::new(s, v))
+                Ok(ZwpTabletPadRingV2::new(s, v))
             },
             "zwp_tablet_pad_strip_v2" => |s, v| {
-                if v > MetaZwpTabletPadStripV2::XML_VERSION {
+                if v > ZwpTabletPadStripV2::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpTabletPadStripV2, v));
                 }
-                Ok(MetaZwpTabletPadStripV2::new(s, v))
+                Ok(ZwpTabletPadStripV2::new(s, v))
             },
             "zwp_tablet_pad_v2" => |s, v| {
-                if v > MetaZwpTabletPadV2::XML_VERSION {
+                if v > ZwpTabletPadV2::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpTabletPadV2, v));
                 }
-                Ok(MetaZwpTabletPadV2::new(s, v))
+                Ok(ZwpTabletPadV2::new(s, v))
             },
             "zwp_tablet_seat_v2" => |s, v| {
-                if v > MetaZwpTabletSeatV2::XML_VERSION {
+                if v > ZwpTabletSeatV2::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpTabletSeatV2, v));
                 }
-                Ok(MetaZwpTabletSeatV2::new(s, v))
+                Ok(ZwpTabletSeatV2::new(s, v))
             },
             "zwp_tablet_tool_v2" => |s, v| {
-                if v > MetaZwpTabletToolV2::XML_VERSION {
+                if v > ZwpTabletToolV2::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpTabletToolV2, v));
                 }
-                Ok(MetaZwpTabletToolV2::new(s, v))
+                Ok(ZwpTabletToolV2::new(s, v))
             },
             "zwp_tablet_v2" => |s, v| {
-                if v > MetaZwpTabletV2::XML_VERSION {
+                if v > ZwpTabletV2::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpTabletV2, v));
                 }
-                Ok(MetaZwpTabletV2::new(s, v))
+                Ok(ZwpTabletV2::new(s, v))
             },
             "wp_tearing_control_manager_v1" => |s, v| {
-                if v > MetaWpTearingControlManagerV1::XML_VERSION {
+                if v > WpTearingControlManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpTearingControlManagerV1, v));
                 }
-                Ok(MetaWpTearingControlManagerV1::new(s, v))
+                Ok(WpTearingControlManagerV1::new(s, v))
             },
             "wp_tearing_control_v1" => |s, v| {
-                if v > MetaWpTearingControlV1::XML_VERSION {
+                if v > WpTearingControlV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpTearingControlV1, v));
                 }
-                Ok(MetaWpTearingControlV1::new(s, v))
+                Ok(WpTearingControlV1::new(s, v))
             },
             "zwp_text_input_manager_v1" => |s, v| {
-                if v > MetaZwpTextInputManagerV1::XML_VERSION {
+                if v > ZwpTextInputManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpTextInputManagerV1, v));
                 }
-                Ok(MetaZwpTextInputManagerV1::new(s, v))
+                Ok(ZwpTextInputManagerV1::new(s, v))
             },
             "zwp_text_input_v1" => |s, v| {
-                if v > MetaZwpTextInputV1::XML_VERSION {
+                if v > ZwpTextInputV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpTextInputV1, v));
                 }
-                Ok(MetaZwpTextInputV1::new(s, v))
+                Ok(ZwpTextInputV1::new(s, v))
             },
             "zwp_text_input_manager_v3" => |s, v| {
-                if v > MetaZwpTextInputManagerV3::XML_VERSION {
+                if v > ZwpTextInputManagerV3::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpTextInputManagerV3, v));
                 }
-                Ok(MetaZwpTextInputManagerV3::new(s, v))
+                Ok(ZwpTextInputManagerV3::new(s, v))
             },
             "zwp_text_input_v3" => |s, v| {
-                if v > MetaZwpTextInputV3::XML_VERSION {
+                if v > ZwpTextInputV3::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpTextInputV3, v));
                 }
-                Ok(MetaZwpTextInputV3::new(s, v))
+                Ok(ZwpTextInputV3::new(s, v))
             },
             "wp_viewport" => |s, v| {
-                if v > MetaWpViewport::XML_VERSION {
+                if v > WpViewport::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpViewport, v));
                 }
-                Ok(MetaWpViewport::new(s, v))
+                Ok(WpViewport::new(s, v))
             },
             "wp_viewporter" => |s, v| {
-                if v > MetaWpViewporter::XML_VERSION {
+                if v > WpViewporter::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WpViewporter, v));
                 }
-                Ok(MetaWpViewporter::new(s, v))
+                Ok(WpViewporter::new(s, v))
             },
             "wl_buffer" => |s, v| {
-                if v > MetaWlBuffer::XML_VERSION {
+                if v > WlBuffer::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlBuffer, v));
                 }
-                Ok(MetaWlBuffer::new(s, v))
+                Ok(WlBuffer::new(s, v))
             },
             "wl_callback" => |s, v| {
-                if v > MetaWlCallback::XML_VERSION {
+                if v > WlCallback::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlCallback, v));
                 }
-                Ok(MetaWlCallback::new(s, v))
+                Ok(WlCallback::new(s, v))
             },
             "wl_compositor" => |s, v| {
-                if v > MetaWlCompositor::XML_VERSION {
+                if v > WlCompositor::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlCompositor, v));
                 }
-                Ok(MetaWlCompositor::new(s, v))
+                Ok(WlCompositor::new(s, v))
             },
             "wl_data_device" => |s, v| {
-                if v > MetaWlDataDevice::XML_VERSION {
+                if v > WlDataDevice::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlDataDevice, v));
                 }
-                Ok(MetaWlDataDevice::new(s, v))
+                Ok(WlDataDevice::new(s, v))
             },
             "wl_data_device_manager" => |s, v| {
-                if v > MetaWlDataDeviceManager::XML_VERSION {
+                if v > WlDataDeviceManager::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlDataDeviceManager, v));
                 }
-                Ok(MetaWlDataDeviceManager::new(s, v))
+                Ok(WlDataDeviceManager::new(s, v))
             },
             "wl_data_offer" => |s, v| {
-                if v > MetaWlDataOffer::XML_VERSION {
+                if v > WlDataOffer::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlDataOffer, v));
                 }
-                Ok(MetaWlDataOffer::new(s, v))
+                Ok(WlDataOffer::new(s, v))
             },
             "wl_data_source" => |s, v| {
-                if v > MetaWlDataSource::XML_VERSION {
+                if v > WlDataSource::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlDataSource, v));
                 }
-                Ok(MetaWlDataSource::new(s, v))
+                Ok(WlDataSource::new(s, v))
             },
             "wl_display" => |s, v| {
-                if v > MetaWlDisplay::XML_VERSION {
+                if v > WlDisplay::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlDisplay, v));
                 }
-                Ok(MetaWlDisplay::new(s, v))
+                Ok(WlDisplay::new(s, v))
             },
             "wl_fixes" => |s, v| {
-                if v > MetaWlFixes::XML_VERSION {
+                if v > WlFixes::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlFixes, v));
                 }
-                Ok(MetaWlFixes::new(s, v))
+                Ok(WlFixes::new(s, v))
             },
             "wl_keyboard" => |s, v| {
-                if v > MetaWlKeyboard::XML_VERSION {
+                if v > WlKeyboard::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlKeyboard, v));
                 }
-                Ok(MetaWlKeyboard::new(s, v))
+                Ok(WlKeyboard::new(s, v))
             },
             "wl_output" => |s, v| {
-                if v > MetaWlOutput::XML_VERSION {
+                if v > WlOutput::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlOutput, v));
                 }
-                Ok(MetaWlOutput::new(s, v))
+                Ok(WlOutput::new(s, v))
             },
             "wl_pointer" => |s, v| {
-                if v > MetaWlPointer::XML_VERSION {
+                if v > WlPointer::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlPointer, v));
                 }
-                Ok(MetaWlPointer::new(s, v))
+                Ok(WlPointer::new(s, v))
             },
             "wl_region" => |s, v| {
-                if v > MetaWlRegion::XML_VERSION {
+                if v > WlRegion::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlRegion, v));
                 }
-                Ok(MetaWlRegion::new(s, v))
+                Ok(WlRegion::new(s, v))
             },
             "wl_registry" => |s, v| {
-                if v > MetaWlRegistry::XML_VERSION {
+                if v > WlRegistry::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlRegistry, v));
                 }
-                Ok(MetaWlRegistry::new(s, v))
+                Ok(WlRegistry::new(s, v))
             },
             "wl_seat" => |s, v| {
-                if v > MetaWlSeat::XML_VERSION {
+                if v > WlSeat::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlSeat, v));
                 }
-                Ok(MetaWlSeat::new(s, v))
+                Ok(WlSeat::new(s, v))
             },
             "wl_shell" => |s, v| {
-                if v > MetaWlShell::XML_VERSION {
+                if v > WlShell::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlShell, v));
                 }
-                Ok(MetaWlShell::new(s, v))
+                Ok(WlShell::new(s, v))
             },
             "wl_shell_surface" => |s, v| {
-                if v > MetaWlShellSurface::XML_VERSION {
+                if v > WlShellSurface::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlShellSurface, v));
                 }
-                Ok(MetaWlShellSurface::new(s, v))
+                Ok(WlShellSurface::new(s, v))
             },
             "wl_shm" => |s, v| {
-                if v > MetaWlShm::XML_VERSION {
+                if v > WlShm::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlShm, v));
                 }
-                Ok(MetaWlShm::new(s, v))
+                Ok(WlShm::new(s, v))
             },
             "wl_shm_pool" => |s, v| {
-                if v > MetaWlShmPool::XML_VERSION {
+                if v > WlShmPool::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlShmPool, v));
                 }
-                Ok(MetaWlShmPool::new(s, v))
+                Ok(WlShmPool::new(s, v))
             },
             "wl_subcompositor" => |s, v| {
-                if v > MetaWlSubcompositor::XML_VERSION {
+                if v > WlSubcompositor::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlSubcompositor, v));
                 }
-                Ok(MetaWlSubcompositor::new(s, v))
+                Ok(WlSubcompositor::new(s, v))
             },
             "wl_subsurface" => |s, v| {
-                if v > MetaWlSubsurface::XML_VERSION {
+                if v > WlSubsurface::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlSubsurface, v));
                 }
-                Ok(MetaWlSubsurface::new(s, v))
+                Ok(WlSubsurface::new(s, v))
             },
             "wl_surface" => |s, v| {
-                if v > MetaWlSurface::XML_VERSION {
+                if v > WlSurface::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlSurface, v));
                 }
-                Ok(MetaWlSurface::new(s, v))
+                Ok(WlSurface::new(s, v))
             },
             "wl_touch" => |s, v| {
-                if v > MetaWlTouch::XML_VERSION {
+                if v > WlTouch::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::WlTouch, v));
                 }
-                Ok(MetaWlTouch::new(s, v))
+                Ok(WlTouch::new(s, v))
             },
             "zwlr_data_control_device_v1" => |s, v| {
-                if v > MetaZwlrDataControlDeviceV1::XML_VERSION {
+                if v > ZwlrDataControlDeviceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrDataControlDeviceV1, v));
                 }
-                Ok(MetaZwlrDataControlDeviceV1::new(s, v))
+                Ok(ZwlrDataControlDeviceV1::new(s, v))
             },
             "zwlr_data_control_manager_v1" => |s, v| {
-                if v > MetaZwlrDataControlManagerV1::XML_VERSION {
+                if v > ZwlrDataControlManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrDataControlManagerV1, v));
                 }
-                Ok(MetaZwlrDataControlManagerV1::new(s, v))
+                Ok(ZwlrDataControlManagerV1::new(s, v))
             },
             "zwlr_data_control_offer_v1" => |s, v| {
-                if v > MetaZwlrDataControlOfferV1::XML_VERSION {
+                if v > ZwlrDataControlOfferV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrDataControlOfferV1, v));
                 }
-                Ok(MetaZwlrDataControlOfferV1::new(s, v))
+                Ok(ZwlrDataControlOfferV1::new(s, v))
             },
             "zwlr_data_control_source_v1" => |s, v| {
-                if v > MetaZwlrDataControlSourceV1::XML_VERSION {
+                if v > ZwlrDataControlSourceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrDataControlSourceV1, v));
                 }
-                Ok(MetaZwlrDataControlSourceV1::new(s, v))
+                Ok(ZwlrDataControlSourceV1::new(s, v))
             },
             "zwlr_export_dmabuf_frame_v1" => |s, v| {
-                if v > MetaZwlrExportDmabufFrameV1::XML_VERSION {
+                if v > ZwlrExportDmabufFrameV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrExportDmabufFrameV1, v));
                 }
-                Ok(MetaZwlrExportDmabufFrameV1::new(s, v))
+                Ok(ZwlrExportDmabufFrameV1::new(s, v))
             },
             "zwlr_export_dmabuf_manager_v1" => |s, v| {
-                if v > MetaZwlrExportDmabufManagerV1::XML_VERSION {
+                if v > ZwlrExportDmabufManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrExportDmabufManagerV1, v));
                 }
-                Ok(MetaZwlrExportDmabufManagerV1::new(s, v))
+                Ok(ZwlrExportDmabufManagerV1::new(s, v))
             },
             "zwlr_foreign_toplevel_handle_v1" => |s, v| {
-                if v > MetaZwlrForeignToplevelHandleV1::XML_VERSION {
+                if v > ZwlrForeignToplevelHandleV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrForeignToplevelHandleV1, v));
                 }
-                Ok(MetaZwlrForeignToplevelHandleV1::new(s, v))
+                Ok(ZwlrForeignToplevelHandleV1::new(s, v))
             },
             "zwlr_foreign_toplevel_manager_v1" => |s, v| {
-                if v > MetaZwlrForeignToplevelManagerV1::XML_VERSION {
+                if v > ZwlrForeignToplevelManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrForeignToplevelManagerV1, v));
                 }
-                Ok(MetaZwlrForeignToplevelManagerV1::new(s, v))
+                Ok(ZwlrForeignToplevelManagerV1::new(s, v))
             },
             "zwlr_gamma_control_manager_v1" => |s, v| {
-                if v > MetaZwlrGammaControlManagerV1::XML_VERSION {
+                if v > ZwlrGammaControlManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrGammaControlManagerV1, v));
                 }
-                Ok(MetaZwlrGammaControlManagerV1::new(s, v))
+                Ok(ZwlrGammaControlManagerV1::new(s, v))
             },
             "zwlr_gamma_control_v1" => |s, v| {
-                if v > MetaZwlrGammaControlV1::XML_VERSION {
+                if v > ZwlrGammaControlV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrGammaControlV1, v));
                 }
-                Ok(MetaZwlrGammaControlV1::new(s, v))
+                Ok(ZwlrGammaControlV1::new(s, v))
             },
             "zwlr_input_inhibit_manager_v1" => |s, v| {
-                if v > MetaZwlrInputInhibitManagerV1::XML_VERSION {
+                if v > ZwlrInputInhibitManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrInputInhibitManagerV1, v));
                 }
-                Ok(MetaZwlrInputInhibitManagerV1::new(s, v))
+                Ok(ZwlrInputInhibitManagerV1::new(s, v))
             },
             "zwlr_input_inhibitor_v1" => |s, v| {
-                if v > MetaZwlrInputInhibitorV1::XML_VERSION {
+                if v > ZwlrInputInhibitorV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrInputInhibitorV1, v));
                 }
-                Ok(MetaZwlrInputInhibitorV1::new(s, v))
+                Ok(ZwlrInputInhibitorV1::new(s, v))
             },
             "zwlr_layer_shell_v1" => |s, v| {
-                if v > MetaZwlrLayerShellV1::XML_VERSION {
+                if v > ZwlrLayerShellV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrLayerShellV1, v));
                 }
-                Ok(MetaZwlrLayerShellV1::new(s, v))
+                Ok(ZwlrLayerShellV1::new(s, v))
             },
             "zwlr_layer_surface_v1" => |s, v| {
-                if v > MetaZwlrLayerSurfaceV1::XML_VERSION {
+                if v > ZwlrLayerSurfaceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrLayerSurfaceV1, v));
                 }
-                Ok(MetaZwlrLayerSurfaceV1::new(s, v))
+                Ok(ZwlrLayerSurfaceV1::new(s, v))
             },
             "zwlr_output_configuration_head_v1" => |s, v| {
-                if v > MetaZwlrOutputConfigurationHeadV1::XML_VERSION {
+                if v > ZwlrOutputConfigurationHeadV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrOutputConfigurationHeadV1, v));
                 }
-                Ok(MetaZwlrOutputConfigurationHeadV1::new(s, v))
+                Ok(ZwlrOutputConfigurationHeadV1::new(s, v))
             },
             "zwlr_output_configuration_v1" => |s, v| {
-                if v > MetaZwlrOutputConfigurationV1::XML_VERSION {
+                if v > ZwlrOutputConfigurationV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrOutputConfigurationV1, v));
                 }
-                Ok(MetaZwlrOutputConfigurationV1::new(s, v))
+                Ok(ZwlrOutputConfigurationV1::new(s, v))
             },
             "zwlr_output_head_v1" => |s, v| {
-                if v > MetaZwlrOutputHeadV1::XML_VERSION {
+                if v > ZwlrOutputHeadV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrOutputHeadV1, v));
                 }
-                Ok(MetaZwlrOutputHeadV1::new(s, v))
+                Ok(ZwlrOutputHeadV1::new(s, v))
             },
             "zwlr_output_manager_v1" => |s, v| {
-                if v > MetaZwlrOutputManagerV1::XML_VERSION {
+                if v > ZwlrOutputManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrOutputManagerV1, v));
                 }
-                Ok(MetaZwlrOutputManagerV1::new(s, v))
+                Ok(ZwlrOutputManagerV1::new(s, v))
             },
             "zwlr_output_mode_v1" => |s, v| {
-                if v > MetaZwlrOutputModeV1::XML_VERSION {
+                if v > ZwlrOutputModeV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrOutputModeV1, v));
                 }
-                Ok(MetaZwlrOutputModeV1::new(s, v))
+                Ok(ZwlrOutputModeV1::new(s, v))
             },
             "zwlr_output_power_manager_v1" => |s, v| {
-                if v > MetaZwlrOutputPowerManagerV1::XML_VERSION {
+                if v > ZwlrOutputPowerManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrOutputPowerManagerV1, v));
                 }
-                Ok(MetaZwlrOutputPowerManagerV1::new(s, v))
+                Ok(ZwlrOutputPowerManagerV1::new(s, v))
             },
             "zwlr_output_power_v1" => |s, v| {
-                if v > MetaZwlrOutputPowerV1::XML_VERSION {
+                if v > ZwlrOutputPowerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrOutputPowerV1, v));
                 }
-                Ok(MetaZwlrOutputPowerV1::new(s, v))
+                Ok(ZwlrOutputPowerV1::new(s, v))
             },
             "zwlr_screencopy_frame_v1" => |s, v| {
-                if v > MetaZwlrScreencopyFrameV1::XML_VERSION {
+                if v > ZwlrScreencopyFrameV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrScreencopyFrameV1, v));
                 }
-                Ok(MetaZwlrScreencopyFrameV1::new(s, v))
+                Ok(ZwlrScreencopyFrameV1::new(s, v))
             },
             "zwlr_screencopy_manager_v1" => |s, v| {
-                if v > MetaZwlrScreencopyManagerV1::XML_VERSION {
+                if v > ZwlrScreencopyManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrScreencopyManagerV1, v));
                 }
-                Ok(MetaZwlrScreencopyManagerV1::new(s, v))
+                Ok(ZwlrScreencopyManagerV1::new(s, v))
             },
             "zwlr_virtual_pointer_manager_v1" => |s, v| {
-                if v > MetaZwlrVirtualPointerManagerV1::XML_VERSION {
+                if v > ZwlrVirtualPointerManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrVirtualPointerManagerV1, v));
                 }
-                Ok(MetaZwlrVirtualPointerManagerV1::new(s, v))
+                Ok(ZwlrVirtualPointerManagerV1::new(s, v))
             },
             "zwlr_virtual_pointer_v1" => |s, v| {
-                if v > MetaZwlrVirtualPointerV1::XML_VERSION {
+                if v > ZwlrVirtualPointerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwlrVirtualPointerV1, v));
                 }
-                Ok(MetaZwlrVirtualPointerV1::new(s, v))
+                Ok(ZwlrVirtualPointerV1::new(s, v))
             },
             "xdg_activation_token_v1" => |s, v| {
-                if v > MetaXdgActivationTokenV1::XML_VERSION {
+                if v > XdgActivationTokenV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::XdgActivationTokenV1, v));
                 }
-                Ok(MetaXdgActivationTokenV1::new(s, v))
+                Ok(XdgActivationTokenV1::new(s, v))
             },
             "xdg_activation_v1" => |s, v| {
-                if v > MetaXdgActivationV1::XML_VERSION {
+                if v > XdgActivationV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::XdgActivationV1, v));
                 }
-                Ok(MetaXdgActivationV1::new(s, v))
+                Ok(XdgActivationV1::new(s, v))
             },
             "zxdg_decoration_manager_v1" => |s, v| {
-                if v > MetaZxdgDecorationManagerV1::XML_VERSION {
+                if v > ZxdgDecorationManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZxdgDecorationManagerV1, v));
                 }
-                Ok(MetaZxdgDecorationManagerV1::new(s, v))
+                Ok(ZxdgDecorationManagerV1::new(s, v))
             },
             "zxdg_toplevel_decoration_v1" => |s, v| {
-                if v > MetaZxdgToplevelDecorationV1::XML_VERSION {
+                if v > ZxdgToplevelDecorationV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZxdgToplevelDecorationV1, v));
                 }
-                Ok(MetaZxdgToplevelDecorationV1::new(s, v))
+                Ok(ZxdgToplevelDecorationV1::new(s, v))
             },
             "xdg_dialog_v1" => |s, v| {
-                if v > MetaXdgDialogV1::XML_VERSION {
+                if v > XdgDialogV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::XdgDialogV1, v));
                 }
-                Ok(MetaXdgDialogV1::new(s, v))
+                Ok(XdgDialogV1::new(s, v))
             },
             "xdg_wm_dialog_v1" => |s, v| {
-                if v > MetaXdgWmDialogV1::XML_VERSION {
+                if v > XdgWmDialogV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::XdgWmDialogV1, v));
                 }
-                Ok(MetaXdgWmDialogV1::new(s, v))
+                Ok(XdgWmDialogV1::new(s, v))
             },
             "zxdg_exported_v2" => |s, v| {
-                if v > MetaZxdgExportedV2::XML_VERSION {
+                if v > ZxdgExportedV2::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZxdgExportedV2, v));
                 }
-                Ok(MetaZxdgExportedV2::new(s, v))
+                Ok(ZxdgExportedV2::new(s, v))
             },
             "zxdg_exporter_v2" => |s, v| {
-                if v > MetaZxdgExporterV2::XML_VERSION {
+                if v > ZxdgExporterV2::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZxdgExporterV2, v));
                 }
-                Ok(MetaZxdgExporterV2::new(s, v))
+                Ok(ZxdgExporterV2::new(s, v))
             },
             "zxdg_imported_v2" => |s, v| {
-                if v > MetaZxdgImportedV2::XML_VERSION {
+                if v > ZxdgImportedV2::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZxdgImportedV2, v));
                 }
-                Ok(MetaZxdgImportedV2::new(s, v))
+                Ok(ZxdgImportedV2::new(s, v))
             },
             "zxdg_importer_v2" => |s, v| {
-                if v > MetaZxdgImporterV2::XML_VERSION {
+                if v > ZxdgImporterV2::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZxdgImporterV2, v));
                 }
-                Ok(MetaZxdgImporterV2::new(s, v))
+                Ok(ZxdgImporterV2::new(s, v))
             },
             "zxdg_output_manager_v1" => |s, v| {
-                if v > MetaZxdgOutputManagerV1::XML_VERSION {
+                if v > ZxdgOutputManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZxdgOutputManagerV1, v));
                 }
-                Ok(MetaZxdgOutputManagerV1::new(s, v))
+                Ok(ZxdgOutputManagerV1::new(s, v))
             },
             "zxdg_output_v1" => |s, v| {
-                if v > MetaZxdgOutputV1::XML_VERSION {
+                if v > ZxdgOutputV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZxdgOutputV1, v));
                 }
-                Ok(MetaZxdgOutputV1::new(s, v))
+                Ok(ZxdgOutputV1::new(s, v))
             },
             "xdg_popup" => |s, v| {
-                if v > MetaXdgPopup::XML_VERSION {
+                if v > XdgPopup::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::XdgPopup, v));
                 }
-                Ok(MetaXdgPopup::new(s, v))
+                Ok(XdgPopup::new(s, v))
             },
             "xdg_positioner" => |s, v| {
-                if v > MetaXdgPositioner::XML_VERSION {
+                if v > XdgPositioner::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::XdgPositioner, v));
                 }
-                Ok(MetaXdgPositioner::new(s, v))
+                Ok(XdgPositioner::new(s, v))
             },
             "xdg_surface" => |s, v| {
-                if v > MetaXdgSurface::XML_VERSION {
+                if v > XdgSurface::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::XdgSurface, v));
                 }
-                Ok(MetaXdgSurface::new(s, v))
+                Ok(XdgSurface::new(s, v))
             },
             "xdg_toplevel" => |s, v| {
-                if v > MetaXdgToplevel::XML_VERSION {
+                if v > XdgToplevel::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::XdgToplevel, v));
                 }
-                Ok(MetaXdgToplevel::new(s, v))
+                Ok(XdgToplevel::new(s, v))
             },
             "xdg_wm_base" => |s, v| {
-                if v > MetaXdgWmBase::XML_VERSION {
+                if v > XdgWmBase::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::XdgWmBase, v));
                 }
-                Ok(MetaXdgWmBase::new(s, v))
+                Ok(XdgWmBase::new(s, v))
             },
             "xdg_system_bell_v1" => |s, v| {
-                if v > MetaXdgSystemBellV1::XML_VERSION {
+                if v > XdgSystemBellV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::XdgSystemBellV1, v));
                 }
-                Ok(MetaXdgSystemBellV1::new(s, v))
+                Ok(XdgSystemBellV1::new(s, v))
             },
             "xdg_toplevel_drag_manager_v1" => |s, v| {
-                if v > MetaXdgToplevelDragManagerV1::XML_VERSION {
+                if v > XdgToplevelDragManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::XdgToplevelDragManagerV1, v));
                 }
-                Ok(MetaXdgToplevelDragManagerV1::new(s, v))
+                Ok(XdgToplevelDragManagerV1::new(s, v))
             },
             "xdg_toplevel_drag_v1" => |s, v| {
-                if v > MetaXdgToplevelDragV1::XML_VERSION {
+                if v > XdgToplevelDragV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::XdgToplevelDragV1, v));
                 }
-                Ok(MetaXdgToplevelDragV1::new(s, v))
+                Ok(XdgToplevelDragV1::new(s, v))
             },
             "xdg_toplevel_icon_manager_v1" => |s, v| {
-                if v > MetaXdgToplevelIconManagerV1::XML_VERSION {
+                if v > XdgToplevelIconManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::XdgToplevelIconManagerV1, v));
                 }
-                Ok(MetaXdgToplevelIconManagerV1::new(s, v))
+                Ok(XdgToplevelIconManagerV1::new(s, v))
             },
             "xdg_toplevel_icon_v1" => |s, v| {
-                if v > MetaXdgToplevelIconV1::XML_VERSION {
+                if v > XdgToplevelIconV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::XdgToplevelIconV1, v));
                 }
-                Ok(MetaXdgToplevelIconV1::new(s, v))
+                Ok(XdgToplevelIconV1::new(s, v))
             },
             "xdg_toplevel_tag_manager_v1" => |s, v| {
-                if v > MetaXdgToplevelTagManagerV1::XML_VERSION {
+                if v > XdgToplevelTagManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::XdgToplevelTagManagerV1, v));
                 }
-                Ok(MetaXdgToplevelTagManagerV1::new(s, v))
+                Ok(XdgToplevelTagManagerV1::new(s, v))
             },
             "zwp_xwayland_keyboard_grab_manager_v1" => |s, v| {
-                if v > MetaZwpXwaylandKeyboardGrabManagerV1::XML_VERSION {
+                if v > ZwpXwaylandKeyboardGrabManagerV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpXwaylandKeyboardGrabManagerV1, v));
                 }
-                Ok(MetaZwpXwaylandKeyboardGrabManagerV1::new(s, v))
+                Ok(ZwpXwaylandKeyboardGrabManagerV1::new(s, v))
             },
             "zwp_xwayland_keyboard_grab_v1" => |s, v| {
-                if v > MetaZwpXwaylandKeyboardGrabV1::XML_VERSION {
+                if v > ZwpXwaylandKeyboardGrabV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::ZwpXwaylandKeyboardGrabV1, v));
                 }
-                Ok(MetaZwpXwaylandKeyboardGrabV1::new(s, v))
+                Ok(ZwpXwaylandKeyboardGrabV1::new(s, v))
             },
             "xwayland_shell_v1" => |s, v| {
-                if v > MetaXwaylandShellV1::XML_VERSION {
+                if v > XwaylandShellV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::XwaylandShellV1, v));
                 }
-                Ok(MetaXwaylandShellV1::new(s, v))
+                Ok(XwaylandShellV1::new(s, v))
             },
             "xwayland_surface_v1" => |s, v| {
-                if v > MetaXwaylandSurfaceV1::XML_VERSION {
+                if v > XwaylandSurfaceV1::XML_VERSION {
                     return Err(ObjectError::MaxVersion(ProxyInterface::XwaylandSurfaceV1, v));
                 }
-                Ok(MetaXwaylandSurfaceV1::new(s, v))
+                Ok(XwaylandSurfaceV1::new(s, v))
             },
         };
         INTERFACES

@@ -26,39 +26,35 @@ use super::super::all_types::*;
 /// A ext_workspace_manager_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaExtWorkspaceManagerV1 {
+pub struct ExtWorkspaceManagerV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaExtWorkspaceManagerV1MessageHandler>,
+    handler: HandlerHolder<dyn ExtWorkspaceManagerV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaExtWorkspaceManagerV1MessageHandler for DefaultMessageHandler { }
+impl ExtWorkspaceManagerV1Handler for DefaultHandler { }
 
-impl MetaExtWorkspaceManagerV1 {
+impl ExtWorkspaceManagerV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaExtWorkspaceManagerV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ExtWorkspaceManagerV1, version),
-            handler: Default::default(),
-        })
+impl ExtWorkspaceManagerV1 {
+    pub fn set_handler(&self, handler: impl ExtWorkspaceManagerV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaExtWorkspaceManagerV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ExtWorkspaceManagerV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaExtWorkspaceManagerV1 {
+impl Debug for ExtWorkspaceManagerV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaExtWorkspaceManagerV1")
+        f.debug_struct("ExtWorkspaceManagerV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -66,7 +62,7 @@ impl Debug for MetaExtWorkspaceManagerV1 {
     }
 }
 
-impl MetaExtWorkspaceManagerV1 {
+impl ExtWorkspaceManagerV1 {
     /// Since when the workspace_group message is available.
     #[allow(dead_code)]
     pub const MSG__WORKSPACE_GROUP__SINCE: u32 = 1;
@@ -81,7 +77,7 @@ impl MetaExtWorkspaceManagerV1 {
     #[inline]
     pub fn send_workspace_group(
         &self,
-        workspace_group: &Rc<MetaExtWorkspaceGroupHandleV1>,
+        workspace_group: &Rc<ExtWorkspaceGroupHandleV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -99,9 +95,14 @@ impl MetaExtWorkspaceManagerV1 {
         arg0.generate_client_id(client, arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateClientId("workspace_group", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_workspace_manager_v1#{}.workspace_group(workspace_group: ext_workspace_group_handle_v1#{})\n", client.endpoint.id, id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -130,7 +131,7 @@ impl MetaExtWorkspaceManagerV1 {
     #[inline]
     pub fn send_workspace(
         &self,
-        workspace: &Rc<MetaExtWorkspaceHandleV1>,
+        workspace: &Rc<ExtWorkspaceHandleV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -148,9 +149,14 @@ impl MetaExtWorkspaceManagerV1 {
         arg0.generate_client_id(client, arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateClientId("workspace", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_workspace_manager_v1#{}.workspace(workspace: ext_workspace_handle_v1#{})\n", client.endpoint.id, id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -185,9 +191,14 @@ impl MetaExtWorkspaceManagerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= ext_workspace_manager_v1#{}.commit()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -226,9 +237,14 @@ impl MetaExtWorkspaceManagerV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_workspace_manager_v1#{}.done()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -259,9 +275,14 @@ impl MetaExtWorkspaceManagerV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_workspace_manager_v1#{}.finished()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -298,9 +319,14 @@ impl MetaExtWorkspaceManagerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= ext_workspace_manager_v1#{}.stop()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -315,7 +341,7 @@ impl MetaExtWorkspaceManagerV1 {
 
 /// A message handler for [ExtWorkspaceManagerV1] proxies.
 #[allow(dead_code)]
-pub trait MetaExtWorkspaceManagerV1MessageHandler {
+pub trait ExtWorkspaceManagerV1Handler: Any {
     /// a workspace group has been created
     ///
     /// This event is emitted whenever a new workspace group has been created.
@@ -330,8 +356,8 @@ pub trait MetaExtWorkspaceManagerV1MessageHandler {
     #[inline]
     fn workspace_group(
         &mut self,
-        _slf: &Rc<MetaExtWorkspaceManagerV1>,
-        workspace_group: &Rc<MetaExtWorkspaceGroupHandleV1>,
+        _slf: &Rc<ExtWorkspaceManagerV1>,
+        workspace_group: &Rc<ExtWorkspaceGroupHandleV1>,
     ) {
         let res = _slf.send_workspace_group(
             workspace_group,
@@ -357,8 +383,8 @@ pub trait MetaExtWorkspaceManagerV1MessageHandler {
     #[inline]
     fn workspace(
         &mut self,
-        _slf: &Rc<MetaExtWorkspaceManagerV1>,
-        workspace: &Rc<MetaExtWorkspaceHandleV1>,
+        _slf: &Rc<ExtWorkspaceManagerV1>,
+        workspace: &Rc<ExtWorkspaceHandleV1>,
     ) {
         let res = _slf.send_workspace(
             workspace,
@@ -381,7 +407,7 @@ pub trait MetaExtWorkspaceManagerV1MessageHandler {
     #[inline]
     fn commit(
         &mut self,
-        _slf: &Rc<MetaExtWorkspaceManagerV1>,
+        _slf: &Rc<ExtWorkspaceManagerV1>,
     ) {
         let res = _slf.send_commit(
         );
@@ -406,7 +432,7 @@ pub trait MetaExtWorkspaceManagerV1MessageHandler {
     #[inline]
     fn done(
         &mut self,
-        _slf: &Rc<MetaExtWorkspaceManagerV1>,
+        _slf: &Rc<ExtWorkspaceManagerV1>,
     ) {
         let res = _slf.send_done(
         );
@@ -423,7 +449,7 @@ pub trait MetaExtWorkspaceManagerV1MessageHandler {
     #[inline]
     fn finished(
         &mut self,
-        _slf: &Rc<MetaExtWorkspaceManagerV1>,
+        _slf: &Rc<ExtWorkspaceManagerV1>,
     ) {
         let res = _slf.send_finished(
         );
@@ -444,7 +470,7 @@ pub trait MetaExtWorkspaceManagerV1MessageHandler {
     #[inline]
     fn stop(
         &mut self,
-        _slf: &Rc<MetaExtWorkspaceManagerV1>,
+        _slf: &Rc<ExtWorkspaceManagerV1>,
     ) {
         let res = _slf.send_stop(
         );
@@ -454,13 +480,12 @@ pub trait MetaExtWorkspaceManagerV1MessageHandler {
     }
 }
 
-impl Proxy for MetaExtWorkspaceManagerV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ExtWorkspaceManagerV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtWorkspaceManagerV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -470,20 +495,30 @@ impl Proxy for MetaExtWorkspaceManagerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> ext_workspace_manager_v1#{}.commit()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).commit(&self);
                 } else {
-                    DefaultMessageHandler.commit(&self);
+                    DefaultHandler.commit(&self);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> ext_workspace_manager_v1#{}.stop()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).stop(&self);
                 } else {
-                    DefaultMessageHandler.stop(&self);
+                    DefaultHandler.stop(&self);
                 }
             }
             n => {
@@ -506,15 +541,20 @@ impl Proxy for MetaExtWorkspaceManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_workspace_manager_v1#{}.workspace_group(workspace_group: ext_workspace_group_handle_v1#{})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaExtWorkspaceGroupHandleV1::new(&self.core.state, self.core.version);
+                let arg0 = ExtWorkspaceGroupHandleV1::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "workspace_group", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).workspace_group(&self, arg0);
                 } else {
-                    DefaultMessageHandler.workspace_group(&self, arg0);
+                    DefaultHandler.workspace_group(&self, arg0);
                 }
             }
             1 => {
@@ -523,35 +563,50 @@ impl Proxy for MetaExtWorkspaceManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_workspace_manager_v1#{}.workspace(workspace: ext_workspace_handle_v1#{})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaExtWorkspaceHandleV1::new(&self.core.state, self.core.version);
+                let arg0 = ExtWorkspaceHandleV1::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "workspace", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).workspace(&self, arg0);
                 } else {
-                    DefaultMessageHandler.workspace(&self, arg0);
+                    DefaultHandler.workspace(&self, arg0);
                 }
             }
             2 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_workspace_manager_v1#{}.done()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).done(&self);
                 } else {
-                    DefaultMessageHandler.done(&self);
+                    DefaultHandler.done(&self);
                 }
             }
             3 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_workspace_manager_v1#{}.finished()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).finished(&self);
                 } else {
-                    DefaultMessageHandler.finished(&self);
+                    DefaultHandler.finished(&self);
                 }
                 self.core.handle_server_destroy();
             }
@@ -583,6 +638,32 @@ impl Proxy for MetaExtWorkspaceManagerV1 {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for ExtWorkspaceManagerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

@@ -9,39 +9,35 @@ use super::super::all_types::*;
 /// A wp_single_pixel_buffer_manager_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpSinglePixelBufferManagerV1 {
+pub struct WpSinglePixelBufferManagerV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpSinglePixelBufferManagerV1MessageHandler>,
+    handler: HandlerHolder<dyn WpSinglePixelBufferManagerV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpSinglePixelBufferManagerV1MessageHandler for DefaultMessageHandler { }
+impl WpSinglePixelBufferManagerV1Handler for DefaultHandler { }
 
-impl MetaWpSinglePixelBufferManagerV1 {
+impl WpSinglePixelBufferManagerV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWpSinglePixelBufferManagerV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpSinglePixelBufferManagerV1, version),
-            handler: Default::default(),
-        })
+impl WpSinglePixelBufferManagerV1 {
+    pub fn set_handler(&self, handler: impl WpSinglePixelBufferManagerV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpSinglePixelBufferManagerV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpSinglePixelBufferManagerV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpSinglePixelBufferManagerV1 {
+impl Debug for WpSinglePixelBufferManagerV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpSinglePixelBufferManagerV1")
+        f.debug_struct("WpSinglePixelBufferManagerV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -49,7 +45,7 @@ impl Debug for MetaWpSinglePixelBufferManagerV1 {
     }
 }
 
-impl MetaWpSinglePixelBufferManagerV1 {
+impl WpSinglePixelBufferManagerV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -67,9 +63,14 @@ impl MetaWpSinglePixelBufferManagerV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_single_pixel_buffer_manager_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -112,7 +113,7 @@ impl MetaWpSinglePixelBufferManagerV1 {
     #[inline]
     pub fn send_create_u32_rgba_buffer(
         &self,
-        id: &Rc<MetaWlBuffer>,
+        id: &Rc<WlBuffer>,
         r: u32,
         g: u32,
         b: u32,
@@ -140,9 +141,14 @@ impl MetaWpSinglePixelBufferManagerV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_single_pixel_buffer_manager_v1#{}.create_u32_rgba_buffer(id: wl_buffer#{}, r: {}, g: {}, b: {}, a: {})\n", id, arg0_id, arg1, arg2, arg3, arg4);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -162,7 +168,7 @@ impl MetaWpSinglePixelBufferManagerV1 {
 
 /// A message handler for [WpSinglePixelBufferManagerV1] proxies.
 #[allow(dead_code)]
-pub trait MetaWpSinglePixelBufferManagerV1MessageHandler {
+pub trait WpSinglePixelBufferManagerV1Handler: Any {
     /// destroy the manager
     ///
     /// Destroy the wp_single_pixel_buffer_manager_v1 object.
@@ -171,7 +177,7 @@ pub trait MetaWpSinglePixelBufferManagerV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWpSinglePixelBufferManagerV1>,
+        _slf: &Rc<WpSinglePixelBufferManagerV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -206,8 +212,8 @@ pub trait MetaWpSinglePixelBufferManagerV1MessageHandler {
     #[inline]
     fn create_u32_rgba_buffer(
         &mut self,
-        _slf: &Rc<MetaWpSinglePixelBufferManagerV1>,
-        id: &Rc<MetaWlBuffer>,
+        _slf: &Rc<WpSinglePixelBufferManagerV1>,
+        id: &Rc<WlBuffer>,
         r: u32,
         g: u32,
         b: u32,
@@ -226,13 +232,12 @@ pub trait MetaWpSinglePixelBufferManagerV1MessageHandler {
     }
 }
 
-impl Proxy for MetaWpSinglePixelBufferManagerV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpSinglePixelBufferManagerV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpSinglePixelBufferManagerV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -242,10 +247,15 @@ impl Proxy for MetaWpSinglePixelBufferManagerV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_single_pixel_buffer_manager_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -259,15 +269,20 @@ impl Proxy for MetaWpSinglePixelBufferManagerV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 28));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_single_pixel_buffer_manager_v1#{}.create_u32_rgba_buffer(id: wl_buffer#{}, r: {}, g: {}, b: {}, a: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWlBuffer::new(&self.core.state, self.core.version);
+                let arg0 = WlBuffer::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).create_u32_rgba_buffer(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultMessageHandler.create_u32_rgba_buffer(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.create_u32_rgba_buffer(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             n => {
@@ -305,6 +320,32 @@ impl Proxy for MetaWpSinglePixelBufferManagerV1 {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let _ = id;
         None
+    }
+}
+
+impl Proxy for WpSinglePixelBufferManagerV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

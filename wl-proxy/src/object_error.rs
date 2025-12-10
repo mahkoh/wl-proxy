@@ -45,4 +45,10 @@ pub enum ObjectError {
     NullString(&'static str),
     #[error("argument {0} is not valid UTF-8")]
     NonUtf8(&'static str),
+    #[error("server sent error {} on proxy {}#{}", .2, .0.name(), .1)]
+    ServerError(ProxyInterface, u32, u32, #[source] StringError),
 }
+
+#[derive(Debug, Error)]
+#[error("{0}")]
+pub struct StringError(pub String);

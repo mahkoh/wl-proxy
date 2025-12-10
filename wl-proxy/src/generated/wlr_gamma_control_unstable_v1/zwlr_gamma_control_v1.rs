@@ -17,39 +17,35 @@ use super::super::all_types::*;
 /// A zwlr_gamma_control_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaZwlrGammaControlV1 {
+pub struct ZwlrGammaControlV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaZwlrGammaControlV1MessageHandler>,
+    handler: HandlerHolder<dyn ZwlrGammaControlV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaZwlrGammaControlV1MessageHandler for DefaultMessageHandler { }
+impl ZwlrGammaControlV1Handler for DefaultHandler { }
 
-impl MetaZwlrGammaControlV1 {
+impl ZwlrGammaControlV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaZwlrGammaControlV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::ZwlrGammaControlV1, version),
-            handler: Default::default(),
-        })
+impl ZwlrGammaControlV1 {
+    pub fn set_handler(&self, handler: impl ZwlrGammaControlV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaZwlrGammaControlV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn ZwlrGammaControlV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaZwlrGammaControlV1 {
+impl Debug for ZwlrGammaControlV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaZwlrGammaControlV1")
+        f.debug_struct("ZwlrGammaControlV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -57,7 +53,7 @@ impl Debug for MetaZwlrGammaControlV1 {
     }
 }
 
-impl MetaZwlrGammaControlV1 {
+impl ZwlrGammaControlV1 {
     /// Since when the gamma_size message is available.
     #[allow(dead_code)]
     pub const MSG__GAMMA_SIZE__SINCE: u32 = 1;
@@ -87,9 +83,14 @@ impl MetaZwlrGammaControlV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_gamma_control_v1#{}.gamma_size(size: {})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -133,9 +134,14 @@ impl MetaZwlrGammaControlV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_gamma_control_v1#{}.set_gamma(fd: {})\n", id, arg0.as_raw_fd());
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -172,9 +178,14 @@ impl MetaZwlrGammaControlV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_gamma_control_v1#{}.failed()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -202,9 +213,14 @@ impl MetaZwlrGammaControlV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_gamma_control_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -220,7 +236,7 @@ impl MetaZwlrGammaControlV1 {
 
 /// A message handler for [ZwlrGammaControlV1] proxies.
 #[allow(dead_code)]
-pub trait MetaZwlrGammaControlV1MessageHandler {
+pub trait ZwlrGammaControlV1Handler: Any {
     /// size of gamma ramps
     ///
     /// Advertise the size of each gamma ramp.
@@ -233,7 +249,7 @@ pub trait MetaZwlrGammaControlV1MessageHandler {
     #[inline]
     fn gamma_size(
         &mut self,
-        _slf: &Rc<MetaZwlrGammaControlV1>,
+        _slf: &Rc<ZwlrGammaControlV1>,
         size: u32,
     ) {
         let res = _slf.send_gamma_size(
@@ -260,7 +276,7 @@ pub trait MetaZwlrGammaControlV1MessageHandler {
     #[inline]
     fn set_gamma(
         &mut self,
-        _slf: &Rc<MetaZwlrGammaControlV1>,
+        _slf: &Rc<ZwlrGammaControlV1>,
         fd: &Rc<OwnedFd>,
     ) {
         let res = _slf.send_set_gamma(
@@ -284,7 +300,7 @@ pub trait MetaZwlrGammaControlV1MessageHandler {
     #[inline]
     fn failed(
         &mut self,
-        _slf: &Rc<MetaZwlrGammaControlV1>,
+        _slf: &Rc<ZwlrGammaControlV1>,
     ) {
         let res = _slf.send_failed(
         );
@@ -300,7 +316,7 @@ pub trait MetaZwlrGammaControlV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaZwlrGammaControlV1>,
+        _slf: &Rc<ZwlrGammaControlV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -310,13 +326,12 @@ pub trait MetaZwlrGammaControlV1MessageHandler {
     }
 }
 
-impl Proxy for MetaZwlrGammaControlV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for ZwlrGammaControlV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrGammaControlV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -330,20 +345,30 @@ impl Proxy for MetaZwlrGammaControlV1 {
                     return Err(ObjectError::MissingFd("fd"));
                 };
                 let arg0 = &arg0;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_gamma_control_v1#{}.set_gamma(fd: {})\n", client.endpoint.id, msg[0], arg0.as_raw_fd());
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).set_gamma(&self, arg0);
                 } else {
-                    DefaultMessageHandler.set_gamma(&self, arg0);
+                    DefaultHandler.set_gamma(&self, arg0);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_gamma_control_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -367,20 +392,30 @@ impl Proxy for MetaZwlrGammaControlV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_gamma_control_v1#{}.gamma_size(size: {})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).gamma_size(&self, arg0);
                 } else {
-                    DefaultMessageHandler.gamma_size(&self, arg0);
+                    DefaultHandler.gamma_size(&self, arg0);
                 }
             }
             1 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_gamma_control_v1#{}.failed()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).failed(&self);
                 } else {
-                    DefaultMessageHandler.failed(&self);
+                    DefaultHandler.failed(&self);
                 }
             }
             n => {
@@ -412,7 +447,33 @@ impl Proxy for MetaZwlrGammaControlV1 {
     }
 }
 
-impl MetaZwlrGammaControlV1 {
+impl Proxy for ZwlrGammaControlV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl ZwlrGammaControlV1 {
     /// Since when the error.invalid_gamma enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_GAMMA__SINCE: u32 = 1;
@@ -420,15 +481,15 @@ impl MetaZwlrGammaControlV1 {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaZwlrGammaControlV1Error(pub u32);
+pub struct ZwlrGammaControlV1Error(pub u32);
 
-impl MetaZwlrGammaControlV1Error {
+impl ZwlrGammaControlV1Error {
     /// invalid gamma tables
     #[allow(dead_code)]
     pub const INVALID_GAMMA: Self = Self(1);
 }
 
-impl Debug for MetaZwlrGammaControlV1Error {
+impl Debug for ZwlrGammaControlV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INVALID_GAMMA => "INVALID_GAMMA",

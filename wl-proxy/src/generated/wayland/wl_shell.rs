@@ -16,39 +16,35 @@ use super::super::all_types::*;
 /// A wl_shell proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWlShell {
+pub struct WlShell {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWlShellMessageHandler>,
+    handler: HandlerHolder<dyn WlShellHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWlShellMessageHandler for DefaultMessageHandler { }
+impl WlShellHandler for DefaultHandler { }
 
-impl MetaWlShell {
+impl WlShell {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWlShell {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WlShell, version),
-            handler: Default::default(),
-        })
+impl WlShell {
+    pub fn set_handler(&self, handler: impl WlShellHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWlShellMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WlShellHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWlShell {
+impl Debug for WlShell {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWlShell")
+        f.debug_struct("WlShell")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -56,7 +52,7 @@ impl Debug for MetaWlShell {
     }
 }
 
-impl MetaWlShell {
+impl WlShell {
     /// Since when the get_shell_surface message is available.
     #[allow(dead_code)]
     pub const MSG__GET_SHELL_SURFACE__SINCE: u32 = 1;
@@ -76,8 +72,8 @@ impl MetaWlShell {
     #[inline]
     pub fn send_get_shell_surface(
         &self,
-        id: &Rc<MetaWlShellSurface>,
-        surface: &Rc<MetaWlSurface>,
+        id: &Rc<WlShellSurface>,
+        surface: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -100,9 +96,14 @@ impl MetaWlShell {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_shell#{}.get_shell_surface(id: wl_shell_surface#{}, surface: wl_surface#{})\n", id, arg0_id, arg1_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -119,7 +120,7 @@ impl MetaWlShell {
 
 /// A message handler for [WlShell] proxies.
 #[allow(dead_code)]
-pub trait MetaWlShellMessageHandler {
+pub trait WlShellHandler: Any {
     /// create a shell surface from a surface
     ///
     /// Create a shell surface for an existing surface. This gives
@@ -138,9 +139,9 @@ pub trait MetaWlShellMessageHandler {
     #[inline]
     fn get_shell_surface(
         &mut self,
-        _slf: &Rc<MetaWlShell>,
-        id: &Rc<MetaWlShellSurface>,
-        surface: &Rc<MetaWlSurface>,
+        _slf: &Rc<WlShell>,
+        id: &Rc<WlShellSurface>,
+        surface: &Rc<WlSurface>,
     ) {
         let res = _slf.send_get_shell_surface(
             id,
@@ -152,13 +153,12 @@ pub trait MetaWlShellMessageHandler {
     }
 }
 
-impl Proxy for MetaWlShell {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WlShell {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlShell, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -171,15 +171,20 @@ impl Proxy for MetaWlShell {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_shell#{}.get_shell_surface(id: wl_shell_surface#{}, surface: wl_surface#{})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWlShellSurface::new(&self.core.state, self.core.version);
+                let arg0 = WlShellSurface::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
                 };
-                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -188,7 +193,7 @@ impl Proxy for MetaWlShell {
                 if let Some(handler) = handler {
                     (**handler).get_shell_surface(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.get_shell_surface(&self, arg0, arg1);
+                    DefaultHandler.get_shell_surface(&self, arg0, arg1);
                 }
             }
             n => {
@@ -228,7 +233,33 @@ impl Proxy for MetaWlShell {
     }
 }
 
-impl MetaWlShell {
+impl Proxy for WlShell {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WlShell {
     /// Since when the error.role enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_ROLE__SINCE: u32 = 1;
@@ -236,15 +267,15 @@ impl MetaWlShell {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWlShellError(pub u32);
+pub struct WlShellError(pub u32);
 
-impl MetaWlShellError {
+impl WlShellError {
     /// given wl_surface has another role
     #[allow(dead_code)]
     pub const ROLE: Self = Self(0);
 }
 
-impl Debug for MetaWlShellError {
+impl Debug for WlShellError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::ROLE => "ROLE",

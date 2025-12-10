@@ -15,39 +15,35 @@ use super::super::all_types::*;
 /// A wl_touch proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWlTouch {
+pub struct WlTouch {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWlTouchMessageHandler>,
+    handler: HandlerHolder<dyn WlTouchHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWlTouchMessageHandler for DefaultMessageHandler { }
+impl WlTouchHandler for DefaultHandler { }
 
-impl MetaWlTouch {
+impl WlTouch {
     pub const XML_VERSION: u32 = 10;
 }
 
-impl MetaWlTouch {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WlTouch, version),
-            handler: Default::default(),
-        })
+impl WlTouch {
+    pub fn set_handler(&self, handler: impl WlTouchHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWlTouchMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WlTouchHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWlTouch {
+impl Debug for WlTouch {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWlTouch")
+        f.debug_struct("WlTouch")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -55,7 +51,7 @@ impl Debug for MetaWlTouch {
     }
 }
 
-impl MetaWlTouch {
+impl WlTouch {
     /// Since when the down message is available.
     #[allow(dead_code)]
     pub const MSG__DOWN__SINCE: u32 = 1;
@@ -80,7 +76,7 @@ impl MetaWlTouch {
         &self,
         serial: u32,
         time: u32,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
         id: i32,
         x: Fixed,
         y: Fixed,
@@ -111,9 +107,14 @@ impl MetaWlTouch {
             return Err(ObjectError::ArgNoClientId("surface", client.endpoint.id));
         }
         let arg2_id = arg2.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_touch#{}.down(serial: {}, time: {}, surface: wl_surface#{}, id: {}, x: {}, y: {})\n", client.endpoint.id, id, arg0, arg1, arg2_id, arg3, arg4, arg5);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -168,9 +169,14 @@ impl MetaWlTouch {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_touch#{}.up(serial: {}, time: {}, id: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -224,9 +230,14 @@ impl MetaWlTouch {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_touch#{}.motion(time: {}, id: {}, x: {}, y: {})\n", client.endpoint.id, id, arg0, arg1, arg2, arg3);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -266,9 +277,14 @@ impl MetaWlTouch {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_touch#{}.frame()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -304,9 +320,14 @@ impl MetaWlTouch {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_touch#{}.cancel()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -331,9 +352,14 @@ impl MetaWlTouch {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_touch#{}.release()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -405,9 +431,14 @@ impl MetaWlTouch {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_touch#{}.shape(id: {}, major: {}, minor: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -475,9 +506,14 @@ impl MetaWlTouch {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_touch#{}.orientation(id: {}, orientation: {})\n", client.endpoint.id, id, arg0, arg1);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -494,7 +530,7 @@ impl MetaWlTouch {
 
 /// A message handler for [WlTouch] proxies.
 #[allow(dead_code)]
-pub trait MetaWlTouchMessageHandler {
+pub trait WlTouchHandler: Any {
     /// touch down event and beginning of a touch sequence
     ///
     /// A new touch point has appeared on the surface. This touch point is
@@ -516,10 +552,10 @@ pub trait MetaWlTouchMessageHandler {
     #[inline]
     fn down(
         &mut self,
-        _slf: &Rc<MetaWlTouch>,
+        _slf: &Rc<WlTouch>,
         serial: u32,
         time: u32,
-        surface: &Rc<MetaWlSurface>,
+        surface: &Rc<WlSurface>,
         id: i32,
         x: Fixed,
         y: Fixed,
@@ -558,7 +594,7 @@ pub trait MetaWlTouchMessageHandler {
     #[inline]
     fn up(
         &mut self,
-        _slf: &Rc<MetaWlTouch>,
+        _slf: &Rc<WlTouch>,
         serial: u32,
         time: u32,
         id: i32,
@@ -586,7 +622,7 @@ pub trait MetaWlTouchMessageHandler {
     #[inline]
     fn motion(
         &mut self,
-        _slf: &Rc<MetaWlTouch>,
+        _slf: &Rc<WlTouch>,
         time: u32,
         id: i32,
         x: Fixed,
@@ -616,7 +652,7 @@ pub trait MetaWlTouchMessageHandler {
     #[inline]
     fn frame(
         &mut self,
-        _slf: &Rc<MetaWlTouch>,
+        _slf: &Rc<WlTouch>,
     ) {
         let res = _slf.send_frame(
         );
@@ -638,7 +674,7 @@ pub trait MetaWlTouchMessageHandler {
     #[inline]
     fn cancel(
         &mut self,
-        _slf: &Rc<MetaWlTouch>,
+        _slf: &Rc<WlTouch>,
     ) {
         let res = _slf.send_cancel(
         );
@@ -651,7 +687,7 @@ pub trait MetaWlTouchMessageHandler {
     #[inline]
     fn release(
         &mut self,
-        _slf: &Rc<MetaWlTouch>,
+        _slf: &Rc<WlTouch>,
     ) {
         let res = _slf.send_release(
         );
@@ -696,7 +732,7 @@ pub trait MetaWlTouchMessageHandler {
     #[inline]
     fn shape(
         &mut self,
-        _slf: &Rc<MetaWlTouch>,
+        _slf: &Rc<WlTouch>,
         id: i32,
         major: Fixed,
         minor: Fixed,
@@ -744,7 +780,7 @@ pub trait MetaWlTouchMessageHandler {
     #[inline]
     fn orientation(
         &mut self,
-        _slf: &Rc<MetaWlTouch>,
+        _slf: &Rc<WlTouch>,
         id: i32,
         orientation: Fixed,
     ) {
@@ -758,13 +794,12 @@ pub trait MetaWlTouchMessageHandler {
     }
 }
 
-impl Proxy for MetaWlTouch {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WlTouch {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlTouch, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -774,10 +809,15 @@ impl Proxy for MetaWlTouch {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_touch#{}.release()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
-                    DefaultMessageHandler.release(&self);
+                    DefaultHandler.release(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -809,11 +849,16 @@ impl Proxy for MetaWlTouch {
                 let arg3 = arg3 as i32;
                 let arg4 = Fixed::from_wire(arg4 as i32);
                 let arg5 = Fixed::from_wire(arg5 as i32);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_touch#{}.down(serial: {}, time: {}, surface: wl_surface#{}, id: {}, x: {}, y: {})\n", msg[0], arg0, arg1, arg2, arg3, arg4, arg5);
+                    self.core.state.log(args);
+                }
                 let arg2_id = arg2;
                 let Some(arg2) = self.core.state.server.lookup(arg2_id) else {
                     return Err(ObjectError::NoServerObject(arg2_id));
                 };
-                let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = self.core.state.server.lookup(arg2_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
@@ -821,7 +866,7 @@ impl Proxy for MetaWlTouch {
                 if let Some(handler) = handler {
                     (**handler).down(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 } else {
-                    DefaultMessageHandler.down(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    DefaultHandler.down(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 }
             }
             1 => {
@@ -833,10 +878,15 @@ impl Proxy for MetaWlTouch {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
                 let arg2 = arg2 as i32;
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_touch#{}.up(serial: {}, time: {}, id: {})\n", msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).up(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.up(&self, arg0, arg1, arg2);
+                    DefaultHandler.up(&self, arg0, arg1, arg2);
                 }
             }
             2 => {
@@ -851,30 +901,45 @@ impl Proxy for MetaWlTouch {
                 let arg1 = arg1 as i32;
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 let arg3 = Fixed::from_wire(arg3 as i32);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_touch#{}.motion(time: {}, id: {}, x: {}, y: {})\n", msg[0], arg0, arg1, arg2, arg3);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).motion(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultMessageHandler.motion(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.motion(&self, arg0, arg1, arg2, arg3);
                 }
             }
             3 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_touch#{}.frame()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).frame(&self);
                 } else {
-                    DefaultMessageHandler.frame(&self);
+                    DefaultHandler.frame(&self);
                 }
             }
             4 => {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_touch#{}.cancel()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).cancel(&self);
                 } else {
-                    DefaultMessageHandler.cancel(&self);
+                    DefaultHandler.cancel(&self);
                 }
             }
             5 => {
@@ -888,10 +953,15 @@ impl Proxy for MetaWlTouch {
                 let arg0 = arg0 as i32;
                 let arg1 = Fixed::from_wire(arg1 as i32);
                 let arg2 = Fixed::from_wire(arg2 as i32);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_touch#{}.shape(id: {}, major: {}, minor: {})\n", msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).shape(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultMessageHandler.shape(&self, arg0, arg1, arg2);
+                    DefaultHandler.shape(&self, arg0, arg1, arg2);
                 }
             }
             6 => {
@@ -903,10 +973,15 @@ impl Proxy for MetaWlTouch {
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = Fixed::from_wire(arg1 as i32);
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_touch#{}.orientation(id: {}, orientation: {})\n", msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).orientation(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.orientation(&self, arg0, arg1);
+                    DefaultHandler.orientation(&self, arg0, arg1);
                 }
             }
             n => {
@@ -939,6 +1014,32 @@ impl Proxy for MetaWlTouch {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for WlTouch {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

@@ -9,39 +9,35 @@ use super::super::all_types::*;
 /// A wl_display proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWlDisplay {
+pub struct WlDisplay {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWlDisplayMessageHandler>,
+    handler: HandlerHolder<dyn WlDisplayHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWlDisplayMessageHandler for DefaultMessageHandler { }
+impl WlDisplayHandler for DefaultHandler { }
 
-impl MetaWlDisplay {
+impl WlDisplay {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWlDisplay {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WlDisplay, version),
-            handler: Default::default(),
-        })
+impl WlDisplay {
+    pub fn set_handler(&self, handler: impl WlDisplayHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWlDisplayMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WlDisplayHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWlDisplay {
+impl Debug for WlDisplay {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWlDisplay")
+        f.debug_struct("WlDisplay")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -49,7 +45,7 @@ impl Debug for MetaWlDisplay {
     }
 }
 
-impl MetaWlDisplay {
+impl WlDisplay {
     /// Since when the sync message is available.
     #[allow(dead_code)]
     pub const MSG__SYNC__SINCE: u32 = 1;
@@ -70,7 +66,7 @@ impl MetaWlDisplay {
     #[inline]
     pub fn send_sync(
         &self,
-        callback: &Rc<MetaWlCallback>,
+        callback: &Rc<WlCallback>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -86,9 +82,14 @@ impl MetaWlDisplay {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("callback", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_display#{}.sync(callback: wl_callback#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -119,7 +120,7 @@ impl MetaWlDisplay {
     #[inline]
     pub fn send_get_registry(
         &self,
-        registry: &Rc<MetaWlRegistry>,
+        registry: &Rc<WlRegistry>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -135,9 +136,14 @@ impl MetaWlDisplay {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("registry", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_display#{}.get_registry(registry: wl_registry#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -196,9 +202,14 @@ impl MetaWlDisplay {
             return Err(ObjectError::ArgNoClientId("object_id", client.endpoint.id));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_display#{}.error(object_id: unknown#{}, code: {}, message: {:?})\n", client.endpoint.id, id, arg0_id, arg1, arg2);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -244,9 +255,14 @@ impl MetaWlDisplay {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_display#{}.delete_id(id: {})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -262,7 +278,7 @@ impl MetaWlDisplay {
 
 /// A message handler for [WlDisplay] proxies.
 #[allow(dead_code)]
-pub trait MetaWlDisplayMessageHandler {
+pub trait WlDisplayHandler: Any {
     /// asynchronous roundtrip
     ///
     /// The sync request asks the server to emit the 'done' event
@@ -283,8 +299,8 @@ pub trait MetaWlDisplayMessageHandler {
     #[inline]
     fn sync(
         &mut self,
-        _slf: &Rc<MetaWlDisplay>,
-        callback: &Rc<MetaWlCallback>,
+        _slf: &Rc<WlDisplay>,
+        callback: &Rc<WlCallback>,
     ) {
         let res = _slf.send_sync(
             callback,
@@ -312,8 +328,8 @@ pub trait MetaWlDisplayMessageHandler {
     #[inline]
     fn get_registry(
         &mut self,
-        _slf: &Rc<MetaWlDisplay>,
-        registry: &Rc<MetaWlRegistry>,
+        _slf: &Rc<WlDisplay>,
+        registry: &Rc<WlRegistry>,
     ) {
         let res = _slf.send_get_registry(
             registry,
@@ -344,7 +360,7 @@ pub trait MetaWlDisplayMessageHandler {
     #[inline]
     fn error(
         &mut self,
-        _slf: &Rc<MetaWlDisplay>,
+        _slf: &Rc<WlDisplay>,
         object_id: Rc<dyn Proxy>,
         code: u32,
         message: &str,
@@ -380,7 +396,7 @@ pub trait MetaWlDisplayMessageHandler {
     #[inline]
     fn delete_id(
         &mut self,
-        _slf: &Rc<MetaWlDisplay>,
+        _slf: &Rc<WlDisplay>,
         id: u32,
     ) {
         let res = _slf.send_delete_id(
@@ -392,13 +408,12 @@ pub trait MetaWlDisplayMessageHandler {
     }
 }
 
-impl Proxy for MetaWlDisplay {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WlDisplay {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlDisplay, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -410,15 +425,20 @@ impl Proxy for MetaWlDisplay {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_display#{}.sync(callback: wl_callback#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWlCallback::new(&self.core.state, self.core.version);
+                let arg0 = WlCallback::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "callback", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).sync(&self, arg0);
                 } else {
-                    DefaultMessageHandler.sync(&self, arg0);
+                    DefaultHandler.sync(&self, arg0);
                 }
             }
             1 => {
@@ -427,15 +447,20 @@ impl Proxy for MetaWlDisplay {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_display#{}.get_registry(registry: wl_registry#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWlRegistry::new(&self.core.state, self.core.version);
+                let arg0 = WlRegistry::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "registry", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).get_registry(&self, arg0);
                 } else {
-                    DefaultMessageHandler.get_registry(&self, arg0);
+                    DefaultHandler.get_registry(&self, arg0);
                 }
             }
             n => {
@@ -487,11 +512,16 @@ impl Proxy for MetaWlDisplay {
                 if offset != msg.len() {
                     return Err(ObjectError::TrailingBytes);
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_display#{}.error(object_id: unknown#{}, code: {}, message: {:?})\n", msg[0], arg0, arg1, arg2);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
                     return Err(ObjectError::NoServerObject(arg0_id));
                 };
-                self.core.state.handle_error(arg0, arg1, arg2);
+                return Err(ObjectError::ServerError(arg0.core().interface, arg0_id, arg1, StringError(arg2.to_string())));
             }
             1 => {
                 let [
@@ -499,6 +529,11 @@ impl Proxy for MetaWlDisplay {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_display#{}.delete_id(id: {})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 self.core.state.handle_delete_id(arg0);
             }
             n => {
@@ -530,7 +565,33 @@ impl Proxy for MetaWlDisplay {
     }
 }
 
-impl MetaWlDisplay {
+impl Proxy for WlDisplay {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WlDisplay {
     /// Since when the error.invalid_object enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_OBJECT__SINCE: u32 = 1;
@@ -551,9 +612,9 @@ impl MetaWlDisplay {
 /// server request.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWlDisplayError(pub u32);
+pub struct WlDisplayError(pub u32);
 
-impl MetaWlDisplayError {
+impl WlDisplayError {
     /// server couldn't find object
     #[allow(dead_code)]
     pub const INVALID_OBJECT: Self = Self(0);
@@ -571,7 +632,7 @@ impl MetaWlDisplayError {
     pub const IMPLEMENTATION: Self = Self(3);
 }
 
-impl Debug for MetaWlDisplayError {
+impl Debug for WlDisplayError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INVALID_OBJECT => "INVALID_OBJECT",

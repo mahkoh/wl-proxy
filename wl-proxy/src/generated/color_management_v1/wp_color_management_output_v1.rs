@@ -14,39 +14,35 @@ use super::super::all_types::*;
 /// A wp_color_management_output_v1 proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpColorManagementOutputV1 {
+pub struct WpColorManagementOutputV1 {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpColorManagementOutputV1MessageHandler>,
+    handler: HandlerHolder<dyn WpColorManagementOutputV1Handler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpColorManagementOutputV1MessageHandler for DefaultMessageHandler { }
+impl WpColorManagementOutputV1Handler for DefaultHandler { }
 
-impl MetaWpColorManagementOutputV1 {
+impl WpColorManagementOutputV1 {
     pub const XML_VERSION: u32 = 1;
 }
 
-impl MetaWpColorManagementOutputV1 {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpColorManagementOutputV1, version),
-            handler: Default::default(),
-        })
+impl WpColorManagementOutputV1 {
+    pub fn set_handler(&self, handler: impl WpColorManagementOutputV1Handler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpColorManagementOutputV1MessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpColorManagementOutputV1Handler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpColorManagementOutputV1 {
+impl Debug for WpColorManagementOutputV1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpColorManagementOutputV1")
+        f.debug_struct("WpColorManagementOutputV1")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -54,7 +50,7 @@ impl Debug for MetaWpColorManagementOutputV1 {
     }
 }
 
-impl MetaWpColorManagementOutputV1 {
+impl WpColorManagementOutputV1 {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -71,9 +67,14 @@ impl MetaWpColorManagementOutputV1 {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_color_management_output_v1#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -109,9 +110,14 @@ impl MetaWpColorManagementOutputV1 {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wp_color_management_output_v1#{}.image_description_changed()\n", client.endpoint.id, id);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -163,7 +169,7 @@ impl MetaWpColorManagementOutputV1 {
     #[inline]
     pub fn send_get_image_description(
         &self,
-        image_description: &Rc<MetaWpImageDescriptionV1>,
+        image_description: &Rc<WpImageDescriptionV1>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -179,9 +185,14 @@ impl MetaWpColorManagementOutputV1 {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("image_description", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_color_management_output_v1#{}.get_image_description(image_description: wp_image_description_v1#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -197,7 +208,7 @@ impl MetaWpColorManagementOutputV1 {
 
 /// A message handler for [WpColorManagementOutputV1] proxies.
 #[allow(dead_code)]
-pub trait MetaWpColorManagementOutputV1MessageHandler {
+pub trait WpColorManagementOutputV1Handler: Any {
     /// destroy the color management output
     ///
     /// Destroy the color wp_color_management_output_v1 object. This does not
@@ -205,7 +216,7 @@ pub trait MetaWpColorManagementOutputV1MessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWpColorManagementOutputV1>,
+        _slf: &Rc<WpColorManagementOutputV1>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -226,7 +237,7 @@ pub trait MetaWpColorManagementOutputV1MessageHandler {
     #[inline]
     fn image_description_changed(
         &mut self,
-        _slf: &Rc<MetaWpColorManagementOutputV1>,
+        _slf: &Rc<WpColorManagementOutputV1>,
     ) {
         let res = _slf.send_image_description_changed(
         );
@@ -275,8 +286,8 @@ pub trait MetaWpColorManagementOutputV1MessageHandler {
     #[inline]
     fn get_image_description(
         &mut self,
-        _slf: &Rc<MetaWpColorManagementOutputV1>,
-        image_description: &Rc<MetaWpImageDescriptionV1>,
+        _slf: &Rc<WpColorManagementOutputV1>,
+        image_description: &Rc<WpImageDescriptionV1>,
     ) {
         let res = _slf.send_get_image_description(
             image_description,
@@ -287,13 +298,12 @@ pub trait MetaWpColorManagementOutputV1MessageHandler {
     }
 }
 
-impl Proxy for MetaWpColorManagementOutputV1 {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpColorManagementOutputV1 {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpColorManagementOutputV1, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -303,10 +313,15 @@ impl Proxy for MetaWpColorManagementOutputV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_color_management_output_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -316,15 +331,20 @@ impl Proxy for MetaWpColorManagementOutputV1 {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_color_management_output_v1#{}.get_image_description(image_description: wp_image_description_v1#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWpImageDescriptionV1::new(&self.core.state, self.core.version);
+                let arg0 = WpImageDescriptionV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "image_description", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).get_image_description(&self, arg0);
                 } else {
-                    DefaultMessageHandler.get_image_description(&self, arg0);
+                    DefaultHandler.get_image_description(&self, arg0);
                 }
             }
             n => {
@@ -345,10 +365,15 @@ impl Proxy for MetaWpColorManagementOutputV1 {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wp_color_management_output_v1#{}.image_description_changed()\n", msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).image_description_changed(&self);
                 } else {
-                    DefaultMessageHandler.image_description_changed(&self);
+                    DefaultHandler.image_description_changed(&self);
                 }
             }
             n => {
@@ -376,6 +401,32 @@ impl Proxy for MetaWpColorManagementOutputV1 {
             _ => return None,
         };
         Some(name)
+    }
+}
+
+impl Proxy for WpColorManagementOutputV1 {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

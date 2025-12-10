@@ -26,39 +26,35 @@ use super::super::all_types::*;
 /// A wp_presentation proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWpPresentation {
+pub struct WpPresentation {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWpPresentationMessageHandler>,
+    handler: HandlerHolder<dyn WpPresentationHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWpPresentationMessageHandler for DefaultMessageHandler { }
+impl WpPresentationHandler for DefaultHandler { }
 
-impl MetaWpPresentation {
+impl WpPresentation {
     pub const XML_VERSION: u32 = 2;
 }
 
-impl MetaWpPresentation {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WpPresentation, version),
-            handler: Default::default(),
-        })
+impl WpPresentation {
+    pub fn set_handler(&self, handler: impl WpPresentationHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWpPresentationMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WpPresentationHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWpPresentation {
+impl Debug for WpPresentation {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWpPresentation")
+        f.debug_struct("WpPresentation")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -66,7 +62,7 @@ impl Debug for MetaWpPresentation {
     }
 }
 
-impl MetaWpPresentation {
+impl WpPresentation {
     /// Since when the destroy message is available.
     #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
@@ -84,9 +80,14 @@ impl MetaWpPresentation {
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_presentation#{}.destroy()\n", id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -121,8 +122,8 @@ impl MetaWpPresentation {
     #[inline]
     pub fn send_feedback(
         &self,
-        surface: &Rc<MetaWlSurface>,
-        callback: &Rc<MetaWpPresentationFeedback>,
+        surface: &Rc<WlSurface>,
+        callback: &Rc<WpPresentationFeedback>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -145,9 +146,14 @@ impl MetaWpPresentation {
         arg1.generate_server_id(arg1_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("callback", e))?;
         let arg1_id = arg1.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_presentation#{}.feedback(surface: wl_surface#{}, callback: wp_presentation_feedback#{})\n", id, arg0_id, arg1_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -215,9 +221,14 @@ impl MetaWpPresentation {
             return Err(ObjectError::ReceiverNoClient);
         };
         let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wp_presentation#{}.clock_id(clk_id: {})\n", client.endpoint.id, id, arg0);
+            self.core.state.log(args);
+        }
         let endpoint = &client.endpoint;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -233,7 +244,7 @@ impl MetaWpPresentation {
 
 /// A message handler for [WpPresentation] proxies.
 #[allow(dead_code)]
-pub trait MetaWpPresentationMessageHandler {
+pub trait WpPresentationHandler: Any {
     /// unbind from the presentation interface
     ///
     /// Informs the server that the client will no longer be using
@@ -242,7 +253,7 @@ pub trait MetaWpPresentationMessageHandler {
     #[inline]
     fn destroy(
         &mut self,
-        _slf: &Rc<MetaWpPresentation>,
+        _slf: &Rc<WpPresentation>,
     ) {
         let res = _slf.send_destroy(
         );
@@ -272,9 +283,9 @@ pub trait MetaWpPresentationMessageHandler {
     #[inline]
     fn feedback(
         &mut self,
-        _slf: &Rc<MetaWpPresentation>,
-        surface: &Rc<MetaWlSurface>,
-        callback: &Rc<MetaWpPresentationFeedback>,
+        _slf: &Rc<WpPresentation>,
+        surface: &Rc<WlSurface>,
+        callback: &Rc<WpPresentationFeedback>,
     ) {
         let res = _slf.send_feedback(
             surface,
@@ -322,7 +333,7 @@ pub trait MetaWpPresentationMessageHandler {
     #[inline]
     fn clock_id(
         &mut self,
-        _slf: &Rc<MetaWpPresentation>,
+        _slf: &Rc<WpPresentation>,
         clk_id: u32,
     ) {
         let res = _slf.send_clock_id(
@@ -334,13 +345,12 @@ pub trait MetaWpPresentationMessageHandler {
     }
 }
 
-impl Proxy for MetaWpPresentation {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WpPresentation {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpPresentation, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -350,10 +360,15 @@ impl Proxy for MetaWpPresentation {
                 if msg.len() != 2 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_presentation#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
-                    DefaultMessageHandler.destroy(&self);
+                    DefaultHandler.destroy(&self);
                 }
                 self.core.handle_client_destroy();
             }
@@ -364,16 +379,21 @@ impl Proxy for MetaWpPresentation {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_presentation#{}.feedback(surface: wl_surface#{}, callback: wp_presentation_feedback#{})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
                     return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
                 };
-                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<MetaWlSurface>() else {
+                let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
                     return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
                 };
                 let arg1_id = arg1;
-                let arg1 = MetaWpPresentationFeedback::new(&self.core.state, self.core.version);
+                let arg1 = WpPresentationFeedback::new(&self.core.state, self.core.version);
                 arg1.core().set_client_id(client, arg1_id, arg1.clone())
                     .map_err(|e| ObjectError::SetClientId(arg1_id, "callback", e))?;
                 let arg0 = &arg0;
@@ -381,7 +401,7 @@ impl Proxy for MetaWpPresentation {
                 if let Some(handler) = handler {
                     (**handler).feedback(&self, arg0, arg1);
                 } else {
-                    DefaultMessageHandler.feedback(&self, arg0, arg1);
+                    DefaultHandler.feedback(&self, arg0, arg1);
                 }
             }
             n => {
@@ -404,10 +424,15 @@ impl Proxy for MetaWpPresentation {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wp_presentation#{}.clock_id(clk_id: {})\n", msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 if let Some(handler) = handler {
                     (**handler).clock_id(&self, arg0);
                 } else {
-                    DefaultMessageHandler.clock_id(&self, arg0);
+                    DefaultHandler.clock_id(&self, arg0);
                 }
             }
             n => {
@@ -438,7 +463,33 @@ impl Proxy for MetaWpPresentation {
     }
 }
 
-impl MetaWpPresentation {
+impl Proxy for WpPresentation {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+    }
+}
+
+impl WpPresentation {
     /// Since when the error.invalid_timestamp enum variant is available.
     #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_TIMESTAMP__SINCE: u32 = 1;
@@ -453,9 +504,9 @@ impl MetaWpPresentation {
 /// illegal presentation requests.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[allow(dead_code)]
-pub struct MetaWpPresentationError(pub u32);
+pub struct WpPresentationError(pub u32);
 
-impl MetaWpPresentationError {
+impl WpPresentationError {
     /// invalid value in tv_nsec
     #[allow(dead_code)]
     pub const INVALID_TIMESTAMP: Self = Self(0);
@@ -465,7 +516,7 @@ impl MetaWpPresentationError {
     pub const INVALID_FLAG: Self = Self(1);
 }
 
-impl Debug for MetaWpPresentationError {
+impl Debug for WpPresentationError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::INVALID_TIMESTAMP => "INVALID_TIMESTAMP",

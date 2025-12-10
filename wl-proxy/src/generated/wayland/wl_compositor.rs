@@ -10,39 +10,35 @@ use super::super::all_types::*;
 /// A wl_compositor proxy.
 ///
 /// See the documentation of [the module][self] for the interface description.
-pub struct MetaWlCompositor {
+pub struct WlCompositor {
     core: ProxyCore,
-    handler: MessageHandlerHolder<dyn MetaWlCompositorMessageHandler>,
+    handler: HandlerHolder<dyn WlCompositorHandler>,
 }
 
-struct DefaultMessageHandler;
+struct DefaultHandler;
 
-impl MetaWlCompositorMessageHandler for DefaultMessageHandler { }
+impl WlCompositorHandler for DefaultHandler { }
 
-impl MetaWlCompositor {
+impl WlCompositor {
     pub const XML_VERSION: u32 = 6;
 }
 
-impl MetaWlCompositor {
-    pub(crate) fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Rc::new(Self {
-            core: ProxyCore::new(state, ProxyInterface::WlCompositor, version),
-            handler: Default::default(),
-        })
+impl WlCompositor {
+    pub fn set_handler(&self, handler: impl WlCompositorHandler + 'static) {
+        self.set_boxed_handler(Box::new(handler));
     }
 
-    pub fn set_handler(&self, handler: Box<dyn MetaWlCompositorMessageHandler>) {
+    pub fn set_boxed_handler(&self, handler: Box<dyn WlCompositorHandler>) {
+        if self.core.state.destroyed.get() {
+            return;
+        }
         self.handler.set(Some(handler));
-    }
-
-    pub fn unset_handler(&self) {
-        self.handler.set(None);
     }
 }
 
-impl Debug for MetaWlCompositor {
+impl Debug for WlCompositor {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MetaWlCompositor")
+        f.debug_struct("WlCompositor")
             .field("server_obj_id", &self.core.server_obj_id.get())
             .field("client_id", &self.core.client_id.get())
             .field("client_obj_id", &self.core.client_obj_id.get())
@@ -50,7 +46,7 @@ impl Debug for MetaWlCompositor {
     }
 }
 
-impl MetaWlCompositor {
+impl WlCompositor {
     /// Since when the create_surface message is available.
     #[allow(dead_code)]
     pub const MSG__CREATE_SURFACE__SINCE: u32 = 1;
@@ -61,7 +57,7 @@ impl MetaWlCompositor {
     #[inline]
     pub fn send_create_surface(
         &self,
-        id: &Rc<MetaWlSurface>,
+        id: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -77,9 +73,14 @@ impl MetaWlCompositor {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_compositor#{}.create_surface(id: wl_surface#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -102,7 +103,7 @@ impl MetaWlCompositor {
     #[inline]
     pub fn send_create_region(
         &self,
-        id: &Rc<MetaWlRegion>,
+        id: &Rc<WlRegion>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -118,9 +119,14 @@ impl MetaWlCompositor {
         arg0.generate_server_id(arg0_obj.clone())
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_compositor#{}.create_region(id: wl_region#{})\n", id, arg0_id);
+            self.core.state.log(args);
+        }
         let endpoint = &self.core.state.server;
-        if !endpoint.has_outgoing.replace(true) {
-            self.core.state.flushable_endpoints.borrow_mut().push(endpoint.clone());
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
         }
         let mut outgoing_ref = endpoint.outgoing.borrow_mut();
         let outgoing = &mut *outgoing_ref;
@@ -136,7 +142,7 @@ impl MetaWlCompositor {
 
 /// A message handler for [WlCompositor] proxies.
 #[allow(dead_code)]
-pub trait MetaWlCompositorMessageHandler {
+pub trait WlCompositorHandler: Any {
     /// create new surface
     ///
     /// Ask the compositor to create a new surface.
@@ -147,8 +153,8 @@ pub trait MetaWlCompositorMessageHandler {
     #[inline]
     fn create_surface(
         &mut self,
-        _slf: &Rc<MetaWlCompositor>,
-        id: &Rc<MetaWlSurface>,
+        _slf: &Rc<WlCompositor>,
+        id: &Rc<WlSurface>,
     ) {
         let res = _slf.send_create_surface(
             id,
@@ -168,8 +174,8 @@ pub trait MetaWlCompositorMessageHandler {
     #[inline]
     fn create_region(
         &mut self,
-        _slf: &Rc<MetaWlCompositor>,
-        id: &Rc<MetaWlRegion>,
+        _slf: &Rc<WlCompositor>,
+        id: &Rc<WlRegion>,
     ) {
         let res = _slf.send_create_region(
             id,
@@ -180,13 +186,12 @@ pub trait MetaWlCompositorMessageHandler {
     }
 }
 
-impl Proxy for MetaWlCompositor {
-    fn new(state: &Rc<InnerState>, version: u32) -> Rc<Self> {
-        Self::new(state, version)
-    }
-
-    fn core(&self) -> &ProxyCore {
-        &self.core
+impl ProxyPrivate for WlCompositor {
+    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
+        Rc::<Self>::new_cyclic(|slf| Self {
+            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlCompositor, version),
+            handler: Default::default(),
+        })
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -198,15 +203,20 @@ impl Proxy for MetaWlCompositor {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_compositor#{}.create_surface(id: wl_surface#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWlSurface::new(&self.core.state, self.core.version);
+                let arg0 = WlSurface::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).create_surface(&self, arg0);
                 } else {
-                    DefaultMessageHandler.create_surface(&self, arg0);
+                    DefaultHandler.create_surface(&self, arg0);
                 }
             }
             1 => {
@@ -215,15 +225,20 @@ impl Proxy for MetaWlCompositor {
                 ] = msg[2..] else {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_compositor#{}.create_region(id: wl_region#{})\n", client.endpoint.id, msg[0], arg0);
+                    self.core.state.log(args);
+                }
                 let arg0_id = arg0;
-                let arg0 = MetaWlRegion::new(&self.core.state, self.core.version);
+                let arg0 = WlRegion::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).create_region(&self, arg0);
                 } else {
-                    DefaultMessageHandler.create_region(&self, arg0);
+                    DefaultHandler.create_region(&self, arg0);
                 }
             }
             n => {
@@ -261,6 +276,32 @@ impl Proxy for MetaWlCompositor {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let _ = id;
         None
+    }
+}
+
+impl Proxy for WlCompositor {
+    fn core(&self) -> &ProxyCore {
+        &self.core
+    }
+
+    fn unset_handler(&self) {
+        self.handler.set(None);
+    }
+
+    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+    }
+
+    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+        if borrowed.is_none() {
+            return Err(HandlerAccessError::NoHandler);
+        }
+        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 
