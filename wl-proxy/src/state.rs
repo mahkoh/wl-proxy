@@ -2,33 +2,43 @@ use {
     crate::{
         acceptor::{Acceptor, AcceptorError},
         client::Client,
-        connect_upstream,
         endpoint::{Endpoint, EndpointError},
         generated::wayland::wl_display::WlDisplay,
-        proxy::{HandlerHolder, Proxy, ProxyPrivate},
+        proxy::{Proxy, ProxyPrivate},
         trans::{FlushResult, TransError},
+        utils::{handler_holder::HandlerHolder, stack::Stack, stash::Stash, xrd::xrd},
     },
     error_reporter::Report,
-    isnt::std_1::primitive::IsntSliceExt,
+    isnt::std_1::primitive::IsntStrExt,
     run_on_drop::on_drop,
     std::{
         cell::{Cell, RefCell},
         collections::HashMap,
         env::var,
+        error::Error,
         fmt,
-        io::{self, BufWriter, Write},
+        io::{self, BufWriter, Write, pipe},
         os::fd::{AsRawFd, OwnedFd},
         rc::{Rc, Weak},
+        sync::{
+            Arc,
+            atomic::{AtomicBool, Ordering::Relaxed},
+        },
         time::Duration,
     },
     thiserror::Error,
-    uapi::{Errno, Fd, c},
+    uapi::{
+        Errno, Fd,
+        c::{self, EPOLL_CTL_ADD, sockaddr_un},
+    },
 };
 
 #[derive(Debug, Error)]
 pub enum StateError {
     #[error("the state has already been destroyed")]
     Destroyed,
+    #[error("the state has been destroyed by a remote destructor")]
+    RemoteDestroyed,
     #[error("cannot perform recursive call into the state")]
     RecursiveCall,
     #[error("the server hung up the connection")]
@@ -51,64 +61,127 @@ pub enum StateError {
     CreateAcceptor(AcceptorError),
     #[error("could not accept a new connection")]
     AcceptConnection(AcceptorError),
+    #[error("could not create a pipe")]
+    CreatePipe(#[source] io::Error),
+    #[error("could not read WAYLAND_DISPLAY environment variable")]
+    WaylandDisplay,
+    #[error("XDG_RUNTIME_DIR is not set")]
+    XrdNotSet,
+    #[error("the socket path is too long")]
+    SocketPathTooLong,
+    #[error("could not create a socket")]
+    CreateSocket(#[source] io::Error),
+    #[error("could not connect to {0}")]
+    Connect(String, #[source] io::Error),
+    #[error("could not spawn a thread")]
+    SpawnThread(#[source] io::Error),
+    #[error("spawned thread panicked")]
+    SpawnThreadPanic,
+    #[error("could not initialize the spawned state")]
+    InitThreadState(#[source] Box<dyn Error + Send + Sync>),
 }
 
-pub enum Pollable {
+pub(crate) enum Pollable {
     Endpoint(EndpointWithClient),
     Acceptor(Rc<Acceptor>),
+    Destructor(#[expect(dead_code)] OwnedFd, Arc<AtomicBool>),
 }
 
 #[derive(Clone)]
-pub struct EndpointWithClient {
-    pub endpoint: Rc<Endpoint>,
-    pub client: Option<Rc<Client>>,
+pub(crate) struct EndpointWithClient {
+    endpoint: Rc<Endpoint>,
+    client: Option<Rc<Client>>,
 }
 
 pub struct State {
-    pub epoll: uapi::OwnedFd,
-    pub next_pollable_id: Cell<u64>,
-    pub server: Rc<Endpoint>,
-    pub destroyed: Cell<bool>,
-    pub handler: HandlerHolder<dyn StateHandler>,
-    pub pollables: RefCell<HashMap<u64, Pollable>>,
-    pub acceptable_acceptors: RefCell<Vec<Rc<Acceptor>>>,
-    pub has_acceptable_acceptors: Cell<bool>,
-    pub clients_to_kill: RefCell<Vec<Rc<Client>>>,
-    pub has_clients_to_kill: Cell<bool>,
-    pub readable_endpoints: RefCell<Vec<EndpointWithClient>>,
-    pub has_readable_endpoints: Cell<bool>,
-    pub flushable_endpoints: RefCell<Vec<EndpointWithClient>>,
-    pub has_flushable_endpoints: Cell<bool>,
-    pub interest_update_endpoints: RefCell<Vec<Rc<Endpoint>>>,
-    pub has_interest_update_endpoints: Cell<bool>,
-    pub interest_update_acceptors: RefCell<Vec<Rc<Acceptor>>>,
-    pub has_interest_update_acceptors: Cell<bool>,
-    pub all_proxies: RefCell<HashMap<u64, Weak<dyn Proxy>>>,
-    pub next_proxy_id: Cell<u64>,
-    pub log: bool,
-    pub log_prefix: String,
-    pub log_writer: RefCell<BufWriter<Fd>>,
-    pub global_lock_held: Cell<bool>,
+    epoll: uapi::OwnedFd,
+    next_pollable_id: Cell<u64>,
+    pub(crate) server: Rc<Endpoint>,
+    pub(crate) destroyed: Cell<bool>,
+    handler: HandlerHolder<dyn StateHandler>,
+    pub(crate) pollables: RefCell<HashMap<u64, Pollable>>,
+    acceptable_acceptors: Stack<Rc<Acceptor>>,
+    has_acceptable_acceptors: Cell<bool>,
+    clients_to_kill: Stack<Rc<Client>>,
+    has_clients_to_kill: Cell<bool>,
+    readable_endpoints: Stack<EndpointWithClient>,
+    has_readable_endpoints: Cell<bool>,
+    flushable_endpoints: Stack<EndpointWithClient>,
+    has_flushable_endpoints: Cell<bool>,
+    interest_update_endpoints: Stack<Rc<Endpoint>>,
+    has_interest_update_endpoints: Cell<bool>,
+    interest_update_acceptors: Stack<Rc<Acceptor>>,
+    has_interest_update_acceptors: Cell<bool>,
+    pub(crate) all_proxies: RefCell<HashMap<u64, Weak<dyn Proxy>>>,
+    pub(crate) next_proxy_id: Cell<u64>,
+    pub(crate) log: bool,
+    pub(crate) log_prefix: String,
+    log_writer: RefCell<BufWriter<Fd>>,
+    global_lock_held: Cell<bool>,
+    pub(crate) proxy_stash: Stash<Rc<dyn Proxy>>,
 }
 
-pub(crate) struct HandlerLock<'a> {
-    state: &'a State,
+pub struct StateBuilder {
+    server_fd: Option<OwnedFd>,
+    log: bool,
+    log_prefix: String,
 }
 
-impl Drop for HandlerLock<'_> {
-    fn drop(&mut self) {
-        self.state.global_lock_held.set(false);
+impl Default for StateBuilder {
+    fn default() -> Self {
+        Self {
+            server_fd: None,
+            log: var("WL_PROXY_DEBUG").as_deref() == Ok("1"),
+            log_prefix: "".to_string(),
+        }
     }
 }
 
-impl State {
-    pub fn new() -> Result<Rc<Self>, StateError> {
-        let server = Endpoint::new(0, connect_upstream());
+impl StateBuilder {
+    pub fn build(self) -> Result<Rc<State>, StateError> {
+        let server_fd = match self.server_fd {
+            Some(fd) => fd,
+            _ => {
+                let mut name = var("WAYLAND_DISPLAY")
+                    .ok()
+                    .ok_or(StateError::WaylandDisplay)?;
+                if name.is_empty() {
+                    return Err(StateError::WaylandDisplay);
+                }
+                if !name.starts_with("/") {
+                    let Some(xrd) = xrd() else {
+                        return Err(StateError::XrdNotSet);
+                    };
+                    name = format!("{xrd}/{name}");
+                }
+                let mut addr = sockaddr_un {
+                    sun_family: c::AF_UNIX as _,
+                    sun_path: [0; 108],
+                };
+                if name.len() > addr.sun_path.len() - 1 {
+                    return Err(StateError::SocketPathTooLong);
+                }
+                let sun_path = uapi::as_bytes_mut(&mut addr.sun_path[..]);
+                sun_path[..name.len()].copy_from_slice(name.as_bytes());
+                sun_path[name.len()] = 0;
+                let socket = uapi::socket(
+                    c::AF_UNIX,
+                    c::SOCK_STREAM | c::SOCK_NONBLOCK | c::SOCK_CLOEXEC,
+                    0,
+                )
+                .map_err(|e| StateError::CreateSocket(e.into()))?;
+                uapi::connect(socket.raw(), &addr)
+                    .map_err(|e| StateError::Connect(name.to_string(), e.into()))?;
+                socket.into()
+            }
+        };
+        const SERVER_ENDPOINT_ID: u64 = 0;
+        let server = Endpoint::new(SERVER_ENDPOINT_ID, server_fd);
         server.idl.acquire();
         server.idl.acquire();
         let mut endpoints = HashMap::new();
         endpoints.insert(
-            0,
+            SERVER_ENDPOINT_ID,
             Pollable::Endpoint(EndpointWithClient {
                 endpoint: server.clone(),
                 client: None,
@@ -116,9 +189,22 @@ impl State {
         );
         let epoll =
             uapi::epoll_create1(c::EPOLL_CLOEXEC).map_err(|e| StateError::CreateEpoll(e.into()))?;
+        let mut log_prefix = String::new();
+        if let Ok(prefix) = var("WL_PROXY_PREFIX") {
+            log_prefix = prefix;
+        }
+        if self.log_prefix.is_not_empty() {
+            if log_prefix.is_not_empty() {
+                log_prefix.push_str(" ");
+            }
+            log_prefix.push_str(&self.log_prefix);
+        }
+        if log_prefix.is_not_empty() {
+            log_prefix = format!("{{{}}} ", log_prefix);
+        }
         let state = Rc::new(State {
             epoll,
-            next_pollable_id: Cell::new(1),
+            next_pollable_id: Cell::new(SERVER_ENDPOINT_ID + 1),
             server,
             destroyed: Default::default(),
             handler: Default::default(),
@@ -137,10 +223,11 @@ impl State {
             has_interest_update_acceptors: Default::default(),
             all_proxies: Default::default(),
             next_proxy_id: Default::default(),
-            log: var("WL_PROXY_DEBUG").as_deref() == Ok("1"),
-            log_prefix: "".to_string(),
+            log: self.log,
+            log_prefix,
             log_writer: RefCell::new(BufWriter::with_capacity(1024, Fd::new(c::STDERR_FILENO))),
             global_lock_held: Default::default(),
+            proxy_stash: Default::default(),
         });
         state.change_interest(&state.server, |i| i | c::EPOLLIN);
         state.register_socket(0, &state.server.socket)?;
@@ -150,6 +237,78 @@ impl State {
             .set_server_id_unchecked(1, display.clone())
             .unwrap();
         Ok(state)
+    }
+
+    pub fn with_server_fd(mut self, fd: OwnedFd) -> Self {
+        self.server_fd = Some(fd);
+        self
+    }
+
+    pub fn with_logging(mut self, log: bool) -> Self {
+        self.log = log;
+        self
+    }
+
+    pub fn with_log_prefix(mut self, prefix: &str) -> Self {
+        self.log_prefix = prefix.to_string();
+        self
+    }
+}
+
+pub struct Destructor {
+    state: Rc<State>,
+    forget: bool,
+}
+
+impl Destructor {
+    pub fn forget(mut self) {
+        self.forget = true;
+    }
+}
+
+impl Drop for Destructor {
+    fn drop(&mut self) {
+        if self.forget {
+            return;
+        }
+        self.state.destroy();
+    }
+}
+
+pub struct RemoteDestructor {
+    destroy: Arc<AtomicBool>,
+    _fd: OwnedFd,
+    forget: bool,
+}
+
+impl RemoteDestructor {
+    pub fn forget(mut self) {
+        self.forget = true;
+    }
+}
+
+impl Drop for RemoteDestructor {
+    fn drop(&mut self) {
+        if self.forget {
+            return;
+        }
+        self.destroy.store(true, Relaxed);
+    }
+}
+
+pub(crate) struct HandlerLock<'a> {
+    state: &'a State,
+}
+
+impl Drop for HandlerLock<'_> {
+    fn drop(&mut self) {
+        self.state.global_lock_held.set(false);
+    }
+}
+
+impl State {
+    pub fn new() -> Result<Rc<Self>, StateError> {
+        StateBuilder::default().build()
     }
 
     fn acquire_handler_lock(&self) -> Result<HandlerLock<'_>, StateError> {
@@ -173,10 +332,10 @@ impl State {
             .and_then(|t| t.as_millis().try_into().ok())
             .unwrap_or(-1);
         let destroy_on_error = on_drop(|| self.destroy());
-        if !self.has_work() {
+        if timeout != 0 {
             self.flush_locked(&lock)?;
-            self.wait_for_work(&lock, timeout)?;
         }
+        self.wait_for_work(&lock, timeout)?;
         self.accept_connections(&lock)?;
         self.read_messages(&lock)?;
         self.flush_locked(&lock)?;
@@ -210,8 +369,7 @@ impl State {
         if !self.has_flushable_endpoints.get() {
             return Ok(());
         }
-        let endpoints = &mut *self.flushable_endpoints.borrow_mut();
-        while let Some(ewc) = endpoints.pop() {
+        while let Some(ewc) = self.flushable_endpoints.pop() {
             let res = match ewc.endpoint.flush() {
                 Ok(r) => r,
                 Err(e) => {
@@ -256,10 +414,8 @@ impl State {
             return Ok(());
         }
         self.check_destroyed()?;
-        let acceptors = &mut *self.acceptable_acceptors.borrow_mut();
-        let interest_update_acceptors = &mut *self.interest_update_acceptors.borrow_mut();
-        while let Some(acceptor) = acceptors.pop() {
-            interest_update_acceptors.push(acceptor.clone());
+        while let Some(acceptor) = self.acceptable_acceptors.pop() {
+            self.interest_update_acceptors.push(acceptor.clone());
             self.has_interest_update_acceptors.set(true);
             const MAX_ACCEPT_PER_ITERATION: usize = 10;
             for _ in 0..MAX_ACCEPT_PER_ITERATION {
@@ -317,8 +473,7 @@ impl State {
         if !self.has_readable_endpoints.get() {
             return Ok(());
         }
-        let endpoints = &mut *self.readable_endpoints.borrow_mut();
-        while let Some(ewc) = endpoints.pop() {
+        while let Some(ewc) = self.readable_endpoints.pop() {
             let res = ewc.endpoint.read_messages(lock, ewc.client.as_ref());
             if let Err(e) = res {
                 if let Some(client) = &ewc.client {
@@ -348,24 +503,9 @@ impl State {
             && endpoint.current_interest.get() != new
             && !endpoint.interest_update_queued.replace(true)
         {
-            self.interest_update_endpoints
-                .borrow_mut()
-                .push(endpoint.clone());
+            self.interest_update_endpoints.push(endpoint.clone());
             self.has_interest_update_endpoints.set(true);
         }
-    }
-
-    pub(crate) fn has_work(&self) -> bool {
-        if self.acceptable_acceptors.borrow().is_not_empty() {
-            return true;
-        }
-        if self.readable_endpoints.borrow().is_not_empty() {
-            return true;
-        }
-        if self.flushable_endpoints.borrow().is_not_empty() {
-            return true;
-        }
-        false
     }
 
     pub(crate) fn add_flushable_endpoint(
@@ -376,13 +516,40 @@ impl State {
         if self.destroyed.get() {
             return;
         }
-        self.flushable_endpoints
-            .borrow_mut()
-            .push(EndpointWithClient {
-                endpoint: endpoint.clone(),
-                client: client.cloned(),
-            });
+        self.flushable_endpoints.push(EndpointWithClient {
+            endpoint: endpoint.clone(),
+            client: client.cloned(),
+        });
         self.has_flushable_endpoints.set(true);
+    }
+
+    pub fn create_destructor(self: &Rc<Self>) -> Destructor {
+        Destructor {
+            state: self.clone(),
+            forget: false,
+        }
+    }
+
+    pub fn create_remote_destructor(&self) -> Result<RemoteDestructor, StateError> {
+        let (r, w) = pipe().map_err(StateError::CreatePipe)?;
+        let id = self.create_pollable_id();
+        let event = c::epoll_event { events: 0, u64: id };
+        uapi::epoll_ctl(
+            self.epoll.as_raw_fd(),
+            EPOLL_CTL_ADD,
+            r.as_raw_fd(),
+            Some(&event),
+        )
+        .map_err(|e| StateError::UpdateEpoll(e.into()))?;
+        let destroy = Arc::new(AtomicBool::new(false));
+        self.pollables
+            .borrow_mut()
+            .insert(id, Pollable::Destructor(r.into(), destroy.clone()));
+        Ok(RemoteDestructor {
+            destroy,
+            _fd: w.into(),
+            forget: false,
+        })
     }
 
     pub(crate) fn wait_for_work(
@@ -392,10 +559,7 @@ impl State {
     ) -> Result<(), StateError> {
         self.check_destroyed()?;
         let mut events = [c::epoll_event { events: 0, u64: 0 }; 16];
-        let pollables = &*self.pollables.borrow();
-        let flushable = &mut *self.flushable_endpoints.borrow_mut();
-        let readable = &mut *self.readable_endpoints.borrow_mut();
-        let acceptable = &mut *self.acceptable_acceptors.borrow_mut();
+        let pollables = &mut *self.pollables.borrow_mut();
         loop {
             let res = uapi::epoll_wait(self.epoll.as_raw_fd(), &mut events, timeout);
             let n = match res {
@@ -424,17 +588,24 @@ impl State {
                         ewc.endpoint.current_interest.set(0);
                         self.change_interest(&ewc.endpoint, |i| i & !events);
                         if events & c::EPOLLIN != 0 {
-                            readable.push(ewc.clone());
+                            self.readable_endpoints.push(ewc.clone());
                             self.has_readable_endpoints.set(true);
                         }
                         if events & c::EPOLLOUT != 0 {
-                            flushable.push(ewc.clone());
+                            self.flushable_endpoints.push(ewc.clone());
                             self.has_flushable_endpoints.set(true);
                         }
                     }
                     Pollable::Acceptor(a) => {
-                        acceptable.push(a.clone());
+                        self.acceptable_acceptors.push(a.clone());
                         self.has_acceptable_acceptors.set(true);
+                    }
+                    Pollable::Destructor(_, destroy) => {
+                        let destroy = destroy.load(Relaxed);
+                        pollables.remove(&id);
+                        if destroy {
+                            return Err(StateError::RemoteDestroyed);
+                        }
                     }
                 }
             }
@@ -442,7 +613,7 @@ impl State {
     }
 
     pub(crate) fn add_client_to_kill(&self, client: &Rc<Client>) {
-        self.clients_to_kill.borrow_mut().push(client.clone());
+        self.clients_to_kill.push(client.clone());
         self.has_clients_to_kill.set(true);
     }
 
@@ -450,8 +621,7 @@ impl State {
         if !self.has_clients_to_kill.get() {
             return;
         }
-        let clients_to_kill = &mut *self.clients_to_kill.borrow_mut();
-        while let Some(client) = clients_to_kill.pop() {
+        while let Some(client) = self.clients_to_kill.pop() {
             if let Some(handler) = client.handler.borrow().take() {
                 handler.disconnected();
             }
@@ -477,8 +647,7 @@ impl State {
             .map_err(|e| StateError::UpdateEpoll(io::Error::from_raw_os_error(e.0)))
         };
         if self.has_interest_update_endpoints.get() {
-            let endpoints = &mut *self.interest_update_endpoints.borrow_mut();
-            while let Some(endpoint) = endpoints.pop() {
+            while let Some(endpoint) = self.interest_update_endpoints.pop() {
                 endpoint.interest_update_queued.set(false);
                 let desired = endpoint.desired_interest.get();
                 if desired == endpoint.current_interest.get() {
@@ -494,8 +663,7 @@ impl State {
             self.has_interest_update_endpoints.set(false);
         }
         if self.has_interest_update_acceptors.get() {
-            let acceptors = &mut *self.interest_update_acceptors.borrow_mut();
-            while let Some(acceptor) = acceptors.pop() {
+            while let Some(acceptor) = self.interest_update_acceptors.pop() {
                 let event = c::epoll_event {
                     events: (c::EPOLLIN | c::EPOLLONESHOT) as _,
                     u64: acceptor.id,
@@ -538,9 +706,7 @@ impl State {
         let id = self.create_pollable_id();
         let acceptor = Acceptor::create(id, max_tries, true).map_err(StateError::CreateAcceptor)?;
         self.register_socket(id, &acceptor.socket)?;
-        self.interest_update_acceptors
-            .borrow_mut()
-            .push(acceptor.clone());
+        self.interest_update_acceptors.push(acceptor.clone());
         self.has_interest_update_acceptors.set(true);
         self.pollables
             .borrow_mut()
@@ -555,7 +721,11 @@ impl State {
         Ok(())
     }
 
-    pub fn set_handler(&self, handler: Box<dyn StateHandler>) {
+    pub fn set_handler(&self, handler: impl StateHandler) {
+        self.set_boxed_handler(Box::new(handler))
+    }
+
+    pub fn set_boxed_handler(&self, handler: Box<dyn StateHandler>) {
         if self.destroyed.get() {
             return;
         }
@@ -573,28 +743,33 @@ impl State {
         if self.destroyed.replace(true) {
             return;
         }
+        let proxies = &mut *self.proxy_stash.borrow();
         for pollable in self.pollables.borrow().values() {
             if let Pollable::Endpoint(ewc) = pollable {
-                ewc.endpoint.objects.borrow_mut().clear();
                 if let Some(c) = &ewc.client {
                     c.destroyed.set(true);
                 }
+                proxies.extend(ewc.endpoint.objects.borrow_mut().drain().map(|v| v.1));
             }
         }
+        proxies.clear();
         for proxy in self.all_proxies.borrow().values() {
             if let Some(proxy) = proxy.upgrade() {
-                proxy.unset_handler();
-                proxy.core().client.take();
+                proxies.push(proxy);
             }
+        }
+        for proxy in proxies {
+            proxy.unset_handler();
+            proxy.core().client.take();
         }
         self.handler.set(None);
         self.pollables.borrow_mut().clear();
-        self.acceptable_acceptors.borrow_mut().clear();
-        self.clients_to_kill.borrow_mut().clear();
-        self.readable_endpoints.borrow_mut().clear();
-        self.flushable_endpoints.borrow_mut().clear();
-        self.interest_update_endpoints.borrow_mut().clear();
-        self.interest_update_acceptors.borrow_mut().clear();
+        self.acceptable_acceptors.take();
+        self.clients_to_kill.take();
+        self.readable_endpoints.take();
+        self.flushable_endpoints.take();
+        self.interest_update_endpoints.take();
+        self.interest_update_acceptors.take();
         self.all_proxies.borrow_mut().clear();
     }
 
@@ -606,6 +781,6 @@ impl State {
     }
 }
 
-pub trait StateHandler {
+pub trait StateHandler: 'static {
     fn new_client(&mut self, client: &Rc<Client>);
 }

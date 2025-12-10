@@ -20,6 +20,7 @@ impl XdgToplevelIconManagerV1Handler for DefaultHandler { }
 
 impl XdgToplevelIconManagerV1 {
     pub const XML_VERSION: u32 = 1;
+    pub const INTERFACE: &str = "xdg_toplevel_icon_manager_v1";
 }
 
 impl XdgToplevelIconManagerV1 {
@@ -64,7 +65,8 @@ impl XdgToplevelIconManagerV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel_icon_manager_v1#{}.destroy()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel_icon_manager_v1#{}.destroy()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -111,7 +113,8 @@ impl XdgToplevelIconManagerV1 {
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel_icon_manager_v1#{}.create_icon(id: xdg_toplevel_icon_v1#{})\n", id, arg0_id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel_icon_manager_v1#{}.create_icon(id: xdg_toplevel_icon_v1#{})\n", id, arg0_id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -192,7 +195,8 @@ impl XdgToplevelIconManagerV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel_icon_manager_v1#{}.set_icon(toplevel: xdg_toplevel#{}, icon: xdg_toplevel_icon_v1#{})\n", id, arg0_id, arg1_id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel_icon_manager_v1#{}.set_icon(toplevel: xdg_toplevel#{}, icon: xdg_toplevel_icon_v1#{})\n", id, arg0_id, arg1_id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -251,7 +255,8 @@ impl XdgToplevelIconManagerV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= xdg_toplevel_icon_manager_v1#{}.icon_size(size: {})\n", client.endpoint.id, id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= xdg_toplevel_icon_manager_v1#{}.icon_size(size: {})\n", client.endpoint.id, id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -288,7 +293,8 @@ impl XdgToplevelIconManagerV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= xdg_toplevel_icon_manager_v1#{}.done()\n", client.endpoint.id, id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= xdg_toplevel_icon_manager_v1#{}.done()\n", client.endpoint.id, id);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -450,7 +456,10 @@ impl ProxyPrivate for XdgToplevelIconManagerV1 {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
@@ -458,7 +467,8 @@ impl ProxyPrivate for XdgToplevelIconManagerV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel_icon_manager_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel_icon_manager_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -476,7 +486,8 @@ impl ProxyPrivate for XdgToplevelIconManagerV1 {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel_icon_manager_v1#{}.create_icon(id: xdg_toplevel_icon_v1#{})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel_icon_manager_v1#{}.create_icon(id: xdg_toplevel_icon_v1#{})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -499,7 +510,8 @@ impl ProxyPrivate for XdgToplevelIconManagerV1 {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel_icon_manager_v1#{}.set_icon(toplevel: xdg_toplevel#{}, icon: xdg_toplevel_icon_v1#{})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel_icon_manager_v1#{}.set_icon(toplevel: xdg_toplevel#{}, icon: xdg_toplevel_icon_v1#{})\n", client.endpoint.id, msg[0], arg0, arg1);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -543,7 +555,10 @@ impl ProxyPrivate for XdgToplevelIconManagerV1 {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let [
@@ -554,7 +569,8 @@ impl ProxyPrivate for XdgToplevelIconManagerV1 {
                 let arg0 = arg0 as i32;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> xdg_toplevel_icon_manager_v1#{}.icon_size(size: {})\n", msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> xdg_toplevel_icon_manager_v1#{}.icon_size(size: {})\n", msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -569,7 +585,8 @@ impl ProxyPrivate for XdgToplevelIconManagerV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> xdg_toplevel_icon_manager_v1#{}.done()\n", msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> xdg_toplevel_icon_manager_v1#{}.done()\n", msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {

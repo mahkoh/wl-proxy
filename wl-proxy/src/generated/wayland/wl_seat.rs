@@ -22,6 +22,7 @@ impl WlSeatHandler for DefaultHandler { }
 
 impl WlSeat {
     pub const XML_VERSION: u32 = 10;
+    pub const INTERFACE: &str = "wl_seat";
 }
 
 impl WlSeat {
@@ -101,7 +102,8 @@ impl WlSeat {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_seat#{}.capabilities(capabilities: {:?})\n", client.endpoint.id, id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_seat#{}.capabilities(capabilities: {:?})\n", client.endpoint.id, id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -154,7 +156,8 @@ impl WlSeat {
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_seat#{}.get_pointer(id: wl_pointer#{})\n", id, arg0_id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_seat#{}.get_pointer(id: wl_pointer#{})\n", id, arg0_id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -207,7 +210,8 @@ impl WlSeat {
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_seat#{}.get_keyboard(id: wl_keyboard#{})\n", id, arg0_id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_seat#{}.get_keyboard(id: wl_keyboard#{})\n", id, arg0_id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -260,7 +264,8 @@ impl WlSeat {
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_seat#{}.get_touch(id: wl_touch#{})\n", id, arg0_id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_seat#{}.get_touch(id: wl_touch#{})\n", id, arg0_id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -322,7 +327,8 @@ impl WlSeat {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_seat#{}.name(name: {:?})\n", client.endpoint.id, id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_seat#{}.name(name: {:?})\n", client.endpoint.id, id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -358,7 +364,8 @@ impl WlSeat {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_seat#{}.release()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_seat#{}.release()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -571,7 +578,10 @@ impl ProxyPrivate for WlSeat {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let [
@@ -581,7 +591,8 @@ impl ProxyPrivate for WlSeat {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_seat#{}.get_pointer(id: wl_pointer#{})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_seat#{}.get_pointer(id: wl_pointer#{})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -603,7 +614,8 @@ impl ProxyPrivate for WlSeat {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_seat#{}.get_keyboard(id: wl_keyboard#{})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_seat#{}.get_keyboard(id: wl_keyboard#{})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -625,7 +637,8 @@ impl ProxyPrivate for WlSeat {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_seat#{}.get_touch(id: wl_touch#{})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_seat#{}.get_touch(id: wl_touch#{})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -645,7 +658,8 @@ impl ProxyPrivate for WlSeat {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_seat#{}.release()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_seat#{}.release()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -667,7 +681,10 @@ impl ProxyPrivate for WlSeat {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let [
@@ -678,7 +695,8 @@ impl ProxyPrivate for WlSeat {
                 let arg0 = WlSeatCapability(arg0);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_seat#{}.capabilities(capabilities: {:?})\n", msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_seat#{}.capabilities(capabilities: {:?})\n", msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -716,7 +734,8 @@ impl ProxyPrivate for WlSeat {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_seat#{}.name(name: {:?})\n", msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_seat#{}.name(name: {:?})\n", msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {

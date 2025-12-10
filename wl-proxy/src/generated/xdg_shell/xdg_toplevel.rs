@@ -39,6 +39,7 @@ impl XdgToplevelHandler for DefaultHandler { }
 
 impl XdgToplevel {
     pub const XML_VERSION: u32 = 7;
+    pub const INTERFACE: &str = "xdg_toplevel";
 }
 
 impl XdgToplevel {
@@ -83,7 +84,8 @@ impl XdgToplevel {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel#{}.destroy()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel#{}.destroy()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -155,7 +157,8 @@ impl XdgToplevel {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel#{}.set_parent(parent: xdg_toplevel#{})\n", id, arg0_id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel#{}.set_parent(parent: xdg_toplevel#{})\n", id, arg0_id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -206,7 +209,8 @@ impl XdgToplevel {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel#{}.set_title(title: {:?})\n", id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel#{}.set_title(title: {:?})\n", id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -273,7 +277,8 @@ impl XdgToplevel {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel#{}.set_app_id(app_id: {:?})\n", id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel#{}.set_app_id(app_id: {:?})\n", id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -346,7 +351,8 @@ impl XdgToplevel {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel#{}.show_window_menu(seat: wl_seat#{}, serial: {}, x: {}, y: {})\n", id, arg0_id, arg1, arg2, arg3);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel#{}.show_window_menu(seat: wl_seat#{}, serial: {}, x: {}, y: {})\n", id, arg0_id, arg1, arg2, arg3);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -418,7 +424,8 @@ impl XdgToplevel {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel#{}.move(seat: wl_seat#{}, serial: {})\n", id, arg0_id, arg1);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel#{}.move(seat: wl_seat#{}, serial: {})\n", id, arg0_id, arg1);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -507,7 +514,8 @@ impl XdgToplevel {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel#{}.resize(seat: wl_seat#{}, serial: {}, edges: {:?})\n", id, arg0_id, arg1, arg2);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel#{}.resize(seat: wl_seat#{}, serial: {}, edges: {:?})\n", id, arg0_id, arg1, arg2);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -590,7 +598,8 @@ impl XdgToplevel {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel#{}.set_max_size(width: {}, height: {})\n", id, arg0, arg1);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel#{}.set_max_size(width: {}, height: {})\n", id, arg0, arg1);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -672,7 +681,8 @@ impl XdgToplevel {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel#{}.set_min_size(width: {}, height: {})\n", id, arg0, arg1);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel#{}.set_min_size(width: {}, height: {})\n", id, arg0, arg1);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -726,7 +736,8 @@ impl XdgToplevel {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel#{}.set_maximized()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel#{}.set_maximized()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -780,7 +791,8 @@ impl XdgToplevel {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel#{}.unset_maximized()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel#{}.unset_maximized()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -854,7 +866,8 @@ impl XdgToplevel {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel#{}.set_fullscreen(output: wl_output#{})\n", id, arg0_id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel#{}.set_fullscreen(output: wl_output#{})\n", id, arg0_id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -905,7 +918,8 @@ impl XdgToplevel {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel#{}.unset_fullscreen()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel#{}.unset_fullscreen()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -946,7 +960,8 @@ impl XdgToplevel {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xdg_toplevel#{}.set_minimized()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel#{}.set_minimized()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -1018,7 +1033,8 @@ impl XdgToplevel {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= xdg_toplevel#{}.configure(width: {}, height: {}, states: {})\n", client.endpoint.id, id, arg0, arg1, debug_array(arg2));
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= xdg_toplevel#{}.configure(width: {}, height: {}, states: {})\n", client.endpoint.id, id, arg0, arg1, debug_array(arg2));
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -1064,7 +1080,8 @@ impl XdgToplevel {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= xdg_toplevel#{}.close()\n", client.endpoint.id, id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= xdg_toplevel#{}.close()\n", client.endpoint.id, id);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -1128,7 +1145,8 @@ impl XdgToplevel {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= xdg_toplevel#{}.configure_bounds(width: {}, height: {})\n", client.endpoint.id, id, arg0, arg1);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= xdg_toplevel#{}.configure_bounds(width: {}, height: {})\n", client.endpoint.id, id, arg0, arg1);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -1195,7 +1213,8 @@ impl XdgToplevel {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= xdg_toplevel#{}.wm_capabilities(capabilities: {})\n", client.endpoint.id, id, debug_array(arg0));
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= xdg_toplevel#{}.wm_capabilities(capabilities: {})\n", client.endpoint.id, id, debug_array(arg0));
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -1926,7 +1945,10 @@ impl ProxyPrivate for XdgToplevel {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
@@ -1934,7 +1956,8 @@ impl ProxyPrivate for XdgToplevel {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -1952,7 +1975,8 @@ impl ProxyPrivate for XdgToplevel {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel#{}.set_parent(parent: xdg_toplevel#{})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel#{}.set_parent(parent: xdg_toplevel#{})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 let arg0 = if arg0 == 0 {
@@ -2004,7 +2028,8 @@ impl ProxyPrivate for XdgToplevel {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel#{}.set_title(title: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel#{}.set_title(title: {:?})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -2042,7 +2067,8 @@ impl ProxyPrivate for XdgToplevel {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel#{}.set_app_id(app_id: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel#{}.set_app_id(app_id: {:?})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -2064,7 +2090,8 @@ impl ProxyPrivate for XdgToplevel {
                 let arg3 = arg3 as i32;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel#{}.show_window_menu(seat: wl_seat#{}, serial: {}, x: {}, y: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel#{}.show_window_menu(seat: wl_seat#{}, serial: {}, x: {}, y: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -2091,7 +2118,8 @@ impl ProxyPrivate for XdgToplevel {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel#{}.move(seat: wl_seat#{}, serial: {})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel#{}.move(seat: wl_seat#{}, serial: {})\n", client.endpoint.id, msg[0], arg0, arg1);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -2120,7 +2148,8 @@ impl ProxyPrivate for XdgToplevel {
                 let arg2 = XdgToplevelResizeEdge(arg2);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel#{}.resize(seat: wl_seat#{}, serial: {}, edges: {:?})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel#{}.resize(seat: wl_seat#{}, serial: {}, edges: {:?})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -2149,7 +2178,8 @@ impl ProxyPrivate for XdgToplevel {
                 let arg1 = arg1 as i32;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel#{}.set_max_size(width: {}, height: {})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel#{}.set_max_size(width: {}, height: {})\n", client.endpoint.id, msg[0], arg0, arg1);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -2169,7 +2199,8 @@ impl ProxyPrivate for XdgToplevel {
                 let arg1 = arg1 as i32;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel#{}.set_min_size(width: {}, height: {})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel#{}.set_min_size(width: {}, height: {})\n", client.endpoint.id, msg[0], arg0, arg1);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -2184,7 +2215,8 @@ impl ProxyPrivate for XdgToplevel {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel#{}.set_maximized()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel#{}.set_maximized()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -2199,7 +2231,8 @@ impl ProxyPrivate for XdgToplevel {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel#{}.unset_maximized()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel#{}.unset_maximized()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -2216,7 +2249,8 @@ impl ProxyPrivate for XdgToplevel {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel#{}.set_fullscreen(output: wl_output#{})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel#{}.set_fullscreen(output: wl_output#{})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 let arg0 = if arg0 == 0 {
@@ -2245,7 +2279,8 @@ impl ProxyPrivate for XdgToplevel {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel#{}.unset_fullscreen()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel#{}.unset_fullscreen()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -2260,7 +2295,8 @@ impl ProxyPrivate for XdgToplevel {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xdg_toplevel#{}.set_minimized()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel#{}.set_minimized()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -2281,7 +2317,10 @@ impl ProxyPrivate for XdgToplevel {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let mut offset = 2;
@@ -2314,7 +2353,8 @@ impl ProxyPrivate for XdgToplevel {
                 let arg1 = arg1 as i32;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> xdg_toplevel#{}.configure(width: {}, height: {}, states: {})\n", msg[0], arg0, arg1, debug_array(arg2));
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> xdg_toplevel#{}.configure(width: {}, height: {}, states: {})\n", msg[0], arg0, arg1, debug_array(arg2));
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -2329,7 +2369,8 @@ impl ProxyPrivate for XdgToplevel {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> xdg_toplevel#{}.close()\n", msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> xdg_toplevel#{}.close()\n", msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -2349,7 +2390,8 @@ impl ProxyPrivate for XdgToplevel {
                 let arg1 = arg1 as i32;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> xdg_toplevel#{}.configure_bounds(width: {}, height: {})\n", msg[0], arg0, arg1);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> xdg_toplevel#{}.configure_bounds(width: {}, height: {})\n", msg[0], arg0, arg1);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -2379,7 +2421,8 @@ impl ProxyPrivate for XdgToplevel {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> xdg_toplevel#{}.wm_capabilities(capabilities: {})\n", msg[0], debug_array(arg0));
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> xdg_toplevel#{}.wm_capabilities(capabilities: {})\n", msg[0], debug_array(arg0));
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {

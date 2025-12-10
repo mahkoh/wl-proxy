@@ -47,6 +47,8 @@ pub enum ObjectError {
     NonUtf8(&'static str),
     #[error("server sent error {} on proxy {}#{}", .2, .0.name(), .1)]
     ServerError(ProxyInterface, u32, u32, #[source] StringError),
+    #[error("the message handler is already borrowed")]
+    HandlerBorrowed,
 }
 
 #[derive(Debug, Error)]

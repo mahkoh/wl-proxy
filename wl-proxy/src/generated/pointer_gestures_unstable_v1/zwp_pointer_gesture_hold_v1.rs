@@ -35,6 +35,7 @@ impl ZwpPointerGestureHoldV1Handler for DefaultHandler { }
 
 impl ZwpPointerGestureHoldV1 {
     pub const XML_VERSION: u32 = 3;
+    pub const INTERFACE: &str = "zwp_pointer_gesture_hold_v1";
 }
 
 impl ZwpPointerGestureHoldV1 {
@@ -76,7 +77,8 @@ impl ZwpPointerGestureHoldV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_pointer_gesture_hold_v1#{}.destroy()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwp_pointer_gesture_hold_v1#{}.destroy()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -140,7 +142,8 @@ impl ZwpPointerGestureHoldV1 {
         let arg2_id = arg2.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_pointer_gesture_hold_v1#{}.begin(serial: {}, time: {}, surface: wl_surface#{}, fingers: {})\n", client.endpoint.id, id, arg0, arg1, arg2_id, arg3);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_pointer_gesture_hold_v1#{}.begin(serial: {}, time: {}, surface: wl_surface#{}, fingers: {})\n", client.endpoint.id, id, arg0, arg1, arg2_id, arg3);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -206,7 +209,8 @@ impl ZwpPointerGestureHoldV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_pointer_gesture_hold_v1#{}.end(serial: {}, time: {}, cancelled: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_pointer_gesture_hold_v1#{}.end(serial: {}, time: {}, cancelled: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -328,7 +332,10 @@ impl ProxyPrivate for ZwpPointerGestureHoldV1 {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
@@ -336,7 +343,8 @@ impl ProxyPrivate for ZwpPointerGestureHoldV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_pointer_gesture_hold_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_pointer_gesture_hold_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -358,7 +366,10 @@ impl ProxyPrivate for ZwpPointerGestureHoldV1 {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let [
@@ -371,7 +382,8 @@ impl ProxyPrivate for ZwpPointerGestureHoldV1 {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_pointer_gesture_hold_v1#{}.begin(serial: {}, time: {}, surface: wl_surface#{}, fingers: {})\n", msg[0], arg0, arg1, arg2, arg3);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_pointer_gesture_hold_v1#{}.begin(serial: {}, time: {}, surface: wl_surface#{}, fingers: {})\n", msg[0], arg0, arg1, arg2, arg3);
                     self.core.state.log(args);
                 }
                 let arg2_id = arg2;
@@ -400,7 +412,8 @@ impl ProxyPrivate for ZwpPointerGestureHoldV1 {
                 let arg2 = arg2 as i32;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_pointer_gesture_hold_v1#{}.end(serial: {}, time: {}, cancelled: {})\n", msg[0], arg0, arg1, arg2);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_pointer_gesture_hold_v1#{}.end(serial: {}, time: {}, cancelled: {})\n", msg[0], arg0, arg1, arg2);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {

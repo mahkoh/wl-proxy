@@ -27,6 +27,7 @@ impl WlShmHandler for DefaultHandler { }
 
 impl WlShm {
     pub const XML_VERSION: u32 = 2;
+    pub const INTERFACE: &str = "wl_shm";
 }
 
 impl WlShm {
@@ -97,7 +98,8 @@ impl WlShm {
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_shm#{}.create_pool(id: wl_shm_pool#{}, fd: {}, size: {})\n", id, arg0_id, arg1.as_raw_fd(), arg2);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shm#{}.create_pool(id: wl_shm_pool#{}, fd: {}, size: {})\n", id, arg0_id, arg1.as_raw_fd(), arg2);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -148,7 +150,8 @@ impl WlShm {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_shm#{}.format(format: {:?})\n", client.endpoint.id, id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_shm#{}.format(format: {:?})\n", client.endpoint.id, id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -186,7 +189,8 @@ impl WlShm {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_shm#{}.release()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shm#{}.release()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -290,7 +294,10 @@ impl ProxyPrivate for WlShm {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let [
@@ -306,7 +313,8 @@ impl ProxyPrivate for WlShm {
                 let arg2 = arg2 as i32;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_shm#{}.create_pool(id: wl_shm_pool#{}, fd: {}, size: {})\n", client.endpoint.id, msg[0], arg0, arg1.as_raw_fd(), arg2);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shm#{}.create_pool(id: wl_shm_pool#{}, fd: {}, size: {})\n", client.endpoint.id, msg[0], arg0, arg1.as_raw_fd(), arg2);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -326,7 +334,8 @@ impl ProxyPrivate for WlShm {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_shm#{}.release()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shm#{}.release()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -348,7 +357,10 @@ impl ProxyPrivate for WlShm {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let [
@@ -359,7 +371,8 @@ impl ProxyPrivate for WlShm {
                 let arg0 = WlShmFormat(arg0);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_shm#{}.format(format: {:?})\n", msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_shm#{}.format(format: {:?})\n", msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {

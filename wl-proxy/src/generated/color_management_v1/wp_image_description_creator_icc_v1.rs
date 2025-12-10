@@ -36,6 +36,7 @@ impl WpImageDescriptionCreatorIccV1Handler for DefaultHandler { }
 
 impl WpImageDescriptionCreatorIccV1 {
     pub const XML_VERSION: u32 = 1;
+    pub const INTERFACE: &str = "wp_image_description_creator_icc_v1";
 }
 
 impl WpImageDescriptionCreatorIccV1 {
@@ -108,7 +109,8 @@ impl WpImageDescriptionCreatorIccV1 {
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_image_description_creator_icc_v1#{}.create(image_description: wp_image_description_v1#{})\n", id, arg0_id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_icc_v1#{}.create(image_description: wp_image_description_v1#{})\n", id, arg0_id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -200,7 +202,8 @@ impl WpImageDescriptionCreatorIccV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= wp_image_description_creator_icc_v1#{}.set_icc_file(icc_profile: {}, offset: {}, length: {})\n", id, arg0.as_raw_fd(), arg1, arg2);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_icc_v1#{}.set_icc_file(icc_profile: {}, offset: {}, length: {})\n", id, arg0.as_raw_fd(), arg1, arg2);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -338,7 +341,10 @@ impl ProxyPrivate for WpImageDescriptionCreatorIccV1 {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let [
@@ -348,7 +354,8 @@ impl ProxyPrivate for WpImageDescriptionCreatorIccV1 {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_image_description_creator_icc_v1#{}.create(image_description: wp_image_description_v1#{})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_icc_v1#{}.create(image_description: wp_image_description_v1#{})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -376,7 +383,8 @@ impl ProxyPrivate for WpImageDescriptionCreatorIccV1 {
                 let arg0 = &arg0;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wp_image_description_creator_icc_v1#{}.set_icc_file(icc_profile: {}, offset: {}, length: {})\n", client.endpoint.id, msg[0], arg0.as_raw_fd(), arg1, arg2);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_icc_v1#{}.set_icc_file(icc_profile: {}, offset: {}, length: {})\n", client.endpoint.id, msg[0], arg0.as_raw_fd(), arg1, arg2);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -397,7 +405,10 @@ impl ProxyPrivate for WpImageDescriptionCreatorIccV1 {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             n => {
                 let _ = msg;

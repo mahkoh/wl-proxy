@@ -9,4 +9,3 @@ clap = { version = "4.5.53", features = ["derive"] }
 clap_complete = "4.5.61"
 thiserror = "2.0.17"
 error_reporter = "1.0.0"
-uapi = "0.2.13"

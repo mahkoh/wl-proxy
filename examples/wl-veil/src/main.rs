@@ -1,16 +1,16 @@
-use {error_reporter::Report, std::io, thiserror::Error, wl_proxy::acceptor::AcceptorError};
+use {error_reporter::Report, std::io, thiserror::Error, wl_proxy::simple::SimpleServerError};
 
 mod cli;
 mod veil;
 
 #[derive(Debug, Error)]
 enum VeilError {
-    #[error("could not create an acceptor")]
-    CreateAcceptor(#[source] AcceptorError),
-    #[error("could not accept a connection")]
-    AccepConnection(#[source] AcceptorError),
+    #[error("could not create a simple server")]
+    CreateServer(#[source] SimpleServerError),
     #[error("could not spawn child")]
     SpawnChild(#[source] io::Error),
+    #[error("the server terminated")]
+    ServerFailed(#[source] SimpleServerError),
 }
 
 fn main() -> Result<(), Report<VeilError>> {

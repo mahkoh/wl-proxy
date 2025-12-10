@@ -20,6 +20,7 @@ impl WlDisplayHandler for DefaultHandler { }
 
 impl WlDisplay {
     pub const XML_VERSION: u32 = 1;
+    pub const INTERFACE: &str = "wl_display";
 }
 
 impl WlDisplay {
@@ -84,7 +85,8 @@ impl WlDisplay {
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_display#{}.sync(callback: wl_callback#{})\n", id, arg0_id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_display#{}.sync(callback: wl_callback#{})\n", id, arg0_id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -138,7 +140,8 @@ impl WlDisplay {
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_display#{}.get_registry(registry: wl_registry#{})\n", id, arg0_id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_display#{}.get_registry(registry: wl_registry#{})\n", id, arg0_id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -204,7 +207,8 @@ impl WlDisplay {
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_display#{}.error(object_id: unknown#{}, code: {}, message: {:?})\n", client.endpoint.id, id, arg0_id, arg1, arg2);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_display#{}.error(object_id: unknown#{}, code: {}, message: {:?})\n", client.endpoint.id, id, arg0_id, arg1, arg2);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -257,7 +261,8 @@ impl WlDisplay {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_display#{}.delete_id(id: {})\n", client.endpoint.id, id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_display#{}.delete_id(id: {})\n", client.endpoint.id, id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -417,7 +422,10 @@ impl ProxyPrivate for WlDisplay {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let [
@@ -427,7 +435,8 @@ impl ProxyPrivate for WlDisplay {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_display#{}.sync(callback: wl_callback#{})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_display#{}.sync(callback: wl_callback#{})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -449,7 +458,8 @@ impl ProxyPrivate for WlDisplay {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_display#{}.get_registry(registry: wl_registry#{})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_display#{}.get_registry(registry: wl_registry#{})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -475,7 +485,10 @@ impl ProxyPrivate for WlDisplay {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let mut offset = 2;
@@ -514,7 +527,8 @@ impl ProxyPrivate for WlDisplay {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_display#{}.error(object_id: unknown#{}, code: {}, message: {:?})\n", msg[0], arg0, arg1, arg2);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_display#{}.error(object_id: unknown#{}, code: {}, message: {:?})\n", msg[0], arg0, arg1, arg2);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -531,7 +545,8 @@ impl ProxyPrivate for WlDisplay {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_display#{}.delete_id(id: {})\n", msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_display#{}.delete_id(id: {})\n", msg[0], arg0);
                     self.core.state.log(args);
                 }
                 self.core.state.handle_delete_id(arg0);

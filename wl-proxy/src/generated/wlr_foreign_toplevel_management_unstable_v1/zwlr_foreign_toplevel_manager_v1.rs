@@ -24,6 +24,7 @@ impl ZwlrForeignToplevelManagerV1Handler for DefaultHandler { }
 
 impl ZwlrForeignToplevelManagerV1 {
     pub const XML_VERSION: u32 = 3;
+    pub const INTERFACE: &str = "zwlr_foreign_toplevel_manager_v1";
 }
 
 impl ZwlrForeignToplevelManagerV1 {
@@ -86,7 +87,8 @@ impl ZwlrForeignToplevelManagerV1 {
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_foreign_toplevel_manager_v1#{}.toplevel(toplevel: zwlr_foreign_toplevel_handle_v1#{})\n", client.endpoint.id, id, arg0_id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_foreign_toplevel_manager_v1#{}.toplevel(toplevel: zwlr_foreign_toplevel_handle_v1#{})\n", client.endpoint.id, id, arg0_id);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -125,7 +127,8 @@ impl ZwlrForeignToplevelManagerV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_foreign_toplevel_manager_v1#{}.stop()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_foreign_toplevel_manager_v1#{}.stop()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -164,7 +167,8 @@ impl ZwlrForeignToplevelManagerV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_foreign_toplevel_manager_v1#{}.finished()\n", client.endpoint.id, id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_foreign_toplevel_manager_v1#{}.finished()\n", client.endpoint.id, id);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -263,7 +267,10 @@ impl ProxyPrivate for ZwlrForeignToplevelManagerV1 {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
@@ -271,7 +278,8 @@ impl ProxyPrivate for ZwlrForeignToplevelManagerV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_foreign_toplevel_manager_v1#{}.stop()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_foreign_toplevel_manager_v1#{}.stop()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -292,7 +300,10 @@ impl ProxyPrivate for ZwlrForeignToplevelManagerV1 {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let [
@@ -302,7 +313,8 @@ impl ProxyPrivate for ZwlrForeignToplevelManagerV1 {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_foreign_toplevel_manager_v1#{}.toplevel(toplevel: zwlr_foreign_toplevel_handle_v1#{})\n", msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_foreign_toplevel_manager_v1#{}.toplevel(toplevel: zwlr_foreign_toplevel_handle_v1#{})\n", msg[0], arg0);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -322,7 +334,8 @@ impl ProxyPrivate for ZwlrForeignToplevelManagerV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_foreign_toplevel_manager_v1#{}.finished()\n", msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_foreign_toplevel_manager_v1#{}.finished()\n", msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {

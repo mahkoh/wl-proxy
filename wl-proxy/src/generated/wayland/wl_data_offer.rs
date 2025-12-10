@@ -24,6 +24,7 @@ impl WlDataOfferHandler for DefaultHandler { }
 
 impl WlDataOffer {
     pub const XML_VERSION: u32 = 3;
+    pub const INTERFACE: &str = "wl_data_offer";
 }
 
 impl WlDataOffer {
@@ -94,7 +95,8 @@ impl WlDataOffer {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_data_offer#{}.accept(serial: {}, mime_type: {:?})\n", id, arg0, arg1);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_data_offer#{}.accept(serial: {}, mime_type: {:?})\n", id, arg0, arg1);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -162,7 +164,8 @@ impl WlDataOffer {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_data_offer#{}.receive(mime_type: {:?}, fd: {})\n", id, arg0, arg1.as_raw_fd());
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_data_offer#{}.receive(mime_type: {:?}, fd: {})\n", id, arg0, arg1.as_raw_fd());
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -198,7 +201,8 @@ impl WlDataOffer {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_data_offer#{}.destroy()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_data_offer#{}.destroy()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -246,7 +250,8 @@ impl WlDataOffer {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_data_offer#{}.offer(mime_type: {:?})\n", client.endpoint.id, id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_data_offer#{}.offer(mime_type: {:?})\n", client.endpoint.id, id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -294,7 +299,8 @@ impl WlDataOffer {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_data_offer#{}.finish()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_data_offer#{}.finish()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -372,7 +378,8 @@ impl WlDataOffer {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_data_offer#{}.set_actions(dnd_actions: {:?}, preferred_action: {:?})\n", id, arg0, arg1);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_data_offer#{}.set_actions(dnd_actions: {:?}, preferred_action: {:?})\n", id, arg0, arg1);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -423,7 +430,8 @@ impl WlDataOffer {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_data_offer#{}.source_actions(source_actions: {:?})\n", client.endpoint.id, id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_data_offer#{}.source_actions(source_actions: {:?})\n", client.endpoint.id, id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -504,7 +512,8 @@ impl WlDataOffer {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_data_offer#{}.action(dnd_action: {:?})\n", client.endpoint.id, id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_data_offer#{}.action(dnd_action: {:?})\n", client.endpoint.id, id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -809,7 +818,10 @@ impl ProxyPrivate for WlDataOffer {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let mut offset = 2;
@@ -844,7 +856,8 @@ impl ProxyPrivate for WlDataOffer {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_data_offer#{}.accept(serial: {}, mime_type: {:?})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_data_offer#{}.accept(serial: {}, mime_type: {:?})\n", client.endpoint.id, msg[0], arg0, arg1);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -886,7 +899,8 @@ impl ProxyPrivate for WlDataOffer {
                 let arg1 = &arg1;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_data_offer#{}.receive(mime_type: {:?}, fd: {})\n", client.endpoint.id, msg[0], arg0, arg1.as_raw_fd());
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_data_offer#{}.receive(mime_type: {:?}, fd: {})\n", client.endpoint.id, msg[0], arg0, arg1.as_raw_fd());
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -901,7 +915,8 @@ impl ProxyPrivate for WlDataOffer {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_data_offer#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_data_offer#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -917,7 +932,8 @@ impl ProxyPrivate for WlDataOffer {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_data_offer#{}.finish()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_data_offer#{}.finish()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -937,7 +953,8 @@ impl ProxyPrivate for WlDataOffer {
                 let arg1 = WlDataDeviceManagerDndAction(arg1);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_data_offer#{}.set_actions(dnd_actions: {:?}, preferred_action: {:?})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_data_offer#{}.set_actions(dnd_actions: {:?}, preferred_action: {:?})\n", client.endpoint.id, msg[0], arg0, arg1);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -958,7 +975,10 @@ impl ProxyPrivate for WlDataOffer {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let mut offset = 2;
@@ -989,7 +1009,8 @@ impl ProxyPrivate for WlDataOffer {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_data_offer#{}.offer(mime_type: {:?})\n", msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_data_offer#{}.offer(mime_type: {:?})\n", msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -1007,7 +1028,8 @@ impl ProxyPrivate for WlDataOffer {
                 let arg0 = WlDataDeviceManagerDndAction(arg0);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_data_offer#{}.source_actions(source_actions: {:?})\n", msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_data_offer#{}.source_actions(source_actions: {:?})\n", msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -1025,7 +1047,8 @@ impl ProxyPrivate for WlDataOffer {
                 let arg0 = WlDataDeviceManagerDndAction(arg0);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_data_offer#{}.action(dnd_action: {:?})\n", msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_data_offer#{}.action(dnd_action: {:?})\n", msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {

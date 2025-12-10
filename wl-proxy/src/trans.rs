@@ -20,13 +20,13 @@ const BUFFER_SIZE: usize = BUFFER_LEN * WORD_SIZE;
 const HEADER_WORDS: usize = 2;
 const HEADER_SIZE: usize = HEADER_WORDS * WORD_SIZE;
 
-pub struct InputBuffer {
+pub(crate) struct InputBuffer {
     buffer: [u32; BUFFER_LEN],
     valid_from_word: usize,
     valid_bytes: usize,
 }
 
-pub struct OutputBuffer {
+pub(crate) struct OutputBuffer {
     buffer: [u32; BUFFER_LEN],
     valid_from_byte: usize,
     valid_to_byte: usize,
@@ -40,22 +40,22 @@ struct FdOffset {
 }
 
 #[derive(Eq, PartialEq)]
-pub enum FlushResult {
+pub(crate) enum FlushResult {
     Done,
     Blocked,
 }
 
-pub struct MessageFormatter<'a> {
-    pub buffer: &'a mut [u32],
-    pub words_written: usize,
-    pub fds: &'a mut VecDeque<Rc<OwnedFd>>,
+pub(crate) struct MessageFormatter<'a> {
+    pub(crate) buffer: &'a mut [u32],
+    pub(crate) words_written: usize,
+    pub(crate) fds: &'a mut VecDeque<Rc<OwnedFd>>,
     old_fds_len: usize,
     fd_offsets: &'a mut VecDeque<FdOffset>,
     valid_to_byte: &'a mut usize,
 }
 
 #[derive(Default)]
-pub struct OutputSwapchain {
+pub(crate) struct OutputSwapchain {
     pending: VecDeque<Box<OutputBuffer>>,
     stash: Vec<Box<OutputBuffer>>,
 }
@@ -74,7 +74,7 @@ pub enum TransError {
     MessageNotAligned(usize),
 }
 
-pub fn read_message<'a>(
+pub(crate) fn read_message<'a>(
     socket: RawFd,
     may_read_from_socket: &mut bool,
     buffer: &'a mut InputBuffer,
@@ -162,7 +162,10 @@ fn read_from_socket(
     Ok(())
 }
 
-pub fn flush_buffer(socket: RawFd, buffer: &mut OutputBuffer) -> Result<FlushResult, TransError> {
+pub(crate) fn flush_buffer(
+    socket: RawFd,
+    buffer: &mut OutputBuffer,
+) -> Result<FlushResult, TransError> {
     loop {
         if buffer.valid_to_byte == buffer.valid_from_byte {
             return Ok(FlushResult::Done);
@@ -255,7 +258,7 @@ impl Default for OutputBuffer {
 }
 
 impl OutputBuffer {
-    pub fn formatter(&mut self) -> Option<MessageFormatter<'_>> {
+    pub(crate) fn formatter(&mut self) -> Option<MessageFormatter<'_>> {
         if self.valid_from_byte == self.valid_to_byte {
             self.valid_from_byte = 0;
             self.valid_to_byte = 0;
@@ -292,7 +295,7 @@ impl Drop for MessageFormatter<'_> {
 }
 
 impl OutputSwapchain {
-    pub fn formatter(&mut self) -> MessageFormatter<'_> {
+    pub(crate) fn formatter(&mut self) -> MessageFormatter<'_> {
         if let Some(last) = self.pending.back_mut()
             && let Some(fmt) = last.formatter()
         {
@@ -305,7 +308,7 @@ impl OutputSwapchain {
         self.pending.back_mut().unwrap().formatter().unwrap()
     }
 
-    pub fn flush(&mut self, fd: RawFd) -> Result<FlushResult, TransError> {
+    pub(crate) fn flush(&mut self, fd: RawFd) -> Result<FlushResult, TransError> {
         while let Some(buf) = self.pending.front_mut() {
             match flush_buffer(fd, buf)? {
                 FlushResult::Done => {

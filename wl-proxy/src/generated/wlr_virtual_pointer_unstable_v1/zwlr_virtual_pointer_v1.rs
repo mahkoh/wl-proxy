@@ -20,6 +20,7 @@ impl ZwlrVirtualPointerV1Handler for DefaultHandler { }
 
 impl ZwlrVirtualPointerV1 {
     pub const XML_VERSION: u32 = 2;
+    pub const INTERFACE: &str = "zwlr_virtual_pointer_v1";
 }
 
 impl ZwlrVirtualPointerV1 {
@@ -83,7 +84,8 @@ impl ZwlrVirtualPointerV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.motion(time: {}, dx: {}, dy: {})\n", id, arg0, arg1, arg2);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_virtual_pointer_v1#{}.motion(time: {}, dx: {}, dy: {})\n", id, arg0, arg1, arg2);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -149,7 +151,8 @@ impl ZwlrVirtualPointerV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.motion_absolute(time: {}, x: {}, y: {}, x_extent: {}, y_extent: {})\n", id, arg0, arg1, arg2, arg3, arg4);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_virtual_pointer_v1#{}.motion_absolute(time: {}, x: {}, y: {}, x_extent: {}, y_extent: {})\n", id, arg0, arg1, arg2, arg3, arg4);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -206,7 +209,8 @@ impl ZwlrVirtualPointerV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.button(time: {}, button: {}, state: {:?})\n", id, arg0, arg1, arg2);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_virtual_pointer_v1#{}.button(time: {}, button: {}, state: {:?})\n", id, arg0, arg1, arg2);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -261,7 +265,8 @@ impl ZwlrVirtualPointerV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.axis(time: {}, axis: {:?}, value: {})\n", id, arg0, arg1, arg2);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_virtual_pointer_v1#{}.axis(time: {}, axis: {:?}, value: {})\n", id, arg0, arg1, arg2);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -298,7 +303,8 @@ impl ZwlrVirtualPointerV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.frame()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_virtual_pointer_v1#{}.frame()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -342,7 +348,8 @@ impl ZwlrVirtualPointerV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.axis_source(axis_source: {:?})\n", id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_virtual_pointer_v1#{}.axis_source(axis_source: {:?})\n", id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -391,7 +398,8 @@ impl ZwlrVirtualPointerV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.axis_stop(time: {}, axis: {:?})\n", id, arg0, arg1);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_virtual_pointer_v1#{}.axis_stop(time: {}, axis: {:?})\n", id, arg0, arg1);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -452,7 +460,8 @@ impl ZwlrVirtualPointerV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.axis_discrete(time: {}, axis: {:?}, value: {}, discrete: {})\n", id, arg0, arg1, arg2, arg3);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_virtual_pointer_v1#{}.axis_discrete(time: {}, axis: {:?}, value: {}, discrete: {})\n", id, arg0, arg1, arg2, arg3);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -488,7 +497,8 @@ impl ZwlrVirtualPointerV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_virtual_pointer_v1#{}.destroy()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_virtual_pointer_v1#{}.destroy()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -745,7 +755,10 @@ impl ProxyPrivate for ZwlrVirtualPointerV1 {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let [
@@ -759,7 +772,8 @@ impl ProxyPrivate for ZwlrVirtualPointerV1 {
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.motion(time: {}, dx: {}, dy: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_virtual_pointer_v1#{}.motion(time: {}, dx: {}, dy: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -780,7 +794,8 @@ impl ProxyPrivate for ZwlrVirtualPointerV1 {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.motion_absolute(time: {}, x: {}, y: {}, x_extent: {}, y_extent: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_virtual_pointer_v1#{}.motion_absolute(time: {}, x: {}, y: {}, x_extent: {}, y_extent: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -800,7 +815,8 @@ impl ProxyPrivate for ZwlrVirtualPointerV1 {
                 let arg2 = WlPointerButtonState(arg2);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.button(time: {}, button: {}, state: {:?})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_virtual_pointer_v1#{}.button(time: {}, button: {}, state: {:?})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -821,7 +837,8 @@ impl ProxyPrivate for ZwlrVirtualPointerV1 {
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.axis(time: {}, axis: {:?}, value: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_virtual_pointer_v1#{}.axis(time: {}, axis: {:?}, value: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -836,7 +853,8 @@ impl ProxyPrivate for ZwlrVirtualPointerV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.frame()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_virtual_pointer_v1#{}.frame()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -854,7 +872,8 @@ impl ProxyPrivate for ZwlrVirtualPointerV1 {
                 let arg0 = WlPointerAxisSource(arg0);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.axis_source(axis_source: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_virtual_pointer_v1#{}.axis_source(axis_source: {:?})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -873,7 +892,8 @@ impl ProxyPrivate for ZwlrVirtualPointerV1 {
                 let arg1 = WlPointerAxis(arg1);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.axis_stop(time: {}, axis: {:?})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_virtual_pointer_v1#{}.axis_stop(time: {}, axis: {:?})\n", client.endpoint.id, msg[0], arg0, arg1);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -896,7 +916,8 @@ impl ProxyPrivate for ZwlrVirtualPointerV1 {
                 let arg3 = arg3 as i32;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.axis_discrete(time: {}, axis: {:?}, value: {}, discrete: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_virtual_pointer_v1#{}.axis_discrete(time: {}, axis: {:?}, value: {}, discrete: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -911,7 +932,8 @@ impl ProxyPrivate for ZwlrVirtualPointerV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_virtual_pointer_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_virtual_pointer_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -933,7 +955,10 @@ impl ProxyPrivate for ZwlrVirtualPointerV1 {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             n => {
                 let _ = msg;

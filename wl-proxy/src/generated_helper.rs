@@ -1,15 +1,16 @@
 use {debug_fn::debug_fn, std::fmt::Display, uapi::c};
 
-pub mod prelude {
-    pub use {
+pub(crate) mod prelude {
+    pub(crate) use {
         super::{debug_array, time_since_epoch},
         crate::{
             client::Client,
             fixed::Fixed,
             generated::ProxyInterface,
             object_error::{ObjectError, StringError},
-            proxy::{HandlerAccessError, HandlerHolder, Proxy, ProxyCore, ProxyPrivate},
+            proxy::{HandlerAccessError, Proxy, ProxyCore, ProxyPrivate},
             state::State,
+            utils::handler_holder::HandlerHolder,
         },
         error_reporter::Report,
         std::{
@@ -26,7 +27,7 @@ pub mod prelude {
     };
 }
 
-pub fn debug_array(array: &[u8]) -> impl Display + use<'_> {
+pub(crate) fn debug_array(array: &[u8]) -> impl Display + use<'_> {
     debug_fn(move |fmt| {
         fmt.write_str("0x")?;
         if array.is_empty() {
@@ -40,7 +41,7 @@ pub fn debug_array(array: &[u8]) -> impl Display + use<'_> {
 }
 
 #[inline]
-pub fn time_since_epoch() -> (u32, u16) {
+pub(crate) fn time_since_epoch() -> (u32, u16) {
     let mut ts = c::timespec {
         tv_sec: 0,
         tv_nsec: 0,

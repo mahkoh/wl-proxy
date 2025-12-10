@@ -1,17 +1,17 @@
 use {
     crate::{
-        endpoint::Endpoint, generated::wayland::wl_display::WlDisplay, proxy::HandlerHolder,
-        state::State,
+        endpoint::Endpoint, generated::wayland::wl_display::WlDisplay, state::State,
+        utils::handler_holder::HandlerHolder,
     },
     std::{cell::Cell, rc::Rc},
 };
 
 pub struct Client {
-    pub state: Rc<State>,
-    pub endpoint: Rc<Endpoint>,
-    pub display: Rc<WlDisplay>,
-    pub destroyed: Cell<bool>,
-    pub handler: HandlerHolder<dyn ClientHandler>,
+    pub(crate) state: Rc<State>,
+    pub(crate) endpoint: Rc<Endpoint>,
+    pub(crate) display: Rc<WlDisplay>,
+    pub(crate) destroyed: Cell<bool>,
+    pub(crate) handler: HandlerHolder<dyn ClientHandler>,
 }
 
 pub trait ClientHandler {
@@ -35,22 +35,29 @@ impl Client {
     }
 
     pub fn unset_proxy_handlers(&self) {
-        for object in self.endpoint.objects.borrow_mut().values() {
+        let proxies = &mut *self.state.proxy_stash.borrow();
+        proxies.extend(self.endpoint.objects.borrow().values().cloned());
+        for object in proxies {
             object.unset_handler();
         }
+    }
+
+    pub fn display(&self) -> &Rc<WlDisplay> {
+        &self.display
     }
 
     pub fn kill(&self) {
         if self.destroyed.replace(true) {
             return;
         }
-        for object in self.endpoint.objects.borrow_mut().values() {
+        let proxies = &mut *self.state.proxy_stash.borrow();
+        for (_, object) in self.endpoint.objects.borrow_mut().drain() {
             let core = object.core();
             core.client.take();
             core.client_id.take();
             core.client_obj_id.take();
+            proxies.push(object);
         }
-        self.endpoint.objects.borrow_mut().clear();
         self.handler.set(None);
         self.state.pollables.borrow_mut().remove(&self.endpoint.id);
     }

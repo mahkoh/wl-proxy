@@ -1,80 +1,32 @@
 use {
     crate::VeilError,
-    error_reporter::Report,
     std::{
         collections::{HashMap, HashSet},
-        os::unix::process::ExitStatusExt,
-        process::{Command, exit},
+        process::Command,
         rc::Rc,
         sync::Arc,
-        thread,
     },
-    uapi::raise,
     wl_proxy::{
-        acceptor::Acceptor,
         generated::wayland::{
             wl_display::{WlDisplay, WlDisplayHandler},
             wl_registry::{WlRegistry, WlRegistryHandler},
         },
-        state::State,
+        simple::{SimpleCommandExt, SimpleServer},
     },
 };
 
 pub fn main(filter: HashMap<String, Option<u32>>, program: Vec<String>) -> Result<(), VeilError> {
-    let acceptor = Acceptor::new(1000, false).map_err(VeilError::CreateAcceptor)?;
-    let mut child = Command::new(&program[0])
+    let server = SimpleServer::new().map_err(VeilError::CreateServer)?;
+    Command::new(&program[0])
         .args(&program[1..])
-        .env("WAYLAND_DISPLAY", &acceptor.display())
-        .spawn()
+        .with_wayland_display(server.display())
+        .spawn_and_forward_exit_code()
         .map_err(VeilError::SpawnChild)?;
-    thread::spawn(move || match child.wait() {
-        Ok(e) => {
-            if let Some(code) = e.code() {
-                exit(code);
-            }
-            if let Some(signal) = e.signal() {
-                let _ = raise(signal);
-                exit(1);
-            }
-            eprintln!("child terminated with neither a signal nor an exit code");
-            exit(1);
-        }
-        Err(e) => {
-            eprintln!("could not wait for child: {}", Report::new(e));
-            exit(1);
-        }
-    });
     let filter = Arc::new(filter);
-    loop {
-        let socket = acceptor
-            .accept()
-            .map_err(VeilError::AccepConnection)?
-            .unwrap();
-        let filter = filter.clone();
-        thread::spawn(move || {
-            let state = match State::new() {
-                Ok(s) => s,
-                Err(e) => {
-                    eprintln!("could not create new proxy: {}", Report::new(e));
-                    return;
-                }
-            };
-            let client = match state.add_client(socket) {
-                Ok(c) => c,
-                Err(e) => {
-                    eprintln!("could not add client: {}", Report::new(e));
-                    return;
-                }
-            };
-            client.display.set_handler(DisplayHandler { filter });
-            loop {
-                if let Err(e) = state.dispatch_blocking() {
-                    eprintln!("could not dispatch messages: {}", Report::new(e));
-                    return;
-                }
-            }
-        });
-    }
+    let err = server.run(|| DisplayHandler {
+        filter: filter.clone(),
+    });
+    Err(VeilError::ServerFailed(err))
 }
 
 struct DisplayHandler {
@@ -98,12 +50,12 @@ impl WlDisplayHandler for DisplayHandler {
 
 impl WlRegistryHandler for RegistryHandler {
     fn global(&mut self, slf: &Rc<WlRegistry>, name: u32, interface: &str, mut version: u32) {
-        if let Some(&f) = self.filter.get(interface) {
-            let Some(max) = f else {
-                self.filtered_globals.insert(version);
+        if let Some(&max_version) = self.filter.get(interface) {
+            let Some(max_version) = max_version else {
+                self.filtered_globals.insert(name);
                 return;
             };
-            version = version.min(max);
+            version = version.min(max_version);
         }
         let _ = slf.send_global(name, interface, version);
     }

@@ -34,6 +34,7 @@ impl ExtImageCopyCaptureSessionV1Handler for DefaultHandler { }
 
 impl ExtImageCopyCaptureSessionV1 {
     pub const XML_VERSION: u32 = 1;
+    pub const INTERFACE: &str = "ext_image_copy_capture_session_v1";
 }
 
 impl ExtImageCopyCaptureSessionV1 {
@@ -95,7 +96,8 @@ impl ExtImageCopyCaptureSessionV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_image_copy_capture_session_v1#{}.buffer_size(width: {}, height: {})\n", client.endpoint.id, id, arg0, arg1);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= ext_image_copy_capture_session_v1#{}.buffer_size(width: {}, height: {})\n", client.endpoint.id, id, arg0, arg1);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -146,7 +148,8 @@ impl ExtImageCopyCaptureSessionV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_image_copy_capture_session_v1#{}.shm_format(format: {:?})\n", client.endpoint.id, id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= ext_image_copy_capture_session_v1#{}.shm_format(format: {:?})\n", client.endpoint.id, id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -199,7 +202,8 @@ impl ExtImageCopyCaptureSessionV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_image_copy_capture_session_v1#{}.dmabuf_device(device: {})\n", client.endpoint.id, id, debug_array(arg0));
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= ext_image_copy_capture_session_v1#{}.dmabuf_device(device: {})\n", client.endpoint.id, id, debug_array(arg0));
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -256,7 +260,8 @@ impl ExtImageCopyCaptureSessionV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_image_copy_capture_session_v1#{}.dmabuf_format(format: {}, modifiers: {})\n", client.endpoint.id, id, arg0, debug_array(arg1));
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= ext_image_copy_capture_session_v1#{}.dmabuf_format(format: {}, modifiers: {})\n", client.endpoint.id, id, arg0, debug_array(arg1));
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -299,7 +304,8 @@ impl ExtImageCopyCaptureSessionV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_image_copy_capture_session_v1#{}.done()\n", client.endpoint.id, id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= ext_image_copy_capture_session_v1#{}.done()\n", client.endpoint.id, id);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -340,7 +346,8 @@ impl ExtImageCopyCaptureSessionV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= ext_image_copy_capture_session_v1#{}.stopped()\n", client.endpoint.id, id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= ext_image_copy_capture_session_v1#{}.stopped()\n", client.endpoint.id, id);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -389,7 +396,8 @@ impl ExtImageCopyCaptureSessionV1 {
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= ext_image_copy_capture_session_v1#{}.create_frame(frame: ext_image_copy_capture_frame_v1#{})\n", id, arg0_id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= ext_image_copy_capture_session_v1#{}.create_frame(frame: ext_image_copy_capture_frame_v1#{})\n", id, arg0_id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -428,7 +436,8 @@ impl ExtImageCopyCaptureSessionV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= ext_image_copy_capture_session_v1#{}.destroy()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= ext_image_copy_capture_session_v1#{}.destroy()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -651,7 +660,10 @@ impl ProxyPrivate for ExtImageCopyCaptureSessionV1 {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let [
@@ -661,7 +673,8 @@ impl ProxyPrivate for ExtImageCopyCaptureSessionV1 {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> ext_image_copy_capture_session_v1#{}.create_frame(frame: ext_image_copy_capture_frame_v1#{})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> ext_image_copy_capture_session_v1#{}.create_frame(frame: ext_image_copy_capture_frame_v1#{})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -681,7 +694,8 @@ impl ProxyPrivate for ExtImageCopyCaptureSessionV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> ext_image_copy_capture_session_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> ext_image_copy_capture_session_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -703,7 +717,10 @@ impl ProxyPrivate for ExtImageCopyCaptureSessionV1 {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let [
@@ -714,7 +731,8 @@ impl ProxyPrivate for ExtImageCopyCaptureSessionV1 {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_image_copy_capture_session_v1#{}.buffer_size(width: {}, height: {})\n", msg[0], arg0, arg1);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> ext_image_copy_capture_session_v1#{}.buffer_size(width: {}, height: {})\n", msg[0], arg0, arg1);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -732,7 +750,8 @@ impl ProxyPrivate for ExtImageCopyCaptureSessionV1 {
                 let arg0 = WlShmFormat(arg0);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_image_copy_capture_session_v1#{}.shm_format(format: {:?})\n", msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> ext_image_copy_capture_session_v1#{}.shm_format(format: {:?})\n", msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -762,7 +781,8 @@ impl ProxyPrivate for ExtImageCopyCaptureSessionV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_image_copy_capture_session_v1#{}.dmabuf_device(device: {})\n", msg[0], debug_array(arg0));
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> ext_image_copy_capture_session_v1#{}.dmabuf_device(device: {})\n", msg[0], debug_array(arg0));
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -796,7 +816,8 @@ impl ProxyPrivate for ExtImageCopyCaptureSessionV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_image_copy_capture_session_v1#{}.dmabuf_format(format: {}, modifiers: {})\n", msg[0], arg0, debug_array(arg1));
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> ext_image_copy_capture_session_v1#{}.dmabuf_format(format: {}, modifiers: {})\n", msg[0], arg0, debug_array(arg1));
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -811,7 +832,8 @@ impl ProxyPrivate for ExtImageCopyCaptureSessionV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_image_copy_capture_session_v1#{}.done()\n", msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> ext_image_copy_capture_session_v1#{}.done()\n", msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -826,7 +848,8 @@ impl ProxyPrivate for ExtImageCopyCaptureSessionV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> ext_image_copy_capture_session_v1#{}.stopped()\n", msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> ext_image_copy_capture_session_v1#{}.stopped()\n", msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {

@@ -19,6 +19,7 @@ impl ZwpXwaylandKeyboardGrabV1Handler for DefaultHandler { }
 
 impl ZwpXwaylandKeyboardGrabV1 {
     pub const XML_VERSION: u32 = 1;
+    pub const INTERFACE: &str = "zwp_xwayland_keyboard_grab_v1";
 }
 
 impl ZwpXwaylandKeyboardGrabV1 {
@@ -63,7 +64,8 @@ impl ZwpXwaylandKeyboardGrabV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_xwayland_keyboard_grab_v1#{}.destroy()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwp_xwayland_keyboard_grab_v1#{}.destroy()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -111,7 +113,10 @@ impl ProxyPrivate for ZwpXwaylandKeyboardGrabV1 {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
@@ -119,7 +124,8 @@ impl ProxyPrivate for ZwpXwaylandKeyboardGrabV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_xwayland_keyboard_grab_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_xwayland_keyboard_grab_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -141,7 +147,10 @@ impl ProxyPrivate for ZwpXwaylandKeyboardGrabV1 {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             n => {
                 let _ = msg;

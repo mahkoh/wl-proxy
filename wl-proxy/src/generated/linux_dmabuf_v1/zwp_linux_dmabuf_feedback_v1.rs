@@ -43,6 +43,7 @@ impl ZwpLinuxDmabufFeedbackV1Handler for DefaultHandler { }
 
 impl ZwpLinuxDmabufFeedbackV1 {
     pub const XML_VERSION: u32 = 5;
+    pub const INTERFACE: &str = "zwp_linux_dmabuf_feedback_v1";
 }
 
 impl ZwpLinuxDmabufFeedbackV1 {
@@ -87,7 +88,8 @@ impl ZwpLinuxDmabufFeedbackV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_linux_dmabuf_feedback_v1#{}.destroy()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwp_linux_dmabuf_feedback_v1#{}.destroy()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -128,7 +130,8 @@ impl ZwpLinuxDmabufFeedbackV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.done()\n", client.endpoint.id, id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.done()\n", client.endpoint.id, id);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -191,7 +194,8 @@ impl ZwpLinuxDmabufFeedbackV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.format_table(fd: {}, size: {})\n", client.endpoint.id, id, arg0.as_raw_fd(), arg1);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.format_table(fd: {}, size: {})\n", client.endpoint.id, id, arg0.as_raw_fd(), arg1);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -261,7 +265,8 @@ impl ZwpLinuxDmabufFeedbackV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.main_device(device: {})\n", client.endpoint.id, id, debug_array(arg0));
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.main_device(device: {})\n", client.endpoint.id, id, debug_array(arg0));
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -301,7 +306,8 @@ impl ZwpLinuxDmabufFeedbackV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.tranche_done()\n", client.endpoint.id, id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.tranche_done()\n", client.endpoint.id, id);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -372,7 +378,8 @@ impl ZwpLinuxDmabufFeedbackV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.tranche_target_device(device: {})\n", client.endpoint.id, id, debug_array(arg0));
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.tranche_target_device(device: {})\n", client.endpoint.id, id, debug_array(arg0));
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -442,7 +449,8 @@ impl ZwpLinuxDmabufFeedbackV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.tranche_formats(indices: {})\n", client.endpoint.id, id, debug_array(arg0));
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.tranche_formats(indices: {})\n", client.endpoint.id, id, debug_array(arg0));
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -496,7 +504,8 @@ impl ZwpLinuxDmabufFeedbackV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.tranche_flags(flags: {:?})\n", client.endpoint.id, id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_linux_dmabuf_feedback_v1#{}.tranche_flags(flags: {:?})\n", client.endpoint.id, id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -779,7 +788,10 @@ impl ProxyPrivate for ZwpLinuxDmabufFeedbackV1 {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
@@ -787,7 +799,8 @@ impl ProxyPrivate for ZwpLinuxDmabufFeedbackV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_linux_dmabuf_feedback_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_linux_dmabuf_feedback_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -809,7 +822,10 @@ impl ProxyPrivate for ZwpLinuxDmabufFeedbackV1 {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
@@ -817,7 +833,8 @@ impl ProxyPrivate for ZwpLinuxDmabufFeedbackV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_dmabuf_feedback_v1#{}.done()\n", msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_linux_dmabuf_feedback_v1#{}.done()\n", msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -838,7 +855,8 @@ impl ProxyPrivate for ZwpLinuxDmabufFeedbackV1 {
                 let arg0 = &arg0;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_dmabuf_feedback_v1#{}.format_table(fd: {}, size: {})\n", msg[0], arg0.as_raw_fd(), arg1);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_linux_dmabuf_feedback_v1#{}.format_table(fd: {}, size: {})\n", msg[0], arg0.as_raw_fd(), arg1);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -868,7 +886,8 @@ impl ProxyPrivate for ZwpLinuxDmabufFeedbackV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_dmabuf_feedback_v1#{}.main_device(device: {})\n", msg[0], debug_array(arg0));
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_linux_dmabuf_feedback_v1#{}.main_device(device: {})\n", msg[0], debug_array(arg0));
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -883,7 +902,8 @@ impl ProxyPrivate for ZwpLinuxDmabufFeedbackV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_dmabuf_feedback_v1#{}.tranche_done()\n", msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_linux_dmabuf_feedback_v1#{}.tranche_done()\n", msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -913,7 +933,8 @@ impl ProxyPrivate for ZwpLinuxDmabufFeedbackV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_dmabuf_feedback_v1#{}.tranche_target_device(device: {})\n", msg[0], debug_array(arg0));
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_linux_dmabuf_feedback_v1#{}.tranche_target_device(device: {})\n", msg[0], debug_array(arg0));
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -943,7 +964,8 @@ impl ProxyPrivate for ZwpLinuxDmabufFeedbackV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_dmabuf_feedback_v1#{}.tranche_formats(indices: {})\n", msg[0], debug_array(arg0));
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_linux_dmabuf_feedback_v1#{}.tranche_formats(indices: {})\n", msg[0], debug_array(arg0));
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -961,7 +983,8 @@ impl ProxyPrivate for ZwpLinuxDmabufFeedbackV1 {
                 let arg0 = ZwpLinuxDmabufFeedbackV1TrancheFlags(arg0);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_dmabuf_feedback_v1#{}.tranche_flags(flags: {:?})\n", msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_linux_dmabuf_feedback_v1#{}.tranche_flags(flags: {:?})\n", msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {

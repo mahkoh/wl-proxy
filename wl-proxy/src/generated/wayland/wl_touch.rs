@@ -26,6 +26,7 @@ impl WlTouchHandler for DefaultHandler { }
 
 impl WlTouch {
     pub const XML_VERSION: u32 = 10;
+    pub const INTERFACE: &str = "wl_touch";
 }
 
 impl WlTouch {
@@ -109,7 +110,8 @@ impl WlTouch {
         let arg2_id = arg2.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_touch#{}.down(serial: {}, time: {}, surface: wl_surface#{}, id: {}, x: {}, y: {})\n", client.endpoint.id, id, arg0, arg1, arg2_id, arg3, arg4, arg5);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_touch#{}.down(serial: {}, time: {}, surface: wl_surface#{}, id: {}, x: {}, y: {})\n", client.endpoint.id, id, arg0, arg1, arg2_id, arg3, arg4, arg5);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -171,7 +173,8 @@ impl WlTouch {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_touch#{}.up(serial: {}, time: {}, id: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_touch#{}.up(serial: {}, time: {}, id: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -232,7 +235,8 @@ impl WlTouch {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_touch#{}.motion(time: {}, id: {}, x: {}, y: {})\n", client.endpoint.id, id, arg0, arg1, arg2, arg3);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_touch#{}.motion(time: {}, id: {}, x: {}, y: {})\n", client.endpoint.id, id, arg0, arg1, arg2, arg3);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -279,7 +283,8 @@ impl WlTouch {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_touch#{}.frame()\n", client.endpoint.id, id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_touch#{}.frame()\n", client.endpoint.id, id);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -322,7 +327,8 @@ impl WlTouch {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_touch#{}.cancel()\n", client.endpoint.id, id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_touch#{}.cancel()\n", client.endpoint.id, id);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -354,7 +360,8 @@ impl WlTouch {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= wl_touch#{}.release()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_touch#{}.release()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -433,7 +440,8 @@ impl WlTouch {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_touch#{}.shape(id: {}, major: {}, minor: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_touch#{}.shape(id: {}, major: {}, minor: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -508,7 +516,8 @@ impl WlTouch {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= wl_touch#{}.orientation(id: {}, orientation: {})\n", client.endpoint.id, id, arg0, arg1);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_touch#{}.orientation(id: {}, orientation: {})\n", client.endpoint.id, id, arg0, arg1);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -803,7 +812,10 @@ impl ProxyPrivate for WlTouch {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
@@ -811,7 +823,8 @@ impl ProxyPrivate for WlTouch {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> wl_touch#{}.release()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_touch#{}.release()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -833,7 +846,10 @@ impl ProxyPrivate for WlTouch {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let [
@@ -851,7 +867,8 @@ impl ProxyPrivate for WlTouch {
                 let arg5 = Fixed::from_wire(arg5 as i32);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_touch#{}.down(serial: {}, time: {}, surface: wl_surface#{}, id: {}, x: {}, y: {})\n", msg[0], arg0, arg1, arg2, arg3, arg4, arg5);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_touch#{}.down(serial: {}, time: {}, surface: wl_surface#{}, id: {}, x: {}, y: {})\n", msg[0], arg0, arg1, arg2, arg3, arg4, arg5);
                     self.core.state.log(args);
                 }
                 let arg2_id = arg2;
@@ -880,7 +897,8 @@ impl ProxyPrivate for WlTouch {
                 let arg2 = arg2 as i32;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_touch#{}.up(serial: {}, time: {}, id: {})\n", msg[0], arg0, arg1, arg2);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_touch#{}.up(serial: {}, time: {}, id: {})\n", msg[0], arg0, arg1, arg2);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -903,7 +921,8 @@ impl ProxyPrivate for WlTouch {
                 let arg3 = Fixed::from_wire(arg3 as i32);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_touch#{}.motion(time: {}, id: {}, x: {}, y: {})\n", msg[0], arg0, arg1, arg2, arg3);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_touch#{}.motion(time: {}, id: {}, x: {}, y: {})\n", msg[0], arg0, arg1, arg2, arg3);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -918,7 +937,8 @@ impl ProxyPrivate for WlTouch {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_touch#{}.frame()\n", msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_touch#{}.frame()\n", msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -933,7 +953,8 @@ impl ProxyPrivate for WlTouch {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_touch#{}.cancel()\n", msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_touch#{}.cancel()\n", msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -955,7 +976,8 @@ impl ProxyPrivate for WlTouch {
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_touch#{}.shape(id: {}, major: {}, minor: {})\n", msg[0], arg0, arg1, arg2);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_touch#{}.shape(id: {}, major: {}, minor: {})\n", msg[0], arg0, arg1, arg2);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -975,7 +997,8 @@ impl ProxyPrivate for WlTouch {
                 let arg1 = Fixed::from_wire(arg1 as i32);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> wl_touch#{}.orientation(id: {}, orientation: {})\n", msg[0], arg0, arg1);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_touch#{}.orientation(id: {}, orientation: {})\n", msg[0], arg0, arg1);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {

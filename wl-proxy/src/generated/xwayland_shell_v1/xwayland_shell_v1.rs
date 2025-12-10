@@ -33,6 +33,7 @@ impl XwaylandShellV1Handler for DefaultHandler { }
 
 impl XwaylandShellV1 {
     pub const XML_VERSION: u32 = 1;
+    pub const INTERFACE: &str = "xwayland_shell_v1";
 }
 
 impl XwaylandShellV1 {
@@ -78,7 +79,8 @@ impl XwaylandShellV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xwayland_shell_v1#{}.destroy()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xwayland_shell_v1#{}.destroy()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -145,7 +147,8 @@ impl XwaylandShellV1 {
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= xwayland_shell_v1#{}.get_xwayland_surface(id: xwayland_surface_v1#{}, surface: wl_surface#{})\n", id, arg0_id, arg1_id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xwayland_shell_v1#{}.get_xwayland_surface(id: xwayland_surface_v1#{}, surface: wl_surface#{})\n", id, arg0_id, arg1_id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -230,7 +233,10 @@ impl ProxyPrivate for XwaylandShellV1 {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
@@ -238,7 +244,8 @@ impl ProxyPrivate for XwaylandShellV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xwayland_shell_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xwayland_shell_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -257,7 +264,8 @@ impl ProxyPrivate for XwaylandShellV1 {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> xwayland_shell_v1#{}.get_xwayland_surface(id: xwayland_surface_v1#{}, surface: wl_surface#{})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xwayland_shell_v1#{}.get_xwayland_surface(id: xwayland_surface_v1#{}, surface: wl_surface#{})\n", client.endpoint.id, msg[0], arg0, arg1);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -292,7 +300,10 @@ impl ProxyPrivate for XwaylandShellV1 {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             n => {
                 let _ = msg;

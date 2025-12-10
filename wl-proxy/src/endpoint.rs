@@ -1,12 +1,12 @@
 use {
     crate::{
         client::Client,
-        free_list::FreeList,
         generated::ProxyInterface,
         object_error::ObjectError,
         proxy::Proxy,
         state::HandlerLock,
         trans::{self, FlushResult, InputBuffer, OutputSwapchain, TransError},
+        utils::free_list::FreeList,
     },
     std::{
         cell::{Cell, RefCell},
@@ -20,23 +20,23 @@ use {
     uapi::c,
 };
 
-pub struct Endpoint {
-    pub id: u64,
-    pub socket: Rc<OwnedFd>,
-    pub outgoing: RefCell<OutputSwapchain>,
-    pub flush_queued: Cell<bool>,
-    pub objects: RefCell<HashMap<u32, Rc<dyn Proxy>>>,
-    pub idl: FreeList<u32, 3>,
-    pub current_interest: Cell<c::c_int>,
-    pub desired_interest: Cell<c::c_int>,
-    pub interest_update_queued: Cell<bool>,
-    pub incoming: RefCell<InputState>,
+pub(crate) struct Endpoint {
+    pub(crate) id: u64,
+    pub(crate) socket: Rc<OwnedFd>,
+    pub(crate) outgoing: RefCell<OutputSwapchain>,
+    pub(crate) flush_queued: Cell<bool>,
+    pub(crate) objects: RefCell<HashMap<u32, Rc<dyn Proxy>>>,
+    pub(crate) idl: FreeList<u32, 3>,
+    pub(crate) current_interest: Cell<c::c_int>,
+    pub(crate) desired_interest: Cell<c::c_int>,
+    pub(crate) interest_update_queued: Cell<bool>,
+    incoming: RefCell<InputState>,
 }
 
 #[derive(Default)]
-pub struct InputState {
-    pub buffer: Box<InputBuffer>,
-    pub fds: VecDeque<Rc<OwnedFd>>,
+pub(crate) struct InputState {
+    buffer: Box<InputBuffer>,
+    fds: VecDeque<Rc<OwnedFd>>,
 }
 
 #[derive(Debug, Error)]

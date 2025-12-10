@@ -8,7 +8,7 @@ use std::{
 type Seg = usize;
 const SEG_SIZE: usize = size_of::<Seg>() * 8;
 
-pub struct FreeList<T, const N: usize> {
+pub(crate) struct FreeList<T, const N: usize> {
     levels: UnsafeCell<[Vec<Seg>; N]>,
     _phantom: PhantomData<T>,
 }
@@ -35,7 +35,7 @@ impl<T, const N: usize> FreeList<T, N> {
         unsafe { &mut *self.levels.get() }
     }
 
-    pub fn release(&self, n: T)
+    pub(crate) fn release(&self, n: T)
     where
         T: Into<u32>,
     {
@@ -52,7 +52,7 @@ impl<T, const N: usize> FreeList<T, N> {
         }
     }
 
-    pub fn acquire(&self) -> T
+    pub(crate) fn acquire(&self) -> T
     where
         u32: Into<T>,
     {

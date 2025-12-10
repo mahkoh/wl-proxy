@@ -33,6 +33,7 @@ impl ZwlrLayerSurfaceV1Handler for DefaultHandler { }
 
 impl ZwlrLayerSurfaceV1 {
     pub const XML_VERSION: u32 = 5;
+    pub const INTERFACE: &str = "zwlr_layer_surface_v1";
 }
 
 impl ZwlrLayerSurfaceV1 {
@@ -99,7 +100,8 @@ impl ZwlrLayerSurfaceV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_layer_surface_v1#{}.set_size(width: {}, height: {})\n", id, arg0, arg1);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_layer_surface_v1#{}.set_size(width: {}, height: {})\n", id, arg0, arg1);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -151,7 +153,8 @@ impl ZwlrLayerSurfaceV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_layer_surface_v1#{}.set_anchor(anchor: {:?})\n", id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_layer_surface_v1#{}.set_anchor(anchor: {:?})\n", id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -227,7 +230,8 @@ impl ZwlrLayerSurfaceV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_layer_surface_v1#{}.set_exclusive_zone(zone: {})\n", id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_layer_surface_v1#{}.set_exclusive_zone(zone: {})\n", id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -290,7 +294,8 @@ impl ZwlrLayerSurfaceV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_layer_surface_v1#{}.set_margin(top: {}, right: {}, bottom: {}, left: {})\n", id, arg0, arg1, arg2, arg3);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_layer_surface_v1#{}.set_margin(top: {}, right: {}, bottom: {}, left: {})\n", id, arg0, arg1, arg2, arg3);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -349,7 +354,8 @@ impl ZwlrLayerSurfaceV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_layer_surface_v1#{}.set_keyboard_interactivity(keyboard_interactivity: {:?})\n", id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_layer_surface_v1#{}.set_keyboard_interactivity(keyboard_interactivity: {:?})\n", id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -405,7 +411,8 @@ impl ZwlrLayerSurfaceV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_layer_surface_v1#{}.get_popup(popup: xdg_popup#{})\n", id, arg0_id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_layer_surface_v1#{}.get_popup(popup: xdg_popup#{})\n", id, arg0_id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -464,7 +471,8 @@ impl ZwlrLayerSurfaceV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_layer_surface_v1#{}.ack_configure(serial: {})\n", id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_layer_surface_v1#{}.ack_configure(serial: {})\n", id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -499,7 +507,8 @@ impl ZwlrLayerSurfaceV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_layer_surface_v1#{}.destroy()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_layer_surface_v1#{}.destroy()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -573,7 +582,8 @@ impl ZwlrLayerSurfaceV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_layer_surface_v1#{}.configure(serial: {}, width: {}, height: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_layer_surface_v1#{}.configure(serial: {}, width: {}, height: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -616,7 +626,8 @@ impl ZwlrLayerSurfaceV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwlr_layer_surface_v1#{}.closed()\n", client.endpoint.id, id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_layer_surface_v1#{}.closed()\n", client.endpoint.id, id);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -662,7 +673,8 @@ impl ZwlrLayerSurfaceV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_layer_surface_v1#{}.set_layer(layer: {:?})\n", id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_layer_surface_v1#{}.set_layer(layer: {:?})\n", id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -714,7 +726,8 @@ impl ZwlrLayerSurfaceV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_layer_surface_v1#{}.set_exclusive_edge(edge: {:?})\n", id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_layer_surface_v1#{}.set_exclusive_edge(edge: {:?})\n", id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -1122,7 +1135,10 @@ impl ProxyPrivate for ZwlrLayerSurfaceV1 {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let [
@@ -1133,7 +1149,8 @@ impl ProxyPrivate for ZwlrLayerSurfaceV1 {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_layer_surface_v1#{}.set_size(width: {}, height: {})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_layer_surface_v1#{}.set_size(width: {}, height: {})\n", client.endpoint.id, msg[0], arg0, arg1);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -1151,7 +1168,8 @@ impl ProxyPrivate for ZwlrLayerSurfaceV1 {
                 let arg0 = ZwlrLayerSurfaceV1Anchor(arg0);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_layer_surface_v1#{}.set_anchor(anchor: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_layer_surface_v1#{}.set_anchor(anchor: {:?})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -1169,7 +1187,8 @@ impl ProxyPrivate for ZwlrLayerSurfaceV1 {
                 let arg0 = arg0 as i32;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_layer_surface_v1#{}.set_exclusive_zone(zone: {})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_layer_surface_v1#{}.set_exclusive_zone(zone: {})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -1193,7 +1212,8 @@ impl ProxyPrivate for ZwlrLayerSurfaceV1 {
                 let arg3 = arg3 as i32;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_layer_surface_v1#{}.set_margin(top: {}, right: {}, bottom: {}, left: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_layer_surface_v1#{}.set_margin(top: {}, right: {}, bottom: {}, left: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -1211,7 +1231,8 @@ impl ProxyPrivate for ZwlrLayerSurfaceV1 {
                 let arg0 = ZwlrLayerSurfaceV1KeyboardInteractivity(arg0);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_layer_surface_v1#{}.set_keyboard_interactivity(keyboard_interactivity: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_layer_surface_v1#{}.set_keyboard_interactivity(keyboard_interactivity: {:?})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -1228,7 +1249,8 @@ impl ProxyPrivate for ZwlrLayerSurfaceV1 {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_layer_surface_v1#{}.get_popup(popup: xdg_popup#{})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_layer_surface_v1#{}.get_popup(popup: xdg_popup#{})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -1254,7 +1276,8 @@ impl ProxyPrivate for ZwlrLayerSurfaceV1 {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_layer_surface_v1#{}.ack_configure(serial: {})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_layer_surface_v1#{}.ack_configure(serial: {})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -1269,7 +1292,8 @@ impl ProxyPrivate for ZwlrLayerSurfaceV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_layer_surface_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_layer_surface_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -1288,7 +1312,8 @@ impl ProxyPrivate for ZwlrLayerSurfaceV1 {
                 let arg0 = ZwlrLayerShellV1Layer(arg0);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_layer_surface_v1#{}.set_layer(layer: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_layer_surface_v1#{}.set_layer(layer: {:?})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -1306,7 +1331,8 @@ impl ProxyPrivate for ZwlrLayerSurfaceV1 {
                 let arg0 = ZwlrLayerSurfaceV1Anchor(arg0);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_layer_surface_v1#{}.set_exclusive_edge(edge: {:?})\n", client.endpoint.id, msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_layer_surface_v1#{}.set_exclusive_edge(edge: {:?})\n", client.endpoint.id, msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -1327,7 +1353,10 @@ impl ProxyPrivate for ZwlrLayerSurfaceV1 {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let [
@@ -1339,7 +1368,8 @@ impl ProxyPrivate for ZwlrLayerSurfaceV1 {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_layer_surface_v1#{}.configure(serial: {}, width: {}, height: {})\n", msg[0], arg0, arg1, arg2);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_layer_surface_v1#{}.configure(serial: {}, width: {}, height: {})\n", msg[0], arg0, arg1, arg2);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -1354,7 +1384,8 @@ impl ProxyPrivate for ZwlrLayerSurfaceV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwlr_layer_surface_v1#{}.closed()\n", msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_layer_surface_v1#{}.closed()\n", msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {

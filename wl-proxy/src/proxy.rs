@@ -5,7 +5,6 @@ use {
         cell::{Cell, Ref, RefCell, RefMut},
         collections::{VecDeque, hash_map::Entry},
         mem,
-        ops::{Deref, DerefMut},
         os::fd::OwnedFd,
         rc::{Rc, Weak},
     },
@@ -22,7 +21,7 @@ pub enum HandlerAccessError {
     InvalidType,
 }
 
-pub trait ProxyPrivate: Any {
+pub(crate) trait ProxyPrivate: Any {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self>
     where
         Self: Sized;
@@ -41,6 +40,7 @@ pub trait ProxyPrivate: Any {
     fn get_event_name(&self, id: u32) -> Option<&'static str>;
 }
 
+#[expect(private_bounds)]
 pub trait Proxy: ProxyPrivate {
     fn core(&self) -> &ProxyCore;
     fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError>;
@@ -50,7 +50,7 @@ pub trait Proxy: ProxyPrivate {
 
 pub trait ProxyUtils: Proxy {
     fn state(&self) -> &Rc<State> {
-        &self.core().state
+        self.core().state()
     }
 
     fn create_child<P>(&self) -> Rc<P>
@@ -58,6 +58,14 @@ pub trait ProxyUtils: Proxy {
         P: Proxy,
     {
         self.core().create_child()
+    }
+
+    fn interface(&self) -> ProxyInterface {
+        self.core().interface()
+    }
+
+    fn version(&self) -> u32 {
+        self.core().version()
     }
 
     fn get_handler_ref<T>(&self) -> Result<Ref<'_, T>, HandlerAccessError>
@@ -90,14 +98,14 @@ pub trait ProxyUtils: Proxy {
 impl<T> ProxyUtils for T where T: Proxy + ?Sized {}
 
 pub struct ProxyCore {
-    pub state: Rc<State>,
-    pub proxy_id: u64,
-    pub interface: ProxyInterface,
-    pub version: u32,
-    pub server_obj_id: Cell<Option<u32>>,
-    pub client_obj_id: Cell<Option<u32>>,
-    pub client_id: Cell<Option<u64>>,
-    pub client: RefCell<Option<Rc<Client>>>,
+    pub(crate) state: Rc<State>,
+    proxy_id: u64,
+    pub(crate) interface: ProxyInterface,
+    pub(crate) version: u32,
+    pub(crate) server_obj_id: Cell<Option<u32>>,
+    pub(crate) client_obj_id: Cell<Option<u32>>,
+    pub(crate) client_id: Cell<Option<u64>>,
+    pub(crate) client: RefCell<Option<Rc<Client>>>,
 }
 
 #[derive(Debug, Error)]
@@ -253,7 +261,8 @@ impl ProxyCore {
         let id = self.client_obj_id.take().unwrap();
         self.client_id.take();
         let client = self.client.take().unwrap();
-        client.endpoint.objects.borrow_mut().remove(&id);
+        let proxy = client.endpoint.objects.borrow_mut().remove(&id);
+        drop(proxy);
         if let Some(id) = id.checked_sub(MIN_SERVER_ID) {
             client.endpoint.idl.release(id);
         } else {
@@ -267,7 +276,7 @@ impl ProxyCore {
             return;
         }
         self.server_obj_id.take();
-        self.state.server.objects.borrow_mut().remove(&id);
+        let _proxy = self.state.server.objects.borrow_mut().remove(&id);
     }
 
     pub fn create_child<P>(&self) -> Rc<P>
@@ -276,69 +285,22 @@ impl ProxyCore {
     {
         self.state.create_proxy::<P>(self.version)
     }
+
+    pub fn state(&self) -> &Rc<State> {
+        &self.state
+    }
+
+    pub fn interface(&self) -> ProxyInterface {
+        self.interface
+    }
+
+    pub fn version(&self) -> u32 {
+        self.version
+    }
 }
 
 impl Drop for ProxyCore {
     fn drop(&mut self) {
         self.state.all_proxies.borrow_mut().remove(&self.proxy_id);
-    }
-}
-
-pub struct HandlerHolder<T: ?Sized> {
-    pub handler: RefCell<Option<Box<T>>>,
-    new: Cell<Option<Option<Box<T>>>>,
-}
-
-pub struct HandlerHolderBorrow<'a, T: ?Sized> {
-    handler: RefMut<'a, Option<Box<T>>>,
-    new: &'a Cell<Option<Option<Box<T>>>>,
-}
-
-impl<T: ?Sized> Default for HandlerHolder<T> {
-    fn default() -> Self {
-        Self {
-            handler: Default::default(),
-            new: Default::default(),
-        }
-    }
-}
-
-impl<T: ?Sized> HandlerHolder<T> {
-    pub fn borrow(&self) -> HandlerHolderBorrow<'_, T> {
-        HandlerHolderBorrow {
-            handler: self.handler.borrow_mut(),
-            new: &self.new,
-        }
-    }
-
-    pub fn set(&self, handler: Option<Box<T>>) {
-        let _prev;
-        if let Ok(mut cell) = self.handler.try_borrow_mut() {
-            _prev = mem::replace(&mut *cell, handler);
-        } else {
-            self.new.set(Some(handler));
-        }
-    }
-}
-
-impl<T: ?Sized> Deref for HandlerHolderBorrow<'_, T> {
-    type Target = Option<Box<T>>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.handler
-    }
-}
-
-impl<T: ?Sized> DerefMut for HandlerHolderBorrow<'_, T> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.handler
-    }
-}
-
-impl<T: ?Sized> Drop for HandlerHolderBorrow<'_, T> {
-    fn drop(&mut self) {
-        if let Some(new) = self.new.take() {
-            *self.handler = new;
-        }
     }
 }

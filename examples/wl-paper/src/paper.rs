@@ -1,15 +1,19 @@
 use {
+    crate::PaperError,
     std::{
         any::Any,
         cell::{Cell, RefCell},
+        process::Command,
         rc::Rc,
+        sync::Arc,
     },
     wl_proxy::{
-        client::Client,
         generated::{
             ProxyInterface,
             wayland::{
+                wl_callback::{WlCallback, WlCallbackHandler},
                 wl_display::{WlDisplay, WlDisplayHandler},
+                wl_fixes::WlFixes,
                 wl_output::WlOutput,
                 wl_registry::{WlRegistry, WlRegistryHandler},
                 wl_seat::WlSeat,
@@ -33,90 +37,139 @@ use {
             },
         },
         proxy::{Proxy, ProxyUtils},
-        state::{State, StateHandler},
+        simple::{SimpleCommandExt, SimpleServer},
     },
 };
 
-fn main() {
-    let state = State::new().unwrap();
-    state.set_handler(Box::new(ClientsHandlerImpl {}));
-    let acceptor = state.create_acceptor(1000).unwrap();
-    eprintln!("{}", acceptor.display());
-    loop {
-        state.dispatch(None).unwrap();
-    }
+pub fn main(config: Config, program: &[String]) -> Result<(), PaperError> {
+    let config = Arc::new(config);
+    let server = SimpleServer::new().map_err(PaperError::CreateServer)?;
+    Command::new(&program[0])
+        .args(&program[1..])
+        .with_wayland_display(server.display())
+        .spawn_and_forward_exit_code()
+        .map_err(PaperError::SpawnChild)?;
+    let err = server.run(|| DisplayHandler {
+        init: false,
+        layer_shell: Default::default(),
+        config: config.clone(),
+    });
+    Err(PaperError::ServerFailed(err))
 }
 
-struct Shared {
-    mutable: RefCell<SharedMut>,
+pub struct Config {
+    pub margin_top: i32,
+    pub margin_right: i32,
+    pub margin_bottom: i32,
+    pub margin_left: i32,
 }
 
-struct SharedMut {
-    layer_shell: Option<Rc<ZwlrLayerShellV1>>,
+#[derive(Default)]
+struct LayerShell {
+    layer_shell: RefCell<Option<Rc<ZwlrLayerShellV1>>>,
 }
 
-struct ClientsHandlerImpl {}
-
-impl StateHandler for ClientsHandlerImpl {
-    fn new_client(&mut self, client: &Rc<Client>) {
-        let shared = Rc::new(Shared {
-            mutable: RefCell::new(SharedMut {
-                layer_shell: Default::default(),
-            }),
-        });
-        client.display.set_handler(DisplayHandlerImpl { shared });
-    }
+struct DisplayHandler {
+    init: bool,
+    layer_shell: Rc<LayerShell>,
+    config: Arc<Config>,
 }
 
-struct DisplayHandlerImpl {
-    shared: Rc<Shared>,
-}
-
-impl WlDisplayHandler for DisplayHandlerImpl {
+impl WlDisplayHandler for DisplayHandler {
     fn get_registry(&mut self, slf: &Rc<WlDisplay>, registry: &Rc<WlRegistry>) {
+        if !self.init {
+            self.init = true;
+            let registry = slf.create_child::<WlRegistry>();
+            registry.set_handler(FirstRegistryHandler {
+                layer_shell: self.layer_shell.clone(),
+                wl_fixes: Default::default(),
+            });
+            let _ = slf.send_get_registry(&registry);
+            let sync = slf.create_child::<WlCallback>();
+            sync.set_handler(FirstSyncHandler { registry });
+            let _ = slf.send_sync(&sync);
+        }
         let _ = slf.send_get_registry(registry);
-        registry.set_handler(RegistryHandlerImpl {
-            shared: self.shared.clone(),
+        registry.set_handler(RegistryHandler {
+            layer_shell: self.layer_shell.clone(),
+            config: self.config.clone(),
         });
     }
 }
 
-struct RegistryHandlerImpl {
-    shared: Rc<Shared>,
+struct FirstRegistryHandler {
+    layer_shell: Rc<LayerShell>,
+    wl_fixes: Option<Rc<WlFixes>>,
 }
 
-impl WlRegistryHandler for RegistryHandlerImpl {
+impl WlRegistryHandler for FirstRegistryHandler {
+    fn global(&mut self, slf: &Rc<WlRegistry>, name: u32, interface: &str, version: u32) {
+        match interface {
+            ZwlrLayerShellV1::INTERFACE => {
+                let proxy = slf.state().create_proxy::<ZwlrLayerShellV1>(version.min(5));
+                let _ = slf.send_bind(name, proxy.clone());
+                *self.layer_shell.layer_shell.borrow_mut() = Some(proxy);
+            }
+            WlFixes::INTERFACE => {
+                let proxy = slf.state().create_proxy::<WlFixes>(1);
+                let _ = slf.send_bind(name, proxy.clone());
+                self.wl_fixes = Some(proxy);
+            }
+            _ => {}
+        }
+    }
+}
+
+struct FirstSyncHandler {
+    registry: Rc<WlRegistry>,
+}
+
+impl WlCallbackHandler for FirstSyncHandler {
+    fn done(&mut self, _slf: &Rc<WlCallback>, _callback_data: u32) {
+        let rh = self
+            .registry
+            .get_handler_ref::<FirstRegistryHandler>()
+            .unwrap();
+        if let Some(fixes) = &rh.wl_fixes {
+            let _ = fixes.send_destroy_registry(&self.registry);
+            let _ = fixes.send_destroy();
+        }
+        if rh.layer_shell.layer_shell.borrow().is_none() {
+            eprintln!(
+                "compositor does not support {}",
+                ZwlrLayerShellV1::INTERFACE,
+            );
+            std::process::exit(1);
+        }
+    }
+}
+
+struct RegistryHandler {
+    layer_shell: Rc<LayerShell>,
+    config: Arc<Config>,
+}
+
+impl WlRegistryHandler for RegistryHandler {
     fn bind(&mut self, slf: &Rc<WlRegistry>, name: u32, id: Rc<dyn Proxy>) {
-        if id.core().interface == ProxyInterface::XdgWmBase {
+        if id.interface() == ProxyInterface::XdgWmBase
+            && let Some(layer_shell) = &*self.layer_shell.layer_shell.borrow()
+        {
             let id = (id.clone() as Rc<dyn Any>).downcast::<XdgWmBase>().unwrap();
-            id.set_handler(XdgWmBaseHandlerImpl {
-                shared: self.shared.clone(),
+            id.set_handler(WmBaseHandler {
+                layer_shell: layer_shell.clone(),
+                config: self.config.clone(),
             });
         }
         let _ = slf.send_bind(name, id);
     }
-
-    fn global(&mut self, slf: &Rc<WlRegistry>, name: u32, interface: &str, version: u32) {
-        if interface == ProxyInterface::ZxdgDecorationManagerV1.name() {
-            return;
-        }
-        if interface == ProxyInterface::ZwlrLayerShellV1.name() {
-            let shared = &mut *self.shared.mutable.borrow_mut();
-            if shared.layer_shell.is_none() {
-                let layer_shell = slf.state().create_proxy::<ZwlrLayerShellV1>(version.min(5));
-                let _ = slf.send_bind(name, layer_shell.clone());
-                shared.layer_shell = Some(layer_shell);
-            }
-        }
-        let _ = slf.send_global(name, interface, version);
-    }
 }
 
-struct XdgWmBaseHandlerImpl {
-    shared: Rc<Shared>,
+struct WmBaseHandler {
+    layer_shell: Rc<ZwlrLayerShellV1>,
+    config: Arc<Config>,
 }
 
-impl XdgWmBaseHandler for XdgWmBaseHandlerImpl {
+impl XdgWmBaseHandler for WmBaseHandler {
     fn create_positioner(&mut self, slf: &Rc<XdgWmBase>, id: &Rc<XdgPositioner>) {
         id.set_handler(PositionerHandler {
             anchor_rect: Default::default(),
@@ -130,13 +183,8 @@ impl XdgWmBaseHandler for XdgWmBaseHandlerImpl {
         id: &Rc<XdgSurface>,
         surface: &Rc<WlSurface>,
     ) {
-        let shared = &mut *self.shared.mutable.borrow_mut();
-        let Some(layer_shell) = &shared.layer_shell else {
-            let _ = slf.send_get_xdg_surface(id, surface);
-            return;
-        };
         let ss = Rc::new(XdgSurfaceShared {
-            layer_shell: layer_shell.clone(),
+            layer_shell: self.layer_shell.clone(),
             surface: surface.clone(),
             xdg_surface: id.clone(),
             xdg_wm_base: slf.clone(),
@@ -146,6 +194,7 @@ impl XdgWmBaseHandler for XdgWmBaseHandlerImpl {
             surface: ss.clone(),
             layer_surface: None,
             has_server: false,
+            config: self.config.clone(),
         });
     }
 }
@@ -162,6 +211,7 @@ struct XdgSurfaceHandlerImpl {
     surface: Rc<XdgSurfaceShared>,
     layer_surface: Option<Rc<ZwlrLayerSurfaceV1>>,
     has_server: bool,
+    config: Arc<Config>,
 }
 
 struct ToplevelHandler {
@@ -182,11 +232,11 @@ impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
         }
     }
 
-    fn get_toplevel(&mut self, slf: &Rc<XdgSurface>, id: &Rc<XdgToplevel>) {
-        let layer_surface = slf
-            .core()
-            .state
-            .create_proxy::<ZwlrLayerSurfaceV1>(self.surface.layer_shell.core().version);
+    fn get_toplevel(&mut self, _slf: &Rc<XdgSurface>, id: &Rc<XdgToplevel>) {
+        let layer_surface = self
+            .surface
+            .layer_shell
+            .create_child::<ZwlrLayerSurfaceV1>();
         let _ = self.surface.layer_shell.send_get_layer_surface(
             &layer_surface,
             &self.surface.surface,
@@ -194,8 +244,14 @@ impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
             ZwlrLayerShellV1Layer::BACKGROUND,
             "",
         );
+        let c = &*self.config;
         let _ = layer_surface.send_set_size(0, 0);
-        // let _ = layer_surface.send_set_margin(100, 100, 100, 100);
+        let _ = layer_surface.send_set_margin(
+            c.margin_top,
+            c.margin_right,
+            c.margin_bottom,
+            c.margin_left,
+        );
         let _ = layer_surface
             .send_set_keyboard_interactivity(ZwlrLayerSurfaceV1KeyboardInteractivity::ON_DEMAND);
         let _ = layer_surface.send_set_anchor(
@@ -364,6 +420,7 @@ impl ZwlrLayerSurfaceV1Handler for LayerSurfaceHandler {
     fn configure(&mut self, _slf: &Rc<ZwlrLayerSurfaceV1>, serial: u32, width: u32, height: u32) {
         let states = [
             XdgToplevelState::ACTIVATED.0,
+            XdgToplevelState::FULLSCREEN.0,
             XdgToplevelState::TILED_LEFT.0,
             XdgToplevelState::TILED_TOP.0,
             XdgToplevelState::TILED_RIGHT.0,

@@ -34,6 +34,7 @@ impl ZwpLinuxBufferParamsV1Handler for DefaultHandler { }
 
 impl ZwpLinuxBufferParamsV1 {
     pub const XML_VERSION: u32 = 5;
+    pub const INTERFACE: &str = "zwp_linux_buffer_params_v1";
 }
 
 impl ZwpLinuxBufferParamsV1 {
@@ -78,7 +79,8 @@ impl ZwpLinuxBufferParamsV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_linux_buffer_params_v1#{}.destroy()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwp_linux_buffer_params_v1#{}.destroy()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -161,7 +163,8 @@ impl ZwpLinuxBufferParamsV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_linux_buffer_params_v1#{}.add(fd: {}, plane_idx: {}, offset: {}, stride: {}, modifier_hi: {}, modifier_lo: {})\n", id, arg0.as_raw_fd(), arg1, arg2, arg3, arg4, arg5);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwp_linux_buffer_params_v1#{}.add(fd: {}, plane_idx: {}, offset: {}, stride: {}, modifier_hi: {}, modifier_lo: {})\n", id, arg0.as_raw_fd(), arg1, arg2, arg3, arg4, arg5);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -281,7 +284,8 @@ impl ZwpLinuxBufferParamsV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_linux_buffer_params_v1#{}.create(width: {}, height: {}, format: {}, flags: {:?})\n", id, arg0, arg1, arg2, arg3);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwp_linux_buffer_params_v1#{}.create(width: {}, height: {}, format: {}, flags: {:?})\n", id, arg0, arg1, arg2, arg3);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -336,7 +340,8 @@ impl ZwpLinuxBufferParamsV1 {
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_buffer_params_v1#{}.created(buffer: wl_buffer#{})\n", client.endpoint.id, id, arg0_id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_linux_buffer_params_v1#{}.created(buffer: wl_buffer#{})\n", client.endpoint.id, id, arg0_id);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -378,7 +383,8 @@ impl ZwpLinuxBufferParamsV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_linux_buffer_params_v1#{}.failed()\n", client.endpoint.id, id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_linux_buffer_params_v1#{}.failed()\n", client.endpoint.id, id);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -466,7 +472,8 @@ impl ZwpLinuxBufferParamsV1 {
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_linux_buffer_params_v1#{}.create_immed(buffer_id: wl_buffer#{}, width: {}, height: {}, format: {}, flags: {:?})\n", id, arg0_id, arg1, arg2, arg3, arg4);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwp_linux_buffer_params_v1#{}.create_immed(buffer_id: wl_buffer#{}, width: {}, height: {}, format: {}, flags: {:?})\n", id, arg0_id, arg1, arg2, arg3, arg4);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -761,7 +768,10 @@ impl ProxyPrivate for ZwpLinuxBufferParamsV1 {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
@@ -769,7 +779,8 @@ impl ProxyPrivate for ZwpLinuxBufferParamsV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_linux_buffer_params_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_linux_buffer_params_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -795,7 +806,8 @@ impl ProxyPrivate for ZwpLinuxBufferParamsV1 {
                 let arg0 = &arg0;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_linux_buffer_params_v1#{}.add(fd: {}, plane_idx: {}, offset: {}, stride: {}, modifier_hi: {}, modifier_lo: {})\n", client.endpoint.id, msg[0], arg0.as_raw_fd(), arg1, arg2, arg3, arg4, arg5);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_linux_buffer_params_v1#{}.add(fd: {}, plane_idx: {}, offset: {}, stride: {}, modifier_hi: {}, modifier_lo: {})\n", client.endpoint.id, msg[0], arg0.as_raw_fd(), arg1, arg2, arg3, arg4, arg5);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -818,7 +830,8 @@ impl ProxyPrivate for ZwpLinuxBufferParamsV1 {
                 let arg3 = ZwpLinuxBufferParamsV1Flags(arg3);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_linux_buffer_params_v1#{}.create(width: {}, height: {}, format: {}, flags: {:?})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_linux_buffer_params_v1#{}.create(width: {}, height: {}, format: {}, flags: {:?})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -842,7 +855,8 @@ impl ProxyPrivate for ZwpLinuxBufferParamsV1 {
                 let arg4 = ZwpLinuxBufferParamsV1Flags(arg4);
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_linux_buffer_params_v1#{}.create_immed(buffer_id: wl_buffer#{}, width: {}, height: {}, format: {}, flags: {:?})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_linux_buffer_params_v1#{}.create_immed(buffer_id: wl_buffer#{}, width: {}, height: {}, format: {}, flags: {:?})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -868,7 +882,10 @@ impl ProxyPrivate for ZwpLinuxBufferParamsV1 {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let [
@@ -878,7 +895,8 @@ impl ProxyPrivate for ZwpLinuxBufferParamsV1 {
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_buffer_params_v1#{}.created(buffer: wl_buffer#{})\n", msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_linux_buffer_params_v1#{}.created(buffer: wl_buffer#{})\n", msg[0], arg0);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -898,7 +916,8 @@ impl ProxyPrivate for ZwpLinuxBufferParamsV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_linux_buffer_params_v1#{}.failed()\n", msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_linux_buffer_params_v1#{}.failed()\n", msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {

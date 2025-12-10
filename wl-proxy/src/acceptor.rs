@@ -1,5 +1,5 @@
 use {
-    crate::xrd::xrd,
+    crate::utils::xrd::xrd,
     error_reporter::Report,
     std::{
         env::set_var,

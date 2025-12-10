@@ -15,6 +15,7 @@ impl ZwpFullscreenShellModeFeedbackV1Handler for DefaultHandler { }
 
 impl ZwpFullscreenShellModeFeedbackV1 {
     pub const XML_VERSION: u32 = 1;
+    pub const INTERFACE: &str = "zwp_fullscreen_shell_mode_feedback_v1";
 }
 
 impl ZwpFullscreenShellModeFeedbackV1 {
@@ -65,7 +66,8 @@ impl ZwpFullscreenShellModeFeedbackV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_fullscreen_shell_mode_feedback_v1#{}.mode_successful()\n", client.endpoint.id, id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_fullscreen_shell_mode_feedback_v1#{}.mode_successful()\n", client.endpoint.id, id);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -110,7 +112,8 @@ impl ZwpFullscreenShellModeFeedbackV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_fullscreen_shell_mode_feedback_v1#{}.mode_failed()\n", client.endpoint.id, id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_fullscreen_shell_mode_feedback_v1#{}.mode_failed()\n", client.endpoint.id, id);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -155,7 +158,8 @@ impl ZwpFullscreenShellModeFeedbackV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_fullscreen_shell_mode_feedback_v1#{}.present_cancelled()\n", client.endpoint.id, id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_fullscreen_shell_mode_feedback_v1#{}.present_cancelled()\n", client.endpoint.id, id);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -250,7 +254,10 @@ impl ProxyPrivate for ZwpFullscreenShellModeFeedbackV1 {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             n => {
                 let _ = client;
@@ -263,7 +270,10 @@ impl ProxyPrivate for ZwpFullscreenShellModeFeedbackV1 {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
@@ -271,7 +281,8 @@ impl ProxyPrivate for ZwpFullscreenShellModeFeedbackV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_fullscreen_shell_mode_feedback_v1#{}.mode_successful()\n", msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_fullscreen_shell_mode_feedback_v1#{}.mode_successful()\n", msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -287,7 +298,8 @@ impl ProxyPrivate for ZwpFullscreenShellModeFeedbackV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_fullscreen_shell_mode_feedback_v1#{}.mode_failed()\n", msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_fullscreen_shell_mode_feedback_v1#{}.mode_failed()\n", msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -303,7 +315,8 @@ impl ProxyPrivate for ZwpFullscreenShellModeFeedbackV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_fullscreen_shell_mode_feedback_v1#{}.present_cancelled()\n", msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_fullscreen_shell_mode_feedback_v1#{}.present_cancelled()\n", msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {

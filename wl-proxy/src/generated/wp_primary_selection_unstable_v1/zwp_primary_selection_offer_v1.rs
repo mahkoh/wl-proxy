@@ -23,6 +23,7 @@ impl ZwpPrimarySelectionOfferV1Handler for DefaultHandler { }
 
 impl ZwpPrimarySelectionOfferV1 {
     pub const XML_VERSION: u32 = 1;
+    pub const INTERFACE: &str = "zwp_primary_selection_offer_v1";
 }
 
 impl ZwpPrimarySelectionOfferV1 {
@@ -88,7 +89,8 @@ impl ZwpPrimarySelectionOfferV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_primary_selection_offer_v1#{}.receive(mime_type: {:?}, fd: {})\n", id, arg0, arg1.as_raw_fd());
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwp_primary_selection_offer_v1#{}.receive(mime_type: {:?}, fd: {})\n", id, arg0, arg1.as_raw_fd());
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -124,7 +126,8 @@ impl ZwpPrimarySelectionOfferV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwp_primary_selection_offer_v1#{}.destroy()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwp_primary_selection_offer_v1#{}.destroy()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -174,7 +177,8 @@ impl ZwpPrimarySelectionOfferV1 {
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} <= zwp_primary_selection_offer_v1#{}.offer(mime_type: {:?})\n", client.endpoint.id, id, arg0);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_primary_selection_offer_v1#{}.offer(mime_type: {:?})\n", client.endpoint.id, id, arg0);
             self.core.state.log(args);
         }
         let endpoint = &client.endpoint;
@@ -277,7 +281,10 @@ impl ProxyPrivate for ZwpPrimarySelectionOfferV1 {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let mut offset = 2;
@@ -312,7 +319,8 @@ impl ProxyPrivate for ZwpPrimarySelectionOfferV1 {
                 let arg1 = &arg1;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_primary_selection_offer_v1#{}.receive(mime_type: {:?}, fd: {})\n", client.endpoint.id, msg[0], arg0, arg1.as_raw_fd());
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_primary_selection_offer_v1#{}.receive(mime_type: {:?}, fd: {})\n", client.endpoint.id, msg[0], arg0, arg1.as_raw_fd());
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -327,7 +335,8 @@ impl ProxyPrivate for ZwpPrimarySelectionOfferV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwp_primary_selection_offer_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_primary_selection_offer_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -349,7 +358,10 @@ impl ProxyPrivate for ZwpPrimarySelectionOfferV1 {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let mut offset = 2;
@@ -380,7 +392,8 @@ impl ProxyPrivate for ZwpPrimarySelectionOfferV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] server      -> zwp_primary_selection_offer_v1#{}.offer(mime_type: {:?})\n", msg[0], arg0);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_primary_selection_offer_v1#{}.offer(mime_type: {:?})\n", msg[0], arg0);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {

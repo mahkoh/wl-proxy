@@ -123,6 +123,7 @@ fn format_interface_types(w: &mut impl Write, interface: &Interface) -> io::Resu
     wl!()?;
     wl!(r#"impl {PREFIX}{camel} {{"#)?;
     wl!(r#"    pub const XML_VERSION: u32 = {};"#, interface.version)?;
+    wl!(r#"    pub const INTERFACE: &str = "{}";"#, interface.name)?;
     wl!(r#"}}"#)?;
     Ok(())
 }
@@ -609,7 +610,7 @@ pub fn format_mod_file(
     wl!("    }}")?;
     wl!("}}")?;
     wl!()?;
-    wl!("#[derive(Copy, Clone, Debug, Eq, PartialEq)]")?;
+    wl!("#[derive(Copy, Clone, Debug, Eq, PartialEq, linearize::Linearize)]")?;
     wl!("pub enum ProxyInterface {{")?;
     for (_, interfaces) in protocols {
         for (snake, _, _) in interfaces {
@@ -904,7 +905,9 @@ fn format_wayland_debug(
     }
     wl!(r#"{prefix}if self.core.state.log {{"#)?;
     wl!(r#"{prefix}    let (millis, micros) = time_since_epoch();"#)?;
+    wl!(r#"{prefix}    let prefix = &self.core.state.log_prefix;"#)?;
     w!(r#"{prefix}    let args = format_args!("[{{millis:7}}.{{micros:03}}] "#)?;
+    w!(r#"{{prefix}}"#)?;
     if msg.is_request ^ outgoing {
         w!(r#"client#{{:<4}}"#)?;
     } else {
@@ -999,7 +1002,10 @@ fn format_proxy_message_handler_body<W: Write>(
 ) -> io::Result<()> {
     define_w!(w);
     let p = "        ";
-    wl!(r#"{p}let handler = &mut *self.handler.borrow();"#)?;
+    wl!(r#"{p}let Some(mut handler) = self.handler.try_borrow() else {{"#)?;
+    wl!(r#"{p}    return Err(ObjectError::HandlerBorrowed);"#)?;
+    wl!(r#"{p}}};"#)?;
+    wl!(r#"{p}let handler = &mut *handler;"#)?;
     wl!(r#"{p}match msg[1] & 0xffff {{"#)?;
     let mut any_messages = false;
     for msg in &interface.messages {

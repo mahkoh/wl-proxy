@@ -1697,7 +1697,7 @@ mod all_types {
     }
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, linearize::Linearize)]
 pub enum ProxyInterface {
     WpAlphaModifierSurfaceV1,
     WpAlphaModifierV1,

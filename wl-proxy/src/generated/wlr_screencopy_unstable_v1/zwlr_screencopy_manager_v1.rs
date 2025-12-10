@@ -20,6 +20,7 @@ impl ZwlrScreencopyManagerV1Handler for DefaultHandler { }
 
 impl ZwlrScreencopyManagerV1 {
     pub const XML_VERSION: u32 = 3;
+    pub const INTERFACE: &str = "zwlr_screencopy_manager_v1";
 }
 
 impl ZwlrScreencopyManagerV1 {
@@ -91,7 +92,8 @@ impl ZwlrScreencopyManagerV1 {
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_screencopy_manager_v1#{}.capture_output(frame: zwlr_screencopy_frame_v1#{}, overlay_cursor: {}, output: wl_output#{})\n", id, arg0_id, arg1, arg2_id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_screencopy_manager_v1#{}.capture_output(frame: zwlr_screencopy_frame_v1#{}, overlay_cursor: {}, output: wl_output#{})\n", id, arg0_id, arg1, arg2_id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -176,7 +178,8 @@ impl ZwlrScreencopyManagerV1 {
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_screencopy_manager_v1#{}.capture_output_region(frame: zwlr_screencopy_frame_v1#{}, overlay_cursor: {}, output: wl_output#{}, x: {}, y: {}, width: {}, height: {})\n", id, arg0_id, arg1, arg2_id, arg3, arg4, arg5, arg6);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_screencopy_manager_v1#{}.capture_output_region(frame: zwlr_screencopy_frame_v1#{}, overlay_cursor: {}, output: wl_output#{}, x: {}, y: {}, width: {}, height: {})\n", id, arg0_id, arg1, arg2_id, arg3, arg4, arg5, arg6);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -218,7 +221,8 @@ impl ZwlrScreencopyManagerV1 {
         };
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
-            let args = format_args!("[{millis:7}.{micros:03}] server      <= zwlr_screencopy_manager_v1#{}.destroy()\n", id);
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_screencopy_manager_v1#{}.destroy()\n", id);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -342,7 +346,10 @@ impl ProxyPrivate for ZwlrScreencopyManagerV1 {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let [
@@ -355,7 +362,8 @@ impl ProxyPrivate for ZwlrScreencopyManagerV1 {
                 let arg1 = arg1 as i32;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_screencopy_manager_v1#{}.capture_output(frame: zwlr_screencopy_frame_v1#{}, overlay_cursor: {}, output: wl_output#{})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_screencopy_manager_v1#{}.capture_output(frame: zwlr_screencopy_frame_v1#{}, overlay_cursor: {}, output: wl_output#{})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -397,7 +405,8 @@ impl ProxyPrivate for ZwlrScreencopyManagerV1 {
                 let arg6 = arg6 as i32;
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_screencopy_manager_v1#{}.capture_output_region(frame: zwlr_screencopy_frame_v1#{}, overlay_cursor: {}, output: wl_output#{}, x: {}, y: {}, width: {}, height: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_screencopy_manager_v1#{}.capture_output_region(frame: zwlr_screencopy_frame_v1#{}, overlay_cursor: {}, output: wl_output#{}, x: {}, y: {}, width: {}, height: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6);
                     self.core.state.log(args);
                 }
                 let arg0_id = arg0;
@@ -426,7 +435,8 @@ impl ProxyPrivate for ZwlrScreencopyManagerV1 {
                 }
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
-                    let args = format_args!("[{millis:7}.{micros:03}] client#{:<4} -> zwlr_screencopy_manager_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_screencopy_manager_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
@@ -448,7 +458,10 @@ impl ProxyPrivate for ZwlrScreencopyManagerV1 {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let handler = &mut *self.handler.borrow();
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err(ObjectError::HandlerBorrowed);
+        };
+        let handler = &mut *handler;
         match msg[1] & 0xffff {
             n => {
                 let _ = msg;
