@@ -13,6 +13,7 @@ use {
     std::{
         borrow::Cow,
         num::ParseIntError,
+        rc::Rc,
         str::{FromStr, ParseBoolError},
         string::FromUtf8Error,
     },
@@ -210,7 +211,7 @@ fn parse_protocol(
     for attr in attributes {
         let (n, value) = parse_attr!(attr)?;
         match n {
-            b"name" => name = Some(value.into_owned()),
+            b"name" => name = Some(Rc::new(value.into_owned())),
             _ => continue,
         }
     }
@@ -309,7 +310,7 @@ fn parse_interface(
     for attr in attributes {
         let (n, value) = parse_attr!(attr)?;
         match n {
-            b"name" => name = Some(value.into_owned()),
+            b"name" => name = Some(Rc::new(value.into_owned())),
             b"version" => version = Some(value.parse().map_err(InterfaceError::Version)?),
             _ => continue,
         }
@@ -347,9 +348,9 @@ fn parse_interface(
     }
     let name = name.ok_or(InterfaceError::MissingName)?;
     Ok(Interface {
-        is_wl_display: name == "wl_display",
-        is_wl_registry: name == "wl_registry",
-        is_wl_fixes: name == "wl_fixes",
+        is_wl_display: *name == "wl_display",
+        is_wl_registry: *name == "wl_registry",
+        is_wl_fixes: *name == "wl_fixes",
         name,
         version: version.ok_or(InterfaceError::MissingVersion)?,
         description,
@@ -447,7 +448,7 @@ fn parse_arg(
                 })
             }
             b"summary" => summary = Some(value.into_owned()),
-            b"interface" => interface = Some(value.into_owned()),
+            b"interface" => interface = Some(Rc::new(value.into_owned())),
             b"allow-null" => allow_null = Some(value.parse().map_err(ArgError::AllowNull)?),
             b"enum" => enum_ = Some(value.into_owned()),
             _ => continue,

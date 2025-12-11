@@ -5,10 +5,12 @@ use {
         parser::{ParserError, parse},
     },
     std::{
-        fs::File,
+        collections::{HashMap, HashSet},
+        fmt::Write as FmtWrite,
+        fs::{File, read_to_string},
         io::{self, BufWriter, Write},
         path::{Path, PathBuf},
-        sync::Arc,
+        rc::Rc,
     },
     thiserror::Error,
 };
@@ -33,12 +35,7 @@ enum BuilderError {
 
 /// A builder for `wl-client` wrappers.
 pub struct Builder {
-    files: Vec<ProtocolFile>,
-}
-
-struct ProtocolFile {
-    feature: Option<Arc<String>>,
-    path: PathBuf,
+    files: Vec<(Rc<String>, PathBuf)>,
 }
 
 impl Default for Builder {
@@ -59,12 +56,17 @@ impl Builder {
         let mut root_dir = Path::new(env!("CARGO_MANIFEST_DIR")).to_path_buf();
         root_dir.pop();
 
-        let src_dir = root_dir.join("wl-proxy/src");
+        let wl_proxy_dir = root_dir.join("wl-proxy");
+        let src_dir = wl_proxy_dir.join("src");
         let generated_dir = src_dir.join("generated");
-        let dirs = [
-            ("core", None),
-            ("wayland-protocols", Some("wayland-protocols")),
-            ("wlr", Some("wlr-protocols")),
+        let suite = [
+            "hyprland-protocols",
+            "jay-protocols",
+            "other",
+            "treeland-protocols",
+            "wayland",
+            "wayland-protocols",
+            "wlr-protocols",
         ];
         let protocols_dir = root_dir.join("protocols");
         std::fs::remove_dir_all(&generated_dir).unwrap();
@@ -72,9 +74,9 @@ impl Builder {
 
         let mut protocol_objects = vec![];
 
-        for (dir, feature) in dirs {
-            let dir = protocols_dir.join(dir);
-            let feature = feature.map(|f| Arc::new(f.to_string()));
+        for suite in suite {
+            let dir = protocols_dir.join(suite);
+            let suite = Rc::new(suite.to_string());
             let iter = match std::fs::read_dir(&dir) {
                 Ok(c) => c,
                 Err(e) => return Err(BuilderError::OpenDir(dir, e)),
@@ -87,33 +89,59 @@ impl Builder {
                 if !file.file_name().as_encoded_bytes().ends_with(b".xml") {
                     continue;
                 }
-                self.files.push(ProtocolFile {
-                    feature: feature.clone(),
-                    path: file.path(),
-                });
+                self.files.push((suite.clone(), file.path()));
             }
         }
-        self.files.sort_by(|f1, f2| f1.path.cmp(&f2.path));
-        for file in self.files {
-            let contents = match std::fs::read(&file.path) {
+        self.files.sort();
+        let mut interface_to_protocol = HashMap::new();
+        let mut protocol_interface_dependencies = HashMap::<Rc<String>, HashSet<Rc<String>>>::new();
+        let mut suite_to_protocol = HashMap::<Rc<String>, HashSet<Rc<String>>>::new();
+        let mut all_protocols = Vec::new();
+        for (suite, file) in self.files {
+            let contents = match std::fs::read(&file) {
                 Ok(c) => c,
-                Err(e) => return Err(BuilderError::ReadFile(file.path, e)),
+                Err(e) => return Err(BuilderError::ReadFile(file, e)),
             };
             let mut protocols = match parse(&contents) {
                 Ok(c) => c,
-                Err(e) => return Err(BuilderError::ParseFile(file.path, e)),
+                Err(e) => return Err(BuilderError::ParseFile(file, e)),
             };
             protocols.sort_by(|p1, p2| p1.name.cmp(&p2.name));
             for mut protocol in protocols {
+                if *suite != "wayland" {
+                    all_protocols.push(protocol.name.clone());
+                    suite_to_protocol
+                        .entry(suite.clone())
+                        .or_default()
+                        .insert(protocol.name.clone());
+                }
                 protocol.interfaces.sort_by(|i1, i2| i1.name.cmp(&i2.name));
                 let protocol_file = format!("{}.rs", protocol.name);
                 format_file(&generated_dir.join(&protocol_file), |f| {
                     format_protocol_file(f, &protocol)
                 })?;
-                let dir = generated_dir.join(&protocol.name);
+                let dir = generated_dir.join(&*protocol.name);
                 create_dir(&dir)?;
                 let mut interfaces = vec![];
                 for interface in protocol.interfaces {
+                    interface_to_protocol.insert(interface.name.clone(), protocol.name.clone());
+                    for msg in &interface.messages {
+                        for arg in &msg.args {
+                            let mut interface = arg.interface.clone();
+                            if interface.is_none()
+                                && let Some(enum_) = &arg.enum_
+                                && let Some((i, _)) = enum_.split_once('.')
+                            {
+                                interface = Some(Rc::new(i.to_string()));
+                            }
+                            if let Some(interface) = interface {
+                                protocol_interface_dependencies
+                                    .entry(protocol.name.clone())
+                                    .or_default()
+                                    .insert(interface);
+                            }
+                        }
+                    }
                     let file_name = format!("{}.rs", interface.name);
                     format_file(&dir.join(&file_name), |f| {
                         format_interface_file(f, &interface)
@@ -124,13 +152,79 @@ impl Builder {
                     }
                     interfaces.push((interface.name, enums, interface.version));
                 }
-                protocol_objects.push((protocol.name, file.feature.clone(), interfaces));
+                protocol_objects.push((protocol.name, interfaces));
             }
         }
 
         format_file(&src_dir.join("generated.rs"), |f| {
             format_mod_file(f, &protocol_objects)
         })?;
+
+        {
+            let mut suite_protocols: Vec<_> = suite_to_protocol
+                .into_iter()
+                .map(|(suite, protocols)| {
+                    let mut protocols: Vec<_> = protocols.into_iter().collect();
+                    protocols.sort();
+                    (suite, protocols)
+                })
+                .collect();
+            suite_protocols.sort_by(|l, r| l.0.cmp(&r.0));
+            let mut protocol_dependencies = HashMap::new();
+            for (protocol, interfaces) in protocol_interface_dependencies {
+                let mut deps = HashSet::new();
+                for interface in interfaces {
+                    if let Some(dep) = interface_to_protocol.get(&interface)
+                        && dep != &protocol
+                        && **dep != "wayland"
+                    {
+                        deps.insert(dep);
+                    }
+                }
+                let mut deps: Vec<_> = deps.into_iter().cloned().collect();
+                deps.sort();
+                if !deps.is_empty() {
+                    protocol_dependencies.insert(protocol, deps);
+                }
+            }
+            all_protocols.sort();
+            let cargo_toml_path = wl_proxy_dir.join("Cargo.toml");
+            let old = match read_to_string(&cargo_toml_path) {
+                Ok(o) => o,
+                Err(e) => {
+                    return Err(BuilderError::ReadFile(cargo_toml_path, e));
+                }
+            };
+            let mut new = String::new();
+            let generated_start = "# --generated start--\n";
+            let generated_end = "# --generated end--\n";
+            let start = old.find(generated_start).unwrap();
+            let end = old.find(generated_end).unwrap();
+            new.push_str(&old[..start]);
+            new.push_str(generated_start);
+            for (suite, protocols) in suite_protocols {
+                writeln!(new, "suite-{suite} = [").unwrap();
+                for protocol in protocols {
+                    writeln!(new, r#"    "protocol-{protocol}","#).unwrap();
+                }
+                writeln!(new, "]").unwrap();
+            }
+            writeln!(new).unwrap();
+            for protocol in all_protocols {
+                write!(new, "protocol-{protocol} = [").unwrap();
+                if let Some(deps) = protocol_dependencies.get(&protocol) {
+                    for (idx, dep) in deps.iter().enumerate() {
+                        if idx > 0 {
+                            write!(new, ", ").unwrap();
+                        }
+                        write!(new, r#""protocol-{dep}""#).unwrap();
+                    }
+                }
+                writeln!(new, "]").unwrap();
+            }
+            new.push_str(&old[end..]);
+            std::fs::write(&cargo_toml_path, new).unwrap();
+        }
         Ok(())
     }
 }

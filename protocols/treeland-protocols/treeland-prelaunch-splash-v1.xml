@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="treeland_prelaunch_splash_v1">
+
+    <copyright><![CDATA[
+    SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd.
+    SPDX-License-Identifier: MIT
+    ]]></copyright>
+
+    <interface name="treeland_prelaunch_splash_manager_v1" version="1">
+        <description summary="prelaunch splash screen manager">
+            This interface is a manager for creating prelaunch splash screens.
+            A prelaunch splash screen is a placeholder surface that is shown
+            before an application's main window is mapped. This helps to improve
+            the perceived startup time.
+
+            It is particularly useful for application launchers to provide immediate
+            feedback to the user.
+        </description>
+
+        <request name="destroy" type="destructor">
+            <description summary="destroy the manager"/>
+        </request>
+
+        <request name="create_splash">
+            <description summary="create a new splash screen">
+                Creates a new prelaunch splash screen.
+
+                The `app_id` is a string that identifies the application. The compositor
+                will use this ID together with `sandbox_engine_name` to match the splash
+                screen with the actual application window when it appears. This
+                matching mechanism should also work for XWayland windows.
+
+                Callers MUST provide a non-empty `sandbox_engine_name` string which
+                identifies the sandboxing/container.
+
+                If there is already an active (not-yet-completed) splash for the same
+                `sandbox_engine_name` and `app_id`, the compositor will silently ignore
+                this request (no new splash will be created and no error is raised).
+            </description>
+            <arg name="app_id" type="string" summary="the application ID"/>
+            <arg name="sandbox_engine_name" type="string" summary="the sandbox engine / security context name (required, non-empty)"/>
+            <arg name="icon_buffer" type="object" interface="wl_buffer" allow-null="true" summary="optional icon image as wl_buffer (e.g. wl_shm)"/>
+        </request>
+    </interface>
+</protocol>

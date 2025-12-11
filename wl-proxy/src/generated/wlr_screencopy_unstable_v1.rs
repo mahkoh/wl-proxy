@@ -11,6 +11,9 @@
 //! Once the protocol is to be declared stable, the 'z' prefix and the
 //! version number in the protocol and interface names are removed and the
 //! interface version number is reset.
+//!
+//! Note! This protocol is deprecated and not intended for production use.
+//! The ext-image-copy-capture-v1 protocol should be used instead.
 
 #![allow(clippy::tabs_in_doc_comments)]
 #![allow(clippy::doc_lazy_continuation)]

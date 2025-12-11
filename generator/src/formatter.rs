@@ -5,6 +5,7 @@ use {
     std::{
         fmt::{Display, Write as FmtWrite},
         io::{self, Write},
+        rc::Rc,
         sync::Arc,
     },
 };
@@ -527,19 +528,35 @@ fn arg_type<'a>(interface: &'a Interface, arg: &'a Arg) -> impl Display + use<'a
 #[allow(clippy::type_complexity)]
 pub fn format_mod_file(
     w: &mut impl Write,
-    protocols: &[(String, Option<Arc<String>>, Vec<(String, Vec<String>, u32)>)],
+    protocols: &[(Rc<String>, Vec<(Rc<String>, Vec<String>, u32)>)],
 ) -> io::Result<()> {
     define_w!(w);
-    for (protocol, feature, _) in protocols {
-        if let Some(feature) = feature {
-            wl!(r#"#[cfg(feature = "{feature}")]"#)?;
-        }
+    macro_rules! write_cfg {
+        ($protocol:expr, $prefix:expr) => {
+            if **$protocol != "wayland" {
+                wl!(r#"{}#[cfg(feature = "protocol-{}")]"#, $prefix, $protocol)?;
+            }
+        };
+    }
+    macro_rules! write_not_cfg {
+        ($protocol:expr, $prefix:expr) => {
+            if $protocol != "wayland" {
+                wl!(
+                    r#"{}#[cfg(not(feature = "protocol-{}"))]"#,
+                    $prefix,
+                    $protocol
+                )?;
+            }
+        };
+    }
+    for (protocol, _) in protocols {
+        write_cfg!(protocol, "");
         wl!(r#"pub mod {};"#, protocol)?;
     }
     wl!()?;
     wl!("#[allow(unused_imports)]")?;
     wl!("mod all_types {{")?;
-    for (proto, feature, interfaces) in protocols {
+    for (proto, interfaces) in protocols {
         for (snake, enums, _) in interfaces {
             let camel = format_camel(snake).to_string();
             let prefix = debug_fn(|f| {
@@ -548,14 +565,10 @@ pub fn format_mod_file(
                     r#"    pub(super) use super::{proto}::{snake}::{PREFIX}{camel}"#
                 )
             });
-            if let Some(feature) = feature {
-                wl!(r#"    #[cfg(feature = "{feature}")]"#)?;
-            }
+            write_cfg!(proto, "    ");
             wl!(r#"{prefix};"#)?;
             for enum_ in enums {
-                if let Some(feature) = feature {
-                    wl!(r#"    #[cfg(feature = "{feature}")]"#)?;
-                }
+                write_cfg!(proto, "    ");
                 wl!(r#"{prefix}{};"#, format_camel(enum_))?;
             }
         }
@@ -575,15 +588,15 @@ pub fn format_mod_file(
     wl!(
         "        static INTERFACES: phf::Map<&'static str, Option<ProxyInterface>> = phf::phf_map! {{"
     )?;
-    for (_, feature, interfaces) in protocols {
+    for (proto, interfaces) in protocols {
         for (snake, _, _) in interfaces {
             let camel = format_camel(snake);
-            if let Some(feature) = feature {
+            if **proto != "wayland" {
                 wl!(r#"            "{snake}" => {{"#)?;
                 wl!(
-                    r#"                #[cfg(feature = "{feature}")] {{ Some(ProxyInterface::{camel}) }}"#
+                    r#"                #[cfg(feature = "protocol-{proto}")] {{ Some(ProxyInterface::{camel}) }}"#
                 )?;
-                wl!(r#"                #[cfg(not(feature = "{feature}"))] {{ None }}"#)?;
+                wl!(r#"                #[cfg(not(feature = "protocol-{proto}"))] {{ None }}"#)?;
                 wl!(r#"            }},"#)?;
             } else {
                 wl!(r#"            "{snake}" => Some(ProxyInterface::{camel}),"#)?;
@@ -599,12 +612,10 @@ pub fn format_mod_file(
         "        fn create_proxy(self, state: &Rc<State>, version: u32) -> Result<Rc<dyn Proxy>, ObjectError> {{"
     )?;
     wl!("            match self {{")?;
-    for (_, feature, interfaces) in protocols {
+    for (proto, interfaces) in protocols {
         for (snake, _, version) in interfaces {
             let camel = format_camel(snake);
-            if let Some(feature) = feature {
-                wl!(r#"                #[cfg(feature = "{feature}")]"#)?;
-            }
+            write_cfg!(proto, "                ");
             wl!(r#"                Self::{camel} => {{"#)?;
             wl!(r#"                    if version > {PREFIX}{camel}::XML_VERSION {{"#)?;
             wl!(r#"                        return Err(ObjectError::MaxVersion(self, version));"#)?;
@@ -620,12 +631,10 @@ pub fn format_mod_file(
     wl!()?;
     wl!("#[derive(Copy, Clone, Debug, Eq, PartialEq)]")?;
     wl!("pub enum ProxyInterface {{")?;
-    for (_, feature, interfaces) in protocols {
+    for (proto, interfaces) in protocols {
         for (snake, _, _) in interfaces {
             let camel = format_camel(snake);
-            if let Some(feature) = feature {
-                wl!(r#"    #[cfg(feature = "{feature}")]"#)?;
-            }
+            write_cfg!(proto, "    ");
             wl!(r#"    {camel},"#)?;
         }
     }
@@ -634,12 +643,10 @@ pub fn format_mod_file(
     wl!("impl ProxyInterface {{")?;
     wl!("    pub fn name(self) -> &'static str {{")?;
     wl!("        match self {{")?;
-    for (_, feature, interfaces) in protocols {
+    for (proto, interfaces) in protocols {
         for (snake, _, _) in interfaces {
             let camel = format_camel(snake);
-            if let Some(feature) = feature {
-                wl!(r#"            #[cfg(feature = "{feature}")]"#)?;
-            }
+            write_cfg!(proto, "            ");
             wl!(r#"            Self::{camel} => "{snake}","#)?;
         }
     }
@@ -648,12 +655,10 @@ pub fn format_mod_file(
     wl!()?;
     wl!("    pub fn xml_version(self) -> u32 {{")?;
     wl!("        match self {{")?;
-    for (_, feature, interfaces) in protocols {
+    for (proto, interfaces) in protocols {
         for (snake, _, version) in interfaces {
             let camel = format_camel(snake);
-            if let Some(feature) = feature {
-                wl!(r#"            #[cfg(feature = "{feature}")]"#)?;
-            }
+            write_cfg!(proto, "            ");
             wl!(r#"            Self::{camel} => {version},"#)?;
         }
     }

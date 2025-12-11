@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This is the treeland - ddm private communication protocol.
+-->
+<protocol name="treeland_ddm">
+    <copyright><![CDATA[
+    SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd.
+    SPDX-License-Identifier: MIT
+    ]]></copyright>
+    <interface name="treeland_ddm" version="1">
+        <description summary="core global for treeland - ddm connection">
+            This object is primarily used for establish connection between
+            treeland and ddm.
+        </description>
+        <!-- Requests -->
+        <request name="switch_to_greeter">
+            <description summary="send treeland to greeter mode">
+                Send treeland to Greeter mode.
+            </description>
+        </request>
+        <request name="switch_to_user">
+            <description summary="call treeland to switch lockscreen user">
+                Set lockscreen user to username. Ignore when username is "ddm".
+            </description>
+            <arg name="username" type="string"/>
+        </request>
+        <request name="activate_session">
+            <description summary="activate wayland session">
+                Activate treeland session. This will makes treeland try to take
+                control of screen.
+            </description>
+        </request>
+        <request name="deactivate_session">
+            <description summary="deactivate wayland session">
+                Deactivate treeland session. This will release control of the
+                screen, but not to close the current seats.
+            </description>
+        </request>
+        <request name="enable_render">
+            <description summary="start treeland rendering">
+                Enable treeland rendering. This is primarily called after
+                disable_render to resume treeland.
+            </description>
+        </request>
+        <request name="disable_render">
+            <description summary="stop treeland rendering">
+                Disable treeland rendering. This will prevent treeland from
+                output to DRM device.
+            </description>
+            <arg name="callback" type="new_id" interface="wl_callback"/>
+        </request>
+        <!-- Events -->
+        <event name="switch_to_vt">
+            <description summary="switch to virtual terminal">
+                Call ddm to switch current virtual terminal to vtnr. ddm should
+                take care of the switch and call ioctl respectively.
+            </description>
+            <arg name="vtnr" type="int"/>
+        </event>
+        <event name="acquire_vt">
+            <description summary="acquire control of virtual terminal">
+                Call ddm to acquire control of VT at vtnr. ddm should call
+                VT_SETMODE respectively.
+            </description>
+            <arg name="vtnr" type="int"/>
+        </event>
+    </interface>
+</protocol>

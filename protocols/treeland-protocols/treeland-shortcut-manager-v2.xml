@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="treeland_shortcut_manager_v2">
+    <copyright><![CDATA[
+    SPDX-FileCopyrightText: 2024-2025 UnionTech Software Technology Co., Ltd.
+    SPDX-License-Identifier: MIT
+    ]]></copyright>
+    <interface name="treeland_shortcut_manager_v2" version="1">
+        <description summary="global shortcuts manager for treeland">
+            This interface allows privileged clients to register global shortcuts.
+
+            In treeland, global shortcuts are managed in a per-user context.
+            Shortcuts for different users are isolated, and will not interfere with each other.
+            This allows multiple users to use their own set of global Shortcuts
+            on the same system without conflicts.
+            This behavior is transparent to the clients of this interface (i.e 
+            the user context used by this protocol is the same as that of the client.)
+
+            Warning! The protocol described in this file is currently in the testing
+            phase. Backward compatible changes may be added together with the
+            corresponding interface version bump. Backward incompatible changes can
+            only be done by creating a new major version of the extension.
+        </description>
+
+        <request name="destroy" type="destructor">
+            <description summary="destroy the shortcut manager">
+                Destroy the shortcut manager.
+                Existing shortcuts created through this interface remain valid.
+            </description>
+        </request>
+
+        <request name="acquire">
+            <description summary="acquire the shortcut manager">
+                Acquire the shortcut manager for the current client.
+
+                This request must be sent before any bind/unbind request can be performed.
+
+                Only one client hold exclusive control of the shortcut manager at a time,
+                for a given session.
+                If the shortcut manager is already acquired by another client, an protocol error
+            </description>
+        </request>
+
+        <request name="bind_key">
+            <description summary="bind a key sequence to a compositor action">
+                Bind a key sequence to a compositor action.
+
+                The key sequence is specified in the string format used by QKeySequence,
+                see https://doc.qt.io/qt-6/qkeysequence.html#toString for details.
+
+                Sending this request without first acquiring the shortcut manager
+                will result in a `not_acquired` protocol error.
+
+                The name argument must be unique among all existing bindings.
+                If a binding with the same name already exists, the bind_key request will fail.
+
+                The action argument specifies the compositor action to be executed
+                when the key sequence is activated.
+
+                The protocol provides three keybinding modes:
+                - key_release: the action is triggered when the key sequence is released.
+                - key_press: the action is triggered when the key sequence is pressed.
+                - key_press_repeat: the action is triggered when the key sequence is pressed,
+                  and repeatedly triggered if the key sequence is held down.
+
+                If a binding with the same key sequence and action already exists,
+                the bind_key request will fail.
+
+                Note that the binding will not take effect until a commit request is sent.
+            </description>
+            <arg name="name" type="string" summary="unique name for the keybinding"/>
+            <arg name="key" type="string" summary="key sequence for the keybinding"/>
+            <arg name="mode" type="uint" enum="keybind_mode" summary="mode for the keybinding"/>
+            <arg name="action" type="uint" enum="action" summary="compositor action to be executed"/>
+        </request>
+
+        <request name="bind_swipe_gesture">
+            <description summary="bind a swipe gesture to a compositor action">
+                Bind a swipe gesture to a compositor action.
+
+                Sending this request without first acquiring the shortcut manager
+                will result in a `not_acquired` protocol error.
+
+                The name argument must be unique among all existing bindings.
+                If a binding with the same name already exists, the bind_swipe_gesture request will fail.
+
+                The direction argument specifies the direction towards which the swipe gesture must be performed.
+                If this argument is not one of the defined enum values, the bind_swipe_gesture request will fail.
+
+                The action argument specifies the compositor action to be executed
+                when the swipe gesture is activated.
+                If a binding with the same gesture and action already exists,
+                the bind_swipe_gesture request will fail.
+
+                Note that the binding will not take effect until a commit request is sent.
+            </description>
+            <arg name="name" type="string" summary="unique name for the swipe gesture"/>
+            <arg name="finger" type="uint" summary="number of fingers required for the swipe gesture"/>
+            <arg name="direction" type="uint" enum="direction" summary="direction of the swipe gesture"/>
+            <arg name="action" type="uint" enum="action" summary="compositor action to be executed"/>
+        </request>
+
+        <request name="bind_hold_gesture">
+            <description summary="bind a hold gesture to a compositor action">
+                Bind a hold gesture to a compositor action.
+
+                Sending this request without first acquiring the shortcut manager
+                will result in a `not_acquired` protocol error.
+
+                The name argument must be unique among all existing bindings.
+                If a binding with the same name already exists, the bind_hold_gesture request will fail.
+
+                The action argument specifies the compositor action to be executed
+                when the hold gesture is activated.
+                If a binding with the same gesture and action already exists,
+                the bind_hold_gesture request will fail.
+
+                Note that the binding will not take effect until a commit request is sent.
+            </description>
+            <arg name="name" type="string" summary="unique name for the hold gesture"/>
+            <arg name="finger" type="uint" summary="number of fingers required for the hold gesture"/>
+            <arg name="action" type="uint" enum="action" summary="compositor action to be executed"/>
+        </request>
+
+        <request name="commit">
+            <description summary="commit the pending bindings">
+                Commit the pending bindings.
+
+                This request applies all the bind_key, bind_swipe_gesture and bind_hold_gesture
+                requests sent since the last commit.
+
+                After processing this request, the compositor will emit a `commit_status` event
+                if the commit was successful or `commit_failure` event if the commit failed.
+
+                On a successful commit, all the pending bindings will take effect.
+                On a failed commit, none of the pending bindings will take effect.
+
+                Sending this request without first acquiring the shortcut manager
+                will result in a `not_acquired` protocol error.
+
+                Sending further commit requests before `commit_success` or `commit_failure`
+                is sent is a protocol error.
+            </description>
+        </request>
+
+        <request name="unbind">
+            <description summary="remove an existing binding">
+                Remove an existing binding.
+
+                The binding to be removed is identified by its unique name.
+                If no binding with the specified name exists, the unbind request has no effect.
+            </description>
+            <arg name="name" type="string" summary="unique name of the binding to be removed"/>
+        </request>
+
+        <event name="activated">
+            <description summary="a shortcut has been activated">
+                This event is emitted when a binding registered with action `notify` is activated.
+
+                If the binding is activated due to auto-repeat, the repeat argument will be non-zero.
+            </description>
+            <arg name="name" type="string" summary="binding id of the activated shortcut"/>
+            <arg name="repeat" type="uint" summary="indicates whether the shortcut activation is due to auto-repeat"/>
+        </event>
+
+        <event name="commit_success">
+            <description summary="the last commit was successful">
+                This event is emitted in response to a commit request,
+                indicating that the commit was successful.
+            </description>
+        </event>
+
+        <event name="commit_failure">
+            <description summary="the last commit has failed">
+                This event is emitted in response to a commit request,
+                indicating that the commit has failed.
+
+                The error argument indicates the first error that caused the commit to fail.
+            </description>
+            <arg name="name" type="string" summary="binding name that caused the failure"/>
+            <arg name="error" type="uint" enum="bind_error" summary="error code indicating the reason of the failure"/>
+        </event>
+
+        <enum name="direction">
+            <entry name="down" value="1"/>
+            <entry name="left" value="2"/>
+            <entry name="up" value="3"/>
+            <entry name="right" value="4"/>
+        </enum>
+
+        <enum name="action">
+            <description summary="compositor actions">
+                Compositor actions that can be assigned to a shortcut.
+            </description>
+            <entry name="notify" value="1"/>
+            <entry name="workspace_1" value="2"/>
+            <entry name="workspace_2" value="3"/>
+            <entry name="workspace_3" value="4"/>
+            <entry name="workspace_4" value="5"/>
+            <entry name="workspace_5" value="6"/>
+            <entry name="workspace_6" value="7"/>
+            <entry name="prev_workspace" value="8"/>
+            <entry name="next_workspace" value="9"/>
+            <entry name="show_desktop" value="10"/>
+            <entry name="maximize" value="11"/>
+            <entry name="cancel_maximize" value="12"/>
+            <entry name="move_window" value="13"/>
+            <entry name="close_window" value="14"/>
+            <entry name="show_window_menu" value="15"/>
+            <entry name="open_multitask_view" value="16"/>
+            <entry name="close_multitask_view" value="17"/>
+            <entry name="toggle_multitask_view" value="18"/>
+            <entry name="toggle_fps_display" value="19"/>
+            <entry name="lockscreen" value="20"/>
+            <entry name="shutdown_menu" value="21"/>
+            <entry name="quit" value="22"/>
+            <entry name="taskswitch_enter" value="23"/>
+            <entry name="taskswitch_next" value="24"/>
+            <entry name="taskswitch_prev" value="25"/>
+            <entry name="taskswitch_sameapp_next" value="26"/>
+            <entry name="taskswitch_sameapp_prev" value="27"/>
+        </enum>
+
+        <enum name="keybind_mode">
+            <description summary="keybinding modes">
+                Keybinding modes.
+            </description>
+            <entry name="key_release" value="1"/>
+            <entry name="key_press" value="2"/>
+            <entry name="key_press_repeat" value="3"/>
+        </enum>
+
+        <enum name="bind_error">
+            <description summary="binding error codes">
+                Error codes indicating the reason of a binding failure.
+            </description>
+            <entry name="name_conflict" value="1"/>
+            <entry name="duplicate_binding" value="2"/>
+            <entry name="invalid_argument" value="3"/>
+            <entry name="internal_error" value="4"/>
+        </enum>
+
+        <enum name="error">
+            <entry name="occupied" value="1"/>
+            <entry name="not_acquired" value="2"/>
+            <entry name="invalid_commit" value="3"/>
+        </enum>
+    </interface>
+</protocol>

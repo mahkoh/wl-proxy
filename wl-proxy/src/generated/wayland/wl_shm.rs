@@ -685,6 +685,46 @@ impl WlShm {
     pub const ENM__FORMAT_XVUY8888__SINCE: u32 = 1;
     /// Since when the format.p030 enum variant is available.
     pub const ENM__FORMAT_P030__SINCE: u32 = 1;
+    /// Since when the format.rgb161616 enum variant is available.
+    pub const ENM__FORMAT_RGB161616__SINCE: u32 = 1;
+    /// Since when the format.bgr161616 enum variant is available.
+    pub const ENM__FORMAT_BGR161616__SINCE: u32 = 1;
+    /// Since when the format.r16f enum variant is available.
+    pub const ENM__FORMAT_R16F__SINCE: u32 = 1;
+    /// Since when the format.gr1616f enum variant is available.
+    pub const ENM__FORMAT_GR1616F__SINCE: u32 = 1;
+    /// Since when the format.bgr161616f enum variant is available.
+    pub const ENM__FORMAT_BGR161616F__SINCE: u32 = 1;
+    /// Since when the format.r32f enum variant is available.
+    pub const ENM__FORMAT_R32F__SINCE: u32 = 1;
+    /// Since when the format.gr3232f enum variant is available.
+    pub const ENM__FORMAT_GR3232F__SINCE: u32 = 1;
+    /// Since when the format.bgr323232f enum variant is available.
+    pub const ENM__FORMAT_BGR323232F__SINCE: u32 = 1;
+    /// Since when the format.abgr32323232f enum variant is available.
+    pub const ENM__FORMAT_ABGR32323232F__SINCE: u32 = 1;
+    /// Since when the format.nv20 enum variant is available.
+    pub const ENM__FORMAT_NV20__SINCE: u32 = 1;
+    /// Since when the format.nv30 enum variant is available.
+    pub const ENM__FORMAT_NV30__SINCE: u32 = 1;
+    /// Since when the format.s010 enum variant is available.
+    pub const ENM__FORMAT_S010__SINCE: u32 = 1;
+    /// Since when the format.s210 enum variant is available.
+    pub const ENM__FORMAT_S210__SINCE: u32 = 1;
+    /// Since when the format.s410 enum variant is available.
+    pub const ENM__FORMAT_S410__SINCE: u32 = 1;
+    /// Since when the format.s012 enum variant is available.
+    pub const ENM__FORMAT_S012__SINCE: u32 = 1;
+    /// Since when the format.s212 enum variant is available.
+    pub const ENM__FORMAT_S212__SINCE: u32 = 1;
+    /// Since when the format.s412 enum variant is available.
+    pub const ENM__FORMAT_S412__SINCE: u32 = 1;
+    /// Since when the format.s016 enum variant is available.
+    pub const ENM__FORMAT_S016__SINCE: u32 = 1;
+    /// Since when the format.s216 enum variant is available.
+    pub const ENM__FORMAT_S216__SINCE: u32 = 1;
+    /// Since when the format.s416 enum variant is available.
+    pub const ENM__FORMAT_S416__SINCE: u32 = 1;
 }
 
 /// wl_shm error values
@@ -1090,6 +1130,66 @@ impl WlShmFormat {
 
     /// 2x2 subsampled Cr:Cb plane 10 bits per channel packed
     pub const P030: Self = Self(0x30333050);
+
+    /// [47:0] R:G:B 16:16:16 little endian
+    pub const RGB161616: Self = Self(0x38344752);
+
+    /// [47:0] B:G:R 16:16:16 little endian
+    pub const BGR161616: Self = Self(0x38344742);
+
+    /// [15:0] R 16 little endian
+    pub const R16F: Self = Self(0x48202052);
+
+    /// [31:0] G:R 16:16 little endian
+    pub const GR1616F: Self = Self(0x48205247);
+
+    /// [47:0] B:G:R 16:16:16 little endian
+    pub const BGR161616F: Self = Self(0x48524742);
+
+    /// [31:0] R 32 little endian
+    pub const R32F: Self = Self(0x46202052);
+
+    /// [63:0] R:G 32:32 little endian
+    pub const GR3232F: Self = Self(0x46205247);
+
+    /// [95:0] R:G:B 32:32:32 little endian
+    pub const BGR323232F: Self = Self(0x46524742);
+
+    /// [127:0] R:G:B:A 32:32:32:32 little endian
+    pub const ABGR32323232F: Self = Self(0x46384241);
+
+    /// 2x1 subsampled Cr:Cb plane
+    pub const NV20: Self = Self(0x3032564e);
+
+    /// non-subsampled Cr:Cb plane
+    pub const NV30: Self = Self(0x3033564e);
+
+    /// 2x2 subsampled Cb (1) and Cr (2) planes 10 bits per channel
+    pub const S010: Self = Self(0x30313053);
+
+    /// 2x1 subsampled Cb (1) and Cr (2) planes 10 bits per channel
+    pub const S210: Self = Self(0x30313253);
+
+    /// non-subsampled Cb (1) and Cr (2) planes 10 bits per channel
+    pub const S410: Self = Self(0x30313453);
+
+    /// 2x2 subsampled Cb (1) and Cr (2) planes 12 bits per channel
+    pub const S012: Self = Self(0x32313053);
+
+    /// 2x1 subsampled Cb (1) and Cr (2) planes 12 bits per channel
+    pub const S212: Self = Self(0x32313253);
+
+    /// non-subsampled Cb (1) and Cr (2) planes 12 bits per channel
+    pub const S412: Self = Self(0x32313453);
+
+    /// 2x2 subsampled Cb (1) and Cr (2) planes 16 bits per channel
+    pub const S016: Self = Self(0x36313053);
+
+    /// 2x1 subsampled Cb (1) and Cr (2) planes 16 bits per channel
+    pub const S216: Self = Self(0x36313253);
+
+    /// non-subsampled Cb (1) and Cr (2) planes 16 bits per channel
+    pub const S416: Self = Self(0x36313453);
 }
 
 impl Debug for WlShmFormat {
@@ -1218,6 +1318,26 @@ impl Debug for WlShmFormat {
             Self::AVUY8888 => "AVUY8888",
             Self::XVUY8888 => "XVUY8888",
             Self::P030 => "P030",
+            Self::RGB161616 => "RGB161616",
+            Self::BGR161616 => "BGR161616",
+            Self::R16F => "R16F",
+            Self::GR1616F => "GR1616F",
+            Self::BGR161616F => "BGR161616F",
+            Self::R32F => "R32F",
+            Self::GR3232F => "GR3232F",
+            Self::BGR323232F => "BGR323232F",
+            Self::ABGR32323232F => "ABGR32323232F",
+            Self::NV20 => "NV20",
+            Self::NV30 => "NV30",
+            Self::S010 => "S010",
+            Self::S210 => "S210",
+            Self::S410 => "S410",
+            Self::S012 => "S012",
+            Self::S212 => "S212",
+            Self::S412 => "S412",
+            Self::S016 => "S016",
+            Self::S216 => "S216",
+            Self::S416 => "S416",
             _ => return Debug::fmt(&self.0, f),
         };
         f.write_str(name)

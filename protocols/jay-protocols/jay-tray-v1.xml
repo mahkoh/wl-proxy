@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="jay_tray_v1">
+  <copyright>
+    Copyright © 2024 Julian Orth
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice (including the next
+    paragraph) shall be included in all copies or substantial portions of the
+    Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+  </copyright>
+
+  <interface name="jay_tray_v1" version="1">
+    <description summary="protocol for system tray items">
+      This is a global that advertises a tray area. It allows clients to
+      displays items in the tray.
+
+      The compositor can advertise multiple globals of this interface. For
+      example, if there are multiple outputs with one tray area each. In that
+      case, clients that want to display tray items should bind to and use all
+      of these globals.
+
+      The compositor can remove this global at any time. For example, when an
+      output containing a tray area is disconnected. In that case, the items
+      created from the global will no longer be displayed and the client should
+      destroy all associated objects.
+
+      Warning! The protocol described in this file is currently in the testing
+      phase. Backward compatible changes may be added together with the
+      corresponding interface version bump. Backward incompatible changes can
+      only be done by creating a new major version of the extension.
+    </description>
+
+    <enum name="error">
+      <description summary="fatal error">
+        These fatal protocol errors may be emitted in response to
+        invalid requests.
+      </description>
+      <entry name="conflicting_role" value="0"
+             summary="the surface already has another role"/>
+      <entry name="already_exists" value="1"
+             summary="tray item already exists for the surface"/>
+    </enum>
+
+    <request name="destroy" type="destructor">
+      <description summary="destroy this object">
+        Destroy this object.
+
+        Created tray items are not affected by this.
+      </description>
+    </request>
+
+    <request name="get_tray_item">
+      <description summary="request tray item interface for surface">
+        Create a tray item for a surface.
+
+        The surface is assigned the ext-tray-item-v1 role. If the surface
+        already has another role, the conflicting_role error is emitted.
+
+        If the surface already has a role object, the already_exists error is
+        emitted.
+      </description>
+      <arg name="id" type="new_id" interface="jay_tray_item_v1"
+           summary="the new tray item"/>
+      <arg name="surface" type="object" interface="wl_surface"
+           summary="the underlying surface"/>
+    </request>
+  </interface>
+
+  <interface name="jay_tray_item_v1" version="1">
+    <description summary="tray item interface">
+      This interface represents an item in a tray. The underlying surface will
+      be displayed in the tray.
+
+      Unless the global has been removed, the compositor will immediately emit a
+      configuration sequence after this object has been created. If applicable,
+      the sequence will also contain wl_surface.preferred_buffer_scale and
+      wp_fractional_scale_v1.preferred_scale events.
+
+      After receiving the configuration sequence, the client must ack the
+      configuration and commit the surface. The item will not be displayed
+      before this.
+
+      The compositor can send configuration sequences at any point.
+
+      If a null buffer is committed, the item will not be displayed.
+      If the client wants the item to be displayed, it must ack and commit the
+      latest configuration sequence and attach and commit a non-null buffer.
+    </description>
+
+    <enum name="error">
+      <description summary="fatal error">
+        These fatal protocol errors may be emitted in response to
+        invalid requests.
+      </description>
+      <entry name="has_popups" value="0"
+             summary="the item has popups at destroy time"/>
+      <entry name="has_parent" value="1"
+             summary="the popup already has a parent"/>
+      <entry name="invalid_seat_serial" value="2"
+             summary="invalid serial provided to get_popup"/>
+      <entry name="invalid_configure_serial" value="3"
+             summary="invalid serial provided to ack_configure"/>
+      <entry name="invalid_keyboard_focus_hint" value="4"
+             summary="invalid keyboard focus hint provided to get_popup"/>
+    </enum>
+
+    <request name="destroy" type="destructor">
+      <description summary="destroy this object">
+        Destroy this object. The item is immediately removed from the tray.
+
+        The client must destroy all popups before this. Otherwise the has_popups
+        error is emitted.
+      </description>
+    </request>
+
+    <request name="ack_configure">
+      <description summary="ack a configuration sequence">
+        Ack a configuration sequence. The acked configuration sequence is
+        double-buffered state, see wl_surface.commit. If the compositor has
+        never sent this serial, an invalid_configure_serial error is emitted.
+      </description>
+      <arg name="serial" type="uint" summary="the serial"/>
+    </request>
+
+    <enum name="keyboard_focus_hint">
+      <description summary="keyboard focus hint">
+        This enum describes when a popup used in the get_popup request should
+        get keyboard focus.
+      </description>
+      <entry name="none" value="0">
+        <description summary="no keyboard focus">
+          The popup should never get the keyboard focus.
+        </description>
+      </entry>
+      <entry name="on_demand" value="1">
+        <description summary="on demand keyboard focus">
+          The popup should get the keyboard focus when the user requests it.
+        </description>
+      </entry>
+      <entry name="immediate" value="2">
+        <description summary="immediate keyboard focus">
+          The popup should get the keyboard focus as soon as it becomes visible.
+        </description>
+      </entry>
+    </enum>
+
+    <request name="get_popup">
+      <description summary="create a popup for tray item">
+        Create a popup for a tray item.
+
+        The popup should have been created with a null parent. If the popup
+        already has a parent, the has_parent error is emitted.
+
+        The seat and serial indicate the interaction that causes this popup to
+        be shown. If the compositor has never sent this serial, the compositor
+        might emit the invalid_seat_serial error. This is compositor policy.
+        If the focus_hint is invalid, the invalid_keyboard_focus_hint error is
+        emitted.
+
+        The focus hint indicates how the client wants keyboard focus to be
+        handled for the popup. The compositor may ignore the hint. This hint has
+        no effect on nested popups.
+
+        The compositor may dismiss the popup at any point.
+      </description>
+      <arg name="popup" type="object" interface="xdg_popup"
+           summary="the popup to be shown"/>
+      <arg name="seat" type="object" interface="wl_seat"
+           summary="the causal seat"/>
+      <arg name="serial" type="uint"
+           summary="the causal input serial"/>
+      <arg name="focus_hint" type="uint" enum="keyboard_focus_hint"
+           summary="a hint for keyboard focus handling"/>
+    </request>
+
+    <event name="configure_size">
+      <description summary="optimal tray item size has changed">
+        This event is sent when the optimal size for the item has changed.
+        This event is part of a configuration sequence that is terminated with
+        a configure event. The client should not act on it immediately but wait
+        for the configure event.
+
+        When the client receives this event, it should reconfigure the surface
+        for the new size, ack the sequence, and commit the surface.
+
+        If the surface has a different size, the compositor might crop or
+        stretch the surface. If the surface has subsurfaces that extend beyond
+        the edges of the surface, the compositor might crop them.
+
+        The width and height are at least 1.
+
+        If a configuration sequence does not contain this event, the client
+        should assume that the value is unchanged. The first configuration
+        sequence must contain this event.
+      </description>
+      <arg name="width" type="int" summary="the optimal width in surface coordinates"/>
+      <arg name="height" type="int" summary="the optimal height in surface coordinates"/>
+    </event>
+
+    <event name="preferred_anchor">
+      <description summary="preferred anchor has changed">
+        This events is sent when the preferred anchor for popup windows changes.
+        This event is part of a configuration sequence that is terminated with
+        a configure event. The client should not act on it immediately but wait
+        for the configure event.
+
+        If a configuration sequence does not contain this event, the client
+        should assume that the value is unchanged. The first configuration
+        sequence must contain this event.
+      </description>
+      <arg name="anchor" type="uint" enum="xdg_positioner.anchor"
+           summary="the preferred anchor"/>
+    </event>
+
+    <event name="preferred_gravity">
+      <description summary="preferred gravity has changed">
+        This events is sent when the preferred gravity for popup windows changes.
+        This event is part of a configuration sequence that is terminated with
+        a configure event. The client should not act on it immediately but wait
+        for the configure event.
+
+        If a configuration sequence does not contain this event, the client
+        should assume that the value is unchanged. The first configuration
+        sequence must contain this event.
+      </description>
+      <arg name="gravity" type="uint" enum="xdg_positioner.gravity"
+           summary="the preferred gravity"/>
+    </event>
+
+    <event name="configure">
+      <description summary="marks the end of a configuration sequence">
+        This event marks the end of a configuration sequence. The client should
+        act on the new parameters, ack the sequence, and commit the surface.
+
+        Note that this serial is not related to the wl_seat serial used in
+        get_popup requests.
+      </description>
+      <arg name="serial" type="uint" summary="the serial"/>
+    </event>
+  </interface>
+</protocol>

@@ -7,9 +7,6 @@
 [submodule "protocol-repos/wlr-protocols"]
 	path = protocol-repos/wlr-protocols
 	url = https://gitlab.freedesktop.org/wlroots/wlr-protocols.git
-[submodule "protocol-repos/plasma-wayland-protocols"]
-	path = protocol-repos/plasma-wayland-protocols
-	url = https://invent.kde.org/libraries/plasma-wayland-protocols.git
 [submodule "protocol-repos/hyprland-protocols"]
 	path = protocol-repos/hyprland-protocols
 	url = https://github.com/hyprwm/hyprland-protocols.git

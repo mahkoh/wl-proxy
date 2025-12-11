@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Simple idle inhibit protocol,
+    Used to implement org.freedesktop.ScreenSaver D-Bus interface.
+-->
+<protocol name="treeland_screensaver">
+    <copyright><![CDATA[
+    SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd.
+    SPDX-License-Identifier: MIT
+    ]]></copyright>
+    <interface name="treeland_screensaver" version="1">
+        <description summary="Simple idle inhibit protocol">
+            This object implements a simple idle inhibit protocol.
+
+            Call inhibit to prevent treeland from entering idle state.
+            Call uninhibit or disconnect from the global to release
+            the inhibit.
+
+            If the client disconnects from the compositor, the inhibit
+            associated with that client is automatically released.
+
+            There can be only one inhibit per client per time. Calling
+            inhibit multiple times will raise an error. Call uninhibit
+            before inhibit to update application_name and reason
+            recorded.
+
+            Warning! The protocol described in this file is currently
+            in the testing phase. Backward compatible changes may be
+            added together with the corresponding interface version
+            bump. Backward incompatible changes can only be done by
+            creating a new major version of the extension.
+        </description>
+        <!-- Requests -->
+        <request name="inhibit">
+            <description summary="Inhibit idleness">
+                Inhibit idleness with given application_name and reason_for_inhibit.
+            </description>
+            <arg name="application_name" type="string"/>
+            <arg name="reason_for_inhibit" type="string"/>
+        </request>
+        <request name="uninhibit">
+            <description summary="Uninhibit idleness">
+                Uninhibit idleness previously inhibited by inhibit request.
+            </description>
+        </request>
+        <!-- Errors -->
+        <enum name="error">
+            <entry name="not_yet_inhibited" value="0" summary="Trying to uninhibit but no active inhibit existed" />
+            <entry name="already_inhibited" value="1" summary="Trying to inhibit with an active inhibit existed" />
+        </enum>
+    </interface>
+</protocol>

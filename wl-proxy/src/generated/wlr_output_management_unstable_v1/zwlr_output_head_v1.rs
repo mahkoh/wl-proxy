@@ -75,8 +75,8 @@ impl ZwlrOutputHeadV1 {
     /// not assume that the name is a reflection of an underlying DRM
     /// connector, X11 connection, etc.
     ///
-    /// If the compositor implements the xdg-output protocol and this head is
-    /// enabled, the xdg_output.name event must report the same name.
+    /// If this head matches a wl_output, the wl_output.name event must report
+    /// the same name.
     ///
     /// The name event is sent after a wlr_output_head object is created. This
     /// event is only sent once per object, and the name does not change over
@@ -135,8 +135,8 @@ impl ZwlrOutputHeadV1 {
     /// the make, model, serial of the underlying DRM connector or the display
     /// name of the underlying X11 connection, etc.
     ///
-    /// If the compositor implements xdg-output and this head is enabled,
-    /// the xdg_output.description must report the same description.
+    /// If this head matches a wl_output, the wl_output.description event must
+    /// report the same name.
     ///
     /// The description event is sent after a wlr_output_head object is created.
     /// This event is only sent once per object, and the description does not
@@ -587,9 +587,6 @@ impl ZwlrOutputHeadV1 {
     ///
     /// This event describes the manufacturer of the head.
     ///
-    /// This must report the same make as the wl_output interface does in its
-    /// geometry event.
-    ///
     /// Together with the model and serial_number events the purpose is to
     /// allow clients to recognize heads from previous sessions and for example
     /// load head-specific configurations back.
@@ -654,9 +651,6 @@ impl ZwlrOutputHeadV1 {
     /// head model
     ///
     /// This event describes the model of the head.
-    ///
-    /// This must report the same model as the wl_output interface does in its
-    /// geometry event.
     ///
     /// Together with the make and serial_number events the purpose is to
     /// allow clients to recognize heads from previous sessions and for example
@@ -884,8 +878,8 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     /// not assume that the name is a reflection of an underlying DRM
     /// connector, X11 connection, etc.
     ///
-    /// If the compositor implements the xdg-output protocol and this head is
-    /// enabled, the xdg_output.name event must report the same name.
+    /// If this head matches a wl_output, the wl_output.name event must report
+    /// the same name.
     ///
     /// The name event is sent after a wlr_output_head object is created. This
     /// event is only sent once per object, and the name does not change over
@@ -918,8 +912,8 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     /// the make, model, serial of the underlying DRM connector or the display
     /// name of the underlying X11 connection, etc.
     ///
-    /// If the compositor implements xdg-output and this head is enabled,
-    /// the xdg_output.description must report the same description.
+    /// If this head matches a wl_output, the wl_output.description event must
+    /// report the same name.
     ///
     /// The description event is sent after a wlr_output_head object is created.
     /// This event is only sent once per object, and the description does not
@@ -1141,9 +1135,6 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     ///
     /// This event describes the manufacturer of the head.
     ///
-    /// This must report the same make as the wl_output interface does in its
-    /// geometry event.
-    ///
     /// Together with the model and serial_number events the purpose is to
     /// allow clients to recognize heads from previous sessions and for example
     /// load head-specific configurations back.
@@ -1182,9 +1173,6 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     /// head model
     ///
     /// This event describes the model of the head.
-    ///
-    /// This must report the same model as the wl_output interface does in its
-    /// geometry event.
     ///
     /// Together with the make and serial_number events the purpose is to
     /// allow clients to recognize heads from previous sessions and for example
