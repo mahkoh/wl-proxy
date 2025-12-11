@@ -13,6 +13,7 @@ log = "0.4.29"
 phf = { version = "0.13.1", features = ["macros"] }
 debug-fn = "1.0.0"
 run-on-drop = "1.0.0"
+linearize = { version = "0.1.5", features = ["derive"] }
 
 [features]
 default = ["suite-wayland-protocols", "suite-wlr-protocols"]

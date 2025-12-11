@@ -3547,7 +3547,8 @@ mod all_types {
     }
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, linearize::Linearize)]
+#[linearize(const)]
 pub enum ProxyInterface {
     #[cfg(feature = "protocol-hyprland_ctm_control_v1")]
     HyprlandCtmControlManagerV1,

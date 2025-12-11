@@ -1,7 +1,9 @@
 use {
     crate::{
         collector::{CollectorError, collect},
-        formatter::{format_interface_file, format_mod_file, format_protocol_file},
+        formatter::{
+            format_baseline_file, format_interface_file, format_mod_file, format_protocol_file,
+        },
     },
     std::{
         collections::HashMap,
@@ -59,6 +61,10 @@ pub fn main() -> Result<(), GeneratorError> {
 
     format_file(&src_dir.join("protocols.rs"), |f| {
         format_mod_file(f, &suits)
+    })?;
+
+    format_file(&src_dir.join("protocol_filter/prototyping.rs"), |f| {
+        format_baseline_file(f, &suits)
     })?;
 
     {

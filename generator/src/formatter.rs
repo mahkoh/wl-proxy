@@ -621,7 +621,8 @@ pub fn format_mod_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<()> {
     wl!("    }}")?;
     wl!("}}")?;
     wl!()?;
-    wl!("#[derive(Copy, Clone, Debug, Eq, PartialEq)]")?;
+    wl!("#[derive(Copy, Clone, Debug, Eq, PartialEq, linearize::Linearize)]")?;
+    wl!("#[linearize(const)]")?;
     wl!("pub enum ProxyInterface {{")?;
     for (protocol, interface) in interfaces() {
         let camel = format_camel(&interface.name);
@@ -653,6 +654,46 @@ pub fn format_mod_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<()> {
     wl!("        }}")?;
     wl!("    }}")?;
     wl!("}}")?;
+    Ok(())
+}
+
+pub fn format_baseline_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<()> {
+    define_w!(w);
+    let protocols = || suits.iter().flat_map(|s| s.protocols.iter());
+    let interfaces = || protocols().flat_map(|p| p.interfaces.iter().map(move |i| (p, i)));
+    let mut interfaces: Vec<_> = interfaces().collect();
+    interfaces.sort_by_key(|(_, i)| &i.name);
+    wl!("#![allow(non_upper_case_globals)]")?;
+    wl!()?;
+    wl!("use linearize::{{StaticCopyMap, Linearize}};")?;
+    wl!("use crate::protocols::ProxyInterface;")?;
+    wl!()?;
+    for (_, interface) in &interfaces {
+        let version = interface.version;
+        let snake = &interface.name;
+        wl!(
+            r#"const {snake}: u32 = {version};"#
+        )?;
+    }
+    wl!()?;
+    wl!("#[rustfmt::skip]")?;
+    wl!("pub(super) const BASELINE: &StaticCopyMap<ProxyInterface, u32> = {{")?;
+    wl!("    static BASELINE: [u32; ProxyInterface::LENGTH] = {{")?;
+    wl!("        let mut baseline = [0; ProxyInterface::LENGTH];")?;
+    for (protocol, interface) in &interfaces {
+        let snake = &interface.name;
+        let camel = format_camel(snake);
+        if !protocol.is_wayland {
+            wl!(r#"        #[cfg(feature = "protocol-{}")]"#, protocol.name)?;
+        }
+        wl!(
+            r#"        {{ baseline[ProxyInterface::{camel}.__linearize_d66aa8fa_6974_4651_b2b7_75291a9e7105()] = {snake}; }}"#
+        )?;
+    }
+    wl!("        baseline")?;
+    wl!("    }};")?;
+    wl!("    StaticCopyMap::from_ref(&BASELINE)")?;
+    wl!("}};")?;
     Ok(())
 }
 
