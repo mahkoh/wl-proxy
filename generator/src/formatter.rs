@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use {
     crate::ast::{Arg, ArgType, Description, Interface, Message, MessageType, Protocol},
     debug_fn::debug_fn,
@@ -6,6 +5,7 @@ use {
     std::{
         fmt::{Display, Write as FmtWrite},
         io::{self, Write},
+        sync::Arc,
     },
 };
 
@@ -42,10 +42,7 @@ fn format_interface_header(w: &mut impl Write, interface: &Interface) -> io::Res
     Ok(())
 }
 
-pub fn format_interface_file(
-    w: &mut impl Write,
-    interface: &Interface,
-) -> io::Result<()> {
+pub fn format_interface_file(w: &mut impl Write, interface: &Interface) -> io::Result<()> {
     define_w!(w);
     format_interface_header(w, interface)?;
     wl!()?;
@@ -416,10 +413,7 @@ fn format_since(
     Ok(())
 }
 
-fn format_interface_message_handler(
-    w: &mut impl Write,
-    interface: &Interface,
-) -> io::Result<()> {
+fn format_interface_message_handler(w: &mut impl Write, interface: &Interface) -> io::Result<()> {
     define_w!(w);
     let snake = &interface.name;
     let camel = format_camel(snake).to_string();
@@ -578,13 +572,17 @@ pub fn format_mod_file(
     wl!("    }}")?;
     wl!()?;
     wl!("    pub(super) fn proxy_interface(interface: &str) -> Option<ProxyInterface> {{")?;
-    wl!("        static INTERFACES: phf::Map<&'static str, Option<ProxyInterface>> = phf::phf_map! {{")?;
+    wl!(
+        "        static INTERFACES: phf::Map<&'static str, Option<ProxyInterface>> = phf::phf_map! {{"
+    )?;
     for (_, feature, interfaces) in protocols {
         for (snake, _, _) in interfaces {
             let camel = format_camel(snake);
             if let Some(feature) = feature {
                 wl!(r#"            "{snake}" => {{"#)?;
-                wl!(r#"                #[cfg(feature = "{feature}")] {{ Some(ProxyInterface::{camel}) }}"#)?;
+                wl!(
+                    r#"                #[cfg(feature = "{feature}")] {{ Some(ProxyInterface::{camel}) }}"#
+                )?;
                 wl!(r#"                #[cfg(not(feature = "{feature}"))] {{ None }}"#)?;
                 wl!(r#"            }},"#)?;
             } else {
@@ -597,7 +595,9 @@ pub fn format_mod_file(
     wl!("    }}")?;
     wl!()?;
     wl!("    impl ProxyInterface {{")?;
-    wl!("        fn create_proxy(self, state: &Rc<State>, version: u32) -> Result<Rc<dyn Proxy>, ObjectError> {{")?;
+    wl!(
+        "        fn create_proxy(self, state: &Rc<State>, version: u32) -> Result<Rc<dyn Proxy>, ObjectError> {{"
+    )?;
     wl!("            match self {{")?;
     for (_, feature, interfaces) in protocols {
         for (snake, _, version) in interfaces {
@@ -607,9 +607,7 @@ pub fn format_mod_file(
             }
             wl!(r#"                Self::{camel} => {{"#)?;
             wl!(r#"                    if version > {PREFIX}{camel}::XML_VERSION {{"#)?;
-            wl!(
-                r#"                        return Err(ObjectError::MaxVersion(self, version));"#
-            )?;
+            wl!(r#"                        return Err(ObjectError::MaxVersion(self, version));"#)?;
             wl!(r#"                    }}"#)?;
             wl!(r#"                    Ok({PREFIX}{camel}::new(state, version))"#)?;
             wl!(r#"                }}"#)?;

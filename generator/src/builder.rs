@@ -1,6 +1,6 @@
-use std::sync::Arc;
 use {
     crate::{
+        error::Error,
         formatter::{format_interface_file, format_mod_file, format_protocol_file},
         parser::{ParserError, parse},
     },
@@ -8,10 +8,10 @@ use {
         fs::File,
         io::{self, BufWriter, Write},
         path::{Path, PathBuf},
+        sync::Arc,
     },
     thiserror::Error,
 };
-use crate::error::Error;
 
 #[derive(Debug, Error)]
 enum BuilderError {
@@ -39,7 +39,6 @@ pub struct Builder {
 struct ProtocolFile {
     feature: Option<Arc<String>>,
     path: PathBuf,
-
 }
 
 impl Default for Builder {
