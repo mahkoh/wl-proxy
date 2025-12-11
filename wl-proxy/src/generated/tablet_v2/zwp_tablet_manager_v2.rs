@@ -49,7 +49,6 @@ impl Debug for ZwpTabletManagerV2 {
 
 impl ZwpTabletManagerV2 {
     /// Since when the get_tablet_seat message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_TABLET_SEAT__SINCE: u32 = 1;
 
     /// get the tablet seat
@@ -111,7 +110,6 @@ impl ZwpTabletManagerV2 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// release the memory for the tablet manager object
@@ -149,7 +147,6 @@ impl ZwpTabletManagerV2 {
 }
 
 /// A message handler for [ZwpTabletManagerV2] proxies.
-#[allow(dead_code)]
 pub trait ZwpTabletManagerV2Handler: Any {
     /// get the tablet seat
     ///

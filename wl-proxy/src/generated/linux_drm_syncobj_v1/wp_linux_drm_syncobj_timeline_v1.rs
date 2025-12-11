@@ -48,7 +48,6 @@ impl Debug for WpLinuxDrmSyncobjTimelineV1 {
 
 impl WpLinuxDrmSyncobjTimelineV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the timeline
@@ -87,7 +86,6 @@ impl WpLinuxDrmSyncobjTimelineV1 {
 }
 
 /// A message handler for [WpLinuxDrmSyncobjTimelineV1] proxies.
-#[allow(dead_code)]
 pub trait WpLinuxDrmSyncobjTimelineV1Handler: Any {
     /// destroy the timeline
     ///

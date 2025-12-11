@@ -51,7 +51,6 @@ impl Debug for ZwpPrimarySelectionOfferV1 {
 
 impl ZwpPrimarySelectionOfferV1 {
     /// Since when the receive message is available.
-    #[allow(dead_code)]
     pub const MSG__RECEIVE__SINCE: u32 = 1;
 
     /// request that the data is transferred
@@ -110,7 +109,6 @@ impl ZwpPrimarySelectionOfferV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the primary selection offer
@@ -146,7 +144,6 @@ impl ZwpPrimarySelectionOfferV1 {
     }
 
     /// Since when the offer message is available.
-    #[allow(dead_code)]
     pub const MSG__OFFER__SINCE: u32 = 1;
 
     /// advertise offered mime type
@@ -198,7 +195,6 @@ impl ZwpPrimarySelectionOfferV1 {
 }
 
 /// A message handler for [ZwpPrimarySelectionOfferV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpPrimarySelectionOfferV1Handler: Any {
     /// request that the data is transferred
     ///

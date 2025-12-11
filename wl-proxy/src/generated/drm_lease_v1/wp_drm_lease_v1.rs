@@ -54,7 +54,6 @@ impl Debug for WpDrmLeaseV1 {
 
 impl WpDrmLeaseV1 {
     /// Since when the lease_fd message is available.
-    #[allow(dead_code)]
     pub const MSG__LEASE_FD__SINCE: u32 = 1;
 
     /// shares the DRM file descriptor
@@ -111,7 +110,6 @@ impl WpDrmLeaseV1 {
     }
 
     /// Since when the finished message is available.
-    #[allow(dead_code)]
     pub const MSG__FINISHED__SINCE: u32 = 1;
 
     /// sent when the lease has been revoked
@@ -157,7 +155,6 @@ impl WpDrmLeaseV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroys the lease object
@@ -200,7 +197,6 @@ impl WpDrmLeaseV1 {
 }
 
 /// A message handler for [WpDrmLeaseV1] proxies.
-#[allow(dead_code)]
 pub trait WpDrmLeaseV1Handler: Any {
     /// shares the DRM file descriptor
     ///

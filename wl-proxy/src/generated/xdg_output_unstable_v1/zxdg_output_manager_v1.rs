@@ -47,7 +47,6 @@ impl Debug for ZxdgOutputManagerV1 {
 
 impl ZxdgOutputManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the xdg_output_manager object
@@ -86,7 +85,6 @@ impl ZxdgOutputManagerV1 {
     }
 
     /// Since when the get_xdg_output message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_XDG_OUTPUT__SINCE: u32 = 1;
 
     /// create an xdg output from a wl_output
@@ -148,7 +146,6 @@ impl ZxdgOutputManagerV1 {
 }
 
 /// A message handler for [ZxdgOutputManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ZxdgOutputManagerV1Handler: Any {
     /// destroy the xdg_output_manager object
     ///

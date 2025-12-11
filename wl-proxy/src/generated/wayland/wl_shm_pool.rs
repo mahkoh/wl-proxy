@@ -53,7 +53,6 @@ impl Debug for WlShmPool {
 
 impl WlShmPool {
     /// Since when the create_buffer message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_BUFFER__SINCE: u32 = 1;
 
     /// create a buffer from the pool
@@ -139,7 +138,6 @@ impl WlShmPool {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the pool
@@ -179,7 +177,6 @@ impl WlShmPool {
     }
 
     /// Since when the resize message is available.
-    #[allow(dead_code)]
     pub const MSG__RESIZE__SINCE: u32 = 1;
 
     /// change the size of the pool mapping
@@ -235,7 +232,6 @@ impl WlShmPool {
 }
 
 /// A message handler for [WlShmPool] proxies.
-#[allow(dead_code)]
 pub trait WlShmPoolHandler: Any {
     /// create a buffer from the pool
     ///

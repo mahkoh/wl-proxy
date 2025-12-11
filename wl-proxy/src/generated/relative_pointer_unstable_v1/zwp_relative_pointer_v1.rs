@@ -50,7 +50,6 @@ impl Debug for ZwpRelativePointerV1 {
 
 impl ZwpRelativePointerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// release the relative pointer object
@@ -84,7 +83,6 @@ impl ZwpRelativePointerV1 {
     }
 
     /// Since when the relative_motion message is available.
-    #[allow(dead_code)]
     pub const MSG__RELATIVE_MOTION__SINCE: u32 = 1;
 
     /// relative pointer motion
@@ -187,7 +185,6 @@ impl ZwpRelativePointerV1 {
 }
 
 /// A message handler for [ZwpRelativePointerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpRelativePointerV1Handler: Any {
     /// release the relative pointer object
     #[inline]

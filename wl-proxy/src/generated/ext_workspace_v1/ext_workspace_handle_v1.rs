@@ -62,7 +62,6 @@ impl Debug for ExtWorkspaceHandleV1 {
 
 impl ExtWorkspaceHandleV1 {
     /// Since when the id message is available.
-    #[allow(dead_code)]
     pub const MSG__ID__SINCE: u32 = 1;
 
     /// workspace id
@@ -122,7 +121,6 @@ impl ExtWorkspaceHandleV1 {
     }
 
     /// Since when the name message is available.
-    #[allow(dead_code)]
     pub const MSG__NAME__SINCE: u32 = 1;
 
     /// workspace name changed
@@ -174,7 +172,6 @@ impl ExtWorkspaceHandleV1 {
     }
 
     /// Since when the coordinates message is available.
-    #[allow(dead_code)]
     pub const MSG__COORDINATES__SINCE: u32 = 1;
 
     /// workspace coordinates changed
@@ -239,7 +236,6 @@ impl ExtWorkspaceHandleV1 {
     }
 
     /// Since when the state message is available.
-    #[allow(dead_code)]
     pub const MSG__STATE__SINCE: u32 = 1;
 
     /// the state of the workspace changed
@@ -292,7 +288,6 @@ impl ExtWorkspaceHandleV1 {
     }
 
     /// Since when the capabilities message is available.
-    #[allow(dead_code)]
     pub const MSG__CAPABILITIES__SINCE: u32 = 1;
 
     /// compositor capabilities
@@ -352,7 +347,6 @@ impl ExtWorkspaceHandleV1 {
     }
 
     /// Since when the removed message is available.
-    #[allow(dead_code)]
     pub const MSG__REMOVED__SINCE: u32 = 1;
 
     /// this workspace has been removed
@@ -397,7 +391,6 @@ impl ExtWorkspaceHandleV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the ext_workspace_handle_v1 object
@@ -437,7 +430,6 @@ impl ExtWorkspaceHandleV1 {
     }
 
     /// Since when the activate message is available.
-    #[allow(dead_code)]
     pub const MSG__ACTIVATE__SINCE: u32 = 1;
 
     /// activate the workspace
@@ -477,7 +469,6 @@ impl ExtWorkspaceHandleV1 {
     }
 
     /// Since when the deactivate message is available.
-    #[allow(dead_code)]
     pub const MSG__DEACTIVATE__SINCE: u32 = 1;
 
     /// deactivate the workspace
@@ -514,7 +505,6 @@ impl ExtWorkspaceHandleV1 {
     }
 
     /// Since when the assign message is available.
-    #[allow(dead_code)]
     pub const MSG__ASSIGN__SINCE: u32 = 1;
 
     /// assign workspace to group
@@ -567,7 +557,6 @@ impl ExtWorkspaceHandleV1 {
     }
 
     /// Since when the remove message is available.
-    #[allow(dead_code)]
     pub const MSG__REMOVE__SINCE: u32 = 1;
 
     /// remove the workspace
@@ -605,7 +594,6 @@ impl ExtWorkspaceHandleV1 {
 }
 
 /// A message handler for [ExtWorkspaceHandleV1] proxies.
-#[allow(dead_code)]
 pub trait ExtWorkspaceHandleV1Handler: Any {
     /// workspace id
     ///
@@ -1235,26 +1223,19 @@ impl Proxy for ExtWorkspaceHandleV1 {
 
 impl ExtWorkspaceHandleV1 {
     /// Since when the state.active enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_ACTIVE__SINCE: u32 = 1;
     /// Since when the state.urgent enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_URGENT__SINCE: u32 = 1;
     /// Since when the state.hidden enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_HIDDEN__SINCE: u32 = 1;
 
     /// Since when the workspace_capabilities.activate enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__WORKSPACE_CAPABILITIES_ACTIVATE__SINCE: u32 = 1;
     /// Since when the workspace_capabilities.deactivate enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__WORKSPACE_CAPABILITIES_DEACTIVATE__SINCE: u32 = 1;
     /// Since when the workspace_capabilities.remove enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__WORKSPACE_CAPABILITIES_REMOVE__SINCE: u32 = 1;
     /// Since when the workspace_capabilities.assign enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__WORKSPACE_CAPABILITIES_ASSIGN__SINCE: u32 = 1;
 }
 
@@ -1263,7 +1244,6 @@ impl ExtWorkspaceHandleV1 {
 /// The different states that a workspace can have.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct ExtWorkspaceHandleV1State(pub u32);
 
 /// An iterator over the set bits in a [ExtWorkspaceHandleV1State].
@@ -1274,11 +1254,9 @@ pub struct ExtWorkspaceHandleV1StateIter(pub u32);
 
 impl ExtWorkspaceHandleV1State {
     /// the workspace is active
-    #[allow(dead_code)]
     pub const ACTIVE: Self = Self(1);
 
     /// the workspace requests attention
-    #[allow(dead_code)]
     pub const URGENT: Self = Self(2);
 
     /// the workspace is not visible
@@ -1286,11 +1264,9 @@ impl ExtWorkspaceHandleV1State {
     /// The workspace is not visible in its workspace group, and clients
     /// attempting to visualize the compositor workspace state should not
     /// display such workspaces.
-    #[allow(dead_code)]
     pub const HIDDEN: Self = Self(4);
 }
 
-#[allow(dead_code)]
 impl ExtWorkspaceHandleV1State {
     #[inline]
     pub const fn empty() -> Self {
@@ -1510,7 +1486,6 @@ impl Debug for ExtWorkspaceHandleV1State {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct ExtWorkspaceHandleV1WorkspaceCapabilities(pub u32);
 
 /// An iterator over the set bits in a [ExtWorkspaceHandleV1WorkspaceCapabilities].
@@ -1521,23 +1496,18 @@ pub struct ExtWorkspaceHandleV1WorkspaceCapabilitiesIter(pub u32);
 
 impl ExtWorkspaceHandleV1WorkspaceCapabilities {
     /// activate request is available
-    #[allow(dead_code)]
     pub const ACTIVATE: Self = Self(1);
 
     /// deactivate request is available
-    #[allow(dead_code)]
     pub const DEACTIVATE: Self = Self(2);
 
     /// remove request is available
-    #[allow(dead_code)]
     pub const REMOVE: Self = Self(4);
 
     /// assign request is available
-    #[allow(dead_code)]
     pub const ASSIGN: Self = Self(8);
 }
 
-#[allow(dead_code)]
 impl ExtWorkspaceHandleV1WorkspaceCapabilities {
     #[inline]
     pub const fn empty() -> Self {

@@ -59,7 +59,6 @@ impl Debug for ZwpPointerConstraintsV1 {
 
 impl ZwpPointerConstraintsV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the pointer constraints manager object
@@ -96,7 +95,6 @@ impl ZwpPointerConstraintsV1 {
     }
 
     /// Since when the lock_pointer message is available.
-    #[allow(dead_code)]
     pub const MSG__LOCK_POINTER__SINCE: u32 = 1;
 
     /// lock pointer to a position
@@ -218,7 +216,6 @@ impl ZwpPointerConstraintsV1 {
     }
 
     /// Since when the confine_pointer message is available.
-    #[allow(dead_code)]
     pub const MSG__CONFINE_POINTER__SINCE: u32 = 1;
 
     /// confine pointer to a region
@@ -324,7 +321,6 @@ impl ZwpPointerConstraintsV1 {
 }
 
 /// A message handler for [ZwpPointerConstraintsV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpPointerConstraintsV1Handler: Any {
     /// destroy the pointer constraints manager object
     ///
@@ -685,14 +681,11 @@ impl Proxy for ZwpPointerConstraintsV1 {
 
 impl ZwpPointerConstraintsV1 {
     /// Since when the error.already_constrained enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_CONSTRAINED__SINCE: u32 = 1;
 
     /// Since when the lifetime.oneshot enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__LIFETIME_ONESHOT__SINCE: u32 = 1;
     /// Since when the lifetime.persistent enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__LIFETIME_PERSISTENT__SINCE: u32 = 1;
 }
 
@@ -701,12 +694,10 @@ impl ZwpPointerConstraintsV1 {
 /// These errors can be emitted in response to wp_pointer_constraints
 /// requests.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpPointerConstraintsV1Error(pub u32);
 
 impl ZwpPointerConstraintsV1Error {
     /// pointer constraint already requested on that surface
-    #[allow(dead_code)]
     pub const ALREADY_CONSTRAINED: Self = Self(1);
 }
 
@@ -726,7 +717,6 @@ impl Debug for ZwpPointerConstraintsV1Error {
 /// as arguments to the factory requests to specify how the constraint
 /// lifetimes should be managed.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpPointerConstraintsV1Lifetime(pub u32);
 
 impl ZwpPointerConstraintsV1Lifetime {
@@ -736,7 +726,6 @@ impl ZwpPointerConstraintsV1Lifetime {
     /// deactivated. See the corresponding deactivation event
     /// (wp_locked_pointer.unlocked and wp_confined_pointer.unconfined) for
     /// details.
-    #[allow(dead_code)]
     pub const ONESHOT: Self = Self(1);
 
     /// the pointer constraint may reactivate
@@ -745,7 +734,6 @@ impl ZwpPointerConstraintsV1Lifetime {
     /// been deactivated. See the corresponding deactivation event
     /// (wp_locked_pointer.unlocked and wp_confined_pointer.unconfined) for
     /// details.
-    #[allow(dead_code)]
     pub const PERSISTENT: Self = Self(2);
 }
 

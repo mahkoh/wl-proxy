@@ -63,7 +63,6 @@ impl Debug for ZwpPointerGestureHoldV1 {
 
 impl ZwpPointerGestureHoldV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 3;
 
     /// destroy the hold gesture object
@@ -97,7 +96,6 @@ impl ZwpPointerGestureHoldV1 {
     }
 
     /// Since when the begin message is available.
-    #[allow(dead_code)]
     pub const MSG__BEGIN__SINCE: u32 = 3;
 
     /// multi-finger hold begin
@@ -165,7 +163,6 @@ impl ZwpPointerGestureHoldV1 {
     }
 
     /// Since when the end message is available.
-    #[allow(dead_code)]
     pub const MSG__END__SINCE: u32 = 3;
 
     /// multi-finger hold end
@@ -232,7 +229,6 @@ impl ZwpPointerGestureHoldV1 {
 }
 
 /// A message handler for [ZwpPointerGestureHoldV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpPointerGestureHoldV1Handler: Any {
     /// destroy the hold gesture object
     #[inline]

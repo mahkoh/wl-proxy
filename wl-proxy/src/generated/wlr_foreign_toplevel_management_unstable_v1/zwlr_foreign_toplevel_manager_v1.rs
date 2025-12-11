@@ -52,7 +52,6 @@ impl Debug for ZwlrForeignToplevelManagerV1 {
 
 impl ZwlrForeignToplevelManagerV1 {
     /// Since when the toplevel message is available.
-    #[allow(dead_code)]
     pub const MSG__TOPLEVEL__SINCE: u32 = 1;
 
     /// a toplevel has been created
@@ -107,7 +106,6 @@ impl ZwlrForeignToplevelManagerV1 {
     }
 
     /// Since when the stop message is available.
-    #[allow(dead_code)]
     pub const MSG__STOP__SINCE: u32 = 1;
 
     /// stop sending events
@@ -146,7 +144,6 @@ impl ZwlrForeignToplevelManagerV1 {
     }
 
     /// Since when the finished message is available.
-    #[allow(dead_code)]
     pub const MSG__FINISHED__SINCE: u32 = 1;
 
     /// the compositor has finished with the toplevel manager
@@ -191,7 +188,6 @@ impl ZwlrForeignToplevelManagerV1 {
 }
 
 /// A message handler for [ZwlrForeignToplevelManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrForeignToplevelManagerV1Handler: Any {
     /// a toplevel has been created
     ///

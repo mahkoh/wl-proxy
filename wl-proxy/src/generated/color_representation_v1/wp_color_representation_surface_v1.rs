@@ -56,7 +56,6 @@ impl Debug for WpColorRepresentationSurfaceV1 {
 
 impl WpColorRepresentationSurfaceV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the color representation
@@ -98,7 +97,6 @@ impl WpColorRepresentationSurfaceV1 {
     }
 
     /// Since when the set_alpha_mode message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_ALPHA_MODE__SINCE: u32 = 1;
 
     /// set the surface alpha mode
@@ -154,7 +152,6 @@ impl WpColorRepresentationSurfaceV1 {
     }
 
     /// Since when the set_coefficients_and_range message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_COEFFICIENTS_AND_RANGE__SINCE: u32 = 1;
 
     /// set the matrix coefficients and range
@@ -230,7 +227,6 @@ impl WpColorRepresentationSurfaceV1 {
     }
 
     /// Since when the set_chroma_location message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_CHROMA_LOCATION__SINCE: u32 = 1;
 
     /// set the chroma location
@@ -293,7 +289,6 @@ impl WpColorRepresentationSurfaceV1 {
 }
 
 /// A message handler for [WpColorRepresentationSurfaceV1] proxies.
-#[allow(dead_code)]
 pub trait WpColorRepresentationSurfaceV1Handler: Any {
     /// destroy the color representation
     ///
@@ -595,107 +590,77 @@ impl Proxy for WpColorRepresentationSurfaceV1 {
 
 impl WpColorRepresentationSurfaceV1 {
     /// Since when the error.alpha_mode enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALPHA_MODE__SINCE: u32 = 1;
     /// Since when the error.coefficients enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_COEFFICIENTS__SINCE: u32 = 1;
     /// Since when the error.pixel_format enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_PIXEL_FORMAT__SINCE: u32 = 1;
     /// Since when the error.inert enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INERT__SINCE: u32 = 1;
     /// Since when the error.chroma_location enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_CHROMA_LOCATION__SINCE: u32 = 1;
 
     /// Since when the alpha_mode.premultiplied_electrical enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ALPHA_MODE_PREMULTIPLIED_ELECTRICAL__SINCE: u32 = 1;
     /// Since when the alpha_mode.premultiplied_optical enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ALPHA_MODE_PREMULTIPLIED_OPTICAL__SINCE: u32 = 1;
     /// Since when the alpha_mode.straight enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ALPHA_MODE_STRAIGHT__SINCE: u32 = 1;
 
     /// Since when the coefficients.identity enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__COEFFICIENTS_IDENTITY__SINCE: u32 = 1;
     /// Since when the coefficients.bt709 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__COEFFICIENTS_BT709__SINCE: u32 = 1;
     /// Since when the coefficients.fcc enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__COEFFICIENTS_FCC__SINCE: u32 = 1;
     /// Since when the coefficients.bt601 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__COEFFICIENTS_BT601__SINCE: u32 = 1;
     /// Since when the coefficients.smpte240 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__COEFFICIENTS_SMPTE240__SINCE: u32 = 1;
     /// Since when the coefficients.bt2020 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__COEFFICIENTS_BT2020__SINCE: u32 = 1;
     /// Since when the coefficients.bt2020_cl enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__COEFFICIENTS_BT2020_CL__SINCE: u32 = 1;
     /// Since when the coefficients.ictcp enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__COEFFICIENTS_ICTCP__SINCE: u32 = 1;
 
     /// Since when the range.full enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RANGE_FULL__SINCE: u32 = 1;
     /// Since when the range.limited enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RANGE_LIMITED__SINCE: u32 = 1;
 
     /// Since when the chroma_location.type_0 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CHROMA_LOCATION_TYPE_0__SINCE: u32 = 1;
     /// Since when the chroma_location.type_1 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CHROMA_LOCATION_TYPE_1__SINCE: u32 = 1;
     /// Since when the chroma_location.type_2 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CHROMA_LOCATION_TYPE_2__SINCE: u32 = 1;
     /// Since when the chroma_location.type_3 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CHROMA_LOCATION_TYPE_3__SINCE: u32 = 1;
     /// Since when the chroma_location.type_4 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CHROMA_LOCATION_TYPE_4__SINCE: u32 = 1;
     /// Since when the chroma_location.type_5 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CHROMA_LOCATION_TYPE_5__SINCE: u32 = 1;
 }
 
 /// protocol errors
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpColorRepresentationSurfaceV1Error(pub u32);
 
 impl WpColorRepresentationSurfaceV1Error {
     /// unsupported alpha mode
-    #[allow(dead_code)]
     pub const ALPHA_MODE: Self = Self(1);
 
     /// unsupported coefficients
-    #[allow(dead_code)]
     pub const COEFFICIENTS: Self = Self(2);
 
     /// the pixel format and a set value are incompatible
-    #[allow(dead_code)]
     pub const PIXEL_FORMAT: Self = Self(3);
 
     /// forbidden request on inert object
-    #[allow(dead_code)]
     pub const INERT: Self = Self(4);
 
     /// invalid chroma location
-    #[allow(dead_code)]
     pub const CHROMA_LOCATION: Self = Self(5);
 }
 
@@ -717,7 +682,6 @@ impl Debug for WpColorRepresentationSurfaceV1Error {
 ///
 /// Specifies how the alpha channel affects the color channels.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpColorRepresentationSurfaceV1AlphaMode(pub u32);
 
 impl WpColorRepresentationSurfaceV1AlphaMode {
@@ -725,20 +689,17 @@ impl WpColorRepresentationSurfaceV1AlphaMode {
     ///
     /// Electrical color channel values (after transfer function encoding)
     /// are already multiplied with the alpha channel value.
-    #[allow(dead_code)]
     pub const PREMULTIPLIED_ELECTRICAL: Self = Self(0);
 
     /// premultiplied alpha in optical values
     ///
     /// Optical color channel values (before transfer function encoding)
     /// are already multiplied with the alpha channel value.
-    #[allow(dead_code)]
     pub const PREMULTIPLIED_OPTICAL: Self = Self(1);
 
     /// straight alpha
     ///
     /// Alpha channel has not been pre-multiplied into color channels.
-    #[allow(dead_code)]
     pub const STRAIGHT: Self = Self(2);
 }
 
@@ -765,7 +726,6 @@ impl Debug for WpColorRepresentationSurfaceV1AlphaMode {
 ///
 /// Descriptions do list the specifications for convenience.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpColorRepresentationSurfaceV1Coefficients(pub u32);
 
 impl WpColorRepresentationSurfaceV1Coefficients {
@@ -777,7 +737,6 @@ impl WpColorRepresentationSurfaceV1Coefficients {
     ///
     /// Equivalent to H.273 MatrixCoefficients code point 0.
     /// Compatible with pixel formats of the RGB family.
-    #[allow(dead_code)]
     pub const IDENTITY: Self = Self(1);
 
     /// BT.709 matrix coefficients
@@ -792,7 +751,6 @@ impl WpColorRepresentationSurfaceV1Coefficients {
     ///
     /// Equivalent to H.273 MatrixCoefficients code point 1.
     /// Compatible with pixel formats of the YCbCr family.
-    #[allow(dead_code)]
     pub const BT709: Self = Self(2);
 
     /// FCC matrix coefficients
@@ -803,7 +761,6 @@ impl WpColorRepresentationSurfaceV1Coefficients {
     ///
     /// Equivalent to H.273 MatrixCoefficients code point 4.
     /// Compatible with pixel formats of the YCbCr family.
-    #[allow(dead_code)]
     pub const FCC: Self = Self(3);
 
     /// BT.601-7 matrix coefficients
@@ -822,7 +779,6 @@ impl WpColorRepresentationSurfaceV1Coefficients {
     ///
     /// Equivalent to H.273 MatrixCoefficients code point 5, 6.
     /// Compatible with pixel formats of the YCbCr family.
-    #[allow(dead_code)]
     pub const BT601: Self = Self(4);
 
     /// SMPTE ST 240 matrix coefficients
@@ -832,7 +788,6 @@ impl WpColorRepresentationSurfaceV1Coefficients {
     ///
     /// Equivalent to H.273 MatrixCoefficients code point 7.
     /// Compatible with pixel formats of the YCbCr family.
-    #[allow(dead_code)]
     pub const SMPTE240: Self = Self(5);
 
     /// BT.2020 and BT.2100 YCbCr matrix coefficients
@@ -843,7 +798,6 @@ impl WpColorRepresentationSurfaceV1Coefficients {
     ///
     /// Equivalent to H.273 MatrixCoefficients code point 9.
     /// Compatible with pixel formats of the YCbCr family.
-    #[allow(dead_code)]
     pub const BT2020: Self = Self(6);
 
     /// BT.2020 matrix coefficients for constant luminance
@@ -853,7 +807,6 @@ impl WpColorRepresentationSurfaceV1Coefficients {
     ///
     /// Equivalent to H.273 MatrixCoefficients code point 10.
     /// Compatible with pixel formats of the YCbCr family.
-    #[allow(dead_code)]
     pub const BT2020_CL: Self = Self(7);
 
     /// BT.2100 ICtCp matrix coefficients
@@ -863,7 +816,6 @@ impl WpColorRepresentationSurfaceV1Coefficients {
     ///
     /// Equivalent to H.273 MatrixCoefficients code point 14.
     /// Compatible with pixel formats of the YCbCr family.
-    #[allow(dead_code)]
     pub const ICTCP: Self = Self(8);
 }
 
@@ -890,16 +842,13 @@ impl Debug for WpColorRepresentationSurfaceV1Coefficients {
 ///
 /// A value of 0 is invalid and will never be present in the list of enums.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpColorRepresentationSurfaceV1Range(pub u32);
 
 impl WpColorRepresentationSurfaceV1Range {
     /// Full color range
-    #[allow(dead_code)]
     pub const FULL: Self = Self(1);
 
     /// Limited color range
-    #[allow(dead_code)]
     pub const LIMITED: Self = Self(2);
 }
 
@@ -923,7 +872,6 @@ impl Debug for WpColorRepresentationSurfaceV1Range {
 /// The descriptions list the matching Vulkan VkChromaLocation combinations
 /// for convenience.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpColorRepresentationSurfaceV1ChromaLocation(pub u32);
 
 impl WpColorRepresentationSurfaceV1ChromaLocation {
@@ -934,7 +882,6 @@ impl WpColorRepresentationSurfaceV1ChromaLocation {
     /// - yChromaOffset: VK_CHROMA_LOCATION_MIDPOINT
     ///
     /// Equivalent to H.273 Chroma420SampleLocType 0.
-    #[allow(dead_code)]
     pub const TYPE_0: Self = Self(1);
 
     /// Horizontal offset of 0.5, vertical offset of 0.5
@@ -944,7 +891,6 @@ impl WpColorRepresentationSurfaceV1ChromaLocation {
     /// - yChromaOffset: VK_CHROMA_LOCATION_MIDPOINT
     ///
     /// Equivalent to H.273 Chroma420SampleLocType 1.
-    #[allow(dead_code)]
     pub const TYPE_1: Self = Self(2);
 
     /// Horizontal offset of 0, vertical offset of 0
@@ -954,7 +900,6 @@ impl WpColorRepresentationSurfaceV1ChromaLocation {
     /// - yChromaOffset: VK_CHROMA_LOCATION_COSITED_EVEN
     ///
     /// Equivalent to H.273 Chroma420SampleLocType 2.
-    #[allow(dead_code)]
     pub const TYPE_2: Self = Self(3);
 
     /// Horizontal offset of 0.5, vertical offset of 0
@@ -964,19 +909,16 @@ impl WpColorRepresentationSurfaceV1ChromaLocation {
     /// - yChromaOffset: VK_CHROMA_LOCATION_COSITED_EVEN
     ///
     /// Equivalent to H.273 Chroma420SampleLocType 3.
-    #[allow(dead_code)]
     pub const TYPE_3: Self = Self(4);
 
     /// Horizontal offset of 0, vertical offset of 1
     ///
     /// Equivalent to H.273 Chroma420SampleLocType 4.
-    #[allow(dead_code)]
     pub const TYPE_4: Self = Self(5);
 
     /// Horizontal offset of 0.5, vertical offset of 1
     ///
     /// Equivalent to H.273 Chroma420SampleLocType 5.
-    #[allow(dead_code)]
     pub const TYPE_5: Self = Self(6);
 }
 

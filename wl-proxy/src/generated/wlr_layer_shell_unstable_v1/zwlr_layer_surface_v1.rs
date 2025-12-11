@@ -61,7 +61,6 @@ impl Debug for ZwlrLayerSurfaceV1 {
 
 impl ZwlrLayerSurfaceV1 {
     /// Since when the set_size message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_SIZE__SINCE: u32 = 1;
 
     /// sets the size of the surface
@@ -121,7 +120,6 @@ impl ZwlrLayerSurfaceV1 {
     }
 
     /// Since when the set_anchor message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_ANCHOR__SINCE: u32 = 1;
 
     /// configures the anchor point of the surface
@@ -173,7 +171,6 @@ impl ZwlrLayerSurfaceV1 {
     }
 
     /// Since when the set_exclusive_zone message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_EXCLUSIVE_ZONE__SINCE: u32 = 1;
 
     /// configures the exclusive geometry of this surface
@@ -250,7 +247,6 @@ impl ZwlrLayerSurfaceV1 {
     }
 
     /// Since when the set_margin message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_MARGIN__SINCE: u32 = 1;
 
     /// sets a margin from the anchor point
@@ -317,7 +313,6 @@ impl ZwlrLayerSurfaceV1 {
     }
 
     /// Since when the set_keyboard_interactivity message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_KEYBOARD_INTERACTIVITY__SINCE: u32 = 1;
 
     /// requests keyboard events
@@ -374,7 +369,6 @@ impl ZwlrLayerSurfaceV1 {
     }
 
     /// Since when the get_popup message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_POPUP__SINCE: u32 = 1;
 
     /// assign this layer_surface as an xdg_popup parent
@@ -431,7 +425,6 @@ impl ZwlrLayerSurfaceV1 {
     }
 
     /// Since when the ack_configure message is available.
-    #[allow(dead_code)]
     pub const MSG__ACK_CONFIGURE__SINCE: u32 = 1;
 
     /// ack a configure event
@@ -491,7 +484,6 @@ impl ZwlrLayerSurfaceV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the layer_surface
@@ -527,7 +519,6 @@ impl ZwlrLayerSurfaceV1 {
     }
 
     /// Since when the configure message is available.
-    #[allow(dead_code)]
     pub const MSG__CONFIGURE__SINCE: u32 = 1;
 
     /// suggest a surface change
@@ -604,7 +595,6 @@ impl ZwlrLayerSurfaceV1 {
     }
 
     /// Since when the closed message is available.
-    #[allow(dead_code)]
     pub const MSG__CLOSED__SINCE: u32 = 1;
 
     /// surface should be closed
@@ -645,7 +635,6 @@ impl ZwlrLayerSurfaceV1 {
     }
 
     /// Since when the set_layer message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_LAYER__SINCE: u32 = 2;
 
     /// change the layer of the surface
@@ -693,7 +682,6 @@ impl ZwlrLayerSurfaceV1 {
     }
 
     /// Since when the set_exclusive_edge message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_EXCLUSIVE_EDGE__SINCE: u32 = 5;
 
     /// set the edge the exclusive zone will be applied to
@@ -747,7 +735,6 @@ impl ZwlrLayerSurfaceV1 {
 }
 
 /// A message handler for [ZwlrLayerSurfaceV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrLayerSurfaceV1Handler: Any {
     /// sets the size of the surface
     ///
@@ -1459,42 +1446,30 @@ impl Proxy for ZwlrLayerSurfaceV1 {
 
 impl ZwlrLayerSurfaceV1 {
     /// Since when the keyboard_interactivity.none enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__KEYBOARD_INTERACTIVITY_NONE__SINCE: u32 = 1;
     /// Since when the keyboard_interactivity.exclusive enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__KEYBOARD_INTERACTIVITY_EXCLUSIVE__SINCE: u32 = 1;
     /// Since when the keyboard_interactivity.on_demand enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__KEYBOARD_INTERACTIVITY_ON_DEMAND__SINCE: u32 = 4;
 
     /// Since when the error.invalid_surface_state enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_SURFACE_STATE__SINCE: u32 = 1;
     /// Since when the error.invalid_size enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_SIZE__SINCE: u32 = 1;
     /// Since when the error.invalid_anchor enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_ANCHOR__SINCE: u32 = 1;
     /// Since when the error.invalid_keyboard_interactivity enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_KEYBOARD_INTERACTIVITY__SINCE: u32 = 1;
     /// Since when the error.invalid_exclusive_edge enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_EXCLUSIVE_EDGE__SINCE: u32 = 1;
 
     /// Since when the anchor.top enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ANCHOR_TOP__SINCE: u32 = 1;
     /// Since when the anchor.bottom enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ANCHOR_BOTTOM__SINCE: u32 = 1;
     /// Since when the anchor.left enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ANCHOR_LEFT__SINCE: u32 = 1;
     /// Since when the anchor.right enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ANCHOR_RIGHT__SINCE: u32 = 1;
 }
 
@@ -1506,7 +1481,6 @@ impl ZwlrLayerSurfaceV1 {
 /// desktop experience; (2) some applications will want to take exclusive
 /// keyboard focus.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwlrLayerSurfaceV1KeyboardInteractivity(pub u32);
 
 impl ZwlrLayerSurfaceV1KeyboardInteractivity {
@@ -1519,7 +1493,6 @@ impl ZwlrLayerSurfaceV1KeyboardInteractivity {
     ///
     /// This is useful for e.g. desktop widgets that display information or
     /// only have interaction with non-keyboard input devices.
-    #[allow(dead_code)]
     pub const NONE: Self = Self(0);
 
     /// request exclusive keyboard focus
@@ -1540,7 +1513,6 @@ impl ZwlrLayerSurfaceV1KeyboardInteractivity {
     /// This setting is mainly intended for applications that need to ensure
     /// they receive all keyboard events, such as a lock screen or a password
     /// prompt.
-    #[allow(dead_code)]
     pub const EXCLUSIVE: Self = Self(1);
 
     /// request regular keyboard focus semantics
@@ -1562,7 +1534,6 @@ impl ZwlrLayerSurfaceV1KeyboardInteractivity {
     /// panels) that allow keyboard interaction. Using this option can allow
     /// implementing a desktop shell that can be fully usable without the
     /// mouse.
-    #[allow(dead_code)]
     pub const ON_DEMAND: Self = Self(2);
 }
 
@@ -1579,28 +1550,22 @@ impl Debug for ZwlrLayerSurfaceV1KeyboardInteractivity {
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwlrLayerSurfaceV1Error(pub u32);
 
 impl ZwlrLayerSurfaceV1Error {
     /// provided surface state is invalid
-    #[allow(dead_code)]
     pub const INVALID_SURFACE_STATE: Self = Self(0);
 
     /// size is invalid
-    #[allow(dead_code)]
     pub const INVALID_SIZE: Self = Self(1);
 
     /// anchor bitfield is invalid
-    #[allow(dead_code)]
     pub const INVALID_ANCHOR: Self = Self(2);
 
     /// keyboard interactivity is invalid
-    #[allow(dead_code)]
     pub const INVALID_KEYBOARD_INTERACTIVITY: Self = Self(3);
 
     /// exclusive edge is invalid given the surface anchors
-    #[allow(dead_code)]
     pub const INVALID_EXCLUSIVE_EDGE: Self = Self(4);
 }
 
@@ -1620,7 +1585,6 @@ impl Debug for ZwlrLayerSurfaceV1Error {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct ZwlrLayerSurfaceV1Anchor(pub u32);
 
 /// An iterator over the set bits in a [ZwlrLayerSurfaceV1Anchor].
@@ -1631,23 +1595,18 @@ pub struct ZwlrLayerSurfaceV1AnchorIter(pub u32);
 
 impl ZwlrLayerSurfaceV1Anchor {
     /// the top edge of the anchor rectangle
-    #[allow(dead_code)]
     pub const TOP: Self = Self(1);
 
     /// the bottom edge of the anchor rectangle
-    #[allow(dead_code)]
     pub const BOTTOM: Self = Self(2);
 
     /// the left edge of the anchor rectangle
-    #[allow(dead_code)]
     pub const LEFT: Self = Self(4);
 
     /// the right edge of the anchor rectangle
-    #[allow(dead_code)]
     pub const RIGHT: Self = Self(8);
 }
 
-#[allow(dead_code)]
 impl ZwlrLayerSurfaceV1Anchor {
     #[inline]
     pub const fn empty() -> Self {

@@ -61,7 +61,6 @@ impl Debug for WlBuffer {
 
 impl WlBuffer {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy a buffer
@@ -100,7 +99,6 @@ impl WlBuffer {
     }
 
     /// Since when the release message is available.
-    #[allow(dead_code)]
     pub const MSG__RELEASE__SINCE: u32 = 1;
 
     /// compositor releases buffer
@@ -151,7 +149,6 @@ impl WlBuffer {
 }
 
 /// A message handler for [WlBuffer] proxies.
-#[allow(dead_code)]
 pub trait WlBufferHandler: Any {
     /// destroy a buffer
     ///

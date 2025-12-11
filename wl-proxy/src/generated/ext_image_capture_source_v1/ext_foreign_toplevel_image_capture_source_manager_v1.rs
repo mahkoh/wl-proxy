@@ -48,7 +48,6 @@ impl Debug for ExtForeignToplevelImageCaptureSourceManagerV1 {
 
 impl ExtForeignToplevelImageCaptureSourceManagerV1 {
     /// Since when the create_source message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_SOURCE__SINCE: u32 = 1;
 
     /// create source object for foreign toplevel
@@ -110,7 +109,6 @@ impl ExtForeignToplevelImageCaptureSourceManagerV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// delete this object
@@ -149,7 +147,6 @@ impl ExtForeignToplevelImageCaptureSourceManagerV1 {
 }
 
 /// A message handler for [ExtForeignToplevelImageCaptureSourceManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ExtForeignToplevelImageCaptureSourceManagerV1Handler: Any {
     /// create source object for foreign toplevel
     ///

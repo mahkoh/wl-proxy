@@ -68,7 +68,6 @@ impl Debug for ExtIdleNotificationV1 {
 
 impl ExtIdleNotificationV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the notification object
@@ -104,7 +103,6 @@ impl ExtIdleNotificationV1 {
     }
 
     /// Since when the idled message is available.
-    #[allow(dead_code)]
     pub const MSG__IDLED__SINCE: u32 = 1;
 
     /// notification object is idle
@@ -144,7 +142,6 @@ impl ExtIdleNotificationV1 {
     }
 
     /// Since when the resumed message is available.
-    #[allow(dead_code)]
     pub const MSG__RESUMED__SINCE: u32 = 1;
 
     /// notification object is no longer idle
@@ -186,7 +183,6 @@ impl ExtIdleNotificationV1 {
 }
 
 /// A message handler for [ExtIdleNotificationV1] proxies.
-#[allow(dead_code)]
 pub trait ExtIdleNotificationV1Handler: Any {
     /// destroy the notification object
     ///

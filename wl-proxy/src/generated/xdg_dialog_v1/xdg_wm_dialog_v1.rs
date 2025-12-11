@@ -57,7 +57,6 @@ impl Debug for XdgWmDialogV1 {
 
 impl XdgWmDialogV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the dialog manager object
@@ -94,7 +93,6 @@ impl XdgWmDialogV1 {
     }
 
     /// Since when the get_xdg_dialog message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_XDG_DIALOG__SINCE: u32 = 1;
 
     /// create a dialog object
@@ -160,7 +158,6 @@ impl XdgWmDialogV1 {
 }
 
 /// A message handler for [XdgWmDialogV1] proxies.
-#[allow(dead_code)]
 pub trait XdgWmDialogV1Handler: Any {
     /// destroy the dialog manager object
     ///
@@ -343,17 +340,14 @@ impl Proxy for XdgWmDialogV1 {
 
 impl XdgWmDialogV1 {
     /// Since when the error.already_used enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_USED__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct XdgWmDialogV1Error(pub u32);
 
 impl XdgWmDialogV1Error {
     /// the xdg_toplevel object has already been used to create a xdg_dialog_v1
-    #[allow(dead_code)]
     pub const ALREADY_USED: Self = Self(0);
 }
 

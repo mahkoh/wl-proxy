@@ -49,7 +49,6 @@ impl Debug for XdgActivationV1 {
 
 impl XdgActivationV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the xdg_activation object
@@ -89,7 +88,6 @@ impl XdgActivationV1 {
     }
 
     /// Since when the get_activation_token message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_ACTIVATION_TOKEN__SINCE: u32 = 1;
 
     /// requests a token
@@ -138,7 +136,6 @@ impl XdgActivationV1 {
     }
 
     /// Since when the activate message is available.
-    #[allow(dead_code)]
     pub const MSG__ACTIVATE__SINCE: u32 = 1;
 
     /// notify new interaction being available
@@ -206,7 +203,6 @@ impl XdgActivationV1 {
 }
 
 /// A message handler for [XdgActivationV1] proxies.
-#[allow(dead_code)]
 pub trait XdgActivationV1Handler: Any {
     /// destroy the xdg_activation object
     ///

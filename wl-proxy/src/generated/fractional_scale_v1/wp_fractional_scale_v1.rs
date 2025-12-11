@@ -48,7 +48,6 @@ impl Debug for WpFractionalScaleV1 {
 
 impl WpFractionalScaleV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// remove surface scale information for surface
@@ -85,7 +84,6 @@ impl WpFractionalScaleV1 {
     }
 
     /// Since when the preferred_scale message is available.
-    #[allow(dead_code)]
     pub const MSG__PREFERRED_SCALE__SINCE: u32 = 1;
 
     /// notify of new preferred scale
@@ -137,7 +135,6 @@ impl WpFractionalScaleV1 {
 }
 
 /// A message handler for [WpFractionalScaleV1] proxies.
-#[allow(dead_code)]
 pub trait WpFractionalScaleV1Handler: Any {
     /// remove surface scale information for surface
     ///

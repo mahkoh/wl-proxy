@@ -67,7 +67,6 @@ impl Debug for ZwpTabletPadGroupV2 {
 
 impl ZwpTabletPadGroupV2 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the pad object
@@ -104,7 +103,6 @@ impl ZwpTabletPadGroupV2 {
     }
 
     /// Since when the buttons message is available.
-    #[allow(dead_code)]
     pub const MSG__BUTTONS__SINCE: u32 = 1;
 
     /// buttons announced
@@ -163,7 +161,6 @@ impl ZwpTabletPadGroupV2 {
     }
 
     /// Since when the ring message is available.
-    #[allow(dead_code)]
     pub const MSG__RING__SINCE: u32 = 1;
 
     /// ring announced
@@ -216,7 +213,6 @@ impl ZwpTabletPadGroupV2 {
     }
 
     /// Since when the strip message is available.
-    #[allow(dead_code)]
     pub const MSG__STRIP__SINCE: u32 = 1;
 
     /// strip announced
@@ -269,7 +265,6 @@ impl ZwpTabletPadGroupV2 {
     }
 
     /// Since when the modes message is available.
-    #[allow(dead_code)]
     pub const MSG__MODES__SINCE: u32 = 1;
 
     /// mode-switch ability announced
@@ -328,7 +323,6 @@ impl ZwpTabletPadGroupV2 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// tablet group description events sequence complete
@@ -368,7 +362,6 @@ impl ZwpTabletPadGroupV2 {
     }
 
     /// Since when the mode_switch message is available.
-    #[allow(dead_code)]
     pub const MSG__MODE_SWITCH__SINCE: u32 = 1;
 
     /// mode switch event
@@ -452,7 +445,6 @@ impl ZwpTabletPadGroupV2 {
     }
 
     /// Since when the dial message is available.
-    #[allow(dead_code)]
     pub const MSG__DIAL__SINCE: u32 = 2;
 
     /// dial announced
@@ -506,7 +498,6 @@ impl ZwpTabletPadGroupV2 {
 }
 
 /// A message handler for [ZwpTabletPadGroupV2] proxies.
-#[allow(dead_code)]
 pub trait ZwpTabletPadGroupV2Handler: Any {
     /// destroy the pad object
     ///

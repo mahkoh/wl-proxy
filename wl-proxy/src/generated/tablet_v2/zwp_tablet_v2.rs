@@ -54,7 +54,6 @@ impl Debug for ZwpTabletV2 {
 
 impl ZwpTabletV2 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the tablet object
@@ -90,7 +89,6 @@ impl ZwpTabletV2 {
     }
 
     /// Since when the name message is available.
-    #[allow(dead_code)]
     pub const MSG__NAME__SINCE: u32 = 1;
 
     /// tablet device name
@@ -143,7 +141,6 @@ impl ZwpTabletV2 {
     }
 
     /// Since when the id message is available.
-    #[allow(dead_code)]
     pub const MSG__ID__SINCE: u32 = 1;
 
     /// tablet device vendor/product id
@@ -207,7 +204,6 @@ impl ZwpTabletV2 {
     }
 
     /// Since when the path message is available.
-    #[allow(dead_code)]
     pub const MSG__PATH__SINCE: u32 = 1;
 
     /// path to the device
@@ -268,7 +264,6 @@ impl ZwpTabletV2 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// tablet description events sequence complete
@@ -308,7 +303,6 @@ impl ZwpTabletV2 {
     }
 
     /// Since when the removed message is available.
-    #[allow(dead_code)]
     pub const MSG__REMOVED__SINCE: u32 = 1;
 
     /// tablet removed event
@@ -349,7 +343,6 @@ impl ZwpTabletV2 {
     }
 
     /// Since when the bustype message is available.
-    #[allow(dead_code)]
     pub const MSG__BUSTYPE__SINCE: u32 = 2;
 
     /// tablet device bus type
@@ -405,7 +398,6 @@ impl ZwpTabletV2 {
 }
 
 /// A message handler for [ZwpTabletV2] proxies.
-#[allow(dead_code)]
 pub trait ZwpTabletV2Handler: Any {
     /// destroy the tablet object
     ///
@@ -839,19 +831,14 @@ impl Proxy for ZwpTabletV2 {
 
 impl ZwpTabletV2 {
     /// Since when the bustype.usb enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__BUSTYPE_USB__SINCE: u32 = 1;
     /// Since when the bustype.bluetooth enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__BUSTYPE_BLUETOOTH__SINCE: u32 = 1;
     /// Since when the bustype.virtual enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__BUSTYPE_VIRTUAL__SINCE: u32 = 1;
     /// Since when the bustype.serial enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__BUSTYPE_SERIAL__SINCE: u32 = 1;
     /// Since when the bustype.i2c enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__BUSTYPE_I2C__SINCE: u32 = 1;
 }
 
@@ -859,28 +846,22 @@ impl ZwpTabletV2 {
 ///
 /// Describes the bus types this tablet is connected to.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpTabletV2Bustype(pub u32);
 
 impl ZwpTabletV2Bustype {
     /// USB
-    #[allow(dead_code)]
     pub const USB: Self = Self(3);
 
     /// Bluetooth
-    #[allow(dead_code)]
     pub const BLUETOOTH: Self = Self(5);
 
     /// Virtual
-    #[allow(dead_code)]
     pub const VIRTUAL: Self = Self(6);
 
     /// Serial
-    #[allow(dead_code)]
     pub const SERIAL: Self = Self(17);
 
     /// I2C
-    #[allow(dead_code)]
     pub const I2C: Self = Self(24);
 }
 

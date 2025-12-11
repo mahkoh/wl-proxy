@@ -48,7 +48,6 @@ impl Debug for ZwpRelativePointerManagerV1 {
 
 impl ZwpRelativePointerManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the relative pointer manager object
@@ -85,7 +84,6 @@ impl ZwpRelativePointerManagerV1 {
     }
 
     /// Since when the get_relative_pointer message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_RELATIVE_POINTER__SINCE: u32 = 1;
 
     /// get a relative pointer object
@@ -148,7 +146,6 @@ impl ZwpRelativePointerManagerV1 {
 }
 
 /// A message handler for [ZwpRelativePointerManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpRelativePointerManagerV1Handler: Any {
     /// destroy the relative pointer manager object
     ///

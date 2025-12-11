@@ -52,7 +52,6 @@ impl Debug for WlDataOffer {
 
 impl WlDataOffer {
     /// Since when the accept message is available.
-    #[allow(dead_code)]
     pub const MSG__ACCEPT__SINCE: u32 = 1;
 
     /// accept one of the offered mime types
@@ -120,7 +119,6 @@ impl WlDataOffer {
     }
 
     /// Since when the receive message is available.
-    #[allow(dead_code)]
     pub const MSG__RECEIVE__SINCE: u32 = 1;
 
     /// request that the data is transferred
@@ -185,7 +183,6 @@ impl WlDataOffer {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy data offer
@@ -221,7 +218,6 @@ impl WlDataOffer {
     }
 
     /// Since when the offer message is available.
-    #[allow(dead_code)]
     pub const MSG__OFFER__SINCE: u32 = 1;
 
     /// advertise offered mime type
@@ -270,7 +266,6 @@ impl WlDataOffer {
     }
 
     /// Since when the finish message is available.
-    #[allow(dead_code)]
     pub const MSG__FINISH__SINCE: u32 = 3;
 
     /// the offer will no longer be used
@@ -318,7 +313,6 @@ impl WlDataOffer {
     }
 
     /// Since when the set_actions message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_ACTIONS__SINCE: u32 = 3;
 
     /// set the available/preferred drag-and-drop actions
@@ -399,7 +393,6 @@ impl WlDataOffer {
     }
 
     /// Since when the source_actions message is available.
-    #[allow(dead_code)]
     pub const MSG__SOURCE_ACTIONS__SINCE: u32 = 3;
 
     /// notify the source-side available actions
@@ -450,7 +443,6 @@ impl WlDataOffer {
     }
 
     /// Since when the action message is available.
-    #[allow(dead_code)]
     pub const MSG__ACTION__SINCE: u32 = 3;
 
     /// notify the selected action
@@ -533,7 +525,6 @@ impl WlDataOffer {
 }
 
 /// A message handler for [WlDataOffer] proxies.
-#[allow(dead_code)]
 pub trait WlDataOfferHandler: Any {
     /// accept one of the offered mime types
     ///
@@ -1118,38 +1109,29 @@ impl Proxy for WlDataOffer {
 
 impl WlDataOffer {
     /// Since when the error.invalid_finish enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_FINISH__SINCE: u32 = 1;
     /// Since when the error.invalid_action_mask enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_ACTION_MASK__SINCE: u32 = 1;
     /// Since when the error.invalid_action enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_ACTION__SINCE: u32 = 1;
     /// Since when the error.invalid_offer enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_OFFER__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlDataOfferError(pub u32);
 
 impl WlDataOfferError {
     /// finish request was called untimely
-    #[allow(dead_code)]
     pub const INVALID_FINISH: Self = Self(0);
 
     /// action mask contains invalid values
-    #[allow(dead_code)]
     pub const INVALID_ACTION_MASK: Self = Self(1);
 
     /// action argument has an invalid value
-    #[allow(dead_code)]
     pub const INVALID_ACTION: Self = Self(2);
 
     /// offer doesn't accept this request
-    #[allow(dead_code)]
     pub const INVALID_OFFER: Self = Self(3);
 }
 

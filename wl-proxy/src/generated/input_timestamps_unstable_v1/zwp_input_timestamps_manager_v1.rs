@@ -48,7 +48,6 @@ impl Debug for ZwpInputTimestampsManagerV1 {
 
 impl ZwpInputTimestampsManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the input timestamps manager object
@@ -86,7 +85,6 @@ impl ZwpInputTimestampsManagerV1 {
     }
 
     /// Since when the get_keyboard_timestamps message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_KEYBOARD_TIMESTAMPS__SINCE: u32 = 1;
 
     /// subscribe to high-resolution keyboard timestamp events
@@ -154,7 +152,6 @@ impl ZwpInputTimestampsManagerV1 {
     }
 
     /// Since when the get_pointer_timestamps message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_POINTER_TIMESTAMPS__SINCE: u32 = 1;
 
     /// subscribe to high-resolution pointer timestamp events
@@ -222,7 +219,6 @@ impl ZwpInputTimestampsManagerV1 {
     }
 
     /// Since when the get_touch_timestamps message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_TOUCH_TIMESTAMPS__SINCE: u32 = 1;
 
     /// subscribe to high-resolution touch timestamp events
@@ -291,7 +287,6 @@ impl ZwpInputTimestampsManagerV1 {
 }
 
 /// A message handler for [ZwpInputTimestampsManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpInputTimestampsManagerV1Handler: Any {
     /// destroy the input timestamps manager object
     ///

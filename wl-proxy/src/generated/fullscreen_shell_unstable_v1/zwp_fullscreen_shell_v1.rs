@@ -79,7 +79,6 @@ impl Debug for ZwpFullscreenShellV1 {
 
 impl ZwpFullscreenShellV1 {
     /// Since when the release message is available.
-    #[allow(dead_code)]
     pub const MSG__RELEASE__SINCE: u32 = 1;
 
     /// release the wl_fullscreen_shell interface
@@ -119,7 +118,6 @@ impl ZwpFullscreenShellV1 {
     }
 
     /// Since when the capability message is available.
-    #[allow(dead_code)]
     pub const MSG__CAPABILITY__SINCE: u32 = 1;
 
     /// advertises a capability of the compositor
@@ -174,7 +172,6 @@ impl ZwpFullscreenShellV1 {
     }
 
     /// Since when the present_surface message is available.
-    #[allow(dead_code)]
     pub const MSG__PRESENT_SURFACE__SINCE: u32 = 1;
 
     /// present surface for display
@@ -266,7 +263,6 @@ impl ZwpFullscreenShellV1 {
     }
 
     /// Since when the present_surface_for_mode message is available.
-    #[allow(dead_code)]
     pub const MSG__PRESENT_SURFACE_FOR_MODE__SINCE: u32 = 1;
 
     /// present surface for display at a particular mode
@@ -383,7 +379,6 @@ impl ZwpFullscreenShellV1 {
 }
 
 /// A message handler for [ZwpFullscreenShellV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpFullscreenShellV1Handler: Any {
     /// release the wl_fullscreen_shell interface
     ///
@@ -774,33 +769,24 @@ impl Proxy for ZwpFullscreenShellV1 {
 
 impl ZwpFullscreenShellV1 {
     /// Since when the capability.arbitrary_modes enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CAPABILITY_ARBITRARY_MODES__SINCE: u32 = 1;
     /// Since when the capability.cursor_plane enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CAPABILITY_CURSOR_PLANE__SINCE: u32 = 1;
 
     /// Since when the present_method.default enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__PRESENT_METHOD_DEFAULT__SINCE: u32 = 1;
     /// Since when the present_method.center enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__PRESENT_METHOD_CENTER__SINCE: u32 = 1;
     /// Since when the present_method.zoom enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__PRESENT_METHOD_ZOOM__SINCE: u32 = 1;
     /// Since when the present_method.zoom_crop enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__PRESENT_METHOD_ZOOM_CROP__SINCE: u32 = 1;
     /// Since when the present_method.stretch enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__PRESENT_METHOD_STRETCH__SINCE: u32 = 1;
 
     /// Since when the error.invalid_method enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_METHOD__SINCE: u32 = 1;
     /// Since when the error.role enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ROLE__SINCE: u32 = 1;
 }
 
@@ -828,16 +814,13 @@ impl ZwpFullscreenShellV1 {
 /// CURSOR_PLANE is not advertised, it is recommended that the client draw
 /// its own cursor and set wl_pointer.cursor(NULL).
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpFullscreenShellV1Capability(pub u32);
 
 impl ZwpFullscreenShellV1Capability {
     /// compositor is capable of almost any output mode
-    #[allow(dead_code)]
     pub const ARBITRARY_MODES: Self = Self(1);
 
     /// compositor has a separate cursor plane
-    #[allow(dead_code)]
     pub const CURSOR_PLANE: Self = Self(2);
 }
 
@@ -858,28 +841,22 @@ impl Debug for ZwpFullscreenShellV1Capability {
 /// between the dimensions of the surface and the dimensions of the
 /// output. The compositor is free to ignore this parameter.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpFullscreenShellV1PresentMethod(pub u32);
 
 impl ZwpFullscreenShellV1PresentMethod {
     /// no preference, apply default policy
-    #[allow(dead_code)]
     pub const DEFAULT: Self = Self(0);
 
     /// center the surface on the output
-    #[allow(dead_code)]
     pub const CENTER: Self = Self(1);
 
     /// scale the surface, preserving aspect ratio, to the largest size that will fit on the output
-    #[allow(dead_code)]
     pub const ZOOM: Self = Self(2);
 
     /// scale the surface, preserving aspect ratio, to fully fill the output cropping if needed
-    #[allow(dead_code)]
     pub const ZOOM_CROP: Self = Self(3);
 
     /// scale the surface to the size of the output ignoring aspect ratio
-    #[allow(dead_code)]
     pub const STRETCH: Self = Self(4);
 }
 
@@ -901,16 +878,13 @@ impl Debug for ZwpFullscreenShellV1PresentMethod {
 ///
 /// These errors can be emitted in response to wl_fullscreen_shell requests.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpFullscreenShellV1Error(pub u32);
 
 impl ZwpFullscreenShellV1Error {
     /// present_method is not known
-    #[allow(dead_code)]
     pub const INVALID_METHOD: Self = Self(0);
 
     /// given wl_surface has another role
-    #[allow(dead_code)]
     pub const ROLE: Self = Self(1);
 }
 

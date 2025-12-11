@@ -60,7 +60,6 @@ impl Debug for ZwlrExportDmabufFrameV1 {
 
 impl ZwlrExportDmabufFrameV1 {
     /// Since when the frame message is available.
-    #[allow(dead_code)]
     pub const MSG__FRAME__SINCE: u32 = 1;
 
     /// a frame description
@@ -159,7 +158,6 @@ impl ZwlrExportDmabufFrameV1 {
     }
 
     /// Since when the object message is available.
-    #[allow(dead_code)]
     pub const MSG__OBJECT__SINCE: u32 = 1;
 
     /// an object description
@@ -236,7 +234,6 @@ impl ZwlrExportDmabufFrameV1 {
     }
 
     /// Since when the ready message is available.
-    #[allow(dead_code)]
     pub const MSG__READY__SINCE: u32 = 1;
 
     /// indicates frame is available for reading
@@ -305,7 +302,6 @@ impl ZwlrExportDmabufFrameV1 {
     }
 
     /// Since when the cancel message is available.
-    #[allow(dead_code)]
     pub const MSG__CANCEL__SINCE: u32 = 1;
 
     /// indicates the frame is no longer valid
@@ -361,7 +357,6 @@ impl ZwlrExportDmabufFrameV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// delete this object, used or not
@@ -402,7 +397,6 @@ impl ZwlrExportDmabufFrameV1 {
 }
 
 /// A message handler for [ZwlrExportDmabufFrameV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrExportDmabufFrameV1Handler: Any {
     /// a frame description
     ///
@@ -784,17 +778,13 @@ impl Proxy for ZwlrExportDmabufFrameV1 {
 
 impl ZwlrExportDmabufFrameV1 {
     /// Since when the flags.transient enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FLAGS_TRANSIENT__SINCE: u32 = 1;
 
     /// Since when the cancel_reason.temporary enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CANCEL_REASON_TEMPORARY__SINCE: u32 = 1;
     /// Since when the cancel_reason.permanent enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CANCEL_REASON_PERMANENT__SINCE: u32 = 1;
     /// Since when the cancel_reason.resizing enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CANCEL_REASON_RESIZING__SINCE: u32 = 1;
 }
 
@@ -802,12 +792,10 @@ impl ZwlrExportDmabufFrameV1 {
 ///
 /// Special flags that should be respected by the client.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwlrExportDmabufFrameV1Flags(pub u32);
 
 impl ZwlrExportDmabufFrameV1Flags {
     /// clients should copy frame before processing
-    #[allow(dead_code)]
     pub const TRANSIENT: Self = Self(0x1);
 }
 
@@ -825,20 +813,16 @@ impl Debug for ZwlrExportDmabufFrameV1Flags {
 ///
 /// Indicates reason for cancelling the frame.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwlrExportDmabufFrameV1CancelReason(pub u32);
 
 impl ZwlrExportDmabufFrameV1CancelReason {
     /// temporary error, source will produce more frames
-    #[allow(dead_code)]
     pub const TEMPORARY: Self = Self(0);
 
     /// fatal error, source will not produce frames
-    #[allow(dead_code)]
     pub const PERMANENT: Self = Self(1);
 
     /// temporary error, source will produce more frames
-    #[allow(dead_code)]
     pub const RESIZING: Self = Self(2);
 }
 

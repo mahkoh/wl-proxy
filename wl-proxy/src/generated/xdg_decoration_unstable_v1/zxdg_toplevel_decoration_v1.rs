@@ -52,7 +52,6 @@ impl Debug for ZxdgToplevelDecorationV1 {
 
 impl ZxdgToplevelDecorationV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the decoration object
@@ -89,7 +88,6 @@ impl ZxdgToplevelDecorationV1 {
     }
 
     /// Since when the set_mode message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_MODE__SINCE: u32 = 1;
 
     /// set the decoration mode
@@ -155,7 +153,6 @@ impl ZxdgToplevelDecorationV1 {
     }
 
     /// Since when the unset_mode message is available.
-    #[allow(dead_code)]
     pub const MSG__UNSET_MODE__SINCE: u32 = 1;
 
     /// unset the decoration mode
@@ -193,7 +190,6 @@ impl ZxdgToplevelDecorationV1 {
     }
 
     /// Since when the configure message is available.
-    #[allow(dead_code)]
     pub const MSG__CONFIGURE__SINCE: u32 = 1;
 
     /// notify a decoration mode change
@@ -248,7 +244,6 @@ impl ZxdgToplevelDecorationV1 {
 }
 
 /// A message handler for [ZxdgToplevelDecorationV1] proxies.
-#[allow(dead_code)]
 pub trait ZxdgToplevelDecorationV1Handler: Any {
     /// destroy the decoration object
     ///
@@ -512,45 +507,34 @@ impl Proxy for ZxdgToplevelDecorationV1 {
 
 impl ZxdgToplevelDecorationV1 {
     /// Since when the error.unconfigured_buffer enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_UNCONFIGURED_BUFFER__SINCE: u32 = 1;
     /// Since when the error.already_constructed enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_CONSTRUCTED__SINCE: u32 = 1;
     /// Since when the error.orphaned enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ORPHANED__SINCE: u32 = 1;
     /// Since when the error.invalid_mode enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_MODE__SINCE: u32 = 1;
 
     /// Since when the mode.client_side enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__MODE_CLIENT_SIDE__SINCE: u32 = 1;
     /// Since when the mode.server_side enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__MODE_SERVER_SIDE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZxdgToplevelDecorationV1Error(pub u32);
 
 impl ZxdgToplevelDecorationV1Error {
     /// xdg_toplevel has a buffer attached before configure
-    #[allow(dead_code)]
     pub const UNCONFIGURED_BUFFER: Self = Self(0);
 
     /// xdg_toplevel already has a decoration object
-    #[allow(dead_code)]
     pub const ALREADY_CONSTRUCTED: Self = Self(1);
 
     /// xdg_toplevel destroyed before the decoration object
-    #[allow(dead_code)]
     pub const ORPHANED: Self = Self(2);
 
     /// invalid mode
-    #[allow(dead_code)]
     pub const INVALID_MODE: Self = Self(3);
 }
 
@@ -571,16 +555,13 @@ impl Debug for ZxdgToplevelDecorationV1Error {
 ///
 /// These values describe window decoration modes.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZxdgToplevelDecorationV1Mode(pub u32);
 
 impl ZxdgToplevelDecorationV1Mode {
     /// no server-side window decoration
-    #[allow(dead_code)]
     pub const CLIENT_SIDE: Self = Self(1);
 
     /// server-side window decoration
-    #[allow(dead_code)]
     pub const SERVER_SIDE: Self = Self(2);
 }
 

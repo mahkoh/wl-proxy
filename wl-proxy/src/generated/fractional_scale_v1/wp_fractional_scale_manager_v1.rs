@@ -47,7 +47,6 @@ impl Debug for WpFractionalScaleManagerV1 {
 
 impl WpFractionalScaleManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// unbind the fractional surface scale interface
@@ -85,7 +84,6 @@ impl WpFractionalScaleManagerV1 {
     }
 
     /// Since when the get_fractional_scale message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_FRACTIONAL_SCALE__SINCE: u32 = 1;
 
     /// extend surface interface for scale information
@@ -150,7 +148,6 @@ impl WpFractionalScaleManagerV1 {
 }
 
 /// A message handler for [WpFractionalScaleManagerV1] proxies.
-#[allow(dead_code)]
 pub trait WpFractionalScaleManagerV1Handler: Any {
     /// unbind the fractional surface scale interface
     ///
@@ -333,17 +330,14 @@ impl Proxy for WpFractionalScaleManagerV1 {
 
 impl WpFractionalScaleManagerV1 {
     /// Since when the error.fractional_scale_exists enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_FRACTIONAL_SCALE_EXISTS__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpFractionalScaleManagerV1Error(pub u32);
 
 impl WpFractionalScaleManagerV1Error {
     /// the surface already has a fractional_scale object associated
-    #[allow(dead_code)]
     pub const FRACTIONAL_SCALE_EXISTS: Self = Self(0);
 }
 

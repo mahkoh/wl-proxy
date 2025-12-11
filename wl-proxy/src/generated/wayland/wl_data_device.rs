@@ -51,7 +51,6 @@ impl Debug for WlDataDevice {
 
 impl WlDataDevice {
     /// Since when the start_drag message is available.
-    #[allow(dead_code)]
     pub const MSG__START_DRAG__SINCE: u32 = 1;
 
     /// start drag-and-drop operation
@@ -161,7 +160,6 @@ impl WlDataDevice {
     }
 
     /// Since when the set_selection message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_SELECTION__SINCE: u32 = 1;
 
     /// copy data to the selection
@@ -227,7 +225,6 @@ impl WlDataDevice {
     }
 
     /// Since when the data_offer message is available.
-    #[allow(dead_code)]
     pub const MSG__DATA_OFFER__SINCE: u32 = 1;
 
     /// introduce a new wl_data_offer
@@ -282,7 +279,6 @@ impl WlDataDevice {
     }
 
     /// Since when the enter message is available.
-    #[allow(dead_code)]
     pub const MSG__ENTER__SINCE: u32 = 1;
 
     /// initiate drag-and-drop session
@@ -365,7 +361,6 @@ impl WlDataDevice {
     }
 
     /// Since when the leave message is available.
-    #[allow(dead_code)]
     pub const MSG__LEAVE__SINCE: u32 = 1;
 
     /// end drag-and-drop session
@@ -404,7 +399,6 @@ impl WlDataDevice {
     }
 
     /// Since when the motion message is available.
-    #[allow(dead_code)]
     pub const MSG__MOTION__SINCE: u32 = 1;
 
     /// drag-and-drop session motion
@@ -465,7 +459,6 @@ impl WlDataDevice {
     }
 
     /// Since when the drop message is available.
-    #[allow(dead_code)]
     pub const MSG__DROP__SINCE: u32 = 1;
 
     /// end drag-and-drop session successfully
@@ -514,7 +507,6 @@ impl WlDataDevice {
     }
 
     /// Since when the selection message is available.
-    #[allow(dead_code)]
     pub const MSG__SELECTION__SINCE: u32 = 1;
 
     /// advertise new selection
@@ -580,7 +572,6 @@ impl WlDataDevice {
     }
 
     /// Since when the release message is available.
-    #[allow(dead_code)]
     pub const MSG__RELEASE__SINCE: u32 = 2;
 
     /// destroy data device
@@ -617,7 +608,6 @@ impl WlDataDevice {
 }
 
 /// A message handler for [WlDataDevice] proxies.
-#[allow(dead_code)]
 pub trait WlDataDeviceHandler: Any {
     /// start drag-and-drop operation
     ///
@@ -1285,24 +1275,19 @@ impl Proxy for WlDataDevice {
 
 impl WlDataDevice {
     /// Since when the error.role enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ROLE__SINCE: u32 = 1;
     /// Since when the error.used_source enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_USED_SOURCE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlDataDeviceError(pub u32);
 
 impl WlDataDeviceError {
     /// given wl_surface has another role
-    #[allow(dead_code)]
     pub const ROLE: Self = Self(0);
 
     /// source has already been used
-    #[allow(dead_code)]
     pub const USED_SOURCE: Self = Self(1);
 }
 

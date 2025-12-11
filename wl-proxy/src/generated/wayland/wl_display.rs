@@ -48,7 +48,6 @@ impl Debug for WlDisplay {
 
 impl WlDisplay {
     /// Since when the sync message is available.
-    #[allow(dead_code)]
     pub const MSG__SYNC__SINCE: u32 = 1;
 
     /// asynchronous roundtrip
@@ -105,7 +104,6 @@ impl WlDisplay {
     }
 
     /// Since when the get_registry message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_REGISTRY__SINCE: u32 = 1;
 
     /// get global registry object
@@ -160,7 +158,6 @@ impl WlDisplay {
     }
 
     /// Since when the error message is available.
-    #[allow(dead_code)]
     pub const MSG__ERROR__SINCE: u32 = 1;
 
     /// fatal error event
@@ -229,7 +226,6 @@ impl WlDisplay {
     }
 
     /// Since when the delete_id message is available.
-    #[allow(dead_code)]
     pub const MSG__DELETE_ID__SINCE: u32 = 1;
 
     /// acknowledge object ID deletion
@@ -282,7 +278,6 @@ impl WlDisplay {
 }
 
 /// A message handler for [WlDisplay] proxies.
-#[allow(dead_code)]
 pub trait WlDisplayHandler: Any {
     /// asynchronous roundtrip
     ///
@@ -608,16 +603,12 @@ impl Proxy for WlDisplay {
 
 impl WlDisplay {
     /// Since when the error.invalid_object enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_OBJECT__SINCE: u32 = 1;
     /// Since when the error.invalid_method enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_METHOD__SINCE: u32 = 1;
     /// Since when the error.no_memory enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_NO_MEMORY__SINCE: u32 = 1;
     /// Since when the error.implementation enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_IMPLEMENTATION__SINCE: u32 = 1;
 }
 
@@ -626,24 +617,19 @@ impl WlDisplay {
 /// These errors are global and can be emitted in response to any
 /// server request.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlDisplayError(pub u32);
 
 impl WlDisplayError {
     /// server couldn't find object
-    #[allow(dead_code)]
     pub const INVALID_OBJECT: Self = Self(0);
 
     /// method doesn't exist on the specified interface or malformed request
-    #[allow(dead_code)]
     pub const INVALID_METHOD: Self = Self(1);
 
     /// server is out of memory
-    #[allow(dead_code)]
     pub const NO_MEMORY: Self = Self(2);
 
     /// implementation error in compositor
-    #[allow(dead_code)]
     pub const IMPLEMENTATION: Self = Self(3);
 }
 

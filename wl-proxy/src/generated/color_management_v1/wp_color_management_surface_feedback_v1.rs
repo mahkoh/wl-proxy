@@ -51,7 +51,6 @@ impl Debug for WpColorManagementSurfaceFeedbackV1 {
 
 impl WpColorManagementSurfaceFeedbackV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the color management interface for a surface
@@ -87,7 +86,6 @@ impl WpColorManagementSurfaceFeedbackV1 {
     }
 
     /// Since when the preferred_changed message is available.
-    #[allow(dead_code)]
     pub const MSG__PREFERRED_CHANGED__SINCE: u32 = 1;
 
     /// the preferred image description changed
@@ -150,7 +148,6 @@ impl WpColorManagementSurfaceFeedbackV1 {
     }
 
     /// Since when the get_preferred message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_PREFERRED__SINCE: u32 = 1;
 
     /// get the preferred image description
@@ -229,7 +226,6 @@ impl WpColorManagementSurfaceFeedbackV1 {
     }
 
     /// Since when the get_preferred_parametric message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_PREFERRED_PARAMETRIC__SINCE: u32 = 1;
 
     /// get the preferred image description
@@ -282,7 +278,6 @@ impl WpColorManagementSurfaceFeedbackV1 {
 }
 
 /// A message handler for [WpColorManagementSurfaceFeedbackV1] proxies.
-#[allow(dead_code)]
 pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
     /// destroy the color management interface for a surface
     ///
@@ -584,25 +579,20 @@ impl Proxy for WpColorManagementSurfaceFeedbackV1 {
 
 impl WpColorManagementSurfaceFeedbackV1 {
     /// Since when the error.inert enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INERT__SINCE: u32 = 1;
     /// Since when the error.unsupported_feature enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_UNSUPPORTED_FEATURE__SINCE: u32 = 1;
 }
 
 /// protocol errors
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpColorManagementSurfaceFeedbackV1Error(pub u32);
 
 impl WpColorManagementSurfaceFeedbackV1Error {
     /// forbidden request on inert object
-    #[allow(dead_code)]
     pub const INERT: Self = Self(0);
 
     /// attempted to use an unsupported feature
-    #[allow(dead_code)]
     pub const UNSUPPORTED_FEATURE: Self = Self(1);
 }
 

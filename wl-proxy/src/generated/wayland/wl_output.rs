@@ -52,7 +52,6 @@ impl Debug for WlOutput {
 
 impl WlOutput {
     /// Since when the geometry message is available.
-    #[allow(dead_code)]
     pub const MSG__GEOMETRY__SINCE: u32 = 1;
 
     /// properties of the output
@@ -156,7 +155,6 @@ impl WlOutput {
     }
 
     /// Since when the mode message is available.
-    #[allow(dead_code)]
     pub const MSG__MODE__SINCE: u32 = 1;
 
     /// advertise available modes for the output
@@ -251,7 +249,6 @@ impl WlOutput {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 2;
 
     /// sent all information about output
@@ -292,7 +289,6 @@ impl WlOutput {
     }
 
     /// Since when the scale message is available.
-    #[allow(dead_code)]
     pub const MSG__SCALE__SINCE: u32 = 2;
 
     /// output scaling properties
@@ -357,7 +353,6 @@ impl WlOutput {
     }
 
     /// Since when the release message is available.
-    #[allow(dead_code)]
     pub const MSG__RELEASE__SINCE: u32 = 3;
 
     /// release the output object
@@ -394,7 +389,6 @@ impl WlOutput {
     }
 
     /// Since when the name message is available.
-    #[allow(dead_code)]
     pub const MSG__NAME__SINCE: u32 = 4;
 
     /// name of this output
@@ -469,7 +463,6 @@ impl WlOutput {
     }
 
     /// Since when the description message is available.
-    #[allow(dead_code)]
     pub const MSG__DESCRIPTION__SINCE: u32 = 4;
 
     /// human-readable description of this output
@@ -531,7 +524,6 @@ impl WlOutput {
 }
 
 /// A message handler for [WlOutput] proxies.
-#[allow(dead_code)]
 pub trait WlOutputHandler: Any {
     /// properties of the output
     ///
@@ -1149,54 +1141,38 @@ impl Proxy for WlOutput {
 
 impl WlOutput {
     /// Since when the subpixel.unknown enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__SUBPIXEL_UNKNOWN__SINCE: u32 = 1;
     /// Since when the subpixel.none enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__SUBPIXEL_NONE__SINCE: u32 = 1;
     /// Since when the subpixel.horizontal_rgb enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__SUBPIXEL_HORIZONTAL_RGB__SINCE: u32 = 1;
     /// Since when the subpixel.horizontal_bgr enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__SUBPIXEL_HORIZONTAL_BGR__SINCE: u32 = 1;
     /// Since when the subpixel.vertical_rgb enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__SUBPIXEL_VERTICAL_RGB__SINCE: u32 = 1;
     /// Since when the subpixel.vertical_bgr enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__SUBPIXEL_VERTICAL_BGR__SINCE: u32 = 1;
 
     /// Since when the transform.normal enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFORM_NORMAL__SINCE: u32 = 1;
     /// Since when the transform.90 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFORM_90__SINCE: u32 = 1;
     /// Since when the transform.180 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFORM_180__SINCE: u32 = 1;
     /// Since when the transform.270 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFORM_270__SINCE: u32 = 1;
     /// Since when the transform.flipped enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFORM_FLIPPED__SINCE: u32 = 1;
     /// Since when the transform.flipped_90 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFORM_FLIPPED_90__SINCE: u32 = 1;
     /// Since when the transform.flipped_180 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFORM_FLIPPED_180__SINCE: u32 = 1;
     /// Since when the transform.flipped_270 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFORM_FLIPPED_270__SINCE: u32 = 1;
 
     /// Since when the mode.current enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__MODE_CURRENT__SINCE: u32 = 1;
     /// Since when the mode.preferred enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__MODE_PREFERRED__SINCE: u32 = 1;
 }
 
@@ -1205,32 +1181,25 @@ impl WlOutput {
 /// This enumeration describes how the physical
 /// pixels on an output are laid out.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlOutputSubpixel(pub u32);
 
 impl WlOutputSubpixel {
     /// unknown geometry
-    #[allow(dead_code)]
     pub const UNKNOWN: Self = Self(0);
 
     /// no geometry
-    #[allow(dead_code)]
     pub const NONE: Self = Self(1);
 
     /// horizontal RGB
-    #[allow(dead_code)]
     pub const HORIZONTAL_RGB: Self = Self(2);
 
     /// horizontal BGR
-    #[allow(dead_code)]
     pub const HORIZONTAL_BGR: Self = Self(3);
 
     /// vertical RGB
-    #[allow(dead_code)]
     pub const VERTICAL_RGB: Self = Self(4);
 
     /// vertical BGR
-    #[allow(dead_code)]
     pub const VERTICAL_BGR: Self = Self(5);
 }
 
@@ -1262,40 +1231,31 @@ impl Debug for WlOutputSubpixel {
 /// compositor will still be able to scan out directly from client
 /// surfaces.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlOutputTransform(pub u32);
 
 impl WlOutputTransform {
     /// no transform
-    #[allow(dead_code)]
     pub const NORMAL: Self = Self(0);
 
     /// 90 degrees counter-clockwise
-    #[allow(dead_code)]
     pub const _90: Self = Self(1);
 
     /// 180 degrees counter-clockwise
-    #[allow(dead_code)]
     pub const _180: Self = Self(2);
 
     /// 270 degrees counter-clockwise
-    #[allow(dead_code)]
     pub const _270: Self = Self(3);
 
     /// 180 degree flip around a vertical axis
-    #[allow(dead_code)]
     pub const FLIPPED: Self = Self(4);
 
     /// flip and rotate 90 degrees counter-clockwise
-    #[allow(dead_code)]
     pub const FLIPPED_90: Self = Self(5);
 
     /// flip and rotate 180 degrees counter-clockwise
-    #[allow(dead_code)]
     pub const FLIPPED_180: Self = Self(6);
 
     /// flip and rotate 270 degrees counter-clockwise
-    #[allow(dead_code)]
     pub const FLIPPED_270: Self = Self(7);
 }
 
@@ -1322,7 +1282,6 @@ impl Debug for WlOutputTransform {
 /// They are used in the flags bitfield of the mode event.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct WlOutputMode(pub u32);
 
 /// An iterator over the set bits in a [WlOutputMode].
@@ -1333,15 +1292,12 @@ pub struct WlOutputModeIter(pub u32);
 
 impl WlOutputMode {
     /// indicates this is the current mode
-    #[allow(dead_code)]
     pub const CURRENT: Self = Self(0x1);
 
     /// indicates this is the preferred mode
-    #[allow(dead_code)]
     pub const PREFERRED: Self = Self(0x2);
 }
 
-#[allow(dead_code)]
 impl WlOutputMode {
     #[inline]
     pub const fn empty() -> Self {

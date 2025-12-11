@@ -68,7 +68,6 @@ impl Debug for WpImageDescriptionInfoV1 {
 
 impl WpImageDescriptionInfoV1 {
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// end of information
@@ -109,7 +108,6 @@ impl WpImageDescriptionInfoV1 {
     }
 
     /// Since when the icc_file message is available.
-    #[allow(dead_code)]
     pub const MSG__ICC_FILE__SINCE: u32 = 1;
 
     /// ICC profile matching the image description
@@ -169,7 +167,6 @@ impl WpImageDescriptionInfoV1 {
     }
 
     /// Since when the primaries message is available.
-    #[allow(dead_code)]
     pub const MSG__PRIMARIES__SINCE: u32 = 1;
 
     /// primaries as chromaticity coordinates
@@ -256,7 +253,6 @@ impl WpImageDescriptionInfoV1 {
     }
 
     /// Since when the primaries_named message is available.
-    #[allow(dead_code)]
     pub const MSG__PRIMARIES_NAMED__SINCE: u32 = 1;
 
     /// named primaries
@@ -305,7 +301,6 @@ impl WpImageDescriptionInfoV1 {
     }
 
     /// Since when the tf_power message is available.
-    #[allow(dead_code)]
     pub const MSG__TF_POWER__SINCE: u32 = 1;
 
     /// transfer characteristic as a power curve
@@ -359,7 +354,6 @@ impl WpImageDescriptionInfoV1 {
     }
 
     /// Since when the tf_named message is available.
-    #[allow(dead_code)]
     pub const MSG__TF_NAMED__SINCE: u32 = 1;
 
     /// named transfer characteristic
@@ -408,7 +402,6 @@ impl WpImageDescriptionInfoV1 {
     }
 
     /// Since when the luminances message is available.
-    #[allow(dead_code)]
     pub const MSG__LUMINANCES__SINCE: u32 = 1;
 
     /// primary color volume luminance range and reference white
@@ -473,7 +466,6 @@ impl WpImageDescriptionInfoV1 {
     }
 
     /// Since when the target_primaries message is available.
-    #[allow(dead_code)]
     pub const MSG__TARGET_PRIMARIES__SINCE: u32 = 1;
 
     /// target primaries as chromaticity coordinates
@@ -566,7 +558,6 @@ impl WpImageDescriptionInfoV1 {
     }
 
     /// Since when the target_luminance message is available.
-    #[allow(dead_code)]
     pub const MSG__TARGET_LUMINANCE__SINCE: u32 = 1;
 
     /// target luminance range
@@ -630,7 +621,6 @@ impl WpImageDescriptionInfoV1 {
     }
 
     /// Since when the target_max_cll message is available.
-    #[allow(dead_code)]
     pub const MSG__TARGET_MAX_CLL__SINCE: u32 = 1;
 
     /// target maximum content light level
@@ -682,7 +672,6 @@ impl WpImageDescriptionInfoV1 {
     }
 
     /// Since when the target_max_fall message is available.
-    #[allow(dead_code)]
     pub const MSG__TARGET_MAX_FALL__SINCE: u32 = 1;
 
     /// target maximum frame-average light level
@@ -735,7 +724,6 @@ impl WpImageDescriptionInfoV1 {
 }
 
 /// A message handler for [WpImageDescriptionInfoV1] proxies.
-#[allow(dead_code)]
 pub trait WpImageDescriptionInfoV1Handler: Any {
     /// end of information
     ///

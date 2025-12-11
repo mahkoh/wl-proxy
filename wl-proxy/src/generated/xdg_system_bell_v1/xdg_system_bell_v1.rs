@@ -52,7 +52,6 @@ impl Debug for XdgSystemBellV1 {
 
 impl XdgSystemBellV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the system bell object
@@ -88,7 +87,6 @@ impl XdgSystemBellV1 {
     }
 
     /// Since when the ring message is available.
-    #[allow(dead_code)]
     pub const MSG__RING__SINCE: u32 = 1;
 
     /// ring the system bell
@@ -151,7 +149,6 @@ impl XdgSystemBellV1 {
 }
 
 /// A message handler for [XdgSystemBellV1] proxies.
-#[allow(dead_code)]
 pub trait XdgSystemBellV1Handler: Any {
     /// destroy the system bell object
     ///

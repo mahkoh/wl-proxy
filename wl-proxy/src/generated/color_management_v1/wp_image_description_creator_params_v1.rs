@@ -87,7 +87,6 @@ impl Debug for WpImageDescriptionCreatorParamsV1 {
 
 impl WpImageDescriptionCreatorParamsV1 {
     /// Since when the create message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE__SINCE: u32 = 1;
 
     /// Create the image description object using params
@@ -162,7 +161,6 @@ impl WpImageDescriptionCreatorParamsV1 {
     }
 
     /// Since when the set_tf_named message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_TF_NAMED__SINCE: u32 = 1;
 
     /// named transfer characteristic
@@ -219,7 +217,6 @@ impl WpImageDescriptionCreatorParamsV1 {
     }
 
     /// Since when the set_tf_power message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_TF_POWER__SINCE: u32 = 1;
 
     /// transfer characteristic as a power curve
@@ -282,7 +279,6 @@ impl WpImageDescriptionCreatorParamsV1 {
     }
 
     /// Since when the set_primaries_named message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_PRIMARIES_NAMED__SINCE: u32 = 1;
 
     /// named primaries
@@ -337,7 +333,6 @@ impl WpImageDescriptionCreatorParamsV1 {
     }
 
     /// Since when the set_primaries message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_PRIMARIES__SINCE: u32 = 1;
 
     /// primaries as chromaticity coordinates
@@ -430,7 +425,6 @@ impl WpImageDescriptionCreatorParamsV1 {
     }
 
     /// Since when the set_luminances message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_LUMINANCES__SINCE: u32 = 1;
 
     /// primary color volume luminance range and reference white
@@ -534,7 +528,6 @@ impl WpImageDescriptionCreatorParamsV1 {
     }
 
     /// Since when the set_mastering_display_primaries message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_MASTERING_DISPLAY_PRIMARIES__SINCE: u32 = 1;
 
     /// mastering display primaries as chromaticity coordinates
@@ -660,7 +653,6 @@ impl WpImageDescriptionCreatorParamsV1 {
     }
 
     /// Since when the set_mastering_luminance message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_MASTERING_LUMINANCE__SINCE: u32 = 1;
 
     /// display mastering luminance range
@@ -743,7 +735,6 @@ impl WpImageDescriptionCreatorParamsV1 {
     }
 
     /// Since when the set_max_cll message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_MAX_CLL__SINCE: u32 = 1;
 
     /// maximum content light level
@@ -791,7 +782,6 @@ impl WpImageDescriptionCreatorParamsV1 {
     }
 
     /// Since when the set_max_fall message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_MAX_FALL__SINCE: u32 = 1;
 
     /// maximum frame-average light level
@@ -841,7 +831,6 @@ impl WpImageDescriptionCreatorParamsV1 {
 }
 
 /// A message handler for [WpImageDescriptionCreatorParamsV1] proxies.
-#[allow(dead_code)]
 pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     /// Create the image description object using params
     ///
@@ -1623,53 +1612,40 @@ impl Proxy for WpImageDescriptionCreatorParamsV1 {
 
 impl WpImageDescriptionCreatorParamsV1 {
     /// Since when the error.incomplete_set enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INCOMPLETE_SET__SINCE: u32 = 1;
     /// Since when the error.already_set enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_SET__SINCE: u32 = 1;
     /// Since when the error.unsupported_feature enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_UNSUPPORTED_FEATURE__SINCE: u32 = 1;
     /// Since when the error.invalid_tf enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_TF__SINCE: u32 = 1;
     /// Since when the error.invalid_primaries_named enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_PRIMARIES_NAMED__SINCE: u32 = 1;
     /// Since when the error.invalid_luminance enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_LUMINANCE__SINCE: u32 = 1;
 }
 
 /// protocol errors
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpImageDescriptionCreatorParamsV1Error(pub u32);
 
 impl WpImageDescriptionCreatorParamsV1Error {
     /// incomplete parameter set
-    #[allow(dead_code)]
     pub const INCOMPLETE_SET: Self = Self(0);
 
     /// property already set
-    #[allow(dead_code)]
     pub const ALREADY_SET: Self = Self(1);
 
     /// request not supported
-    #[allow(dead_code)]
     pub const UNSUPPORTED_FEATURE: Self = Self(2);
 
     /// invalid transfer characteristic
-    #[allow(dead_code)]
     pub const INVALID_TF: Self = Self(3);
 
     /// invalid primaries named
-    #[allow(dead_code)]
     pub const INVALID_PRIMARIES_NAMED: Self = Self(4);
 
     /// invalid luminance value or range
-    #[allow(dead_code)]
     pub const INVALID_LUMINANCE: Self = Self(5);
 }
 

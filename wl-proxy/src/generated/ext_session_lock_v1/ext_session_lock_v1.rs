@@ -94,7 +94,6 @@ impl Debug for ExtSessionLockV1 {
 
 impl ExtSessionLockV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the session lock
@@ -138,7 +137,6 @@ impl ExtSessionLockV1 {
     }
 
     /// Since when the locked message is available.
-    #[allow(dead_code)]
     pub const MSG__LOCKED__SINCE: u32 = 1;
 
     /// session successfully locked
@@ -183,7 +181,6 @@ impl ExtSessionLockV1 {
     }
 
     /// Since when the finished message is available.
-    #[allow(dead_code)]
     pub const MSG__FINISHED__SINCE: u32 = 1;
 
     /// the session lock object should be destroyed
@@ -241,7 +238,6 @@ impl ExtSessionLockV1 {
     }
 
     /// Since when the get_lock_surface message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_LOCK_SURFACE__SINCE: u32 = 1;
 
     /// create a lock surface for a given output
@@ -322,7 +318,6 @@ impl ExtSessionLockV1 {
     }
 
     /// Since when the unlock_and_destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__UNLOCK_AND_DESTROY__SINCE: u32 = 1;
 
     /// unlock the session, destroying the object
@@ -381,7 +376,6 @@ impl ExtSessionLockV1 {
 }
 
 /// A message handler for [ExtSessionLockV1] proxies.
-#[allow(dead_code)]
 pub trait ExtSessionLockV1Handler: Any {
     /// destroy the session lock
     ///
@@ -741,45 +735,34 @@ impl Proxy for ExtSessionLockV1 {
 
 impl ExtSessionLockV1 {
     /// Since when the error.invalid_destroy enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_DESTROY__SINCE: u32 = 1;
     /// Since when the error.invalid_unlock enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_UNLOCK__SINCE: u32 = 1;
     /// Since when the error.role enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ROLE__SINCE: u32 = 1;
     /// Since when the error.duplicate_output enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_DUPLICATE_OUTPUT__SINCE: u32 = 1;
     /// Since when the error.already_constructed enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_CONSTRUCTED__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ExtSessionLockV1Error(pub u32);
 
 impl ExtSessionLockV1Error {
     /// attempted to destroy session lock while locked
-    #[allow(dead_code)]
     pub const INVALID_DESTROY: Self = Self(0);
 
     /// unlock requested but locked event was never sent
-    #[allow(dead_code)]
     pub const INVALID_UNLOCK: Self = Self(1);
 
     /// given wl_surface already has a role
-    #[allow(dead_code)]
     pub const ROLE: Self = Self(2);
 
     /// given output already has a lock surface
-    #[allow(dead_code)]
     pub const DUPLICATE_OUTPUT: Self = Self(3);
 
     /// given wl_surface has a buffer attached or committed
-    #[allow(dead_code)]
     pub const ALREADY_CONSTRUCTED: Self = Self(4);
 }
 

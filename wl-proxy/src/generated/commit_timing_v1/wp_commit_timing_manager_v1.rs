@@ -67,7 +67,6 @@ impl Debug for WpCommitTimingManagerV1 {
 
 impl WpCommitTimingManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// unbind from the commit timing interface
@@ -105,7 +104,6 @@ impl WpCommitTimingManagerV1 {
     }
 
     /// Since when the get_timer message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_TIMER__SINCE: u32 = 1;
 
     /// request commit timer interface for surface
@@ -170,7 +168,6 @@ impl WpCommitTimingManagerV1 {
 }
 
 /// A message handler for [WpCommitTimingManagerV1] proxies.
-#[allow(dead_code)]
 pub trait WpCommitTimingManagerV1Handler: Any {
     /// unbind from the commit timing interface
     ///
@@ -353,17 +350,14 @@ impl Proxy for WpCommitTimingManagerV1 {
 
 impl WpCommitTimingManagerV1 {
     /// Since when the error.commit_timer_exists enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_COMMIT_TIMER_EXISTS__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpCommitTimingManagerV1Error(pub u32);
 
 impl WpCommitTimingManagerV1Error {
     /// commit timer already exists for surface
-    #[allow(dead_code)]
     pub const COMMIT_TIMER_EXISTS: Self = Self(0);
 }
 

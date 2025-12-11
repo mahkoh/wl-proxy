@@ -48,7 +48,6 @@ impl Debug for ZwlrVirtualPointerV1 {
 
 impl ZwlrVirtualPointerV1 {
     /// Since when the motion message is available.
-    #[allow(dead_code)]
     pub const MSG__MOTION__SINCE: u32 = 1;
 
     /// pointer relative motion event
@@ -106,7 +105,6 @@ impl ZwlrVirtualPointerV1 {
     }
 
     /// Since when the motion_absolute message is available.
-    #[allow(dead_code)]
     pub const MSG__MOTION_ABSOLUTE__SINCE: u32 = 1;
 
     /// pointer absolute motion event
@@ -175,7 +173,6 @@ impl ZwlrVirtualPointerV1 {
     }
 
     /// Since when the button message is available.
-    #[allow(dead_code)]
     pub const MSG__BUTTON__SINCE: u32 = 1;
 
     /// button event
@@ -231,7 +228,6 @@ impl ZwlrVirtualPointerV1 {
     }
 
     /// Since when the axis message is available.
-    #[allow(dead_code)]
     pub const MSG__AXIS__SINCE: u32 = 1;
 
     /// axis event
@@ -287,7 +283,6 @@ impl ZwlrVirtualPointerV1 {
     }
 
     /// Since when the frame message is available.
-    #[allow(dead_code)]
     pub const MSG__FRAME__SINCE: u32 = 1;
 
     /// end of a pointer event sequence
@@ -322,7 +317,6 @@ impl ZwlrVirtualPointerV1 {
     }
 
     /// Since when the axis_source message is available.
-    #[allow(dead_code)]
     pub const MSG__AXIS_SOURCE__SINCE: u32 = 1;
 
     /// axis source event
@@ -368,7 +362,6 @@ impl ZwlrVirtualPointerV1 {
     }
 
     /// Since when the axis_stop message is available.
-    #[allow(dead_code)]
     pub const MSG__AXIS_STOP__SINCE: u32 = 1;
 
     /// axis stop event
@@ -419,7 +412,6 @@ impl ZwlrVirtualPointerV1 {
     }
 
     /// Since when the axis_discrete message is available.
-    #[allow(dead_code)]
     pub const MSG__AXIS_DISCRETE__SINCE: u32 = 1;
 
     /// axis click event
@@ -483,7 +475,6 @@ impl ZwlrVirtualPointerV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the virtual pointer object
@@ -518,7 +509,6 @@ impl ZwlrVirtualPointerV1 {
 }
 
 /// A message handler for [ZwlrVirtualPointerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrVirtualPointerV1Handler: Any {
     /// pointer relative motion event
     ///
@@ -1019,24 +1009,19 @@ impl Proxy for ZwlrVirtualPointerV1 {
 
 impl ZwlrVirtualPointerV1 {
     /// Since when the error.invalid_axis enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_AXIS__SINCE: u32 = 1;
     /// Since when the error.invalid_axis_source enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_AXIS_SOURCE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwlrVirtualPointerV1Error(pub u32);
 
 impl ZwlrVirtualPointerV1Error {
     /// client sent invalid axis enumeration value
-    #[allow(dead_code)]
     pub const INVALID_AXIS: Self = Self(0);
 
     /// client sent invalid axis source enumeration value
-    #[allow(dead_code)]
     pub const INVALID_AXIS_SOURCE: Self = Self(1);
 }
 

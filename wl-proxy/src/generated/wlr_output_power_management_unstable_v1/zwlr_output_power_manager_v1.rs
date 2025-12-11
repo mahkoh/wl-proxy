@@ -48,7 +48,6 @@ impl Debug for ZwlrOutputPowerManagerV1 {
 
 impl ZwlrOutputPowerManagerV1 {
     /// Since when the get_output_power message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_OUTPUT_POWER__SINCE: u32 = 1;
 
     /// get a power management for an output
@@ -110,7 +109,6 @@ impl ZwlrOutputPowerManagerV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the manager
@@ -148,7 +146,6 @@ impl ZwlrOutputPowerManagerV1 {
 }
 
 /// A message handler for [ZwlrOutputPowerManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrOutputPowerManagerV1Handler: Any {
     /// get a power management for an output
     ///

@@ -54,7 +54,6 @@ impl Debug for WpCursorShapeManagerV1 {
 
 impl WpCursorShapeManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the manager
@@ -90,7 +89,6 @@ impl WpCursorShapeManagerV1 {
     }
 
     /// Since when the get_pointer message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_POINTER__SINCE: u32 = 1;
 
     /// manage the cursor shape of a pointer device
@@ -154,7 +152,6 @@ impl WpCursorShapeManagerV1 {
     }
 
     /// Since when the get_tablet_tool_v2 message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_TABLET_TOOL_V2__SINCE: u32 = 1;
 
     /// manage the cursor shape of a tablet tool device
@@ -219,7 +216,6 @@ impl WpCursorShapeManagerV1 {
 }
 
 /// A message handler for [WpCursorShapeManagerV1] proxies.
-#[allow(dead_code)]
 pub trait WpCursorShapeManagerV1Handler: Any {
     /// destroy the manager
     ///

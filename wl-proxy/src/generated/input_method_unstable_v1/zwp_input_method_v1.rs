@@ -50,7 +50,6 @@ impl Debug for ZwpInputMethodV1 {
 
 impl ZwpInputMethodV1 {
     /// Since when the activate message is available.
-    #[allow(dead_code)]
     pub const MSG__ACTIVATE__SINCE: u32 = 1;
 
     /// activate event
@@ -100,7 +99,6 @@ impl ZwpInputMethodV1 {
     }
 
     /// Since when the deactivate message is available.
-    #[allow(dead_code)]
     pub const MSG__DEACTIVATE__SINCE: u32 = 1;
 
     /// deactivate event
@@ -156,7 +154,6 @@ impl ZwpInputMethodV1 {
 }
 
 /// A message handler for [ZwpInputMethodV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpInputMethodV1Handler: Any {
     /// activate event
     ///

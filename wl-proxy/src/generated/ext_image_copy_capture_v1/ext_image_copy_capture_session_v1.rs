@@ -62,7 +62,6 @@ impl Debug for ExtImageCopyCaptureSessionV1 {
 
 impl ExtImageCopyCaptureSessionV1 {
     /// Since when the buffer_size message is available.
-    #[allow(dead_code)]
     pub const MSG__BUFFER_SIZE__SINCE: u32 = 1;
 
     /// image capture source dimensions
@@ -117,7 +116,6 @@ impl ExtImageCopyCaptureSessionV1 {
     }
 
     /// Since when the shm_format message is available.
-    #[allow(dead_code)]
     pub const MSG__SHM_FORMAT__SINCE: u32 = 1;
 
     /// shm buffer format
@@ -168,7 +166,6 @@ impl ExtImageCopyCaptureSessionV1 {
     }
 
     /// Since when the dmabuf_device message is available.
-    #[allow(dead_code)]
     pub const MSG__DMABUF_DEVICE__SINCE: u32 = 1;
 
     /// dma-buf device
@@ -222,7 +219,6 @@ impl ExtImageCopyCaptureSessionV1 {
     }
 
     /// Since when the dmabuf_format message is available.
-    #[allow(dead_code)]
     pub const MSG__DMABUF_FORMAT__SINCE: u32 = 1;
 
     /// dma-buf format
@@ -281,7 +277,6 @@ impl ExtImageCopyCaptureSessionV1 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// all constraints have been sent
@@ -323,7 +318,6 @@ impl ExtImageCopyCaptureSessionV1 {
     }
 
     /// Since when the stopped message is available.
-    #[allow(dead_code)]
     pub const MSG__STOPPED__SINCE: u32 = 1;
 
     /// session is no longer available
@@ -365,7 +359,6 @@ impl ExtImageCopyCaptureSessionV1 {
     }
 
     /// Since when the create_frame message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_FRAME__SINCE: u32 = 1;
 
     /// create a frame
@@ -416,7 +409,6 @@ impl ExtImageCopyCaptureSessionV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// delete this object
@@ -457,7 +449,6 @@ impl ExtImageCopyCaptureSessionV1 {
 }
 
 /// A message handler for [ExtImageCopyCaptureSessionV1] proxies.
-#[allow(dead_code)]
 pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     /// image capture source dimensions
     ///
@@ -919,17 +910,14 @@ impl Proxy for ExtImageCopyCaptureSessionV1 {
 
 impl ExtImageCopyCaptureSessionV1 {
     /// Since when the error.duplicate_frame enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_DUPLICATE_FRAME__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ExtImageCopyCaptureSessionV1Error(pub u32);
 
 impl ExtImageCopyCaptureSessionV1Error {
     /// create_frame sent before destroying previous frame
-    #[allow(dead_code)]
     pub const DUPLICATE_FRAME: Self = Self(1);
 }
 

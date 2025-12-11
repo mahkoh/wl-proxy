@@ -100,7 +100,6 @@ impl Debug for WpViewport {
 
 impl WpViewport {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// remove scaling and cropping from the surface
@@ -137,7 +136,6 @@ impl WpViewport {
     }
 
     /// Since when the set_source message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_SOURCE__SINCE: u32 = 1;
 
     /// set the source rectangle for cropping
@@ -207,7 +205,6 @@ impl WpViewport {
     }
 
     /// Since when the set_destination message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_DESTINATION__SINCE: u32 = 1;
 
     /// set the surface size for scaling
@@ -268,7 +265,6 @@ impl WpViewport {
 }
 
 /// A message handler for [WpViewport] proxies.
-#[allow(dead_code)]
 pub trait WpViewportHandler: Any {
     /// remove scaling and cropping from the surface
     ///
@@ -506,38 +502,29 @@ impl Proxy for WpViewport {
 
 impl WpViewport {
     /// Since when the error.bad_value enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_BAD_VALUE__SINCE: u32 = 1;
     /// Since when the error.bad_size enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_BAD_SIZE__SINCE: u32 = 1;
     /// Since when the error.out_of_buffer enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_OUT_OF_BUFFER__SINCE: u32 = 1;
     /// Since when the error.no_surface enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_NO_SURFACE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpViewportError(pub u32);
 
 impl WpViewportError {
     /// negative or zero values in width or height
-    #[allow(dead_code)]
     pub const BAD_VALUE: Self = Self(0);
 
     /// destination size is not integer
-    #[allow(dead_code)]
     pub const BAD_SIZE: Self = Self(1);
 
     /// source rectangle extends outside of the content area
-    #[allow(dead_code)]
     pub const OUT_OF_BUFFER: Self = Self(2);
 
     /// the wl_surface was destroyed
-    #[allow(dead_code)]
     pub const NO_SURFACE: Self = Self(3);
 }
 

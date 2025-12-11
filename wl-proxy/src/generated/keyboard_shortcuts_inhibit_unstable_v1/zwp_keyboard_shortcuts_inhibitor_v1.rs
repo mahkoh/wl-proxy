@@ -79,7 +79,6 @@ impl Debug for ZwpKeyboardShortcutsInhibitorV1 {
 
 impl ZwpKeyboardShortcutsInhibitorV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the keyboard shortcuts inhibitor object
@@ -115,7 +114,6 @@ impl ZwpKeyboardShortcutsInhibitorV1 {
     }
 
     /// Since when the active message is available.
-    #[allow(dead_code)]
     pub const MSG__ACTIVE__SINCE: u32 = 1;
 
     /// shortcuts are inhibited
@@ -162,7 +160,6 @@ impl ZwpKeyboardShortcutsInhibitorV1 {
     }
 
     /// Since when the inactive message is available.
-    #[allow(dead_code)]
     pub const MSG__INACTIVE__SINCE: u32 = 1;
 
     /// shortcuts are restored
@@ -201,7 +198,6 @@ impl ZwpKeyboardShortcutsInhibitorV1 {
 }
 
 /// A message handler for [ZwpKeyboardShortcutsInhibitorV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpKeyboardShortcutsInhibitorV1Handler: Any {
     /// destroy the keyboard shortcuts inhibitor object
     ///

@@ -49,7 +49,6 @@ impl Debug for ZxdgImporterV2 {
 
 impl ZxdgImporterV2 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the xdg_importer object
@@ -86,7 +85,6 @@ impl ZxdgImporterV2 {
     }
 
     /// Since when the import_toplevel message is available.
-    #[allow(dead_code)]
     pub const MSG__IMPORT_TOPLEVEL__SINCE: u32 = 1;
 
     /// import a toplevel surface
@@ -147,7 +145,6 @@ impl ZxdgImporterV2 {
 }
 
 /// A message handler for [ZxdgImporterV2] proxies.
-#[allow(dead_code)]
 pub trait ZxdgImporterV2Handler: Any {
     /// destroy the xdg_importer object
     ///

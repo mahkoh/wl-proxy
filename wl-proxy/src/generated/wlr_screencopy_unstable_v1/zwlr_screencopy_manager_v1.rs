@@ -48,7 +48,6 @@ impl Debug for ZwlrScreencopyManagerV1 {
 
 impl ZwlrScreencopyManagerV1 {
     /// Since when the capture_output message is available.
-    #[allow(dead_code)]
     pub const MSG__CAPTURE_OUTPUT__SINCE: u32 = 1;
 
     /// capture an output
@@ -114,7 +113,6 @@ impl ZwlrScreencopyManagerV1 {
     }
 
     /// Since when the capture_output_region message is available.
-    #[allow(dead_code)]
     pub const MSG__CAPTURE_OUTPUT_REGION__SINCE: u32 = 1;
 
     /// capture an output's region
@@ -204,7 +202,6 @@ impl ZwlrScreencopyManagerV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the manager
@@ -242,7 +239,6 @@ impl ZwlrScreencopyManagerV1 {
 }
 
 /// A message handler for [ZwlrScreencopyManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrScreencopyManagerV1Handler: Any {
     /// capture an output
     ///

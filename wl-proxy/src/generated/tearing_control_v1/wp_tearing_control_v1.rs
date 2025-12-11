@@ -54,7 +54,6 @@ impl Debug for WpTearingControlV1 {
 
 impl WpTearingControlV1 {
     /// Since when the set_presentation_hint message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_PRESENTATION_HINT__SINCE: u32 = 1;
 
     /// set presentation hint
@@ -105,7 +104,6 @@ impl WpTearingControlV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy tearing control object
@@ -143,7 +141,6 @@ impl WpTearingControlV1 {
 }
 
 /// A message handler for [WpTearingControlV1] proxies.
-#[allow(dead_code)]
 pub trait WpTearingControlV1Handler: Any {
     /// set presentation hint
     ///
@@ -307,10 +304,8 @@ impl Proxy for WpTearingControlV1 {
 
 impl WpTearingControlV1 {
     /// Since when the presentation_hint.vsync enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__PRESENTATION_HINT_VSYNC__SINCE: u32 = 1;
     /// Since when the presentation_hint.async enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__PRESENTATION_HINT_ASYNC__SINCE: u32 = 1;
 }
 
@@ -319,7 +314,6 @@ impl WpTearingControlV1 {
 /// This enum provides information for if submitted frames from the client
 /// may be presented with tearing.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpTearingControlV1PresentationHint(pub u32);
 
 impl WpTearingControlV1PresentationHint {
@@ -328,14 +322,12 @@ impl WpTearingControlV1PresentationHint {
     /// The content of this surface is meant to be synchronized to the
     /// vertical blanking period. This should not result in visible tearing
     /// and may result in a delay before a surface commit is presented.
-    #[allow(dead_code)]
     pub const VSYNC: Self = Self(0);
 
     /// asynchronous presentation
     ///
     /// The content of this surface is meant to be presented with minimal
     /// latency and tearing is acceptable.
-    #[allow(dead_code)]
     pub const ASYNC: Self = Self(1);
 }
 

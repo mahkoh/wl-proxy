@@ -49,7 +49,6 @@ impl Debug for WlCompositor {
 
 impl WlCompositor {
     /// Since when the create_surface message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_SURFACE__SINCE: u32 = 1;
 
     /// create new surface
@@ -96,7 +95,6 @@ impl WlCompositor {
     }
 
     /// Since when the create_region message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_REGION__SINCE: u32 = 1;
 
     /// create new region
@@ -144,7 +142,6 @@ impl WlCompositor {
 }
 
 /// A message handler for [WlCompositor] proxies.
-#[allow(dead_code)]
 pub trait WlCompositorHandler: Any {
     /// create new surface
     ///

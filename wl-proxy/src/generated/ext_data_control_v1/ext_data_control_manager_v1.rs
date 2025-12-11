@@ -48,7 +48,6 @@ impl Debug for ExtDataControlManagerV1 {
 
 impl ExtDataControlManagerV1 {
     /// Since when the create_data_source message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_DATA_SOURCE__SINCE: u32 = 1;
 
     /// create a new data source
@@ -95,7 +94,6 @@ impl ExtDataControlManagerV1 {
     }
 
     /// Since when the get_data_device message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_DATA_DEVICE__SINCE: u32 = 1;
 
     /// get a data device for a seat
@@ -156,7 +154,6 @@ impl ExtDataControlManagerV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the manager
@@ -194,7 +191,6 @@ impl ExtDataControlManagerV1 {
 }
 
 /// A message handler for [ExtDataControlManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ExtDataControlManagerV1Handler: Any {
     /// create a new data source
     ///

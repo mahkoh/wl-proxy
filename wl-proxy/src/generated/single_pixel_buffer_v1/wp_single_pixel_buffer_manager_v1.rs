@@ -48,7 +48,6 @@ impl Debug for WpSinglePixelBufferManagerV1 {
 
 impl WpSinglePixelBufferManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the manager
@@ -86,7 +85,6 @@ impl WpSinglePixelBufferManagerV1 {
     }
 
     /// Since when the create_u32_rgba_buffer message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_U32_RGBA_BUFFER__SINCE: u32 = 1;
 
     /// create a 1×1 buffer from 32-bit RGBA values
@@ -170,7 +168,6 @@ impl WpSinglePixelBufferManagerV1 {
 }
 
 /// A message handler for [WpSinglePixelBufferManagerV1] proxies.
-#[allow(dead_code)]
 pub trait WpSinglePixelBufferManagerV1Handler: Any {
     /// destroy the manager
     ///

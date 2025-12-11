@@ -47,7 +47,6 @@ impl Debug for ZwlrExportDmabufManagerV1 {
 
 impl ZwlrExportDmabufManagerV1 {
     /// Since when the capture_output message is available.
-    #[allow(dead_code)]
     pub const MSG__CAPTURE_OUTPUT__SINCE: u32 = 1;
 
     /// capture a frame from an output
@@ -113,7 +112,6 @@ impl ZwlrExportDmabufManagerV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the manager
@@ -151,7 +149,6 @@ impl ZwlrExportDmabufManagerV1 {
 }
 
 /// A message handler for [ZwlrExportDmabufManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrExportDmabufManagerV1Handler: Any {
     /// capture a frame from an output
     ///

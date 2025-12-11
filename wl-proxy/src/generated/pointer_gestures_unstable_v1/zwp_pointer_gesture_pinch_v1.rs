@@ -61,7 +61,6 @@ impl Debug for ZwpPointerGesturePinchV1 {
 
 impl ZwpPointerGesturePinchV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the pinch gesture object
@@ -95,7 +94,6 @@ impl ZwpPointerGesturePinchV1 {
     }
 
     /// Since when the begin message is available.
-    #[allow(dead_code)]
     pub const MSG__BEGIN__SINCE: u32 = 1;
 
     /// multi-finger pinch begin
@@ -164,7 +162,6 @@ impl ZwpPointerGesturePinchV1 {
     }
 
     /// Since when the update message is available.
-    #[allow(dead_code)]
     pub const MSG__UPDATE__SINCE: u32 = 1;
 
     /// multi-finger pinch motion
@@ -243,7 +240,6 @@ impl ZwpPointerGesturePinchV1 {
     }
 
     /// Since when the end message is available.
-    #[allow(dead_code)]
     pub const MSG__END__SINCE: u32 = 1;
 
     /// multi-finger pinch end
@@ -308,7 +304,6 @@ impl ZwpPointerGesturePinchV1 {
 }
 
 /// A message handler for [ZwpPointerGesturePinchV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpPointerGesturePinchV1Handler: Any {
     /// destroy the pinch gesture object
     #[inline]

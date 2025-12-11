@@ -47,7 +47,6 @@ impl Debug for ZwpTextInputManagerV3 {
 
 impl ZwpTextInputManagerV3 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// Destroy the wp_text_input_manager
@@ -83,7 +82,6 @@ impl ZwpTextInputManagerV3 {
     }
 
     /// Since when the get_text_input message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_TEXT_INPUT__SINCE: u32 = 1;
 
     /// create a new text input object
@@ -145,7 +143,6 @@ impl ZwpTextInputManagerV3 {
 }
 
 /// A message handler for [ZwpTextInputManagerV3] proxies.
-#[allow(dead_code)]
 pub trait ZwpTextInputManagerV3Handler: Any {
     /// Destroy the wp_text_input_manager
     ///

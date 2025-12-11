@@ -52,7 +52,6 @@ impl Debug for WpViewporter {
 
 impl WpViewporter {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// unbind from the cropping and scaling interface
@@ -90,7 +89,6 @@ impl WpViewporter {
     }
 
     /// Since when the get_viewport message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_VIEWPORT__SINCE: u32 = 1;
 
     /// extend surface interface for crop and scale
@@ -155,7 +153,6 @@ impl WpViewporter {
 }
 
 /// A message handler for [WpViewporter] proxies.
-#[allow(dead_code)]
 pub trait WpViewporterHandler: Any {
     /// unbind from the cropping and scaling interface
     ///
@@ -338,17 +335,14 @@ impl Proxy for WpViewporter {
 
 impl WpViewporter {
     /// Since when the error.viewport_exists enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_VIEWPORT_EXISTS__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpViewporterError(pub u32);
 
 impl WpViewporterError {
     /// the surface already has a viewport object associated
-    #[allow(dead_code)]
     pub const VIEWPORT_EXISTS: Self = Self(0);
 }
 

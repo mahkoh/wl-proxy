@@ -51,7 +51,6 @@ impl Debug for ZwlrForeignToplevelHandleV1 {
 
 impl ZwlrForeignToplevelHandleV1 {
     /// Since when the title message is available.
-    #[allow(dead_code)]
     pub const MSG__TITLE__SINCE: u32 = 1;
 
     /// title change
@@ -99,7 +98,6 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 
     /// Since when the app_id message is available.
-    #[allow(dead_code)]
     pub const MSG__APP_ID__SINCE: u32 = 1;
 
     /// app-id change
@@ -147,7 +145,6 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 
     /// Since when the output_enter message is available.
-    #[allow(dead_code)]
     pub const MSG__OUTPUT_ENTER__SINCE: u32 = 1;
 
     /// toplevel entered an output
@@ -201,7 +198,6 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 
     /// Since when the output_leave message is available.
-    #[allow(dead_code)]
     pub const MSG__OUTPUT_LEAVE__SINCE: u32 = 1;
 
     /// toplevel left an output
@@ -256,7 +252,6 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 
     /// Since when the set_maximized message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_MAXIMIZED__SINCE: u32 = 1;
 
     /// requests that the toplevel be maximized
@@ -292,7 +287,6 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 
     /// Since when the unset_maximized message is available.
-    #[allow(dead_code)]
     pub const MSG__UNSET_MAXIMIZED__SINCE: u32 = 1;
 
     /// requests that the toplevel be unmaximized
@@ -328,7 +322,6 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 
     /// Since when the set_minimized message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_MINIMIZED__SINCE: u32 = 1;
 
     /// requests that the toplevel be minimized
@@ -364,7 +357,6 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 
     /// Since when the unset_minimized message is available.
-    #[allow(dead_code)]
     pub const MSG__UNSET_MINIMIZED__SINCE: u32 = 1;
 
     /// requests that the toplevel be unminimized
@@ -400,7 +392,6 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 
     /// Since when the activate message is available.
-    #[allow(dead_code)]
     pub const MSG__ACTIVATE__SINCE: u32 = 1;
 
     /// activate the toplevel
@@ -452,7 +443,6 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 
     /// Since when the state message is available.
-    #[allow(dead_code)]
     pub const MSG__STATE__SINCE: u32 = 1;
 
     /// the toplevel state changed
@@ -502,7 +492,6 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// all information about the toplevel has been sent
@@ -543,7 +532,6 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 
     /// Since when the close message is available.
-    #[allow(dead_code)]
     pub const MSG__CLOSE__SINCE: u32 = 1;
 
     /// request that the toplevel be closed
@@ -583,7 +571,6 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 
     /// Since when the set_rectangle message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_RECTANGLE__SINCE: u32 = 1;
 
     /// the rectangle which represents the toplevel
@@ -664,7 +651,6 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 
     /// Since when the closed message is available.
-    #[allow(dead_code)]
     pub const MSG__CLOSED__SINCE: u32 = 1;
 
     /// this toplevel has been destroyed
@@ -704,7 +690,6 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the zwlr_foreign_toplevel_handle_v1 object
@@ -744,7 +729,6 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 
     /// Since when the set_fullscreen message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_FULLSCREEN__SINCE: u32 = 2;
 
     /// request that the toplevel be fullscreened
@@ -805,7 +789,6 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 
     /// Since when the unset_fullscreen message is available.
-    #[allow(dead_code)]
     pub const MSG__UNSET_FULLSCREEN__SINCE: u32 = 2;
 
     /// request that the toplevel be unfullscreened
@@ -841,7 +824,6 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 
     /// Since when the parent message is available.
-    #[allow(dead_code)]
     pub const MSG__PARENT__SINCE: u32 = 3;
 
     /// parent change
@@ -899,7 +881,6 @@ impl ZwlrForeignToplevelHandleV1 {
 }
 
 /// A message handler for [ZwlrForeignToplevelHandleV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     /// title change
     ///
@@ -1861,20 +1842,15 @@ impl Proxy for ZwlrForeignToplevelHandleV1 {
 
 impl ZwlrForeignToplevelHandleV1 {
     /// Since when the state.maximized enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_MAXIMIZED__SINCE: u32 = 1;
     /// Since when the state.minimized enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_MINIMIZED__SINCE: u32 = 1;
     /// Since when the state.activated enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_ACTIVATED__SINCE: u32 = 1;
     /// Since when the state.fullscreen enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_FULLSCREEN__SINCE: u32 = 2;
 
     /// Since when the error.invalid_rectangle enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_RECTANGLE__SINCE: u32 = 1;
 }
 
@@ -1883,24 +1859,19 @@ impl ZwlrForeignToplevelHandleV1 {
 /// The different states that a toplevel can have. These have the same meaning
 /// as the states with the same names defined in xdg-toplevel
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwlrForeignToplevelHandleV1State(pub u32);
 
 impl ZwlrForeignToplevelHandleV1State {
     /// the toplevel is maximized
-    #[allow(dead_code)]
     pub const MAXIMIZED: Self = Self(0);
 
     /// the toplevel is minimized
-    #[allow(dead_code)]
     pub const MINIMIZED: Self = Self(1);
 
     /// the toplevel is active
-    #[allow(dead_code)]
     pub const ACTIVATED: Self = Self(2);
 
     /// the toplevel is fullscreen
-    #[allow(dead_code)]
     pub const FULLSCREEN: Self = Self(3);
 }
 
@@ -1918,12 +1889,10 @@ impl Debug for ZwlrForeignToplevelHandleV1State {
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwlrForeignToplevelHandleV1Error(pub u32);
 
 impl ZwlrForeignToplevelHandleV1Error {
     /// the provided rectangle is invalid
-    #[allow(dead_code)]
     pub const INVALID_RECTANGLE: Self = Self(0);
 }
 

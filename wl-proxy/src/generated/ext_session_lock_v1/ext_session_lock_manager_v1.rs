@@ -47,7 +47,6 @@ impl Debug for ExtSessionLockManagerV1 {
 
 impl ExtSessionLockManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the session lock manager object
@@ -85,7 +84,6 @@ impl ExtSessionLockManagerV1 {
     }
 
     /// Since when the lock message is available.
-    #[allow(dead_code)]
     pub const MSG__LOCK__SINCE: u32 = 1;
 
     /// attempt to lock the session
@@ -136,7 +134,6 @@ impl ExtSessionLockManagerV1 {
 }
 
 /// A message handler for [ExtSessionLockManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ExtSessionLockManagerV1Handler: Any {
     /// destroy the session lock manager object
     ///

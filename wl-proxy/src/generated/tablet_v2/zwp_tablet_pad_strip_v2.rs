@@ -51,7 +51,6 @@ impl Debug for ZwpTabletPadStripV2 {
 
 impl ZwpTabletPadStripV2 {
     /// Since when the set_feedback message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_FEEDBACK__SINCE: u32 = 1;
 
     /// set compositor feedback
@@ -122,7 +121,6 @@ impl ZwpTabletPadStripV2 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the strip object
@@ -158,7 +156,6 @@ impl ZwpTabletPadStripV2 {
     }
 
     /// Since when the source message is available.
-    #[allow(dead_code)]
     pub const MSG__SOURCE__SINCE: u32 = 1;
 
     /// strip event source
@@ -217,7 +214,6 @@ impl ZwpTabletPadStripV2 {
     }
 
     /// Since when the position message is available.
-    #[allow(dead_code)]
     pub const MSG__POSITION__SINCE: u32 = 1;
 
     /// position changed
@@ -269,7 +265,6 @@ impl ZwpTabletPadStripV2 {
     }
 
     /// Since when the stop message is available.
-    #[allow(dead_code)]
     pub const MSG__STOP__SINCE: u32 = 1;
 
     /// interaction stopped
@@ -315,7 +310,6 @@ impl ZwpTabletPadStripV2 {
     }
 
     /// Since when the frame message is available.
-    #[allow(dead_code)]
     pub const MSG__FRAME__SINCE: u32 = 1;
 
     /// end of a strip event sequence
@@ -377,7 +371,6 @@ impl ZwpTabletPadStripV2 {
 }
 
 /// A message handler for [ZwpTabletPadStripV2] proxies.
-#[allow(dead_code)]
 pub trait ZwpTabletPadStripV2Handler: Any {
     /// set compositor feedback
     ///
@@ -773,7 +766,6 @@ impl Proxy for ZwpTabletPadStripV2 {
 
 impl ZwpTabletPadStripV2 {
     /// Since when the source.finger enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__SOURCE_FINGER__SINCE: u32 = 1;
 }
 
@@ -784,12 +776,10 @@ impl ZwpTabletPadStripV2 {
 /// adjust the user interface accordingly. For example, events
 /// from a "finger" source may trigger kinetic scrolling.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpTabletPadStripV2Source(pub u32);
 
 impl ZwpTabletPadStripV2Source {
     /// finger
-    #[allow(dead_code)]
     pub const FINGER: Self = Self(1);
 }
 

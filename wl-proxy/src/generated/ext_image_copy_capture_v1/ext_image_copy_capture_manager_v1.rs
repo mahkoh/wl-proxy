@@ -48,7 +48,6 @@ impl Debug for ExtImageCopyCaptureManagerV1 {
 
 impl ExtImageCopyCaptureManagerV1 {
     /// Since when the create_session message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_SESSION__SINCE: u32 = 1;
 
     /// capture an image capture source
@@ -121,7 +120,6 @@ impl ExtImageCopyCaptureManagerV1 {
     }
 
     /// Since when the create_pointer_cursor_session message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_POINTER_CURSOR_SESSION__SINCE: u32 = 1;
 
     /// capture the pointer cursor of an image capture source
@@ -193,7 +191,6 @@ impl ExtImageCopyCaptureManagerV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the manager
@@ -232,7 +229,6 @@ impl ExtImageCopyCaptureManagerV1 {
 }
 
 /// A message handler for [ExtImageCopyCaptureManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ExtImageCopyCaptureManagerV1Handler: Any {
     /// capture an image capture source
     ///
@@ -499,21 +495,17 @@ impl Proxy for ExtImageCopyCaptureManagerV1 {
 
 impl ExtImageCopyCaptureManagerV1 {
     /// Since when the error.invalid_option enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_OPTION__SINCE: u32 = 1;
 
     /// Since when the options.paint_cursors enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__OPTIONS_PAINT_CURSORS__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ExtImageCopyCaptureManagerV1Error(pub u32);
 
 impl ExtImageCopyCaptureManagerV1Error {
     /// invalid option flag
-    #[allow(dead_code)]
     pub const INVALID_OPTION: Self = Self(1);
 }
 
@@ -529,7 +521,6 @@ impl Debug for ExtImageCopyCaptureManagerV1Error {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct ExtImageCopyCaptureManagerV1Options(pub u32);
 
 /// An iterator over the set bits in a [ExtImageCopyCaptureManagerV1Options].
@@ -540,11 +531,9 @@ pub struct ExtImageCopyCaptureManagerV1OptionsIter(pub u32);
 
 impl ExtImageCopyCaptureManagerV1Options {
     /// paint cursors onto captured frames
-    #[allow(dead_code)]
     pub const PAINT_CURSORS: Self = Self(1);
 }
 
-#[allow(dead_code)]
 impl ExtImageCopyCaptureManagerV1Options {
     #[inline]
     pub const fn empty() -> Self {

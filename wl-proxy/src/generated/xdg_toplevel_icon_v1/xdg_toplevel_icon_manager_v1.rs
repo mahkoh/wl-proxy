@@ -48,7 +48,6 @@ impl Debug for XdgToplevelIconManagerV1 {
 
 impl XdgToplevelIconManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the toplevel icon manager
@@ -85,7 +84,6 @@ impl XdgToplevelIconManagerV1 {
     }
 
     /// Since when the create_icon message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_ICON__SINCE: u32 = 1;
 
     /// create a new icon instance
@@ -133,7 +131,6 @@ impl XdgToplevelIconManagerV1 {
     }
 
     /// Since when the set_icon message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_ICON__SINCE: u32 = 1;
 
     /// set an icon on a toplevel window
@@ -216,7 +213,6 @@ impl XdgToplevelIconManagerV1 {
     }
 
     /// Since when the icon_size message is available.
-    #[allow(dead_code)]
     pub const MSG__ICON_SIZE__SINCE: u32 = 1;
 
     /// describes a supported & preferred icon size
@@ -275,7 +271,6 @@ impl XdgToplevelIconManagerV1 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// all information has been sent
@@ -313,7 +308,6 @@ impl XdgToplevelIconManagerV1 {
 }
 
 /// A message handler for [XdgToplevelIconManagerV1] proxies.
-#[allow(dead_code)]
 pub trait XdgToplevelIconManagerV1Handler: Any {
     /// destroy the toplevel icon manager
     ///

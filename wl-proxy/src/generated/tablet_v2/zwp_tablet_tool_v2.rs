@@ -66,7 +66,6 @@ impl Debug for ZwpTabletToolV2 {
 
 impl ZwpTabletToolV2 {
     /// Since when the set_cursor message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_CURSOR__SINCE: u32 = 1;
 
     /// set the tablet tool's surface
@@ -164,7 +163,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the tool object
@@ -200,7 +198,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the type message is available.
-    #[allow(dead_code)]
     pub const MSG__TYPE__SINCE: u32 = 1;
 
     /// tool type
@@ -252,7 +249,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the hardware_serial message is available.
-    #[allow(dead_code)]
     pub const MSG__HARDWARE_SERIAL__SINCE: u32 = 1;
 
     /// unique hardware serial number of the tool
@@ -319,7 +315,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the hardware_id_wacom message is available.
-    #[allow(dead_code)]
     pub const MSG__HARDWARE_ID_WACOM__SINCE: u32 = 1;
 
     /// hardware id notification in Wacom's format
@@ -381,7 +376,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the capability message is available.
-    #[allow(dead_code)]
     pub const MSG__CAPABILITY__SINCE: u32 = 1;
 
     /// tool capability notification
@@ -435,7 +429,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// tool description events sequence complete
@@ -474,7 +467,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the removed message is available.
-    #[allow(dead_code)]
     pub const MSG__REMOVED__SINCE: u32 = 1;
 
     /// tool removed
@@ -524,7 +516,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the proximity_in message is available.
-    #[allow(dead_code)]
     pub const MSG__PROXIMITY_IN__SINCE: u32 = 1;
 
     /// proximity in event
@@ -600,7 +591,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the proximity_out message is available.
-    #[allow(dead_code)]
     pub const MSG__PROXIMITY_OUT__SINCE: u32 = 1;
 
     /// proximity out event
@@ -648,7 +638,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the down message is available.
-    #[allow(dead_code)]
     pub const MSG__DOWN__SINCE: u32 = 1;
 
     /// tablet tool is making contact
@@ -707,7 +696,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the up message is available.
-    #[allow(dead_code)]
     pub const MSG__UP__SINCE: u32 = 1;
 
     /// tablet tool is no longer making contact
@@ -759,7 +747,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the motion message is available.
-    #[allow(dead_code)]
     pub const MSG__MOTION__SINCE: u32 = 1;
 
     /// motion event
@@ -812,7 +799,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the pressure message is available.
-    #[allow(dead_code)]
     pub const MSG__PRESSURE__SINCE: u32 = 1;
 
     /// pressure change event
@@ -864,7 +850,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the distance message is available.
-    #[allow(dead_code)]
     pub const MSG__DISTANCE__SINCE: u32 = 1;
 
     /// distance change event
@@ -916,7 +901,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the tilt message is available.
-    #[allow(dead_code)]
     pub const MSG__TILT__SINCE: u32 = 1;
 
     /// tilt change event
@@ -972,7 +956,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the rotation message is available.
-    #[allow(dead_code)]
     pub const MSG__ROTATION__SINCE: u32 = 1;
 
     /// z-rotation change event
@@ -1022,7 +1005,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the slider message is available.
-    #[allow(dead_code)]
     pub const MSG__SLIDER__SINCE: u32 = 1;
 
     /// Slider position change event
@@ -1074,7 +1056,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the wheel message is available.
-    #[allow(dead_code)]
     pub const MSG__WHEEL__SINCE: u32 = 1;
 
     /// Wheel delta event
@@ -1138,7 +1119,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the button message is available.
-    #[allow(dead_code)]
     pub const MSG__BUTTON__SINCE: u32 = 1;
 
     /// button event
@@ -1201,7 +1181,6 @@ impl ZwpTabletToolV2 {
     }
 
     /// Since when the frame message is available.
-    #[allow(dead_code)]
     pub const MSG__FRAME__SINCE: u32 = 1;
 
     /// frame event
@@ -1253,7 +1232,6 @@ impl ZwpTabletToolV2 {
 }
 
 /// A message handler for [ZwpTabletToolV2] proxies.
-#[allow(dead_code)]
 pub trait ZwpTabletToolV2Handler: Any {
     /// set the tablet tool's surface
     ///
@@ -2410,58 +2388,41 @@ impl Proxy for ZwpTabletToolV2 {
 
 impl ZwpTabletToolV2 {
     /// Since when the type.pen enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TYPE_PEN__SINCE: u32 = 1;
     /// Since when the type.eraser enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TYPE_ERASER__SINCE: u32 = 1;
     /// Since when the type.brush enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TYPE_BRUSH__SINCE: u32 = 1;
     /// Since when the type.pencil enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TYPE_PENCIL__SINCE: u32 = 1;
     /// Since when the type.airbrush enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TYPE_AIRBRUSH__SINCE: u32 = 1;
     /// Since when the type.finger enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TYPE_FINGER__SINCE: u32 = 1;
     /// Since when the type.mouse enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TYPE_MOUSE__SINCE: u32 = 1;
     /// Since when the type.lens enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TYPE_LENS__SINCE: u32 = 1;
 
     /// Since when the capability.tilt enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CAPABILITY_TILT__SINCE: u32 = 1;
     /// Since when the capability.pressure enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CAPABILITY_PRESSURE__SINCE: u32 = 1;
     /// Since when the capability.distance enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CAPABILITY_DISTANCE__SINCE: u32 = 1;
     /// Since when the capability.rotation enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CAPABILITY_ROTATION__SINCE: u32 = 1;
     /// Since when the capability.slider enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CAPABILITY_SLIDER__SINCE: u32 = 1;
     /// Since when the capability.wheel enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CAPABILITY_WHEEL__SINCE: u32 = 1;
 
     /// Since when the button_state.released enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__BUTTON_STATE_RELEASED__SINCE: u32 = 1;
     /// Since when the button_state.pressed enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__BUTTON_STATE_PRESSED__SINCE: u32 = 1;
 
     /// Since when the error.role enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ROLE__SINCE: u32 = 1;
 }
 
@@ -2477,40 +2438,31 @@ impl ZwpTabletToolV2 {
 /// The lens tool is a mouse-shaped tool with an attached lens to
 /// provide precision focus.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpTabletToolV2Type(pub u32);
 
 impl ZwpTabletToolV2Type {
     /// Pen
-    #[allow(dead_code)]
     pub const PEN: Self = Self(0x140);
 
     /// Eraser
-    #[allow(dead_code)]
     pub const ERASER: Self = Self(0x141);
 
     /// Brush
-    #[allow(dead_code)]
     pub const BRUSH: Self = Self(0x142);
 
     /// Pencil
-    #[allow(dead_code)]
     pub const PENCIL: Self = Self(0x143);
 
     /// Airbrush
-    #[allow(dead_code)]
     pub const AIRBRUSH: Self = Self(0x144);
 
     /// Finger
-    #[allow(dead_code)]
     pub const FINGER: Self = Self(0x145);
 
     /// Mouse
-    #[allow(dead_code)]
     pub const MOUSE: Self = Self(0x146);
 
     /// Lens
-    #[allow(dead_code)]
     pub const LENS: Self = Self(0x147);
 }
 
@@ -2538,32 +2490,25 @@ impl Debug for ZwpTabletToolV2Type {
 /// Any tool must provide x and y values, extra axes are
 /// device-specific.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpTabletToolV2Capability(pub u32);
 
 impl ZwpTabletToolV2Capability {
     /// Tilt axes
-    #[allow(dead_code)]
     pub const TILT: Self = Self(1);
 
     /// Pressure axis
-    #[allow(dead_code)]
     pub const PRESSURE: Self = Self(2);
 
     /// Distance axis
-    #[allow(dead_code)]
     pub const DISTANCE: Self = Self(3);
 
     /// Z-rotation axis
-    #[allow(dead_code)]
     pub const ROTATION: Self = Self(4);
 
     /// Slider axis
-    #[allow(dead_code)]
     pub const SLIDER: Self = Self(5);
 
     /// Wheel axis
-    #[allow(dead_code)]
     pub const WHEEL: Self = Self(6);
 }
 
@@ -2586,16 +2531,13 @@ impl Debug for ZwpTabletToolV2Capability {
 ///
 /// Describes the physical state of a button that produced the button event.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpTabletToolV2ButtonState(pub u32);
 
 impl ZwpTabletToolV2ButtonState {
     /// button is not pressed
-    #[allow(dead_code)]
     pub const RELEASED: Self = Self(0);
 
     /// button is pressed
-    #[allow(dead_code)]
     pub const PRESSED: Self = Self(1);
 }
 
@@ -2611,12 +2553,10 @@ impl Debug for ZwpTabletToolV2ButtonState {
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpTabletToolV2Error(pub u32);
 
 impl ZwpTabletToolV2Error {
     /// given wl_surface has another role
-    #[allow(dead_code)]
     pub const ROLE: Self = Self(0);
 }
 

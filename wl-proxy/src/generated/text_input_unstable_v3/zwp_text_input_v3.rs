@@ -72,7 +72,6 @@ impl Debug for ZwpTextInputV3 {
 
 impl ZwpTextInputV3 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// Destroy the wp_text_input
@@ -109,7 +108,6 @@ impl ZwpTextInputV3 {
     }
 
     /// Since when the enable message is available.
-    #[allow(dead_code)]
     pub const MSG__ENABLE__SINCE: u32 = 1;
 
     /// Request text input to be enabled
@@ -171,7 +169,6 @@ impl ZwpTextInputV3 {
     }
 
     /// Since when the disable message is available.
-    #[allow(dead_code)]
     pub const MSG__DISABLE__SINCE: u32 = 1;
 
     /// Disable text input on a surface
@@ -210,7 +207,6 @@ impl ZwpTextInputV3 {
     }
 
     /// Since when the set_surrounding_text message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_SURROUNDING_TEXT__SINCE: u32 = 1;
 
     /// sets the surrounding text
@@ -298,7 +294,6 @@ impl ZwpTextInputV3 {
     }
 
     /// Since when the set_text_change_cause message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_TEXT_CHANGE_CAUSE__SINCE: u32 = 1;
 
     /// indicates the cause of surrounding text change
@@ -357,7 +352,6 @@ impl ZwpTextInputV3 {
     }
 
     /// Since when the set_content_type message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_CONTENT_TYPE__SINCE: u32 = 1;
 
     /// set content purpose and hint
@@ -418,7 +412,6 @@ impl ZwpTextInputV3 {
     }
 
     /// Since when the set_cursor_rectangle message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_CURSOR_RECTANGLE__SINCE: u32 = 1;
 
     /// set cursor position
@@ -495,7 +488,6 @@ impl ZwpTextInputV3 {
     }
 
     /// Since when the commit message is available.
-    #[allow(dead_code)]
     pub const MSG__COMMIT__SINCE: u32 = 1;
 
     /// commit state
@@ -552,7 +544,6 @@ impl ZwpTextInputV3 {
     }
 
     /// Since when the enter message is available.
-    #[allow(dead_code)]
     pub const MSG__ENTER__SINCE: u32 = 1;
 
     /// enter event
@@ -612,7 +603,6 @@ impl ZwpTextInputV3 {
     }
 
     /// Since when the leave message is available.
-    #[allow(dead_code)]
     pub const MSG__LEAVE__SINCE: u32 = 1;
 
     /// leave event
@@ -675,7 +665,6 @@ impl ZwpTextInputV3 {
     }
 
     /// Since when the preedit_string message is available.
-    #[allow(dead_code)]
     pub const MSG__PREEDIT_STRING__SINCE: u32 = 1;
 
     /// pre-edit
@@ -756,7 +745,6 @@ impl ZwpTextInputV3 {
     }
 
     /// Since when the commit_string message is available.
-    #[allow(dead_code)]
     pub const MSG__COMMIT_STRING__SINCE: u32 = 1;
 
     /// text commit
@@ -815,7 +803,6 @@ impl ZwpTextInputV3 {
     }
 
     /// Since when the delete_surrounding_text message is available.
-    #[allow(dead_code)]
     pub const MSG__DELETE_SURROUNDING_TEXT__SINCE: u32 = 1;
 
     /// delete surrounding text
@@ -881,7 +868,6 @@ impl ZwpTextInputV3 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// apply changes
@@ -956,7 +942,6 @@ impl ZwpTextInputV3 {
 }
 
 /// A message handler for [ZwpTextInputV3] proxies.
-#[allow(dead_code)]
 pub trait ZwpTextInputV3Handler: Any {
     /// Destroy the wp_text_input
     ///
@@ -1935,87 +1920,60 @@ impl Proxy for ZwpTextInputV3 {
 
 impl ZwpTextInputV3 {
     /// Since when the change_cause.input_method enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CHANGE_CAUSE_INPUT_METHOD__SINCE: u32 = 1;
     /// Since when the change_cause.other enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CHANGE_CAUSE_OTHER__SINCE: u32 = 1;
 
     /// Since when the content_hint.none enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_HINT_NONE__SINCE: u32 = 1;
     /// Since when the content_hint.completion enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_HINT_COMPLETION__SINCE: u32 = 1;
     /// Since when the content_hint.spellcheck enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_HINT_SPELLCHECK__SINCE: u32 = 1;
     /// Since when the content_hint.auto_capitalization enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_HINT_AUTO_CAPITALIZATION__SINCE: u32 = 1;
     /// Since when the content_hint.lowercase enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_HINT_LOWERCASE__SINCE: u32 = 1;
     /// Since when the content_hint.uppercase enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_HINT_UPPERCASE__SINCE: u32 = 1;
     /// Since when the content_hint.titlecase enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_HINT_TITLECASE__SINCE: u32 = 1;
     /// Since when the content_hint.hidden_text enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_HINT_HIDDEN_TEXT__SINCE: u32 = 1;
     /// Since when the content_hint.sensitive_data enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_HINT_SENSITIVE_DATA__SINCE: u32 = 1;
     /// Since when the content_hint.latin enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_HINT_LATIN__SINCE: u32 = 1;
     /// Since when the content_hint.multiline enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_HINT_MULTILINE__SINCE: u32 = 1;
 
     /// Since when the content_purpose.normal enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_PURPOSE_NORMAL__SINCE: u32 = 1;
     /// Since when the content_purpose.alpha enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_PURPOSE_ALPHA__SINCE: u32 = 1;
     /// Since when the content_purpose.digits enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_PURPOSE_DIGITS__SINCE: u32 = 1;
     /// Since when the content_purpose.number enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_PURPOSE_NUMBER__SINCE: u32 = 1;
     /// Since when the content_purpose.phone enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_PURPOSE_PHONE__SINCE: u32 = 1;
     /// Since when the content_purpose.url enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_PURPOSE_URL__SINCE: u32 = 1;
     /// Since when the content_purpose.email enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_PURPOSE_EMAIL__SINCE: u32 = 1;
     /// Since when the content_purpose.name enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_PURPOSE_NAME__SINCE: u32 = 1;
     /// Since when the content_purpose.password enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_PURPOSE_PASSWORD__SINCE: u32 = 1;
     /// Since when the content_purpose.pin enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_PURPOSE_PIN__SINCE: u32 = 1;
     /// Since when the content_purpose.date enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_PURPOSE_DATE__SINCE: u32 = 1;
     /// Since when the content_purpose.time enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_PURPOSE_TIME__SINCE: u32 = 1;
     /// Since when the content_purpose.datetime enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_PURPOSE_DATETIME__SINCE: u32 = 1;
     /// Since when the content_purpose.terminal enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONTENT_PURPOSE_TERMINAL__SINCE: u32 = 1;
 }
 
@@ -2023,16 +1981,13 @@ impl ZwpTextInputV3 {
 ///
 /// Reason for the change of surrounding text or cursor posision.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpTextInputV3ChangeCause(pub u32);
 
 impl ZwpTextInputV3ChangeCause {
     /// input method caused the change
-    #[allow(dead_code)]
     pub const INPUT_METHOD: Self = Self(0);
 
     /// something else than the input method caused the change
-    #[allow(dead_code)]
     pub const OTHER: Self = Self(1);
 }
 
@@ -2053,7 +2008,6 @@ impl Debug for ZwpTextInputV3ChangeCause {
 /// input.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct ZwpTextInputV3ContentHint(pub u32);
 
 /// An iterator over the set bits in a [ZwpTextInputV3ContentHint].
@@ -2064,51 +2018,39 @@ pub struct ZwpTextInputV3ContentHintIter(pub u32);
 
 impl ZwpTextInputV3ContentHint {
     /// no special behavior
-    #[allow(dead_code)]
     pub const NONE: Self = Self(0x0);
 
     /// suggest word completions
-    #[allow(dead_code)]
     pub const COMPLETION: Self = Self(0x1);
 
     /// suggest word corrections
-    #[allow(dead_code)]
     pub const SPELLCHECK: Self = Self(0x2);
 
     /// switch to uppercase letters at the start of a sentence
-    #[allow(dead_code)]
     pub const AUTO_CAPITALIZATION: Self = Self(0x4);
 
     /// prefer lowercase letters
-    #[allow(dead_code)]
     pub const LOWERCASE: Self = Self(0x8);
 
     /// prefer uppercase letters
-    #[allow(dead_code)]
     pub const UPPERCASE: Self = Self(0x10);
 
     /// prefer casing for titles and headings (can be language dependent)
-    #[allow(dead_code)]
     pub const TITLECASE: Self = Self(0x20);
 
     /// characters should be hidden
-    #[allow(dead_code)]
     pub const HIDDEN_TEXT: Self = Self(0x40);
 
     /// typed text should not be stored
-    #[allow(dead_code)]
     pub const SENSITIVE_DATA: Self = Self(0x80);
 
     /// just Latin characters should be entered
-    #[allow(dead_code)]
     pub const LATIN: Self = Self(0x100);
 
     /// the text input is multiline
-    #[allow(dead_code)]
     pub const MULTILINE: Self = Self(0x200);
 }
 
-#[allow(dead_code)]
 impl ZwpTextInputV3ContentHint {
     #[inline]
     pub const fn empty() -> Self {
@@ -2397,64 +2339,49 @@ impl Debug for ZwpTextInputV3ContentHint {
 /// This allows an input method to show special purpose input panels with
 /// extra characters or to disallow some characters.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpTextInputV3ContentPurpose(pub u32);
 
 impl ZwpTextInputV3ContentPurpose {
     /// default input, allowing all characters
-    #[allow(dead_code)]
     pub const NORMAL: Self = Self(0);
 
     /// allow only alphabetic characters
-    #[allow(dead_code)]
     pub const ALPHA: Self = Self(1);
 
     /// allow only digits
-    #[allow(dead_code)]
     pub const DIGITS: Self = Self(2);
 
     /// input a number (including decimal separator and sign)
-    #[allow(dead_code)]
     pub const NUMBER: Self = Self(3);
 
     /// input a phone number
-    #[allow(dead_code)]
     pub const PHONE: Self = Self(4);
 
     /// input an URL
-    #[allow(dead_code)]
     pub const URL: Self = Self(5);
 
     /// input an email address
-    #[allow(dead_code)]
     pub const EMAIL: Self = Self(6);
 
     /// input a name of a person
-    #[allow(dead_code)]
     pub const NAME: Self = Self(7);
 
     /// input a password (combine with sensitive_data hint)
-    #[allow(dead_code)]
     pub const PASSWORD: Self = Self(8);
 
     /// input is a numeric password (combine with sensitive_data hint)
-    #[allow(dead_code)]
     pub const PIN: Self = Self(9);
 
     /// input a date
-    #[allow(dead_code)]
     pub const DATE: Self = Self(10);
 
     /// input a time
-    #[allow(dead_code)]
     pub const TIME: Self = Self(11);
 
     /// input a date and time
-    #[allow(dead_code)]
     pub const DATETIME: Self = Self(12);
 
     /// input for a terminal
-    #[allow(dead_code)]
     pub const TERMINAL: Self = Self(13);
 }
 

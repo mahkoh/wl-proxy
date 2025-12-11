@@ -45,7 +45,6 @@ impl Debug for XdgToplevelDragV1 {
 
 impl XdgToplevelDragV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy an xdg_toplevel_drag_v1 object
@@ -84,7 +83,6 @@ impl XdgToplevelDragV1 {
     }
 
     /// Since when the attach message is available.
-    #[allow(dead_code)]
     pub const MSG__ATTACH__SINCE: u32 = 1;
 
     /// Move a toplevel with the drag operation
@@ -160,7 +158,6 @@ impl XdgToplevelDragV1 {
 }
 
 /// A message handler for [XdgToplevelDragV1] proxies.
-#[allow(dead_code)]
 pub trait XdgToplevelDragV1Handler: Any {
     /// destroy an xdg_toplevel_drag_v1 object
     ///
@@ -356,24 +353,19 @@ impl Proxy for XdgToplevelDragV1 {
 
 impl XdgToplevelDragV1 {
     /// Since when the error.toplevel_attached enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_TOPLEVEL_ATTACHED__SINCE: u32 = 1;
     /// Since when the error.ongoing_drag enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ONGOING_DRAG__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct XdgToplevelDragV1Error(pub u32);
 
 impl XdgToplevelDragV1Error {
     /// valid toplevel already attached
-    #[allow(dead_code)]
     pub const TOPLEVEL_ATTACHED: Self = Self(0);
 
     /// drag has not ended
-    #[allow(dead_code)]
     pub const ONGOING_DRAG: Self = Self(1);
 }
 

@@ -61,7 +61,6 @@ impl Debug for ExtSessionLockSurfaceV1 {
 
 impl ExtSessionLockSurfaceV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the lock surface object
@@ -105,7 +104,6 @@ impl ExtSessionLockSurfaceV1 {
     }
 
     /// Since when the ack_configure message is available.
-    #[allow(dead_code)]
     pub const MSG__ACK_CONFIGURE__SINCE: u32 = 1;
 
     /// ack a configure event
@@ -174,7 +172,6 @@ impl ExtSessionLockSurfaceV1 {
     }
 
     /// Since when the configure message is available.
-    #[allow(dead_code)]
     pub const MSG__CONFIGURE__SINCE: u32 = 1;
 
     /// the client should resize its surface
@@ -238,7 +235,6 @@ impl ExtSessionLockSurfaceV1 {
 }
 
 /// A message handler for [ExtSessionLockSurfaceV1] proxies.
-#[allow(dead_code)]
 pub trait ExtSessionLockSurfaceV1Handler: Any {
     /// destroy the lock surface object
     ///
@@ -482,38 +478,29 @@ impl Proxy for ExtSessionLockSurfaceV1 {
 
 impl ExtSessionLockSurfaceV1 {
     /// Since when the error.commit_before_first_ack enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_COMMIT_BEFORE_FIRST_ACK__SINCE: u32 = 1;
     /// Since when the error.null_buffer enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_NULL_BUFFER__SINCE: u32 = 1;
     /// Since when the error.dimensions_mismatch enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_DIMENSIONS_MISMATCH__SINCE: u32 = 1;
     /// Since when the error.invalid_serial enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_SERIAL__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ExtSessionLockSurfaceV1Error(pub u32);
 
 impl ExtSessionLockSurfaceV1Error {
     /// surface committed before first ack_configure request
-    #[allow(dead_code)]
     pub const COMMIT_BEFORE_FIRST_ACK: Self = Self(0);
 
     /// surface committed with a null buffer
-    #[allow(dead_code)]
     pub const NULL_BUFFER: Self = Self(1);
 
     /// failed to match ack'd width/height
-    #[allow(dead_code)]
     pub const DIMENSIONS_MISMATCH: Self = Self(2);
 
     /// serial provided in ack_configure is invalid
-    #[allow(dead_code)]
     pub const INVALID_SERIAL: Self = Self(3);
 }
 

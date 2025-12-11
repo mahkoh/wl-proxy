@@ -68,7 +68,6 @@ impl Debug for ZwpTabletPadV2 {
 
 impl ZwpTabletPadV2 {
     /// Since when the set_feedback message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_FEEDBACK__SINCE: u32 = 1;
 
     /// set compositor feedback
@@ -149,7 +148,6 @@ impl ZwpTabletPadV2 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the pad object
@@ -186,7 +184,6 @@ impl ZwpTabletPadV2 {
     }
 
     /// Since when the group message is available.
-    #[allow(dead_code)]
     pub const MSG__GROUP__SINCE: u32 = 1;
 
     /// group announced
@@ -239,7 +236,6 @@ impl ZwpTabletPadV2 {
     }
 
     /// Since when the path message is available.
-    #[allow(dead_code)]
     pub const MSG__PATH__SINCE: u32 = 1;
 
     /// path to the device
@@ -296,7 +292,6 @@ impl ZwpTabletPadV2 {
     }
 
     /// Since when the buttons message is available.
-    #[allow(dead_code)]
     pub const MSG__BUTTONS__SINCE: u32 = 1;
 
     /// buttons announced
@@ -349,7 +344,6 @@ impl ZwpTabletPadV2 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// pad description event sequence complete
@@ -388,7 +382,6 @@ impl ZwpTabletPadV2 {
     }
 
     /// Since when the button message is available.
-    #[allow(dead_code)]
     pub const MSG__BUTTON__SINCE: u32 = 1;
 
     /// physical button state
@@ -446,7 +439,6 @@ impl ZwpTabletPadV2 {
     }
 
     /// Since when the enter message is available.
-    #[allow(dead_code)]
     pub const MSG__ENTER__SINCE: u32 = 1;
 
     /// enter event
@@ -514,7 +506,6 @@ impl ZwpTabletPadV2 {
     }
 
     /// Since when the leave message is available.
-    #[allow(dead_code)]
     pub const MSG__LEAVE__SINCE: u32 = 1;
 
     /// leave event
@@ -573,7 +564,6 @@ impl ZwpTabletPadV2 {
     }
 
     /// Since when the removed message is available.
-    #[allow(dead_code)]
     pub const MSG__REMOVED__SINCE: u32 = 1;
 
     /// pad removed event
@@ -616,7 +606,6 @@ impl ZwpTabletPadV2 {
 }
 
 /// A message handler for [ZwpTabletPadV2] proxies.
-#[allow(dead_code)]
 pub trait ZwpTabletPadV2Handler: Any {
     /// set compositor feedback
     ///
@@ -1264,10 +1253,8 @@ impl Proxy for ZwpTabletPadV2 {
 
 impl ZwpTabletPadV2 {
     /// Since when the button_state.released enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__BUTTON_STATE_RELEASED__SINCE: u32 = 1;
     /// Since when the button_state.pressed enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__BUTTON_STATE_PRESSED__SINCE: u32 = 1;
 }
 
@@ -1276,16 +1263,13 @@ impl ZwpTabletPadV2 {
 /// Describes the physical state of a button that caused the button
 /// event.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpTabletPadV2ButtonState(pub u32);
 
 impl ZwpTabletPadV2ButtonState {
     /// the button is not pressed
-    #[allow(dead_code)]
     pub const RELEASED: Self = Self(0);
 
     /// the button is pressed
-    #[allow(dead_code)]
     pub const PRESSED: Self = Self(1);
 }
 

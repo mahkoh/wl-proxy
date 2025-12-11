@@ -62,7 +62,6 @@ impl Debug for ZwlrScreencopyFrameV1 {
 
 impl ZwlrScreencopyFrameV1 {
     /// Since when the buffer message is available.
-    #[allow(dead_code)]
     pub const MSG__BUFFER__SINCE: u32 = 1;
 
     /// wl_shm buffer information
@@ -127,7 +126,6 @@ impl ZwlrScreencopyFrameV1 {
     }
 
     /// Since when the copy message is available.
-    #[allow(dead_code)]
     pub const MSG__COPY__SINCE: u32 = 1;
 
     /// copy the frame
@@ -184,7 +182,6 @@ impl ZwlrScreencopyFrameV1 {
     }
 
     /// Since when the flags message is available.
-    #[allow(dead_code)]
     pub const MSG__FLAGS__SINCE: u32 = 1;
 
     /// frame flags
@@ -233,7 +230,6 @@ impl ZwlrScreencopyFrameV1 {
     }
 
     /// Since when the ready message is available.
-    #[allow(dead_code)]
     pub const MSG__READY__SINCE: u32 = 1;
 
     /// indicates frame is available for reading
@@ -301,7 +297,6 @@ impl ZwlrScreencopyFrameV1 {
     }
 
     /// Since when the failed message is available.
-    #[allow(dead_code)]
     pub const MSG__FAILED__SINCE: u32 = 1;
 
     /// frame copy failed
@@ -340,7 +335,6 @@ impl ZwlrScreencopyFrameV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// delete this object, used or not
@@ -376,7 +370,6 @@ impl ZwlrScreencopyFrameV1 {
     }
 
     /// Since when the copy_with_damage message is available.
-    #[allow(dead_code)]
     pub const MSG__COPY_WITH_DAMAGE__SINCE: u32 = 2;
 
     /// copy the frame when it's damaged
@@ -427,7 +420,6 @@ impl ZwlrScreencopyFrameV1 {
     }
 
     /// Since when the damage message is available.
-    #[allow(dead_code)]
     pub const MSG__DAMAGE__SINCE: u32 = 2;
 
     /// carries the coordinates of the damaged region
@@ -499,7 +491,6 @@ impl ZwlrScreencopyFrameV1 {
     }
 
     /// Since when the linux_dmabuf message is available.
-    #[allow(dead_code)]
     pub const MSG__LINUX_DMABUF__SINCE: u32 = 3;
 
     /// linux-dmabuf buffer information
@@ -559,7 +550,6 @@ impl ZwlrScreencopyFrameV1 {
     }
 
     /// Since when the buffer_done message is available.
-    #[allow(dead_code)]
     pub const MSG__BUFFER_DONE__SINCE: u32 = 3;
 
     /// all buffer types reported
@@ -600,7 +590,6 @@ impl ZwlrScreencopyFrameV1 {
 }
 
 /// A message handler for [ZwlrScreencopyFrameV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrScreencopyFrameV1Handler: Any {
     /// wl_shm buffer information
     ///
@@ -1165,28 +1154,22 @@ impl Proxy for ZwlrScreencopyFrameV1 {
 
 impl ZwlrScreencopyFrameV1 {
     /// Since when the error.already_used enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_USED__SINCE: u32 = 1;
     /// Since when the error.invalid_buffer enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_BUFFER__SINCE: u32 = 1;
 
     /// Since when the flags.y_invert enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FLAGS_Y_INVERT__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwlrScreencopyFrameV1Error(pub u32);
 
 impl ZwlrScreencopyFrameV1Error {
     /// the object has already been used to copy a wl_buffer
-    #[allow(dead_code)]
     pub const ALREADY_USED: Self = Self(0);
 
     /// buffer attributes are invalid
-    #[allow(dead_code)]
     pub const INVALID_BUFFER: Self = Self(1);
 }
 
@@ -1203,7 +1186,6 @@ impl Debug for ZwlrScreencopyFrameV1Error {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct ZwlrScreencopyFrameV1Flags(pub u32);
 
 /// An iterator over the set bits in a [ZwlrScreencopyFrameV1Flags].
@@ -1214,11 +1196,9 @@ pub struct ZwlrScreencopyFrameV1FlagsIter(pub u32);
 
 impl ZwlrScreencopyFrameV1Flags {
     /// contents are y-inverted
-    #[allow(dead_code)]
     pub const Y_INVERT: Self = Self(1);
 }
 
-#[allow(dead_code)]
 impl ZwlrScreencopyFrameV1Flags {
     #[inline]
     pub const fn empty() -> Self {

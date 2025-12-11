@@ -47,7 +47,6 @@ impl Debug for ZwpTextInputManagerV1 {
 
 impl ZwpTextInputManagerV1 {
     /// Since when the create_text_input message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_TEXT_INPUT__SINCE: u32 = 1;
 
     /// create text input
@@ -95,7 +94,6 @@ impl ZwpTextInputManagerV1 {
 }
 
 /// A message handler for [ZwpTextInputManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpTextInputManagerV1Handler: Any {
     /// create text input
     ///

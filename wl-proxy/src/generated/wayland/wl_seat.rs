@@ -50,7 +50,6 @@ impl Debug for WlSeat {
 
 impl WlSeat {
     /// Since when the capabilities message is available.
-    #[allow(dead_code)]
     pub const MSG__CAPABILITIES__SINCE: u32 = 1;
 
     /// seat capabilities changed
@@ -122,7 +121,6 @@ impl WlSeat {
     }
 
     /// Since when the get_pointer message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_POINTER__SINCE: u32 = 1;
 
     /// return pointer object
@@ -176,7 +174,6 @@ impl WlSeat {
     }
 
     /// Since when the get_keyboard message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_KEYBOARD__SINCE: u32 = 1;
 
     /// return keyboard object
@@ -230,7 +227,6 @@ impl WlSeat {
     }
 
     /// Since when the get_touch message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_TOUCH__SINCE: u32 = 1;
 
     /// return touch object
@@ -284,7 +280,6 @@ impl WlSeat {
     }
 
     /// Since when the name message is available.
-    #[allow(dead_code)]
     pub const MSG__NAME__SINCE: u32 = 2;
 
     /// unique identifier for this seat
@@ -347,7 +342,6 @@ impl WlSeat {
     }
 
     /// Since when the release message is available.
-    #[allow(dead_code)]
     pub const MSG__RELEASE__SINCE: u32 = 5;
 
     /// release the seat object
@@ -385,7 +379,6 @@ impl WlSeat {
 }
 
 /// A message handler for [WlSeat] proxies.
-#[allow(dead_code)]
 pub trait WlSeatHandler: Any {
     /// seat capabilities changed
     ///
@@ -803,17 +796,13 @@ impl Proxy for WlSeat {
 
 impl WlSeat {
     /// Since when the capability.pointer enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CAPABILITY_POINTER__SINCE: u32 = 1;
     /// Since when the capability.keyboard enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CAPABILITY_KEYBOARD__SINCE: u32 = 1;
     /// Since when the capability.touch enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CAPABILITY_TOUCH__SINCE: u32 = 1;
 
     /// Since when the error.missing_capability enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_MISSING_CAPABILITY__SINCE: u32 = 1;
 }
 
@@ -823,7 +812,6 @@ impl WlSeat {
 /// set, then it is present on the seat.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct WlSeatCapability(pub u32);
 
 /// An iterator over the set bits in a [WlSeatCapability].
@@ -834,19 +822,15 @@ pub struct WlSeatCapabilityIter(pub u32);
 
 impl WlSeatCapability {
     /// the seat has pointer devices
-    #[allow(dead_code)]
     pub const POINTER: Self = Self(1);
 
     /// the seat has one or more keyboards
-    #[allow(dead_code)]
     pub const KEYBOARD: Self = Self(2);
 
     /// the seat has touch devices
-    #[allow(dead_code)]
     pub const TOUCH: Self = Self(4);
 }
 
-#[allow(dead_code)]
 impl WlSeatCapability {
     #[inline]
     pub const fn empty() -> Self {
@@ -1068,12 +1052,10 @@ impl Debug for WlSeatCapability {
 ///
 /// These errors can be emitted in response to wl_seat requests.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlSeatError(pub u32);
 
 impl WlSeatError {
     /// get_pointer, get_keyboard or get_touch called on seat without the matching capability
-    #[allow(dead_code)]
     pub const MISSING_CAPABILITY: Self = Self(0);
 }
 

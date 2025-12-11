@@ -48,7 +48,6 @@ impl Debug for ZwlrOutputPowerV1 {
 
 impl ZwlrOutputPowerV1 {
     /// Since when the set_mode message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_MODE__SINCE: u32 = 1;
 
     /// Set an outputs power save mode
@@ -96,7 +95,6 @@ impl ZwlrOutputPowerV1 {
     }
 
     /// Since when the mode message is available.
-    #[allow(dead_code)]
     pub const MSG__MODE__SINCE: u32 = 1;
 
     /// Report a power management mode change
@@ -150,7 +148,6 @@ impl ZwlrOutputPowerV1 {
     }
 
     /// Since when the failed message is available.
-    #[allow(dead_code)]
     pub const MSG__FAILED__SINCE: u32 = 1;
 
     /// object no longer valid
@@ -195,7 +192,6 @@ impl ZwlrOutputPowerV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy this power management
@@ -232,7 +228,6 @@ impl ZwlrOutputPowerV1 {
 }
 
 /// A message handler for [ZwlrOutputPowerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrOutputPowerV1Handler: Any {
     /// Set an outputs power save mode
     ///
@@ -482,28 +477,22 @@ impl Proxy for ZwlrOutputPowerV1 {
 
 impl ZwlrOutputPowerV1 {
     /// Since when the mode.off enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__MODE_OFF__SINCE: u32 = 1;
     /// Since when the mode.on enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__MODE_ON__SINCE: u32 = 1;
 
     /// Since when the error.invalid_mode enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_MODE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwlrOutputPowerV1Mode(pub u32);
 
 impl ZwlrOutputPowerV1Mode {
     /// Output is turned off.
-    #[allow(dead_code)]
     pub const OFF: Self = Self(0);
 
     /// Output is turned on, no power saving
-    #[allow(dead_code)]
     pub const ON: Self = Self(1);
 }
 
@@ -519,12 +508,10 @@ impl Debug for ZwlrOutputPowerV1Mode {
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwlrOutputPowerV1Error(pub u32);
 
 impl ZwlrOutputPowerV1Error {
     /// nonexistent power save mode
-    #[allow(dead_code)]
     pub const INVALID_MODE: Self = Self(1);
 }
 

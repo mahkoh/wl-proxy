@@ -57,7 +57,6 @@ impl Debug for WpPresentationFeedback {
 
 impl WpPresentationFeedback {
     /// Since when the sync_output message is available.
-    #[allow(dead_code)]
     pub const MSG__SYNC_OUTPUT__SINCE: u32 = 1;
 
     /// presentation synchronized to this output
@@ -117,7 +116,6 @@ impl WpPresentationFeedback {
     }
 
     /// Since when the presented message is available.
-    #[allow(dead_code)]
     pub const MSG__PRESENTED__SINCE: u32 = 1;
 
     /// the content update was displayed
@@ -242,7 +240,6 @@ impl WpPresentationFeedback {
     }
 
     /// Since when the discarded message is available.
-    #[allow(dead_code)]
     pub const MSG__DISCARDED__SINCE: u32 = 1;
 
     /// the content update was not displayed
@@ -284,7 +281,6 @@ impl WpPresentationFeedback {
 }
 
 /// A message handler for [WpPresentationFeedback] proxies.
-#[allow(dead_code)]
 pub trait WpPresentationFeedbackHandler: Any {
     /// presentation synchronized to this output
     ///
@@ -576,16 +572,12 @@ impl Proxy for WpPresentationFeedback {
 
 impl WpPresentationFeedback {
     /// Since when the kind.vsync enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__KIND_VSYNC__SINCE: u32 = 1;
     /// Since when the kind.hw_clock enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__KIND_HW_CLOCK__SINCE: u32 = 1;
     /// Since when the kind.hw_completion enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__KIND_HW_COMPLETION__SINCE: u32 = 1;
     /// Since when the kind.zero_copy enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__KIND_ZERO_COPY__SINCE: u32 = 1;
 }
 
@@ -597,7 +589,6 @@ impl WpPresentationFeedback {
 /// quality with respect to possible tearing and timings.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct WpPresentationFeedbackKind(pub u32);
 
 /// An iterator over the set bits in a [WpPresentationFeedbackKind].
@@ -615,7 +606,6 @@ impl WpPresentationFeedbackKind {
     /// flag. If presentation is done by a copy to the active
     /// frontbuffer, then it must guarantee that tearing cannot
     /// happen.
-    #[allow(dead_code)]
     pub const VSYNC: Self = Self(0x1);
 
     /// hardware provided the presentation timestamp
@@ -623,7 +613,6 @@ impl WpPresentationFeedbackKind {
     /// The display hardware provided measurements that the hardware
     /// driver converted into a presentation timestamp. Sampling a
     /// clock in software is not acceptable for this flag.
-    #[allow(dead_code)]
     pub const HW_CLOCK: Self = Self(0x2);
 
     /// hardware signalled the start of the presentation
@@ -632,7 +621,6 @@ impl WpPresentationFeedbackKind {
     /// image content. The opposite of this is e.g. a timer being used
     /// to guess when the display hardware has switched to the new
     /// image content.
-    #[allow(dead_code)]
     pub const HW_COMPLETION: Self = Self(0x4);
 
     /// presentation was done zero-copy
@@ -643,11 +631,9 @@ impl WpPresentationFeedbackKind {
     /// copying, even if textured directly from the client buffer.
     /// Possible zero-copy cases include direct scanout of a
     /// fullscreen surface and a surface on a hardware overlay.
-    #[allow(dead_code)]
     pub const ZERO_COPY: Self = Self(0x8);
 }
 
-#[allow(dead_code)]
 impl WpPresentationFeedbackKind {
     #[inline]
     pub const fn empty() -> Self {

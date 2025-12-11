@@ -47,7 +47,6 @@ impl Debug for ZwpKeyboardShortcutsInhibitManagerV1 {
 
 impl ZwpKeyboardShortcutsInhibitManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the keyboard shortcuts inhibitor object
@@ -83,7 +82,6 @@ impl ZwpKeyboardShortcutsInhibitManagerV1 {
     }
 
     /// Since when the inhibit_shortcuts message is available.
-    #[allow(dead_code)]
     pub const MSG__INHIBIT_SHORTCUTS__SINCE: u32 = 1;
 
     /// create a new keyboard shortcuts inhibitor object
@@ -159,7 +157,6 @@ impl ZwpKeyboardShortcutsInhibitManagerV1 {
 }
 
 /// A message handler for [ZwpKeyboardShortcutsInhibitManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpKeyboardShortcutsInhibitManagerV1Handler: Any {
     /// destroy the keyboard shortcuts inhibitor object
     ///
@@ -354,17 +351,14 @@ impl Proxy for ZwpKeyboardShortcutsInhibitManagerV1 {
 
 impl ZwpKeyboardShortcutsInhibitManagerV1 {
     /// Since when the error.already_inhibited enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_INHIBITED__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpKeyboardShortcutsInhibitManagerV1Error(pub u32);
 
 impl ZwpKeyboardShortcutsInhibitManagerV1Error {
     /// the shortcuts are already inhibited for this surface
-    #[allow(dead_code)]
     pub const ALREADY_INHIBITED: Self = Self(0);
 }
 

@@ -65,7 +65,6 @@ impl Debug for WpPresentation {
 
 impl WpPresentation {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// unbind from the presentation interface
@@ -103,7 +102,6 @@ impl WpPresentation {
     }
 
     /// Since when the feedback message is available.
-    #[allow(dead_code)]
     pub const MSG__FEEDBACK__SINCE: u32 = 1;
 
     /// request presentation feedback information
@@ -171,7 +169,6 @@ impl WpPresentation {
     }
 
     /// Since when the clock_id message is available.
-    #[allow(dead_code)]
     pub const MSG__CLOCK_ID__SINCE: u32 = 1;
 
     /// clock ID for timestamps
@@ -247,7 +244,6 @@ impl WpPresentation {
 }
 
 /// A message handler for [WpPresentation] proxies.
-#[allow(dead_code)]
 pub trait WpPresentationHandler: Any {
     /// unbind from the presentation interface
     ///
@@ -504,10 +500,8 @@ impl Proxy for WpPresentation {
 
 impl WpPresentation {
     /// Since when the error.invalid_timestamp enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_TIMESTAMP__SINCE: u32 = 1;
     /// Since when the error.invalid_flag enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_FLAG__SINCE: u32 = 1;
 }
 
@@ -516,16 +510,13 @@ impl WpPresentation {
 /// These fatal protocol errors may be emitted in response to
 /// illegal presentation requests.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpPresentationError(pub u32);
 
 impl WpPresentationError {
     /// invalid value in tv_nsec
-    #[allow(dead_code)]
     pub const INVALID_TIMESTAMP: Self = Self(0);
 
     /// invalid flag
-    #[allow(dead_code)]
     pub const INVALID_FLAG: Self = Self(1);
 }
 

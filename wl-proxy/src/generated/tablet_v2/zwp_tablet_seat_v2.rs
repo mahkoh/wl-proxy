@@ -49,7 +49,6 @@ impl Debug for ZwpTabletSeatV2 {
 
 impl ZwpTabletSeatV2 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// release the memory for the tablet seat object
@@ -86,7 +85,6 @@ impl ZwpTabletSeatV2 {
     }
 
     /// Since when the tablet_added message is available.
-    #[allow(dead_code)]
     pub const MSG__TABLET_ADDED__SINCE: u32 = 1;
 
     /// new device notification
@@ -138,7 +136,6 @@ impl ZwpTabletSeatV2 {
     }
 
     /// Since when the tool_added message is available.
-    #[allow(dead_code)]
     pub const MSG__TOOL_ADDED__SINCE: u32 = 1;
 
     /// a new tool has been used with a tablet
@@ -190,7 +187,6 @@ impl ZwpTabletSeatV2 {
     }
 
     /// Since when the pad_added message is available.
-    #[allow(dead_code)]
     pub const MSG__PAD_ADDED__SINCE: u32 = 1;
 
     /// new pad notification
@@ -249,7 +245,6 @@ impl ZwpTabletSeatV2 {
 }
 
 /// A message handler for [ZwpTabletSeatV2] proxies.
-#[allow(dead_code)]
 pub trait ZwpTabletSeatV2Handler: Any {
     /// release the memory for the tablet seat object
     ///

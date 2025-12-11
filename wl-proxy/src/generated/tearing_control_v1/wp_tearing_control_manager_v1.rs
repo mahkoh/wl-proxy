@@ -61,7 +61,6 @@ impl Debug for WpTearingControlManagerV1 {
 
 impl WpTearingControlManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy tearing control factory object
@@ -99,7 +98,6 @@ impl WpTearingControlManagerV1 {
     }
 
     /// Since when the get_tearing_control message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_TEARING_CONTROL__SINCE: u32 = 1;
 
     /// extend surface interface for tearing control
@@ -165,7 +163,6 @@ impl WpTearingControlManagerV1 {
 }
 
 /// A message handler for [WpTearingControlManagerV1] proxies.
-#[allow(dead_code)]
 pub trait WpTearingControlManagerV1Handler: Any {
     /// destroy tearing control factory object
     ///
@@ -349,17 +346,14 @@ impl Proxy for WpTearingControlManagerV1 {
 
 impl WpTearingControlManagerV1 {
     /// Since when the error.tearing_control_exists enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_TEARING_CONTROL_EXISTS__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpTearingControlManagerV1Error(pub u32);
 
 impl WpTearingControlManagerV1Error {
     /// the surface already has a tearing object associated
-    #[allow(dead_code)]
     pub const TEARING_CONTROL_EXISTS: Self = Self(0);
 }
 

@@ -66,7 +66,6 @@ impl Debug for WlRegistry {
 
 impl WlRegistry {
     /// Since when the bind message is available.
-    #[allow(dead_code)]
     pub const MSG__BIND__SINCE: u32 = 1;
 
     /// bind an object to the display
@@ -127,7 +126,6 @@ impl WlRegistry {
     }
 
     /// Since when the global message is available.
-    #[allow(dead_code)]
     pub const MSG__GLOBAL__SINCE: u32 = 1;
 
     /// announce global object
@@ -191,7 +189,6 @@ impl WlRegistry {
     }
 
     /// Since when the global_remove message is available.
-    #[allow(dead_code)]
     pub const MSG__GLOBAL_REMOVE__SINCE: u32 = 1;
 
     /// announce removal of global object
@@ -249,7 +246,6 @@ impl WlRegistry {
 }
 
 /// A message handler for [WlRegistry] proxies.
-#[allow(dead_code)]
 pub trait WlRegistryHandler: Any {
     /// bind an object to the display
     ///

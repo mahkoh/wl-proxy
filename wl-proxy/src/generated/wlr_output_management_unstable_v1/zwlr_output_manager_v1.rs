@@ -73,7 +73,6 @@ impl Debug for ZwlrOutputManagerV1 {
 
 impl ZwlrOutputManagerV1 {
     /// Since when the head message is available.
-    #[allow(dead_code)]
     pub const MSG__HEAD__SINCE: u32 = 1;
 
     /// introduce a new head
@@ -124,7 +123,6 @@ impl ZwlrOutputManagerV1 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// sent all information about current configuration
@@ -182,7 +180,6 @@ impl ZwlrOutputManagerV1 {
     }
 
     /// Since when the create_configuration message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_CONFIGURATION__SINCE: u32 = 1;
 
     /// create a new output configuration object
@@ -239,7 +236,6 @@ impl ZwlrOutputManagerV1 {
     }
 
     /// Since when the stop message is available.
-    #[allow(dead_code)]
     pub const MSG__STOP__SINCE: u32 = 1;
 
     /// stop sending events
@@ -278,7 +274,6 @@ impl ZwlrOutputManagerV1 {
     }
 
     /// Since when the finished message is available.
-    #[allow(dead_code)]
     pub const MSG__FINISHED__SINCE: u32 = 1;
 
     /// the compositor has finished with the manager
@@ -323,7 +318,6 @@ impl ZwlrOutputManagerV1 {
 }
 
 /// A message handler for [ZwlrOutputManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrOutputManagerV1Handler: Any {
     /// introduce a new head
     ///

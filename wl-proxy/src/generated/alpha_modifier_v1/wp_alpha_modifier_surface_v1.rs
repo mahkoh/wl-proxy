@@ -53,7 +53,6 @@ impl Debug for WpAlphaModifierSurfaceV1 {
 
 impl WpAlphaModifierSurfaceV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the alpha modifier object
@@ -91,7 +90,6 @@ impl WpAlphaModifierSurfaceV1 {
     }
 
     /// Since when the set_multiplier message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_MULTIPLIER__SINCE: u32 = 1;
 
     /// specify the alpha multiplier
@@ -150,7 +148,6 @@ impl WpAlphaModifierSurfaceV1 {
 }
 
 /// A message handler for [WpAlphaModifierSurfaceV1] proxies.
-#[allow(dead_code)]
 pub trait WpAlphaModifierSurfaceV1Handler: Any {
     /// destroy the alpha modifier object
     ///
@@ -321,17 +318,14 @@ impl Proxy for WpAlphaModifierSurfaceV1 {
 
 impl WpAlphaModifierSurfaceV1 {
     /// Since when the error.no_surface enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_NO_SURFACE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpAlphaModifierSurfaceV1Error(pub u32);
 
 impl WpAlphaModifierSurfaceV1Error {
     /// wl_surface was destroyed
-    #[allow(dead_code)]
     pub const NO_SURFACE: Self = Self(0);
 }
 

@@ -56,7 +56,6 @@ impl Debug for ExtImageCopyCaptureFrameV1 {
 
 impl ExtImageCopyCaptureFrameV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy this object
@@ -93,7 +92,6 @@ impl ExtImageCopyCaptureFrameV1 {
     }
 
     /// Since when the attach_buffer message is available.
-    #[allow(dead_code)]
     pub const MSG__ATTACH_BUFFER__SINCE: u32 = 1;
 
     /// attach buffer to session
@@ -151,7 +149,6 @@ impl ExtImageCopyCaptureFrameV1 {
     }
 
     /// Since when the damage_buffer message is available.
-    #[allow(dead_code)]
     pub const MSG__DAMAGE_BUFFER__SINCE: u32 = 1;
 
     /// damage buffer
@@ -232,7 +229,6 @@ impl ExtImageCopyCaptureFrameV1 {
     }
 
     /// Since when the capture message is available.
-    #[allow(dead_code)]
     pub const MSG__CAPTURE__SINCE: u32 = 1;
 
     /// capture a frame
@@ -275,7 +271,6 @@ impl ExtImageCopyCaptureFrameV1 {
     }
 
     /// Since when the transform message is available.
-    #[allow(dead_code)]
     pub const MSG__TRANSFORM__SINCE: u32 = 1;
 
     /// buffer transform
@@ -324,7 +319,6 @@ impl ExtImageCopyCaptureFrameV1 {
     }
 
     /// Since when the damage message is available.
-    #[allow(dead_code)]
     pub const MSG__DAMAGE__SINCE: u32 = 1;
 
     /// buffer damaged region
@@ -394,7 +388,6 @@ impl ExtImageCopyCaptureFrameV1 {
     }
 
     /// Since when the presentation_time message is available.
-    #[allow(dead_code)]
     pub const MSG__PRESENTATION_TIME__SINCE: u32 = 1;
 
     /// presentation time of the frame
@@ -460,7 +453,6 @@ impl ExtImageCopyCaptureFrameV1 {
     }
 
     /// Since when the ready message is available.
-    #[allow(dead_code)]
     pub const MSG__READY__SINCE: u32 = 1;
 
     /// frame is available for reading
@@ -502,7 +494,6 @@ impl ExtImageCopyCaptureFrameV1 {
     }
 
     /// Since when the failed message is available.
-    #[allow(dead_code)]
     pub const MSG__FAILED__SINCE: u32 = 1;
 
     /// capture failed
@@ -553,7 +544,6 @@ impl ExtImageCopyCaptureFrameV1 {
 }
 
 /// A message handler for [ExtImageCopyCaptureFrameV1] proxies.
-#[allow(dead_code)]
 pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     /// destroy this object
     ///
@@ -1090,41 +1080,31 @@ impl Proxy for ExtImageCopyCaptureFrameV1 {
 
 impl ExtImageCopyCaptureFrameV1 {
     /// Since when the error.no_buffer enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_NO_BUFFER__SINCE: u32 = 1;
     /// Since when the error.invalid_buffer_damage enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_BUFFER_DAMAGE__SINCE: u32 = 1;
     /// Since when the error.already_captured enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_CAPTURED__SINCE: u32 = 1;
 
     /// Since when the failure_reason.unknown enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FAILURE_REASON_UNKNOWN__SINCE: u32 = 1;
     /// Since when the failure_reason.buffer_constraints enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FAILURE_REASON_BUFFER_CONSTRAINTS__SINCE: u32 = 1;
     /// Since when the failure_reason.stopped enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FAILURE_REASON_STOPPED__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ExtImageCopyCaptureFrameV1Error(pub u32);
 
 impl ExtImageCopyCaptureFrameV1Error {
     /// capture sent without attach_buffer
-    #[allow(dead_code)]
     pub const NO_BUFFER: Self = Self(1);
 
     /// invalid buffer damage
-    #[allow(dead_code)]
     pub const INVALID_BUFFER_DAMAGE: Self = Self(2);
 
     /// capture request has been sent
-    #[allow(dead_code)]
     pub const ALREADY_CAPTURED: Self = Self(3);
 }
 
@@ -1141,27 +1121,23 @@ impl Debug for ExtImageCopyCaptureFrameV1Error {
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ExtImageCopyCaptureFrameV1FailureReason(pub u32);
 
 impl ExtImageCopyCaptureFrameV1FailureReason {
     /// unknown runtime error
     ///
     /// An unspecified runtime error has occurred. The client may retry.
-    #[allow(dead_code)]
     pub const UNKNOWN: Self = Self(0);
 
     /// buffer constraints mismatch
     ///
     /// The buffer submitted by the client doesn't match the latest session
     /// constraints. The client should re-allocate its buffers and retry.
-    #[allow(dead_code)]
     pub const BUFFER_CONSTRAINTS: Self = Self(1);
 
     /// session is no longer available
     ///
     /// The session has stopped. See ext_image_copy_capture_session_v1.stopped.
-    #[allow(dead_code)]
     pub const STOPPED: Self = Self(2);
 }
 

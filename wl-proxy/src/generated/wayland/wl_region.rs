@@ -50,7 +50,6 @@ impl Debug for WlRegion {
 
 impl WlRegion {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy region
@@ -86,7 +85,6 @@ impl WlRegion {
     }
 
     /// Since when the add message is available.
-    #[allow(dead_code)]
     pub const MSG__ADD__SINCE: u32 = 1;
 
     /// add rectangle to region
@@ -147,7 +145,6 @@ impl WlRegion {
     }
 
     /// Since when the subtract message is available.
-    #[allow(dead_code)]
     pub const MSG__SUBTRACT__SINCE: u32 = 1;
 
     /// subtract rectangle from region
@@ -209,7 +206,6 @@ impl WlRegion {
 }
 
 /// A message handler for [WlRegion] proxies.
-#[allow(dead_code)]
 pub trait WlRegionHandler: Any {
     /// destroy region
     ///

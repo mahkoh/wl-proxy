@@ -59,7 +59,6 @@ impl Debug for ZwlrOutputHeadV1 {
 
 impl ZwlrOutputHeadV1 {
     /// Since when the name message is available.
-    #[allow(dead_code)]
     pub const MSG__NAME__SINCE: u32 = 1;
 
     /// head name
@@ -124,7 +123,6 @@ impl ZwlrOutputHeadV1 {
     }
 
     /// Since when the description message is available.
-    #[allow(dead_code)]
     pub const MSG__DESCRIPTION__SINCE: u32 = 1;
 
     /// head description
@@ -185,7 +183,6 @@ impl ZwlrOutputHeadV1 {
     }
 
     /// Since when the physical_size message is available.
-    #[allow(dead_code)]
     pub const MSG__PHYSICAL_SIZE__SINCE: u32 = 1;
 
     /// head physical size
@@ -244,7 +241,6 @@ impl ZwlrOutputHeadV1 {
     }
 
     /// Since when the mode message is available.
-    #[allow(dead_code)]
     pub const MSG__MODE__SINCE: u32 = 1;
 
     /// introduce a mode
@@ -294,7 +290,6 @@ impl ZwlrOutputHeadV1 {
     }
 
     /// Since when the enabled message is available.
-    #[allow(dead_code)]
     pub const MSG__ENABLED__SINCE: u32 = 1;
 
     /// head is enabled or disabled
@@ -346,7 +341,6 @@ impl ZwlrOutputHeadV1 {
     }
 
     /// Since when the current_mode message is available.
-    #[allow(dead_code)]
     pub const MSG__CURRENT_MODE__SINCE: u32 = 1;
 
     /// current mode
@@ -400,7 +394,6 @@ impl ZwlrOutputHeadV1 {
     }
 
     /// Since when the position message is available.
-    #[allow(dead_code)]
     pub const MSG__POSITION__SINCE: u32 = 1;
 
     /// current position
@@ -454,7 +447,6 @@ impl ZwlrOutputHeadV1 {
     }
 
     /// Since when the transform message is available.
-    #[allow(dead_code)]
     pub const MSG__TRANSFORM__SINCE: u32 = 1;
 
     /// current transformation
@@ -503,7 +495,6 @@ impl ZwlrOutputHeadV1 {
     }
 
     /// Since when the scale message is available.
-    #[allow(dead_code)]
     pub const MSG__SCALE__SINCE: u32 = 1;
 
     /// current scale
@@ -552,7 +543,6 @@ impl ZwlrOutputHeadV1 {
     }
 
     /// Since when the finished message is available.
-    #[allow(dead_code)]
     pub const MSG__FINISHED__SINCE: u32 = 1;
 
     /// the head has disappeared
@@ -591,7 +581,6 @@ impl ZwlrOutputHeadV1 {
     }
 
     /// Since when the make message is available.
-    #[allow(dead_code)]
     pub const MSG__MAKE__SINCE: u32 = 2;
 
     /// head manufacturer
@@ -660,7 +649,6 @@ impl ZwlrOutputHeadV1 {
     }
 
     /// Since when the model message is available.
-    #[allow(dead_code)]
     pub const MSG__MODEL__SINCE: u32 = 2;
 
     /// head model
@@ -729,7 +717,6 @@ impl ZwlrOutputHeadV1 {
     }
 
     /// Since when the serial_number message is available.
-    #[allow(dead_code)]
     pub const MSG__SERIAL_NUMBER__SINCE: u32 = 2;
 
     /// head serial number
@@ -796,7 +783,6 @@ impl ZwlrOutputHeadV1 {
     }
 
     /// Since when the release message is available.
-    #[allow(dead_code)]
     pub const MSG__RELEASE__SINCE: u32 = 3;
 
     /// destroy the head object
@@ -833,7 +819,6 @@ impl ZwlrOutputHeadV1 {
     }
 
     /// Since when the adaptive_sync message is available.
-    #[allow(dead_code)]
     pub const MSG__ADAPTIVE_SYNC__SINCE: u32 = 4;
 
     /// current adaptive sync state
@@ -884,7 +869,6 @@ impl ZwlrOutputHeadV1 {
 }
 
 /// A message handler for [ZwlrOutputHeadV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrOutputHeadV1Handler: Any {
     /// head name
     ///
@@ -1812,24 +1796,19 @@ impl Proxy for ZwlrOutputHeadV1 {
 
 impl ZwlrOutputHeadV1 {
     /// Since when the adaptive_sync_state.disabled enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ADAPTIVE_SYNC_STATE_DISABLED__SINCE: u32 = 1;
     /// Since when the adaptive_sync_state.enabled enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ADAPTIVE_SYNC_STATE_ENABLED__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwlrOutputHeadV1AdaptiveSyncState(pub u32);
 
 impl ZwlrOutputHeadV1AdaptiveSyncState {
     /// adaptive sync is disabled
-    #[allow(dead_code)]
     pub const DISABLED: Self = Self(0);
 
     /// adaptive sync is enabled
-    #[allow(dead_code)]
     pub const ENABLED: Self = Self(1);
 }
 

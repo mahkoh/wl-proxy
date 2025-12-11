@@ -55,7 +55,6 @@ impl Debug for ZxdgOutputV1 {
 
 impl ZxdgOutputV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the xdg_output object
@@ -92,7 +91,6 @@ impl ZxdgOutputV1 {
     }
 
     /// Since when the logical_position message is available.
-    #[allow(dead_code)]
     pub const MSG__LOGICAL_POSITION__SINCE: u32 = 1;
 
     /// position of the output within the global compositor space
@@ -150,7 +148,6 @@ impl ZxdgOutputV1 {
     }
 
     /// Since when the logical_size message is available.
-    #[allow(dead_code)]
     pub const MSG__LOGICAL_SIZE__SINCE: u32 = 1;
 
     /// size of the output in the global compositor space
@@ -232,11 +229,9 @@ impl ZxdgOutputV1 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// Since when the done message is deprecated.
-    #[allow(dead_code)]
     pub const MSG__DONE__DEPRECATED_SINCE: u32 = 3;
 
     /// all information about the output have been sent
@@ -281,7 +276,6 @@ impl ZxdgOutputV1 {
     }
 
     /// Since when the name message is available.
-    #[allow(dead_code)]
     pub const MSG__NAME__SINCE: u32 = 2;
 
     /// name of this output
@@ -349,7 +343,6 @@ impl ZxdgOutputV1 {
     }
 
     /// Since when the description message is available.
-    #[allow(dead_code)]
     pub const MSG__DESCRIPTION__SINCE: u32 = 2;
 
     /// human-readable description of this output
@@ -415,7 +408,6 @@ impl ZxdgOutputV1 {
 }
 
 /// A message handler for [ZxdgOutputV1] proxies.
-#[allow(dead_code)]
 pub trait ZxdgOutputV1Handler: Any {
     /// destroy the xdg_output object
     ///

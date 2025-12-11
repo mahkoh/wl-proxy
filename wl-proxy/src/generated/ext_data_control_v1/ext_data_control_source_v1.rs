@@ -50,7 +50,6 @@ impl Debug for ExtDataControlSourceV1 {
 
 impl ExtDataControlSourceV1 {
     /// Since when the offer message is available.
-    #[allow(dead_code)]
     pub const MSG__OFFER__SINCE: u32 = 1;
 
     /// add an offered MIME type
@@ -100,7 +99,6 @@ impl ExtDataControlSourceV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy this source
@@ -136,7 +134,6 @@ impl ExtDataControlSourceV1 {
     }
 
     /// Since when the send message is available.
-    #[allow(dead_code)]
     pub const MSG__SEND__SINCE: u32 = 1;
 
     /// send the data
@@ -190,7 +187,6 @@ impl ExtDataControlSourceV1 {
     }
 
     /// Since when the cancelled message is available.
-    #[allow(dead_code)]
     pub const MSG__CANCELLED__SINCE: u32 = 1;
 
     /// selection was cancelled
@@ -231,7 +227,6 @@ impl ExtDataControlSourceV1 {
 }
 
 /// A message handler for [ExtDataControlSourceV1] proxies.
-#[allow(dead_code)]
 pub trait ExtDataControlSourceV1Handler: Any {
     /// add an offered MIME type
     ///
@@ -520,17 +515,14 @@ impl Proxy for ExtDataControlSourceV1 {
 
 impl ExtDataControlSourceV1 {
     /// Since when the error.invalid_offer enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_OFFER__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ExtDataControlSourceV1Error(pub u32);
 
 impl ExtDataControlSourceV1Error {
     /// offer sent after ext_data_control_device.set_selection
-    #[allow(dead_code)]
     pub const INVALID_OFFER: Self = Self(1);
 }
 

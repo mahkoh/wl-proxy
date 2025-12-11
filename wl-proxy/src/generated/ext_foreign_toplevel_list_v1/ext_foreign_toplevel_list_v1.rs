@@ -62,7 +62,6 @@ impl Debug for ExtForeignToplevelListV1 {
 
 impl ExtForeignToplevelListV1 {
     /// Since when the toplevel message is available.
-    #[allow(dead_code)]
     pub const MSG__TOPLEVEL__SINCE: u32 = 1;
 
     /// a toplevel has been created
@@ -118,7 +117,6 @@ impl ExtForeignToplevelListV1 {
     }
 
     /// Since when the finished message is available.
-    #[allow(dead_code)]
     pub const MSG__FINISHED__SINCE: u32 = 1;
 
     /// the compositor has finished with the toplevel manager
@@ -159,7 +157,6 @@ impl ExtForeignToplevelListV1 {
     }
 
     /// Since when the stop message is available.
-    #[allow(dead_code)]
     pub const MSG__STOP__SINCE: u32 = 1;
 
     /// stop sending events
@@ -200,7 +197,6 @@ impl ExtForeignToplevelListV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the ext_foreign_toplevel_list_v1 object
@@ -243,7 +239,6 @@ impl ExtForeignToplevelListV1 {
 }
 
 /// A message handler for [ExtForeignToplevelListV1] proxies.
-#[allow(dead_code)]
 pub trait ExtForeignToplevelListV1Handler: Any {
     /// a toplevel has been created
     ///

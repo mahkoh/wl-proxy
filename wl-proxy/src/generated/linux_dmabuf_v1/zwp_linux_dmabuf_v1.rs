@@ -108,7 +108,6 @@ impl Debug for ZwpLinuxDmabufV1 {
 
 impl ZwpLinuxDmabufV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// unbind the factory
@@ -145,7 +144,6 @@ impl ZwpLinuxDmabufV1 {
     }
 
     /// Since when the create_params message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_PARAMS__SINCE: u32 = 1;
 
     /// create a temporary object for buffer parameters
@@ -195,11 +193,9 @@ impl ZwpLinuxDmabufV1 {
     }
 
     /// Since when the format message is available.
-    #[allow(dead_code)]
     pub const MSG__FORMAT__SINCE: u32 = 1;
 
     /// Since when the format message is deprecated.
-    #[allow(dead_code)]
     pub const MSG__FORMAT__DEPRECATED_SINCE: u32 = 4;
 
     /// supported buffer format
@@ -257,11 +253,9 @@ impl ZwpLinuxDmabufV1 {
     }
 
     /// Since when the modifier message is available.
-    #[allow(dead_code)]
     pub const MSG__MODIFIER__SINCE: u32 = 3;
 
     /// Since when the modifier message is deprecated.
-    #[allow(dead_code)]
     pub const MSG__MODIFIER__DEPRECATED_SINCE: u32 = 4;
 
     /// supported buffer format modifier
@@ -341,7 +335,6 @@ impl ZwpLinuxDmabufV1 {
     }
 
     /// Since when the get_default_feedback message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_DEFAULT_FEEDBACK__SINCE: u32 = 4;
 
     /// get default feedback
@@ -391,7 +384,6 @@ impl ZwpLinuxDmabufV1 {
     }
 
     /// Since when the get_surface_feedback message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_SURFACE_FEEDBACK__SINCE: u32 = 4;
 
     /// get feedback for a surface
@@ -458,7 +450,6 @@ impl ZwpLinuxDmabufV1 {
 }
 
 /// A message handler for [ZwpLinuxDmabufV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpLinuxDmabufV1Handler: Any {
     /// unbind the factory
     ///

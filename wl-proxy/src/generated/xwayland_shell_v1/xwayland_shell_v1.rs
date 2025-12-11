@@ -61,7 +61,6 @@ impl Debug for XwaylandShellV1 {
 
 impl XwaylandShellV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the Xwayland shell object
@@ -99,7 +98,6 @@ impl XwaylandShellV1 {
     }
 
     /// Since when the get_xwayland_surface message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_XWAYLAND_SURFACE__SINCE: u32 = 1;
 
     /// assign the xwayland_surface surface role
@@ -169,7 +167,6 @@ impl XwaylandShellV1 {
 }
 
 /// A message handler for [XwaylandShellV1] proxies.
-#[allow(dead_code)]
 pub trait XwaylandShellV1Handler: Any {
     /// destroy the Xwayland shell object
     ///
@@ -357,17 +354,14 @@ impl Proxy for XwaylandShellV1 {
 
 impl XwaylandShellV1 {
     /// Since when the error.role enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ROLE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct XwaylandShellV1Error(pub u32);
 
 impl XwaylandShellV1Error {
     /// given wl_surface has another role
-    #[allow(dead_code)]
     pub const ROLE: Self = Self(0);
 }
 

@@ -47,7 +47,6 @@ impl Debug for WpCommitTimerV1 {
 
 impl WpCommitTimerV1 {
     /// Since when the set_timestamp message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_TIMESTAMP__SINCE: u32 = 1;
 
     /// Specify time the following commit takes effect
@@ -116,7 +115,6 @@ impl WpCommitTimerV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// Destroy the timer
@@ -156,7 +154,6 @@ impl WpCommitTimerV1 {
 }
 
 /// A message handler for [WpCommitTimerV1] proxies.
-#[allow(dead_code)]
 pub trait WpCommitTimerV1Handler: Any {
     /// Specify time the following commit takes effect
     ///
@@ -337,31 +334,24 @@ impl Proxy for WpCommitTimerV1 {
 
 impl WpCommitTimerV1 {
     /// Since when the error.invalid_timestamp enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_TIMESTAMP__SINCE: u32 = 1;
     /// Since when the error.timestamp_exists enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_TIMESTAMP_EXISTS__SINCE: u32 = 1;
     /// Since when the error.surface_destroyed enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_SURFACE_DESTROYED__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpCommitTimerV1Error(pub u32);
 
 impl WpCommitTimerV1Error {
     /// timestamp contains an invalid value
-    #[allow(dead_code)]
     pub const INVALID_TIMESTAMP: Self = Self(0);
 
     /// timestamp exists
-    #[allow(dead_code)]
     pub const TIMESTAMP_EXISTS: Self = Self(1);
 
     /// the associated surface no longer exists
-    #[allow(dead_code)]
     pub const SURFACE_DESTROYED: Self = Self(2);
 }
 

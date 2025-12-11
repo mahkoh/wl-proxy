@@ -88,7 +88,6 @@ impl Debug for WlSurface {
 
 impl WlSurface {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// delete surface
@@ -124,7 +123,6 @@ impl WlSurface {
     }
 
     /// Since when the attach message is available.
-    #[allow(dead_code)]
     pub const MSG__ATTACH__SINCE: u32 = 1;
 
     /// set the surface contents
@@ -252,7 +250,6 @@ impl WlSurface {
     }
 
     /// Since when the damage message is available.
-    #[allow(dead_code)]
     pub const MSG__DAMAGE__SINCE: u32 = 1;
 
     /// mark part of the surface damaged
@@ -333,7 +330,6 @@ impl WlSurface {
     }
 
     /// Since when the frame message is available.
-    #[allow(dead_code)]
     pub const MSG__FRAME__SINCE: u32 = 1;
 
     /// request a frame throttling hint
@@ -411,7 +407,6 @@ impl WlSurface {
     }
 
     /// Since when the set_opaque_region message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_OPAQUE_REGION__SINCE: u32 = 1;
 
     /// set opaque region
@@ -488,7 +483,6 @@ impl WlSurface {
     }
 
     /// Since when the set_input_region message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_INPUT_REGION__SINCE: u32 = 1;
 
     /// set input region
@@ -563,7 +557,6 @@ impl WlSurface {
     }
 
     /// Since when the commit message is available.
-    #[allow(dead_code)]
     pub const MSG__COMMIT__SINCE: u32 = 1;
 
     /// commit pending surface state
@@ -616,7 +609,6 @@ impl WlSurface {
     }
 
     /// Since when the enter message is available.
-    #[allow(dead_code)]
     pub const MSG__ENTER__SINCE: u32 = 1;
 
     /// surface enters an output
@@ -673,7 +665,6 @@ impl WlSurface {
     }
 
     /// Since when the leave message is available.
-    #[allow(dead_code)]
     pub const MSG__LEAVE__SINCE: u32 = 1;
 
     /// surface leaves an output
@@ -734,7 +725,6 @@ impl WlSurface {
     }
 
     /// Since when the set_buffer_transform message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_BUFFER_TRANSFORM__SINCE: u32 = 2;
 
     /// sets the buffer transformation
@@ -810,7 +800,6 @@ impl WlSurface {
     }
 
     /// Since when the set_buffer_scale message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_BUFFER_SCALE__SINCE: u32 = 3;
 
     /// sets the buffer scaling factor
@@ -878,7 +867,6 @@ impl WlSurface {
     }
 
     /// Since when the damage_buffer message is available.
-    #[allow(dead_code)]
     pub const MSG__DAMAGE_BUFFER__SINCE: u32 = 4;
 
     /// mark part of the surface damaged using buffer coordinates
@@ -970,7 +958,6 @@ impl WlSurface {
     }
 
     /// Since when the offset message is available.
-    #[allow(dead_code)]
     pub const MSG__OFFSET__SINCE: u32 = 5;
 
     /// set the surface contents offset
@@ -1035,7 +1022,6 @@ impl WlSurface {
     }
 
     /// Since when the preferred_buffer_scale message is available.
-    #[allow(dead_code)]
     pub const MSG__PREFERRED_BUFFER_SCALE__SINCE: u32 = 6;
 
     /// preferred buffer scale for the surface
@@ -1094,7 +1080,6 @@ impl WlSurface {
     }
 
     /// Since when the preferred_buffer_transform message is available.
-    #[allow(dead_code)]
     pub const MSG__PREFERRED_BUFFER_TRANSFORM__SINCE: u32 = 6;
 
     /// preferred buffer transform for the surface
@@ -1151,7 +1136,6 @@ impl WlSurface {
 }
 
 /// A message handler for [WlSurface] proxies.
-#[allow(dead_code)]
 pub trait WlSurfaceHandler: Any {
     /// delete surface
     ///
@@ -2274,19 +2258,14 @@ impl Proxy for WlSurface {
 
 impl WlSurface {
     /// Since when the error.invalid_scale enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_SCALE__SINCE: u32 = 1;
     /// Since when the error.invalid_transform enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_TRANSFORM__SINCE: u32 = 1;
     /// Since when the error.invalid_size enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_SIZE__SINCE: u32 = 1;
     /// Since when the error.invalid_offset enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_OFFSET__SINCE: u32 = 1;
     /// Since when the error.defunct_role_object enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_DEFUNCT_ROLE_OBJECT__SINCE: u32 = 1;
 }
 
@@ -2294,28 +2273,22 @@ impl WlSurface {
 ///
 /// These errors can be emitted in response to wl_surface requests.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlSurfaceError(pub u32);
 
 impl WlSurfaceError {
     /// buffer scale value is invalid
-    #[allow(dead_code)]
     pub const INVALID_SCALE: Self = Self(0);
 
     /// buffer transform value is invalid
-    #[allow(dead_code)]
     pub const INVALID_TRANSFORM: Self = Self(1);
 
     /// buffer size is invalid
-    #[allow(dead_code)]
     pub const INVALID_SIZE: Self = Self(2);
 
     /// buffer offset is invalid
-    #[allow(dead_code)]
     pub const INVALID_OFFSET: Self = Self(3);
 
     /// surface was destroyed before its role object
-    #[allow(dead_code)]
     pub const DEFUNCT_ROLE_OBJECT: Self = Self(4);
 }
 

@@ -53,7 +53,6 @@ impl Debug for ExtImageCaptureSourceV1 {
 
 impl ExtImageCaptureSourceV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// delete this object
@@ -91,7 +90,6 @@ impl ExtImageCaptureSourceV1 {
 }
 
 /// A message handler for [ExtImageCaptureSourceV1] proxies.
-#[allow(dead_code)]
 pub trait ExtImageCaptureSourceV1Handler: Any {
     /// delete this object
     ///

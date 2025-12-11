@@ -65,7 +65,6 @@ impl Debug for XdgPositioner {
 
 impl XdgPositioner {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the xdg_positioner object
@@ -101,7 +100,6 @@ impl XdgPositioner {
     }
 
     /// Since when the set_size message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_SIZE__SINCE: u32 = 1;
 
     /// set the size of the to-be positioned rectangle
@@ -156,7 +154,6 @@ impl XdgPositioner {
     }
 
     /// Since when the set_anchor_rect message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_ANCHOR_RECT__SINCE: u32 = 1;
 
     /// set the anchor rectangle within the parent surface
@@ -226,7 +223,6 @@ impl XdgPositioner {
     }
 
     /// Since when the set_anchor message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_ANCHOR__SINCE: u32 = 1;
 
     /// set anchor rectangle anchor
@@ -277,7 +273,6 @@ impl XdgPositioner {
     }
 
     /// Since when the set_gravity message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_GRAVITY__SINCE: u32 = 1;
 
     /// set child surface gravity
@@ -329,7 +324,6 @@ impl XdgPositioner {
     }
 
     /// Since when the set_constraint_adjustment message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_CONSTRAINT_ADJUSTMENT__SINCE: u32 = 1;
 
     /// set the adjustment to be done when constrained
@@ -387,7 +381,6 @@ impl XdgPositioner {
     }
 
     /// Since when the set_offset message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_OFFSET__SINCE: u32 = 1;
 
     /// set surface position offset
@@ -448,7 +441,6 @@ impl XdgPositioner {
     }
 
     /// Since when the set_reactive message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_REACTIVE__SINCE: u32 = 3;
 
     /// continuously reconstrain the surface
@@ -488,7 +480,6 @@ impl XdgPositioner {
     }
 
     /// Since when the set_parent_size message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_PARENT_SIZE__SINCE: u32 = 3;
 
     ///
@@ -544,7 +535,6 @@ impl XdgPositioner {
     }
 
     /// Since when the set_parent_configure message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_PARENT_CONFIGURE__SINCE: u32 = 3;
 
     /// set parent configure this is a response to
@@ -594,7 +584,6 @@ impl XdgPositioner {
 }
 
 /// A message handler for [XdgPositioner] proxies.
-#[allow(dead_code)]
 pub trait XdgPositionerHandler: Any {
     /// destroy the xdg_positioner object
     ///
@@ -1159,95 +1148,67 @@ impl Proxy for XdgPositioner {
 
 impl XdgPositioner {
     /// Since when the error.invalid_input enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_INPUT__SINCE: u32 = 1;
 
     /// Since when the anchor.none enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ANCHOR_NONE__SINCE: u32 = 1;
     /// Since when the anchor.top enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ANCHOR_TOP__SINCE: u32 = 1;
     /// Since when the anchor.bottom enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ANCHOR_BOTTOM__SINCE: u32 = 1;
     /// Since when the anchor.left enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ANCHOR_LEFT__SINCE: u32 = 1;
     /// Since when the anchor.right enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ANCHOR_RIGHT__SINCE: u32 = 1;
     /// Since when the anchor.top_left enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ANCHOR_TOP_LEFT__SINCE: u32 = 1;
     /// Since when the anchor.bottom_left enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ANCHOR_BOTTOM_LEFT__SINCE: u32 = 1;
     /// Since when the anchor.top_right enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ANCHOR_TOP_RIGHT__SINCE: u32 = 1;
     /// Since when the anchor.bottom_right enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ANCHOR_BOTTOM_RIGHT__SINCE: u32 = 1;
 
     /// Since when the gravity.none enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__GRAVITY_NONE__SINCE: u32 = 1;
     /// Since when the gravity.top enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__GRAVITY_TOP__SINCE: u32 = 1;
     /// Since when the gravity.bottom enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__GRAVITY_BOTTOM__SINCE: u32 = 1;
     /// Since when the gravity.left enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__GRAVITY_LEFT__SINCE: u32 = 1;
     /// Since when the gravity.right enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__GRAVITY_RIGHT__SINCE: u32 = 1;
     /// Since when the gravity.top_left enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__GRAVITY_TOP_LEFT__SINCE: u32 = 1;
     /// Since when the gravity.bottom_left enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__GRAVITY_BOTTOM_LEFT__SINCE: u32 = 1;
     /// Since when the gravity.top_right enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__GRAVITY_TOP_RIGHT__SINCE: u32 = 1;
     /// Since when the gravity.bottom_right enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__GRAVITY_BOTTOM_RIGHT__SINCE: u32 = 1;
 
     /// Since when the constraint_adjustment.none enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONSTRAINT_ADJUSTMENT_NONE__SINCE: u32 = 1;
     /// Since when the constraint_adjustment.slide_x enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONSTRAINT_ADJUSTMENT_SLIDE_X__SINCE: u32 = 1;
     /// Since when the constraint_adjustment.slide_y enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONSTRAINT_ADJUSTMENT_SLIDE_Y__SINCE: u32 = 1;
     /// Since when the constraint_adjustment.flip_x enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONSTRAINT_ADJUSTMENT_FLIP_X__SINCE: u32 = 1;
     /// Since when the constraint_adjustment.flip_y enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONSTRAINT_ADJUSTMENT_FLIP_Y__SINCE: u32 = 1;
     /// Since when the constraint_adjustment.resize_x enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONSTRAINT_ADJUSTMENT_RESIZE_X__SINCE: u32 = 1;
     /// Since when the constraint_adjustment.resize_y enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CONSTRAINT_ADJUSTMENT_RESIZE_Y__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct XdgPositionerError(pub u32);
 
 impl XdgPositionerError {
     /// invalid input provided
-    #[allow(dead_code)]
     pub const INVALID_INPUT: Self = Self(0);
 }
 
@@ -1262,35 +1223,25 @@ impl Debug for XdgPositionerError {
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct XdgPositionerAnchor(pub u32);
 
 impl XdgPositionerAnchor {
-    #[allow(dead_code)]
     pub const NONE: Self = Self(0);
 
-    #[allow(dead_code)]
     pub const TOP: Self = Self(1);
 
-    #[allow(dead_code)]
     pub const BOTTOM: Self = Self(2);
 
-    #[allow(dead_code)]
     pub const LEFT: Self = Self(3);
 
-    #[allow(dead_code)]
     pub const RIGHT: Self = Self(4);
 
-    #[allow(dead_code)]
     pub const TOP_LEFT: Self = Self(5);
 
-    #[allow(dead_code)]
     pub const BOTTOM_LEFT: Self = Self(6);
 
-    #[allow(dead_code)]
     pub const TOP_RIGHT: Self = Self(7);
 
-    #[allow(dead_code)]
     pub const BOTTOM_RIGHT: Self = Self(8);
 }
 
@@ -1313,35 +1264,25 @@ impl Debug for XdgPositionerAnchor {
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct XdgPositionerGravity(pub u32);
 
 impl XdgPositionerGravity {
-    #[allow(dead_code)]
     pub const NONE: Self = Self(0);
 
-    #[allow(dead_code)]
     pub const TOP: Self = Self(1);
 
-    #[allow(dead_code)]
     pub const BOTTOM: Self = Self(2);
 
-    #[allow(dead_code)]
     pub const LEFT: Self = Self(3);
 
-    #[allow(dead_code)]
     pub const RIGHT: Self = Self(4);
 
-    #[allow(dead_code)]
     pub const TOP_LEFT: Self = Self(5);
 
-    #[allow(dead_code)]
     pub const BOTTOM_LEFT: Self = Self(6);
 
-    #[allow(dead_code)]
     pub const TOP_RIGHT: Self = Self(7);
 
-    #[allow(dead_code)]
     pub const BOTTOM_RIGHT: Self = Self(8);
 }
 
@@ -1378,7 +1319,6 @@ impl Debug for XdgPositionerGravity {
 /// Flip, 2) Slide, 3) Resize.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct XdgPositionerConstraintAdjustment(pub u32);
 
 /// An iterator over the set bits in a [XdgPositionerConstraintAdjustment].
@@ -1392,7 +1332,6 @@ impl XdgPositionerConstraintAdjustment {
     ///
     /// Don't alter the surface position even if it is constrained on some
     /// axis, for example partially outside the edge of an output.
-    #[allow(dead_code)]
     pub const NONE: Self = Self(0);
 
     /// move along the x axis until unconstrained
@@ -1408,7 +1347,6 @@ impl XdgPositionerConstraintAdjustment {
     /// x axis until either the edge in the direction of the gravity is
     /// unconstrained or the edge in the opposite direction of the gravity is
     /// constrained.
-    #[allow(dead_code)]
     pub const SLIDE_X: Self = Self(1);
 
     /// move along the y axis until unconstrained
@@ -1424,7 +1362,6 @@ impl XdgPositionerConstraintAdjustment {
     /// y axis until either the edge in the direction of the gravity is
     /// unconstrained or the edge in the opposite direction of the gravity is
     /// constrained.
-    #[allow(dead_code)]
     pub const SLIDE_Y: Self = Self(2);
 
     /// invert the anchor and gravity on the x axis
@@ -1437,7 +1374,6 @@ impl XdgPositionerConstraintAdjustment {
     /// If the adjusted position also ends up being constrained, the resulting
     /// position of the flip_x adjustment will be the one before the
     /// adjustment.
-    #[allow(dead_code)]
     pub const FLIP_X: Self = Self(4);
 
     /// invert the anchor and gravity on the y axis
@@ -1454,24 +1390,20 @@ impl XdgPositionerConstraintAdjustment {
     /// If the adjusted position also ends up being constrained, the resulting
     /// position of the flip_y adjustment will be the one before the
     /// adjustment.
-    #[allow(dead_code)]
     pub const FLIP_Y: Self = Self(8);
 
     /// horizontally resize the surface
     ///
     /// Resize the surface horizontally so that it is completely
     /// unconstrained.
-    #[allow(dead_code)]
     pub const RESIZE_X: Self = Self(16);
 
     /// vertically resize the surface
     ///
     /// Resize the surface vertically so that it is completely unconstrained.
-    #[allow(dead_code)]
     pub const RESIZE_Y: Self = Self(32);
 }
 
-#[allow(dead_code)]
 impl XdgPositionerConstraintAdjustment {
     #[inline]
     pub const fn empty() -> Self {

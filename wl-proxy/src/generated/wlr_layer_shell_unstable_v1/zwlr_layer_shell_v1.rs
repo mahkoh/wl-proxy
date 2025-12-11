@@ -53,7 +53,6 @@ impl Debug for ZwlrLayerShellV1 {
 
 impl ZwlrLayerShellV1 {
     /// Since when the get_layer_surface message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_LAYER_SURFACE__SINCE: u32 = 1;
 
     /// create a layer_surface from a surface
@@ -157,7 +156,6 @@ impl ZwlrLayerShellV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 3;
 
     /// destroy the layer_shell object
@@ -196,7 +194,6 @@ impl ZwlrLayerShellV1 {
 }
 
 /// A message handler for [ZwlrLayerShellV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrLayerShellV1Handler: Any {
     /// create a layer_surface from a surface
     ///
@@ -456,44 +453,33 @@ impl Proxy for ZwlrLayerShellV1 {
 
 impl ZwlrLayerShellV1 {
     /// Since when the error.role enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ROLE__SINCE: u32 = 1;
     /// Since when the error.invalid_layer enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_LAYER__SINCE: u32 = 1;
     /// Since when the error.already_constructed enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_CONSTRUCTED__SINCE: u32 = 1;
 
     /// Since when the layer.background enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__LAYER_BACKGROUND__SINCE: u32 = 1;
     /// Since when the layer.bottom enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__LAYER_BOTTOM__SINCE: u32 = 1;
     /// Since when the layer.top enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__LAYER_TOP__SINCE: u32 = 1;
     /// Since when the layer.overlay enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__LAYER_OVERLAY__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwlrLayerShellV1Error(pub u32);
 
 impl ZwlrLayerShellV1Error {
     /// wl_surface has another role
-    #[allow(dead_code)]
     pub const ROLE: Self = Self(0);
 
     /// layer value is invalid
-    #[allow(dead_code)]
     pub const INVALID_LAYER: Self = Self(1);
 
     /// wl_surface has a buffer attached or committed
-    #[allow(dead_code)]
     pub const ALREADY_CONSTRUCTED: Self = Self(2);
 }
 
@@ -518,20 +504,15 @@ impl Debug for ZwlrLayerShellV1Error {
 /// Multiple surfaces can share a single layer, and ordering within a
 /// single layer is undefined.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwlrLayerShellV1Layer(pub u32);
 
 impl ZwlrLayerShellV1Layer {
-    #[allow(dead_code)]
     pub const BACKGROUND: Self = Self(0);
 
-    #[allow(dead_code)]
     pub const BOTTOM: Self = Self(1);
 
-    #[allow(dead_code)]
     pub const TOP: Self = Self(2);
 
-    #[allow(dead_code)]
     pub const OVERLAY: Self = Self(3);
 }
 

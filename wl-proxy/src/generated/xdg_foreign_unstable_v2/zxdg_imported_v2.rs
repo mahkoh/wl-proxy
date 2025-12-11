@@ -49,7 +49,6 @@ impl Debug for ZxdgImportedV2 {
 
 impl ZxdgImportedV2 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the xdg_imported object
@@ -87,7 +86,6 @@ impl ZxdgImportedV2 {
     }
 
     /// Since when the set_parent_of message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_PARENT_OF__SINCE: u32 = 1;
 
     /// set as the parent of some surface
@@ -142,7 +140,6 @@ impl ZxdgImportedV2 {
     }
 
     /// Since when the destroyed message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROYED__SINCE: u32 = 1;
 
     /// the imported surface handle has been destroyed
@@ -183,7 +180,6 @@ impl ZxdgImportedV2 {
 }
 
 /// A message handler for [ZxdgImportedV2] proxies.
-#[allow(dead_code)]
 pub trait ZxdgImportedV2Handler: Any {
     /// destroy the xdg_imported object
     ///
@@ -396,7 +392,6 @@ impl Proxy for ZxdgImportedV2 {
 
 impl ZxdgImportedV2 {
     /// Since when the error.invalid_surface enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_SURFACE__SINCE: u32 = 1;
 }
 
@@ -405,12 +400,10 @@ impl ZxdgImportedV2 {
 /// These errors can be emitted in response to invalid xdg_imported
 /// requests.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZxdgImportedV2Error(pub u32);
 
 impl ZxdgImportedV2Error {
     /// surface is not an xdg_toplevel
-    #[allow(dead_code)]
     pub const INVALID_SURFACE: Self = Self(0);
 }
 

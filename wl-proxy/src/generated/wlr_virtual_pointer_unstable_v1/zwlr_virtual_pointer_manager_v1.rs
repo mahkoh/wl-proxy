@@ -47,7 +47,6 @@ impl Debug for ZwlrVirtualPointerManagerV1 {
 
 impl ZwlrVirtualPointerManagerV1 {
     /// Since when the create_virtual_pointer message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_VIRTUAL_POINTER__SINCE: u32 = 1;
 
     /// Create a new virtual pointer
@@ -112,7 +111,6 @@ impl ZwlrVirtualPointerManagerV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the virtual pointer manager
@@ -146,7 +144,6 @@ impl ZwlrVirtualPointerManagerV1 {
     }
 
     /// Since when the create_virtual_pointer_with_output message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_VIRTUAL_POINTER_WITH_OUTPUT__SINCE: u32 = 2;
 
     /// Create a new virtual pointer
@@ -227,7 +224,6 @@ impl ZwlrVirtualPointerManagerV1 {
 }
 
 /// A message handler for [ZwlrVirtualPointerManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrVirtualPointerManagerV1Handler: Any {
     /// Create a new virtual pointer
     ///

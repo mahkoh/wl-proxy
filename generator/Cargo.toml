@@ -8,3 +8,6 @@ quick-xml = "0.38.4"
 thiserror = "2.0.12"
 debug-fn = "1.0.0"
 phf = { version = "0.13.1", features = ["macros"] }
+
+[[bin]]
+name = "generator"

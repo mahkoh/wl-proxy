@@ -57,7 +57,6 @@ impl Debug for ExtWorkspaceGroupHandleV1 {
 
 impl ExtWorkspaceGroupHandleV1 {
     /// Since when the capabilities message is available.
-    #[allow(dead_code)]
     pub const MSG__CAPABILITIES__SINCE: u32 = 1;
 
     /// compositor capabilities
@@ -117,7 +116,6 @@ impl ExtWorkspaceGroupHandleV1 {
     }
 
     /// Since when the output_enter message is available.
-    #[allow(dead_code)]
     pub const MSG__OUTPUT_ENTER__SINCE: u32 = 1;
 
     /// output assigned to workspace group
@@ -172,7 +170,6 @@ impl ExtWorkspaceGroupHandleV1 {
     }
 
     /// Since when the output_leave message is available.
-    #[allow(dead_code)]
     pub const MSG__OUTPUT_LEAVE__SINCE: u32 = 1;
 
     /// output removed from workspace group
@@ -226,7 +223,6 @@ impl ExtWorkspaceGroupHandleV1 {
     }
 
     /// Since when the workspace_enter message is available.
-    #[allow(dead_code)]
     pub const MSG__WORKSPACE_ENTER__SINCE: u32 = 1;
 
     /// workspace added to workspace group
@@ -281,7 +277,6 @@ impl ExtWorkspaceGroupHandleV1 {
     }
 
     /// Since when the workspace_leave message is available.
-    #[allow(dead_code)]
     pub const MSG__WORKSPACE_LEAVE__SINCE: u32 = 1;
 
     /// workspace removed from workspace group
@@ -334,7 +329,6 @@ impl ExtWorkspaceGroupHandleV1 {
     }
 
     /// Since when the removed message is available.
-    #[allow(dead_code)]
     pub const MSG__REMOVED__SINCE: u32 = 1;
 
     /// this workspace group has been removed
@@ -378,7 +372,6 @@ impl ExtWorkspaceGroupHandleV1 {
     }
 
     /// Since when the create_workspace message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_WORKSPACE__SINCE: u32 = 1;
 
     /// create a new workspace
@@ -428,7 +421,6 @@ impl ExtWorkspaceGroupHandleV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the ext_workspace_group_handle_v1 object
@@ -469,7 +461,6 @@ impl ExtWorkspaceGroupHandleV1 {
 }
 
 /// A message handler for [ExtWorkspaceGroupHandleV1] proxies.
-#[allow(dead_code)]
 pub trait ExtWorkspaceGroupHandleV1Handler: Any {
     /// compositor capabilities
     ///
@@ -991,13 +982,11 @@ impl Proxy for ExtWorkspaceGroupHandleV1 {
 
 impl ExtWorkspaceGroupHandleV1 {
     /// Since when the group_capabilities.create_workspace enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__GROUP_CAPABILITIES_CREATE_WORKSPACE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct ExtWorkspaceGroupHandleV1GroupCapabilities(pub u32);
 
 /// An iterator over the set bits in a [ExtWorkspaceGroupHandleV1GroupCapabilities].
@@ -1008,11 +997,9 @@ pub struct ExtWorkspaceGroupHandleV1GroupCapabilitiesIter(pub u32);
 
 impl ExtWorkspaceGroupHandleV1GroupCapabilities {
     /// create_workspace request is available
-    #[allow(dead_code)]
     pub const CREATE_WORKSPACE: Self = Self(1);
 }
 
-#[allow(dead_code)]
 impl ExtWorkspaceGroupHandleV1GroupCapabilities {
     #[inline]
     pub const fn empty() -> Self {

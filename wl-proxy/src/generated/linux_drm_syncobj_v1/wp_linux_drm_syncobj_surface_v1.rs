@@ -71,7 +71,6 @@ impl Debug for WpLinuxDrmSyncobjSurfaceV1 {
 
 impl WpLinuxDrmSyncobjSurfaceV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the surface synchronization object
@@ -112,7 +111,6 @@ impl WpLinuxDrmSyncobjSurfaceV1 {
     }
 
     /// Since when the set_acquire_point message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_ACQUIRE_POINT__SINCE: u32 = 1;
 
     /// set the acquire timeline point
@@ -194,7 +192,6 @@ impl WpLinuxDrmSyncobjSurfaceV1 {
     }
 
     /// Since when the set_release_point message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_RELEASE_POINT__SINCE: u32 = 1;
 
     /// set the release timeline point
@@ -298,7 +295,6 @@ impl WpLinuxDrmSyncobjSurfaceV1 {
 }
 
 /// A message handler for [WpLinuxDrmSyncobjSurfaceV1] proxies.
-#[allow(dead_code)]
 pub trait WpLinuxDrmSyncobjSurfaceV1Handler: Any {
     /// destroy the surface synchronization object
     ///
@@ -603,52 +599,39 @@ impl Proxy for WpLinuxDrmSyncobjSurfaceV1 {
 
 impl WpLinuxDrmSyncobjSurfaceV1 {
     /// Since when the error.no_surface enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_NO_SURFACE__SINCE: u32 = 1;
     /// Since when the error.unsupported_buffer enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_UNSUPPORTED_BUFFER__SINCE: u32 = 1;
     /// Since when the error.no_buffer enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_NO_BUFFER__SINCE: u32 = 1;
     /// Since when the error.no_acquire_point enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_NO_ACQUIRE_POINT__SINCE: u32 = 1;
     /// Since when the error.no_release_point enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_NO_RELEASE_POINT__SINCE: u32 = 1;
     /// Since when the error.conflicting_points enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_CONFLICTING_POINTS__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpLinuxDrmSyncobjSurfaceV1Error(pub u32);
 
 impl WpLinuxDrmSyncobjSurfaceV1Error {
     /// the associated wl_surface was destroyed
-    #[allow(dead_code)]
     pub const NO_SURFACE: Self = Self(1);
 
     /// the buffer does not support explicit synchronization
-    #[allow(dead_code)]
     pub const UNSUPPORTED_BUFFER: Self = Self(2);
 
     /// no buffer was attached
-    #[allow(dead_code)]
     pub const NO_BUFFER: Self = Self(3);
 
     /// no acquire timeline point was set
-    #[allow(dead_code)]
     pub const NO_ACQUIRE_POINT: Self = Self(4);
 
     /// no release timeline point was set
-    #[allow(dead_code)]
     pub const NO_RELEASE_POINT: Self = Self(5);
 
     /// acquire and release timeline points are in conflict
-    #[allow(dead_code)]
     pub const CONFLICTING_POINTS: Self = Self(6);
 }
 

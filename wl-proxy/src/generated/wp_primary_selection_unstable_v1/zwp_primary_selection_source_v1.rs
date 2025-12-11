@@ -49,7 +49,6 @@ impl Debug for ZwpPrimarySelectionSourceV1 {
 
 impl ZwpPrimarySelectionSourceV1 {
     /// Since when the offer message is available.
-    #[allow(dead_code)]
     pub const MSG__OFFER__SINCE: u32 = 1;
 
     /// add an offered mime type
@@ -96,7 +95,6 @@ impl ZwpPrimarySelectionSourceV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the primary selection source
@@ -132,7 +130,6 @@ impl ZwpPrimarySelectionSourceV1 {
     }
 
     /// Since when the send message is available.
-    #[allow(dead_code)]
     pub const MSG__SEND__SINCE: u32 = 1;
 
     /// send the primary selection contents
@@ -187,7 +184,6 @@ impl ZwpPrimarySelectionSourceV1 {
     }
 
     /// Since when the cancelled message is available.
-    #[allow(dead_code)]
     pub const MSG__CANCELLED__SINCE: u32 = 1;
 
     /// request for primary selection contents was canceled
@@ -226,7 +222,6 @@ impl ZwpPrimarySelectionSourceV1 {
 }
 
 /// A message handler for [ZwpPrimarySelectionSourceV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpPrimarySelectionSourceV1Handler: Any {
     /// add an offered mime type
     ///

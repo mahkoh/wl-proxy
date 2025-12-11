@@ -57,7 +57,6 @@ impl Debug for WpFifoManagerV1 {
 
 impl WpFifoManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// unbind from the manager interface
@@ -95,7 +94,6 @@ impl WpFifoManagerV1 {
     }
 
     /// Since when the get_fifo message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_FIFO__SINCE: u32 = 1;
 
     /// request fifo interface for surface
@@ -164,7 +162,6 @@ impl WpFifoManagerV1 {
 }
 
 /// A message handler for [WpFifoManagerV1] proxies.
-#[allow(dead_code)]
 pub trait WpFifoManagerV1Handler: Any {
     /// unbind from the manager interface
     ///
@@ -351,7 +348,6 @@ impl Proxy for WpFifoManagerV1 {
 
 impl WpFifoManagerV1 {
     /// Since when the error.already_exists enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_EXISTS__SINCE: u32 = 1;
 }
 
@@ -360,12 +356,10 @@ impl WpFifoManagerV1 {
 /// These fatal protocol errors may be emitted in response to
 /// illegal requests.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpFifoManagerV1Error(pub u32);
 
 impl WpFifoManagerV1Error {
     /// fifo manager already exists for surface
-    #[allow(dead_code)]
     pub const ALREADY_EXISTS: Self = Self(0);
 }
 

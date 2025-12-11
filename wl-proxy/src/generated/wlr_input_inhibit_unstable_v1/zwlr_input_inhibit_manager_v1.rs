@@ -53,7 +53,6 @@ impl Debug for ZwlrInputInhibitManagerV1 {
 
 impl ZwlrInputInhibitManagerV1 {
     /// Since when the get_inhibitor message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_INHIBITOR__SINCE: u32 = 1;
 
     /// inhibit input to other clients
@@ -102,7 +101,6 @@ impl ZwlrInputInhibitManagerV1 {
 }
 
 /// A message handler for [ZwlrInputInhibitManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrInputInhibitManagerV1Handler: Any {
     /// inhibit input to other clients
     ///
@@ -232,17 +230,14 @@ impl Proxy for ZwlrInputInhibitManagerV1 {
 
 impl ZwlrInputInhibitManagerV1 {
     /// Since when the error.already_inhibited enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_INHIBITED__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwlrInputInhibitManagerV1Error(pub u32);
 
 impl ZwlrInputInhibitManagerV1Error {
     /// an input inhibitor is already in use on the compositor
-    #[allow(dead_code)]
     pub const ALREADY_INHIBITED: Self = Self(0);
 }
 

@@ -64,7 +64,6 @@ impl Debug for WpImageDescriptionCreatorIccV1 {
 
 impl WpImageDescriptionCreatorIccV1 {
     /// Since when the create message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE__SINCE: u32 = 1;
 
     /// Create the image description object from ICC data
@@ -130,7 +129,6 @@ impl WpImageDescriptionCreatorIccV1 {
     }
 
     /// Since when the set_icc_file message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_ICC_FILE__SINCE: u32 = 1;
 
     /// set the ICC profile file
@@ -225,7 +223,6 @@ impl WpImageDescriptionCreatorIccV1 {
 }
 
 /// A message handler for [WpImageDescriptionCreatorIccV1] proxies.
-#[allow(dead_code)]
 pub trait WpImageDescriptionCreatorIccV1Handler: Any {
     /// Create the image description object from ICC data
     ///
@@ -462,46 +459,35 @@ impl Proxy for WpImageDescriptionCreatorIccV1 {
 
 impl WpImageDescriptionCreatorIccV1 {
     /// Since when the error.incomplete_set enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INCOMPLETE_SET__SINCE: u32 = 1;
     /// Since when the error.already_set enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_SET__SINCE: u32 = 1;
     /// Since when the error.bad_fd enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_BAD_FD__SINCE: u32 = 1;
     /// Since when the error.bad_size enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_BAD_SIZE__SINCE: u32 = 1;
     /// Since when the error.out_of_file enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_OUT_OF_FILE__SINCE: u32 = 1;
 }
 
 /// protocol errors
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpImageDescriptionCreatorIccV1Error(pub u32);
 
 impl WpImageDescriptionCreatorIccV1Error {
     /// incomplete parameter set
-    #[allow(dead_code)]
     pub const INCOMPLETE_SET: Self = Self(0);
 
     /// property already set
-    #[allow(dead_code)]
     pub const ALREADY_SET: Self = Self(1);
 
     /// fd not seekable and readable
-    #[allow(dead_code)]
     pub const BAD_FD: Self = Self(2);
 
     /// no or too much data
-    #[allow(dead_code)]
     pub const BAD_SIZE: Self = Self(3);
 
     /// offset + length exceeds file size
-    #[allow(dead_code)]
     pub const OUT_OF_FILE: Self = Self(4);
 }
 

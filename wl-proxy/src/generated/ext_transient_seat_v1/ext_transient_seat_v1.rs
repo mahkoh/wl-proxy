@@ -48,7 +48,6 @@ impl Debug for ExtTransientSeatV1 {
 
 impl ExtTransientSeatV1 {
     /// Since when the ready message is available.
-    #[allow(dead_code)]
     pub const MSG__READY__SINCE: u32 = 1;
 
     /// transient seat is ready
@@ -101,7 +100,6 @@ impl ExtTransientSeatV1 {
     }
 
     /// Since when the denied message is available.
-    #[allow(dead_code)]
     pub const MSG__DENIED__SINCE: u32 = 1;
 
     /// transient seat creation denied
@@ -144,7 +142,6 @@ impl ExtTransientSeatV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy transient seat
@@ -182,7 +179,6 @@ impl ExtTransientSeatV1 {
 }
 
 /// A message handler for [ExtTransientSeatV1] proxies.
-#[allow(dead_code)]
 pub trait ExtTransientSeatV1Handler: Any {
     /// transient seat is ready
     ///

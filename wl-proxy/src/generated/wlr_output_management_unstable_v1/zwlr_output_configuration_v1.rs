@@ -56,7 +56,6 @@ impl Debug for ZwlrOutputConfigurationV1 {
 
 impl ZwlrOutputConfigurationV1 {
     /// Since when the enable_head message is available.
-    #[allow(dead_code)]
     pub const MSG__ENABLE_HEAD__SINCE: u32 = 1;
 
     /// enable and configure a head
@@ -118,7 +117,6 @@ impl ZwlrOutputConfigurationV1 {
     }
 
     /// Since when the disable_head message is available.
-    #[allow(dead_code)]
     pub const MSG__DISABLE_HEAD__SINCE: u32 = 1;
 
     /// disable a head
@@ -169,7 +167,6 @@ impl ZwlrOutputConfigurationV1 {
     }
 
     /// Since when the apply message is available.
-    #[allow(dead_code)]
     pub const MSG__APPLY__SINCE: u32 = 1;
 
     /// apply the configuration
@@ -213,7 +210,6 @@ impl ZwlrOutputConfigurationV1 {
     }
 
     /// Since when the test message is available.
-    #[allow(dead_code)]
     pub const MSG__TEST__SINCE: u32 = 1;
 
     /// test the configuration
@@ -256,7 +252,6 @@ impl ZwlrOutputConfigurationV1 {
     }
 
     /// Since when the succeeded message is available.
-    #[allow(dead_code)]
     pub const MSG__SUCCEEDED__SINCE: u32 = 1;
 
     /// configuration changes succeeded
@@ -299,7 +294,6 @@ impl ZwlrOutputConfigurationV1 {
     }
 
     /// Since when the failed message is available.
-    #[allow(dead_code)]
     pub const MSG__FAILED__SINCE: u32 = 1;
 
     /// configuration changes failed
@@ -340,7 +334,6 @@ impl ZwlrOutputConfigurationV1 {
     }
 
     /// Since when the cancelled message is available.
-    #[allow(dead_code)]
     pub const MSG__CANCELLED__SINCE: u32 = 1;
 
     /// configuration has been cancelled
@@ -384,7 +377,6 @@ impl ZwlrOutputConfigurationV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the output configuration
@@ -426,7 +418,6 @@ impl ZwlrOutputConfigurationV1 {
 }
 
 /// A message handler for [ZwlrOutputConfigurationV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrOutputConfigurationV1Handler: Any {
     /// enable and configure a head
     ///
@@ -859,31 +850,24 @@ impl Proxy for ZwlrOutputConfigurationV1 {
 
 impl ZwlrOutputConfigurationV1 {
     /// Since when the error.already_configured_head enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_CONFIGURED_HEAD__SINCE: u32 = 1;
     /// Since when the error.unconfigured_head enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_UNCONFIGURED_HEAD__SINCE: u32 = 1;
     /// Since when the error.already_used enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_USED__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwlrOutputConfigurationV1Error(pub u32);
 
 impl ZwlrOutputConfigurationV1Error {
     /// head has been configured twice
-    #[allow(dead_code)]
     pub const ALREADY_CONFIGURED_HEAD: Self = Self(1);
 
     /// head has not been configured
-    #[allow(dead_code)]
     pub const UNCONFIGURED_HEAD: Self = Self(2);
 
     /// request sent after configuration has been applied or tested
-    #[allow(dead_code)]
     pub const ALREADY_USED: Self = Self(3);
 }
 

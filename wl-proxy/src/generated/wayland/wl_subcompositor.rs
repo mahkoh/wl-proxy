@@ -65,7 +65,6 @@ impl Debug for WlSubcompositor {
 
 impl WlSubcompositor {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// unbind from the subcompositor interface
@@ -103,7 +102,6 @@ impl WlSubcompositor {
     }
 
     /// Since when the get_subsurface message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_SUBSURFACE__SINCE: u32 = 1;
 
     /// give a surface the role sub-surface
@@ -193,7 +191,6 @@ impl WlSubcompositor {
 }
 
 /// A message handler for [WlSubcompositor] proxies.
-#[allow(dead_code)]
 pub trait WlSubcompositorHandler: Any {
     /// unbind from the subcompositor interface
     ///
@@ -404,24 +401,19 @@ impl Proxy for WlSubcompositor {
 
 impl WlSubcompositor {
     /// Since when the error.bad_surface enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_BAD_SURFACE__SINCE: u32 = 1;
     /// Since when the error.bad_parent enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_BAD_PARENT__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlSubcompositorError(pub u32);
 
 impl WlSubcompositorError {
     /// the to-be sub-surface is invalid
-    #[allow(dead_code)]
     pub const BAD_SURFACE: Self = Self(0);
 
     /// the to-be sub-surface parent is invalid
-    #[allow(dead_code)]
     pub const BAD_PARENT: Self = Self(1);
 }
 

@@ -58,7 +58,6 @@ impl Debug for WlKeyboard {
 
 impl WlKeyboard {
     /// Since when the keymap message is available.
-    #[allow(dead_code)]
     pub const MSG__KEYMAP__SINCE: u32 = 1;
 
     /// keyboard mapping
@@ -121,7 +120,6 @@ impl WlKeyboard {
     }
 
     /// Since when the enter message is available.
-    #[allow(dead_code)]
     pub const MSG__ENTER__SINCE: u32 = 1;
 
     /// enter event
@@ -196,7 +194,6 @@ impl WlKeyboard {
     }
 
     /// Since when the leave message is available.
-    #[allow(dead_code)]
     pub const MSG__LEAVE__SINCE: u32 = 1;
 
     /// leave event
@@ -263,7 +260,6 @@ impl WlKeyboard {
     }
 
     /// Since when the key message is available.
-    #[allow(dead_code)]
     pub const MSG__KEY__SINCE: u32 = 1;
 
     /// key event
@@ -348,7 +344,6 @@ impl WlKeyboard {
     }
 
     /// Since when the modifiers message is available.
-    #[allow(dead_code)]
     pub const MSG__MODIFIERS__SINCE: u32 = 1;
 
     /// modifier and group state
@@ -428,7 +423,6 @@ impl WlKeyboard {
     }
 
     /// Since when the release message is available.
-    #[allow(dead_code)]
     pub const MSG__RELEASE__SINCE: u32 = 3;
 
     /// release the keyboard object
@@ -462,7 +456,6 @@ impl WlKeyboard {
     }
 
     /// Since when the repeat_info message is available.
-    #[allow(dead_code)]
     pub const MSG__REPEAT_INFO__SINCE: u32 = 4;
 
     /// repeat rate and delay
@@ -527,7 +520,6 @@ impl WlKeyboard {
 }
 
 /// A message handler for [WlKeyboard] proxies.
-#[allow(dead_code)]
 pub trait WlKeyboardHandler: Any {
     /// keyboard mapping
     ///
@@ -1072,20 +1064,15 @@ impl Proxy for WlKeyboard {
 
 impl WlKeyboard {
     /// Since when the keymap_format.no_keymap enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__KEYMAP_FORMAT_NO_KEYMAP__SINCE: u32 = 1;
     /// Since when the keymap_format.xkb_v1 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__KEYMAP_FORMAT_XKB_V1__SINCE: u32 = 1;
 
     /// Since when the key_state.released enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__KEY_STATE_RELEASED__SINCE: u32 = 1;
     /// Since when the key_state.pressed enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__KEY_STATE_PRESSED__SINCE: u32 = 1;
     /// Since when the key_state.repeated enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__KEY_STATE_REPEATED__SINCE: u32 = 10;
 }
 
@@ -1094,16 +1081,13 @@ impl WlKeyboard {
 /// This specifies the format of the keymap provided to the
 /// client with the wl_keyboard.keymap event.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlKeyboardKeymapFormat(pub u32);
 
 impl WlKeyboardKeymapFormat {
     /// no keymap; client must understand how to interpret the raw keycode
-    #[allow(dead_code)]
     pub const NO_KEYMAP: Self = Self(0);
 
     /// libxkbcommon compatible, null-terminated string; to determine the xkb keycode, clients must add 8 to the key event keycode
-    #[allow(dead_code)]
     pub const XKB_V1: Self = Self(1);
 }
 
@@ -1130,20 +1114,16 @@ impl Debug for WlKeyboardKeymapFormat {
 /// state and before entering the released state. This event may be
 /// generated multiple times while the key is down.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlKeyboardKeyState(pub u32);
 
 impl WlKeyboardKeyState {
     /// key is not pressed
-    #[allow(dead_code)]
     pub const RELEASED: Self = Self(0);
 
     /// key is pressed
-    #[allow(dead_code)]
     pub const PRESSED: Self = Self(1);
 
     /// key was repeated
-    #[allow(dead_code)]
     pub const REPEATED: Self = Self(2);
 }
 

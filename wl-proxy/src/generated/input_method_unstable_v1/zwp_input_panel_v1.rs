@@ -47,7 +47,6 @@ impl Debug for ZwpInputPanelV1 {
 
 impl ZwpInputPanelV1 {
     /// Since when the get_input_panel_surface message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_INPUT_PANEL_SURFACE__SINCE: u32 = 1;
 
     /// # Arguments
@@ -105,7 +104,6 @@ impl ZwpInputPanelV1 {
 }
 
 /// A message handler for [ZwpInputPanelV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpInputPanelV1Handler: Any {
     /// # Arguments
     ///

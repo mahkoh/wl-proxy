@@ -47,7 +47,6 @@ impl Debug for ZwpXwaylandKeyboardGrabManagerV1 {
 
 impl ZwpXwaylandKeyboardGrabManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the keyboard grab manager
@@ -83,7 +82,6 @@ impl ZwpXwaylandKeyboardGrabManagerV1 {
     }
 
     /// Since when the grab_keyboard message is available.
-    #[allow(dead_code)]
     pub const MSG__GRAB_KEYBOARD__SINCE: u32 = 1;
 
     /// grab the keyboard to a surface
@@ -173,7 +171,6 @@ impl ZwpXwaylandKeyboardGrabManagerV1 {
 }
 
 /// A message handler for [ZwpXwaylandKeyboardGrabManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpXwaylandKeyboardGrabManagerV1Handler: Any {
     /// destroy the keyboard grab manager
     ///

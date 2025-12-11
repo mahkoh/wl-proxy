@@ -58,7 +58,6 @@ impl Debug for WpPointerWarpV1 {
 
 impl WpPointerWarpV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the warp manager
@@ -94,7 +93,6 @@ impl WpPointerWarpV1 {
     }
 
     /// Since when the warp_pointer message is available.
-    #[allow(dead_code)]
     pub const MSG__WARP_POINTER__SINCE: u32 = 1;
 
     /// reposition the pointer
@@ -180,7 +178,6 @@ impl WpPointerWarpV1 {
 }
 
 /// A message handler for [WpPointerWarpV1] proxies.
-#[allow(dead_code)]
 pub trait WpPointerWarpV1Handler: Any {
     /// destroy the warp manager
     ///

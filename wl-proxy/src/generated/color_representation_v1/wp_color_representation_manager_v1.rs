@@ -51,7 +51,6 @@ impl Debug for WpColorRepresentationManagerV1 {
 
 impl WpColorRepresentationManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the manager
@@ -88,7 +87,6 @@ impl WpColorRepresentationManagerV1 {
     }
 
     /// Since when the get_surface message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_SURFACE__SINCE: u32 = 1;
 
     /// create a color representation interface for a wl_surface
@@ -155,7 +153,6 @@ impl WpColorRepresentationManagerV1 {
     }
 
     /// Since when the supported_alpha_mode message is available.
-    #[allow(dead_code)]
     pub const MSG__SUPPORTED_ALPHA_MODE__SINCE: u32 = 1;
 
     /// supported alpha modes
@@ -207,7 +204,6 @@ impl WpColorRepresentationManagerV1 {
     }
 
     /// Since when the supported_coefficients_and_ranges message is available.
-    #[allow(dead_code)]
     pub const MSG__SUPPORTED_COEFFICIENTS_AND_RANGES__SINCE: u32 = 1;
 
     /// supported matrix coefficients and ranges
@@ -266,7 +262,6 @@ impl WpColorRepresentationManagerV1 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// all features have been sent
@@ -304,7 +299,6 @@ impl WpColorRepresentationManagerV1 {
 }
 
 /// A message handler for [WpColorRepresentationManagerV1] proxies.
-#[allow(dead_code)]
 pub trait WpColorRepresentationManagerV1Handler: Any {
     /// destroy the manager
     ///
@@ -621,18 +615,15 @@ impl Proxy for WpColorRepresentationManagerV1 {
 
 impl WpColorRepresentationManagerV1 {
     /// Since when the error.surface_exists enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_SURFACE_EXISTS__SINCE: u32 = 1;
 }
 
 /// protocol errors
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpColorRepresentationManagerV1Error(pub u32);
 
 impl WpColorRepresentationManagerV1Error {
     /// color representation surface exists already
-    #[allow(dead_code)]
     pub const SURFACE_EXISTS: Self = Self(1);
 }
 

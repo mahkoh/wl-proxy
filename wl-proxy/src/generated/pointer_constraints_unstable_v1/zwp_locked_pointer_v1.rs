@@ -69,7 +69,6 @@ impl Debug for ZwpLockedPointerV1 {
 
 impl ZwpLockedPointerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the locked pointer object
@@ -106,7 +105,6 @@ impl ZwpLockedPointerV1 {
     }
 
     /// Since when the set_cursor_position_hint message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_CURSOR_POSITION_HINT__SINCE: u32 = 1;
 
     /// set the pointer cursor position hint
@@ -166,7 +164,6 @@ impl ZwpLockedPointerV1 {
     }
 
     /// Since when the set_region message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_REGION__SINCE: u32 = 1;
 
     /// set a new lock region
@@ -224,7 +221,6 @@ impl ZwpLockedPointerV1 {
     }
 
     /// Since when the locked message is available.
-    #[allow(dead_code)]
     pub const MSG__LOCKED__SINCE: u32 = 1;
 
     /// lock activation event
@@ -261,7 +257,6 @@ impl ZwpLockedPointerV1 {
     }
 
     /// Since when the unlocked message is available.
-    #[allow(dead_code)]
     pub const MSG__UNLOCKED__SINCE: u32 = 1;
 
     /// lock deactivation event
@@ -304,7 +299,6 @@ impl ZwpLockedPointerV1 {
 }
 
 /// A message handler for [ZwpLockedPointerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpLockedPointerV1Handler: Any {
     /// destroy the locked pointer object
     ///

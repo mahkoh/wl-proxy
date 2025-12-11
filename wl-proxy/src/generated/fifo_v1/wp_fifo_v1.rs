@@ -48,7 +48,6 @@ impl Debug for WpFifoV1 {
 
 impl WpFifoV1 {
     /// Since when the set_barrier message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_BARRIER__SINCE: u32 = 1;
 
     /// sets the start point for a fifo constraint
@@ -96,7 +95,6 @@ impl WpFifoV1 {
     }
 
     /// Since when the wait_barrier message is available.
-    #[allow(dead_code)]
     pub const MSG__WAIT_BARRIER__SINCE: u32 = 1;
 
     /// adds a fifo constraint to a content update
@@ -150,7 +148,6 @@ impl WpFifoV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the fifo interface
@@ -191,7 +188,6 @@ impl WpFifoV1 {
 }
 
 /// A message handler for [WpFifoV1] proxies.
-#[allow(dead_code)]
 pub trait WpFifoV1Handler: Any {
     /// sets the start point for a fifo constraint
     ///
@@ -408,7 +404,6 @@ impl Proxy for WpFifoV1 {
 
 impl WpFifoV1 {
     /// Since when the error.surface_destroyed enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_SURFACE_DESTROYED__SINCE: u32 = 1;
 }
 
@@ -417,12 +412,10 @@ impl WpFifoV1 {
 /// These fatal protocol errors may be emitted in response to
 /// illegal requests.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpFifoV1Error(pub u32);
 
 impl WpFifoV1Error {
     /// the associated surface no longer exists
-    #[allow(dead_code)]
     pub const SURFACE_DESTROYED: Self = Self(0);
 }
 

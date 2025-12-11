@@ -50,7 +50,6 @@ impl Debug for ExtIdleNotifierV1 {
 
 impl ExtIdleNotifierV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the manager
@@ -87,7 +86,6 @@ impl ExtIdleNotifierV1 {
     }
 
     /// Since when the get_idle_notification message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_IDLE_NOTIFICATION__SINCE: u32 = 1;
 
     /// create a notification object
@@ -160,7 +158,6 @@ impl ExtIdleNotifierV1 {
     }
 
     /// Since when the get_input_idle_notification message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_INPUT_IDLE_NOTIFICATION__SINCE: u32 = 2;
 
     /// create a notification object
@@ -236,7 +233,6 @@ impl ExtIdleNotifierV1 {
 }
 
 /// A message handler for [ExtIdleNotifierV1] proxies.
-#[allow(dead_code)]
 pub trait ExtIdleNotifierV1Handler: Any {
     /// destroy the manager
     ///

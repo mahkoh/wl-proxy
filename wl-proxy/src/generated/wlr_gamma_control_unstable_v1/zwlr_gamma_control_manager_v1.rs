@@ -48,7 +48,6 @@ impl Debug for ZwlrGammaControlManagerV1 {
 
 impl ZwlrGammaControlManagerV1 {
     /// Since when the get_gamma_control message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_GAMMA_CONTROL__SINCE: u32 = 1;
 
     /// get a gamma control for an output
@@ -110,7 +109,6 @@ impl ZwlrGammaControlManagerV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the manager
@@ -148,7 +146,6 @@ impl ZwlrGammaControlManagerV1 {
 }
 
 /// A message handler for [ZwlrGammaControlManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrGammaControlManagerV1Handler: Any {
     /// get a gamma control for an output
     ///

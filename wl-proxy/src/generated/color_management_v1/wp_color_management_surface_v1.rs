@@ -51,7 +51,6 @@ impl Debug for WpColorManagementSurfaceV1 {
 
 impl WpColorManagementSurfaceV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the color management interface for a surface
@@ -88,7 +87,6 @@ impl WpColorManagementSurfaceV1 {
     }
 
     /// Since when the set_image_description message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_IMAGE_DESCRIPTION__SINCE: u32 = 1;
 
     /// set the surface image description
@@ -182,7 +180,6 @@ impl WpColorManagementSurfaceV1 {
     }
 
     /// Since when the unset_image_description message is available.
-    #[allow(dead_code)]
     pub const MSG__UNSET_IMAGE_DESCRIPTION__SINCE: u32 = 1;
 
     /// remove the surface image description
@@ -223,7 +220,6 @@ impl WpColorManagementSurfaceV1 {
 }
 
 /// A message handler for [WpColorManagementSurfaceV1] proxies.
-#[allow(dead_code)]
 pub trait WpColorManagementSurfaceV1Handler: Any {
     /// destroy the color management interface for a surface
     ///
@@ -473,32 +469,25 @@ impl Proxy for WpColorManagementSurfaceV1 {
 
 impl WpColorManagementSurfaceV1 {
     /// Since when the error.render_intent enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_RENDER_INTENT__SINCE: u32 = 1;
     /// Since when the error.image_description enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_IMAGE_DESCRIPTION__SINCE: u32 = 1;
     /// Since when the error.inert enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INERT__SINCE: u32 = 1;
 }
 
 /// protocol errors
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpColorManagementSurfaceV1Error(pub u32);
 
 impl WpColorManagementSurfaceV1Error {
     /// unsupported rendering intent
-    #[allow(dead_code)]
     pub const RENDER_INTENT: Self = Self(0);
 
     /// invalid image description
-    #[allow(dead_code)]
     pub const IMAGE_DESCRIPTION: Self = Self(1);
 
     /// forbidden request on inert object
-    #[allow(dead_code)]
     pub const INERT: Self = Self(2);
 }
 

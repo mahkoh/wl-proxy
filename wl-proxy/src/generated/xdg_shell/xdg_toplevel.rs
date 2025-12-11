@@ -67,7 +67,6 @@ impl Debug for XdgToplevel {
 
 impl XdgToplevel {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the xdg_toplevel
@@ -104,7 +103,6 @@ impl XdgToplevel {
     }
 
     /// Since when the set_parent message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_PARENT__SINCE: u32 = 1;
 
     /// set the parent of this surface
@@ -177,7 +175,6 @@ impl XdgToplevel {
     }
 
     /// Since when the set_title message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_TITLE__SINCE: u32 = 1;
 
     /// set surface title
@@ -229,7 +226,6 @@ impl XdgToplevel {
     }
 
     /// Since when the set_app_id message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_APP_ID__SINCE: u32 = 1;
 
     /// set application ID
@@ -297,7 +293,6 @@ impl XdgToplevel {
     }
 
     /// Since when the show_window_menu message is available.
-    #[allow(dead_code)]
     pub const MSG__SHOW_WINDOW_MENU__SINCE: u32 = 1;
 
     /// show the window menu
@@ -374,7 +369,6 @@ impl XdgToplevel {
     }
 
     /// Since when the move message is available.
-    #[allow(dead_code)]
     pub const MSG__MOVE__SINCE: u32 = 1;
 
     /// start an interactive move
@@ -445,7 +439,6 @@ impl XdgToplevel {
     }
 
     /// Since when the resize message is available.
-    #[allow(dead_code)]
     pub const MSG__RESIZE__SINCE: u32 = 1;
 
     /// start an interactive resize
@@ -536,7 +529,6 @@ impl XdgToplevel {
     }
 
     /// Since when the set_max_size message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_MAX_SIZE__SINCE: u32 = 1;
 
     /// set the maximum size
@@ -619,7 +611,6 @@ impl XdgToplevel {
     }
 
     /// Since when the set_min_size message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_MIN_SIZE__SINCE: u32 = 1;
 
     /// set the minimum size
@@ -702,7 +693,6 @@ impl XdgToplevel {
     }
 
     /// Since when the set_maximized message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_MAXIMIZED__SINCE: u32 = 1;
 
     /// maximize the window
@@ -755,7 +745,6 @@ impl XdgToplevel {
     }
 
     /// Since when the unset_maximized message is available.
-    #[allow(dead_code)]
     pub const MSG__UNSET_MAXIMIZED__SINCE: u32 = 1;
 
     /// unmaximize the window
@@ -810,7 +799,6 @@ impl XdgToplevel {
     }
 
     /// Since when the set_fullscreen message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_FULLSCREEN__SINCE: u32 = 1;
 
     /// set the window as fullscreen on an output
@@ -886,7 +874,6 @@ impl XdgToplevel {
     }
 
     /// Since when the unset_fullscreen message is available.
-    #[allow(dead_code)]
     pub const MSG__UNSET_FULLSCREEN__SINCE: u32 = 1;
 
     /// unset the window as fullscreen
@@ -937,7 +924,6 @@ impl XdgToplevel {
     }
 
     /// Since when the set_minimized message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_MINIMIZED__SINCE: u32 = 1;
 
     /// set the window as minimized
@@ -979,7 +965,6 @@ impl XdgToplevel {
     }
 
     /// Since when the configure message is available.
-    #[allow(dead_code)]
     pub const MSG__CONFIGURE__SINCE: u32 = 1;
 
     /// suggest a surface change
@@ -1055,7 +1040,6 @@ impl XdgToplevel {
     }
 
     /// Since when the close message is available.
-    #[allow(dead_code)]
     pub const MSG__CLOSE__SINCE: u32 = 1;
 
     /// surface wants to be closed
@@ -1099,7 +1083,6 @@ impl XdgToplevel {
     }
 
     /// Since when the configure_bounds message is available.
-    #[allow(dead_code)]
     pub const MSG__CONFIGURE_BOUNDS__SINCE: u32 = 4;
 
     /// recommended window geometry bounds
@@ -1166,7 +1149,6 @@ impl XdgToplevel {
     }
 
     /// Since when the wm_capabilities message is available.
-    #[allow(dead_code)]
     pub const MSG__WM_CAPABILITIES__SINCE: u32 = 5;
 
     /// compositor capabilities
@@ -1234,7 +1216,6 @@ impl XdgToplevel {
 }
 
 /// A message handler for [XdgToplevel] proxies.
-#[allow(dead_code)]
 pub trait XdgToplevelHandler: Any {
     /// destroy the xdg_toplevel
     ///
@@ -2502,113 +2483,80 @@ impl Proxy for XdgToplevel {
 
 impl XdgToplevel {
     /// Since when the error.invalid_resize_edge enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_RESIZE_EDGE__SINCE: u32 = 1;
     /// Since when the error.invalid_parent enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_PARENT__SINCE: u32 = 1;
     /// Since when the error.invalid_size enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_SIZE__SINCE: u32 = 1;
 
     /// Since when the resize_edge.none enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_EDGE_NONE__SINCE: u32 = 1;
     /// Since when the resize_edge.top enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_EDGE_TOP__SINCE: u32 = 1;
     /// Since when the resize_edge.bottom enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_EDGE_BOTTOM__SINCE: u32 = 1;
     /// Since when the resize_edge.left enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_EDGE_LEFT__SINCE: u32 = 1;
     /// Since when the resize_edge.top_left enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_EDGE_TOP_LEFT__SINCE: u32 = 1;
     /// Since when the resize_edge.bottom_left enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_EDGE_BOTTOM_LEFT__SINCE: u32 = 1;
     /// Since when the resize_edge.right enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_EDGE_RIGHT__SINCE: u32 = 1;
     /// Since when the resize_edge.top_right enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_EDGE_TOP_RIGHT__SINCE: u32 = 1;
     /// Since when the resize_edge.bottom_right enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_EDGE_BOTTOM_RIGHT__SINCE: u32 = 1;
 
     /// Since when the state.maximized enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_MAXIMIZED__SINCE: u32 = 1;
     /// Since when the state.fullscreen enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_FULLSCREEN__SINCE: u32 = 1;
     /// Since when the state.resizing enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_RESIZING__SINCE: u32 = 1;
     /// Since when the state.activated enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_ACTIVATED__SINCE: u32 = 1;
     /// Since when the state.tiled_left enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_TILED_LEFT__SINCE: u32 = 2;
     /// Since when the state.tiled_right enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_TILED_RIGHT__SINCE: u32 = 2;
     /// Since when the state.tiled_top enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_TILED_TOP__SINCE: u32 = 2;
     /// Since when the state.tiled_bottom enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_TILED_BOTTOM__SINCE: u32 = 2;
     /// Since when the state.suspended enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_SUSPENDED__SINCE: u32 = 6;
     /// Since when the state.constrained_left enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_CONSTRAINED_LEFT__SINCE: u32 = 7;
     /// Since when the state.constrained_right enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_CONSTRAINED_RIGHT__SINCE: u32 = 7;
     /// Since when the state.constrained_top enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_CONSTRAINED_TOP__SINCE: u32 = 7;
     /// Since when the state.constrained_bottom enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__STATE_CONSTRAINED_BOTTOM__SINCE: u32 = 7;
 
     /// Since when the wm_capabilities.window_menu enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__WM_CAPABILITIES_WINDOW_MENU__SINCE: u32 = 1;
     /// Since when the wm_capabilities.maximize enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__WM_CAPABILITIES_MAXIMIZE__SINCE: u32 = 1;
     /// Since when the wm_capabilities.fullscreen enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__WM_CAPABILITIES_FULLSCREEN__SINCE: u32 = 1;
     /// Since when the wm_capabilities.minimize enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__WM_CAPABILITIES_MINIMIZE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct XdgToplevelError(pub u32);
 
 impl XdgToplevelError {
     /// provided value is
     ///         not a valid variant of the resize_edge enum
-    #[allow(dead_code)]
     pub const INVALID_RESIZE_EDGE: Self = Self(0);
 
     /// invalid parent toplevel
-    #[allow(dead_code)]
     pub const INVALID_PARENT: Self = Self(1);
 
     /// client provided an invalid min or max size
-    #[allow(dead_code)]
     pub const INVALID_SIZE: Self = Self(2);
 }
 
@@ -2629,35 +2577,25 @@ impl Debug for XdgToplevelError {
 /// These values are used to indicate which edge of a surface
 /// is being dragged in a resize operation.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct XdgToplevelResizeEdge(pub u32);
 
 impl XdgToplevelResizeEdge {
-    #[allow(dead_code)]
     pub const NONE: Self = Self(0);
 
-    #[allow(dead_code)]
     pub const TOP: Self = Self(1);
 
-    #[allow(dead_code)]
     pub const BOTTOM: Self = Self(2);
 
-    #[allow(dead_code)]
     pub const LEFT: Self = Self(4);
 
-    #[allow(dead_code)]
     pub const TOP_LEFT: Self = Self(5);
 
-    #[allow(dead_code)]
     pub const BOTTOM_LEFT: Self = Self(6);
 
-    #[allow(dead_code)]
     pub const RIGHT: Self = Self(8);
 
-    #[allow(dead_code)]
     pub const TOP_RIGHT: Self = Self(9);
 
-    #[allow(dead_code)]
     pub const BOTTOM_RIGHT: Self = Self(10);
 }
 
@@ -2688,7 +2626,6 @@ impl Debug for XdgToplevelResizeEdge {
 ///
 /// States set in this way are double-buffered, see wl_surface.commit.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct XdgToplevelState(pub u32);
 
 impl XdgToplevelState {
@@ -2702,7 +2639,6 @@ impl XdgToplevelState {
     ///
     /// The client should draw without shadow or other
     /// decoration outside of the window geometry.
-    #[allow(dead_code)]
     pub const MAXIMIZED: Self = Self(1);
 
     /// the surface is fullscreen
@@ -2714,7 +2650,6 @@ impl XdgToplevelState {
     /// a surface to cover the whole fullscreened area, the geometry
     /// dimensions must be obeyed by the client. For more details, see
     /// xdg_toplevel.set_fullscreen.
-    #[allow(dead_code)]
     pub const FULLSCREEN: Self = Self(2);
 
     /// the surface is being resized
@@ -2725,7 +2660,6 @@ impl XdgToplevelState {
     /// configure event is a maximum; the client cannot resize beyond it.
     /// Clients that have aspect ratio or cell sizing configuration can use
     /// a smaller size, however.
-    #[allow(dead_code)]
     pub const RESIZING: Self = Self(3);
 
     /// the surface is now activated
@@ -2735,7 +2669,6 @@ impl XdgToplevelState {
     /// Client window decorations should be painted as if the window is
     /// active. Do not assume this means that the window actually has
     /// keyboard or pointer focus.
-    #[allow(dead_code)]
     pub const ACTIVATED: Self = Self(4);
 
     /// the surface’s left edge is tiled
@@ -2745,7 +2678,6 @@ impl XdgToplevelState {
     ///
     /// The client should draw without shadow or other decoration outside of
     /// the window geometry on the left edge.
-    #[allow(dead_code)]
     pub const TILED_LEFT: Self = Self(5);
 
     /// the surface’s right edge is tiled
@@ -2755,7 +2687,6 @@ impl XdgToplevelState {
     ///
     /// The client should draw without shadow or other decoration outside of
     /// the window geometry on the right edge.
-    #[allow(dead_code)]
     pub const TILED_RIGHT: Self = Self(6);
 
     /// the surface’s top edge is tiled
@@ -2765,7 +2696,6 @@ impl XdgToplevelState {
     ///
     /// The client should draw without shadow or other decoration outside of
     /// the window geometry on the top edge.
-    #[allow(dead_code)]
     pub const TILED_TOP: Self = Self(7);
 
     /// the surface’s bottom edge is tiled
@@ -2775,7 +2705,6 @@ impl XdgToplevelState {
     ///
     /// The client should draw without shadow or other decoration outside of
     /// the window geometry on the bottom edge.
-    #[allow(dead_code)]
     pub const TILED_BOTTOM: Self = Self(8);
 
     /// surface repaint is suspended
@@ -2783,7 +2712,6 @@ impl XdgToplevelState {
     /// The surface is currently not ordinarily being repainted; for
     /// example because its content is occluded by another window, or its
     /// outputs are switched off due to screen locking.
-    #[allow(dead_code)]
     pub const SUSPENDED: Self = Self(9);
 
     /// the surface’s left edge is constrained
@@ -2792,7 +2720,6 @@ impl XdgToplevelState {
     /// shouldn't attempt to resize from that edge. It can for example mean
     /// it's tiled next to a monitor edge on the constrained side of the
     /// window.
-    #[allow(dead_code)]
     pub const CONSTRAINED_LEFT: Self = Self(10);
 
     /// the surface’s right edge is constrained
@@ -2801,7 +2728,6 @@ impl XdgToplevelState {
     /// shouldn't attempt to resize from that edge. It can for example mean
     /// it's tiled next to a monitor edge on the constrained side of the
     /// window.
-    #[allow(dead_code)]
     pub const CONSTRAINED_RIGHT: Self = Self(11);
 
     /// the surface’s top edge is constrained
@@ -2810,7 +2736,6 @@ impl XdgToplevelState {
     /// shouldn't attempt to resize from that edge. It can for example mean
     /// it's tiled next to a monitor edge on the constrained side of the
     /// window.
-    #[allow(dead_code)]
     pub const CONSTRAINED_TOP: Self = Self(12);
 
     /// the surface’s bottom edge is constrained
@@ -2819,7 +2744,6 @@ impl XdgToplevelState {
     /// shouldn't attempt to resize from that edge. It can for example mean
     /// it's tiled next to a monitor edge on the constrained side of the
     /// window.
-    #[allow(dead_code)]
     pub const CONSTRAINED_BOTTOM: Self = Self(13);
 }
 
@@ -2846,24 +2770,19 @@ impl Debug for XdgToplevelState {
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct XdgToplevelWmCapabilities(pub u32);
 
 impl XdgToplevelWmCapabilities {
     /// show_window_menu is available
-    #[allow(dead_code)]
     pub const WINDOW_MENU: Self = Self(1);
 
     /// set_maximized and unset_maximized are available
-    #[allow(dead_code)]
     pub const MAXIMIZE: Self = Self(2);
 
     /// set_fullscreen and unset_fullscreen are available
-    #[allow(dead_code)]
     pub const FULLSCREEN: Self = Self(3);
 
     /// set_minimized is available
-    #[allow(dead_code)]
     pub const MINIMIZE: Self = Self(4);
 }
 

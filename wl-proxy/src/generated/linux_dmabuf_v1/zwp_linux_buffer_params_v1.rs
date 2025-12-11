@@ -62,7 +62,6 @@ impl Debug for ZwpLinuxBufferParamsV1 {
 
 impl ZwpLinuxBufferParamsV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// delete this object, used or not
@@ -99,7 +98,6 @@ impl ZwpLinuxBufferParamsV1 {
     }
 
     /// Since when the add message is available.
-    #[allow(dead_code)]
     pub const MSG__ADD__SINCE: u32 = 1;
 
     /// add a dmabuf to the temporary set
@@ -188,7 +186,6 @@ impl ZwpLinuxBufferParamsV1 {
     }
 
     /// Since when the create message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE__SINCE: u32 = 1;
 
     /// create a wl_buffer from the given dmabufs
@@ -307,7 +304,6 @@ impl ZwpLinuxBufferParamsV1 {
     }
 
     /// Since when the created message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATED__SINCE: u32 = 1;
 
     /// buffer creation succeeded
@@ -360,7 +356,6 @@ impl ZwpLinuxBufferParamsV1 {
     }
 
     /// Since when the failed message is available.
-    #[allow(dead_code)]
     pub const MSG__FAILED__SINCE: u32 = 1;
 
     /// buffer creation failed
@@ -402,7 +397,6 @@ impl ZwpLinuxBufferParamsV1 {
     }
 
     /// Since when the create_immed message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_IMMED__SINCE: u32 = 2;
 
     /// immediately create a wl_buffer from the given
@@ -497,7 +491,6 @@ impl ZwpLinuxBufferParamsV1 {
 }
 
 /// A message handler for [ZwpLinuxBufferParamsV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpLinuxBufferParamsV1Handler: Any {
     /// delete this object, used or not
     ///
@@ -985,77 +978,57 @@ impl Proxy for ZwpLinuxBufferParamsV1 {
 
 impl ZwpLinuxBufferParamsV1 {
     /// Since when the error.already_used enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_USED__SINCE: u32 = 1;
     /// Since when the error.plane_idx enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_PLANE_IDX__SINCE: u32 = 1;
     /// Since when the error.plane_set enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_PLANE_SET__SINCE: u32 = 1;
     /// Since when the error.incomplete enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INCOMPLETE__SINCE: u32 = 1;
     /// Since when the error.invalid_format enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_FORMAT__SINCE: u32 = 1;
     /// Since when the error.invalid_dimensions enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_DIMENSIONS__SINCE: u32 = 1;
     /// Since when the error.out_of_bounds enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_OUT_OF_BOUNDS__SINCE: u32 = 1;
     /// Since when the error.invalid_wl_buffer enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_WL_BUFFER__SINCE: u32 = 1;
 
     /// Since when the flags.y_invert enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FLAGS_Y_INVERT__SINCE: u32 = 1;
     /// Since when the flags.interlaced enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FLAGS_INTERLACED__SINCE: u32 = 1;
     /// Since when the flags.bottom_first enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FLAGS_BOTTOM_FIRST__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpLinuxBufferParamsV1Error(pub u32);
 
 impl ZwpLinuxBufferParamsV1Error {
     /// the dmabuf_batch object has already been used to create a wl_buffer
-    #[allow(dead_code)]
     pub const ALREADY_USED: Self = Self(0);
 
     /// plane index out of bounds
-    #[allow(dead_code)]
     pub const PLANE_IDX: Self = Self(1);
 
     /// the plane index was already set
-    #[allow(dead_code)]
     pub const PLANE_SET: Self = Self(2);
 
     /// missing or too many planes to create a buffer
-    #[allow(dead_code)]
     pub const INCOMPLETE: Self = Self(3);
 
     /// format not supported
-    #[allow(dead_code)]
     pub const INVALID_FORMAT: Self = Self(4);
 
     /// invalid width or height
-    #[allow(dead_code)]
     pub const INVALID_DIMENSIONS: Self = Self(5);
 
     /// offset + stride * height goes out of dmabuf bounds
-    #[allow(dead_code)]
     pub const OUT_OF_BOUNDS: Self = Self(6);
 
     /// invalid wl_buffer resulted from importing dmabufs via
     ///                the create_immed request on given buffer_params
-    #[allow(dead_code)]
     pub const INVALID_WL_BUFFER: Self = Self(7);
 }
 
@@ -1078,7 +1051,6 @@ impl Debug for ZwpLinuxBufferParamsV1Error {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct ZwpLinuxBufferParamsV1Flags(pub u32);
 
 /// An iterator over the set bits in a [ZwpLinuxBufferParamsV1Flags].
@@ -1089,19 +1061,15 @@ pub struct ZwpLinuxBufferParamsV1FlagsIter(pub u32);
 
 impl ZwpLinuxBufferParamsV1Flags {
     /// contents are y-inverted
-    #[allow(dead_code)]
     pub const Y_INVERT: Self = Self(1);
 
     /// content is interlaced
-    #[allow(dead_code)]
     pub const INTERLACED: Self = Self(2);
 
     /// bottom field first
-    #[allow(dead_code)]
     pub const BOTTOM_FIRST: Self = Self(4);
 }
 
-#[allow(dead_code)]
 impl ZwpLinuxBufferParamsV1Flags {
     #[inline]
     pub const fn empty() -> Self {

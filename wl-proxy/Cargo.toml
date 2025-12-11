@@ -3,6 +3,11 @@ name = "wl-proxy"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+default = ["wayland-protocols"]
+wayland-protocols = []
+wlr-protocols = ["wayland-protocols"]
+
 [dependencies]
 uapi = "0.2.13"
 isnt = "0.2.0"
@@ -13,4 +18,3 @@ log = "0.4.29"
 phf = { version = "0.13.1", features = ["macros"] }
 debug-fn = "1.0.0"
 run-on-drop = "1.0.0"
-linearize = { version = "0.1.4", features = ["derive"] }

@@ -70,7 +70,6 @@ impl Debug for XdgPopup {
 
 impl XdgPopup {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// remove xdg_popup interface
@@ -110,7 +109,6 @@ impl XdgPopup {
     }
 
     /// Since when the grab message is available.
-    #[allow(dead_code)]
     pub const MSG__GRAB__SINCE: u32 = 1;
 
     /// make the popup take an explicit grab
@@ -202,7 +200,6 @@ impl XdgPopup {
     }
 
     /// Since when the configure message is available.
-    #[allow(dead_code)]
     pub const MSG__CONFIGURE__SINCE: u32 = 1;
 
     /// configure the popup surface
@@ -276,7 +273,6 @@ impl XdgPopup {
     }
 
     /// Since when the popup_done message is available.
-    #[allow(dead_code)]
     pub const MSG__POPUP_DONE__SINCE: u32 = 1;
 
     /// popup interaction is done
@@ -315,7 +311,6 @@ impl XdgPopup {
     }
 
     /// Since when the reposition message is available.
-    #[allow(dead_code)]
     pub const MSG__REPOSITION__SINCE: u32 = 3;
 
     /// recalculate the popup's location
@@ -393,7 +388,6 @@ impl XdgPopup {
     }
 
     /// Since when the repositioned message is available.
-    #[allow(dead_code)]
     pub const MSG__REPOSITIONED__SINCE: u32 = 3;
 
     /// signal the completion of a repositioned request
@@ -456,7 +450,6 @@ impl XdgPopup {
 }
 
 /// A message handler for [XdgPopup] proxies.
-#[allow(dead_code)]
 pub trait XdgPopupHandler: Any {
     /// remove xdg_popup interface
     ///
@@ -905,17 +898,14 @@ impl Proxy for XdgPopup {
 
 impl XdgPopup {
     /// Since when the error.invalid_grab enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_GRAB__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct XdgPopupError(pub u32);
 
 impl XdgPopupError {
     /// tried to grab after being mapped
-    #[allow(dead_code)]
     pub const INVALID_GRAB: Self = Self(0);
 }
 

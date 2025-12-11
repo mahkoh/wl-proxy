@@ -51,7 +51,6 @@ impl Debug for XdgWmBase {
 
 impl XdgWmBase {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy xdg_wm_base
@@ -91,7 +90,6 @@ impl XdgWmBase {
     }
 
     /// Since when the create_positioner message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_POSITIONER__SINCE: u32 = 1;
 
     /// create a positioner object
@@ -140,7 +138,6 @@ impl XdgWmBase {
     }
 
     /// Since when the get_xdg_surface message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_XDG_SURFACE__SINCE: u32 = 1;
 
     /// create a shell surface from a surface
@@ -213,7 +210,6 @@ impl XdgWmBase {
     }
 
     /// Since when the pong message is available.
-    #[allow(dead_code)]
     pub const MSG__PONG__SINCE: u32 = 1;
 
     /// respond to a ping event
@@ -261,7 +257,6 @@ impl XdgWmBase {
     }
 
     /// Since when the ping message is available.
-    #[allow(dead_code)]
     pub const MSG__PING__SINCE: u32 = 1;
 
     /// check if the client is alive
@@ -322,7 +317,6 @@ impl XdgWmBase {
 }
 
 /// A message handler for [XdgWmBase] proxies.
-#[allow(dead_code)]
 pub trait XdgWmBaseHandler: Any {
     /// destroy xdg_wm_base
     ///
@@ -660,59 +654,44 @@ impl Proxy for XdgWmBase {
 
 impl XdgWmBase {
     /// Since when the error.role enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ROLE__SINCE: u32 = 1;
     /// Since when the error.defunct_surfaces enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_DEFUNCT_SURFACES__SINCE: u32 = 1;
     /// Since when the error.not_the_topmost_popup enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_NOT_THE_TOPMOST_POPUP__SINCE: u32 = 1;
     /// Since when the error.invalid_popup_parent enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_POPUP_PARENT__SINCE: u32 = 1;
     /// Since when the error.invalid_surface_state enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_SURFACE_STATE__SINCE: u32 = 1;
     /// Since when the error.invalid_positioner enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_POSITIONER__SINCE: u32 = 1;
     /// Since when the error.unresponsive enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_UNRESPONSIVE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct XdgWmBaseError(pub u32);
 
 impl XdgWmBaseError {
     /// given wl_surface has another role
-    #[allow(dead_code)]
     pub const ROLE: Self = Self(0);
 
     /// xdg_wm_base was destroyed before children
-    #[allow(dead_code)]
     pub const DEFUNCT_SURFACES: Self = Self(1);
 
     /// the client tried to map or destroy a non-topmost popup
-    #[allow(dead_code)]
     pub const NOT_THE_TOPMOST_POPUP: Self = Self(2);
 
     /// the client specified an invalid popup parent surface
-    #[allow(dead_code)]
     pub const INVALID_POPUP_PARENT: Self = Self(3);
 
     /// the client provided an invalid surface state
-    #[allow(dead_code)]
     pub const INVALID_SURFACE_STATE: Self = Self(4);
 
     /// the client provided an invalid positioner
-    #[allow(dead_code)]
     pub const INVALID_POSITIONER: Self = Self(5);
 
     /// the client didn’t respond to a ping event in time
-    #[allow(dead_code)]
     pub const UNRESPONSIVE: Self = Self(6);
 }
 

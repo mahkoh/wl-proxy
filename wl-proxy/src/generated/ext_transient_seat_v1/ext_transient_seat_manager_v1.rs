@@ -47,7 +47,6 @@ impl Debug for ExtTransientSeatManagerV1 {
 
 impl ExtTransientSeatManagerV1 {
     /// Since when the create message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE__SINCE: u32 = 1;
 
     /// create a transient seat
@@ -98,7 +97,6 @@ impl ExtTransientSeatManagerV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the manager
@@ -138,7 +136,6 @@ impl ExtTransientSeatManagerV1 {
 }
 
 /// A message handler for [ExtTransientSeatManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ExtTransientSeatManagerV1Handler: Any {
     /// create a transient seat
     ///

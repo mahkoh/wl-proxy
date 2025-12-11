@@ -55,7 +55,6 @@ impl Debug for ZwlrInputInhibitorV1 {
 
 impl ZwlrInputInhibitorV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the input inhibitor object
@@ -92,7 +91,6 @@ impl ZwlrInputInhibitorV1 {
 }
 
 /// A message handler for [ZwlrInputInhibitorV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrInputInhibitorV1Handler: Any {
     /// destroy the input inhibitor object
     ///

@@ -56,7 +56,6 @@ impl Debug for WlDataDeviceManager {
 
 impl WlDataDeviceManager {
     /// Since when the create_data_source message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_DATA_SOURCE__SINCE: u32 = 1;
 
     /// create a new data source
@@ -103,7 +102,6 @@ impl WlDataDeviceManager {
     }
 
     /// Since when the get_data_device message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_DATA_DEVICE__SINCE: u32 = 1;
 
     /// create a new data device
@@ -165,7 +163,6 @@ impl WlDataDeviceManager {
 }
 
 /// A message handler for [WlDataDeviceManager] proxies.
-#[allow(dead_code)]
 pub trait WlDataDeviceManagerHandler: Any {
     /// create a new data source
     ///
@@ -355,16 +352,12 @@ impl Proxy for WlDataDeviceManager {
 
 impl WlDataDeviceManager {
     /// Since when the dnd_action.none enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__DND_ACTION_NONE__SINCE: u32 = 1;
     /// Since when the dnd_action.copy enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__DND_ACTION_COPY__SINCE: u32 = 1;
     /// Since when the dnd_action.move enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__DND_ACTION_MOVE__SINCE: u32 = 1;
     /// Since when the dnd_action.ask enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__DND_ACTION_ASK__SINCE: u32 = 1;
 }
 
@@ -395,7 +388,6 @@ impl WlDataDeviceManager {
 /// actions (e.g. "ask").
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct WlDataDeviceManagerDndAction(pub u32);
 
 /// An iterator over the set bits in a [WlDataDeviceManagerDndAction].
@@ -406,23 +398,18 @@ pub struct WlDataDeviceManagerDndActionIter(pub u32);
 
 impl WlDataDeviceManagerDndAction {
     /// no action
-    #[allow(dead_code)]
     pub const NONE: Self = Self(0);
 
     /// copy action
-    #[allow(dead_code)]
     pub const COPY: Self = Self(1);
 
     /// move action
-    #[allow(dead_code)]
     pub const MOVE: Self = Self(2);
 
     /// ask action
-    #[allow(dead_code)]
     pub const ASK: Self = Self(4);
 }
 
-#[allow(dead_code)]
 impl WlDataDeviceManagerDndAction {
     #[inline]
     pub const fn empty() -> Self {

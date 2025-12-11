@@ -62,7 +62,6 @@ impl Debug for ZwpConfinedPointerV1 {
 
 impl ZwpConfinedPointerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the confined pointer object
@@ -99,7 +98,6 @@ impl ZwpConfinedPointerV1 {
     }
 
     /// Since when the set_region message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_REGION__SINCE: u32 = 1;
 
     /// set a new confine region
@@ -166,7 +164,6 @@ impl ZwpConfinedPointerV1 {
     }
 
     /// Since when the confined message is available.
-    #[allow(dead_code)]
     pub const MSG__CONFINED__SINCE: u32 = 1;
 
     /// pointer confined
@@ -204,7 +201,6 @@ impl ZwpConfinedPointerV1 {
     }
 
     /// Since when the unconfined message is available.
-    #[allow(dead_code)]
     pub const MSG__UNCONFINED__SINCE: u32 = 1;
 
     /// pointer unconfined
@@ -247,7 +243,6 @@ impl ZwpConfinedPointerV1 {
 }
 
 /// A message handler for [ZwpConfinedPointerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpConfinedPointerV1Handler: Any {
     /// destroy the confined pointer object
     ///

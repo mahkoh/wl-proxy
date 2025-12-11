@@ -57,7 +57,6 @@ impl Debug for XdgToplevelTagManagerV1 {
 
 impl XdgToplevelTagManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy toplevel tag object
@@ -94,7 +93,6 @@ impl XdgToplevelTagManagerV1 {
     }
 
     /// Since when the set_toplevel_tag message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_TOPLEVEL_TAG__SINCE: u32 = 1;
 
     /// set tag
@@ -163,7 +161,6 @@ impl XdgToplevelTagManagerV1 {
     }
 
     /// Since when the set_toplevel_description message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_TOPLEVEL_DESCRIPTION__SINCE: u32 = 1;
 
     /// set description
@@ -227,7 +224,6 @@ impl XdgToplevelTagManagerV1 {
 }
 
 /// A message handler for [XdgToplevelTagManagerV1] proxies.
-#[allow(dead_code)]
 pub trait XdgToplevelTagManagerV1Handler: Any {
     /// destroy toplevel tag object
     ///

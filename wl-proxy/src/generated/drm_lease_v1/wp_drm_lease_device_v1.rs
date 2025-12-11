@@ -76,7 +76,6 @@ impl Debug for WpDrmLeaseDeviceV1 {
 
 impl WpDrmLeaseDeviceV1 {
     /// Since when the create_lease_request message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_LEASE_REQUEST__SINCE: u32 = 1;
 
     /// create a lease request object
@@ -125,7 +124,6 @@ impl WpDrmLeaseDeviceV1 {
     }
 
     /// Since when the release message is available.
-    #[allow(dead_code)]
     pub const MSG__RELEASE__SINCE: u32 = 1;
 
     /// release this object
@@ -165,7 +163,6 @@ impl WpDrmLeaseDeviceV1 {
     }
 
     /// Since when the drm_fd message is available.
-    #[allow(dead_code)]
     pub const MSG__DRM_FD__SINCE: u32 = 1;
 
     /// open a non-master fd for this DRM node
@@ -220,7 +217,6 @@ impl WpDrmLeaseDeviceV1 {
     }
 
     /// Since when the connector message is available.
-    #[allow(dead_code)]
     pub const MSG__CONNECTOR__SINCE: u32 = 1;
 
     /// advertise connectors available for leases
@@ -278,7 +274,6 @@ impl WpDrmLeaseDeviceV1 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// signals grouping of connectors
@@ -320,7 +315,6 @@ impl WpDrmLeaseDeviceV1 {
     }
 
     /// Since when the released message is available.
-    #[allow(dead_code)]
     pub const MSG__RELEASED__SINCE: u32 = 1;
 
     /// the compositor has finished using the device
@@ -366,7 +360,6 @@ impl WpDrmLeaseDeviceV1 {
 }
 
 /// A message handler for [WpDrmLeaseDeviceV1] proxies.
-#[allow(dead_code)]
 pub trait WpDrmLeaseDeviceV1Handler: Any {
     /// create a lease request object
     ///

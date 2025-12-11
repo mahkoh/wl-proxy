@@ -56,7 +56,6 @@ impl Debug for WpSecurityContextV1 {
 
 impl WpSecurityContextV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the security context object
@@ -92,7 +91,6 @@ impl WpSecurityContextV1 {
     }
 
     /// Since when the set_sandbox_engine message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_SANDBOX_ENGINE__SINCE: u32 = 1;
 
     /// set the sandbox engine
@@ -145,7 +143,6 @@ impl WpSecurityContextV1 {
     }
 
     /// Since when the set_app_id message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_APP_ID__SINCE: u32 = 1;
 
     /// set the application ID
@@ -203,7 +200,6 @@ impl WpSecurityContextV1 {
     }
 
     /// Since when the set_instance_id message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_INSTANCE_ID__SINCE: u32 = 1;
 
     /// set the instance ID
@@ -259,7 +255,6 @@ impl WpSecurityContextV1 {
     }
 
     /// Since when the commit message is available.
-    #[allow(dead_code)]
     pub const MSG__COMMIT__SINCE: u32 = 1;
 
     /// register the security context
@@ -304,7 +299,6 @@ impl WpSecurityContextV1 {
 }
 
 /// A message handler for [WpSecurityContextV1] proxies.
-#[allow(dead_code)]
 pub trait WpSecurityContextV1Handler: Any {
     /// destroy the security context object
     ///
@@ -674,31 +668,24 @@ impl Proxy for WpSecurityContextV1 {
 
 impl WpSecurityContextV1 {
     /// Since when the error.already_used enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_USED__SINCE: u32 = 1;
     /// Since when the error.already_set enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_SET__SINCE: u32 = 1;
     /// Since when the error.invalid_metadata enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_METADATA__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpSecurityContextV1Error(pub u32);
 
 impl WpSecurityContextV1Error {
     /// security context has already been committed
-    #[allow(dead_code)]
     pub const ALREADY_USED: Self = Self(1);
 
     /// metadata has already been set
-    #[allow(dead_code)]
     pub const ALREADY_SET: Self = Self(2);
 
     /// metadata is invalid
-    #[allow(dead_code)]
     pub const INVALID_METADATA: Self = Self(3);
 }
 

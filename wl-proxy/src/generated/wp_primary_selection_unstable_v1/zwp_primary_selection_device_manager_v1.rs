@@ -50,7 +50,6 @@ impl Debug for ZwpPrimarySelectionDeviceManagerV1 {
 
 impl ZwpPrimarySelectionDeviceManagerV1 {
     /// Since when the create_source message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_SOURCE__SINCE: u32 = 1;
 
     /// create a new primary selection source
@@ -97,7 +96,6 @@ impl ZwpPrimarySelectionDeviceManagerV1 {
     }
 
     /// Since when the get_device message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_DEVICE__SINCE: u32 = 1;
 
     /// create a new primary selection device
@@ -158,7 +156,6 @@ impl ZwpPrimarySelectionDeviceManagerV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the primary selection device manager
@@ -195,7 +192,6 @@ impl ZwpPrimarySelectionDeviceManagerV1 {
 }
 
 /// A message handler for [ZwpPrimarySelectionDeviceManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpPrimarySelectionDeviceManagerV1Handler: Any {
     /// create a new primary selection source
     ///

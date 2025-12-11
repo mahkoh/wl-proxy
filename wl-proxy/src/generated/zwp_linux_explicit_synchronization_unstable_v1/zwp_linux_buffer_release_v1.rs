@@ -63,7 +63,6 @@ impl Debug for ZwpLinuxBufferReleaseV1 {
 
 impl ZwpLinuxBufferReleaseV1 {
     /// Since when the fenced_release message is available.
-    #[allow(dead_code)]
     pub const MSG__FENCED_RELEASE__SINCE: u32 = 1;
 
     /// release buffer with fence
@@ -125,7 +124,6 @@ impl ZwpLinuxBufferReleaseV1 {
     }
 
     /// Since when the immediate_release message is available.
-    #[allow(dead_code)]
     pub const MSG__IMMEDIATE_RELEASE__SINCE: u32 = 1;
 
     /// release buffer immediately
@@ -177,7 +175,6 @@ impl ZwpLinuxBufferReleaseV1 {
 }
 
 /// A message handler for [ZwpLinuxBufferReleaseV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpLinuxBufferReleaseV1Handler: Any {
     /// release buffer with fence
     ///

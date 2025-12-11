@@ -48,7 +48,6 @@ impl Debug for ExtForeignToplevelHandleV1 {
 
 impl ExtForeignToplevelHandleV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the ext_foreign_toplevel_handle_v1 object
@@ -96,7 +95,6 @@ impl ExtForeignToplevelHandleV1 {
     }
 
     /// Since when the closed message is available.
-    #[allow(dead_code)]
     pub const MSG__CLOSED__SINCE: u32 = 1;
 
     /// the toplevel has been closed
@@ -138,7 +136,6 @@ impl ExtForeignToplevelHandleV1 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// all information about the toplevel has been sent
@@ -184,7 +181,6 @@ impl ExtForeignToplevelHandleV1 {
     }
 
     /// Since when the title message is available.
-    #[allow(dead_code)]
     pub const MSG__TITLE__SINCE: u32 = 1;
 
     /// title change
@@ -235,7 +231,6 @@ impl ExtForeignToplevelHandleV1 {
     }
 
     /// Since when the app_id message is available.
-    #[allow(dead_code)]
     pub const MSG__APP_ID__SINCE: u32 = 1;
 
     /// app_id change
@@ -286,7 +281,6 @@ impl ExtForeignToplevelHandleV1 {
     }
 
     /// Since when the identifier message is available.
-    #[allow(dead_code)]
     pub const MSG__IDENTIFIER__SINCE: u32 = 1;
 
     /// a stable identifier for a toplevel
@@ -354,7 +348,6 @@ impl ExtForeignToplevelHandleV1 {
 }
 
 /// A message handler for [ExtForeignToplevelHandleV1] proxies.
-#[allow(dead_code)]
 pub trait ExtForeignToplevelHandleV1Handler: Any {
     /// destroy the ext_foreign_toplevel_handle_v1 object
     ///

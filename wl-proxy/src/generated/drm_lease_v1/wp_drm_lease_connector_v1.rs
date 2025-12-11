@@ -53,7 +53,6 @@ impl Debug for WpDrmLeaseConnectorV1 {
 
 impl WpDrmLeaseConnectorV1 {
     /// Since when the name message is available.
-    #[allow(dead_code)]
     pub const MSG__NAME__SINCE: u32 = 1;
 
     /// name
@@ -108,7 +107,6 @@ impl WpDrmLeaseConnectorV1 {
     }
 
     /// Since when the description message is available.
-    #[allow(dead_code)]
     pub const MSG__DESCRIPTION__SINCE: u32 = 1;
 
     /// description
@@ -159,7 +157,6 @@ impl WpDrmLeaseConnectorV1 {
     }
 
     /// Since when the connector_id message is available.
-    #[allow(dead_code)]
     pub const MSG__CONNECTOR_ID__SINCE: u32 = 1;
 
     /// connector_id
@@ -210,7 +207,6 @@ impl WpDrmLeaseConnectorV1 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// all properties have been sent
@@ -249,7 +245,6 @@ impl WpDrmLeaseConnectorV1 {
     }
 
     /// Since when the withdrawn message is available.
-    #[allow(dead_code)]
     pub const MSG__WITHDRAWN__SINCE: u32 = 1;
 
     /// lease offer withdrawn
@@ -296,7 +291,6 @@ impl WpDrmLeaseConnectorV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy connector
@@ -337,7 +331,6 @@ impl WpDrmLeaseConnectorV1 {
 }
 
 /// A message handler for [WpDrmLeaseConnectorV1] proxies.
-#[allow(dead_code)]
 pub trait WpDrmLeaseConnectorV1Handler: Any {
     /// name
     ///

@@ -76,7 +76,6 @@ impl Debug for ZwpLinuxSurfaceSynchronizationV1 {
 
 impl ZwpLinuxSurfaceSynchronizationV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy synchronization object
@@ -119,7 +118,6 @@ impl ZwpLinuxSurfaceSynchronizationV1 {
     }
 
     /// Since when the set_acquire_fence message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_ACQUIRE_FENCE__SINCE: u32 = 1;
 
     /// set the acquire fence
@@ -187,7 +185,6 @@ impl ZwpLinuxSurfaceSynchronizationV1 {
     }
 
     /// Since when the get_release message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_RELEASE__SINCE: u32 = 1;
 
     /// release fence for last-attached buffer
@@ -251,7 +248,6 @@ impl ZwpLinuxSurfaceSynchronizationV1 {
 }
 
 /// A message handler for [ZwpLinuxSurfaceSynchronizationV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpLinuxSurfaceSynchronizationV1Handler: Any {
     /// destroy synchronization object
     ///
@@ -500,52 +496,39 @@ impl Proxy for ZwpLinuxSurfaceSynchronizationV1 {
 
 impl ZwpLinuxSurfaceSynchronizationV1 {
     /// Since when the error.invalid_fence enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_FENCE__SINCE: u32 = 1;
     /// Since when the error.duplicate_fence enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_DUPLICATE_FENCE__SINCE: u32 = 1;
     /// Since when the error.duplicate_release enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_DUPLICATE_RELEASE__SINCE: u32 = 1;
     /// Since when the error.no_surface enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_NO_SURFACE__SINCE: u32 = 1;
     /// Since when the error.unsupported_buffer enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_UNSUPPORTED_BUFFER__SINCE: u32 = 1;
     /// Since when the error.no_buffer enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_NO_BUFFER__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpLinuxSurfaceSynchronizationV1Error(pub u32);
 
 impl ZwpLinuxSurfaceSynchronizationV1Error {
     /// the fence specified by the client could not be imported
-    #[allow(dead_code)]
     pub const INVALID_FENCE: Self = Self(0);
 
     /// multiple fences added for a single surface commit
-    #[allow(dead_code)]
     pub const DUPLICATE_FENCE: Self = Self(1);
 
     /// multiple releases added for a single surface commit
-    #[allow(dead_code)]
     pub const DUPLICATE_RELEASE: Self = Self(2);
 
     /// the associated wl_surface was destroyed
-    #[allow(dead_code)]
     pub const NO_SURFACE: Self = Self(3);
 
     /// the buffer does not support explicit synchronization
-    #[allow(dead_code)]
     pub const UNSUPPORTED_BUFFER: Self = Self(4);
 
     /// no buffer was attached
-    #[allow(dead_code)]
     pub const NO_BUFFER: Self = Self(5);
 }
 

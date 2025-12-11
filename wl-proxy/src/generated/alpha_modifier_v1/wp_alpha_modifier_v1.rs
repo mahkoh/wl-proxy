@@ -54,7 +54,6 @@ impl Debug for WpAlphaModifierV1 {
 
 impl WpAlphaModifierV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the alpha modifier manager object
@@ -91,7 +90,6 @@ impl WpAlphaModifierV1 {
     }
 
     /// Since when the get_surface message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_SURFACE__SINCE: u32 = 1;
 
     /// create a new alpha modifier surface object
@@ -155,7 +153,6 @@ impl WpAlphaModifierV1 {
 }
 
 /// A message handler for [WpAlphaModifierV1] proxies.
-#[allow(dead_code)]
 pub trait WpAlphaModifierV1Handler: Any {
     /// destroy the alpha modifier manager object
     ///
@@ -336,17 +333,14 @@ impl Proxy for WpAlphaModifierV1 {
 
 impl WpAlphaModifierV1 {
     /// Since when the error.already_constructed enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_CONSTRUCTED__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpAlphaModifierV1Error(pub u32);
 
 impl WpAlphaModifierV1Error {
     /// wl_surface already has a alpha modifier object
-    #[allow(dead_code)]
     pub const ALREADY_CONSTRUCTED: Self = Self(0);
 }
 

@@ -53,7 +53,6 @@ impl Debug for WpContentTypeManagerV1 {
 
 impl WpContentTypeManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the content type manager object
@@ -90,7 +89,6 @@ impl WpContentTypeManagerV1 {
     }
 
     /// Since when the get_surface_content_type message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_SURFACE_CONTENT_TYPE__SINCE: u32 = 1;
 
     /// create a new content type object
@@ -155,7 +153,6 @@ impl WpContentTypeManagerV1 {
 }
 
 /// A message handler for [WpContentTypeManagerV1] proxies.
-#[allow(dead_code)]
 pub trait WpContentTypeManagerV1Handler: Any {
     /// destroy the content type manager object
     ///
@@ -337,17 +334,14 @@ impl Proxy for WpContentTypeManagerV1 {
 
 impl WpContentTypeManagerV1 {
     /// Since when the error.already_constructed enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_CONSTRUCTED__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpContentTypeManagerV1Error(pub u32);
 
 impl WpContentTypeManagerV1Error {
     /// wl_surface already has a content type object
-    #[allow(dead_code)]
     pub const ALREADY_CONSTRUCTED: Self = Self(0);
 }
 

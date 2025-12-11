@@ -51,7 +51,6 @@ impl Debug for ExtBackgroundEffectSurfaceV1 {
 
 impl ExtBackgroundEffectSurfaceV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// release the blur object
@@ -88,7 +87,6 @@ impl ExtBackgroundEffectSurfaceV1 {
     }
 
     /// Since when the set_blur_region message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_BLUR_REGION__SINCE: u32 = 1;
 
     /// set blur region
@@ -159,7 +157,6 @@ impl ExtBackgroundEffectSurfaceV1 {
 }
 
 /// A message handler for [ExtBackgroundEffectSurfaceV1] proxies.
-#[allow(dead_code)]
 pub trait ExtBackgroundEffectSurfaceV1Handler: Any {
     /// release the blur object
     ///
@@ -350,17 +347,14 @@ impl Proxy for ExtBackgroundEffectSurfaceV1 {
 
 impl ExtBackgroundEffectSurfaceV1 {
     /// Since when the error.surface_destroyed enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_SURFACE_DESTROYED__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ExtBackgroundEffectSurfaceV1Error(pub u32);
 
 impl ExtBackgroundEffectSurfaceV1Error {
     /// the associated surface has been destroyed
-    #[allow(dead_code)]
     pub const SURFACE_DESTROYED: Self = Self(0);
 }
 

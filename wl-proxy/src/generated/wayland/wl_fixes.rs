@@ -48,7 +48,6 @@ impl Debug for WlFixes {
 
 impl WlFixes {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroys this object
@@ -82,7 +81,6 @@ impl WlFixes {
     }
 
     /// Since when the destroy_registry message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY_REGISTRY__SINCE: u32 = 1;
 
     /// destroy a wl_registry
@@ -143,7 +141,6 @@ impl WlFixes {
 }
 
 /// A message handler for [WlFixes] proxies.
-#[allow(dead_code)]
 pub trait WlFixesHandler: Any {
     /// destroys this object
     #[inline]

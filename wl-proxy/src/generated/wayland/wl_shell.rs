@@ -55,7 +55,6 @@ impl Debug for WlShell {
 
 impl WlShell {
     /// Since when the get_shell_surface message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_SHELL_SURFACE__SINCE: u32 = 1;
 
     /// create a shell surface from a surface
@@ -121,7 +120,6 @@ impl WlShell {
 }
 
 /// A message handler for [WlShell] proxies.
-#[allow(dead_code)]
 pub trait WlShellHandler: Any {
     /// create a shell surface from a surface
     ///
@@ -270,17 +268,14 @@ impl Proxy for WlShell {
 
 impl WlShell {
     /// Since when the error.role enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ROLE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlShellError(pub u32);
 
 impl WlShellError {
     /// given wl_surface has another role
-    #[allow(dead_code)]
     pub const ROLE: Self = Self(0);
 }
 

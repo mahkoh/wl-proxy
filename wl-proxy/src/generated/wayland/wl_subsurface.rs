@@ -98,7 +98,6 @@ impl Debug for WlSubsurface {
 
 impl WlSubsurface {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// remove sub-surface interface
@@ -137,7 +136,6 @@ impl WlSubsurface {
     }
 
     /// Since when the set_position message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_POSITION__SINCE: u32 = 1;
 
     /// reposition the sub-surface
@@ -201,7 +199,6 @@ impl WlSubsurface {
     }
 
     /// Since when the place_above message is available.
-    #[allow(dead_code)]
     pub const MSG__PLACE_ABOVE__SINCE: u32 = 1;
 
     /// restack the sub-surface
@@ -264,7 +261,6 @@ impl WlSubsurface {
     }
 
     /// Since when the place_below message is available.
-    #[allow(dead_code)]
     pub const MSG__PLACE_BELOW__SINCE: u32 = 1;
 
     /// restack the sub-surface
@@ -316,7 +312,6 @@ impl WlSubsurface {
     }
 
     /// Since when the set_sync message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_SYNC__SINCE: u32 = 1;
 
     /// set sub-surface to synchronized mode
@@ -363,7 +358,6 @@ impl WlSubsurface {
     }
 
     /// Since when the set_desync message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_DESYNC__SINCE: u32 = 1;
 
     /// set sub-surface to desynchronized mode
@@ -417,7 +411,6 @@ impl WlSubsurface {
 }
 
 /// A message handler for [WlSubsurface] proxies.
-#[allow(dead_code)]
 pub trait WlSubsurfaceHandler: Any {
     /// remove sub-surface interface
     ///
@@ -807,17 +800,14 @@ impl Proxy for WlSubsurface {
 
 impl WlSubsurface {
     /// Since when the error.bad_surface enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_BAD_SURFACE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlSubsurfaceError(pub u32);
 
 impl WlSubsurfaceError {
     /// wl_surface is not a sibling or the parent
-    #[allow(dead_code)]
     pub const BAD_SURFACE: Self = Self(0);
 }
 

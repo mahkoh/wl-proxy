@@ -43,7 +43,6 @@ impl Debug for ZwpInputPanelSurfaceV1 {
 
 impl ZwpInputPanelSurfaceV1 {
     /// Since when the set_toplevel message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_TOPLEVEL__SINCE: u32 = 1;
 
     /// set the surface type as a keyboard
@@ -101,7 +100,6 @@ impl ZwpInputPanelSurfaceV1 {
     }
 
     /// Since when the set_overlay_panel message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_OVERLAY_PANEL__SINCE: u32 = 1;
 
     /// set the surface type as an overlay panel
@@ -140,7 +138,6 @@ impl ZwpInputPanelSurfaceV1 {
 }
 
 /// A message handler for [ZwpInputPanelSurfaceV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpInputPanelSurfaceV1Handler: Any {
     /// set the surface type as a keyboard
     ///
@@ -317,16 +314,13 @@ impl Proxy for ZwpInputPanelSurfaceV1 {
 
 impl ZwpInputPanelSurfaceV1 {
     /// Since when the position.center_bottom enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__POSITION_CENTER_BOTTOM__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpInputPanelSurfaceV1Position(pub u32);
 
 impl ZwpInputPanelSurfaceV1Position {
-    #[allow(dead_code)]
     pub const CENTER_BOTTOM: Self = Self(0);
 }
 

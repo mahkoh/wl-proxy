@@ -43,7 +43,6 @@ impl Debug for ZwpFullscreenShellModeFeedbackV1 {
 
 impl ZwpFullscreenShellModeFeedbackV1 {
     /// Since when the mode_successful message is available.
-    #[allow(dead_code)]
     pub const MSG__MODE_SUCCESSFUL__SINCE: u32 = 1;
 
     /// mode switch succeeded
@@ -89,7 +88,6 @@ impl ZwpFullscreenShellModeFeedbackV1 {
     }
 
     /// Since when the mode_failed message is available.
-    #[allow(dead_code)]
     pub const MSG__MODE_FAILED__SINCE: u32 = 1;
 
     /// mode switch failed
@@ -135,7 +133,6 @@ impl ZwpFullscreenShellModeFeedbackV1 {
     }
 
     /// Since when the present_cancelled message is available.
-    #[allow(dead_code)]
     pub const MSG__PRESENT_CANCELLED__SINCE: u32 = 1;
 
     /// mode switch cancelled
@@ -182,7 +179,6 @@ impl ZwpFullscreenShellModeFeedbackV1 {
 }
 
 /// A message handler for [ZwpFullscreenShellModeFeedbackV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
     /// mode switch succeeded
     ///

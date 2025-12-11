@@ -56,7 +56,6 @@ impl Debug for ZwlrGammaControlV1 {
 
 impl ZwlrGammaControlV1 {
     /// Since when the gamma_size message is available.
-    #[allow(dead_code)]
     pub const MSG__GAMMA_SIZE__SINCE: u32 = 1;
 
     /// size of gamma ramps
@@ -106,7 +105,6 @@ impl ZwlrGammaControlV1 {
     }
 
     /// Since when the set_gamma message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_GAMMA__SINCE: u32 = 1;
 
     /// set the gamma table
@@ -158,7 +156,6 @@ impl ZwlrGammaControlV1 {
     }
 
     /// Since when the failed message is available.
-    #[allow(dead_code)]
     pub const MSG__FAILED__SINCE: u32 = 1;
 
     /// object no longer valid
@@ -202,7 +199,6 @@ impl ZwlrGammaControlV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy this control
@@ -240,7 +236,6 @@ impl ZwlrGammaControlV1 {
 }
 
 /// A message handler for [ZwlrGammaControlV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrGammaControlV1Handler: Any {
     /// size of gamma ramps
     ///
@@ -490,17 +485,14 @@ impl Proxy for ZwlrGammaControlV1 {
 
 impl ZwlrGammaControlV1 {
     /// Since when the error.invalid_gamma enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_GAMMA__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwlrGammaControlV1Error(pub u32);
 
 impl ZwlrGammaControlV1Error {
     /// invalid gamma tables
-    #[allow(dead_code)]
     pub const INVALID_GAMMA: Self = Self(1);
 }
 

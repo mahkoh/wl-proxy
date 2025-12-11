@@ -49,7 +49,6 @@ impl Debug for ZwpInputTimestampsV1 {
 
 impl ZwpInputTimestampsV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the input timestamps object
@@ -87,7 +86,6 @@ impl ZwpInputTimestampsV1 {
     }
 
     /// Since when the timestamp message is available.
-    #[allow(dead_code)]
     pub const MSG__TIMESTAMP__SINCE: u32 = 1;
 
     /// high-resolution timestamp event
@@ -159,7 +157,6 @@ impl ZwpInputTimestampsV1 {
 }
 
 /// A message handler for [ZwpInputTimestampsV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpInputTimestampsV1Handler: Any {
     /// destroy the input timestamps object
     ///

@@ -50,7 +50,6 @@ impl Debug for ZxdgExportedV2 {
 
 impl ZxdgExportedV2 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// unexport the exported surface
@@ -88,7 +87,6 @@ impl ZxdgExportedV2 {
     }
 
     /// Since when the handle message is available.
-    #[allow(dead_code)]
     pub const MSG__HANDLE__SINCE: u32 = 1;
 
     /// the exported surface handle
@@ -140,7 +138,6 @@ impl ZxdgExportedV2 {
 }
 
 /// A message handler for [ZxdgExportedV2] proxies.
-#[allow(dead_code)]
 pub trait ZxdgExportedV2Handler: Any {
     /// unexport the exported surface
     ///

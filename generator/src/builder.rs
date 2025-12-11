@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use {
     crate::{
         formatter::{format_interface_file, format_mod_file, format_protocol_file},
@@ -10,6 +11,7 @@ use {
     },
     thiserror::Error,
 };
+use crate::error::Error;
 
 #[derive(Debug, Error)]
 enum BuilderError {
@@ -31,27 +33,27 @@ enum BuilderError {
 
 /// A builder for `wl-client` wrappers.
 pub struct Builder {
-    add_default_dir: bool,
-    mutable_data: bool,
-    files: Vec<PathBuf>,
-    dirs: Vec<PathBuf>,
+    files: Vec<ProtocolFile>,
+}
+
+struct ProtocolFile {
+    feature: Option<Arc<String>>,
+    path: PathBuf,
+
 }
 
 impl Default for Builder {
     fn default() -> Self {
         Self {
-            add_default_dir: true,
-            mutable_data: false,
             files: Default::default(),
-            dirs: Default::default(),
         }
     }
 }
 
 impl Builder {
     /// Generates the code.
-    pub fn build(self) -> Result<(), crate::Error> {
-        self.build_().map_err(|e| crate::Error(Box::new(e)))
+    pub fn build(self) -> Result<(), Error> {
+        self.build_().map_err(|e| Error(Box::new(e)))
     }
 
     fn build_(mut self) -> Result<(), BuilderError> {
@@ -60,38 +62,47 @@ impl Builder {
 
         let src_dir = root_dir.join("wl-proxy/src");
         let generated_dir = src_dir.join("generated");
-        let protocols_dir = root_dir.join("wayland-protocols");
+        let dirs = [
+            ("core", None),
+            ("wayland-protocols", Some("wayland-protocols")),
+            ("wlr", Some("wlr-protocols")),
+        ];
+        let protocols_dir = root_dir.join("protocols");
         std::fs::remove_dir_all(&generated_dir).unwrap();
         create_dir(&generated_dir)?;
 
         let mut protocol_objects = vec![];
 
-        if self.add_default_dir {
-            self.dirs.push(PathBuf::from("wayland-protocols"));
-        }
-        let iter = match std::fs::read_dir(&protocols_dir) {
-            Ok(c) => c,
-            Err(e) => return Err(BuilderError::OpenDir(protocols_dir, e)),
-        };
-        for file in iter {
-            let file = match file {
-                Ok(f) => f,
-                Err(e) => return Err(BuilderError::ReadDir(protocols_dir, e)),
-            };
-            if !file.file_name().as_encoded_bytes().ends_with(b".xml") {
-                continue;
-            }
-            self.files.push(file.path());
-        }
-        self.files.sort();
-        for file in self.files {
-            let contents = match std::fs::read(&file) {
+        for (dir, feature) in dirs {
+            let dir = protocols_dir.join(dir);
+            let feature = feature.map(|f| Arc::new(f.to_string()));
+            let iter = match std::fs::read_dir(&dir) {
                 Ok(c) => c,
-                Err(e) => return Err(BuilderError::ReadFile(file, e)),
+                Err(e) => return Err(BuilderError::OpenDir(dir, e)),
+            };
+            for file in iter {
+                let file = match file {
+                    Ok(f) => f,
+                    Err(e) => return Err(BuilderError::ReadDir(dir, e)),
+                };
+                if !file.file_name().as_encoded_bytes().ends_with(b".xml") {
+                    continue;
+                }
+                self.files.push(ProtocolFile {
+                    feature: feature.clone(),
+                    path: file.path(),
+                });
+            }
+        }
+        self.files.sort_by(|f1, f2| f1.path.cmp(&f2.path));
+        for file in self.files {
+            let contents = match std::fs::read(&file.path) {
+                Ok(c) => c,
+                Err(e) => return Err(BuilderError::ReadFile(file.path, e)),
             };
             let mut protocols = match parse(&contents) {
                 Ok(c) => c,
-                Err(e) => return Err(BuilderError::ParseFile(file, e)),
+                Err(e) => return Err(BuilderError::ParseFile(file.path, e)),
             };
             protocols.sort_by(|p1, p2| p1.name.cmp(&p2.name));
             for mut protocol in protocols {
@@ -106,7 +117,7 @@ impl Builder {
                 for interface in protocol.interfaces {
                     let file_name = format!("{}.rs", interface.name);
                     format_file(&dir.join(&file_name), |f| {
-                        format_interface_file(f, self.mutable_data, &interface)
+                        format_interface_file(f, &interface)
                     })?;
                     let mut enums = vec![];
                     for enum_ in interface.enums {
@@ -114,7 +125,7 @@ impl Builder {
                     }
                     interfaces.push((interface.name, enums, interface.version));
                 }
-                protocol_objects.push((protocol.name, interfaces));
+                protocol_objects.push((protocol.name, file.feature.clone(), interfaces));
             }
         }
 

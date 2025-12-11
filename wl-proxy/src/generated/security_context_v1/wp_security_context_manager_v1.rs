@@ -64,7 +64,6 @@ impl Debug for WpSecurityContextManagerV1 {
 
 impl WpSecurityContextManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the manager object
@@ -101,7 +100,6 @@ impl WpSecurityContextManagerV1 {
     }
 
     /// Since when the create_listener message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_LISTENER__SINCE: u32 = 1;
 
     /// create a new security context
@@ -177,7 +175,6 @@ impl WpSecurityContextManagerV1 {
 }
 
 /// A message handler for [WpSecurityContextManagerV1] proxies.
-#[allow(dead_code)]
 pub trait WpSecurityContextManagerV1Handler: Any {
     /// destroy the manager object
     ///
@@ -368,24 +365,19 @@ impl Proxy for WpSecurityContextManagerV1 {
 
 impl WpSecurityContextManagerV1 {
     /// Since when the error.invalid_listen_fd enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_LISTEN_FD__SINCE: u32 = 1;
     /// Since when the error.nested enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_NESTED__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpSecurityContextManagerV1Error(pub u32);
 
 impl WpSecurityContextManagerV1Error {
     /// listening socket FD is invalid
-    #[allow(dead_code)]
     pub const INVALID_LISTEN_FD: Self = Self(1);
 
     /// nested security contexts are forbidden
-    #[allow(dead_code)]
     pub const NESTED: Self = Self(2);
 }
 

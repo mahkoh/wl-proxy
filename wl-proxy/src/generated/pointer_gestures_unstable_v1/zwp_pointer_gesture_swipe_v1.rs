@@ -61,7 +61,6 @@ impl Debug for ZwpPointerGestureSwipeV1 {
 
 impl ZwpPointerGestureSwipeV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the pointer swipe gesture object
@@ -95,7 +94,6 @@ impl ZwpPointerGestureSwipeV1 {
     }
 
     /// Since when the begin message is available.
-    #[allow(dead_code)]
     pub const MSG__BEGIN__SINCE: u32 = 1;
 
     /// multi-finger swipe begin
@@ -164,7 +162,6 @@ impl ZwpPointerGestureSwipeV1 {
     }
 
     /// Since when the update message is available.
-    #[allow(dead_code)]
     pub const MSG__UPDATE__SINCE: u32 = 1;
 
     /// multi-finger swipe motion
@@ -226,7 +223,6 @@ impl ZwpPointerGestureSwipeV1 {
     }
 
     /// Since when the end message is available.
-    #[allow(dead_code)]
     pub const MSG__END__SINCE: u32 = 1;
 
     /// multi-finger swipe end
@@ -291,7 +287,6 @@ impl ZwpPointerGestureSwipeV1 {
 }
 
 /// A message handler for [ZwpPointerGestureSwipeV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpPointerGestureSwipeV1Handler: Any {
     /// destroy the pointer swipe gesture object
     #[inline]

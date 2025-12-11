@@ -53,7 +53,6 @@ impl Debug for WpColorManagerV1 {
 
 impl WpColorManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the color manager
@@ -90,7 +89,6 @@ impl WpColorManagerV1 {
     }
 
     /// Since when the get_output message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_OUTPUT__SINCE: u32 = 1;
 
     /// create a color management interface for a wl_output
@@ -154,7 +152,6 @@ impl WpColorManagerV1 {
     }
 
     /// Since when the get_surface message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_SURFACE__SINCE: u32 = 1;
 
     /// create a color management interface for a wl_surface
@@ -221,7 +218,6 @@ impl WpColorManagerV1 {
     }
 
     /// Since when the get_surface_feedback message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_SURFACE_FEEDBACK__SINCE: u32 = 1;
 
     /// create a color management feedback interface
@@ -286,7 +282,6 @@ impl WpColorManagerV1 {
     }
 
     /// Since when the create_icc_creator message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_ICC_CREATOR__SINCE: u32 = 1;
 
     /// make a new ICC-based image description creator object
@@ -340,7 +335,6 @@ impl WpColorManagerV1 {
     }
 
     /// Since when the create_parametric_creator message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_PARAMETRIC_CREATOR__SINCE: u32 = 1;
 
     /// make a new parametric image description creator object
@@ -394,7 +388,6 @@ impl WpColorManagerV1 {
     }
 
     /// Since when the create_windows_scrgb message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_WINDOWS_SCRGB__SINCE: u32 = 1;
 
     /// create Windows-scRGB image description object
@@ -484,7 +477,6 @@ impl WpColorManagerV1 {
     }
 
     /// Since when the supported_intent message is available.
-    #[allow(dead_code)]
     pub const MSG__SUPPORTED_INTENT__SINCE: u32 = 1;
 
     /// supported rendering intent
@@ -533,7 +525,6 @@ impl WpColorManagerV1 {
     }
 
     /// Since when the supported_feature message is available.
-    #[allow(dead_code)]
     pub const MSG__SUPPORTED_FEATURE__SINCE: u32 = 1;
 
     /// supported features
@@ -582,7 +573,6 @@ impl WpColorManagerV1 {
     }
 
     /// Since when the supported_tf_named message is available.
-    #[allow(dead_code)]
     pub const MSG__SUPPORTED_TF_NAMED__SINCE: u32 = 1;
 
     /// supported named transfer characteristic
@@ -632,7 +622,6 @@ impl WpColorManagerV1 {
     }
 
     /// Since when the supported_primaries_named message is available.
-    #[allow(dead_code)]
     pub const MSG__SUPPORTED_PRIMARIES_NAMED__SINCE: u32 = 1;
 
     /// supported named primaries
@@ -682,7 +671,6 @@ impl WpColorManagerV1 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// all features have been sent
@@ -721,7 +709,6 @@ impl WpColorManagerV1 {
 }
 
 /// A message handler for [WpColorManagerV1] proxies.
-#[allow(dead_code)]
 pub trait WpColorManagerV1Handler: Any {
     /// destroy the color manager
     ///
@@ -1433,136 +1420,95 @@ impl Proxy for WpColorManagerV1 {
 
 impl WpColorManagerV1 {
     /// Since when the error.unsupported_feature enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_UNSUPPORTED_FEATURE__SINCE: u32 = 1;
     /// Since when the error.surface_exists enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_SURFACE_EXISTS__SINCE: u32 = 1;
 
     /// Since when the render_intent.perceptual enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RENDER_INTENT_PERCEPTUAL__SINCE: u32 = 1;
     /// Since when the render_intent.relative enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RENDER_INTENT_RELATIVE__SINCE: u32 = 1;
     /// Since when the render_intent.saturation enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RENDER_INTENT_SATURATION__SINCE: u32 = 1;
     /// Since when the render_intent.absolute enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RENDER_INTENT_ABSOLUTE__SINCE: u32 = 1;
     /// Since when the render_intent.relative_bpc enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RENDER_INTENT_RELATIVE_BPC__SINCE: u32 = 1;
 
     /// Since when the feature.icc_v2_v4 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FEATURE_ICC_V2_V4__SINCE: u32 = 1;
     /// Since when the feature.parametric enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FEATURE_PARAMETRIC__SINCE: u32 = 1;
     /// Since when the feature.set_primaries enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FEATURE_SET_PRIMARIES__SINCE: u32 = 1;
     /// Since when the feature.set_tf_power enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FEATURE_SET_TF_POWER__SINCE: u32 = 1;
     /// Since when the feature.set_luminances enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FEATURE_SET_LUMINANCES__SINCE: u32 = 1;
     /// Since when the feature.set_mastering_display_primaries enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FEATURE_SET_MASTERING_DISPLAY_PRIMARIES__SINCE: u32 = 1;
     /// Since when the feature.extended_target_volume enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FEATURE_EXTENDED_TARGET_VOLUME__SINCE: u32 = 1;
     /// Since when the feature.windows_scrgb enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FEATURE_WINDOWS_SCRGB__SINCE: u32 = 1;
 
     /// Since when the primaries.srgb enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__PRIMARIES_SRGB__SINCE: u32 = 1;
     /// Since when the primaries.pal_m enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__PRIMARIES_PAL_M__SINCE: u32 = 1;
     /// Since when the primaries.pal enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__PRIMARIES_PAL__SINCE: u32 = 1;
     /// Since when the primaries.ntsc enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__PRIMARIES_NTSC__SINCE: u32 = 1;
     /// Since when the primaries.generic_film enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__PRIMARIES_GENERIC_FILM__SINCE: u32 = 1;
     /// Since when the primaries.bt2020 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__PRIMARIES_BT2020__SINCE: u32 = 1;
     /// Since when the primaries.cie1931_xyz enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__PRIMARIES_CIE1931_XYZ__SINCE: u32 = 1;
     /// Since when the primaries.dci_p3 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__PRIMARIES_DCI_P3__SINCE: u32 = 1;
     /// Since when the primaries.display_p3 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__PRIMARIES_DISPLAY_P3__SINCE: u32 = 1;
     /// Since when the primaries.adobe_rgb enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__PRIMARIES_ADOBE_RGB__SINCE: u32 = 1;
 
     /// Since when the transfer_function.bt1886 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFER_FUNCTION_BT1886__SINCE: u32 = 1;
     /// Since when the transfer_function.gamma22 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFER_FUNCTION_GAMMA22__SINCE: u32 = 1;
     /// Since when the transfer_function.gamma28 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFER_FUNCTION_GAMMA28__SINCE: u32 = 1;
     /// Since when the transfer_function.st240 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFER_FUNCTION_ST240__SINCE: u32 = 1;
     /// Since when the transfer_function.ext_linear enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFER_FUNCTION_EXT_LINEAR__SINCE: u32 = 1;
     /// Since when the transfer_function.log_100 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFER_FUNCTION_LOG_100__SINCE: u32 = 1;
     /// Since when the transfer_function.log_316 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFER_FUNCTION_LOG_316__SINCE: u32 = 1;
     /// Since when the transfer_function.xvycc enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFER_FUNCTION_XVYCC__SINCE: u32 = 1;
     /// Since when the transfer_function.srgb enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFER_FUNCTION_SRGB__SINCE: u32 = 1;
     /// Since when the transfer_function.ext_srgb enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFER_FUNCTION_EXT_SRGB__SINCE: u32 = 1;
     /// Since when the transfer_function.st2084_pq enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFER_FUNCTION_ST2084_PQ__SINCE: u32 = 1;
     /// Since when the transfer_function.st428 enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFER_FUNCTION_ST428__SINCE: u32 = 1;
     /// Since when the transfer_function.hlg enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSFER_FUNCTION_HLG__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpColorManagerV1Error(pub u32);
 
 impl WpColorManagerV1Error {
     /// request not supported
-    #[allow(dead_code)]
     pub const UNSUPPORTED_FEATURE: Self = Self(0);
 
     /// color management surface exists already
-    #[allow(dead_code)]
     pub const SURFACE_EXISTS: Self = Self(1);
 }
 
@@ -1588,28 +1534,22 @@ impl Debug for WpColorManagerV1Error {
 /// Compositors must support the perceptual rendering intent. Other
 /// rendering intents are optional.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpColorManagerV1RenderIntent(pub u32);
 
 impl WpColorManagerV1RenderIntent {
     /// perceptual
-    #[allow(dead_code)]
     pub const PERCEPTUAL: Self = Self(0);
 
     /// media-relative colorimetric
-    #[allow(dead_code)]
     pub const RELATIVE: Self = Self(1);
 
     /// saturation
-    #[allow(dead_code)]
     pub const SATURATION: Self = Self(2);
 
     /// ICC-absolute colorimetric
-    #[allow(dead_code)]
     pub const ABSOLUTE: Self = Self(3);
 
     /// media-relative colorimetric + black point compensation
-    #[allow(dead_code)]
     pub const RELATIVE_BPC: Self = Self(4);
 }
 
@@ -1629,35 +1569,28 @@ impl Debug for WpColorManagerV1RenderIntent {
 
 /// compositor supported features
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpColorManagerV1Feature(pub u32);
 
 impl WpColorManagerV1Feature {
     /// create_icc_creator request
-    #[allow(dead_code)]
     pub const ICC_V2_V4: Self = Self(0);
 
     /// create_parametric_creator request
-    #[allow(dead_code)]
     pub const PARAMETRIC: Self = Self(1);
 
     /// parametric set_primaries request
-    #[allow(dead_code)]
     pub const SET_PRIMARIES: Self = Self(2);
 
     /// parametric set_tf_power request
-    #[allow(dead_code)]
     pub const SET_TF_POWER: Self = Self(3);
 
     /// parametric set_luminances request
-    #[allow(dead_code)]
     pub const SET_LUMINANCES: Self = Self(4);
 
     /// parametric set_mastering_display_primaries request
     ///
     /// The compositor supports set_mastering_display_primaries request with a
     /// target color volume fully contained inside the primary color volume.
-    #[allow(dead_code)]
     pub const SET_MASTERING_DISPLAY_PRIMARIES: Self = Self(5);
 
     /// parametric target exceeds primary color volume
@@ -1667,11 +1600,9 @@ impl WpColorManagerV1Feature {
     ///
     /// This can only be advertised if feature set_mastering_display_primaries
     /// is supported as well.
-    #[allow(dead_code)]
     pub const EXTENDED_TARGET_VOLUME: Self = Self(6);
 
     /// create_windows_scrgb request
-    #[allow(dead_code)]
     pub const WINDOWS_SCRGB: Self = Self(7);
 }
 
@@ -1698,7 +1629,6 @@ impl Debug for WpColorManagerV1Feature {
 ///
 /// A value of 0 is invalid and will never be present in the list of enums.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpColorManagerV1Primaries(pub u32);
 
 impl WpColorManagerV1Primaries {
@@ -1712,7 +1642,6 @@ impl WpColorManagerV1Primaries {
     /// - IEC 61966-2-4
     /// - Society of Motion Picture and Television Engineers (SMPTE) RP 177
     ///   (1993) Annex B
-    #[allow(dead_code)]
     pub const SRGB: Self = Self(1);
 
     /// Color primaries for PAL-M as defined by the BT.470 standard
@@ -1723,7 +1652,6 @@ impl WpColorManagerV1Primaries {
     ///   Recommendation for transmission standards for color television
     /// - United States Federal Communications Commission (2003) Title 47 Code
     ///   of Federal Regulations 73.682 (a)(20)
-    #[allow(dead_code)]
     pub const PAL_M: Self = Self(2);
 
     /// Color primaries for PAL as defined by the BT.601 standard
@@ -1733,7 +1661,6 @@ impl WpColorManagerV1Primaries {
     /// - Rec. ITU-R BT.601-7 625
     /// - Rec. ITU-R BT.1358-0 625 (historical)
     /// - Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM
-    #[allow(dead_code)]
     pub const PAL: Self = Self(3);
 
     /// Color primaries for NTSC as defined by the BT.601 standard
@@ -1744,7 +1671,6 @@ impl WpColorManagerV1Primaries {
     /// - Rec. ITU-R BT.1700-0 NTSC
     /// - SMPTE 170M (2004)
     /// - SMPTE 240M (1999) (historical)
-    #[allow(dead_code)]
     pub const NTSC: Self = Self(4);
 
     /// Generic film with colour filters using Illuminant C
@@ -1752,7 +1678,6 @@ impl WpColorManagerV1Primaries {
     /// Color primaries as defined by Recommendation ITU-T H.273
     /// "Coding-independent code points for video signal type identification"
     /// for "generic film".
-    #[allow(dead_code)]
     pub const GENERIC_FILM: Self = Self(5);
 
     /// Color primaries as defined by the BT.2020 and BT.2100 standard
@@ -1760,7 +1685,6 @@ impl WpColorManagerV1Primaries {
     /// Color primaries as defined by
     /// - Rec. ITU-R BT.2020-2
     /// - Rec. ITU-R BT.2100-0
-    #[allow(dead_code)]
     pub const BT2020: Self = Self(6);
 
     /// Color primaries of the full CIE 1931 XYZ color space
@@ -1769,28 +1693,24 @@ impl WpColorManagerV1Primaries {
     /// space by
     /// - SMPTE ST 428-1
     /// - (CIE 1931 XYZ as in ISO 11664-1)
-    #[allow(dead_code)]
     pub const CIE1931_XYZ: Self = Self(7);
 
     /// Color primaries of the DCI P3 color space as defined by the SMPTE RP 431 standard
     ///
     /// Color primaries as defined by Digital Cinema System and published in
     /// SMPTE RP 431-2 (2011).
-    #[allow(dead_code)]
     pub const DCI_P3: Self = Self(8);
 
     /// Color primaries of Display P3 variant of the DCI-P3 color space as defined by the SMPTE EG 432 standard
     ///
     /// Color primaries as defined by Digital Cinema System and published in
     /// SMPTE EG 432-1 (2010).
-    #[allow(dead_code)]
     pub const DISPLAY_P3: Self = Self(9);
 
     /// Color primaries of the Adobe RGB color space as defined by the ISO 12640 standard
     ///
     /// Color primaries as defined by Adobe as "Adobe RGB" and later published
     /// by ISO 12640-4 (2011).
-    #[allow(dead_code)]
     pub const ADOBE_RGB: Self = Self(10);
 }
 
@@ -1822,7 +1742,6 @@ impl Debug for WpColorManagerV1Primaries {
 ///
 /// See appendix.md for the formulae.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpColorManagerV1TransferFunction(pub u32);
 
 impl WpColorManagerV1TransferFunction {
@@ -1837,7 +1756,6 @@ impl WpColorManagerV1TransferFunction {
     /// - primary color volume minimum: 0.01 cd/m²
     /// - primary color volume maximum: 100 cd/m²
     /// - reference white: 100 cd/m²
-    #[allow(dead_code)]
     pub const BT1886: Self = Self(1);
 
     /// Assumed display gamma 2.2 transfer function
@@ -1851,47 +1769,40 @@ impl WpColorManagerV1TransferFunction {
     /// - Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM
     ///
     /// Note: an sRGB display (IEC 61966-2-1) uses this transfer function.
-    #[allow(dead_code)]
     pub const GAMMA22: Self = Self(2);
 
     /// Assumed display gamma 2.8 transfer function
     ///
     /// Transfer characteristics as defined by
     /// - Rec. ITU-R BT.470-6 System B, G (historical)
-    #[allow(dead_code)]
     pub const GAMMA28: Self = Self(3);
 
     /// SMPTE ST 240 transfer function
     ///
     /// Transfer characteristics as defined by
     /// - SMPTE ST 240 (1999)
-    #[allow(dead_code)]
     pub const ST240: Self = Self(4);
 
     /// extended linear transfer function
     ///
     /// Linear transfer function defined over all real numbers.
     /// Normalised electrical values are equal the normalised optical values.
-    #[allow(dead_code)]
     pub const EXT_LINEAR: Self = Self(5);
 
     /// logarithmic 100:1 transfer function
     ///
     /// Logarithmic transfer characteristic (100:1 range).
-    #[allow(dead_code)]
     pub const LOG_100: Self = Self(6);
 
     /// logarithmic (100*Sqrt(10) : 1) transfer function
     ///
     /// Logarithmic transfer characteristic (100 * Sqrt(10) : 1 range).
-    #[allow(dead_code)]
     pub const LOG_316: Self = Self(7);
 
     /// IEC 61966-2-4 transfer function
     ///
     /// Transfer characteristics as defined by
     /// - IEC 61966-2-4
-    #[allow(dead_code)]
     pub const XVYCC: Self = Self(8);
 
     /// sRGB piece-wise transfer function
@@ -1902,14 +1813,12 @@ impl WpColorManagerV1TransferFunction {
     /// Note: This is not appropriate for describing sRGB material.
     /// sRGB material is intended to be viewed on an sRGB display, and
     /// that is described by gamma22.
-    #[allow(dead_code)]
     pub const SRGB: Self = Self(9);
 
     /// Extended sRGB piece-wise transfer function
     ///
     /// Transfer characteristics as defined by
     /// - IEC 61966-2-1 sYCC
-    #[allow(dead_code)]
     pub const EXT_SRGB: Self = Self(10);
 
     /// perceptual quantizer transfer function
@@ -1928,14 +1837,12 @@ impl WpColorManagerV1TransferFunction {
     /// defined by ST 2084 and BT.2100. The default value for the
     /// reference white is a protocol addition: it is suggested by
     /// Report ITU-R BT.2408-7 and is not part of ST 2084 or BT.2100.
-    #[allow(dead_code)]
     pub const ST2084_PQ: Self = Self(11);
 
     /// SMPTE ST 428 transfer function
     ///
     /// Transfer characteristics as defined by
     /// - SMPTE ST 428-1 (2019)
-    #[allow(dead_code)]
     pub const ST428: Self = Self(12);
 
     /// hybrid log-gamma transfer function
@@ -1957,7 +1864,6 @@ impl WpColorManagerV1TransferFunction {
     /// The default value for the reference white is a protocol addition:
     /// it is suggested by Report ITU-R BT.2408-7 and is not part of
     /// ARIB STD-B67 or BT.2100.
-    #[allow(dead_code)]
     pub const HLG: Self = Self(13);
 }
 

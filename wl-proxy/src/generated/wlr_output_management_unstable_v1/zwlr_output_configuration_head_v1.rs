@@ -49,7 +49,6 @@ impl Debug for ZwlrOutputConfigurationHeadV1 {
 
 impl ZwlrOutputConfigurationHeadV1 {
     /// Since when the set_mode message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_MODE__SINCE: u32 = 1;
 
     /// set the mode
@@ -100,7 +99,6 @@ impl ZwlrOutputConfigurationHeadV1 {
     }
 
     /// Since when the set_custom_mode message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_CUSTOM_MODE__SINCE: u32 = 1;
 
     /// set a custom mode
@@ -160,7 +158,6 @@ impl ZwlrOutputConfigurationHeadV1 {
     }
 
     /// Since when the set_position message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_POSITION__SINCE: u32 = 1;
 
     /// set the position
@@ -211,7 +208,6 @@ impl ZwlrOutputConfigurationHeadV1 {
     }
 
     /// Since when the set_transform message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_TRANSFORM__SINCE: u32 = 1;
 
     /// set the transform
@@ -257,7 +253,6 @@ impl ZwlrOutputConfigurationHeadV1 {
     }
 
     /// Since when the set_scale message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_SCALE__SINCE: u32 = 1;
 
     /// set the scale
@@ -303,7 +298,6 @@ impl ZwlrOutputConfigurationHeadV1 {
     }
 
     /// Since when the set_adaptive_sync message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_ADAPTIVE_SYNC__SINCE: u32 = 4;
 
     /// enable/disable adaptive sync
@@ -351,7 +345,6 @@ impl ZwlrOutputConfigurationHeadV1 {
 }
 
 /// A message handler for [ZwlrOutputConfigurationHeadV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
     /// set the mode
     ///
@@ -712,52 +705,39 @@ impl Proxy for ZwlrOutputConfigurationHeadV1 {
 
 impl ZwlrOutputConfigurationHeadV1 {
     /// Since when the error.already_set enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_SET__SINCE: u32 = 1;
     /// Since when the error.invalid_mode enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_MODE__SINCE: u32 = 1;
     /// Since when the error.invalid_custom_mode enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_CUSTOM_MODE__SINCE: u32 = 1;
     /// Since when the error.invalid_transform enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_TRANSFORM__SINCE: u32 = 1;
     /// Since when the error.invalid_scale enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_SCALE__SINCE: u32 = 1;
     /// Since when the error.invalid_adaptive_sync_state enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_ADAPTIVE_SYNC_STATE__SINCE: u32 = 4;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwlrOutputConfigurationHeadV1Error(pub u32);
 
 impl ZwlrOutputConfigurationHeadV1Error {
     /// property has already been set
-    #[allow(dead_code)]
     pub const ALREADY_SET: Self = Self(1);
 
     /// mode doesn't belong to head
-    #[allow(dead_code)]
     pub const INVALID_MODE: Self = Self(2);
 
     /// mode is invalid
-    #[allow(dead_code)]
     pub const INVALID_CUSTOM_MODE: Self = Self(3);
 
     /// transform value outside enum
-    #[allow(dead_code)]
     pub const INVALID_TRANSFORM: Self = Self(4);
 
     /// scale negative or zero
-    #[allow(dead_code)]
     pub const INVALID_SCALE: Self = Self(5);
 
     /// invalid enum value used in the set_adaptive_sync request
-    #[allow(dead_code)]
     pub const INVALID_ADAPTIVE_SYNC_STATE: Self = Self(6);
 }
 

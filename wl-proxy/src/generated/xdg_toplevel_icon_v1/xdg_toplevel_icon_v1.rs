@@ -54,7 +54,6 @@ impl Debug for XdgToplevelIconV1 {
 
 impl XdgToplevelIconV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the icon object
@@ -92,7 +91,6 @@ impl XdgToplevelIconV1 {
     }
 
     /// Since when the set_name message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_NAME__SINCE: u32 = 1;
 
     /// set an icon name
@@ -152,7 +150,6 @@ impl XdgToplevelIconV1 {
     }
 
     /// Since when the add_buffer message is available.
-    #[allow(dead_code)]
     pub const MSG__ADD_BUFFER__SINCE: u32 = 1;
 
     /// add icon data from a pixel buffer
@@ -232,7 +229,6 @@ impl XdgToplevelIconV1 {
 }
 
 /// A message handler for [XdgToplevelIconV1] proxies.
-#[allow(dead_code)]
 pub trait XdgToplevelIconV1Handler: Any {
     /// destroy the icon object
     ///
@@ -506,31 +502,24 @@ impl Proxy for XdgToplevelIconV1 {
 
 impl XdgToplevelIconV1 {
     /// Since when the error.invalid_buffer enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_BUFFER__SINCE: u32 = 1;
     /// Since when the error.immutable enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_IMMUTABLE__SINCE: u32 = 1;
     /// Since when the error.no_buffer enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_NO_BUFFER__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct XdgToplevelIconV1Error(pub u32);
 
 impl XdgToplevelIconV1Error {
     /// the provided buffer does not satisfy requirements
-    #[allow(dead_code)]
     pub const INVALID_BUFFER: Self = Self(1);
 
     /// the icon has already been assigned to a toplevel and must not be changed
-    #[allow(dead_code)]
     pub const IMMUTABLE: Self = Self(2);
 
     /// the provided buffer has been destroyed before the toplevel icon
-    #[allow(dead_code)]
     pub const NO_BUFFER: Self = Self(3);
 }
 

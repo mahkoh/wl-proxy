@@ -57,7 +57,6 @@ impl Debug for ExtBackgroundEffectManagerV1 {
 
 impl ExtBackgroundEffectManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the background effect manager
@@ -95,7 +94,6 @@ impl ExtBackgroundEffectManagerV1 {
     }
 
     /// Since when the capabilities message is available.
-    #[allow(dead_code)]
     pub const MSG__CAPABILITIES__SINCE: u32 = 1;
 
     /// capabilities of the compositor
@@ -141,7 +139,6 @@ impl ExtBackgroundEffectManagerV1 {
     }
 
     /// Since when the get_background_effect message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_BACKGROUND_EFFECT__SINCE: u32 = 1;
 
     /// get a background effects object
@@ -208,7 +205,6 @@ impl ExtBackgroundEffectManagerV1 {
 }
 
 /// A message handler for [ExtBackgroundEffectManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ExtBackgroundEffectManagerV1Handler: Any {
     /// destroy the background effect manager
     ///
@@ -435,21 +431,17 @@ impl Proxy for ExtBackgroundEffectManagerV1 {
 
 impl ExtBackgroundEffectManagerV1 {
     /// Since when the error.background_effect_exists enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_BACKGROUND_EFFECT_EXISTS__SINCE: u32 = 1;
 
     /// Since when the capability.blur enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CAPABILITY_BLUR__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ExtBackgroundEffectManagerV1Error(pub u32);
 
 impl ExtBackgroundEffectManagerV1Error {
     /// the surface already has a background effect object
-    #[allow(dead_code)]
     pub const BACKGROUND_EFFECT_EXISTS: Self = Self(0);
 }
 
@@ -465,7 +457,6 @@ impl Debug for ExtBackgroundEffectManagerV1Error {
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct ExtBackgroundEffectManagerV1Capability(pub u32);
 
 /// An iterator over the set bits in a [ExtBackgroundEffectManagerV1Capability].
@@ -476,11 +467,9 @@ pub struct ExtBackgroundEffectManagerV1CapabilityIter(pub u32);
 
 impl ExtBackgroundEffectManagerV1Capability {
     /// the compositor supports applying blur
-    #[allow(dead_code)]
     pub const BLUR: Self = Self(1);
 }
 
-#[allow(dead_code)]
 impl ExtBackgroundEffectManagerV1Capability {
     #[inline]
     pub const fn empty() -> Self {

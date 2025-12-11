@@ -50,7 +50,6 @@ impl Debug for WpLinuxDrmSyncobjManagerV1 {
 
 impl WpLinuxDrmSyncobjManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy explicit synchronization factory object
@@ -87,7 +86,6 @@ impl WpLinuxDrmSyncobjManagerV1 {
     }
 
     /// Since when the get_surface message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_SURFACE__SINCE: u32 = 1;
 
     /// extend surface interface for explicit synchronization
@@ -158,7 +156,6 @@ impl WpLinuxDrmSyncobjManagerV1 {
     }
 
     /// Since when the import_timeline message is available.
-    #[allow(dead_code)]
     pub const MSG__IMPORT_TIMELINE__SINCE: u32 = 1;
 
     /// import a DRM syncobj timeline
@@ -217,7 +214,6 @@ impl WpLinuxDrmSyncobjManagerV1 {
 }
 
 /// A message handler for [WpLinuxDrmSyncobjManagerV1] proxies.
-#[allow(dead_code)]
 pub trait WpLinuxDrmSyncobjManagerV1Handler: Any {
     /// destroy explicit synchronization factory object
     ///
@@ -460,24 +456,19 @@ impl Proxy for WpLinuxDrmSyncobjManagerV1 {
 
 impl WpLinuxDrmSyncobjManagerV1 {
     /// Since when the error.surface_exists enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_SURFACE_EXISTS__SINCE: u32 = 1;
     /// Since when the error.invalid_timeline enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_TIMELINE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpLinuxDrmSyncobjManagerV1Error(pub u32);
 
 impl WpLinuxDrmSyncobjManagerV1Error {
     /// the surface already has a synchronization object associated
-    #[allow(dead_code)]
     pub const SURFACE_EXISTS: Self = Self(0);
 
     /// the timeline object could not be imported
-    #[allow(dead_code)]
     pub const INVALID_TIMELINE: Self = Self(1);
 }
 

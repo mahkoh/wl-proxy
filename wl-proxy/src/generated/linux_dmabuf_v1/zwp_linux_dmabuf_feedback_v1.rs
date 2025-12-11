@@ -71,7 +71,6 @@ impl Debug for ZwpLinuxDmabufFeedbackV1 {
 
 impl ZwpLinuxDmabufFeedbackV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the feedback object
@@ -108,7 +107,6 @@ impl ZwpLinuxDmabufFeedbackV1 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// all feedback has been sent
@@ -149,7 +147,6 @@ impl ZwpLinuxDmabufFeedbackV1 {
     }
 
     /// Since when the format_table message is available.
-    #[allow(dead_code)]
     pub const MSG__FORMAT_TABLE__SINCE: u32 = 1;
 
     /// format and modifier table
@@ -215,7 +212,6 @@ impl ZwpLinuxDmabufFeedbackV1 {
     }
 
     /// Since when the main_device message is available.
-    #[allow(dead_code)]
     pub const MSG__MAIN_DEVICE__SINCE: u32 = 1;
 
     /// preferred main device
@@ -285,7 +281,6 @@ impl ZwpLinuxDmabufFeedbackV1 {
     }
 
     /// Since when the tranche_done message is available.
-    #[allow(dead_code)]
     pub const MSG__TRANCHE_DONE__SINCE: u32 = 1;
 
     /// a preference tranche has been sent
@@ -325,7 +320,6 @@ impl ZwpLinuxDmabufFeedbackV1 {
     }
 
     /// Since when the tranche_target_device message is available.
-    #[allow(dead_code)]
     pub const MSG__TRANCHE_TARGET_DEVICE__SINCE: u32 = 1;
 
     /// target device
@@ -398,7 +392,6 @@ impl ZwpLinuxDmabufFeedbackV1 {
     }
 
     /// Since when the tranche_formats message is available.
-    #[allow(dead_code)]
     pub const MSG__TRANCHE_FORMATS__SINCE: u32 = 1;
 
     /// supported buffer format modifier
@@ -469,7 +462,6 @@ impl ZwpLinuxDmabufFeedbackV1 {
     }
 
     /// Since when the tranche_flags message is available.
-    #[allow(dead_code)]
     pub const MSG__TRANCHE_FLAGS__SINCE: u32 = 1;
 
     /// tranche flags
@@ -525,7 +517,6 @@ impl ZwpLinuxDmabufFeedbackV1 {
 }
 
 /// A message handler for [ZwpLinuxDmabufFeedbackV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
     /// destroy the feedback object
     ///
@@ -1054,13 +1045,11 @@ impl Proxy for ZwpLinuxDmabufFeedbackV1 {
 
 impl ZwpLinuxDmabufFeedbackV1 {
     /// Since when the tranche_flags.scanout enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANCHE_FLAGS_SCANOUT__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct ZwpLinuxDmabufFeedbackV1TrancheFlags(pub u32);
 
 /// An iterator over the set bits in a [ZwpLinuxDmabufFeedbackV1TrancheFlags].
@@ -1071,11 +1060,9 @@ pub struct ZwpLinuxDmabufFeedbackV1TrancheFlagsIter(pub u32);
 
 impl ZwpLinuxDmabufFeedbackV1TrancheFlags {
     /// direct scan-out tranche
-    #[allow(dead_code)]
     pub const SCANOUT: Self = Self(1);
 }
 
-#[allow(dead_code)]
 impl ZwpLinuxDmabufFeedbackV1TrancheFlags {
     #[inline]
     pub const fn empty() -> Self {

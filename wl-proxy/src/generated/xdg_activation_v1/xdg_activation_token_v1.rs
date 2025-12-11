@@ -54,7 +54,6 @@ impl Debug for XdgActivationTokenV1 {
 
 impl XdgActivationTokenV1 {
     /// Since when the set_serial message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_SERIAL__SINCE: u32 = 1;
 
     /// specifies the seat and serial of the activating event
@@ -121,7 +120,6 @@ impl XdgActivationTokenV1 {
     }
 
     /// Since when the set_app_id message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_APP_ID__SINCE: u32 = 1;
 
     /// specifies the application being activated
@@ -170,7 +168,6 @@ impl XdgActivationTokenV1 {
     }
 
     /// Since when the set_surface message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_SURFACE__SINCE: u32 = 1;
 
     /// specifies the surface requesting activation
@@ -227,7 +224,6 @@ impl XdgActivationTokenV1 {
     }
 
     /// Since when the commit message is available.
-    #[allow(dead_code)]
     pub const MSG__COMMIT__SINCE: u32 = 1;
 
     /// issues the token request
@@ -263,7 +259,6 @@ impl XdgActivationTokenV1 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// the exported activation token
@@ -312,7 +307,6 @@ impl XdgActivationTokenV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the xdg_activation_token_v1 object
@@ -350,7 +344,6 @@ impl XdgActivationTokenV1 {
 }
 
 /// A message handler for [XdgActivationTokenV1] proxies.
-#[allow(dead_code)]
 pub trait XdgActivationTokenV1Handler: Any {
     /// specifies the seat and serial of the activating event
     ///
@@ -755,17 +748,14 @@ impl Proxy for XdgActivationTokenV1 {
 
 impl XdgActivationTokenV1 {
     /// Since when the error.already_used enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_USED__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct XdgActivationTokenV1Error(pub u32);
 
 impl XdgActivationTokenV1Error {
     /// The token has already been used previously
-    #[allow(dead_code)]
     pub const ALREADY_USED: Self = Self(0);
 }
 

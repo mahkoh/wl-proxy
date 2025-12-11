@@ -51,7 +51,6 @@ impl Debug for ZwpTabletPadRingV2 {
 
 impl ZwpTabletPadRingV2 {
     /// Since when the set_feedback message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_FEEDBACK__SINCE: u32 = 1;
 
     /// set compositor feedback
@@ -122,7 +121,6 @@ impl ZwpTabletPadRingV2 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the ring object
@@ -158,7 +156,6 @@ impl ZwpTabletPadRingV2 {
     }
 
     /// Since when the source message is available.
-    #[allow(dead_code)]
     pub const MSG__SOURCE__SINCE: u32 = 1;
 
     /// ring event source
@@ -217,7 +214,6 @@ impl ZwpTabletPadRingV2 {
     }
 
     /// Since when the angle message is available.
-    #[allow(dead_code)]
     pub const MSG__ANGLE__SINCE: u32 = 1;
 
     /// angle changed
@@ -268,7 +264,6 @@ impl ZwpTabletPadRingV2 {
     }
 
     /// Since when the stop message is available.
-    #[allow(dead_code)]
     pub const MSG__STOP__SINCE: u32 = 1;
 
     /// interaction stopped
@@ -314,7 +309,6 @@ impl ZwpTabletPadRingV2 {
     }
 
     /// Since when the frame message is available.
-    #[allow(dead_code)]
     pub const MSG__FRAME__SINCE: u32 = 1;
 
     /// end of a ring event sequence
@@ -375,7 +369,6 @@ impl ZwpTabletPadRingV2 {
 }
 
 /// A message handler for [ZwpTabletPadRingV2] proxies.
-#[allow(dead_code)]
 pub trait ZwpTabletPadRingV2Handler: Any {
     /// set compositor feedback
     ///
@@ -770,7 +763,6 @@ impl Proxy for ZwpTabletPadRingV2 {
 
 impl ZwpTabletPadRingV2 {
     /// Since when the source.finger enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__SOURCE_FINGER__SINCE: u32 = 1;
 }
 
@@ -781,12 +773,10 @@ impl ZwpTabletPadRingV2 {
 /// adjust the user interface accordingly. For example, events
 /// from a "finger" source may trigger kinetic scrolling.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpTabletPadRingV2Source(pub u32);
 
 impl ZwpTabletPadRingV2Source {
     /// finger
-    #[allow(dead_code)]
     pub const FINGER: Self = Self(1);
 }
 

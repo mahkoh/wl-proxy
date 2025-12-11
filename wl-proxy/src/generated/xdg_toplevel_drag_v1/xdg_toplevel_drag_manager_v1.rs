@@ -79,7 +79,6 @@ impl Debug for XdgToplevelDragManagerV1 {
 
 impl XdgToplevelDragManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the xdg_toplevel_drag_manager_v1 object
@@ -117,7 +116,6 @@ impl XdgToplevelDragManagerV1 {
     }
 
     /// Since when the get_xdg_toplevel_drag message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_XDG_TOPLEVEL_DRAG__SINCE: u32 = 1;
 
     /// get an xdg_toplevel_drag for a wl_data_source
@@ -188,7 +186,6 @@ impl XdgToplevelDragManagerV1 {
 }
 
 /// A message handler for [XdgToplevelDragManagerV1] proxies.
-#[allow(dead_code)]
 pub trait XdgToplevelDragManagerV1Handler: Any {
     /// destroy the xdg_toplevel_drag_manager_v1 object
     ///
@@ -377,17 +374,14 @@ impl Proxy for XdgToplevelDragManagerV1 {
 
 impl XdgToplevelDragManagerV1 {
     /// Since when the error.invalid_source enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_SOURCE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct XdgToplevelDragManagerV1Error(pub u32);
 
 impl XdgToplevelDragManagerV1Error {
     /// data_source already used for toplevel drag
-    #[allow(dead_code)]
     pub const INVALID_SOURCE: Self = Self(0);
 }
 

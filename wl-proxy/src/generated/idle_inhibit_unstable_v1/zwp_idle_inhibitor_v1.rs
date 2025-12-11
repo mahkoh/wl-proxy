@@ -58,7 +58,6 @@ impl Debug for ZwpIdleInhibitorV1 {
 
 impl ZwpIdleInhibitorV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the idle inhibitor object
@@ -95,7 +94,6 @@ impl ZwpIdleInhibitorV1 {
 }
 
 /// A message handler for [ZwpIdleInhibitorV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpIdleInhibitorV1Handler: Any {
     /// destroy the idle inhibitor object
     ///

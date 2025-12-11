@@ -68,7 +68,6 @@ impl Debug for ZxdgDecorationManagerV1 {
 
 impl ZxdgDecorationManagerV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the decoration manager object
@@ -105,7 +104,6 @@ impl ZxdgDecorationManagerV1 {
     }
 
     /// Since when the get_toplevel_decoration message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_TOPLEVEL_DECORATION__SINCE: u32 = 1;
 
     /// create a new toplevel decoration object
@@ -173,7 +171,6 @@ impl ZxdgDecorationManagerV1 {
 }
 
 /// A message handler for [ZxdgDecorationManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ZxdgDecorationManagerV1Handler: Any {
     /// destroy the decoration manager object
     ///

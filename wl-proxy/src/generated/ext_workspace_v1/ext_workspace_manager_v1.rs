@@ -65,7 +65,6 @@ impl Debug for ExtWorkspaceManagerV1 {
 
 impl ExtWorkspaceManagerV1 {
     /// Since when the workspace_group message is available.
-    #[allow(dead_code)]
     pub const MSG__WORKSPACE_GROUP__SINCE: u32 = 1;
 
     /// a workspace group has been created
@@ -118,7 +117,6 @@ impl ExtWorkspaceManagerV1 {
     }
 
     /// Since when the workspace message is available.
-    #[allow(dead_code)]
     pub const MSG__WORKSPACE__SINCE: u32 = 1;
 
     /// workspace has been created
@@ -173,7 +171,6 @@ impl ExtWorkspaceManagerV1 {
     }
 
     /// Since when the commit message is available.
-    #[allow(dead_code)]
     pub const MSG__COMMIT__SINCE: u32 = 1;
 
     /// all requests about the workspaces have been sent
@@ -215,7 +212,6 @@ impl ExtWorkspaceManagerV1 {
     }
 
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// all information about the workspaces and workspace groups has been sent
@@ -262,7 +258,6 @@ impl ExtWorkspaceManagerV1 {
     }
 
     /// Since when the finished message is available.
-    #[allow(dead_code)]
     pub const MSG__FINISHED__SINCE: u32 = 1;
 
     /// the compositor has finished with the workspace_manager
@@ -305,7 +300,6 @@ impl ExtWorkspaceManagerV1 {
     }
 
     /// Since when the stop message is available.
-    #[allow(dead_code)]
     pub const MSG__STOP__SINCE: u32 = 1;
 
     /// stop sending events
@@ -347,7 +341,6 @@ impl ExtWorkspaceManagerV1 {
 }
 
 /// A message handler for [ExtWorkspaceManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ExtWorkspaceManagerV1Handler: Any {
     /// a workspace group has been created
     ///

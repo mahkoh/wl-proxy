@@ -54,7 +54,6 @@ impl Debug for WlPointer {
 
 impl WlPointer {
     /// Since when the set_cursor message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_CURSOR__SINCE: u32 = 1;
 
     /// set the pointer surface
@@ -155,7 +154,6 @@ impl WlPointer {
     }
 
     /// Since when the enter message is available.
-    #[allow(dead_code)]
     pub const MSG__ENTER__SINCE: u32 = 1;
 
     /// enter event
@@ -228,7 +226,6 @@ impl WlPointer {
     }
 
     /// Since when the leave message is available.
-    #[allow(dead_code)]
     pub const MSG__LEAVE__SINCE: u32 = 1;
 
     /// leave event
@@ -290,7 +287,6 @@ impl WlPointer {
     }
 
     /// Since when the motion message is available.
-    #[allow(dead_code)]
     pub const MSG__MOTION__SINCE: u32 = 1;
 
     /// pointer motion event
@@ -350,7 +346,6 @@ impl WlPointer {
     }
 
     /// Since when the button message is available.
-    #[allow(dead_code)]
     pub const MSG__BUTTON__SINCE: u32 = 1;
 
     /// pointer button event
@@ -426,7 +421,6 @@ impl WlPointer {
     }
 
     /// Since when the axis message is available.
-    #[allow(dead_code)]
     pub const MSG__AXIS__SINCE: u32 = 1;
 
     /// axis event
@@ -499,7 +493,6 @@ impl WlPointer {
     }
 
     /// Since when the release message is available.
-    #[allow(dead_code)]
     pub const MSG__RELEASE__SINCE: u32 = 3;
 
     /// release the pointer object
@@ -539,7 +532,6 @@ impl WlPointer {
     }
 
     /// Since when the frame message is available.
-    #[allow(dead_code)]
     pub const MSG__FRAME__SINCE: u32 = 5;
 
     /// end of a pointer event sequence
@@ -609,7 +601,6 @@ impl WlPointer {
     }
 
     /// Since when the axis_source message is available.
-    #[allow(dead_code)]
     pub const MSG__AXIS_SOURCE__SINCE: u32 = 5;
 
     /// axis source event
@@ -681,7 +672,6 @@ impl WlPointer {
     }
 
     /// Since when the axis_stop message is available.
-    #[allow(dead_code)]
     pub const MSG__AXIS_STOP__SINCE: u32 = 5;
 
     /// axis stop event
@@ -747,11 +737,9 @@ impl WlPointer {
     }
 
     /// Since when the axis_discrete message is available.
-    #[allow(dead_code)]
     pub const MSG__AXIS_DISCRETE__SINCE: u32 = 5;
 
     /// Since when the axis_discrete message is deprecated.
-    #[allow(dead_code)]
     pub const MSG__AXIS_DISCRETE__DEPRECATED_SINCE: u32 = 8;
 
     /// axis click event
@@ -833,7 +821,6 @@ impl WlPointer {
     }
 
     /// Since when the axis_value120 message is available.
-    #[allow(dead_code)]
     pub const MSG__AXIS_VALUE120__SINCE: u32 = 8;
 
     /// axis high-resolution scroll event
@@ -906,7 +893,6 @@ impl WlPointer {
     }
 
     /// Since when the axis_relative_direction message is available.
-    #[allow(dead_code)]
     pub const MSG__AXIS_RELATIVE_DIRECTION__SINCE: u32 = 9;
 
     /// axis relative physical direction event
@@ -994,7 +980,6 @@ impl WlPointer {
 }
 
 /// A message handler for [WlPointer] proxies.
-#[allow(dead_code)]
 pub trait WlPointerHandler: Any {
     /// set the pointer surface
     ///
@@ -1958,51 +1943,38 @@ impl Proxy for WlPointer {
 
 impl WlPointer {
     /// Since when the error.role enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ROLE__SINCE: u32 = 1;
 
     /// Since when the button_state.released enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__BUTTON_STATE_RELEASED__SINCE: u32 = 1;
     /// Since when the button_state.pressed enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__BUTTON_STATE_PRESSED__SINCE: u32 = 1;
 
     /// Since when the axis.vertical_scroll enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__AXIS_VERTICAL_SCROLL__SINCE: u32 = 1;
     /// Since when the axis.horizontal_scroll enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__AXIS_HORIZONTAL_SCROLL__SINCE: u32 = 1;
 
     /// Since when the axis_source.wheel enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__AXIS_SOURCE_WHEEL__SINCE: u32 = 1;
     /// Since when the axis_source.finger enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__AXIS_SOURCE_FINGER__SINCE: u32 = 1;
     /// Since when the axis_source.continuous enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__AXIS_SOURCE_CONTINUOUS__SINCE: u32 = 1;
     /// Since when the axis_source.wheel_tilt enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__AXIS_SOURCE_WHEEL_TILT__SINCE: u32 = 6;
 
     /// Since when the axis_relative_direction.identical enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__AXIS_RELATIVE_DIRECTION_IDENTICAL__SINCE: u32 = 1;
     /// Since when the axis_relative_direction.inverted enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__AXIS_RELATIVE_DIRECTION_INVERTED__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlPointerError(pub u32);
 
 impl WlPointerError {
     /// given wl_surface has another role
-    #[allow(dead_code)]
     pub const ROLE: Self = Self(0);
 }
 
@@ -2021,16 +1993,13 @@ impl Debug for WlPointerError {
 /// Describes the physical state of a button that produced the button
 /// event.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlPointerButtonState(pub u32);
 
 impl WlPointerButtonState {
     /// the button is not pressed
-    #[allow(dead_code)]
     pub const RELEASED: Self = Self(0);
 
     /// the button is pressed
-    #[allow(dead_code)]
     pub const PRESSED: Self = Self(1);
 }
 
@@ -2049,16 +2018,13 @@ impl Debug for WlPointerButtonState {
 ///
 /// Describes the axis types of scroll events.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlPointerAxis(pub u32);
 
 impl WlPointerAxis {
     /// vertical axis
-    #[allow(dead_code)]
     pub const VERTICAL_SCROLL: Self = Self(0);
 
     /// horizontal axis
-    #[allow(dead_code)]
     pub const HORIZONTAL_SCROLL: Self = Self(1);
 }
 
@@ -2092,24 +2058,19 @@ impl Debug for WlPointerAxis {
 /// wheel but the scroll event is not caused by a rotation but a
 /// (usually sideways) tilt of the wheel.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlPointerAxisSource(pub u32);
 
 impl WlPointerAxisSource {
     /// a physical wheel rotation
-    #[allow(dead_code)]
     pub const WHEEL: Self = Self(0);
 
     /// finger on a touch surface
-    #[allow(dead_code)]
     pub const FINGER: Self = Self(1);
 
     /// continuous coordinate space
-    #[allow(dead_code)]
     pub const CONTINUOUS: Self = Self(2);
 
     /// a physical wheel tilt
-    #[allow(dead_code)]
     pub const WHEEL_TILT: Self = Self(3);
 }
 
@@ -2131,16 +2092,13 @@ impl Debug for WlPointerAxisSource {
 /// This specifies the direction of the physical motion that caused a
 /// wl_pointer.axis event, relative to the wl_pointer.axis direction.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlPointerAxisRelativeDirection(pub u32);
 
 impl WlPointerAxisRelativeDirection {
     /// physical motion matches axis direction
-    #[allow(dead_code)]
     pub const IDENTICAL: Self = Self(0);
 
     /// physical motion is the inverse of the axis direction
-    #[allow(dead_code)]
     pub const INVERTED: Self = Self(1);
 }
 

@@ -67,7 +67,6 @@ impl Debug for WpImageDescriptionV1 {
 
 impl WpImageDescriptionV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the image description
@@ -107,7 +106,6 @@ impl WpImageDescriptionV1 {
     }
 
     /// Since when the failed message is available.
-    #[allow(dead_code)]
     pub const MSG__FAILED__SINCE: u32 = 1;
 
     /// graceful error on creating the image description
@@ -169,7 +167,6 @@ impl WpImageDescriptionV1 {
     }
 
     /// Since when the ready message is available.
-    #[allow(dead_code)]
     pub const MSG__READY__SINCE: u32 = 1;
 
     /// indication that the object is ready to be used
@@ -243,7 +240,6 @@ impl WpImageDescriptionV1 {
     }
 
     /// Since when the get_information message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_INFORMATION__SINCE: u32 = 1;
 
     /// get information about the image description
@@ -297,7 +293,6 @@ impl WpImageDescriptionV1 {
 }
 
 /// A message handler for [WpImageDescriptionV1] proxies.
-#[allow(dead_code)]
 pub trait WpImageDescriptionV1Handler: Any {
     /// destroy the image description
     ///
@@ -616,38 +611,29 @@ impl Proxy for WpImageDescriptionV1 {
 
 impl WpImageDescriptionV1 {
     /// Since when the error.not_ready enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_NOT_READY__SINCE: u32 = 1;
     /// Since when the error.no_information enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_NO_INFORMATION__SINCE: u32 = 1;
 
     /// Since when the cause.low_version enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CAUSE_LOW_VERSION__SINCE: u32 = 1;
     /// Since when the cause.unsupported enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CAUSE_UNSUPPORTED__SINCE: u32 = 1;
     /// Since when the cause.operating_system enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CAUSE_OPERATING_SYSTEM__SINCE: u32 = 1;
     /// Since when the cause.no_output enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__CAUSE_NO_OUTPUT__SINCE: u32 = 1;
 }
 
 /// protocol errors
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpImageDescriptionV1Error(pub u32);
 
 impl WpImageDescriptionV1Error {
     /// attempted to use an object which is not ready
-    #[allow(dead_code)]
     pub const NOT_READY: Self = Self(0);
 
     /// get_information not allowed
-    #[allow(dead_code)]
     pub const NO_INFORMATION: Self = Self(1);
 }
 
@@ -664,24 +650,19 @@ impl Debug for WpImageDescriptionV1Error {
 
 /// generic reason for failure
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpImageDescriptionV1Cause(pub u32);
 
 impl WpImageDescriptionV1Cause {
     /// interface version too low
-    #[allow(dead_code)]
     pub const LOW_VERSION: Self = Self(0);
 
     /// unsupported image description data
-    #[allow(dead_code)]
     pub const UNSUPPORTED: Self = Self(1);
 
     /// error independent of the client
-    #[allow(dead_code)]
     pub const OPERATING_SYSTEM: Self = Self(2);
 
     /// the relevant output no longer exists
-    #[allow(dead_code)]
     pub const NO_OUTPUT: Self = Self(3);
 }
 

@@ -54,7 +54,6 @@ impl Debug for XwaylandSurfaceV1 {
 
 impl XwaylandSurfaceV1 {
     /// Since when the set_serial message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_SERIAL__SINCE: u32 = 1;
 
     /// associates a Xwayland window to a wl_surface
@@ -125,7 +124,6 @@ impl XwaylandSurfaceV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the Xwayland surface object
@@ -164,7 +162,6 @@ impl XwaylandSurfaceV1 {
 }
 
 /// A message handler for [XwaylandSurfaceV1] proxies.
-#[allow(dead_code)]
 pub trait XwaylandSurfaceV1Handler: Any {
     /// associates a Xwayland window to a wl_surface
     ///
@@ -347,24 +344,19 @@ impl Proxy for XwaylandSurfaceV1 {
 
 impl XwaylandSurfaceV1 {
     /// Since when the error.already_associated enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_ASSOCIATED__SINCE: u32 = 1;
     /// Since when the error.invalid_serial enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_SERIAL__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct XwaylandSurfaceV1Error(pub u32);
 
 impl XwaylandSurfaceV1Error {
     /// given wl_surface is already associated with an X11 window
-    #[allow(dead_code)]
     pub const ALREADY_ASSOCIATED: Self = Self(0);
 
     /// serial was not valid
-    #[allow(dead_code)]
     pub const INVALID_SERIAL: Self = Self(1);
 }
 

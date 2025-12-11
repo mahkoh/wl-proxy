@@ -53,7 +53,6 @@ impl Debug for WpContentTypeV1 {
 
 impl WpContentTypeV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the content type object
@@ -91,7 +90,6 @@ impl WpContentTypeV1 {
     }
 
     /// Since when the set_content_type message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_CONTENT_TYPE__SINCE: u32 = 1;
 
     /// specify the content type
@@ -145,7 +143,6 @@ impl WpContentTypeV1 {
 }
 
 /// A message handler for [WpContentTypeV1] proxies.
-#[allow(dead_code)]
 pub trait WpContentTypeV1Handler: Any {
     /// destroy the content type object
     ///
@@ -312,16 +309,12 @@ impl Proxy for WpContentTypeV1 {
 
 impl WpContentTypeV1 {
     /// Since when the type.none enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TYPE_NONE__SINCE: u32 = 1;
     /// Since when the type.photo enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TYPE_PHOTO__SINCE: u32 = 1;
     /// Since when the type.video enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TYPE_VIDEO__SINCE: u32 = 1;
     /// Since when the type.game enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TYPE_GAME__SINCE: u32 = 1;
 }
 
@@ -329,7 +322,6 @@ impl WpContentTypeV1 {
 ///
 /// These values describe the available content types for a surface.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpContentTypeV1Type(pub u32);
 
 impl WpContentTypeV1Type {
@@ -338,14 +330,12 @@ impl WpContentTypeV1Type {
     /// The content type none means that either the application has no data
     /// about the content type, or that the content doesn't fit into one of
     /// the other categories.
-    #[allow(dead_code)]
     pub const NONE: Self = Self(0);
 
     /// photo content type
     ///
     /// The content type photo describes content derived from digital still
     /// pictures and may be presented with minimal processing.
-    #[allow(dead_code)]
     pub const PHOTO: Self = Self(1);
 
     /// video content type
@@ -353,14 +343,12 @@ impl WpContentTypeV1Type {
     /// The content type video describes a video or animation and may be
     /// presented with more accurate timing to avoid stutter. Where scaling
     /// is needed, scaling methods more appropriate for video may be used.
-    #[allow(dead_code)]
     pub const VIDEO: Self = Self(2);
 
     /// game content type
     ///
     /// The content type game describes a running game. Its content may be
     /// presented with reduced latency.
-    #[allow(dead_code)]
     pub const GAME: Self = Self(3);
 }
 

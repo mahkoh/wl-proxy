@@ -48,7 +48,6 @@ impl Debug for ExtImageCopyCaptureCursorSessionV1 {
 
 impl ExtImageCopyCaptureCursorSessionV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// delete this object
@@ -88,7 +87,6 @@ impl ExtImageCopyCaptureCursorSessionV1 {
     }
 
     /// Since when the get_capture_session message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_CAPTURE_SESSION__SINCE: u32 = 1;
 
     /// get image copy capturer session
@@ -141,7 +139,6 @@ impl ExtImageCopyCaptureCursorSessionV1 {
     }
 
     /// Since when the enter message is available.
-    #[allow(dead_code)]
     pub const MSG__ENTER__SINCE: u32 = 1;
 
     /// cursor entered captured area
@@ -184,7 +181,6 @@ impl ExtImageCopyCaptureCursorSessionV1 {
     }
 
     /// Since when the leave message is available.
-    #[allow(dead_code)]
     pub const MSG__LEAVE__SINCE: u32 = 1;
 
     /// cursor left captured area
@@ -223,7 +219,6 @@ impl ExtImageCopyCaptureCursorSessionV1 {
     }
 
     /// Since when the position message is available.
-    #[allow(dead_code)]
     pub const MSG__POSITION__SINCE: u32 = 1;
 
     /// position changed
@@ -282,7 +277,6 @@ impl ExtImageCopyCaptureCursorSessionV1 {
     }
 
     /// Since when the hotspot message is available.
-    #[allow(dead_code)]
     pub const MSG__HOTSPOT__SINCE: u32 = 1;
 
     /// hotspot changed
@@ -345,7 +339,6 @@ impl ExtImageCopyCaptureCursorSessionV1 {
 }
 
 /// A message handler for [ExtImageCopyCaptureCursorSessionV1] proxies.
-#[allow(dead_code)]
 pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
     /// delete this object
     ///
@@ -699,17 +692,14 @@ impl Proxy for ExtImageCopyCaptureCursorSessionV1 {
 
 impl ExtImageCopyCaptureCursorSessionV1 {
     /// Since when the error.duplicate_session enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_DUPLICATE_SESSION__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ExtImageCopyCaptureCursorSessionV1Error(pub u32);
 
 impl ExtImageCopyCaptureCursorSessionV1Error {
     /// get_capture_session sent twice
-    #[allow(dead_code)]
     pub const DUPLICATE_SESSION: Self = Self(1);
 }
 

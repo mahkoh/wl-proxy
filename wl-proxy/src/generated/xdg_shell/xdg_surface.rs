@@ -94,7 +94,6 @@ impl Debug for XdgSurface {
 
 impl XdgSurface {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the xdg_surface
@@ -132,7 +131,6 @@ impl XdgSurface {
     }
 
     /// Since when the get_toplevel message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_TOPLEVEL__SINCE: u32 = 1;
 
     /// assign the xdg_toplevel surface role
@@ -183,7 +181,6 @@ impl XdgSurface {
     }
 
     /// Since when the get_popup message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_POPUP__SINCE: u32 = 1;
 
     /// assign the xdg_popup surface role
@@ -264,7 +261,6 @@ impl XdgSurface {
     }
 
     /// Since when the set_window_geometry message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_WINDOW_GEOMETRY__SINCE: u32 = 1;
 
     /// set the new window geometry
@@ -364,7 +360,6 @@ impl XdgSurface {
     }
 
     /// Since when the ack_configure message is available.
-    #[allow(dead_code)]
     pub const MSG__ACK_CONFIGURE__SINCE: u32 = 1;
 
     /// ack a configure event
@@ -441,7 +436,6 @@ impl XdgSurface {
     }
 
     /// Since when the configure message is available.
-    #[allow(dead_code)]
     pub const MSG__CONFIGURE__SINCE: u32 = 1;
 
     /// suggest a surface change
@@ -505,7 +499,6 @@ impl XdgSurface {
 }
 
 /// A message handler for [XdgSurface] proxies.
-#[allow(dead_code)]
 pub trait XdgSurfaceHandler: Any {
     /// destroy the xdg_surface
     ///
@@ -983,52 +976,39 @@ impl Proxy for XdgSurface {
 
 impl XdgSurface {
     /// Since when the error.not_constructed enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_NOT_CONSTRUCTED__SINCE: u32 = 1;
     /// Since when the error.already_constructed enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_ALREADY_CONSTRUCTED__SINCE: u32 = 1;
     /// Since when the error.unconfigured_buffer enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_UNCONFIGURED_BUFFER__SINCE: u32 = 1;
     /// Since when the error.invalid_serial enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_SERIAL__SINCE: u32 = 1;
     /// Since when the error.invalid_size enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_SIZE__SINCE: u32 = 1;
     /// Since when the error.defunct_role_object enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_DEFUNCT_ROLE_OBJECT__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct XdgSurfaceError(pub u32);
 
 impl XdgSurfaceError {
     /// Surface was not fully constructed
-    #[allow(dead_code)]
     pub const NOT_CONSTRUCTED: Self = Self(1);
 
     /// Surface was already constructed
-    #[allow(dead_code)]
     pub const ALREADY_CONSTRUCTED: Self = Self(2);
 
     /// Attaching a buffer to an unconfigured surface
-    #[allow(dead_code)]
     pub const UNCONFIGURED_BUFFER: Self = Self(3);
 
     /// Invalid serial number when acking a configure event
-    #[allow(dead_code)]
     pub const INVALID_SERIAL: Self = Self(4);
 
     /// Width or height was zero or negative
-    #[allow(dead_code)]
     pub const INVALID_SIZE: Self = Self(5);
 
     /// Surface was destroyed before its role object
-    #[allow(dead_code)]
     pub const DEFUNCT_ROLE_OBJECT: Self = Self(6);
 }
 

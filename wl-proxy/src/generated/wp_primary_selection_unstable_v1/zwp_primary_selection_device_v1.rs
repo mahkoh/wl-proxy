@@ -43,7 +43,6 @@ impl Debug for ZwpPrimarySelectionDeviceV1 {
 
 impl ZwpPrimarySelectionDeviceV1 {
     /// Since when the set_selection message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_SELECTION__SINCE: u32 = 1;
 
     /// set the primary selection
@@ -105,7 +104,6 @@ impl ZwpPrimarySelectionDeviceV1 {
     }
 
     /// Since when the data_offer message is available.
-    #[allow(dead_code)]
     pub const MSG__DATA_OFFER__SINCE: u32 = 1;
 
     /// introduce a new wp_primary_selection_offer
@@ -158,7 +156,6 @@ impl ZwpPrimarySelectionDeviceV1 {
     }
 
     /// Since when the selection message is available.
-    #[allow(dead_code)]
     pub const MSG__SELECTION__SINCE: u32 = 1;
 
     /// advertise a new primary selection
@@ -221,7 +218,6 @@ impl ZwpPrimarySelectionDeviceV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the primary selection device
@@ -258,7 +254,6 @@ impl ZwpPrimarySelectionDeviceV1 {
 }
 
 /// A message handler for [ZwpPrimarySelectionDeviceV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
     /// set the primary selection
     ///

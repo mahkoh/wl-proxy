@@ -47,7 +47,6 @@ impl Debug for ExtOutputImageCaptureSourceManagerV1 {
 
 impl ExtOutputImageCaptureSourceManagerV1 {
     /// Since when the create_source message is available.
-    #[allow(dead_code)]
     pub const MSG__CREATE_SOURCE__SINCE: u32 = 1;
 
     /// create source object for output
@@ -111,7 +110,6 @@ impl ExtOutputImageCaptureSourceManagerV1 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// delete this object
@@ -150,7 +148,6 @@ impl ExtOutputImageCaptureSourceManagerV1 {
 }
 
 /// A message handler for [ExtOutputImageCaptureSourceManagerV1] proxies.
-#[allow(dead_code)]
 pub trait ExtOutputImageCaptureSourceManagerV1Handler: Any {
     /// create source object for output
     ///

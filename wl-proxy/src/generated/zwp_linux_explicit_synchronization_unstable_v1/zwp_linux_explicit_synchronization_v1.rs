@@ -64,7 +64,6 @@ impl Debug for ZwpLinuxExplicitSynchronizationV1 {
 
 impl ZwpLinuxExplicitSynchronizationV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy explicit synchronization factory object
@@ -102,7 +101,6 @@ impl ZwpLinuxExplicitSynchronizationV1 {
     }
 
     /// Since when the get_synchronization message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_SYNCHRONIZATION__SINCE: u32 = 1;
 
     /// extend surface interface for explicit synchronization
@@ -174,7 +172,6 @@ impl ZwpLinuxExplicitSynchronizationV1 {
 }
 
 /// A message handler for [ZwpLinuxExplicitSynchronizationV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpLinuxExplicitSynchronizationV1Handler: Any {
     /// destroy explicit synchronization factory object
     ///
@@ -364,17 +361,14 @@ impl Proxy for ZwpLinuxExplicitSynchronizationV1 {
 
 impl ZwpLinuxExplicitSynchronizationV1 {
     /// Since when the error.synchronization_exists enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_SYNCHRONIZATION_EXISTS__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZwpLinuxExplicitSynchronizationV1Error(pub u32);
 
 impl ZwpLinuxExplicitSynchronizationV1Error {
     /// the surface already has a synchronization object associated
-    #[allow(dead_code)]
     pub const SYNCHRONIZATION_EXISTS: Self = Self(0);
 }
 

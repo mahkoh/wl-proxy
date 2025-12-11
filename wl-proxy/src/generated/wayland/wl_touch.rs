@@ -54,7 +54,6 @@ impl Debug for WlTouch {
 
 impl WlTouch {
     /// Since when the down message is available.
-    #[allow(dead_code)]
     pub const MSG__DOWN__SINCE: u32 = 1;
 
     /// touch down event and beginning of a touch sequence
@@ -135,7 +134,6 @@ impl WlTouch {
     }
 
     /// Since when the up message is available.
-    #[allow(dead_code)]
     pub const MSG__UP__SINCE: u32 = 1;
 
     /// end of a touch event sequence
@@ -195,7 +193,6 @@ impl WlTouch {
     }
 
     /// Since when the motion message is available.
-    #[allow(dead_code)]
     pub const MSG__MOTION__SINCE: u32 = 1;
 
     /// update of touch point coordinates
@@ -258,7 +255,6 @@ impl WlTouch {
     }
 
     /// Since when the frame message is available.
-    #[allow(dead_code)]
     pub const MSG__FRAME__SINCE: u32 = 1;
 
     /// end of touch frame event
@@ -302,7 +298,6 @@ impl WlTouch {
     }
 
     /// Since when the cancel message is available.
-    #[allow(dead_code)]
     pub const MSG__CANCEL__SINCE: u32 = 1;
 
     /// touch session cancelled
@@ -346,7 +341,6 @@ impl WlTouch {
     }
 
     /// Since when the release message is available.
-    #[allow(dead_code)]
     pub const MSG__RELEASE__SINCE: u32 = 3;
 
     /// release the touch object
@@ -380,7 +374,6 @@ impl WlTouch {
     }
 
     /// Since when the shape message is available.
-    #[allow(dead_code)]
     pub const MSG__SHAPE__SINCE: u32 = 6;
 
     /// update shape of touch point
@@ -462,7 +455,6 @@ impl WlTouch {
     }
 
     /// Since when the orientation message is available.
-    #[allow(dead_code)]
     pub const MSG__ORIENTATION__SINCE: u32 = 6;
 
     /// update orientation of touch point
@@ -538,7 +530,6 @@ impl WlTouch {
 }
 
 /// A message handler for [WlTouch] proxies.
-#[allow(dead_code)]
 pub trait WlTouchHandler: Any {
     /// touch down event and beginning of a touch sequence
     ///

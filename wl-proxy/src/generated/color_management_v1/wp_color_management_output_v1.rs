@@ -53,7 +53,6 @@ impl Debug for WpColorManagementOutputV1 {
 
 impl WpColorManagementOutputV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the color management output
@@ -90,7 +89,6 @@ impl WpColorManagementOutputV1 {
     }
 
     /// Since when the image_description_changed message is available.
-    #[allow(dead_code)]
     pub const MSG__IMAGE_DESCRIPTION_CHANGED__SINCE: u32 = 1;
 
     /// image description changed
@@ -133,7 +131,6 @@ impl WpColorManagementOutputV1 {
     }
 
     /// Since when the get_image_description message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_IMAGE_DESCRIPTION__SINCE: u32 = 1;
 
     /// get the image description of the output
@@ -211,7 +208,6 @@ impl WpColorManagementOutputV1 {
 }
 
 /// A message handler for [WpColorManagementOutputV1] proxies.
-#[allow(dead_code)]
 pub trait WpColorManagementOutputV1Handler: Any {
     /// destroy the color management output
     ///

@@ -54,7 +54,6 @@ impl Debug for ZwlrOutputModeV1 {
 
 impl ZwlrOutputModeV1 {
     /// Since when the size message is available.
-    #[allow(dead_code)]
     pub const MSG__SIZE__SINCE: u32 = 1;
 
     /// mode size
@@ -110,7 +109,6 @@ impl ZwlrOutputModeV1 {
     }
 
     /// Since when the refresh message is available.
-    #[allow(dead_code)]
     pub const MSG__REFRESH__SINCE: u32 = 1;
 
     /// mode refresh rate
@@ -159,7 +157,6 @@ impl ZwlrOutputModeV1 {
     }
 
     /// Since when the preferred message is available.
-    #[allow(dead_code)]
     pub const MSG__PREFERRED__SINCE: u32 = 1;
 
     /// mode is preferred
@@ -196,7 +193,6 @@ impl ZwlrOutputModeV1 {
     }
 
     /// Since when the finished message is available.
-    #[allow(dead_code)]
     pub const MSG__FINISHED__SINCE: u32 = 1;
 
     /// the mode has disappeared
@@ -235,7 +231,6 @@ impl ZwlrOutputModeV1 {
     }
 
     /// Since when the release message is available.
-    #[allow(dead_code)]
     pub const MSG__RELEASE__SINCE: u32 = 3;
 
     /// destroy the mode object
@@ -273,7 +268,6 @@ impl ZwlrOutputModeV1 {
 }
 
 /// A message handler for [ZwlrOutputModeV1] proxies.
-#[allow(dead_code)]
 pub trait ZwlrOutputModeV1Handler: Any {
     /// mode size
     ///

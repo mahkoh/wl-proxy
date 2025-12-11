@@ -62,7 +62,6 @@ impl Debug for ZwpPointerGesturesV1 {
 
 impl ZwpPointerGesturesV1 {
     /// Since when the get_swipe_gesture message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_SWIPE_GESTURE__SINCE: u32 = 1;
 
     /// get swipe gesture
@@ -124,7 +123,6 @@ impl ZwpPointerGesturesV1 {
     }
 
     /// Since when the get_pinch_gesture message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_PINCH_GESTURE__SINCE: u32 = 1;
 
     /// get pinch gesture
@@ -186,7 +184,6 @@ impl ZwpPointerGesturesV1 {
     }
 
     /// Since when the release message is available.
-    #[allow(dead_code)]
     pub const MSG__RELEASE__SINCE: u32 = 2;
 
     /// destroy the pointer gesture object
@@ -223,7 +220,6 @@ impl ZwpPointerGesturesV1 {
     }
 
     /// Since when the get_hold_gesture message is available.
-    #[allow(dead_code)]
     pub const MSG__GET_HOLD_GESTURE__SINCE: u32 = 3;
 
     /// get hold gesture
@@ -286,7 +282,6 @@ impl ZwpPointerGesturesV1 {
 }
 
 /// A message handler for [ZwpPointerGesturesV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpPointerGesturesV1Handler: Any {
     /// get swipe gesture
     ///

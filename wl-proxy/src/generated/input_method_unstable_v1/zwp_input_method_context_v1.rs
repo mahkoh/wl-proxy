@@ -69,7 +69,6 @@ impl Debug for ZwpInputMethodContextV1 {
 
 impl ZwpInputMethodContextV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     #[inline]
@@ -102,7 +101,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the commit_string message is available.
-    #[allow(dead_code)]
     pub const MSG__COMMIT_STRING__SINCE: u32 = 1;
 
     /// commit string
@@ -161,7 +159,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the preedit_string message is available.
-    #[allow(dead_code)]
     pub const MSG__PREEDIT_STRING__SINCE: u32 = 1;
 
     /// pre-edit string
@@ -223,7 +220,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the preedit_styling message is available.
-    #[allow(dead_code)]
     pub const MSG__PREEDIT_STYLING__SINCE: u32 = 1;
 
     /// pre-edit styling
@@ -284,7 +280,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the preedit_cursor message is available.
-    #[allow(dead_code)]
     pub const MSG__PREEDIT_CURSOR__SINCE: u32 = 1;
 
     /// pre-edit cursor
@@ -335,7 +330,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the delete_surrounding_text message is available.
-    #[allow(dead_code)]
     pub const MSG__DELETE_SURROUNDING_TEXT__SINCE: u32 = 1;
 
     /// delete text
@@ -389,7 +383,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the cursor_position message is available.
-    #[allow(dead_code)]
     pub const MSG__CURSOR_POSITION__SINCE: u32 = 1;
 
     /// set cursor to a new position
@@ -449,7 +442,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the modifiers_map message is available.
-    #[allow(dead_code)]
     pub const MSG__MODIFIERS_MAP__SINCE: u32 = 1;
 
     /// # Arguments
@@ -491,7 +483,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the keysym message is available.
-    #[allow(dead_code)]
     pub const MSG__KEYSYM__SINCE: u32 = 1;
 
     /// keysym
@@ -560,7 +551,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the grab_keyboard message is available.
-    #[allow(dead_code)]
     pub const MSG__GRAB_KEYBOARD__SINCE: u32 = 1;
 
     /// grab hardware keyboard
@@ -610,7 +600,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the key message is available.
-    #[allow(dead_code)]
     pub const MSG__KEY__SINCE: u32 = 1;
 
     /// forward key event
@@ -676,7 +665,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the modifiers message is available.
-    #[allow(dead_code)]
     pub const MSG__MODIFIERS__SINCE: u32 = 1;
 
     /// forward modifiers event
@@ -745,7 +733,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the language message is available.
-    #[allow(dead_code)]
     pub const MSG__LANGUAGE__SINCE: u32 = 1;
 
     /// # Arguments
@@ -792,7 +779,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the text_direction message is available.
-    #[allow(dead_code)]
     pub const MSG__TEXT_DIRECTION__SINCE: u32 = 1;
 
     /// # Arguments
@@ -839,7 +825,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the surrounding_text message is available.
-    #[allow(dead_code)]
     pub const MSG__SURROUNDING_TEXT__SINCE: u32 = 1;
 
     /// surrounding text event
@@ -903,7 +888,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the reset message is available.
-    #[allow(dead_code)]
     pub const MSG__RESET__SINCE: u32 = 1;
 
     #[inline]
@@ -937,7 +921,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the content_type message is available.
-    #[allow(dead_code)]
     pub const MSG__CONTENT_TYPE__SINCE: u32 = 1;
 
     /// # Arguments
@@ -986,7 +969,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the invoke_action message is available.
-    #[allow(dead_code)]
     pub const MSG__INVOKE_ACTION__SINCE: u32 = 1;
 
     /// # Arguments
@@ -1035,7 +1017,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the commit_state message is available.
-    #[allow(dead_code)]
     pub const MSG__COMMIT_STATE__SINCE: u32 = 1;
 
     /// # Arguments
@@ -1079,7 +1060,6 @@ impl ZwpInputMethodContextV1 {
     }
 
     /// Since when the preferred_language message is available.
-    #[allow(dead_code)]
     pub const MSG__PREFERRED_LANGUAGE__SINCE: u32 = 1;
 
     /// # Arguments
@@ -1124,7 +1104,6 @@ impl ZwpInputMethodContextV1 {
 }
 
 /// A message handler for [ZwpInputMethodContextV1] proxies.
-#[allow(dead_code)]
 pub trait ZwpInputMethodContextV1Handler: Any {
     #[inline]
     fn destroy(

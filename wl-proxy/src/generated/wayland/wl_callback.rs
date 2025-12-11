@@ -51,7 +51,6 @@ impl Debug for WlCallback {
 
 impl WlCallback {
     /// Since when the done message is available.
-    #[allow(dead_code)]
     pub const MSG__DONE__SINCE: u32 = 1;
 
     /// done event
@@ -104,7 +103,6 @@ impl WlCallback {
 }
 
 /// A message handler for [WlCallback] proxies.
-#[allow(dead_code)]
 pub trait WlCallbackHandler: Any {
     /// done event
     ///

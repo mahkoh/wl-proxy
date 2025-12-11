@@ -50,7 +50,6 @@ impl Debug for ZwpTabletPadDialV2 {
 
 impl ZwpTabletPadDialV2 {
     /// Since when the set_feedback message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_FEEDBACK__SINCE: u32 = 1;
 
     /// set compositor feedback
@@ -121,7 +120,6 @@ impl ZwpTabletPadDialV2 {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the dial object
@@ -157,7 +155,6 @@ impl ZwpTabletPadDialV2 {
     }
 
     /// Since when the delta message is available.
-    #[allow(dead_code)]
     pub const MSG__DELTA__SINCE: u32 = 1;
 
     /// delta movement
@@ -214,7 +211,6 @@ impl ZwpTabletPadDialV2 {
     }
 
     /// Since when the frame message is available.
-    #[allow(dead_code)]
     pub const MSG__FRAME__SINCE: u32 = 1;
 
     /// end of a dial event sequence
@@ -273,7 +269,6 @@ impl ZwpTabletPadDialV2 {
 }
 
 /// A message handler for [ZwpTabletPadDialV2] proxies.
-#[allow(dead_code)]
 pub trait ZwpTabletPadDialV2Handler: Any {
     /// set compositor feedback
     ///

@@ -55,7 +55,6 @@ impl Debug for XdgDialogV1 {
 
 impl XdgDialogV1 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the dialog object
@@ -93,7 +92,6 @@ impl XdgDialogV1 {
     }
 
     /// Since when the set_modal message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_MODAL__SINCE: u32 = 1;
 
     /// mark dialog as modal
@@ -138,7 +136,6 @@ impl XdgDialogV1 {
     }
 
     /// Since when the unset_modal message is available.
-    #[allow(dead_code)]
     pub const MSG__UNSET_MODAL__SINCE: u32 = 1;
 
     /// mark dialog as not modal
@@ -175,7 +172,6 @@ impl XdgDialogV1 {
 }
 
 /// A message handler for [XdgDialogV1] proxies.
-#[allow(dead_code)]
 pub trait XdgDialogV1Handler: Any {
     /// destroy the dialog object
     ///

@@ -48,7 +48,6 @@ impl Debug for ZxdgExporterV2 {
 
 impl ZxdgExporterV2 {
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the xdg_exporter object
@@ -85,7 +84,6 @@ impl ZxdgExporterV2 {
     }
 
     /// Since when the export_toplevel message is available.
-    #[allow(dead_code)]
     pub const MSG__EXPORT_TOPLEVEL__SINCE: u32 = 1;
 
     /// export a toplevel surface
@@ -155,7 +153,6 @@ impl ZxdgExporterV2 {
 }
 
 /// A message handler for [ZxdgExporterV2] proxies.
-#[allow(dead_code)]
 pub trait ZxdgExporterV2Handler: Any {
     /// destroy the xdg_exporter object
     ///
@@ -342,7 +339,6 @@ impl Proxy for ZxdgExporterV2 {
 
 impl ZxdgExporterV2 {
     /// Since when the error.invalid_surface enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_SURFACE__SINCE: u32 = 1;
 }
 
@@ -351,12 +347,10 @@ impl ZxdgExporterV2 {
 /// These errors can be emitted in response to invalid xdg_exporter
 /// requests.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct ZxdgExporterV2Error(pub u32);
 
 impl ZxdgExporterV2Error {
     /// surface is not an xdg_toplevel
-    #[allow(dead_code)]
     pub const INVALID_SURFACE: Self = Self(0);
 }
 

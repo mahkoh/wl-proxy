@@ -50,7 +50,6 @@ impl Debug for WpDrmLeaseRequestV1 {
 
 impl WpDrmLeaseRequestV1 {
     /// Since when the request_connector message is available.
-    #[allow(dead_code)]
     pub const MSG__REQUEST_CONNECTOR__SINCE: u32 = 1;
 
     /// request a connector for this lease
@@ -110,7 +109,6 @@ impl WpDrmLeaseRequestV1 {
     }
 
     /// Since when the submit message is available.
-    #[allow(dead_code)]
     pub const MSG__SUBMIT__SINCE: u32 = 1;
 
     /// submit the lease request
@@ -165,7 +163,6 @@ impl WpDrmLeaseRequestV1 {
 }
 
 /// A message handler for [WpDrmLeaseRequestV1] proxies.
-#[allow(dead_code)]
 pub trait WpDrmLeaseRequestV1Handler: Any {
     /// request a connector for this lease
     ///
@@ -362,31 +359,24 @@ impl Proxy for WpDrmLeaseRequestV1 {
 
 impl WpDrmLeaseRequestV1 {
     /// Since when the error.wrong_device enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_WRONG_DEVICE__SINCE: u32 = 1;
     /// Since when the error.duplicate_connector enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_DUPLICATE_CONNECTOR__SINCE: u32 = 1;
     /// Since when the error.empty_lease enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_EMPTY_LEASE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WpDrmLeaseRequestV1Error(pub u32);
 
 impl WpDrmLeaseRequestV1Error {
     /// requested a connector from a different lease device
-    #[allow(dead_code)]
     pub const WRONG_DEVICE: Self = Self(0);
 
     /// requested a connector twice
-    #[allow(dead_code)]
     pub const DUPLICATE_CONNECTOR: Self = Self(1);
 
     /// requested a lease without requesting a connector
-    #[allow(dead_code)]
     pub const EMPTY_LEASE: Self = Self(2);
 }
 

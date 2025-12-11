@@ -57,7 +57,6 @@ impl Debug for WlShellSurface {
 
 impl WlShellSurface {
     /// Since when the pong message is available.
-    #[allow(dead_code)]
     pub const MSG__PONG__SINCE: u32 = 1;
 
     /// respond to a ping event
@@ -104,7 +103,6 @@ impl WlShellSurface {
     }
 
     /// Since when the move message is available.
-    #[allow(dead_code)]
     pub const MSG__MOVE__SINCE: u32 = 1;
 
     /// start an interactive move
@@ -164,7 +162,6 @@ impl WlShellSurface {
     }
 
     /// Since when the resize message is available.
-    #[allow(dead_code)]
     pub const MSG__RESIZE__SINCE: u32 = 1;
 
     /// start an interactive resize
@@ -229,7 +226,6 @@ impl WlShellSurface {
     }
 
     /// Since when the set_toplevel message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_TOPLEVEL__SINCE: u32 = 1;
 
     /// make the surface a toplevel surface
@@ -266,7 +262,6 @@ impl WlShellSurface {
     }
 
     /// Since when the set_transient message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_TRANSIENT__SINCE: u32 = 1;
 
     /// make the surface a transient surface
@@ -338,7 +333,6 @@ impl WlShellSurface {
     }
 
     /// Since when the set_fullscreen message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_FULLSCREEN__SINCE: u32 = 1;
 
     /// make the surface a fullscreen surface
@@ -434,7 +428,6 @@ impl WlShellSurface {
     }
 
     /// Since when the set_popup message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_POPUP__SINCE: u32 = 1;
 
     /// make the surface a popup surface
@@ -533,7 +526,6 @@ impl WlShellSurface {
     }
 
     /// Since when the set_maximized message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_MAXIMIZED__SINCE: u32 = 1;
 
     /// make the surface a maximized surface
@@ -604,7 +596,6 @@ impl WlShellSurface {
     }
 
     /// Since when the set_title message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_TITLE__SINCE: u32 = 1;
 
     /// set surface title
@@ -656,7 +647,6 @@ impl WlShellSurface {
     }
 
     /// Since when the set_class message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_CLASS__SINCE: u32 = 1;
 
     /// set surface class
@@ -707,7 +697,6 @@ impl WlShellSurface {
     }
 
     /// Since when the ping message is available.
-    #[allow(dead_code)]
     pub const MSG__PING__SINCE: u32 = 1;
 
     /// ping client
@@ -756,7 +745,6 @@ impl WlShellSurface {
     }
 
     /// Since when the configure message is available.
-    #[allow(dead_code)]
     pub const MSG__CONFIGURE__SINCE: u32 = 1;
 
     /// suggest resize
@@ -830,7 +818,6 @@ impl WlShellSurface {
     }
 
     /// Since when the popup_done message is available.
-    #[allow(dead_code)]
     pub const MSG__POPUP_DONE__SINCE: u32 = 1;
 
     /// popup interaction is done
@@ -870,7 +857,6 @@ impl WlShellSurface {
 }
 
 /// A message handler for [WlShellSurface] proxies.
-#[allow(dead_code)]
 pub trait WlShellSurfaceHandler: Any {
     /// respond to a ping event
     ///
@@ -1779,48 +1765,34 @@ impl Proxy for WlShellSurface {
 
 impl WlShellSurface {
     /// Since when the resize.none enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_NONE__SINCE: u32 = 1;
     /// Since when the resize.top enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_TOP__SINCE: u32 = 1;
     /// Since when the resize.bottom enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_BOTTOM__SINCE: u32 = 1;
     /// Since when the resize.left enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_LEFT__SINCE: u32 = 1;
     /// Since when the resize.top_left enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_TOP_LEFT__SINCE: u32 = 1;
     /// Since when the resize.bottom_left enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_BOTTOM_LEFT__SINCE: u32 = 1;
     /// Since when the resize.right enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_RIGHT__SINCE: u32 = 1;
     /// Since when the resize.top_right enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_TOP_RIGHT__SINCE: u32 = 1;
     /// Since when the resize.bottom_right enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__RESIZE_BOTTOM_RIGHT__SINCE: u32 = 1;
 
     /// Since when the transient.inactive enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__TRANSIENT_INACTIVE__SINCE: u32 = 1;
 
     /// Since when the fullscreen_method.default enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FULLSCREEN_METHOD_DEFAULT__SINCE: u32 = 1;
     /// Since when the fullscreen_method.scale enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FULLSCREEN_METHOD_SCALE__SINCE: u32 = 1;
     /// Since when the fullscreen_method.driver enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FULLSCREEN_METHOD_DRIVER__SINCE: u32 = 1;
     /// Since when the fullscreen_method.fill enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__FULLSCREEN_METHOD_FILL__SINCE: u32 = 1;
 }
 
@@ -1832,7 +1804,6 @@ impl WlShellSurface {
 /// an appropriate cursor image.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct WlShellSurfaceResize(pub u32);
 
 /// An iterator over the set bits in a [WlShellSurfaceResize].
@@ -1843,43 +1814,33 @@ pub struct WlShellSurfaceResizeIter(pub u32);
 
 impl WlShellSurfaceResize {
     /// no edge
-    #[allow(dead_code)]
     pub const NONE: Self = Self(0);
 
     /// top edge
-    #[allow(dead_code)]
     pub const TOP: Self = Self(1);
 
     /// bottom edge
-    #[allow(dead_code)]
     pub const BOTTOM: Self = Self(2);
 
     /// left edge
-    #[allow(dead_code)]
     pub const LEFT: Self = Self(4);
 
     /// top and left edges
-    #[allow(dead_code)]
     pub const TOP_LEFT: Self = Self(5);
 
     /// bottom and left edges
-    #[allow(dead_code)]
     pub const BOTTOM_LEFT: Self = Self(6);
 
     /// right edge
-    #[allow(dead_code)]
     pub const RIGHT: Self = Self(8);
 
     /// top and right edges
-    #[allow(dead_code)]
     pub const TOP_RIGHT: Self = Self(9);
 
     /// bottom and right edges
-    #[allow(dead_code)]
     pub const BOTTOM_RIGHT: Self = Self(10);
 }
 
-#[allow(dead_code)]
 impl WlShellSurfaceResize {
     #[inline]
     pub const fn empty() -> Self {
@@ -2148,7 +2109,6 @@ impl Debug for WlShellSurfaceResize {
 /// of transient surfaces. Used in the set_transient request.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Default)]
-#[allow(dead_code)]
 pub struct WlShellSurfaceTransient(pub u32);
 
 /// An iterator over the set bits in a [WlShellSurfaceTransient].
@@ -2159,11 +2119,9 @@ pub struct WlShellSurfaceTransientIter(pub u32);
 
 impl WlShellSurfaceTransient {
     /// do not set keyboard focus
-    #[allow(dead_code)]
     pub const INACTIVE: Self = Self(0x1);
 }
 
-#[allow(dead_code)]
 impl WlShellSurfaceTransient {
     #[inline]
     pub const fn empty() -> Self {
@@ -2369,24 +2327,19 @@ impl Debug for WlShellSurfaceTransient {
 /// between the dimensions of the surface and the dimensions of the
 /// output. The compositor is free to ignore this parameter.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlShellSurfaceFullscreenMethod(pub u32);
 
 impl WlShellSurfaceFullscreenMethod {
     /// no preference, apply default policy
-    #[allow(dead_code)]
     pub const DEFAULT: Self = Self(0);
 
     /// scale, preserve the surface's aspect ratio and center on output
-    #[allow(dead_code)]
     pub const SCALE: Self = Self(1);
 
     /// switch output mode to the smallest mode that can fit the surface, add black borders to compensate size mismatch
-    #[allow(dead_code)]
     pub const DRIVER: Self = Self(2);
 
     /// no upscaling, center on output and add black borders to compensate size mismatch
-    #[allow(dead_code)]
     pub const FILL: Self = Self(3);
 }
 

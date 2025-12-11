@@ -50,7 +50,6 @@ impl Debug for WlDataSource {
 
 impl WlDataSource {
     /// Since when the offer message is available.
-    #[allow(dead_code)]
     pub const MSG__OFFER__SINCE: u32 = 1;
 
     /// add an offered mime type
@@ -98,7 +97,6 @@ impl WlDataSource {
     }
 
     /// Since when the destroy message is available.
-    #[allow(dead_code)]
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the data source
@@ -134,7 +132,6 @@ impl WlDataSource {
     }
 
     /// Since when the target message is available.
-    #[allow(dead_code)]
     pub const MSG__TARGET__SINCE: u32 = 1;
 
     /// a target accepts an offered mime type
@@ -189,7 +186,6 @@ impl WlDataSource {
     }
 
     /// Since when the send message is available.
-    #[allow(dead_code)]
     pub const MSG__SEND__SINCE: u32 = 1;
 
     /// send the data
@@ -244,7 +240,6 @@ impl WlDataSource {
     }
 
     /// Since when the cancelled message is available.
-    #[allow(dead_code)]
     pub const MSG__CANCELLED__SINCE: u32 = 1;
 
     /// selection was cancelled
@@ -300,7 +295,6 @@ impl WlDataSource {
     }
 
     /// Since when the set_actions message is available.
-    #[allow(dead_code)]
     pub const MSG__SET_ACTIONS__SINCE: u32 = 3;
 
     /// set the available drag-and-drop actions
@@ -358,7 +352,6 @@ impl WlDataSource {
     }
 
     /// Since when the dnd_drop_performed message is available.
-    #[allow(dead_code)]
     pub const MSG__DND_DROP_PERFORMED__SINCE: u32 = 3;
 
     /// the drag-and-drop operation physically finished
@@ -403,7 +396,6 @@ impl WlDataSource {
     }
 
     /// Since when the dnd_finished message is available.
-    #[allow(dead_code)]
     pub const MSG__DND_FINISHED__SINCE: u32 = 3;
 
     /// the drag-and-drop operation concluded
@@ -445,7 +437,6 @@ impl WlDataSource {
     }
 
     /// Since when the action message is available.
-    #[allow(dead_code)]
     pub const MSG__ACTION__SINCE: u32 = 3;
 
     /// notify the selected action
@@ -518,7 +509,6 @@ impl WlDataSource {
 }
 
 /// A message handler for [WlDataSource] proxies.
-#[allow(dead_code)]
 pub trait WlDataSourceHandler: Any {
     /// add an offered mime type
     ///
@@ -1081,24 +1071,19 @@ impl Proxy for WlDataSource {
 
 impl WlDataSource {
     /// Since when the error.invalid_action_mask enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_ACTION_MASK__SINCE: u32 = 1;
     /// Since when the error.invalid_source enum variant is available.
-    #[allow(dead_code)]
     pub const ENM__ERROR_INVALID_SOURCE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[allow(dead_code)]
 pub struct WlDataSourceError(pub u32);
 
 impl WlDataSourceError {
     /// action mask contains invalid values
-    #[allow(dead_code)]
     pub const INVALID_ACTION_MASK: Self = Self(0);
 
     /// source doesn't accept this request
-    #[allow(dead_code)]
     pub const INVALID_SOURCE: Self = Self(1);
 }
 
