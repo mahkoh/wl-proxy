@@ -13,6 +13,7 @@ impl<T> Default for Stack<T> {
 }
 
 impl<T> Stack<T> {
+    #[expect(clippy::mut_from_ref)]
     fn get(&self) -> &mut Vec<T> {
         unsafe { &mut *self.vec.get() }
     }

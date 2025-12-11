@@ -1,3 +1,5 @@
+#![expect(clippy::needless_update)]
+
 use {
     isnt::std_1::{
         fs::IsntFileTypeExt,

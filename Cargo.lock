@@ -185,6 +185,7 @@ version = "0.1.0"
 dependencies = [
  "debug-fn",
  "error_reporter",
+ "isnt",
  "phf",
  "quick-xml",
  "thiserror",

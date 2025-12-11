@@ -144,12 +144,12 @@ impl WlOutput {
             arg1 as u32,
             arg2 as u32,
             arg3 as u32,
-            arg4.0 as u32,
+            arg4.0,
         ]);
         fmt.string(arg5);
         fmt.string(arg6);
         fmt.words([
-            arg7.0 as u32,
+            arg7.0,
         ]);
         Ok(())
     }

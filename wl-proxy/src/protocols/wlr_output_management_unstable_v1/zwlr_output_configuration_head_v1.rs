@@ -247,7 +247,7 @@ impl ZwlrOutputConfigurationHeadV1 {
         fmt.words([
             id,
             3,
-            arg0.0 as u32,
+            arg0.0,
         ]);
         Ok(())
     }

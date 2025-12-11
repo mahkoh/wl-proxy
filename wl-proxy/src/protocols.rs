@@ -16,14 +16,14 @@ pub mod hyprland_toplevel_export_v1;
 pub mod hyprland_toplevel_mapping_v1;
 #[cfg(feature = "protocol-jay_tray_v1")]
 pub mod jay_tray_v1;
+#[cfg(feature = "protocol-drm")]
+pub mod drm;
 #[cfg(feature = "protocol-input_method_unstable_v2")]
 pub mod input_method_unstable_v2;
 #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
 pub mod org_kde_kwin_server_decoration_v1;
 #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
 pub mod virtual_keyboard_unstable_v1;
-#[cfg(feature = "protocol-drm")]
-pub mod drm;
 #[cfg(feature = "protocol-treeland_app_id_resolver_v1")]
 pub mod treeland_app_id_resolver_v1;
 #[cfg(feature = "protocol-treeland_dde_shell_v1")]
@@ -101,8 +101,6 @@ pub mod keyboard_shortcuts_inhibit_unstable_v1;
 pub mod linux_dmabuf_v1;
 #[cfg(feature = "protocol-linux_drm_syncobj_v1")]
 pub mod linux_drm_syncobj_v1;
-#[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-pub mod zwp_linux_explicit_synchronization_unstable_v1;
 #[cfg(feature = "protocol-pointer_constraints_unstable_v1")]
 pub mod pointer_constraints_unstable_v1;
 #[cfg(feature = "protocol-pointer_gestures_unstable_v1")]
@@ -111,8 +109,6 @@ pub mod pointer_gestures_unstable_v1;
 pub mod pointer_warp_v1;
 #[cfg(feature = "protocol-presentation_time")]
 pub mod presentation_time;
-#[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-pub mod wp_primary_selection_unstable_v1;
 #[cfg(feature = "protocol-relative_pointer_unstable_v1")]
 pub mod relative_pointer_unstable_v1;
 #[cfg(feature = "protocol-security_context_v1")]
@@ -129,6 +125,8 @@ pub mod text_input_unstable_v1;
 pub mod text_input_unstable_v3;
 #[cfg(feature = "protocol-viewporter")]
 pub mod viewporter;
+#[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+pub mod wp_primary_selection_unstable_v1;
 #[cfg(feature = "protocol-xdg_activation_v1")]
 pub mod xdg_activation_v1;
 #[cfg(feature = "protocol-xdg_decoration_unstable_v1")]
@@ -153,6 +151,8 @@ pub mod xdg_toplevel_tag_v1;
 pub mod xwayland_keyboard_grab_unstable_v1;
 #[cfg(feature = "protocol-xwayland_shell_v1")]
 pub mod xwayland_shell_v1;
+#[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+pub mod zwp_linux_explicit_synchronization_unstable_v1;
 #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
 pub mod wlr_data_control_unstable_v1;
 #[cfg(feature = "protocol-wlr_export_dmabuf_unstable_v1")]
@@ -230,6 +230,14 @@ mod all_types {
     pub(super) use super::jay_tray_v1::jay_tray_v1::JayTrayV1;
     #[cfg(feature = "protocol-jay_tray_v1")]
     pub(super) use super::jay_tray_v1::jay_tray_v1::JayTrayV1Error;
+    #[cfg(feature = "protocol-drm")]
+    pub(super) use super::drm::wl_drm::WlDrm;
+    #[cfg(feature = "protocol-drm")]
+    pub(super) use super::drm::wl_drm::WlDrmError;
+    #[cfg(feature = "protocol-drm")]
+    pub(super) use super::drm::wl_drm::WlDrmFormat;
+    #[cfg(feature = "protocol-drm")]
+    pub(super) use super::drm::wl_drm::WlDrmCapability;
     #[cfg(feature = "protocol-input_method_unstable_v2")]
     pub(super) use super::input_method_unstable_v2::zwp_input_method_keyboard_grab_v2::ZwpInputMethodKeyboardGrabV2;
     #[cfg(feature = "protocol-input_method_unstable_v2")]
@@ -256,14 +264,6 @@ mod all_types {
     pub(super) use super::virtual_keyboard_unstable_v1::zwp_virtual_keyboard_v1::ZwpVirtualKeyboardV1;
     #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
     pub(super) use super::virtual_keyboard_unstable_v1::zwp_virtual_keyboard_v1::ZwpVirtualKeyboardV1Error;
-    #[cfg(feature = "protocol-drm")]
-    pub(super) use super::drm::wl_drm::WlDrm;
-    #[cfg(feature = "protocol-drm")]
-    pub(super) use super::drm::wl_drm::WlDrmError;
-    #[cfg(feature = "protocol-drm")]
-    pub(super) use super::drm::wl_drm::WlDrmFormat;
-    #[cfg(feature = "protocol-drm")]
-    pub(super) use super::drm::wl_drm::WlDrmCapability;
     #[cfg(feature = "protocol-treeland_app_id_resolver_v1")]
     pub(super) use super::treeland_app_id_resolver_v1::treeland_app_id_resolver_manager_v1::TreelandAppIdResolverManagerV1;
     #[cfg(feature = "protocol-treeland_app_id_resolver_v1")]
@@ -665,16 +665,6 @@ mod all_types {
     pub(super) use super::linux_drm_syncobj_v1::wp_linux_drm_syncobj_surface_v1::WpLinuxDrmSyncobjSurfaceV1Error;
     #[cfg(feature = "protocol-linux_drm_syncobj_v1")]
     pub(super) use super::linux_drm_syncobj_v1::wp_linux_drm_syncobj_timeline_v1::WpLinuxDrmSyncobjTimelineV1;
-    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_buffer_release_v1::ZwpLinuxBufferReleaseV1;
-    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_explicit_synchronization_v1::ZwpLinuxExplicitSynchronizationV1;
-    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_explicit_synchronization_v1::ZwpLinuxExplicitSynchronizationV1Error;
-    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_surface_synchronization_v1::ZwpLinuxSurfaceSynchronizationV1;
-    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_surface_synchronization_v1::ZwpLinuxSurfaceSynchronizationV1Error;
     #[cfg(feature = "protocol-pointer_constraints_unstable_v1")]
     pub(super) use super::pointer_constraints_unstable_v1::zwp_confined_pointer_v1::ZwpConfinedPointerV1;
     #[cfg(feature = "protocol-pointer_constraints_unstable_v1")]
@@ -703,14 +693,6 @@ mod all_types {
     pub(super) use super::presentation_time::wp_presentation_feedback::WpPresentationFeedback;
     #[cfg(feature = "protocol-presentation_time")]
     pub(super) use super::presentation_time::wp_presentation_feedback::WpPresentationFeedbackKind;
-    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-    pub(super) use super::wp_primary_selection_unstable_v1::zwp_primary_selection_device_manager_v1::ZwpPrimarySelectionDeviceManagerV1;
-    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-    pub(super) use super::wp_primary_selection_unstable_v1::zwp_primary_selection_device_v1::ZwpPrimarySelectionDeviceV1;
-    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-    pub(super) use super::wp_primary_selection_unstable_v1::zwp_primary_selection_offer_v1::ZwpPrimarySelectionOfferV1;
-    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-    pub(super) use super::wp_primary_selection_unstable_v1::zwp_primary_selection_source_v1::ZwpPrimarySelectionSourceV1;
     #[cfg(feature = "protocol-relative_pointer_unstable_v1")]
     pub(super) use super::relative_pointer_unstable_v1::zwp_relative_pointer_manager_v1::ZwpRelativePointerManagerV1;
     #[cfg(feature = "protocol-relative_pointer_unstable_v1")]
@@ -797,6 +779,14 @@ mod all_types {
     pub(super) use super::viewporter::wp_viewporter::WpViewporter;
     #[cfg(feature = "protocol-viewporter")]
     pub(super) use super::viewporter::wp_viewporter::WpViewporterError;
+    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+    pub(super) use super::wp_primary_selection_unstable_v1::zwp_primary_selection_device_manager_v1::ZwpPrimarySelectionDeviceManagerV1;
+    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+    pub(super) use super::wp_primary_selection_unstable_v1::zwp_primary_selection_device_v1::ZwpPrimarySelectionDeviceV1;
+    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+    pub(super) use super::wp_primary_selection_unstable_v1::zwp_primary_selection_offer_v1::ZwpPrimarySelectionOfferV1;
+    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+    pub(super) use super::wp_primary_selection_unstable_v1::zwp_primary_selection_source_v1::ZwpPrimarySelectionSourceV1;
     #[cfg(feature = "protocol-xdg_activation_v1")]
     pub(super) use super::xdg_activation_v1::xdg_activation_token_v1::XdgActivationTokenV1;
     #[cfg(feature = "protocol-xdg_activation_v1")]
@@ -895,6 +885,16 @@ mod all_types {
     pub(super) use super::xwayland_shell_v1::xwayland_surface_v1::XwaylandSurfaceV1;
     #[cfg(feature = "protocol-xwayland_shell_v1")]
     pub(super) use super::xwayland_shell_v1::xwayland_surface_v1::XwaylandSurfaceV1Error;
+    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_buffer_release_v1::ZwpLinuxBufferReleaseV1;
+    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_explicit_synchronization_v1::ZwpLinuxExplicitSynchronizationV1;
+    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_explicit_synchronization_v1::ZwpLinuxExplicitSynchronizationV1Error;
+    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_surface_synchronization_v1::ZwpLinuxSurfaceSynchronizationV1;
+    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+    pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_surface_synchronization_v1::ZwpLinuxSurfaceSynchronizationV1Error;
     #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
     pub(super) use super::wlr_data_control_unstable_v1::zwlr_data_control_device_v1::ZwlrDataControlDeviceV1;
     #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
@@ -1066,6 +1066,10 @@ mod all_types {
                 #[cfg(feature = "protocol-jay_tray_v1")] { Some(ProxyInterface::JayTrayV1) }
                 #[cfg(not(feature = "protocol-jay_tray_v1"))] { None }
             },
+            "wl_drm" => {
+                #[cfg(feature = "protocol-drm")] { Some(ProxyInterface::WlDrm) }
+                #[cfg(not(feature = "protocol-drm"))] { None }
+            },
             "zwp_input_method_keyboard_grab_v2" => {
                 #[cfg(feature = "protocol-input_method_unstable_v2")] { Some(ProxyInterface::ZwpInputMethodKeyboardGrabV2) }
                 #[cfg(not(feature = "protocol-input_method_unstable_v2"))] { None }
@@ -1097,10 +1101,6 @@ mod all_types {
             "zwp_virtual_keyboard_v1" => {
                 #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")] { Some(ProxyInterface::ZwpVirtualKeyboardV1) }
                 #[cfg(not(feature = "protocol-virtual_keyboard_unstable_v1"))] { None }
-            },
-            "wl_drm" => {
-                #[cfg(feature = "protocol-drm")] { Some(ProxyInterface::WlDrm) }
-                #[cfg(not(feature = "protocol-drm"))] { None }
             },
             "treeland_app_id_resolver_manager_v1" => {
                 #[cfg(feature = "protocol-treeland_app_id_resolver_v1")] { Some(ProxyInterface::TreelandAppIdResolverManagerV1) }
@@ -1521,18 +1521,6 @@ mod all_types {
                 #[cfg(feature = "protocol-linux_drm_syncobj_v1")] { Some(ProxyInterface::WpLinuxDrmSyncobjTimelineV1) }
                 #[cfg(not(feature = "protocol-linux_drm_syncobj_v1"))] { None }
             },
-            "zwp_linux_buffer_release_v1" => {
-                #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")] { Some(ProxyInterface::ZwpLinuxBufferReleaseV1) }
-                #[cfg(not(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1"))] { None }
-            },
-            "zwp_linux_explicit_synchronization_v1" => {
-                #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")] { Some(ProxyInterface::ZwpLinuxExplicitSynchronizationV1) }
-                #[cfg(not(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1"))] { None }
-            },
-            "zwp_linux_surface_synchronization_v1" => {
-                #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")] { Some(ProxyInterface::ZwpLinuxSurfaceSynchronizationV1) }
-                #[cfg(not(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1"))] { None }
-            },
             "zwp_confined_pointer_v1" => {
                 #[cfg(feature = "protocol-pointer_constraints_unstable_v1")] { Some(ProxyInterface::ZwpConfinedPointerV1) }
                 #[cfg(not(feature = "protocol-pointer_constraints_unstable_v1"))] { None }
@@ -1572,22 +1560,6 @@ mod all_types {
             "wp_presentation_feedback" => {
                 #[cfg(feature = "protocol-presentation_time")] { Some(ProxyInterface::WpPresentationFeedback) }
                 #[cfg(not(feature = "protocol-presentation_time"))] { None }
-            },
-            "zwp_primary_selection_device_manager_v1" => {
-                #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")] { Some(ProxyInterface::ZwpPrimarySelectionDeviceManagerV1) }
-                #[cfg(not(feature = "protocol-wp_primary_selection_unstable_v1"))] { None }
-            },
-            "zwp_primary_selection_device_v1" => {
-                #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")] { Some(ProxyInterface::ZwpPrimarySelectionDeviceV1) }
-                #[cfg(not(feature = "protocol-wp_primary_selection_unstable_v1"))] { None }
-            },
-            "zwp_primary_selection_offer_v1" => {
-                #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")] { Some(ProxyInterface::ZwpPrimarySelectionOfferV1) }
-                #[cfg(not(feature = "protocol-wp_primary_selection_unstable_v1"))] { None }
-            },
-            "zwp_primary_selection_source_v1" => {
-                #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")] { Some(ProxyInterface::ZwpPrimarySelectionSourceV1) }
-                #[cfg(not(feature = "protocol-wp_primary_selection_unstable_v1"))] { None }
             },
             "zwp_relative_pointer_manager_v1" => {
                 #[cfg(feature = "protocol-relative_pointer_unstable_v1")] { Some(ProxyInterface::ZwpRelativePointerManagerV1) }
@@ -1676,6 +1648,22 @@ mod all_types {
             "wp_viewporter" => {
                 #[cfg(feature = "protocol-viewporter")] { Some(ProxyInterface::WpViewporter) }
                 #[cfg(not(feature = "protocol-viewporter"))] { None }
+            },
+            "zwp_primary_selection_device_manager_v1" => {
+                #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")] { Some(ProxyInterface::ZwpPrimarySelectionDeviceManagerV1) }
+                #[cfg(not(feature = "protocol-wp_primary_selection_unstable_v1"))] { None }
+            },
+            "zwp_primary_selection_device_v1" => {
+                #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")] { Some(ProxyInterface::ZwpPrimarySelectionDeviceV1) }
+                #[cfg(not(feature = "protocol-wp_primary_selection_unstable_v1"))] { None }
+            },
+            "zwp_primary_selection_offer_v1" => {
+                #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")] { Some(ProxyInterface::ZwpPrimarySelectionOfferV1) }
+                #[cfg(not(feature = "protocol-wp_primary_selection_unstable_v1"))] { None }
+            },
+            "zwp_primary_selection_source_v1" => {
+                #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")] { Some(ProxyInterface::ZwpPrimarySelectionSourceV1) }
+                #[cfg(not(feature = "protocol-wp_primary_selection_unstable_v1"))] { None }
             },
             "xdg_activation_token_v1" => {
                 #[cfg(feature = "protocol-xdg_activation_v1")] { Some(ProxyInterface::XdgActivationTokenV1) }
@@ -1784,6 +1772,18 @@ mod all_types {
             "xwayland_surface_v1" => {
                 #[cfg(feature = "protocol-xwayland_shell_v1")] { Some(ProxyInterface::XwaylandSurfaceV1) }
                 #[cfg(not(feature = "protocol-xwayland_shell_v1"))] { None }
+            },
+            "zwp_linux_buffer_release_v1" => {
+                #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")] { Some(ProxyInterface::ZwpLinuxBufferReleaseV1) }
+                #[cfg(not(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1"))] { None }
+            },
+            "zwp_linux_explicit_synchronization_v1" => {
+                #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")] { Some(ProxyInterface::ZwpLinuxExplicitSynchronizationV1) }
+                #[cfg(not(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1"))] { None }
+            },
+            "zwp_linux_surface_synchronization_v1" => {
+                #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")] { Some(ProxyInterface::ZwpLinuxSurfaceSynchronizationV1) }
+                #[cfg(not(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1"))] { None }
             },
             "zwlr_data_control_device_v1" => {
                 #[cfg(feature = "protocol-wlr_data_control_unstable_v1")] { Some(ProxyInterface::ZwlrDataControlDeviceV1) }
@@ -2011,6 +2011,13 @@ mod all_types {
                     }
                     Ok(JayTrayV1::new(state, version))
                 }
+                #[cfg(feature = "protocol-drm")]
+                Self::WlDrm => {
+                    if version > WlDrm::XML_VERSION {
+                        return Err(ObjectError::MaxVersion(self, version));
+                    }
+                    Ok(WlDrm::new(state, version))
+                }
                 #[cfg(feature = "protocol-input_method_unstable_v2")]
                 Self::ZwpInputMethodKeyboardGrabV2 => {
                     if version > ZwpInputMethodKeyboardGrabV2::XML_VERSION {
@@ -2066,13 +2073,6 @@ mod all_types {
                         return Err(ObjectError::MaxVersion(self, version));
                     }
                     Ok(ZwpVirtualKeyboardV1::new(state, version))
-                }
-                #[cfg(feature = "protocol-drm")]
-                Self::WlDrm => {
-                    if version > WlDrm::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
-                    }
-                    Ok(WlDrm::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_app_id_resolver_v1")]
                 Self::TreelandAppIdResolverManagerV1 => {
@@ -2905,27 +2905,6 @@ mod all_types {
                     }
                     Ok(WpLinuxDrmSyncobjTimelineV1::new(state, version))
                 }
-                #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-                Self::ZwpLinuxBufferReleaseV1 => {
-                    if version > ZwpLinuxBufferReleaseV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
-                    }
-                    Ok(ZwpLinuxBufferReleaseV1::new(state, version))
-                }
-                #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-                Self::ZwpLinuxExplicitSynchronizationV1 => {
-                    if version > ZwpLinuxExplicitSynchronizationV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
-                    }
-                    Ok(ZwpLinuxExplicitSynchronizationV1::new(state, version))
-                }
-                #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-                Self::ZwpLinuxSurfaceSynchronizationV1 => {
-                    if version > ZwpLinuxSurfaceSynchronizationV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
-                    }
-                    Ok(ZwpLinuxSurfaceSynchronizationV1::new(state, version))
-                }
                 #[cfg(feature = "protocol-pointer_constraints_unstable_v1")]
                 Self::ZwpConfinedPointerV1 => {
                     if version > ZwpConfinedPointerV1::XML_VERSION {
@@ -2995,34 +2974,6 @@ mod all_types {
                         return Err(ObjectError::MaxVersion(self, version));
                     }
                     Ok(WpPresentationFeedback::new(state, version))
-                }
-                #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-                Self::ZwpPrimarySelectionDeviceManagerV1 => {
-                    if version > ZwpPrimarySelectionDeviceManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
-                    }
-                    Ok(ZwpPrimarySelectionDeviceManagerV1::new(state, version))
-                }
-                #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-                Self::ZwpPrimarySelectionDeviceV1 => {
-                    if version > ZwpPrimarySelectionDeviceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
-                    }
-                    Ok(ZwpPrimarySelectionDeviceV1::new(state, version))
-                }
-                #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-                Self::ZwpPrimarySelectionOfferV1 => {
-                    if version > ZwpPrimarySelectionOfferV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
-                    }
-                    Ok(ZwpPrimarySelectionOfferV1::new(state, version))
-                }
-                #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-                Self::ZwpPrimarySelectionSourceV1 => {
-                    if version > ZwpPrimarySelectionSourceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
-                    }
-                    Ok(ZwpPrimarySelectionSourceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-relative_pointer_unstable_v1")]
                 Self::ZwpRelativePointerManagerV1 => {
@@ -3177,6 +3128,34 @@ mod all_types {
                         return Err(ObjectError::MaxVersion(self, version));
                     }
                     Ok(WpViewporter::new(state, version))
+                }
+                #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+                Self::ZwpPrimarySelectionDeviceManagerV1 => {
+                    if version > ZwpPrimarySelectionDeviceManagerV1::XML_VERSION {
+                        return Err(ObjectError::MaxVersion(self, version));
+                    }
+                    Ok(ZwpPrimarySelectionDeviceManagerV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+                Self::ZwpPrimarySelectionDeviceV1 => {
+                    if version > ZwpPrimarySelectionDeviceV1::XML_VERSION {
+                        return Err(ObjectError::MaxVersion(self, version));
+                    }
+                    Ok(ZwpPrimarySelectionDeviceV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+                Self::ZwpPrimarySelectionOfferV1 => {
+                    if version > ZwpPrimarySelectionOfferV1::XML_VERSION {
+                        return Err(ObjectError::MaxVersion(self, version));
+                    }
+                    Ok(ZwpPrimarySelectionOfferV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+                Self::ZwpPrimarySelectionSourceV1 => {
+                    if version > ZwpPrimarySelectionSourceV1::XML_VERSION {
+                        return Err(ObjectError::MaxVersion(self, version));
+                    }
+                    Ok(ZwpPrimarySelectionSourceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_activation_v1")]
                 Self::XdgActivationTokenV1 => {
@@ -3366,6 +3345,27 @@ mod all_types {
                         return Err(ObjectError::MaxVersion(self, version));
                     }
                     Ok(XwaylandSurfaceV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+                Self::ZwpLinuxBufferReleaseV1 => {
+                    if version > ZwpLinuxBufferReleaseV1::XML_VERSION {
+                        return Err(ObjectError::MaxVersion(self, version));
+                    }
+                    Ok(ZwpLinuxBufferReleaseV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+                Self::ZwpLinuxExplicitSynchronizationV1 => {
+                    if version > ZwpLinuxExplicitSynchronizationV1::XML_VERSION {
+                        return Err(ObjectError::MaxVersion(self, version));
+                    }
+                    Ok(ZwpLinuxExplicitSynchronizationV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+                Self::ZwpLinuxSurfaceSynchronizationV1 => {
+                    if version > ZwpLinuxSurfaceSynchronizationV1::XML_VERSION {
+                        return Err(ObjectError::MaxVersion(self, version));
+                    }
+                    Ok(ZwpLinuxSurfaceSynchronizationV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
                 Self::ZwlrDataControlDeviceV1 => {
@@ -3583,6 +3583,8 @@ pub enum ProxyInterface {
     JayTrayItemV1,
     #[cfg(feature = "protocol-jay_tray_v1")]
     JayTrayV1,
+    #[cfg(feature = "protocol-drm")]
+    WlDrm,
     #[cfg(feature = "protocol-input_method_unstable_v2")]
     ZwpInputMethodKeyboardGrabV2,
     #[cfg(feature = "protocol-input_method_unstable_v2")]
@@ -3599,8 +3601,6 @@ pub enum ProxyInterface {
     ZwpVirtualKeyboardManagerV1,
     #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
     ZwpVirtualKeyboardV1,
-    #[cfg(feature = "protocol-drm")]
-    WlDrm,
     #[cfg(feature = "protocol-treeland_app_id_resolver_v1")]
     TreelandAppIdResolverManagerV1,
     #[cfg(feature = "protocol-treeland_app_id_resolver_v1")]
@@ -3822,12 +3822,6 @@ pub enum ProxyInterface {
     WpLinuxDrmSyncobjSurfaceV1,
     #[cfg(feature = "protocol-linux_drm_syncobj_v1")]
     WpLinuxDrmSyncobjTimelineV1,
-    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-    ZwpLinuxBufferReleaseV1,
-    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-    ZwpLinuxExplicitSynchronizationV1,
-    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-    ZwpLinuxSurfaceSynchronizationV1,
     #[cfg(feature = "protocol-pointer_constraints_unstable_v1")]
     ZwpConfinedPointerV1,
     #[cfg(feature = "protocol-pointer_constraints_unstable_v1")]
@@ -3848,14 +3842,6 @@ pub enum ProxyInterface {
     WpPresentation,
     #[cfg(feature = "protocol-presentation_time")]
     WpPresentationFeedback,
-    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-    ZwpPrimarySelectionDeviceManagerV1,
-    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-    ZwpPrimarySelectionDeviceV1,
-    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-    ZwpPrimarySelectionOfferV1,
-    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-    ZwpPrimarySelectionSourceV1,
     #[cfg(feature = "protocol-relative_pointer_unstable_v1")]
     ZwpRelativePointerManagerV1,
     #[cfg(feature = "protocol-relative_pointer_unstable_v1")]
@@ -3900,6 +3886,14 @@ pub enum ProxyInterface {
     WpViewport,
     #[cfg(feature = "protocol-viewporter")]
     WpViewporter,
+    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+    ZwpPrimarySelectionDeviceManagerV1,
+    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+    ZwpPrimarySelectionDeviceV1,
+    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+    ZwpPrimarySelectionOfferV1,
+    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+    ZwpPrimarySelectionSourceV1,
     #[cfg(feature = "protocol-xdg_activation_v1")]
     XdgActivationTokenV1,
     #[cfg(feature = "protocol-xdg_activation_v1")]
@@ -3954,6 +3948,12 @@ pub enum ProxyInterface {
     XwaylandShellV1,
     #[cfg(feature = "protocol-xwayland_shell_v1")]
     XwaylandSurfaceV1,
+    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+    ZwpLinuxBufferReleaseV1,
+    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+    ZwpLinuxExplicitSynchronizationV1,
+    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+    ZwpLinuxSurfaceSynchronizationV1,
     #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
     ZwlrDataControlDeviceV1,
     #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
@@ -4043,6 +4043,8 @@ impl ProxyInterface {
             Self::JayTrayItemV1 => "jay_tray_item_v1",
             #[cfg(feature = "protocol-jay_tray_v1")]
             Self::JayTrayV1 => "jay_tray_v1",
+            #[cfg(feature = "protocol-drm")]
+            Self::WlDrm => "wl_drm",
             #[cfg(feature = "protocol-input_method_unstable_v2")]
             Self::ZwpInputMethodKeyboardGrabV2 => "zwp_input_method_keyboard_grab_v2",
             #[cfg(feature = "protocol-input_method_unstable_v2")]
@@ -4059,8 +4061,6 @@ impl ProxyInterface {
             Self::ZwpVirtualKeyboardManagerV1 => "zwp_virtual_keyboard_manager_v1",
             #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
             Self::ZwpVirtualKeyboardV1 => "zwp_virtual_keyboard_v1",
-            #[cfg(feature = "protocol-drm")]
-            Self::WlDrm => "wl_drm",
             #[cfg(feature = "protocol-treeland_app_id_resolver_v1")]
             Self::TreelandAppIdResolverManagerV1 => "treeland_app_id_resolver_manager_v1",
             #[cfg(feature = "protocol-treeland_app_id_resolver_v1")]
@@ -4282,12 +4282,6 @@ impl ProxyInterface {
             Self::WpLinuxDrmSyncobjSurfaceV1 => "wp_linux_drm_syncobj_surface_v1",
             #[cfg(feature = "protocol-linux_drm_syncobj_v1")]
             Self::WpLinuxDrmSyncobjTimelineV1 => "wp_linux_drm_syncobj_timeline_v1",
-            #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-            Self::ZwpLinuxBufferReleaseV1 => "zwp_linux_buffer_release_v1",
-            #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-            Self::ZwpLinuxExplicitSynchronizationV1 => "zwp_linux_explicit_synchronization_v1",
-            #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-            Self::ZwpLinuxSurfaceSynchronizationV1 => "zwp_linux_surface_synchronization_v1",
             #[cfg(feature = "protocol-pointer_constraints_unstable_v1")]
             Self::ZwpConfinedPointerV1 => "zwp_confined_pointer_v1",
             #[cfg(feature = "protocol-pointer_constraints_unstable_v1")]
@@ -4308,14 +4302,6 @@ impl ProxyInterface {
             Self::WpPresentation => "wp_presentation",
             #[cfg(feature = "protocol-presentation_time")]
             Self::WpPresentationFeedback => "wp_presentation_feedback",
-            #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-            Self::ZwpPrimarySelectionDeviceManagerV1 => "zwp_primary_selection_device_manager_v1",
-            #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-            Self::ZwpPrimarySelectionDeviceV1 => "zwp_primary_selection_device_v1",
-            #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-            Self::ZwpPrimarySelectionOfferV1 => "zwp_primary_selection_offer_v1",
-            #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-            Self::ZwpPrimarySelectionSourceV1 => "zwp_primary_selection_source_v1",
             #[cfg(feature = "protocol-relative_pointer_unstable_v1")]
             Self::ZwpRelativePointerManagerV1 => "zwp_relative_pointer_manager_v1",
             #[cfg(feature = "protocol-relative_pointer_unstable_v1")]
@@ -4360,6 +4346,14 @@ impl ProxyInterface {
             Self::WpViewport => "wp_viewport",
             #[cfg(feature = "protocol-viewporter")]
             Self::WpViewporter => "wp_viewporter",
+            #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+            Self::ZwpPrimarySelectionDeviceManagerV1 => "zwp_primary_selection_device_manager_v1",
+            #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+            Self::ZwpPrimarySelectionDeviceV1 => "zwp_primary_selection_device_v1",
+            #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+            Self::ZwpPrimarySelectionOfferV1 => "zwp_primary_selection_offer_v1",
+            #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+            Self::ZwpPrimarySelectionSourceV1 => "zwp_primary_selection_source_v1",
             #[cfg(feature = "protocol-xdg_activation_v1")]
             Self::XdgActivationTokenV1 => "xdg_activation_token_v1",
             #[cfg(feature = "protocol-xdg_activation_v1")]
@@ -4414,6 +4408,12 @@ impl ProxyInterface {
             Self::XwaylandShellV1 => "xwayland_shell_v1",
             #[cfg(feature = "protocol-xwayland_shell_v1")]
             Self::XwaylandSurfaceV1 => "xwayland_surface_v1",
+            #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+            Self::ZwpLinuxBufferReleaseV1 => "zwp_linux_buffer_release_v1",
+            #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+            Self::ZwpLinuxExplicitSynchronizationV1 => "zwp_linux_explicit_synchronization_v1",
+            #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+            Self::ZwpLinuxSurfaceSynchronizationV1 => "zwp_linux_surface_synchronization_v1",
             #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
             Self::ZwlrDataControlDeviceV1 => "zwlr_data_control_device_v1",
             #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
@@ -4503,6 +4503,8 @@ impl ProxyInterface {
             Self::JayTrayItemV1 => 1,
             #[cfg(feature = "protocol-jay_tray_v1")]
             Self::JayTrayV1 => 1,
+            #[cfg(feature = "protocol-drm")]
+            Self::WlDrm => 2,
             #[cfg(feature = "protocol-input_method_unstable_v2")]
             Self::ZwpInputMethodKeyboardGrabV2 => 1,
             #[cfg(feature = "protocol-input_method_unstable_v2")]
@@ -4519,8 +4521,6 @@ impl ProxyInterface {
             Self::ZwpVirtualKeyboardManagerV1 => 1,
             #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
             Self::ZwpVirtualKeyboardV1 => 1,
-            #[cfg(feature = "protocol-drm")]
-            Self::WlDrm => 2,
             #[cfg(feature = "protocol-treeland_app_id_resolver_v1")]
             Self::TreelandAppIdResolverManagerV1 => 1,
             #[cfg(feature = "protocol-treeland_app_id_resolver_v1")]
@@ -4742,12 +4742,6 @@ impl ProxyInterface {
             Self::WpLinuxDrmSyncobjSurfaceV1 => 1,
             #[cfg(feature = "protocol-linux_drm_syncobj_v1")]
             Self::WpLinuxDrmSyncobjTimelineV1 => 1,
-            #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-            Self::ZwpLinuxBufferReleaseV1 => 1,
-            #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-            Self::ZwpLinuxExplicitSynchronizationV1 => 2,
-            #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
-            Self::ZwpLinuxSurfaceSynchronizationV1 => 2,
             #[cfg(feature = "protocol-pointer_constraints_unstable_v1")]
             Self::ZwpConfinedPointerV1 => 1,
             #[cfg(feature = "protocol-pointer_constraints_unstable_v1")]
@@ -4768,14 +4762,6 @@ impl ProxyInterface {
             Self::WpPresentation => 2,
             #[cfg(feature = "protocol-presentation_time")]
             Self::WpPresentationFeedback => 2,
-            #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-            Self::ZwpPrimarySelectionDeviceManagerV1 => 1,
-            #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-            Self::ZwpPrimarySelectionDeviceV1 => 1,
-            #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-            Self::ZwpPrimarySelectionOfferV1 => 1,
-            #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
-            Self::ZwpPrimarySelectionSourceV1 => 1,
             #[cfg(feature = "protocol-relative_pointer_unstable_v1")]
             Self::ZwpRelativePointerManagerV1 => 1,
             #[cfg(feature = "protocol-relative_pointer_unstable_v1")]
@@ -4820,6 +4806,14 @@ impl ProxyInterface {
             Self::WpViewport => 1,
             #[cfg(feature = "protocol-viewporter")]
             Self::WpViewporter => 1,
+            #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+            Self::ZwpPrimarySelectionDeviceManagerV1 => 1,
+            #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+            Self::ZwpPrimarySelectionDeviceV1 => 1,
+            #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+            Self::ZwpPrimarySelectionOfferV1 => 1,
+            #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
+            Self::ZwpPrimarySelectionSourceV1 => 1,
             #[cfg(feature = "protocol-xdg_activation_v1")]
             Self::XdgActivationTokenV1 => 1,
             #[cfg(feature = "protocol-xdg_activation_v1")]
@@ -4874,6 +4868,12 @@ impl ProxyInterface {
             Self::XwaylandShellV1 => 1,
             #[cfg(feature = "protocol-xwayland_shell_v1")]
             Self::XwaylandSurfaceV1 => 1,
+            #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+            Self::ZwpLinuxBufferReleaseV1 => 1,
+            #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+            Self::ZwpLinuxExplicitSynchronizationV1 => 2,
+            #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
+            Self::ZwpLinuxSurfaceSynchronizationV1 => 2,
             #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
             Self::ZwlrDataControlDeviceV1 => 2,
             #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]

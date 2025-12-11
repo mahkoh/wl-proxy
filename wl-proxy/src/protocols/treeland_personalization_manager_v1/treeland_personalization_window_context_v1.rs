@@ -91,7 +91,7 @@ impl TreelandPersonalizationWindowContextV1 {
         fmt.words([
             id,
             0,
-            arg0.0 as u32,
+            arg0.0,
         ]);
         Ok(())
     }
@@ -328,7 +328,7 @@ impl TreelandPersonalizationWindowContextV1 {
         fmt.words([
             id,
             4,
-            arg0.0 as u32,
+            arg0.0,
         ]);
         Ok(())
     }

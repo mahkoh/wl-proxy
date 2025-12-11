@@ -31,6 +31,7 @@ impl<T, const N: usize> Debug for FreeList<T, N> {
 }
 
 impl<T, const N: usize> FreeList<T, N> {
+    #[expect(clippy::mut_from_ref)]
     fn get(&self) -> &mut [Vec<Seg>; N] {
         unsafe { &mut *self.levels.get() }
     }

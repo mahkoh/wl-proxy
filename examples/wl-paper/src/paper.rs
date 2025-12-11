@@ -8,7 +8,7 @@ use {
         sync::Arc,
     },
     wl_proxy::{
-        generated::{
+        protocols::{
             ProxyInterface,
             wayland::{
                 wl_callback::{WlCallback, WlCallbackHandler},

@@ -794,7 +794,7 @@ impl WlSurface {
         fmt.words([
             id,
             7,
-            arg0.0 as u32,
+            arg0.0,
         ]);
         Ok(())
     }

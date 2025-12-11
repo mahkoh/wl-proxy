@@ -4,6 +4,7 @@ use {
         collector::Suite,
     },
     debug_fn::debug_fn,
+    isnt::std_1::primitive::IsntSliceExt,
     phf::phf_set,
     std::{
         fmt::{Display, Write as FmtWrite},
@@ -113,7 +114,7 @@ fn format_interface_types(w: &mut impl Write, interface: &Interface) -> io::Resu
     wl!(r#"    core: ProxyCore,"#)?;
     wl!(r#"    handler: HandlerHolder<dyn {PREFIX}{camel}Handler>,"#)?;
     wl!(r#"}}"#)?;
-    if interface.messages.len() > 0 {
+    if interface.messages.is_not_empty() {
         wl!()?;
         wl!(r#"struct DefaultHandler;"#)?;
         wl!()?;
@@ -279,7 +280,7 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
             if (arg.ty == ArgType::Object && !message.is_request) || arg.ty == ArgType::NewId {
                 w!(r#"        let arg{idx}_id = "#)?;
                 if arg.allow_null {
-                    w!("arg{idx}.map(|arg{idx}| ").unwrap();
+                    w!("arg{idx}.and_then(|arg{idx}| ").unwrap();
                 }
                 if message.is_request {
                     w!("arg{idx}.server_obj_id.get()").unwrap();
@@ -287,7 +288,7 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
                     w!("arg{idx}.client_obj_id.get()").unwrap();
                 }
                 if arg.allow_null {
-                    w!(").flatten()").unwrap();
+                    w!(")").unwrap();
                 }
                 wl!(".unwrap_or(0);").unwrap();
             }
@@ -333,9 +334,10 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
                     words.push(format!("arg{idx}_id"));
                 }
                 ArgType::Object => words.push(format!("arg{idx}_id")),
-                ArgType::Int if arg.enum_.is_some() => words.push(format!("arg{idx}.0 as u32")),
+                ArgType::Int | ArgType::Uint if arg.enum_.is_some() => {
+                    words.push(format!("arg{idx}.0"))
+                }
                 ArgType::Int => words.push(format!("arg{idx} as u32")),
-                ArgType::Uint if arg.enum_.is_some() => words.push(format!("arg{idx}.0")),
                 ArgType::Uint => words.push(format!("arg{idx}")),
                 ArgType::Fixed => words.push(format!("arg{idx}.to_wire() as u32")),
                 ArgType::String => {
@@ -526,13 +528,16 @@ fn arg_type<'a>(interface: &'a Interface, arg: &'a Arg) -> impl Display + use<'a
     })
 }
 
-#[allow(clippy::type_complexity)]
 pub fn format_mod_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<()> {
     define_w!(w);
     macro_rules! write_cfg {
         ($protocol:expr, $prefix:expr) => {
             if !$protocol.is_wayland {
-                wl!(r#"{}#[cfg(feature = "protocol-{}")]"#, $prefix, $protocol.name)?;
+                wl!(
+                    r#"{}#[cfg(feature = "protocol-{}")]"#,
+                    $prefix,
+                    $protocol.name
+                )?;
             }
         };
     }
@@ -662,6 +667,11 @@ pub fn format_protocol_file(w: &mut impl Write, protocol: &Protocol) -> io::Resu
     wl!("#![allow(clippy::too_many_arguments)]")?;
     wl!("#![allow(clippy::manual_map)]")?;
     wl!("#![allow(clippy::module_inception)]")?;
+    wl!("#![allow(clippy::needless_return)]")?;
+    wl!("#![allow(clippy::manual_div_ceil)]")?;
+    wl!("#![allow(clippy::match_single_binding)]")?;
+    wl!("#![allow(clippy::collapsible_if)]")?;
+    wl!("#![allow(clippy::doc_overindented_list_items)]")?;
     wl!("#![allow(unused_imports)]")?;
     wl!("#![allow(rustdoc::broken_intra_doc_links)]")?;
     wl!("#![allow(rustdoc::bare_urls)]")?;
@@ -1365,7 +1375,7 @@ fn format_proxy_message_handler_body<W: Write>(
 fn format_interface_enums(w: &mut impl Write, interface: &Interface) -> io::Result<()> {
     define_w!(w);
     let camel = format_camel(&interface.name).to_string();
-    if interface.enums.len() > 0 {
+    if interface.enums.is_not_empty() {
         wl!(r#"impl {PREFIX}{camel} {{"#)?;
         for (idx, enum_) in interface.enums.iter().enumerate() {
             if idx > 0 {
@@ -1416,7 +1426,7 @@ fn format_interface_enums(w: &mut impl Write, interface: &Interface) -> io::Resu
             wl!(r#"#[derive(Clone, Debug)]"#)?;
             wl!(r#"pub struct {PREFIX}{camel}Iter(pub u32);"#)?;
         }
-        if enum_.entries.len() > 0 {
+        if enum_.entries.is_not_empty() {
             wl!()?;
             wl!(r#"impl {PREFIX}{camel} {{"#)?;
             for (idx, entry) in enum_.entries.iter().enumerate() {

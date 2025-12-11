@@ -959,7 +959,7 @@ impl TreelandForeignToplevelHandleV1 {
                 return Err(ObjectError::ArgNoClientId("parent", client.endpoint.id));
             }
         }
-        let arg0_id = arg0.map(|arg0| arg0.client_obj_id.get()).flatten().unwrap_or(0);
+        let arg0_id = arg0.and_then(|arg0| arg0.client_obj_id.get()).unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
             let prefix = &self.core.state.log_prefix;

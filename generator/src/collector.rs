@@ -24,13 +24,14 @@ pub enum CollectorError {
 
 pub(crate) struct Suite {
     pub(crate) name: &'static str,
+    pub(crate) is_wayland: bool,
     pub(crate) protocols: Vec<Protocol>,
 }
 
 pub(crate) fn collect() -> Result<Vec<Suite>, CollectorError> {
     let mut root_dir = Path::new(env!("CARGO_MANIFEST_DIR")).to_path_buf();
     root_dir.pop();
-    let suite = [
+    let suite_names = [
         "hyprland-protocols",
         "jay-protocols",
         "other",
@@ -40,13 +41,14 @@ pub(crate) fn collect() -> Result<Vec<Suite>, CollectorError> {
         "wlr-protocols",
     ];
     let protocols_dir = root_dir.join("protocols");
-    let mut files = vec![];
-    for suite in suite {
+    let mut suits = vec![];
+    for suite in suite_names {
         let dir = protocols_dir.join(suite);
         let iter = match std::fs::read_dir(&dir) {
             Ok(c) => c,
             Err(e) => return Err(CollectorError::OpenDir(dir, e)),
         };
+        let mut protocols = vec![];
         for file in iter {
             let file = match file {
                 Ok(f) => f,
@@ -55,26 +57,24 @@ pub(crate) fn collect() -> Result<Vec<Suite>, CollectorError> {
             if !file.file_name().as_encoded_bytes().ends_with(b".xml") {
                 continue;
             }
-            files.push((suite, file.path()));
+            let file = file.path();
+            let contents = match std::fs::read(&file) {
+                Ok(c) => c,
+                Err(e) => return Err(CollectorError::ReadFile(file, e)),
+            };
+            let p = match parse(&contents) {
+                Ok(c) => c,
+                Err(e) => return Err(CollectorError::ParseFile(file, e)),
+            };
+            protocols.extend(p);
         }
-    }
-    files.sort();
-    let mut suits = vec![];
-    for (suite, file) in files {
-        let contents = match std::fs::read(&file) {
-            Ok(c) => c,
-            Err(e) => return Err(CollectorError::ReadFile(file, e)),
-        };
-        let mut protocols = match parse(&contents) {
-            Ok(c) => c,
-            Err(e) => return Err(CollectorError::ParseFile(file, e)),
-        };
         protocols.sort_by(|p1, p2| p1.name.cmp(&p2.name));
         for protocol in &mut protocols {
             protocol.interfaces.sort_by(|i1, i2| i1.name.cmp(&i2.name));
         }
         suits.push(Suite {
             name: suite,
+            is_wayland: suite == "wayland",
             protocols,
         });
     }

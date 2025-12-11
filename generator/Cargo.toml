@@ -9,6 +9,7 @@ thiserror = "2.0.12"
 debug-fn = "1.0.0"
 phf = { version = "0.13.1", features = ["macros"] }
 error_reporter = "1.0.0"
+isnt = "0.2.0"
 
 [[bin]]
 name = "generator"
