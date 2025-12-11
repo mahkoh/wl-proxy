@@ -1,5 +1,5 @@
 use {
-    crate::{generated::ProxyInterface, proxy::IdError},
+    crate::{protocols::ProxyInterface, proxy::IdError},
     thiserror::Error,
 };
 

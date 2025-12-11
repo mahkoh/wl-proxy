@@ -1,6 +1,6 @@
 use {
     crate::{
-        endpoint::Endpoint, generated::wayland::wl_display::WlDisplay, state::State,
+        endpoint::Endpoint, protocols::wayland::wl_display::WlDisplay, state::State,
         utils::handler_holder::HandlerHolder,
     },
     std::{cell::Cell, rc::Rc},

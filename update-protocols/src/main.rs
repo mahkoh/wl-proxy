@@ -29,6 +29,7 @@ fn main() {
         Repo {
             dir: "treeland-protocols",
             subdirs: &["xml"],
+            exclude: &["treeland-capture-unstable-v1.xml"],
             ..Default::default()
         },
         Repo {
@@ -68,6 +69,9 @@ fn main() {
             subdirs = &[""];
         }
         let out_dir: PathBuf = format!("protocols/{}", repo.dir).into();
+        eprintln!("rm -rf {}", out_dir.display());
+        let _ = std::fs::remove_dir_all(&out_dir);
+        eprintln!("mkdir -p {}", out_dir.display());
         std::fs::create_dir_all(&out_dir).unwrap();
         for subdir in subdirs {
             let mut path: PathBuf = format!("protocol-repos/{}", repo.dir).into();

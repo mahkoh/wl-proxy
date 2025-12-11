@@ -2,7 +2,7 @@ use {
     crate::{
         acceptor::{Acceptor, AcceptorError},
         client::ClientHandler,
-        generated::wayland::wl_display::WlDisplayHandler,
+        protocols::wayland::wl_display::WlDisplayHandler,
         state::{Destructor, StateBuilder, StateError},
     },
     error_reporter::Report,

@@ -1,5 +1,5 @@
 use {
-    crate::{client::Client, generated::ProxyInterface, object_error::ObjectError, state::State},
+    crate::{client::Client, object_error::ObjectError, protocols::ProxyInterface, state::State},
     std::{
         any::Any,
         cell::{Cell, Ref, RefCell, RefMut},
@@ -43,9 +43,9 @@ pub(crate) trait ProxyPrivate: Any {
 #[expect(private_bounds)]
 pub trait Proxy: ProxyPrivate {
     fn core(&self) -> &ProxyCore;
+    fn unset_handler(&self);
     fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError>;
     fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError>;
-    fn unset_handler(&self);
 }
 
 pub trait ProxyUtils: Proxy {

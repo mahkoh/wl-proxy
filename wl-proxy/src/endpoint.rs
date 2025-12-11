@@ -1,8 +1,8 @@
 use {
     crate::{
         client::Client,
-        generated::ProxyInterface,
         object_error::ObjectError,
+        protocols::ProxyInterface,
         proxy::Proxy,
         state::HandlerLock,
         trans::{self, FlushResult, InputBuffer, OutputSwapchain, TransError},

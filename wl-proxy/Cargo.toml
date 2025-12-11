@@ -18,6 +18,15 @@ run-on-drop = "1.0.0"
 default = ["suite-wayland-protocols", "suite-wlr-protocols"]
 
 # --generated start--
+all-protocols = [
+    "suite-hyprland-protocols",
+    "suite-jay-protocols",
+    "suite-other",
+    "suite-treeland-protocols",
+    "suite-wayland-protocols",
+    "suite-wlr-protocols",
+]
+
 suite-hyprland-protocols = [
     "protocol-hyprland_ctm_control_v1",
     "protocol-hyprland_focus_grab_v1",
@@ -39,7 +48,6 @@ suite-other = [
 ]
 suite-treeland-protocols = [
     "protocol-treeland_app_id_resolver_v1",
-    "protocol-treeland_capture_unstable_v1",
     "protocol-treeland_dde_shell_v1",
     "protocol-treeland_ddm",
     "protocol-treeland_foreign_toplevel_manager_v1",
@@ -168,7 +176,6 @@ protocol-tearing_control_v1 = []
 protocol-text_input_unstable_v1 = []
 protocol-text_input_unstable_v3 = []
 protocol-treeland_app_id_resolver_v1 = []
-protocol-treeland_capture_unstable_v1 = []
 protocol-treeland_dde_shell_v1 = []
 protocol-treeland_ddm = []
 protocol-treeland_foreign_toplevel_manager_v1 = []

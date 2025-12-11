@@ -1,11 +1,11 @@
-pub mod client;
-pub mod fixed;
-#[rustfmt::skip]
-pub mod generated;
 pub mod acceptor;
+pub mod client;
 pub mod endpoint;
-mod generated_helper;
+pub mod fixed;
 pub mod object_error;
+mod protocol_helpers;
+#[rustfmt::skip]
+pub mod protocols;
 pub mod proxy;
 pub mod simple;
 pub mod state;

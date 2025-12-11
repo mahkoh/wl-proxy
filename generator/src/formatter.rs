@@ -1,12 +1,13 @@
 use {
-    crate::ast::{Arg, ArgType, Description, Interface, Message, MessageType, Protocol},
+    crate::{
+        ast::{Arg, ArgType, Description, Interface, Message, MessageType, Protocol},
+        collector::Suite,
+    },
     debug_fn::debug_fn,
     phf::phf_set,
     std::{
         fmt::{Display, Write as FmtWrite},
         io::{self, Write},
-        rc::Rc,
-        sync::Arc,
     },
 };
 
@@ -38,7 +39,7 @@ fn format_interface_header(w: &mut impl Write, interface: &Interface) -> io::Res
         format_description(w, "//!", desc)?;
         wl!()?;
     }
-    wl!("use crate::generated_helper::prelude::*;")?;
+    wl!("use crate::protocol_helpers::prelude::*;")?;
     wl!("use super::super::all_types::*;")?;
     Ok(())
 }
@@ -526,55 +527,43 @@ fn arg_type<'a>(interface: &'a Interface, arg: &'a Arg) -> impl Display + use<'a
 }
 
 #[allow(clippy::type_complexity)]
-pub fn format_mod_file(
-    w: &mut impl Write,
-    protocols: &[(Rc<String>, Vec<(Rc<String>, Vec<String>, u32)>)],
-) -> io::Result<()> {
+pub fn format_mod_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<()> {
     define_w!(w);
     macro_rules! write_cfg {
         ($protocol:expr, $prefix:expr) => {
-            if **$protocol != "wayland" {
-                wl!(r#"{}#[cfg(feature = "protocol-{}")]"#, $prefix, $protocol)?;
+            if !$protocol.is_wayland {
+                wl!(r#"{}#[cfg(feature = "protocol-{}")]"#, $prefix, $protocol.name)?;
             }
         };
     }
-    macro_rules! write_not_cfg {
-        ($protocol:expr, $prefix:expr) => {
-            if $protocol != "wayland" {
-                wl!(
-                    r#"{}#[cfg(not(feature = "protocol-{}"))]"#,
-                    $prefix,
-                    $protocol
-                )?;
-            }
-        };
-    }
-    for (protocol, _) in protocols {
+    let protocols = || suits.iter().flat_map(|s| s.protocols.iter());
+    let interfaces = || protocols().flat_map(|p| p.interfaces.iter().map(move |i| (p, i)));
+    for protocol in protocols() {
         write_cfg!(protocol, "");
-        wl!(r#"pub mod {};"#, protocol)?;
+        wl!(r#"pub mod {};"#, protocol.name)?;
     }
     wl!()?;
     wl!("#[allow(unused_imports)]")?;
     wl!("mod all_types {{")?;
-    for (proto, interfaces) in protocols {
-        for (snake, enums, _) in interfaces {
-            let camel = format_camel(snake).to_string();
-            let prefix = debug_fn(|f| {
-                write!(
-                    f,
-                    r#"    pub(super) use super::{proto}::{snake}::{PREFIX}{camel}"#
-                )
-            });
-            write_cfg!(proto, "    ");
-            wl!(r#"{prefix};"#)?;
-            for enum_ in enums {
-                write_cfg!(proto, "    ");
-                wl!(r#"{prefix}{};"#, format_camel(enum_))?;
-            }
+    for (protocol, interface) in interfaces() {
+        let proto = &protocol.name;
+        let snake = &interface.name;
+        let camel = format_camel(snake).to_string();
+        let prefix = debug_fn(|f| {
+            write!(
+                f,
+                r#"    pub(super) use super::{proto}::{snake}::{PREFIX}{camel}"#
+            )
+        });
+        write_cfg!(protocol, "    ");
+        wl!(r#"{prefix};"#)?;
+        for enum_ in &interface.enums {
+            write_cfg!(protocol, "    ");
+            wl!(r#"{prefix}{};"#, format_camel(&enum_.name))?;
         }
     }
     wl!()?;
-    wl!("    use crate::generated_helper::prelude::*;")?;
+    wl!("    use crate::protocol_helpers::prelude::*;")?;
     wl!()?;
     wl!(
         "    pub(super) fn create_proxy_for_interface(state: &Rc<State>, interface: &str, version: u32) -> Result<Rc<dyn Proxy>, ObjectError> {{"
@@ -588,19 +577,19 @@ pub fn format_mod_file(
     wl!(
         "        static INTERFACES: phf::Map<&'static str, Option<ProxyInterface>> = phf::phf_map! {{"
     )?;
-    for (proto, interfaces) in protocols {
-        for (snake, _, _) in interfaces {
-            let camel = format_camel(snake);
-            if **proto != "wayland" {
-                wl!(r#"            "{snake}" => {{"#)?;
-                wl!(
-                    r#"                #[cfg(feature = "protocol-{proto}")] {{ Some(ProxyInterface::{camel}) }}"#
-                )?;
-                wl!(r#"                #[cfg(not(feature = "protocol-{proto}"))] {{ None }}"#)?;
-                wl!(r#"            }},"#)?;
-            } else {
-                wl!(r#"            "{snake}" => Some(ProxyInterface::{camel}),"#)?;
-            }
+    for (protocol, interface) in interfaces() {
+        let snake = &interface.name;
+        let camel = format_camel(snake);
+        if protocol.is_wayland {
+            wl!(r#"            "{snake}" => Some(ProxyInterface::{camel}),"#)?;
+        } else {
+            let proto = &protocol.name;
+            wl!(r#"            "{snake}" => {{"#)?;
+            wl!(
+                r#"                #[cfg(feature = "protocol-{proto}")] {{ Some(ProxyInterface::{camel}) }}"#
+            )?;
+            wl!(r#"                #[cfg(not(feature = "protocol-{proto}"))] {{ None }}"#)?;
+            wl!(r#"            }},"#)?;
         }
     }
     wl!("        }};")?;
@@ -612,17 +601,15 @@ pub fn format_mod_file(
         "        fn create_proxy(self, state: &Rc<State>, version: u32) -> Result<Rc<dyn Proxy>, ObjectError> {{"
     )?;
     wl!("            match self {{")?;
-    for (proto, interfaces) in protocols {
-        for (snake, _, version) in interfaces {
-            let camel = format_camel(snake);
-            write_cfg!(proto, "                ");
-            wl!(r#"                Self::{camel} => {{"#)?;
-            wl!(r#"                    if version > {PREFIX}{camel}::XML_VERSION {{"#)?;
-            wl!(r#"                        return Err(ObjectError::MaxVersion(self, version));"#)?;
-            wl!(r#"                    }}"#)?;
-            wl!(r#"                    Ok({PREFIX}{camel}::new(state, version))"#)?;
-            wl!(r#"                }}"#)?;
-        }
+    for (protocol, interface) in interfaces() {
+        let camel = format_camel(&interface.name);
+        write_cfg!(protocol, "                ");
+        wl!(r#"                Self::{camel} => {{"#)?;
+        wl!(r#"                    if version > {PREFIX}{camel}::XML_VERSION {{"#)?;
+        wl!(r#"                        return Err(ObjectError::MaxVersion(self, version));"#)?;
+        wl!(r#"                    }}"#)?;
+        wl!(r#"                    Ok({PREFIX}{camel}::new(state, version))"#)?;
+        wl!(r#"                }}"#)?;
     }
     wl!("            }}")?;
     wl!("        }}")?;
@@ -631,36 +618,32 @@ pub fn format_mod_file(
     wl!()?;
     wl!("#[derive(Copy, Clone, Debug, Eq, PartialEq)]")?;
     wl!("pub enum ProxyInterface {{")?;
-    for (proto, interfaces) in protocols {
-        for (snake, _, _) in interfaces {
-            let camel = format_camel(snake);
-            write_cfg!(proto, "    ");
-            wl!(r#"    {camel},"#)?;
-        }
+    for (protocol, interface) in interfaces() {
+        let camel = format_camel(&interface.name);
+        write_cfg!(protocol, "    ");
+        wl!(r#"    {camel},"#)?;
     }
     wl!("}}")?;
     wl!()?;
     wl!("impl ProxyInterface {{")?;
     wl!("    pub fn name(self) -> &'static str {{")?;
     wl!("        match self {{")?;
-    for (proto, interfaces) in protocols {
-        for (snake, _, _) in interfaces {
-            let camel = format_camel(snake);
-            write_cfg!(proto, "            ");
-            wl!(r#"            Self::{camel} => "{snake}","#)?;
-        }
+    for (protocol, interface) in interfaces() {
+        let snake = &interface.name;
+        let camel = format_camel(snake);
+        write_cfg!(protocol, "            ");
+        wl!(r#"            Self::{camel} => "{snake}","#)?;
     }
     wl!("        }}")?;
     wl!("    }}")?;
     wl!()?;
     wl!("    pub fn xml_version(self) -> u32 {{")?;
     wl!("        match self {{")?;
-    for (proto, interfaces) in protocols {
-        for (snake, _, version) in interfaces {
-            let camel = format_camel(snake);
-            write_cfg!(proto, "            ");
-            wl!(r#"            Self::{camel} => {version},"#)?;
-        }
+    for (protocol, interface) in interfaces() {
+        let version = interface.version;
+        let camel = format_camel(&interface.name);
+        write_cfg!(protocol, "            ");
+        wl!(r#"            Self::{camel} => {version},"#)?;
     }
     wl!("        }}")?;
     wl!("    }}")?;

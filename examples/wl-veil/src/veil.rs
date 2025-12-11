@@ -7,7 +7,7 @@ use {
         sync::Arc,
     },
     wl_proxy::{
-        generated::wayland::{
+        protocols::wayland::{
             wl_display::{WlDisplay, WlDisplayHandler},
             wl_registry::{WlRegistry, WlRegistryHandler},
         },

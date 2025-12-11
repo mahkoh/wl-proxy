@@ -58,7 +58,7 @@ impl Builder {
 
         let wl_proxy_dir = root_dir.join("wl-proxy");
         let src_dir = wl_proxy_dir.join("src");
-        let generated_dir = src_dir.join("generated");
+        let generated_dir = src_dir.join("protocols");
         let suite = [
             "hyprland-protocols",
             "jay-protocols",
@@ -69,7 +69,7 @@ impl Builder {
             "wlr-protocols",
         ];
         let protocols_dir = root_dir.join("protocols");
-        std::fs::remove_dir_all(&generated_dir).unwrap();
+        let _ = std::fs::remove_dir_all(&generated_dir);
         create_dir(&generated_dir)?;
 
         let mut protocol_objects = vec![];
@@ -156,7 +156,7 @@ impl Builder {
             }
         }
 
-        format_file(&src_dir.join("generated.rs"), |f| {
+        format_file(&src_dir.join("protocols.rs"), |f| {
             format_mod_file(f, &protocol_objects)
         })?;
 
@@ -174,10 +174,8 @@ impl Builder {
             for (protocol, interfaces) in protocol_interface_dependencies {
                 let mut deps = HashSet::new();
                 for interface in interfaces {
-                    if let Some(dep) = interface_to_protocol.get(&interface)
-                        && dep != &protocol
-                        && **dep != "wayland"
-                    {
+                    let dep = interface_to_protocol.get(&interface).unwrap();
+                    if dep != &protocol && **dep != "wayland" {
                         deps.insert(dep);
                     }
                 }
@@ -202,7 +200,13 @@ impl Builder {
             let end = old.find(generated_end).unwrap();
             new.push_str(&old[..start]);
             new.push_str(generated_start);
-            for (suite, protocols) in suite_protocols {
+            writeln!(new, "all-protocols = [").unwrap();
+            for (suite, _) in &suite_protocols {
+                writeln!(new, r#"    "suite-{suite}","#).unwrap();
+            }
+            writeln!(new, "]").unwrap();
+            writeln!(new).unwrap();
+            for (suite, protocols) in &suite_protocols {
                 writeln!(new, "suite-{suite} = [").unwrap();
                 for protocol in protocols {
                     writeln!(new, r#"    "protocol-{protocol}","#).unwrap();

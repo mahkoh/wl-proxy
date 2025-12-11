@@ -1,5 +1,8 @@
-use generator::builder::Builder;
+use {
+    error_reporter::Report,
+    generator::{generate, generate::GeneratorError},
+};
 
-fn main() {
-    Builder::default().build().unwrap();
+fn main() -> Result<(), Report<GeneratorError>> {
+    generate::main().map_err(Report::new)
 }

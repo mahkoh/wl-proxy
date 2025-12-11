@@ -3,7 +3,7 @@ use {
         acceptor::{Acceptor, AcceptorError},
         client::Client,
         endpoint::{Endpoint, EndpointError},
-        generated::wayland::wl_display::WlDisplay,
+        protocols::wayland::wl_display::WlDisplay,
         proxy::{Proxy, ProxyPrivate},
         trans::{FlushResult, TransError},
         utils::{handler_holder::HandlerHolder, stack::Stack, stash::Stash, xrd::xrd},

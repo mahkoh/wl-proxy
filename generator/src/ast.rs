@@ -1,7 +1,6 @@
-use std::rc::Rc;
-
 pub(crate) struct Protocol {
-    pub(crate) name: Rc<String>,
+    pub(crate) name: String,
+    pub(crate) is_wayland: bool,
     pub(crate) _copyright: Option<Copyright>,
     pub(crate) description: Option<Description>,
     pub(crate) interfaces: Vec<Interface>,
@@ -18,7 +17,7 @@ pub(crate) struct Description {
 }
 
 pub(crate) struct Interface {
-    pub(crate) name: Rc<String>,
+    pub(crate) name: String,
     pub(crate) version: u32,
     pub(crate) is_wl_display: bool,
     pub(crate) is_wl_registry: bool,
@@ -34,7 +33,7 @@ pub(crate) struct Arg {
     pub(crate) ty: ArgType,
     pub(crate) summary: Option<String>,
     pub(crate) description: Option<Description>,
-    pub(crate) interface: Option<Rc<String>>,
+    pub(crate) interface: Option<String>,
     pub(crate) allow_null: bool,
     pub(crate) enum_: Option<String>,
 }
