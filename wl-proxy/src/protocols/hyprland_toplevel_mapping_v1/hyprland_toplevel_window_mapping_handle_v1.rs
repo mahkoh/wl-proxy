@@ -179,6 +179,11 @@ impl HyprlandToplevelWindowMappingHandleV1 {
 
 /// A message handler for [HyprlandToplevelWindowMappingHandleV1] proxies.
 pub trait HyprlandToplevelWindowMappingHandleV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<HyprlandToplevelWindowMappingHandleV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// address of the window
     ///
     /// The full 64bit window address. The `address` field contains the lower 32 bits whilst the
@@ -189,7 +194,7 @@ pub trait HyprlandToplevelWindowMappingHandleV1Handler: Any {
     /// - `address_hi`: upper 32 bits of the window address
     /// - `address`: lower 32 bits of the window address
     #[inline]
-    fn window_address(
+    fn handle_window_address(
         &mut self,
         _slf: &Rc<HyprlandToplevelWindowMappingHandleV1>,
         address_hi: u32,
@@ -209,7 +214,7 @@ pub trait HyprlandToplevelWindowMappingHandleV1Handler: Any {
     /// The mapping of the toplevel to a window address failed. Most likely the window does not
     /// exist (anymore).
     #[inline]
-    fn failed(
+    fn handle_failed(
         &mut self,
         _slf: &Rc<HyprlandToplevelWindowMappingHandleV1>,
     ) {
@@ -224,7 +229,7 @@ pub trait HyprlandToplevelWindowMappingHandleV1Handler: Any {
     ///
     /// Destroy the handle. This request can be sent at any time by the client.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<HyprlandToplevelWindowMappingHandleV1>,
     ) {
@@ -242,6 +247,18 @@ impl ObjectPrivate for HyprlandToplevelWindowMappingHandleV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::HyprlandToplevelWindowMappingHandleV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -262,9 +279,9 @@ impl ObjectPrivate for HyprlandToplevelWindowMappingHandleV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -298,9 +315,9 @@ impl ObjectPrivate for HyprlandToplevelWindowMappingHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).window_address(&self, arg0, arg1);
+                    (**handler).handle_window_address(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.window_address(&self, arg0, arg1);
+                    DefaultHandler.handle_window_address(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -314,9 +331,9 @@ impl ObjectPrivate for HyprlandToplevelWindowMappingHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).failed(&self);
+                    (**handler).handle_failed(&self);
                 } else {
-                    DefaultHandler.failed(&self);
+                    DefaultHandler.handle_failed(&self);
                 }
             }
             n => {

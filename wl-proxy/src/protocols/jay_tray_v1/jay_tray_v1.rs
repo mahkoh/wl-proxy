@@ -169,13 +169,18 @@ impl JayTrayV1 {
 
 /// A message handler for [JayTrayV1] proxies.
 pub trait JayTrayV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<JayTrayV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy this object
     ///
     /// Destroy this object.
     ///
     /// Created tray items are not affected by this.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<JayTrayV1>,
     ) {
@@ -204,7 +209,7 @@ pub trait JayTrayV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_tray_item(
+    fn handle_get_tray_item(
         &mut self,
         _slf: &Rc<JayTrayV1>,
         id: &Rc<JayTrayItemV1>,
@@ -228,6 +233,18 @@ impl ObjectPrivate for JayTrayV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -246,9 +263,9 @@ impl ObjectPrivate for JayTrayV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -279,9 +296,9 @@ impl ObjectPrivate for JayTrayV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_tray_item(&self, arg0, arg1);
+                    (**handler).handle_get_tray_item(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_tray_item(&self, arg0, arg1);
+                    DefaultHandler.handle_get_tray_item(&self, arg0, arg1);
                 }
             }
             n => {

@@ -238,12 +238,17 @@ impl TreelandWindowOverlapChecker {
 
 /// A message handler for [TreelandWindowOverlapChecker] proxies.
 pub trait TreelandWindowOverlapCheckerHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandWindowOverlapChecker>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// Window has overlapped
     ///
     /// This event is sent when windows overlapped.
     /// This event is sent only once.
     #[inline]
-    fn enter(
+    fn handle_enter(
         &mut self,
         _slf: &Rc<TreelandWindowOverlapChecker>,
     ) {
@@ -259,7 +264,7 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
     /// This event is sent when windows not overlapped.
     /// This event is sent only once.
     #[inline]
-    fn leave(
+    fn handle_leave(
         &mut self,
         _slf: &Rc<TreelandWindowOverlapChecker>,
     ) {
@@ -288,7 +293,7 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn update(
+    fn handle_update(
         &mut self,
         _slf: &Rc<TreelandWindowOverlapChecker>,
         width: i32,
@@ -315,7 +320,7 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
     /// use the toplevel anymore or after the closed event to finalize the
     /// destruction of the object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<TreelandWindowOverlapChecker>,
     ) {
@@ -333,6 +338,18 @@ impl ObjectPrivate for TreelandWindowOverlapChecker {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandWindowOverlapChecker, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -369,9 +386,9 @@ impl ObjectPrivate for TreelandWindowOverlapChecker {
                 };
                 let arg3 = &arg3;
                 if let Some(handler) = handler {
-                    (**handler).update(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_update(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.update(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_update(&self, arg0, arg1, arg2, arg3);
                 }
             }
             1 => {
@@ -386,9 +403,9 @@ impl ObjectPrivate for TreelandWindowOverlapChecker {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -419,9 +436,9 @@ impl ObjectPrivate for TreelandWindowOverlapChecker {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).enter(&self);
+                    (**handler).handle_enter(&self);
                 } else {
-                    DefaultHandler.enter(&self);
+                    DefaultHandler.handle_enter(&self);
                 }
             }
             1 => {
@@ -435,9 +452,9 @@ impl ObjectPrivate for TreelandWindowOverlapChecker {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).leave(&self);
+                    (**handler).handle_leave(&self);
                 } else {
-                    DefaultHandler.leave(&self);
+                    DefaultHandler.handle_leave(&self);
                 }
             }
             n => {

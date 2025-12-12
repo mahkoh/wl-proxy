@@ -410,12 +410,17 @@ impl ZxdgOutputV1 {
 
 /// A message handler for [ZxdgOutputV1] proxies.
 pub trait ZxdgOutputV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZxdgOutputV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the xdg_output object
     ///
     /// Using this request a client can tell the server that it is not
     /// going to use the xdg_output object anymore.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZxdgOutputV1>,
     ) {
@@ -440,7 +445,7 @@ pub trait ZxdgOutputV1Handler: Any {
     /// - `x`: x position within the global compositor space
     /// - `y`: y position within the global compositor space
     #[inline]
-    fn logical_position(
+    fn handle_logical_position(
         &mut self,
         _slf: &Rc<ZxdgOutputV1>,
         x: i32,
@@ -493,7 +498,7 @@ pub trait ZxdgOutputV1Handler: Any {
     /// - `width`: width in global compositor space
     /// - `height`: height in global compositor space
     #[inline]
-    fn logical_size(
+    fn handle_logical_size(
         &mut self,
         _slf: &Rc<ZxdgOutputV1>,
         width: i32,
@@ -520,7 +525,7 @@ pub trait ZxdgOutputV1Handler: Any {
     /// are not required to send it anymore and must send wl_output.done
     /// instead.
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<ZxdgOutputV1>,
     ) {
@@ -559,7 +564,7 @@ pub trait ZxdgOutputV1Handler: Any {
     ///
     /// - `name`: output name
     #[inline]
-    fn name(
+    fn handle_name(
         &mut self,
         _slf: &Rc<ZxdgOutputV1>,
         name: &str,
@@ -597,7 +602,7 @@ pub trait ZxdgOutputV1Handler: Any {
     ///
     /// - `description`: output description
     #[inline]
-    fn description(
+    fn handle_description(
         &mut self,
         _slf: &Rc<ZxdgOutputV1>,
         description: &str,
@@ -619,6 +624,18 @@ impl ObjectPrivate for ZxdgOutputV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -637,9 +654,9 @@ impl ObjectPrivate for ZxdgOutputV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -675,9 +692,9 @@ impl ObjectPrivate for ZxdgOutputV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).logical_position(&self, arg0, arg1);
+                    (**handler).handle_logical_position(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.logical_position(&self, arg0, arg1);
+                    DefaultHandler.handle_logical_position(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -696,9 +713,9 @@ impl ObjectPrivate for ZxdgOutputV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).logical_size(&self, arg0, arg1);
+                    (**handler).handle_logical_size(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.logical_size(&self, arg0, arg1);
+                    DefaultHandler.handle_logical_size(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -712,9 +729,9 @@ impl ObjectPrivate for ZxdgOutputV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).done(&self);
+                    (**handler).handle_done(&self);
                 } else {
-                    DefaultHandler.done(&self);
+                    DefaultHandler.handle_done(&self);
                 }
             }
             3 => {
@@ -751,9 +768,9 @@ impl ObjectPrivate for ZxdgOutputV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).name(&self, arg0);
+                    (**handler).handle_name(&self, arg0);
                 } else {
-                    DefaultHandler.name(&self, arg0);
+                    DefaultHandler.handle_name(&self, arg0);
                 }
             }
             4 => {
@@ -790,9 +807,9 @@ impl ObjectPrivate for ZxdgOutputV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).description(&self, arg0);
+                    (**handler).handle_description(&self, arg0);
                 } else {
-                    DefaultHandler.description(&self, arg0);
+                    DefaultHandler.handle_description(&self, arg0);
                 }
             }
             n => {

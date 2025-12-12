@@ -208,11 +208,16 @@ impl WlRegion {
 
 /// A message handler for [WlRegion] proxies.
 pub trait WlRegionHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlRegion>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy region
     ///
     /// Destroy the region.  This will invalidate the object ID.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WlRegion>,
     ) {
@@ -234,7 +239,7 @@ pub trait WlRegionHandler: Any {
     /// - `width`: rectangle width
     /// - `height`: rectangle height
     #[inline]
-    fn add(
+    fn handle_add(
         &mut self,
         _slf: &Rc<WlRegion>,
         x: i32,
@@ -264,7 +269,7 @@ pub trait WlRegionHandler: Any {
     /// - `width`: rectangle width
     /// - `height`: rectangle height
     #[inline]
-    fn subtract(
+    fn handle_subtract(
         &mut self,
         _slf: &Rc<WlRegion>,
         x: i32,
@@ -292,6 +297,18 @@ impl ObjectPrivate for WlRegion {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -310,9 +327,9 @@ impl ObjectPrivate for WlRegion {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -335,9 +352,9 @@ impl ObjectPrivate for WlRegion {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).add(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_add(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.add(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_add(&self, arg0, arg1, arg2, arg3);
                 }
             }
             2 => {
@@ -360,9 +377,9 @@ impl ObjectPrivate for WlRegion {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).subtract(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_subtract(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.subtract(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_subtract(&self, arg0, arg1, arg2, arg3);
                 }
             }
             n => {

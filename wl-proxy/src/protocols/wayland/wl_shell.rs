@@ -122,6 +122,11 @@ impl WlShell {
 
 /// A message handler for [WlShell] proxies.
 pub trait WlShellHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlShell>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// create a shell surface from a surface
     ///
     /// Create a shell surface for an existing surface. This gives
@@ -138,7 +143,7 @@ pub trait WlShellHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_shell_surface(
+    fn handle_get_shell_surface(
         &mut self,
         _slf: &Rc<WlShell>,
         id: &Rc<WlShellSurface>,
@@ -160,6 +165,18 @@ impl ObjectPrivate for WlShell {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlShell, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -196,9 +213,9 @@ impl ObjectPrivate for WlShell {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_shell_surface(&self, arg0, arg1);
+                    (**handler).handle_get_shell_surface(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_shell_surface(&self, arg0, arg1);
+                    DefaultHandler.handle_get_shell_surface(&self, arg0, arg1);
                 }
             }
             n => {

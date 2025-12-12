@@ -355,6 +355,11 @@ impl TreelandOutputColorControlV1 {
 
 /// A message handler for [TreelandOutputColorControlV1] proxies.
 pub trait TreelandOutputColorControlV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandOutputColorControlV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// Set color temperature for output
     ///
     /// Color temperature settings are applied only after a commit request is made.
@@ -364,7 +369,7 @@ pub trait TreelandOutputColorControlV1Handler: Any {
     ///
     /// - `temperature`: color temperature in Kelvin
     #[inline]
-    fn set_color_temperature(
+    fn handle_set_color_temperature(
         &mut self,
         _slf: &Rc<TreelandOutputColorControlV1>,
         temperature: u32,
@@ -386,7 +391,7 @@ pub trait TreelandOutputColorControlV1Handler: Any {
     ///
     /// - `brightness`: brightness level (in range [0.0, 100.0])
     #[inline]
-    fn set_brightness(
+    fn handle_set_brightness(
         &mut self,
         _slf: &Rc<TreelandOutputColorControlV1>,
         brightness: Fixed,
@@ -401,7 +406,7 @@ pub trait TreelandOutputColorControlV1Handler: Any {
 
     /// Commit the pending color settings changes for output.
     #[inline]
-    fn commit(
+    fn handle_commit(
         &mut self,
         _slf: &Rc<TreelandOutputColorControlV1>,
     ) {
@@ -418,7 +423,7 @@ pub trait TreelandOutputColorControlV1Handler: Any {
     ///
     /// - `success`: 1 if the commit was successful, 0 otherwise.
     #[inline]
-    fn result(
+    fn handle_result(
         &mut self,
         _slf: &Rc<TreelandOutputColorControlV1>,
         success: u32,
@@ -445,7 +450,7 @@ pub trait TreelandOutputColorControlV1Handler: Any {
     ///
     /// - `temperature`: current color temperature in Kelvin
     #[inline]
-    fn color_temperature(
+    fn handle_color_temperature(
         &mut self,
         _slf: &Rc<TreelandOutputColorControlV1>,
         temperature: u32,
@@ -469,7 +474,7 @@ pub trait TreelandOutputColorControlV1Handler: Any {
     ///
     /// - `brightness`: current brightness level (in range [0.0, 100.0])
     #[inline]
-    fn brightness(
+    fn handle_brightness(
         &mut self,
         _slf: &Rc<TreelandOutputColorControlV1>,
         brightness: Fixed,
@@ -484,7 +489,7 @@ pub trait TreelandOutputColorControlV1Handler: Any {
 
     /// Destroy the color control interface.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<TreelandOutputColorControlV1>,
     ) {
@@ -502,6 +507,18 @@ impl ObjectPrivate for TreelandOutputColorControlV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandOutputColorControlV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -523,9 +540,9 @@ impl ObjectPrivate for TreelandOutputColorControlV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_color_temperature(&self, arg0);
+                    (**handler).handle_set_color_temperature(&self, arg0);
                 } else {
-                    DefaultHandler.set_color_temperature(&self, arg0);
+                    DefaultHandler.handle_set_color_temperature(&self, arg0);
                 }
             }
             1 => {
@@ -542,9 +559,9 @@ impl ObjectPrivate for TreelandOutputColorControlV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_brightness(&self, arg0);
+                    (**handler).handle_set_brightness(&self, arg0);
                 } else {
-                    DefaultHandler.set_brightness(&self, arg0);
+                    DefaultHandler.handle_set_brightness(&self, arg0);
                 }
             }
             2 => {
@@ -558,9 +575,9 @@ impl ObjectPrivate for TreelandOutputColorControlV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).commit(&self);
+                    (**handler).handle_commit(&self);
                 } else {
-                    DefaultHandler.commit(&self);
+                    DefaultHandler.handle_commit(&self);
                 }
             }
             3 => {
@@ -575,9 +592,9 @@ impl ObjectPrivate for TreelandOutputColorControlV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -610,9 +627,9 @@ impl ObjectPrivate for TreelandOutputColorControlV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).result(&self, arg0);
+                    (**handler).handle_result(&self, arg0);
                 } else {
-                    DefaultHandler.result(&self, arg0);
+                    DefaultHandler.handle_result(&self, arg0);
                 }
             }
             1 => {
@@ -628,9 +645,9 @@ impl ObjectPrivate for TreelandOutputColorControlV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).color_temperature(&self, arg0);
+                    (**handler).handle_color_temperature(&self, arg0);
                 } else {
-                    DefaultHandler.color_temperature(&self, arg0);
+                    DefaultHandler.handle_color_temperature(&self, arg0);
                 }
             }
             2 => {
@@ -647,9 +664,9 @@ impl ObjectPrivate for TreelandOutputColorControlV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).brightness(&self, arg0);
+                    (**handler).handle_brightness(&self, arg0);
                 } else {
-                    DefaultHandler.brightness(&self, arg0);
+                    DefaultHandler.handle_brightness(&self, arg0);
                 }
             }
             n => {

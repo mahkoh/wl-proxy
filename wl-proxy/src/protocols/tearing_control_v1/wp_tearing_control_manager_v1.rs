@@ -165,13 +165,18 @@ impl WpTearingControlManagerV1 {
 
 /// A message handler for [WpTearingControlManagerV1] proxies.
 pub trait WpTearingControlManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpTearingControlManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy tearing control factory object
     ///
     /// Destroy this tearing control factory object. Other objects, including
     /// wp_tearing_control_v1 objects created by this factory, are not affected
     /// by this request.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpTearingControlManagerV1>,
     ) {
@@ -198,7 +203,7 @@ pub trait WpTearingControlManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_tearing_control(
+    fn handle_get_tearing_control(
         &mut self,
         _slf: &Rc<WpTearingControlManagerV1>,
         id: &Rc<WpTearingControlV1>,
@@ -222,6 +227,18 @@ impl ObjectPrivate for WpTearingControlManagerV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -240,9 +257,9 @@ impl ObjectPrivate for WpTearingControlManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -273,9 +290,9 @@ impl ObjectPrivate for WpTearingControlManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_tearing_control(&self, arg0, arg1);
+                    (**handler).handle_get_tearing_control(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_tearing_control(&self, arg0, arg1);
+                    DefaultHandler.handle_get_tearing_control(&self, arg0, arg1);
                 }
             }
             n => {

@@ -350,6 +350,11 @@ impl ExtForeignToplevelHandleV1 {
 
 /// A message handler for [ExtForeignToplevelHandleV1] proxies.
 pub trait ExtForeignToplevelHandleV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ExtForeignToplevelHandleV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the ext_foreign_toplevel_handle_v1 object
     ///
     /// This request should be used when the client will no longer use the handle
@@ -366,7 +371,7 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
     /// interface should require destructors for extension interfaces be
     /// called before allowing the toplevel handle to be destroyed.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ExtForeignToplevelHandleV1>,
     ) {
@@ -386,7 +391,7 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
     /// Other protocols which extend the ext_foreign_toplevel_handle_v1
     /// interface must also ignore requests other than destructors.
     #[inline]
-    fn closed(
+    fn handle_closed(
         &mut self,
         _slf: &Rc<ExtForeignToplevelHandleV1>,
     ) {
@@ -410,7 +415,7 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
     /// This event must not be sent after the ext_foreign_toplevel_handle_v1.closed
     /// event.
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<ExtForeignToplevelHandleV1>,
     ) {
@@ -432,7 +437,7 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
     ///
     /// - `title`:
     #[inline]
-    fn title(
+    fn handle_title(
         &mut self,
         _slf: &Rc<ExtForeignToplevelHandleV1>,
         title: &str,
@@ -456,7 +461,7 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
     ///
     /// - `app_id`:
     #[inline]
-    fn app_id(
+    fn handle_app_id(
         &mut self,
         _slf: &Rc<ExtForeignToplevelHandleV1>,
         app_id: &str,
@@ -496,7 +501,7 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
     ///
     /// - `identifier`:
     #[inline]
-    fn identifier(
+    fn handle_identifier(
         &mut self,
         _slf: &Rc<ExtForeignToplevelHandleV1>,
         identifier: &str,
@@ -518,6 +523,18 @@ impl ObjectPrivate for ExtForeignToplevelHandleV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -536,9 +553,9 @@ impl ObjectPrivate for ExtForeignToplevelHandleV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -569,9 +586,9 @@ impl ObjectPrivate for ExtForeignToplevelHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).closed(&self);
+                    (**handler).handle_closed(&self);
                 } else {
-                    DefaultHandler.closed(&self);
+                    DefaultHandler.handle_closed(&self);
                 }
             }
             1 => {
@@ -585,9 +602,9 @@ impl ObjectPrivate for ExtForeignToplevelHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).done(&self);
+                    (**handler).handle_done(&self);
                 } else {
-                    DefaultHandler.done(&self);
+                    DefaultHandler.handle_done(&self);
                 }
             }
             2 => {
@@ -624,9 +641,9 @@ impl ObjectPrivate for ExtForeignToplevelHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).title(&self, arg0);
+                    (**handler).handle_title(&self, arg0);
                 } else {
-                    DefaultHandler.title(&self, arg0);
+                    DefaultHandler.handle_title(&self, arg0);
                 }
             }
             3 => {
@@ -663,9 +680,9 @@ impl ObjectPrivate for ExtForeignToplevelHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).app_id(&self, arg0);
+                    (**handler).handle_app_id(&self, arg0);
                 } else {
-                    DefaultHandler.app_id(&self, arg0);
+                    DefaultHandler.handle_app_id(&self, arg0);
                 }
             }
             4 => {
@@ -702,9 +719,9 @@ impl ObjectPrivate for ExtForeignToplevelHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).identifier(&self, arg0);
+                    (**handler).handle_identifier(&self, arg0);
                 } else {
-                    DefaultHandler.identifier(&self, arg0);
+                    DefaultHandler.handle_identifier(&self, arg0);
                 }
             }
             n => {

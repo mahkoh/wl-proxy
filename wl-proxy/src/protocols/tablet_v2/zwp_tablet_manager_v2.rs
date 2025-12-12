@@ -149,6 +149,11 @@ impl ZwpTabletManagerV2 {
 
 /// A message handler for [ZwpTabletManagerV2] proxies.
 pub trait ZwpTabletManagerV2Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpTabletManagerV2>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// get the tablet seat
     ///
     /// Get the zwp_tablet_seat_v2 object for the given seat. This object
@@ -162,7 +167,7 @@ pub trait ZwpTabletManagerV2Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_tablet_seat(
+    fn handle_get_tablet_seat(
         &mut self,
         _slf: &Rc<ZwpTabletManagerV2>,
         tablet_seat: &Rc<ZwpTabletSeatV2>,
@@ -182,7 +187,7 @@ pub trait ZwpTabletManagerV2Handler: Any {
     /// Destroy the zwp_tablet_manager_v2 object. Objects created from this
     /// object are unaffected and should be destroyed separately.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpTabletManagerV2>,
     ) {
@@ -200,6 +205,18 @@ impl ObjectPrivate for ZwpTabletManagerV2 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpTabletManagerV2, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -236,9 +253,9 @@ impl ObjectPrivate for ZwpTabletManagerV2 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_tablet_seat(&self, arg0, arg1);
+                    (**handler).handle_get_tablet_seat(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_tablet_seat(&self, arg0, arg1);
+                    DefaultHandler.handle_get_tablet_seat(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -253,9 +270,9 @@ impl ObjectPrivate for ZwpTabletManagerV2 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {

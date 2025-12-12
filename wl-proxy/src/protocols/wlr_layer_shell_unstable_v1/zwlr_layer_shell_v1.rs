@@ -196,6 +196,11 @@ impl ZwlrLayerShellV1 {
 
 /// A message handler for [ZwlrLayerShellV1] proxies.
 pub trait ZwlrLayerShellV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwlrLayerShellV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// create a layer_surface from a surface
     ///
     /// Create a layer surface for an existing surface. This assigns the role of
@@ -231,7 +236,7 @@ pub trait ZwlrLayerShellV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_layer_surface(
+    fn handle_get_layer_surface(
         &mut self,
         _slf: &Rc<ZwlrLayerShellV1>,
         id: &Rc<ZwlrLayerSurfaceV1>,
@@ -258,7 +263,7 @@ pub trait ZwlrLayerShellV1Handler: Any {
     /// object any more. Objects that have been created through this instance
     /// are not affected.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwlrLayerShellV1>,
     ) {
@@ -276,6 +281,18 @@ impl ObjectPrivate for ZwlrLayerShellV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrLayerShellV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -363,9 +380,9 @@ impl ObjectPrivate for ZwlrLayerShellV1 {
                 let arg1 = &arg1;
                 let arg2 = arg2.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).get_layer_surface(&self, arg0, arg1, arg2, arg3, arg4);
+                    (**handler).handle_get_layer_surface(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultHandler.get_layer_surface(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.handle_get_layer_surface(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             1 => {
@@ -380,9 +397,9 @@ impl ObjectPrivate for ZwlrLayerShellV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {

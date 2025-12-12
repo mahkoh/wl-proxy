@@ -859,6 +859,11 @@ impl WlShellSurface {
 
 /// A message handler for [WlShellSurface] proxies.
 pub trait WlShellSurfaceHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlShellSurface>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// respond to a ping event
     ///
     /// A client must respond to a ping event with a pong request or
@@ -868,7 +873,7 @@ pub trait WlShellSurfaceHandler: Any {
     ///
     /// - `serial`: serial number of the ping event
     #[inline]
-    fn pong(
+    fn handle_pong(
         &mut self,
         _slf: &Rc<WlShellSurface>,
         serial: u32,
@@ -897,7 +902,7 @@ pub trait WlShellSurfaceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn r#move(
+    fn handle_move(
         &mut self,
         _slf: &Rc<WlShellSurface>,
         seat: &Rc<WlSeat>,
@@ -929,7 +934,7 @@ pub trait WlShellSurfaceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn resize(
+    fn handle_resize(
         &mut self,
         _slf: &Rc<WlShellSurface>,
         seat: &Rc<WlSeat>,
@@ -952,7 +957,7 @@ pub trait WlShellSurfaceHandler: Any {
     ///
     /// A toplevel surface is not fullscreen, maximized or transient.
     #[inline]
-    fn set_toplevel(
+    fn handle_set_toplevel(
         &mut self,
         _slf: &Rc<WlShellSurface>,
     ) {
@@ -983,7 +988,7 @@ pub trait WlShellSurfaceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_transient(
+    fn handle_set_transient(
         &mut self,
         _slf: &Rc<WlShellSurface>,
         parent: &Rc<WlSurface>,
@@ -1047,7 +1052,7 @@ pub trait WlShellSurfaceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_fullscreen(
+    fn handle_set_fullscreen(
         &mut self,
         _slf: &Rc<WlShellSurface>,
         method: WlShellSurfaceFullscreenMethod,
@@ -1098,7 +1103,7 @@ pub trait WlShellSurfaceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_popup(
+    fn handle_set_popup(
         &mut self,
         _slf: &Rc<WlShellSurface>,
         seat: &Rc<WlSeat>,
@@ -1149,7 +1154,7 @@ pub trait WlShellSurfaceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_maximized(
+    fn handle_set_maximized(
         &mut self,
         _slf: &Rc<WlShellSurface>,
         output: Option<&Rc<WlOutput>>,
@@ -1176,7 +1181,7 @@ pub trait WlShellSurfaceHandler: Any {
     ///
     /// - `title`: surface title
     #[inline]
-    fn set_title(
+    fn handle_set_title(
         &mut self,
         _slf: &Rc<WlShellSurface>,
         title: &str,
@@ -1202,7 +1207,7 @@ pub trait WlShellSurfaceHandler: Any {
     ///
     /// - `class_`: surface class
     #[inline]
-    fn set_class(
+    fn handle_set_class(
         &mut self,
         _slf: &Rc<WlShellSurface>,
         class_: &str,
@@ -1224,7 +1229,7 @@ pub trait WlShellSurfaceHandler: Any {
     ///
     /// - `serial`: serial number of the ping
     #[inline]
-    fn ping(
+    fn handle_ping(
         &mut self,
         _slf: &Rc<WlShellSurface>,
         serial: u32,
@@ -1263,7 +1268,7 @@ pub trait WlShellSurfaceHandler: Any {
     /// - `width`: new width of the surface
     /// - `height`: new height of the surface
     #[inline]
-    fn configure(
+    fn handle_configure(
         &mut self,
         _slf: &Rc<WlShellSurface>,
         edges: WlShellSurfaceResize,
@@ -1286,7 +1291,7 @@ pub trait WlShellSurfaceHandler: Any {
     /// that is, when the user clicks a surface that doesn't belong
     /// to the client owning the popup surface.
     #[inline]
-    fn popup_done(
+    fn handle_popup_done(
         &mut self,
         _slf: &Rc<WlShellSurface>,
     ) {
@@ -1304,6 +1309,18 @@ impl ObjectPrivate for WlShellSurface {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlShellSurface, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -1325,9 +1342,9 @@ impl ObjectPrivate for WlShellSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).pong(&self, arg0);
+                    (**handler).handle_pong(&self, arg0);
                 } else {
-                    DefaultHandler.pong(&self, arg0);
+                    DefaultHandler.handle_pong(&self, arg0);
                 }
             }
             1 => {
@@ -1353,9 +1370,9 @@ impl ObjectPrivate for WlShellSurface {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).r#move(&self, arg0, arg1);
+                    (**handler).handle_move(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.r#move(&self, arg0, arg1);
+                    DefaultHandler.handle_move(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -1383,9 +1400,9 @@ impl ObjectPrivate for WlShellSurface {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).resize(&self, arg0, arg1, arg2);
+                    (**handler).handle_resize(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.resize(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_resize(&self, arg0, arg1, arg2);
                 }
             }
             3 => {
@@ -1399,9 +1416,9 @@ impl ObjectPrivate for WlShellSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_toplevel(&self);
+                    (**handler).handle_set_toplevel(&self);
                 } else {
-                    DefaultHandler.set_toplevel(&self);
+                    DefaultHandler.handle_set_toplevel(&self);
                 }
             }
             4 => {
@@ -1432,9 +1449,9 @@ impl ObjectPrivate for WlShellSurface {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).set_transient(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_set_transient(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.set_transient(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_set_transient(&self, arg0, arg1, arg2, arg3);
                 }
             }
             5 => {
@@ -1467,9 +1484,9 @@ impl ObjectPrivate for WlShellSurface {
                 };
                 let arg2 = arg2.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).set_fullscreen(&self, arg0, arg1, arg2);
+                    (**handler).handle_set_fullscreen(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.set_fullscreen(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_set_fullscreen(&self, arg0, arg1, arg2);
                 }
             }
             6 => {
@@ -1511,9 +1528,9 @@ impl ObjectPrivate for WlShellSurface {
                 let arg0 = &arg0;
                 let arg2 = &arg2;
                 if let Some(handler) = handler {
-                    (**handler).set_popup(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    (**handler).handle_set_popup(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 } else {
-                    DefaultHandler.set_popup(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    DefaultHandler.handle_set_popup(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 }
             }
             7 => {
@@ -1543,9 +1560,9 @@ impl ObjectPrivate for WlShellSurface {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).set_maximized(&self, arg0);
+                    (**handler).handle_set_maximized(&self, arg0);
                 } else {
-                    DefaultHandler.set_maximized(&self, arg0);
+                    DefaultHandler.handle_set_maximized(&self, arg0);
                 }
             }
             8 => {
@@ -1582,9 +1599,9 @@ impl ObjectPrivate for WlShellSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_title(&self, arg0);
+                    (**handler).handle_set_title(&self, arg0);
                 } else {
-                    DefaultHandler.set_title(&self, arg0);
+                    DefaultHandler.handle_set_title(&self, arg0);
                 }
             }
             9 => {
@@ -1621,9 +1638,9 @@ impl ObjectPrivate for WlShellSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_class(&self, arg0);
+                    (**handler).handle_set_class(&self, arg0);
                 } else {
-                    DefaultHandler.set_class(&self, arg0);
+                    DefaultHandler.handle_set_class(&self, arg0);
                 }
             }
             n => {
@@ -1656,9 +1673,9 @@ impl ObjectPrivate for WlShellSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).ping(&self, arg0);
+                    (**handler).handle_ping(&self, arg0);
                 } else {
-                    DefaultHandler.ping(&self, arg0);
+                    DefaultHandler.handle_ping(&self, arg0);
                 }
             }
             1 => {
@@ -1679,9 +1696,9 @@ impl ObjectPrivate for WlShellSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).configure(&self, arg0, arg1, arg2);
+                    (**handler).handle_configure(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.configure(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_configure(&self, arg0, arg1, arg2);
                 }
             }
             2 => {
@@ -1695,9 +1712,9 @@ impl ObjectPrivate for WlShellSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).popup_done(&self);
+                    (**handler).handle_popup_done(&self);
                 } else {
-                    DefaultHandler.popup_done(&self);
+                    DefaultHandler.handle_popup_done(&self);
                 }
             }
             n => {

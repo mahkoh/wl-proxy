@@ -546,12 +546,17 @@ impl ExtImageCopyCaptureFrameV1 {
 
 /// A message handler for [ExtImageCopyCaptureFrameV1] proxies.
 pub trait ExtImageCopyCaptureFrameV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ExtImageCopyCaptureFrameV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy this object
     ///
     /// Destroys the frame. This request can be sent at any time by the
     /// client.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureFrameV1>,
     ) {
@@ -580,7 +585,7 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn attach_buffer(
+    fn handle_attach_buffer(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureFrameV1>,
         buffer: &Rc<WlBuffer>,
@@ -624,7 +629,7 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     /// - `width`: region width
     /// - `height`: region height
     #[inline]
-    fn damage_buffer(
+    fn handle_damage_buffer(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureFrameV1>,
         x: i32,
@@ -655,7 +660,7 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     /// protocol error is raised. A buffer must be attached before this request
     /// is sent, or else the no_buffer protocol error is raised.
     #[inline]
-    fn capture(
+    fn handle_capture(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureFrameV1>,
     ) {
@@ -675,7 +680,7 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     ///
     /// - `transform`:
     #[inline]
-    fn transform(
+    fn handle_transform(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureFrameV1>,
         transform: WlOutputTransform,
@@ -706,7 +711,7 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     /// - `width`: damage width
     /// - `height`: damage height
     #[inline]
-    fn damage(
+    fn handle_damage(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureFrameV1>,
         x: i32,
@@ -743,7 +748,7 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     /// - `tv_sec_lo`: low 32 bits of the seconds part of the timestamp
     /// - `tv_nsec`: nanoseconds part of the timestamp
     #[inline]
-    fn presentation_time(
+    fn handle_presentation_time(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureFrameV1>,
         tv_sec_hi: u32,
@@ -769,7 +774,7 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     ///
     /// After receiving this event, the client must destroy the object.
     #[inline]
-    fn ready(
+    fn handle_ready(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureFrameV1>,
     ) {
@@ -790,7 +795,7 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     ///
     /// - `reason`:
     #[inline]
-    fn failed(
+    fn handle_failed(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureFrameV1>,
         reason: ExtImageCopyCaptureFrameV1FailureReason,
@@ -812,6 +817,18 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -830,9 +847,9 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -857,9 +874,9 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).attach_buffer(&self, arg0);
+                    (**handler).handle_attach_buffer(&self, arg0);
                 } else {
-                    DefaultHandler.attach_buffer(&self, arg0);
+                    DefaultHandler.handle_attach_buffer(&self, arg0);
                 }
             }
             2 => {
@@ -882,9 +899,9 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).damage_buffer(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_damage_buffer(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.damage_buffer(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_damage_buffer(&self, arg0, arg1, arg2, arg3);
                 }
             }
             3 => {
@@ -898,9 +915,9 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).capture(&self);
+                    (**handler).handle_capture(&self);
                 } else {
-                    DefaultHandler.capture(&self);
+                    DefaultHandler.handle_capture(&self);
                 }
             }
             n => {
@@ -934,9 +951,9 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).transform(&self, arg0);
+                    (**handler).handle_transform(&self, arg0);
                 } else {
-                    DefaultHandler.transform(&self, arg0);
+                    DefaultHandler.handle_transform(&self, arg0);
                 }
             }
             1 => {
@@ -959,9 +976,9 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).damage(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_damage(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.damage(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_damage(&self, arg0, arg1, arg2, arg3);
                 }
             }
             2 => {
@@ -979,9 +996,9 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).presentation_time(&self, arg0, arg1, arg2);
+                    (**handler).handle_presentation_time(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.presentation_time(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_presentation_time(&self, arg0, arg1, arg2);
                 }
             }
             3 => {
@@ -995,9 +1012,9 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).ready(&self);
+                    (**handler).handle_ready(&self);
                 } else {
-                    DefaultHandler.ready(&self);
+                    DefaultHandler.handle_ready(&self);
                 }
             }
             4 => {
@@ -1014,9 +1031,9 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).failed(&self, arg0);
+                    (**handler).handle_failed(&self, arg0);
                 } else {
-                    DefaultHandler.failed(&self, arg0);
+                    DefaultHandler.handle_failed(&self, arg0);
                 }
             }
             n => {

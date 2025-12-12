@@ -319,6 +319,11 @@ impl XdgWmBase {
 
 /// A message handler for [XdgWmBase] proxies.
 pub trait XdgWmBaseHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<XdgWmBase>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy xdg_wm_base
     ///
     /// Destroy this xdg_wm_base object.
@@ -327,7 +332,7 @@ pub trait XdgWmBaseHandler: Any {
     /// still alive created by this xdg_wm_base object instance is illegal
     /// and will result in a defunct_surfaces error.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<XdgWmBase>,
     ) {
@@ -348,7 +353,7 @@ pub trait XdgWmBaseHandler: Any {
     ///
     /// - `id`:
     #[inline]
-    fn create_positioner(
+    fn handle_create_positioner(
         &mut self,
         _slf: &Rc<XdgWmBase>,
         id: &Rc<XdgPositioner>,
@@ -385,7 +390,7 @@ pub trait XdgWmBaseHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_xdg_surface(
+    fn handle_get_xdg_surface(
         &mut self,
         _slf: &Rc<XdgWmBase>,
         id: &Rc<XdgSurface>,
@@ -410,7 +415,7 @@ pub trait XdgWmBaseHandler: Any {
     ///
     /// - `serial`: serial of the ping event
     #[inline]
-    fn pong(
+    fn handle_pong(
         &mut self,
         _slf: &Rc<XdgWmBase>,
         serial: u32,
@@ -443,7 +448,7 @@ pub trait XdgWmBaseHandler: Any {
     ///
     /// - `serial`: pass this to the pong request
     #[inline]
-    fn ping(
+    fn handle_ping(
         &mut self,
         _slf: &Rc<XdgWmBase>,
         serial: u32,
@@ -465,6 +470,18 @@ impl ObjectPrivate for XdgWmBase {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -483,9 +500,9 @@ impl ObjectPrivate for XdgWmBase {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -506,9 +523,9 @@ impl ObjectPrivate for XdgWmBase {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_positioner(&self, arg0);
+                    (**handler).handle_create_positioner(&self, arg0);
                 } else {
-                    DefaultHandler.create_positioner(&self, arg0);
+                    DefaultHandler.handle_create_positioner(&self, arg0);
                 }
             }
             2 => {
@@ -539,9 +556,9 @@ impl ObjectPrivate for XdgWmBase {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_xdg_surface(&self, arg0, arg1);
+                    (**handler).handle_get_xdg_surface(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_xdg_surface(&self, arg0, arg1);
+                    DefaultHandler.handle_get_xdg_surface(&self, arg0, arg1);
                 }
             }
             3 => {
@@ -557,9 +574,9 @@ impl ObjectPrivate for XdgWmBase {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).pong(&self, arg0);
+                    (**handler).handle_pong(&self, arg0);
                 } else {
-                    DefaultHandler.pong(&self, arg0);
+                    DefaultHandler.handle_pong(&self, arg0);
                 }
             }
             n => {
@@ -592,9 +609,9 @@ impl ObjectPrivate for XdgWmBase {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).ping(&self, arg0);
+                    (**handler).handle_ping(&self, arg0);
                 } else {
-                    DefaultHandler.ping(&self, arg0);
+                    DefaultHandler.handle_ping(&self, arg0);
                 }
             }
             n => {

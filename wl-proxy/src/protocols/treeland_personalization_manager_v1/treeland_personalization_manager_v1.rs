@@ -299,6 +299,11 @@ impl TreelandPersonalizationManagerV1 {
 
 /// A message handler for [TreelandPersonalizationManagerV1] proxies.
 pub trait TreelandPersonalizationManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandPersonalizationManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// get personalization window context
     ///
     /// set window background, shadow based on context
@@ -311,7 +316,7 @@ pub trait TreelandPersonalizationManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_window_context(
+    fn handle_get_window_context(
         &mut self,
         _slf: &Rc<TreelandPersonalizationManagerV1>,
         id: &Rc<TreelandPersonalizationWindowContextV1>,
@@ -334,7 +339,7 @@ pub trait TreelandPersonalizationManagerV1Handler: Any {
     ///
     /// - `id`:
     #[inline]
-    fn get_wallpaper_context(
+    fn handle_get_wallpaper_context(
         &mut self,
         _slf: &Rc<TreelandPersonalizationManagerV1>,
         id: &Rc<TreelandPersonalizationWallpaperContextV1>,
@@ -355,7 +360,7 @@ pub trait TreelandPersonalizationManagerV1Handler: Any {
     ///
     /// - `id`:
     #[inline]
-    fn get_cursor_context(
+    fn handle_get_cursor_context(
         &mut self,
         _slf: &Rc<TreelandPersonalizationManagerV1>,
         id: &Rc<TreelandPersonalizationCursorContextV1>,
@@ -376,7 +381,7 @@ pub trait TreelandPersonalizationManagerV1Handler: Any {
     ///
     /// - `id`:
     #[inline]
-    fn get_font_context(
+    fn handle_get_font_context(
         &mut self,
         _slf: &Rc<TreelandPersonalizationManagerV1>,
         id: &Rc<TreelandPersonalizationFontContextV1>,
@@ -397,7 +402,7 @@ pub trait TreelandPersonalizationManagerV1Handler: Any {
     ///
     /// - `id`:
     #[inline]
-    fn get_appearance_context(
+    fn handle_get_appearance_context(
         &mut self,
         _slf: &Rc<TreelandPersonalizationManagerV1>,
         id: &Rc<TreelandPersonalizationAppearanceContextV1>,
@@ -417,6 +422,18 @@ impl ObjectPrivate for TreelandPersonalizationManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandPersonalizationManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -453,9 +470,9 @@ impl ObjectPrivate for TreelandPersonalizationManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_window_context(&self, arg0, arg1);
+                    (**handler).handle_get_window_context(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_window_context(&self, arg0, arg1);
+                    DefaultHandler.handle_get_window_context(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -476,9 +493,9 @@ impl ObjectPrivate for TreelandPersonalizationManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_wallpaper_context(&self, arg0);
+                    (**handler).handle_get_wallpaper_context(&self, arg0);
                 } else {
-                    DefaultHandler.get_wallpaper_context(&self, arg0);
+                    DefaultHandler.handle_get_wallpaper_context(&self, arg0);
                 }
             }
             2 => {
@@ -499,9 +516,9 @@ impl ObjectPrivate for TreelandPersonalizationManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_cursor_context(&self, arg0);
+                    (**handler).handle_get_cursor_context(&self, arg0);
                 } else {
-                    DefaultHandler.get_cursor_context(&self, arg0);
+                    DefaultHandler.handle_get_cursor_context(&self, arg0);
                 }
             }
             3 => {
@@ -522,9 +539,9 @@ impl ObjectPrivate for TreelandPersonalizationManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_font_context(&self, arg0);
+                    (**handler).handle_get_font_context(&self, arg0);
                 } else {
-                    DefaultHandler.get_font_context(&self, arg0);
+                    DefaultHandler.handle_get_font_context(&self, arg0);
                 }
             }
             4 => {
@@ -545,9 +562,9 @@ impl ObjectPrivate for TreelandPersonalizationManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_appearance_context(&self, arg0);
+                    (**handler).handle_get_appearance_context(&self, arg0);
                 } else {
-                    DefaultHandler.get_appearance_context(&self, arg0);
+                    DefaultHandler.handle_get_appearance_context(&self, arg0);
                 }
             }
             n => {

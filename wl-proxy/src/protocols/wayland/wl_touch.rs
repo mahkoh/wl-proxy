@@ -532,6 +532,11 @@ impl WlTouch {
 
 /// A message handler for [WlTouch] proxies.
 pub trait WlTouchHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlTouch>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// touch down event and beginning of a touch sequence
     ///
     /// A new touch point has appeared on the surface. This touch point is
@@ -551,7 +556,7 @@ pub trait WlTouchHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn down(
+    fn handle_down(
         &mut self,
         _slf: &Rc<WlTouch>,
         serial: u32,
@@ -593,7 +598,7 @@ pub trait WlTouchHandler: Any {
     /// - `time`: timestamp with millisecond granularity
     /// - `id`: the unique ID of this touch point
     #[inline]
-    fn up(
+    fn handle_up(
         &mut self,
         _slf: &Rc<WlTouch>,
         serial: u32,
@@ -621,7 +626,7 @@ pub trait WlTouchHandler: Any {
     /// - `x`: surface-local x coordinate
     /// - `y`: surface-local y coordinate
     #[inline]
-    fn motion(
+    fn handle_motion(
         &mut self,
         _slf: &Rc<WlTouch>,
         time: u32,
@@ -651,7 +656,7 @@ pub trait WlTouchHandler: Any {
     /// must assume that any state not updated in a frame is unchanged from the
     /// previously known state.
     #[inline]
-    fn frame(
+    fn handle_frame(
         &mut self,
         _slf: &Rc<WlTouch>,
     ) {
@@ -673,7 +678,7 @@ pub trait WlTouchHandler: Any {
     ///
     /// No frame event is required after the cancel event.
     #[inline]
-    fn cancel(
+    fn handle_cancel(
         &mut self,
         _slf: &Rc<WlTouch>,
     ) {
@@ -686,7 +691,7 @@ pub trait WlTouchHandler: Any {
 
     /// release the touch object
     #[inline]
-    fn release(
+    fn handle_release(
         &mut self,
         _slf: &Rc<WlTouch>,
     ) {
@@ -731,7 +736,7 @@ pub trait WlTouchHandler: Any {
     /// - `major`: length of the major axis in surface-local coordinates
     /// - `minor`: length of the minor axis in surface-local coordinates
     #[inline]
-    fn shape(
+    fn handle_shape(
         &mut self,
         _slf: &Rc<WlTouch>,
         id: i32,
@@ -779,7 +784,7 @@ pub trait WlTouchHandler: Any {
     /// - `id`: the unique ID of this touch point
     /// - `orientation`: angle between major axis and positive surface y-axis in degrees
     #[inline]
-    fn orientation(
+    fn handle_orientation(
         &mut self,
         _slf: &Rc<WlTouch>,
         id: i32,
@@ -803,6 +808,18 @@ impl ObjectPrivate for WlTouch {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -821,9 +838,9 @@ impl ObjectPrivate for WlTouch {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).release(&self);
+                    (**handler).handle_release(&self);
                 } else {
-                    DefaultHandler.release(&self);
+                    DefaultHandler.handle_release(&self);
                 }
             }
             n => {
@@ -873,9 +890,9 @@ impl ObjectPrivate for WlTouch {
                 };
                 let arg2 = &arg2;
                 if let Some(handler) = handler {
-                    (**handler).down(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    (**handler).handle_down(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 } else {
-                    DefaultHandler.down(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    DefaultHandler.handle_down(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 }
             }
             1 => {
@@ -894,9 +911,9 @@ impl ObjectPrivate for WlTouch {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).up(&self, arg0, arg1, arg2);
+                    (**handler).handle_up(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.up(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_up(&self, arg0, arg1, arg2);
                 }
             }
             2 => {
@@ -918,9 +935,9 @@ impl ObjectPrivate for WlTouch {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).motion(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_motion(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.motion(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_motion(&self, arg0, arg1, arg2, arg3);
                 }
             }
             3 => {
@@ -934,9 +951,9 @@ impl ObjectPrivate for WlTouch {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).frame(&self);
+                    (**handler).handle_frame(&self);
                 } else {
-                    DefaultHandler.frame(&self);
+                    DefaultHandler.handle_frame(&self);
                 }
             }
             4 => {
@@ -950,9 +967,9 @@ impl ObjectPrivate for WlTouch {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).cancel(&self);
+                    (**handler).handle_cancel(&self);
                 } else {
-                    DefaultHandler.cancel(&self);
+                    DefaultHandler.handle_cancel(&self);
                 }
             }
             5 => {
@@ -973,9 +990,9 @@ impl ObjectPrivate for WlTouch {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).shape(&self, arg0, arg1, arg2);
+                    (**handler).handle_shape(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.shape(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_shape(&self, arg0, arg1, arg2);
                 }
             }
             6 => {
@@ -994,9 +1011,9 @@ impl ObjectPrivate for WlTouch {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).orientation(&self, arg0, arg1);
+                    (**handler).handle_orientation(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.orientation(&self, arg0, arg1);
+                    DefaultHandler.handle_orientation(&self, arg0, arg1);
                 }
             }
             n => {

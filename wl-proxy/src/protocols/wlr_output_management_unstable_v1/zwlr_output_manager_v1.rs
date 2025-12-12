@@ -320,6 +320,11 @@ impl ZwlrOutputManagerV1 {
 
 /// A message handler for [ZwlrOutputManagerV1] proxies.
 pub trait ZwlrOutputManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwlrOutputManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// introduce a new head
     ///
     /// This event introduces a new head. This happens whenever a new head
@@ -330,7 +335,7 @@ pub trait ZwlrOutputManagerV1Handler: Any {
     ///
     /// - `head`:
     #[inline]
-    fn head(
+    fn handle_head(
         &mut self,
         _slf: &Rc<ZwlrOutputManagerV1>,
         head: &Rc<ZwlrOutputHeadV1>,
@@ -361,7 +366,7 @@ pub trait ZwlrOutputManagerV1Handler: Any {
     ///
     /// - `serial`: current configuration serial
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<ZwlrOutputManagerV1>,
         serial: u32,
@@ -384,7 +389,7 @@ pub trait ZwlrOutputManagerV1Handler: Any {
     /// - `id`:
     /// - `serial`:
     #[inline]
-    fn create_configuration(
+    fn handle_create_configuration(
         &mut self,
         _slf: &Rc<ZwlrOutputManagerV1>,
         id: &Rc<ZwlrOutputConfigurationV1>,
@@ -407,7 +412,7 @@ pub trait ZwlrOutputManagerV1Handler: Any {
     ///
     /// The client must not send any more requests after this one.
     #[inline]
-    fn stop(
+    fn handle_stop(
         &mut self,
         _slf: &Rc<ZwlrOutputManagerV1>,
     ) {
@@ -425,7 +430,7 @@ pub trait ZwlrOutputManagerV1Handler: Any {
     /// event, so it will become invalid and the client should release any
     /// resources associated with it.
     #[inline]
-    fn finished(
+    fn handle_finished(
         &mut self,
         _slf: &Rc<ZwlrOutputManagerV1>,
     ) {
@@ -443,6 +448,18 @@ impl ObjectPrivate for ZwlrOutputManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrOutputManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -470,9 +487,9 @@ impl ObjectPrivate for ZwlrOutputManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_configuration(&self, arg0, arg1);
+                    (**handler).handle_create_configuration(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.create_configuration(&self, arg0, arg1);
+                    DefaultHandler.handle_create_configuration(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -486,9 +503,9 @@ impl ObjectPrivate for ZwlrOutputManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).stop(&self);
+                    (**handler).handle_stop(&self);
                 } else {
-                    DefaultHandler.stop(&self);
+                    DefaultHandler.handle_stop(&self);
                 }
             }
             n => {
@@ -526,9 +543,9 @@ impl ObjectPrivate for ZwlrOutputManagerV1 {
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "head", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).head(&self, arg0);
+                    (**handler).handle_head(&self, arg0);
                 } else {
-                    DefaultHandler.head(&self, arg0);
+                    DefaultHandler.handle_head(&self, arg0);
                 }
             }
             1 => {
@@ -544,9 +561,9 @@ impl ObjectPrivate for ZwlrOutputManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).done(&self, arg0);
+                    (**handler).handle_done(&self, arg0);
                 } else {
-                    DefaultHandler.done(&self, arg0);
+                    DefaultHandler.handle_done(&self, arg0);
                 }
             }
             2 => {
@@ -561,9 +578,9 @@ impl ObjectPrivate for ZwlrOutputManagerV1 {
                 }
                 self.core.handle_server_destroy();
                 if let Some(handler) = handler {
-                    (**handler).finished(&self);
+                    (**handler).handle_finished(&self);
                 } else {
-                    DefaultHandler.finished(&self);
+                    DefaultHandler.handle_finished(&self);
                 }
             }
             n => {

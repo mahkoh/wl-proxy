@@ -280,6 +280,11 @@ impl WlDisplay {
 
 /// A message handler for [WlDisplay] proxies.
 pub trait WlDisplayHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlDisplay>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// asynchronous roundtrip
     ///
     /// The sync request asks the server to emit the 'done' event
@@ -298,7 +303,7 @@ pub trait WlDisplayHandler: Any {
     ///
     /// - `callback`: callback object for the sync request
     #[inline]
-    fn sync(
+    fn handle_sync(
         &mut self,
         _slf: &Rc<WlDisplay>,
         callback: &Rc<WlCallback>,
@@ -327,7 +332,7 @@ pub trait WlDisplayHandler: Any {
     ///
     /// - `registry`: global registry object
     #[inline]
-    fn get_registry(
+    fn handle_get_registry(
         &mut self,
         _slf: &Rc<WlDisplay>,
         registry: &Rc<WlRegistry>,
@@ -359,7 +364,7 @@ pub trait WlDisplayHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn error(
+    fn handle_error(
         &mut self,
         _slf: &Rc<WlDisplay>,
         object_id: Rc<dyn Object>,
@@ -395,7 +400,7 @@ pub trait WlDisplayHandler: Any {
     ///
     /// - `id`: deleted object ID
     #[inline]
-    fn delete_id(
+    fn handle_delete_id(
         &mut self,
         _slf: &Rc<WlDisplay>,
         id: u32,
@@ -415,6 +420,18 @@ impl ObjectPrivate for WlDisplay {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlDisplay, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -441,9 +458,9 @@ impl ObjectPrivate for WlDisplay {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "callback", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).sync(&self, arg0);
+                    (**handler).handle_sync(&self, arg0);
                 } else {
-                    DefaultHandler.sync(&self, arg0);
+                    DefaultHandler.handle_sync(&self, arg0);
                 }
             }
             1 => {
@@ -464,9 +481,9 @@ impl ObjectPrivate for WlDisplay {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "registry", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_registry(&self, arg0);
+                    (**handler).handle_get_registry(&self, arg0);
                 } else {
-                    DefaultHandler.get_registry(&self, arg0);
+                    DefaultHandler.handle_get_registry(&self, arg0);
                 }
             }
             n => {

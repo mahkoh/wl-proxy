@@ -472,11 +472,16 @@ impl HyprlandInputCaptureV1 {
 
 /// A message handler for [HyprlandInputCaptureV1] proxies.
 pub trait HyprlandInputCaptureV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<HyprlandInputCaptureV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// clear every barriers registered
     ///
     /// Remove every barriers from the session, new barriers need to be send before calling enable again.
     #[inline]
-    fn clear_barriers(
+    fn handle_clear_barriers(
         &mut self,
         _slf: &Rc<HyprlandInputCaptureV1>,
     ) {
@@ -500,7 +505,7 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     /// - `x2`:
     /// - `y2`:
     #[inline]
-    fn add_barrier(
+    fn handle_add_barrier(
         &mut self,
         _slf: &Rc<HyprlandInputCaptureV1>,
         zone_set: u32,
@@ -527,7 +532,7 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     ///
     /// Enable the input capturing to be triggered by the cursor crossing a barrier.
     #[inline]
-    fn enable(
+    fn handle_enable(
         &mut self,
         _slf: &Rc<HyprlandInputCaptureV1>,
     ) {
@@ -542,7 +547,7 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     ///
     /// Disable input capturing, the crossing of a barrier will not trigger anymore input capture.
     #[inline]
-    fn disable(
+    fn handle_disable(
         &mut self,
         _slf: &Rc<HyprlandInputCaptureV1>,
     ) {
@@ -564,7 +569,7 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     /// - `x`: the x position of the cursor
     /// - `y`: the y position of the cursor
     #[inline]
-    fn release(
+    fn handle_release(
         &mut self,
         _slf: &Rc<HyprlandInputCaptureV1>,
         activation_id: u32,
@@ -589,7 +594,7 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     ///
     /// - `fd`: eis socket file descriptor
     #[inline]
-    fn eis_fd(
+    fn handle_eis_fd(
         &mut self,
         _slf: &Rc<HyprlandInputCaptureV1>,
         fd: &Rc<OwnedFd>,
@@ -606,7 +611,7 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     ///
     /// Called when the application will not receive captured input. The application can call enable to request future input capturing
     #[inline]
-    fn disabled(
+    fn handle_disabled(
         &mut self,
         _slf: &Rc<HyprlandInputCaptureV1>,
     ) {
@@ -628,7 +633,7 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     /// - `y`: the y position of the cursor
     /// - `barrier_id`: the is of the barrier that have been triggered
     #[inline]
-    fn activated(
+    fn handle_activated(
         &mut self,
         _slf: &Rc<HyprlandInputCaptureV1>,
         activation_id: u32,
@@ -655,7 +660,7 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     ///
     /// - `activation_id`: same activation id of the latest activated event
     #[inline]
-    fn deactivated(
+    fn handle_deactivated(
         &mut self,
         _slf: &Rc<HyprlandInputCaptureV1>,
         activation_id: u32,
@@ -677,6 +682,18 @@ impl ObjectPrivate for HyprlandInputCaptureV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -694,9 +711,9 @@ impl ObjectPrivate for HyprlandInputCaptureV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).clear_barriers(&self);
+                    (**handler).handle_clear_barriers(&self);
                 } else {
-                    DefaultHandler.clear_barriers(&self);
+                    DefaultHandler.handle_clear_barriers(&self);
                 }
             }
             1 => {
@@ -717,9 +734,9 @@ impl ObjectPrivate for HyprlandInputCaptureV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).add_barrier(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    (**handler).handle_add_barrier(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 } else {
-                    DefaultHandler.add_barrier(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    DefaultHandler.handle_add_barrier(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 }
             }
             2 => {
@@ -733,9 +750,9 @@ impl ObjectPrivate for HyprlandInputCaptureV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).enable(&self);
+                    (**handler).handle_enable(&self);
                 } else {
-                    DefaultHandler.enable(&self);
+                    DefaultHandler.handle_enable(&self);
                 }
             }
             3 => {
@@ -749,9 +766,9 @@ impl ObjectPrivate for HyprlandInputCaptureV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).disable(&self);
+                    (**handler).handle_disable(&self);
                 } else {
-                    DefaultHandler.disable(&self);
+                    DefaultHandler.handle_disable(&self);
                 }
             }
             4 => {
@@ -771,9 +788,9 @@ impl ObjectPrivate for HyprlandInputCaptureV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).release(&self, arg0, arg1, arg2);
+                    (**handler).handle_release(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.release(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_release(&self, arg0, arg1, arg2);
                 }
             }
             n => {
@@ -808,9 +825,9 @@ impl ObjectPrivate for HyprlandInputCaptureV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).eis_fd(&self, arg0);
+                    (**handler).handle_eis_fd(&self, arg0);
                 } else {
-                    DefaultHandler.eis_fd(&self, arg0);
+                    DefaultHandler.handle_eis_fd(&self, arg0);
                 }
             }
             1 => {
@@ -824,9 +841,9 @@ impl ObjectPrivate for HyprlandInputCaptureV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).disabled(&self);
+                    (**handler).handle_disabled(&self);
                 } else {
-                    DefaultHandler.disabled(&self);
+                    DefaultHandler.handle_disabled(&self);
                 }
             }
             2 => {
@@ -847,9 +864,9 @@ impl ObjectPrivate for HyprlandInputCaptureV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).activated(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_activated(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.activated(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_activated(&self, arg0, arg1, arg2, arg3);
                 }
             }
             3 => {
@@ -865,9 +882,9 @@ impl ObjectPrivate for HyprlandInputCaptureV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).deactivated(&self, arg0);
+                    (**handler).handle_deactivated(&self, arg0);
                 } else {
-                    DefaultHandler.deactivated(&self, arg0);
+                    DefaultHandler.handle_deactivated(&self, arg0);
                 }
             }
             n => {

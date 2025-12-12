@@ -608,6 +608,11 @@ impl ZwpTabletPadV2 {
 
 /// A message handler for [ZwpTabletPadV2] proxies.
 pub trait ZwpTabletPadV2Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpTabletPadV2>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// set compositor feedback
     ///
     /// Requests the compositor to use the provided feedback string
@@ -641,7 +646,7 @@ pub trait ZwpTabletPadV2Handler: Any {
     /// - `description`: button description
     /// - `serial`: serial of the mode switch event
     #[inline]
-    fn set_feedback(
+    fn handle_set_feedback(
         &mut self,
         _slf: &Rc<ZwpTabletPadV2>,
         button: u32,
@@ -663,7 +668,7 @@ pub trait ZwpTabletPadV2Handler: Any {
     /// Destroy the zwp_tablet_pad_v2 object. Objects created from this object
     /// are unaffected and should be destroyed separately.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpTabletPadV2>,
     ) {
@@ -686,7 +691,7 @@ pub trait ZwpTabletPadV2Handler: Any {
     ///
     /// - `pad_group`:
     #[inline]
-    fn group(
+    fn handle_group(
         &mut self,
         _slf: &Rc<ZwpTabletPadV2>,
         pad_group: &Rc<ZwpTabletPadGroupV2>,
@@ -716,7 +721,7 @@ pub trait ZwpTabletPadV2Handler: Any {
     ///
     /// - `path`: path to local device
     #[inline]
-    fn path(
+    fn handle_path(
         &mut self,
         _slf: &Rc<ZwpTabletPadV2>,
         path: &str,
@@ -742,7 +747,7 @@ pub trait ZwpTabletPadV2Handler: Any {
     ///
     /// - `buttons`: the number of buttons
     #[inline]
-    fn buttons(
+    fn handle_buttons(
         &mut self,
         _slf: &Rc<ZwpTabletPadV2>,
         buttons: u32,
@@ -761,7 +766,7 @@ pub trait ZwpTabletPadV2Handler: Any {
     /// events. A client may consider the static description of the pad to
     /// be complete and finalize initialization of the pad.
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<ZwpTabletPadV2>,
     ) {
@@ -782,7 +787,7 @@ pub trait ZwpTabletPadV2Handler: Any {
     /// - `button`: the index of the button that changed state
     /// - `state`:
     #[inline]
-    fn button(
+    fn handle_button(
         &mut self,
         _slf: &Rc<ZwpTabletPadV2>,
         time: u32,
@@ -812,7 +817,7 @@ pub trait ZwpTabletPadV2Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn enter(
+    fn handle_enter(
         &mut self,
         _slf: &Rc<ZwpTabletPadV2>,
         serial: u32,
@@ -854,7 +859,7 @@ pub trait ZwpTabletPadV2Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn leave(
+    fn handle_leave(
         &mut self,
         _slf: &Rc<ZwpTabletPadV2>,
         serial: u32,
@@ -885,7 +890,7 @@ pub trait ZwpTabletPadV2Handler: Any {
     /// and groups that were offered by this pad, and issue zwp_tablet_pad_v2.destroy
     /// the pad itself.
     #[inline]
-    fn removed(
+    fn handle_removed(
         &mut self,
         _slf: &Rc<ZwpTabletPadV2>,
     ) {
@@ -903,6 +908,18 @@ impl ObjectPrivate for ZwpTabletPadV2 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpTabletPadV2, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -953,9 +970,9 @@ impl ObjectPrivate for ZwpTabletPadV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_feedback(&self, arg0, arg1, arg2);
+                    (**handler).handle_set_feedback(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.set_feedback(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_set_feedback(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
@@ -970,9 +987,9 @@ impl ObjectPrivate for ZwpTabletPadV2 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -1010,9 +1027,9 @@ impl ObjectPrivate for ZwpTabletPadV2 {
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "pad_group", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).group(&self, arg0);
+                    (**handler).handle_group(&self, arg0);
                 } else {
-                    DefaultHandler.group(&self, arg0);
+                    DefaultHandler.handle_group(&self, arg0);
                 }
             }
             1 => {
@@ -1049,9 +1066,9 @@ impl ObjectPrivate for ZwpTabletPadV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).path(&self, arg0);
+                    (**handler).handle_path(&self, arg0);
                 } else {
-                    DefaultHandler.path(&self, arg0);
+                    DefaultHandler.handle_path(&self, arg0);
                 }
             }
             2 => {
@@ -1067,9 +1084,9 @@ impl ObjectPrivate for ZwpTabletPadV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).buttons(&self, arg0);
+                    (**handler).handle_buttons(&self, arg0);
                 } else {
-                    DefaultHandler.buttons(&self, arg0);
+                    DefaultHandler.handle_buttons(&self, arg0);
                 }
             }
             3 => {
@@ -1083,9 +1100,9 @@ impl ObjectPrivate for ZwpTabletPadV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).done(&self);
+                    (**handler).handle_done(&self);
                 } else {
-                    DefaultHandler.done(&self);
+                    DefaultHandler.handle_done(&self);
                 }
             }
             4 => {
@@ -1104,9 +1121,9 @@ impl ObjectPrivate for ZwpTabletPadV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).button(&self, arg0, arg1, arg2);
+                    (**handler).handle_button(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.button(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_button(&self, arg0, arg1, arg2);
                 }
             }
             5 => {
@@ -1142,9 +1159,9 @@ impl ObjectPrivate for ZwpTabletPadV2 {
                 let arg1 = &arg1;
                 let arg2 = &arg2;
                 if let Some(handler) = handler {
-                    (**handler).enter(&self, arg0, arg1, arg2);
+                    (**handler).handle_enter(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.enter(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_enter(&self, arg0, arg1, arg2);
                 }
             }
             6 => {
@@ -1170,9 +1187,9 @@ impl ObjectPrivate for ZwpTabletPadV2 {
                 };
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).leave(&self, arg0, arg1);
+                    (**handler).handle_leave(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.leave(&self, arg0, arg1);
+                    DefaultHandler.handle_leave(&self, arg0, arg1);
                 }
             }
             7 => {
@@ -1186,9 +1203,9 @@ impl ObjectPrivate for ZwpTabletPadV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).removed(&self);
+                    (**handler).handle_removed(&self);
                 } else {
-                    DefaultHandler.removed(&self);
+                    DefaultHandler.handle_removed(&self);
                 }
             }
             n => {

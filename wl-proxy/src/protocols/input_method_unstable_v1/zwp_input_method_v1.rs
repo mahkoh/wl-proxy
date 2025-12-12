@@ -156,6 +156,11 @@ impl ZwpInputMethodV1 {
 
 /// A message handler for [ZwpInputMethodV1] proxies.
 pub trait ZwpInputMethodV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpInputMethodV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// activate event
     ///
     /// A text input was activated. Creates an input method context object
@@ -165,7 +170,7 @@ pub trait ZwpInputMethodV1Handler: Any {
     ///
     /// - `id`:
     #[inline]
-    fn activate(
+    fn handle_activate(
         &mut self,
         _slf: &Rc<ZwpInputMethodV1>,
         id: &Rc<ZwpInputMethodContextV1>,
@@ -191,7 +196,7 @@ pub trait ZwpInputMethodV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn deactivate(
+    fn handle_deactivate(
         &mut self,
         _slf: &Rc<ZwpInputMethodV1>,
         context: &Rc<ZwpInputMethodContextV1>,
@@ -218,6 +223,18 @@ impl ObjectPrivate for ZwpInputMethodV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpInputMethodV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -260,9 +277,9 @@ impl ObjectPrivate for ZwpInputMethodV1 {
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).activate(&self, arg0);
+                    (**handler).handle_activate(&self, arg0);
                 } else {
-                    DefaultHandler.activate(&self, arg0);
+                    DefaultHandler.handle_activate(&self, arg0);
                 }
             }
             1 => {
@@ -287,9 +304,9 @@ impl ObjectPrivate for ZwpInputMethodV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).deactivate(&self, arg0);
+                    (**handler).handle_deactivate(&self, arg0);
                 } else {
-                    DefaultHandler.deactivate(&self, arg0);
+                    DefaultHandler.handle_deactivate(&self, arg0);
                 }
             }
             n => {

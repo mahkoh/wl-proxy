@@ -846,6 +846,11 @@ impl TreelandPersonalizationAppearanceContextV1 {
 
 /// A message handler for [TreelandPersonalizationAppearanceContextV1] proxies.
 pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandPersonalizationAppearanceContextV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// round corner radius event
     ///
     /// Send this signal after setting the round corner radius.
@@ -854,7 +859,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// - `radius`: round corner radius
     #[inline]
-    fn round_corner_radius(
+    fn handle_round_corner_radius(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         radius: i32,
@@ -875,7 +880,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// - `theme_name`: icon theme name
     #[inline]
-    fn icon_theme(
+    fn handle_icon_theme(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         theme_name: &str,
@@ -896,7 +901,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// - `active_color`: active color
     #[inline]
-    fn active_color(
+    fn handle_active_color(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         active_color: &str,
@@ -917,7 +922,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// - `opacity`: window opacity
     #[inline]
-    fn window_opacity(
+    fn handle_window_opacity(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         opacity: u32,
@@ -938,7 +943,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// - `r#type`: window theme type
     #[inline]
-    fn window_theme_type(
+    fn handle_window_theme_type(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         r#type: TreelandPersonalizationAppearanceContextV1ThemeType,
@@ -959,7 +964,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// - `height`: window titlebar height
     #[inline]
-    fn window_titlebar_height(
+    fn handle_window_titlebar_height(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         height: u32,
@@ -980,7 +985,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// - `radius`:
     #[inline]
-    fn set_round_corner_radius(
+    fn handle_set_round_corner_radius(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         radius: i32,
@@ -997,7 +1002,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// Get window round corner radius
     #[inline]
-    fn get_round_corner_radius(
+    fn handle_get_round_corner_radius(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
     ) {
@@ -1016,7 +1021,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// - `theme`: icon theme
     #[inline]
-    fn set_icon_theme(
+    fn handle_set_icon_theme(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         theme: &str,
@@ -1033,7 +1038,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// Get the system icon theme
     #[inline]
-    fn get_icon_theme(
+    fn handle_get_icon_theme(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
     ) {
@@ -1052,7 +1057,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// - `color`: rgb
     #[inline]
-    fn set_active_color(
+    fn handle_set_active_color(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         color: &str,
@@ -1069,7 +1074,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// Get the system active color
     #[inline]
-    fn get_active_color(
+    fn handle_get_active_color(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
     ) {
@@ -1088,7 +1093,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// - `opacity`: opacity
     #[inline]
-    fn set_window_opacity(
+    fn handle_set_window_opacity(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         opacity: u32,
@@ -1105,7 +1110,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// Get the window window opacity
     #[inline]
-    fn get_window_opacity(
+    fn handle_get_window_opacity(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
     ) {
@@ -1124,7 +1129,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// - `r#type`: window theme type
     #[inline]
-    fn set_window_theme_type(
+    fn handle_set_window_theme_type(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         r#type: TreelandPersonalizationAppearanceContextV1ThemeType,
@@ -1141,7 +1146,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// Get the window theme type
     #[inline]
-    fn get_window_theme_type(
+    fn handle_get_window_theme_type(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
     ) {
@@ -1160,7 +1165,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// - `height`: window titlebar height
     #[inline]
-    fn set_window_titlebar_height(
+    fn handle_set_window_titlebar_height(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         height: u32,
@@ -1177,7 +1182,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// Get the window titlebar height
     #[inline]
-    fn get_window_titlebar_height(
+    fn handle_get_window_titlebar_height(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
     ) {
@@ -1192,7 +1197,7 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     ///
     /// Destroy the context object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
     ) {
@@ -1210,6 +1215,18 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandPersonalizationAppearanceContextV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -1232,9 +1249,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_round_corner_radius(&self, arg0);
+                    (**handler).handle_set_round_corner_radius(&self, arg0);
                 } else {
-                    DefaultHandler.set_round_corner_radius(&self, arg0);
+                    DefaultHandler.handle_set_round_corner_radius(&self, arg0);
                 }
             }
             1 => {
@@ -1248,9 +1265,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).get_round_corner_radius(&self);
+                    (**handler).handle_get_round_corner_radius(&self);
                 } else {
-                    DefaultHandler.get_round_corner_radius(&self);
+                    DefaultHandler.handle_get_round_corner_radius(&self);
                 }
             }
             2 => {
@@ -1287,9 +1304,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_icon_theme(&self, arg0);
+                    (**handler).handle_set_icon_theme(&self, arg0);
                 } else {
-                    DefaultHandler.set_icon_theme(&self, arg0);
+                    DefaultHandler.handle_set_icon_theme(&self, arg0);
                 }
             }
             3 => {
@@ -1303,9 +1320,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).get_icon_theme(&self);
+                    (**handler).handle_get_icon_theme(&self);
                 } else {
-                    DefaultHandler.get_icon_theme(&self);
+                    DefaultHandler.handle_get_icon_theme(&self);
                 }
             }
             4 => {
@@ -1342,9 +1359,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_active_color(&self, arg0);
+                    (**handler).handle_set_active_color(&self, arg0);
                 } else {
-                    DefaultHandler.set_active_color(&self, arg0);
+                    DefaultHandler.handle_set_active_color(&self, arg0);
                 }
             }
             5 => {
@@ -1358,9 +1375,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).get_active_color(&self);
+                    (**handler).handle_get_active_color(&self);
                 } else {
-                    DefaultHandler.get_active_color(&self);
+                    DefaultHandler.handle_get_active_color(&self);
                 }
             }
             6 => {
@@ -1376,9 +1393,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_window_opacity(&self, arg0);
+                    (**handler).handle_set_window_opacity(&self, arg0);
                 } else {
-                    DefaultHandler.set_window_opacity(&self, arg0);
+                    DefaultHandler.handle_set_window_opacity(&self, arg0);
                 }
             }
             7 => {
@@ -1392,9 +1409,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).get_window_opacity(&self);
+                    (**handler).handle_get_window_opacity(&self);
                 } else {
-                    DefaultHandler.get_window_opacity(&self);
+                    DefaultHandler.handle_get_window_opacity(&self);
                 }
             }
             8 => {
@@ -1411,9 +1428,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_window_theme_type(&self, arg0);
+                    (**handler).handle_set_window_theme_type(&self, arg0);
                 } else {
-                    DefaultHandler.set_window_theme_type(&self, arg0);
+                    DefaultHandler.handle_set_window_theme_type(&self, arg0);
                 }
             }
             9 => {
@@ -1427,9 +1444,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).get_window_theme_type(&self);
+                    (**handler).handle_get_window_theme_type(&self);
                 } else {
-                    DefaultHandler.get_window_theme_type(&self);
+                    DefaultHandler.handle_get_window_theme_type(&self);
                 }
             }
             10 => {
@@ -1445,9 +1462,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_window_titlebar_height(&self, arg0);
+                    (**handler).handle_set_window_titlebar_height(&self, arg0);
                 } else {
-                    DefaultHandler.set_window_titlebar_height(&self, arg0);
+                    DefaultHandler.handle_set_window_titlebar_height(&self, arg0);
                 }
             }
             11 => {
@@ -1461,9 +1478,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).get_window_titlebar_height(&self);
+                    (**handler).handle_get_window_titlebar_height(&self);
                 } else {
-                    DefaultHandler.get_window_titlebar_height(&self);
+                    DefaultHandler.handle_get_window_titlebar_height(&self);
                 }
             }
             12 => {
@@ -1478,9 +1495,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -1514,9 +1531,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).round_corner_radius(&self, arg0);
+                    (**handler).handle_round_corner_radius(&self, arg0);
                 } else {
-                    DefaultHandler.round_corner_radius(&self, arg0);
+                    DefaultHandler.handle_round_corner_radius(&self, arg0);
                 }
             }
             1 => {
@@ -1553,9 +1570,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).icon_theme(&self, arg0);
+                    (**handler).handle_icon_theme(&self, arg0);
                 } else {
-                    DefaultHandler.icon_theme(&self, arg0);
+                    DefaultHandler.handle_icon_theme(&self, arg0);
                 }
             }
             2 => {
@@ -1592,9 +1609,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).active_color(&self, arg0);
+                    (**handler).handle_active_color(&self, arg0);
                 } else {
-                    DefaultHandler.active_color(&self, arg0);
+                    DefaultHandler.handle_active_color(&self, arg0);
                 }
             }
             3 => {
@@ -1610,9 +1627,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).window_opacity(&self, arg0);
+                    (**handler).handle_window_opacity(&self, arg0);
                 } else {
-                    DefaultHandler.window_opacity(&self, arg0);
+                    DefaultHandler.handle_window_opacity(&self, arg0);
                 }
             }
             4 => {
@@ -1629,9 +1646,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).window_theme_type(&self, arg0);
+                    (**handler).handle_window_theme_type(&self, arg0);
                 } else {
-                    DefaultHandler.window_theme_type(&self, arg0);
+                    DefaultHandler.handle_window_theme_type(&self, arg0);
                 }
             }
             5 => {
@@ -1647,9 +1664,9 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).window_titlebar_height(&self, arg0);
+                    (**handler).handle_window_titlebar_height(&self, arg0);
                 } else {
-                    DefaultHandler.window_titlebar_height(&self, arg0);
+                    DefaultHandler.handle_window_titlebar_height(&self, arg0);
                 }
             }
             n => {

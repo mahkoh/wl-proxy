@@ -106,6 +106,11 @@ impl ZwpInputPanelV1 {
 
 /// A message handler for [ZwpInputPanelV1] proxies.
 pub trait ZwpInputPanelV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpInputPanelV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// # Arguments
     ///
     /// - `id`:
@@ -114,7 +119,7 @@ pub trait ZwpInputPanelV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_input_panel_surface(
+    fn handle_get_input_panel_surface(
         &mut self,
         _slf: &Rc<ZwpInputPanelV1>,
         id: &Rc<ZwpInputPanelSurfaceV1>,
@@ -136,6 +141,18 @@ impl ObjectPrivate for ZwpInputPanelV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpInputPanelV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -172,9 +189,9 @@ impl ObjectPrivate for ZwpInputPanelV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_input_panel_surface(&self, arg0, arg1);
+                    (**handler).handle_get_input_panel_surface(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_input_panel_surface(&self, arg0, arg1);
+                    DefaultHandler.handle_get_input_panel_surface(&self, arg0, arg1);
                 }
             }
             n => {

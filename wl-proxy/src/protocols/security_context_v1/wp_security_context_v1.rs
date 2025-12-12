@@ -301,11 +301,16 @@ impl WpSecurityContextV1 {
 
 /// A message handler for [WpSecurityContextV1] proxies.
 pub trait WpSecurityContextV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpSecurityContextV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the security context object
     ///
     /// Destroy the security context object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpSecurityContextV1>,
     ) {
@@ -331,7 +336,7 @@ pub trait WpSecurityContextV1Handler: Any {
     ///
     /// - `name`: the sandbox engine name
     #[inline]
-    fn set_sandbox_engine(
+    fn handle_set_sandbox_engine(
         &mut self,
         _slf: &Rc<WpSecurityContextV1>,
         name: &str,
@@ -364,7 +369,7 @@ pub trait WpSecurityContextV1Handler: Any {
     ///
     /// - `app_id`: the application ID
     #[inline]
-    fn set_app_id(
+    fn handle_set_app_id(
         &mut self,
         _slf: &Rc<WpSecurityContextV1>,
         app_id: &str,
@@ -395,7 +400,7 @@ pub trait WpSecurityContextV1Handler: Any {
     ///
     /// - `instance_id`: the instance ID
     #[inline]
-    fn set_instance_id(
+    fn handle_set_instance_id(
         &mut self,
         _slf: &Rc<WpSecurityContextV1>,
         instance_id: &str,
@@ -421,7 +426,7 @@ pub trait WpSecurityContextV1Handler: Any {
     /// It's a protocol error to send any request other than "destroy" after
     /// this request. In this case, the already_used error is sent.
     #[inline]
-    fn commit(
+    fn handle_commit(
         &mut self,
         _slf: &Rc<WpSecurityContextV1>,
     ) {
@@ -439,6 +444,18 @@ impl ObjectPrivate for WpSecurityContextV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpSecurityContextV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -459,9 +476,9 @@ impl ObjectPrivate for WpSecurityContextV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -498,9 +515,9 @@ impl ObjectPrivate for WpSecurityContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_sandbox_engine(&self, arg0);
+                    (**handler).handle_set_sandbox_engine(&self, arg0);
                 } else {
-                    DefaultHandler.set_sandbox_engine(&self, arg0);
+                    DefaultHandler.handle_set_sandbox_engine(&self, arg0);
                 }
             }
             2 => {
@@ -537,9 +554,9 @@ impl ObjectPrivate for WpSecurityContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_app_id(&self, arg0);
+                    (**handler).handle_set_app_id(&self, arg0);
                 } else {
-                    DefaultHandler.set_app_id(&self, arg0);
+                    DefaultHandler.handle_set_app_id(&self, arg0);
                 }
             }
             3 => {
@@ -576,9 +593,9 @@ impl ObjectPrivate for WpSecurityContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_instance_id(&self, arg0);
+                    (**handler).handle_set_instance_id(&self, arg0);
                 } else {
-                    DefaultHandler.set_instance_id(&self, arg0);
+                    DefaultHandler.handle_set_instance_id(&self, arg0);
                 }
             }
             4 => {
@@ -592,9 +609,9 @@ impl ObjectPrivate for WpSecurityContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).commit(&self);
+                    (**handler).handle_commit(&self);
                 } else {
-                    DefaultHandler.commit(&self);
+                    DefaultHandler.handle_commit(&self);
                 }
             }
             n => {

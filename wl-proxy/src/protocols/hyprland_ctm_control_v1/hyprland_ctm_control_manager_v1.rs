@@ -271,6 +271,11 @@ impl HyprlandCtmControlManagerV1 {
 
 /// A message handler for [HyprlandCtmControlManagerV1] proxies.
 pub trait HyprlandCtmControlManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<HyprlandCtmControlManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// set the CTM of an output
     ///
     /// Set a CTM for a wl_output.
@@ -303,7 +308,7 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_ctm_for_output(
+    fn handle_set_ctm_for_output(
         &mut self,
         _slf: &Rc<HyprlandCtmControlManagerV1>,
         output: &Rc<WlOutput>,
@@ -338,7 +343,7 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
     ///
     /// Commits the pending state(s) set by set_ctm_for_output.
     #[inline]
-    fn commit(
+    fn handle_commit(
         &mut self,
         _slf: &Rc<HyprlandCtmControlManagerV1>,
     ) {
@@ -356,7 +361,7 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
     ///
     /// The CTMs of all outputs will be reset to an identity matrix.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<HyprlandCtmControlManagerV1>,
     ) {
@@ -374,7 +379,7 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
     ///
     /// The client should destroy the manager after receiving this event.
     #[inline]
-    fn blocked(
+    fn handle_blocked(
         &mut self,
         _slf: &Rc<HyprlandCtmControlManagerV1>,
     ) {
@@ -392,6 +397,18 @@ impl ObjectPrivate for HyprlandCtmControlManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::HyprlandCtmControlManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -440,9 +457,9 @@ impl ObjectPrivate for HyprlandCtmControlManagerV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).set_ctm_for_output(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+                    (**handler).handle_set_ctm_for_output(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
                 } else {
-                    DefaultHandler.set_ctm_for_output(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+                    DefaultHandler.handle_set_ctm_for_output(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
                 }
             }
             1 => {
@@ -456,9 +473,9 @@ impl ObjectPrivate for HyprlandCtmControlManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).commit(&self);
+                    (**handler).handle_commit(&self);
                 } else {
-                    DefaultHandler.commit(&self);
+                    DefaultHandler.handle_commit(&self);
                 }
             }
             2 => {
@@ -473,9 +490,9 @@ impl ObjectPrivate for HyprlandCtmControlManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -506,9 +523,9 @@ impl ObjectPrivate for HyprlandCtmControlManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).blocked(&self);
+                    (**handler).handle_blocked(&self);
                 } else {
-                    DefaultHandler.blocked(&self);
+                    DefaultHandler.handle_blocked(&self);
                 }
             }
             n => {

@@ -96,6 +96,11 @@ impl ZwpTextInputManagerV1 {
 
 /// A message handler for [ZwpTextInputManagerV1] proxies.
 pub trait ZwpTextInputManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpTextInputManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// create text input
     ///
     /// Creates a new text_input object.
@@ -104,7 +109,7 @@ pub trait ZwpTextInputManagerV1Handler: Any {
     ///
     /// - `id`:
     #[inline]
-    fn create_text_input(
+    fn handle_create_text_input(
         &mut self,
         _slf: &Rc<ZwpTextInputManagerV1>,
         id: &Rc<ZwpTextInputV1>,
@@ -124,6 +129,18 @@ impl ObjectPrivate for ZwpTextInputManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpTextInputManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -150,9 +167,9 @@ impl ObjectPrivate for ZwpTextInputManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_text_input(&self, arg0);
+                    (**handler).handle_create_text_input(&self, arg0);
                 } else {
-                    DefaultHandler.create_text_input(&self, arg0);
+                    DefaultHandler.handle_create_text_input(&self, arg0);
                 }
             }
             n => {

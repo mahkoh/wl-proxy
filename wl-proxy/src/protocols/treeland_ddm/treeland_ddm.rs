@@ -378,11 +378,16 @@ impl TreelandDdm {
 
 /// A message handler for [TreelandDdm] proxies.
 pub trait TreelandDdmHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandDdm>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// send treeland to greeter mode
     ///
     /// Send treeland to Greeter mode.
     #[inline]
-    fn switch_to_greeter(
+    fn handle_switch_to_greeter(
         &mut self,
         _slf: &Rc<TreelandDdm>,
     ) {
@@ -401,7 +406,7 @@ pub trait TreelandDdmHandler: Any {
     ///
     /// - `username`:
     #[inline]
-    fn switch_to_user(
+    fn handle_switch_to_user(
         &mut self,
         _slf: &Rc<TreelandDdm>,
         username: &str,
@@ -419,7 +424,7 @@ pub trait TreelandDdmHandler: Any {
     /// Activate treeland session. This will makes treeland try to take
     /// control of screen.
     #[inline]
-    fn activate_session(
+    fn handle_activate_session(
         &mut self,
         _slf: &Rc<TreelandDdm>,
     ) {
@@ -435,7 +440,7 @@ pub trait TreelandDdmHandler: Any {
     /// Deactivate treeland session. This will release control of the
     /// screen, but not to close the current seats.
     #[inline]
-    fn deactivate_session(
+    fn handle_deactivate_session(
         &mut self,
         _slf: &Rc<TreelandDdm>,
     ) {
@@ -451,7 +456,7 @@ pub trait TreelandDdmHandler: Any {
     /// Enable treeland rendering. This is primarily called after
     /// disable_render to resume treeland.
     #[inline]
-    fn enable_render(
+    fn handle_enable_render(
         &mut self,
         _slf: &Rc<TreelandDdm>,
     ) {
@@ -471,7 +476,7 @@ pub trait TreelandDdmHandler: Any {
     ///
     /// - `callback`:
     #[inline]
-    fn disable_render(
+    fn handle_disable_render(
         &mut self,
         _slf: &Rc<TreelandDdm>,
         callback: &Rc<WlCallback>,
@@ -493,7 +498,7 @@ pub trait TreelandDdmHandler: Any {
     ///
     /// - `vtnr`:
     #[inline]
-    fn switch_to_vt(
+    fn handle_switch_to_vt(
         &mut self,
         _slf: &Rc<TreelandDdm>,
         vtnr: i32,
@@ -515,7 +520,7 @@ pub trait TreelandDdmHandler: Any {
     ///
     /// - `vtnr`:
     #[inline]
-    fn acquire_vt(
+    fn handle_acquire_vt(
         &mut self,
         _slf: &Rc<TreelandDdm>,
         vtnr: i32,
@@ -537,6 +542,18 @@ impl ObjectPrivate for TreelandDdm {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -554,9 +571,9 @@ impl ObjectPrivate for TreelandDdm {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).switch_to_greeter(&self);
+                    (**handler).handle_switch_to_greeter(&self);
                 } else {
-                    DefaultHandler.switch_to_greeter(&self);
+                    DefaultHandler.handle_switch_to_greeter(&self);
                 }
             }
             1 => {
@@ -593,9 +610,9 @@ impl ObjectPrivate for TreelandDdm {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).switch_to_user(&self, arg0);
+                    (**handler).handle_switch_to_user(&self, arg0);
                 } else {
-                    DefaultHandler.switch_to_user(&self, arg0);
+                    DefaultHandler.handle_switch_to_user(&self, arg0);
                 }
             }
             2 => {
@@ -609,9 +626,9 @@ impl ObjectPrivate for TreelandDdm {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).activate_session(&self);
+                    (**handler).handle_activate_session(&self);
                 } else {
-                    DefaultHandler.activate_session(&self);
+                    DefaultHandler.handle_activate_session(&self);
                 }
             }
             3 => {
@@ -625,9 +642,9 @@ impl ObjectPrivate for TreelandDdm {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).deactivate_session(&self);
+                    (**handler).handle_deactivate_session(&self);
                 } else {
-                    DefaultHandler.deactivate_session(&self);
+                    DefaultHandler.handle_deactivate_session(&self);
                 }
             }
             4 => {
@@ -641,9 +658,9 @@ impl ObjectPrivate for TreelandDdm {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).enable_render(&self);
+                    (**handler).handle_enable_render(&self);
                 } else {
-                    DefaultHandler.enable_render(&self);
+                    DefaultHandler.handle_enable_render(&self);
                 }
             }
             5 => {
@@ -664,9 +681,9 @@ impl ObjectPrivate for TreelandDdm {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "callback", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).disable_render(&self, arg0);
+                    (**handler).handle_disable_render(&self, arg0);
                 } else {
-                    DefaultHandler.disable_render(&self, arg0);
+                    DefaultHandler.handle_disable_render(&self, arg0);
                 }
             }
             n => {
@@ -700,9 +717,9 @@ impl ObjectPrivate for TreelandDdm {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).switch_to_vt(&self, arg0);
+                    (**handler).handle_switch_to_vt(&self, arg0);
                 } else {
-                    DefaultHandler.switch_to_vt(&self, arg0);
+                    DefaultHandler.handle_switch_to_vt(&self, arg0);
                 }
             }
             1 => {
@@ -719,9 +736,9 @@ impl ObjectPrivate for TreelandDdm {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).acquire_vt(&self, arg0);
+                    (**handler).handle_acquire_vt(&self, arg0);
                 } else {
-                    DefaultHandler.acquire_vt(&self, arg0);
+                    DefaultHandler.handle_acquire_vt(&self, arg0);
                 }
             }
             n => {

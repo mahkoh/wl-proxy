@@ -136,12 +136,17 @@ impl HyprlandLockNotifierV1 {
 
 /// A message handler for [HyprlandLockNotifierV1] proxies.
 pub trait HyprlandLockNotifierV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<HyprlandLockNotifierV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the manager
     ///
     /// Destroy the manager object. All objects created via this interface
     /// remain valid.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<HyprlandLockNotifierV1>,
     ) {
@@ -163,7 +168,7 @@ pub trait HyprlandLockNotifierV1Handler: Any {
     ///
     /// - `id`:
     #[inline]
-    fn get_lock_notification(
+    fn handle_get_lock_notification(
         &mut self,
         _slf: &Rc<HyprlandLockNotifierV1>,
         id: &Rc<HyprlandLockNotificationV1>,
@@ -185,6 +190,18 @@ impl ObjectPrivate for HyprlandLockNotifierV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -203,9 +220,9 @@ impl ObjectPrivate for HyprlandLockNotifierV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -226,9 +243,9 @@ impl ObjectPrivate for HyprlandLockNotifierV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_lock_notification(&self, arg0);
+                    (**handler).handle_get_lock_notification(&self, arg0);
                 } else {
-                    DefaultHandler.get_lock_notification(&self, arg0);
+                    DefaultHandler.handle_get_lock_notification(&self, arg0);
                 }
             }
             n => {

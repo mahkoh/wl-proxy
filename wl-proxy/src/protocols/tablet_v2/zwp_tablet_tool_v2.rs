@@ -1234,6 +1234,11 @@ impl ZwpTabletToolV2 {
 
 /// A message handler for [ZwpTabletToolV2] proxies.
 pub trait ZwpTabletToolV2Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpTabletToolV2>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// set the tablet tool's surface
     ///
     /// Sets the surface of the cursor used for this tool on the given
@@ -1277,7 +1282,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_cursor(
+    fn handle_set_cursor(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
         serial: u32,
@@ -1300,7 +1305,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     ///
     /// This destroys the client's resource for this tool object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
     ) {
@@ -1323,7 +1328,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     ///
     /// - `tool_type`: the physical tool type
     #[inline]
-    fn r#type(
+    fn handle_type(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
         tool_type: ZwpTabletToolV2Type,
@@ -1359,7 +1364,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     /// - `hardware_serial_hi`: the unique serial number of the tool, most significant bits
     /// - `hardware_serial_lo`: the unique serial number of the tool, least significant bits
     #[inline]
-    fn hardware_serial(
+    fn handle_hardware_serial(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
         hardware_serial_hi: u32,
@@ -1392,7 +1397,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     /// - `hardware_id_hi`: the hardware id, most significant bits
     /// - `hardware_id_lo`: the hardware id, least significant bits
     #[inline]
-    fn hardware_id_wacom(
+    fn handle_hardware_id_wacom(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
         hardware_id_hi: u32,
@@ -1421,7 +1426,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     ///
     /// - `capability`: the capability
     #[inline]
-    fn capability(
+    fn handle_capability(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
         capability: ZwpTabletToolV2Capability,
@@ -1440,7 +1445,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     /// events. A client may consider the static description of the tool to
     /// be complete and finalize initialization of the tool.
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
     ) {
@@ -1468,7 +1473,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     /// When this event is received, the client must zwp_tablet_tool_v2.destroy
     /// the object.
     #[inline]
-    fn removed(
+    fn handle_removed(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
     ) {
@@ -1500,7 +1505,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn proximity_in(
+    fn handle_proximity_in(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
         serial: u32,
@@ -1544,7 +1549,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     /// be sent until the button is actually released or the tool leaves the
     /// proximity of the tablet.
     #[inline]
-    fn proximity_out(
+    fn handle_proximity_out(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
     ) {
@@ -1574,7 +1579,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     ///
     /// - `serial`:
     #[inline]
-    fn down(
+    fn handle_down(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
         serial: u32,
@@ -1606,7 +1611,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     /// of logical contact until physical pressure falls below a specific
     /// threshold.
     #[inline]
-    fn up(
+    fn handle_up(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
     ) {
@@ -1626,7 +1631,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     /// - `x`: surface-local x coordinate
     /// - `y`: surface-local y coordinate
     #[inline]
-    fn motion(
+    fn handle_motion(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
         x: Fixed,
@@ -1653,7 +1658,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     ///
     /// - `pressure`: The current pressure value
     #[inline]
-    fn pressure(
+    fn handle_pressure(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
         pressure: u32,
@@ -1678,7 +1683,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     ///
     /// - `distance`: The current distance value
     #[inline]
-    fn distance(
+    fn handle_distance(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
         distance: u32,
@@ -1703,7 +1708,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     /// - `tilt_x`: The current value of the X tilt axis
     /// - `tilt_y`: The current value of the Y tilt axis
     #[inline]
-    fn tilt(
+    fn handle_tilt(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
         tilt_x: Fixed,
@@ -1728,7 +1733,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     ///
     /// - `degrees`: The current rotation of the Z axis
     #[inline]
-    fn rotation(
+    fn handle_rotation(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
         degrees: Fixed,
@@ -1753,7 +1758,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     ///
     /// - `position`: The current position of slider
     #[inline]
-    fn slider(
+    fn handle_slider(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
         position: i32,
@@ -1786,7 +1791,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     /// - `degrees`: The wheel delta in degrees
     /// - `clicks`: The wheel delta in discrete clicks
     #[inline]
-    fn wheel(
+    fn handle_wheel(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
         degrees: Fixed,
@@ -1816,7 +1821,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     /// - `button`: The button whose state has changed
     /// - `state`: Whether the button was pressed or released
     #[inline]
-    fn button(
+    fn handle_button(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
         serial: u32,
@@ -1844,7 +1849,7 @@ pub trait ZwpTabletToolV2Handler: Any {
     ///
     /// - `time`: The time of the event with millisecond granularity
     #[inline]
-    fn frame(
+    fn handle_frame(
         &mut self,
         _slf: &Rc<ZwpTabletToolV2>,
         time: u32,
@@ -1864,6 +1869,18 @@ impl ObjectPrivate for ZwpTabletToolV2 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpTabletToolV2, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -1904,9 +1921,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                 };
                 let arg1 = arg1.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).set_cursor(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_set_cursor(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.set_cursor(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_set_cursor(&self, arg0, arg1, arg2, arg3);
                 }
             }
             1 => {
@@ -1921,9 +1938,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -1957,9 +1974,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).r#type(&self, arg0);
+                    (**handler).handle_type(&self, arg0);
                 } else {
-                    DefaultHandler.r#type(&self, arg0);
+                    DefaultHandler.handle_type(&self, arg0);
                 }
             }
             1 => {
@@ -1976,9 +1993,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).hardware_serial(&self, arg0, arg1);
+                    (**handler).handle_hardware_serial(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.hardware_serial(&self, arg0, arg1);
+                    DefaultHandler.handle_hardware_serial(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -1995,9 +2012,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).hardware_id_wacom(&self, arg0, arg1);
+                    (**handler).handle_hardware_id_wacom(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.hardware_id_wacom(&self, arg0, arg1);
+                    DefaultHandler.handle_hardware_id_wacom(&self, arg0, arg1);
                 }
             }
             3 => {
@@ -2014,9 +2031,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).capability(&self, arg0);
+                    (**handler).handle_capability(&self, arg0);
                 } else {
-                    DefaultHandler.capability(&self, arg0);
+                    DefaultHandler.handle_capability(&self, arg0);
                 }
             }
             4 => {
@@ -2030,9 +2047,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).done(&self);
+                    (**handler).handle_done(&self);
                 } else {
-                    DefaultHandler.done(&self);
+                    DefaultHandler.handle_done(&self);
                 }
             }
             5 => {
@@ -2046,9 +2063,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).removed(&self);
+                    (**handler).handle_removed(&self);
                 } else {
-                    DefaultHandler.removed(&self);
+                    DefaultHandler.handle_removed(&self);
                 }
             }
             6 => {
@@ -2084,9 +2101,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                 let arg1 = &arg1;
                 let arg2 = &arg2;
                 if let Some(handler) = handler {
-                    (**handler).proximity_in(&self, arg0, arg1, arg2);
+                    (**handler).handle_proximity_in(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.proximity_in(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_proximity_in(&self, arg0, arg1, arg2);
                 }
             }
             7 => {
@@ -2100,9 +2117,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).proximity_out(&self);
+                    (**handler).handle_proximity_out(&self);
                 } else {
-                    DefaultHandler.proximity_out(&self);
+                    DefaultHandler.handle_proximity_out(&self);
                 }
             }
             8 => {
@@ -2118,9 +2135,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).down(&self, arg0);
+                    (**handler).handle_down(&self, arg0);
                 } else {
-                    DefaultHandler.down(&self, arg0);
+                    DefaultHandler.handle_down(&self, arg0);
                 }
             }
             9 => {
@@ -2134,9 +2151,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).up(&self);
+                    (**handler).handle_up(&self);
                 } else {
-                    DefaultHandler.up(&self);
+                    DefaultHandler.handle_up(&self);
                 }
             }
             10 => {
@@ -2155,9 +2172,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).motion(&self, arg0, arg1);
+                    (**handler).handle_motion(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.motion(&self, arg0, arg1);
+                    DefaultHandler.handle_motion(&self, arg0, arg1);
                 }
             }
             11 => {
@@ -2173,9 +2190,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).pressure(&self, arg0);
+                    (**handler).handle_pressure(&self, arg0);
                 } else {
-                    DefaultHandler.pressure(&self, arg0);
+                    DefaultHandler.handle_pressure(&self, arg0);
                 }
             }
             12 => {
@@ -2191,9 +2208,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).distance(&self, arg0);
+                    (**handler).handle_distance(&self, arg0);
                 } else {
-                    DefaultHandler.distance(&self, arg0);
+                    DefaultHandler.handle_distance(&self, arg0);
                 }
             }
             13 => {
@@ -2212,9 +2229,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).tilt(&self, arg0, arg1);
+                    (**handler).handle_tilt(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.tilt(&self, arg0, arg1);
+                    DefaultHandler.handle_tilt(&self, arg0, arg1);
                 }
             }
             14 => {
@@ -2231,9 +2248,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).rotation(&self, arg0);
+                    (**handler).handle_rotation(&self, arg0);
                 } else {
-                    DefaultHandler.rotation(&self, arg0);
+                    DefaultHandler.handle_rotation(&self, arg0);
                 }
             }
             15 => {
@@ -2250,9 +2267,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).slider(&self, arg0);
+                    (**handler).handle_slider(&self, arg0);
                 } else {
-                    DefaultHandler.slider(&self, arg0);
+                    DefaultHandler.handle_slider(&self, arg0);
                 }
             }
             16 => {
@@ -2271,9 +2288,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).wheel(&self, arg0, arg1);
+                    (**handler).handle_wheel(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.wheel(&self, arg0, arg1);
+                    DefaultHandler.handle_wheel(&self, arg0, arg1);
                 }
             }
             17 => {
@@ -2292,9 +2309,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).button(&self, arg0, arg1, arg2);
+                    (**handler).handle_button(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.button(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_button(&self, arg0, arg1, arg2);
                 }
             }
             18 => {
@@ -2310,9 +2327,9 @@ impl ObjectPrivate for ZwpTabletToolV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).frame(&self, arg0);
+                    (**handler).handle_frame(&self, arg0);
                 } else {
-                    DefaultHandler.frame(&self, arg0);
+                    DefaultHandler.handle_frame(&self, arg0);
                 }
             }
             n => {

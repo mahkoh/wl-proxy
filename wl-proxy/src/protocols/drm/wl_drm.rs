@@ -512,11 +512,16 @@ impl WlDrm {
 
 /// A message handler for [WlDrm] proxies.
 pub trait WlDrmHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlDrm>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// # Arguments
     ///
     /// - `id`:
     #[inline]
-    fn authenticate(
+    fn handle_authenticate(
         &mut self,
         _slf: &Rc<WlDrm>,
         id: u32,
@@ -538,7 +543,7 @@ pub trait WlDrmHandler: Any {
     /// - `stride`:
     /// - `format`:
     #[inline]
-    fn create_buffer(
+    fn handle_create_buffer(
         &mut self,
         _slf: &Rc<WlDrm>,
         id: &Rc<WlBuffer>,
@@ -575,7 +580,7 @@ pub trait WlDrmHandler: Any {
     /// - `offset2`:
     /// - `stride2`:
     #[inline]
-    fn create_planar_buffer(
+    fn handle_create_planar_buffer(
         &mut self,
         _slf: &Rc<WlDrm>,
         id: &Rc<WlBuffer>,
@@ -612,7 +617,7 @@ pub trait WlDrmHandler: Any {
     ///
     /// - `name`:
     #[inline]
-    fn device(
+    fn handle_device(
         &mut self,
         _slf: &Rc<WlDrm>,
         name: &str,
@@ -629,7 +634,7 @@ pub trait WlDrmHandler: Any {
     ///
     /// - `format`:
     #[inline]
-    fn format(
+    fn handle_format(
         &mut self,
         _slf: &Rc<WlDrm>,
         format: u32,
@@ -643,7 +648,7 @@ pub trait WlDrmHandler: Any {
     }
 
     #[inline]
-    fn authenticated(
+    fn handle_authenticated(
         &mut self,
         _slf: &Rc<WlDrm>,
     ) {
@@ -658,7 +663,7 @@ pub trait WlDrmHandler: Any {
     ///
     /// - `value`:
     #[inline]
-    fn capabilities(
+    fn handle_capabilities(
         &mut self,
         _slf: &Rc<WlDrm>,
         value: u32,
@@ -685,7 +690,7 @@ pub trait WlDrmHandler: Any {
     /// - `offset2`:
     /// - `stride2`:
     #[inline]
-    fn create_prime_buffer(
+    fn handle_create_prime_buffer(
         &mut self,
         _slf: &Rc<WlDrm>,
         id: &Rc<WlBuffer>,
@@ -727,6 +732,18 @@ impl ObjectPrivate for WlDrm {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -746,9 +763,9 @@ impl ObjectPrivate for WlDrm {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).authenticate(&self, arg0);
+                    (**handler).handle_authenticate(&self, arg0);
                 } else {
-                    DefaultHandler.authenticate(&self, arg0);
+                    DefaultHandler.handle_authenticate(&self, arg0);
                 }
             }
             1 => {
@@ -776,9 +793,9 @@ impl ObjectPrivate for WlDrm {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_buffer(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    (**handler).handle_create_buffer(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 } else {
-                    DefaultHandler.create_buffer(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    DefaultHandler.handle_create_buffer(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 }
             }
             2 => {
@@ -817,9 +834,9 @@ impl ObjectPrivate for WlDrm {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_planar_buffer(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+                    (**handler).handle_create_planar_buffer(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
                 } else {
-                    DefaultHandler.create_planar_buffer(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+                    DefaultHandler.handle_create_planar_buffer(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
                 }
             }
             3 => {
@@ -861,9 +878,9 @@ impl ObjectPrivate for WlDrm {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_prime_buffer(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+                    (**handler).handle_create_prime_buffer(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
                 } else {
-                    DefaultHandler.create_prime_buffer(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+                    DefaultHandler.handle_create_prime_buffer(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
                 }
             }
             n => {
@@ -917,9 +934,9 @@ impl ObjectPrivate for WlDrm {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).device(&self, arg0);
+                    (**handler).handle_device(&self, arg0);
                 } else {
-                    DefaultHandler.device(&self, arg0);
+                    DefaultHandler.handle_device(&self, arg0);
                 }
             }
             1 => {
@@ -935,9 +952,9 @@ impl ObjectPrivate for WlDrm {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).format(&self, arg0);
+                    (**handler).handle_format(&self, arg0);
                 } else {
-                    DefaultHandler.format(&self, arg0);
+                    DefaultHandler.handle_format(&self, arg0);
                 }
             }
             2 => {
@@ -951,9 +968,9 @@ impl ObjectPrivate for WlDrm {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).authenticated(&self);
+                    (**handler).handle_authenticated(&self);
                 } else {
-                    DefaultHandler.authenticated(&self);
+                    DefaultHandler.handle_authenticated(&self);
                 }
             }
             3 => {
@@ -969,9 +986,9 @@ impl ObjectPrivate for WlDrm {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).capabilities(&self, arg0);
+                    (**handler).handle_capabilities(&self, arg0);
                 } else {
-                    DefaultHandler.capabilities(&self, arg0);
+                    DefaultHandler.handle_capabilities(&self, arg0);
                 }
             }
             n => {

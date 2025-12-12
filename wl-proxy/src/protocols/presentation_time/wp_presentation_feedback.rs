@@ -283,6 +283,11 @@ impl WpPresentationFeedback {
 
 /// A message handler for [WpPresentationFeedback] proxies.
 pub trait WpPresentationFeedbackHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpPresentationFeedback>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// presentation synchronized to this output
     ///
     /// As presentation can be synchronized to only one output at a
@@ -301,7 +306,7 @@ pub trait WpPresentationFeedbackHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn sync_output(
+    fn handle_sync_output(
         &mut self,
         _slf: &Rc<WpPresentationFeedback>,
         output: &Rc<WlOutput>,
@@ -378,7 +383,7 @@ pub trait WpPresentationFeedbackHandler: Any {
     /// - `seq_lo`: low 32 bits of refresh counter
     /// - `flags`: combination of 'kind' values
     #[inline]
-    fn presented(
+    fn handle_presented(
         &mut self,
         _slf: &Rc<WpPresentationFeedback>,
         tv_sec_hi: u32,
@@ -407,7 +412,7 @@ pub trait WpPresentationFeedbackHandler: Any {
     ///
     /// The content update was never displayed to the user.
     #[inline]
-    fn discarded(
+    fn handle_discarded(
         &mut self,
         _slf: &Rc<WpPresentationFeedback>,
     ) {
@@ -425,6 +430,18 @@ impl ObjectPrivate for WpPresentationFeedback {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpPresentationFeedback, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -471,9 +488,9 @@ impl ObjectPrivate for WpPresentationFeedback {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).sync_output(&self, arg0);
+                    (**handler).handle_sync_output(&self, arg0);
                 } else {
-                    DefaultHandler.sync_output(&self, arg0);
+                    DefaultHandler.handle_sync_output(&self, arg0);
                 }
             }
             1 => {
@@ -497,9 +514,9 @@ impl ObjectPrivate for WpPresentationFeedback {
                 }
                 self.core.handle_server_destroy();
                 if let Some(handler) = handler {
-                    (**handler).presented(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+                    (**handler).handle_presented(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
                 } else {
-                    DefaultHandler.presented(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+                    DefaultHandler.handle_presented(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
                 }
             }
             2 => {
@@ -514,9 +531,9 @@ impl ObjectPrivate for WpPresentationFeedback {
                 }
                 self.core.handle_server_destroy();
                 if let Some(handler) = handler {
-                    (**handler).discarded(&self);
+                    (**handler).handle_discarded(&self);
                 } else {
-                    DefaultHandler.discarded(&self);
+                    DefaultHandler.handle_discarded(&self);
                 }
             }
             n => {

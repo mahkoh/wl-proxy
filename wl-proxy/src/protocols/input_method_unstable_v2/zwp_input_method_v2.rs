@@ -896,6 +896,11 @@ impl ZwpInputMethodV2 {
 
 /// A message handler for [ZwpInputMethodV2] proxies.
 pub trait ZwpInputMethodV2Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpInputMethodV2>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// input method has been requested
     ///
     /// Notification that a text input focused on this seat requested the input
@@ -918,7 +923,7 @@ pub trait ZwpInputMethodV2Handler: Any {
     /// State set with this event is double-buffered. It will get applied on
     /// the next zwp_input_method_v2.done event, and stay valid until changed.
     #[inline]
-    fn activate(
+    fn handle_activate(
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
     ) {
@@ -941,7 +946,7 @@ pub trait ZwpInputMethodV2Handler: Any {
     /// State set with this event is double-buffered. It will get applied on
     /// the next zwp_input_method_v2.done event, and stay valid until changed.
     #[inline]
-    fn deactivate(
+    fn handle_deactivate(
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
     ) {
@@ -990,7 +995,7 @@ pub trait ZwpInputMethodV2Handler: Any {
     /// - `cursor`:
     /// - `anchor`:
     #[inline]
-    fn surrounding_text(
+    fn handle_surrounding_text(
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
         text: &str,
@@ -1029,7 +1034,7 @@ pub trait ZwpInputMethodV2Handler: Any {
     ///
     /// - `cause`:
     #[inline]
-    fn text_change_cause(
+    fn handle_text_change_cause(
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
         cause: ZwpTextInputV3ChangeCause,
@@ -1058,7 +1063,7 @@ pub trait ZwpInputMethodV2Handler: Any {
     /// - `hint`:
     /// - `purpose`:
     #[inline]
-    fn content_type(
+    fn handle_content_type(
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
         hint: ZwpTextInputV3ContentHint,
@@ -1093,7 +1098,7 @@ pub trait ZwpInputMethodV2Handler: Any {
     ///
     /// Neither current nor pending state are modified unless noted otherwise.
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
     ) {
@@ -1125,7 +1130,7 @@ pub trait ZwpInputMethodV2Handler: Any {
     ///
     /// - `text`:
     #[inline]
-    fn commit_string(
+    fn handle_commit_string(
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
         text: &str,
@@ -1171,7 +1176,7 @@ pub trait ZwpInputMethodV2Handler: Any {
     /// - `cursor_begin`:
     /// - `cursor_end`:
     #[inline]
-    fn set_preedit_string(
+    fn handle_set_preedit_string(
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
         text: &str,
@@ -1210,7 +1215,7 @@ pub trait ZwpInputMethodV2Handler: Any {
     /// - `before_length`:
     /// - `after_length`:
     #[inline]
-    fn delete_surrounding_text(
+    fn handle_delete_surrounding_text(
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
         before_length: u32,
@@ -1255,7 +1260,7 @@ pub trait ZwpInputMethodV2Handler: Any {
     ///
     /// - `serial`:
     #[inline]
-    fn commit(
+    fn handle_commit(
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
         serial: u32,
@@ -1285,7 +1290,7 @@ pub trait ZwpInputMethodV2Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_input_popup_surface(
+    fn handle_get_input_popup_surface(
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
         id: &Rc<ZwpInputPopupSurfaceV2>,
@@ -1319,7 +1324,7 @@ pub trait ZwpInputMethodV2Handler: Any {
     ///
     /// - `keyboard`:
     #[inline]
-    fn grab_keyboard(
+    fn handle_grab_keyboard(
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
         keyboard: &Rc<ZwpInputMethodKeyboardGrabV2>,
@@ -1347,7 +1352,7 @@ pub trait ZwpInputMethodV2Handler: Any {
     /// deactivation is handled. Any further requests and events except for the
     /// destroy request must be ignored.
     #[inline]
-    fn unavailable(
+    fn handle_unavailable(
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
     ) {
@@ -1364,7 +1369,7 @@ pub trait ZwpInputMethodV2Handler: Any {
     /// objects, i.e. zwp_input_popup_surface_v2 and
     /// zwp_input_method_keyboard_grab_v2.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
     ) {
@@ -1382,6 +1387,18 @@ impl ObjectPrivate for ZwpInputMethodV2 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpInputMethodV2, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -1424,9 +1441,9 @@ impl ObjectPrivate for ZwpInputMethodV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).commit_string(&self, arg0);
+                    (**handler).handle_commit_string(&self, arg0);
                 } else {
-                    DefaultHandler.commit_string(&self, arg0);
+                    DefaultHandler.handle_commit_string(&self, arg0);
                 }
             }
             1 => {
@@ -1473,9 +1490,9 @@ impl ObjectPrivate for ZwpInputMethodV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_preedit_string(&self, arg0, arg1, arg2);
+                    (**handler).handle_set_preedit_string(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.set_preedit_string(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_set_preedit_string(&self, arg0, arg1, arg2);
                 }
             }
             2 => {
@@ -1492,9 +1509,9 @@ impl ObjectPrivate for ZwpInputMethodV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).delete_surrounding_text(&self, arg0, arg1);
+                    (**handler).handle_delete_surrounding_text(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.delete_surrounding_text(&self, arg0, arg1);
+                    DefaultHandler.handle_delete_surrounding_text(&self, arg0, arg1);
                 }
             }
             3 => {
@@ -1510,9 +1527,9 @@ impl ObjectPrivate for ZwpInputMethodV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).commit(&self, arg0);
+                    (**handler).handle_commit(&self, arg0);
                 } else {
-                    DefaultHandler.commit(&self, arg0);
+                    DefaultHandler.handle_commit(&self, arg0);
                 }
             }
             4 => {
@@ -1543,9 +1560,9 @@ impl ObjectPrivate for ZwpInputMethodV2 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_input_popup_surface(&self, arg0, arg1);
+                    (**handler).handle_get_input_popup_surface(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_input_popup_surface(&self, arg0, arg1);
+                    DefaultHandler.handle_get_input_popup_surface(&self, arg0, arg1);
                 }
             }
             5 => {
@@ -1566,9 +1583,9 @@ impl ObjectPrivate for ZwpInputMethodV2 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "keyboard", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).grab_keyboard(&self, arg0);
+                    (**handler).handle_grab_keyboard(&self, arg0);
                 } else {
-                    DefaultHandler.grab_keyboard(&self, arg0);
+                    DefaultHandler.handle_grab_keyboard(&self, arg0);
                 }
             }
             6 => {
@@ -1583,9 +1600,9 @@ impl ObjectPrivate for ZwpInputMethodV2 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -1616,9 +1633,9 @@ impl ObjectPrivate for ZwpInputMethodV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).activate(&self);
+                    (**handler).handle_activate(&self);
                 } else {
-                    DefaultHandler.activate(&self);
+                    DefaultHandler.handle_activate(&self);
                 }
             }
             1 => {
@@ -1632,9 +1649,9 @@ impl ObjectPrivate for ZwpInputMethodV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).deactivate(&self);
+                    (**handler).handle_deactivate(&self);
                 } else {
-                    DefaultHandler.deactivate(&self);
+                    DefaultHandler.handle_deactivate(&self);
                 }
             }
             2 => {
@@ -1679,9 +1696,9 @@ impl ObjectPrivate for ZwpInputMethodV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).surrounding_text(&self, arg0, arg1, arg2);
+                    (**handler).handle_surrounding_text(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.surrounding_text(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_surrounding_text(&self, arg0, arg1, arg2);
                 }
             }
             3 => {
@@ -1698,9 +1715,9 @@ impl ObjectPrivate for ZwpInputMethodV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).text_change_cause(&self, arg0);
+                    (**handler).handle_text_change_cause(&self, arg0);
                 } else {
-                    DefaultHandler.text_change_cause(&self, arg0);
+                    DefaultHandler.handle_text_change_cause(&self, arg0);
                 }
             }
             4 => {
@@ -1719,9 +1736,9 @@ impl ObjectPrivate for ZwpInputMethodV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).content_type(&self, arg0, arg1);
+                    (**handler).handle_content_type(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.content_type(&self, arg0, arg1);
+                    DefaultHandler.handle_content_type(&self, arg0, arg1);
                 }
             }
             5 => {
@@ -1735,9 +1752,9 @@ impl ObjectPrivate for ZwpInputMethodV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).done(&self);
+                    (**handler).handle_done(&self);
                 } else {
-                    DefaultHandler.done(&self);
+                    DefaultHandler.handle_done(&self);
                 }
             }
             6 => {
@@ -1751,9 +1768,9 @@ impl ObjectPrivate for ZwpInputMethodV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).unavailable(&self);
+                    (**handler).handle_unavailable(&self);
                 } else {
-                    DefaultHandler.unavailable(&self);
+                    DefaultHandler.handle_unavailable(&self);
                 }
             }
             n => {

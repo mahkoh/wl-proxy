@@ -225,6 +225,11 @@ impl WpImageDescriptionCreatorIccV1 {
 
 /// A message handler for [WpImageDescriptionCreatorIccV1] proxies.
 pub trait WpImageDescriptionCreatorIccV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpImageDescriptionCreatorIccV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// Create the image description object from ICC data
     ///
     /// Create an image description object based on the ICC information
@@ -251,7 +256,7 @@ pub trait WpImageDescriptionCreatorIccV1Handler: Any {
     ///
     /// - `image_description`:
     #[inline]
-    fn create(
+    fn handle_create(
         &mut self,
         _slf: &Rc<WpImageDescriptionCreatorIccV1>,
         image_description: &Rc<WpImageDescriptionV1>,
@@ -312,7 +317,7 @@ pub trait WpImageDescriptionCreatorIccV1Handler: Any {
     /// - `offset`: byte offset in fd to start of ICC data
     /// - `length`: length of ICC data in bytes
     #[inline]
-    fn set_icc_file(
+    fn handle_set_icc_file(
         &mut self,
         _slf: &Rc<WpImageDescriptionCreatorIccV1>,
         icc_profile: &Rc<OwnedFd>,
@@ -336,6 +341,18 @@ impl ObjectPrivate for WpImageDescriptionCreatorIccV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpImageDescriptionCreatorIccV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -363,9 +380,9 @@ impl ObjectPrivate for WpImageDescriptionCreatorIccV1 {
                 let arg0 = &arg0;
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).create(&self, arg0);
+                    (**handler).handle_create(&self, arg0);
                 } else {
-                    DefaultHandler.create(&self, arg0);
+                    DefaultHandler.handle_create(&self, arg0);
                 }
             }
             1 => {
@@ -386,9 +403,9 @@ impl ObjectPrivate for WpImageDescriptionCreatorIccV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_icc_file(&self, arg0, arg1, arg2);
+                    (**handler).handle_set_icc_file(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.set_icc_file(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_set_icc_file(&self, arg0, arg1, arg2);
                 }
             }
             n => {

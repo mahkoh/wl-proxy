@@ -105,6 +105,11 @@ impl HyprlandInputCaptureManagerV1 {
 
 /// A message handler for [HyprlandInputCaptureManagerV1] proxies.
 pub trait HyprlandInputCaptureManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<HyprlandInputCaptureManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// create a input capture session
     ///
     /// Create a input capture session.
@@ -114,7 +119,7 @@ pub trait HyprlandInputCaptureManagerV1Handler: Any {
     /// - `session`:
     /// - `handle`:
     #[inline]
-    fn create_session(
+    fn handle_create_session(
         &mut self,
         _slf: &Rc<HyprlandInputCaptureManagerV1>,
         session: &Rc<HyprlandInputCaptureV1>,
@@ -136,6 +141,18 @@ impl ObjectPrivate for HyprlandInputCaptureManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::HyprlandInputCaptureManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -187,9 +204,9 @@ impl ObjectPrivate for HyprlandInputCaptureManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "session", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_session(&self, arg0, arg1);
+                    (**handler).handle_create_session(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.create_session(&self, arg0, arg1);
+                    DefaultHandler.handle_create_session(&self, arg0, arg1);
                 }
             }
             n => {

@@ -270,6 +270,11 @@ impl ZwlrOutputModeV1 {
 
 /// A message handler for [ZwlrOutputModeV1] proxies.
 pub trait ZwlrOutputModeV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwlrOutputModeV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// mode size
     ///
     /// This event describes the mode size. The size is given in physical
@@ -282,7 +287,7 @@ pub trait ZwlrOutputModeV1Handler: Any {
     /// - `width`: width of the mode in hardware units
     /// - `height`: height of the mode in hardware units
     #[inline]
-    fn size(
+    fn handle_size(
         &mut self,
         _slf: &Rc<ZwlrOutputModeV1>,
         width: i32,
@@ -306,7 +311,7 @@ pub trait ZwlrOutputModeV1Handler: Any {
     ///
     /// - `refresh`: vertical refresh rate in mHz
     #[inline]
-    fn refresh(
+    fn handle_refresh(
         &mut self,
         _slf: &Rc<ZwlrOutputModeV1>,
         refresh: i32,
@@ -323,7 +328,7 @@ pub trait ZwlrOutputModeV1Handler: Any {
     ///
     /// This event advertises this mode as preferred.
     #[inline]
-    fn preferred(
+    fn handle_preferred(
         &mut self,
         _slf: &Rc<ZwlrOutputModeV1>,
     ) {
@@ -340,7 +345,7 @@ pub trait ZwlrOutputModeV1Handler: Any {
     /// object becomes inert. Clients should send a destroy request and release
     /// any resources associated with it.
     #[inline]
-    fn finished(
+    fn handle_finished(
         &mut self,
         _slf: &Rc<ZwlrOutputModeV1>,
     ) {
@@ -356,7 +361,7 @@ pub trait ZwlrOutputModeV1Handler: Any {
     /// This request indicates that the client will no longer use this mode
     /// object.
     #[inline]
-    fn release(
+    fn handle_release(
         &mut self,
         _slf: &Rc<ZwlrOutputModeV1>,
     ) {
@@ -374,6 +379,18 @@ impl ObjectPrivate for ZwlrOutputModeV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrOutputModeV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -394,9 +411,9 @@ impl ObjectPrivate for ZwlrOutputModeV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).release(&self);
+                    (**handler).handle_release(&self);
                 } else {
-                    DefaultHandler.release(&self);
+                    DefaultHandler.handle_release(&self);
                 }
             }
             n => {
@@ -432,9 +449,9 @@ impl ObjectPrivate for ZwlrOutputModeV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).size(&self, arg0, arg1);
+                    (**handler).handle_size(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.size(&self, arg0, arg1);
+                    DefaultHandler.handle_size(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -451,9 +468,9 @@ impl ObjectPrivate for ZwlrOutputModeV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).refresh(&self, arg0);
+                    (**handler).handle_refresh(&self, arg0);
                 } else {
-                    DefaultHandler.refresh(&self, arg0);
+                    DefaultHandler.handle_refresh(&self, arg0);
                 }
             }
             2 => {
@@ -467,9 +484,9 @@ impl ObjectPrivate for ZwlrOutputModeV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).preferred(&self);
+                    (**handler).handle_preferred(&self);
                 } else {
-                    DefaultHandler.preferred(&self);
+                    DefaultHandler.handle_preferred(&self);
                 }
             }
             3 => {
@@ -483,9 +500,9 @@ impl ObjectPrivate for ZwlrOutputModeV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).finished(&self);
+                    (**handler).handle_finished(&self);
                 } else {
-                    DefaultHandler.finished(&self);
+                    DefaultHandler.handle_finished(&self);
                 }
             }
             n => {

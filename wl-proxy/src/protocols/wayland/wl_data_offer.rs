@@ -527,6 +527,11 @@ impl WlDataOffer {
 
 /// A message handler for [WlDataOffer] proxies.
 pub trait WlDataOfferHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlDataOffer>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// accept one of the offered mime types
     ///
     /// Indicate that the client can accept the given mime type, or
@@ -549,7 +554,7 @@ pub trait WlDataOfferHandler: Any {
     /// - `serial`: serial number of the accept request
     /// - `mime_type`: mime type accepted by the client
     #[inline]
-    fn accept(
+    fn handle_accept(
         &mut self,
         _slf: &Rc<WlDataOffer>,
         serial: u32,
@@ -587,7 +592,7 @@ pub trait WlDataOfferHandler: Any {
     /// - `mime_type`: mime type desired by receiver
     /// - `fd`: file descriptor for data transfer
     #[inline]
-    fn receive(
+    fn handle_receive(
         &mut self,
         _slf: &Rc<WlDataOffer>,
         mime_type: &str,
@@ -606,7 +611,7 @@ pub trait WlDataOfferHandler: Any {
     ///
     /// Destroy the data offer.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WlDataOffer>,
     ) {
@@ -626,7 +631,7 @@ pub trait WlDataOfferHandler: Any {
     ///
     /// - `mime_type`: offered mime type
     #[inline]
-    fn offer(
+    fn handle_offer(
         &mut self,
         _slf: &Rc<WlDataOffer>,
         mime_type: &str,
@@ -656,7 +661,7 @@ pub trait WlDataOfferHandler: Any {
     /// If wl_data_offer.finish request is received for a non drag and drop
     /// operation, the invalid_finish protocol error is raised.
     #[inline]
-    fn finish(
+    fn handle_finish(
         &mut self,
         _slf: &Rc<WlDataOffer>,
     ) {
@@ -706,7 +711,7 @@ pub trait WlDataOfferHandler: Any {
     /// - `dnd_actions`: actions supported by the destination client
     /// - `preferred_action`: action preferred by the destination client
     #[inline]
-    fn set_actions(
+    fn handle_set_actions(
         &mut self,
         _slf: &Rc<WlDataOffer>,
         dnd_actions: WlDataDeviceManagerDndAction,
@@ -732,7 +737,7 @@ pub trait WlDataOfferHandler: Any {
     ///
     /// - `source_actions`: actions offered by the data source
     #[inline]
-    fn source_actions(
+    fn handle_source_actions(
         &mut self,
         _slf: &Rc<WlDataOffer>,
         source_actions: WlDataDeviceManagerDndAction,
@@ -787,7 +792,7 @@ pub trait WlDataOfferHandler: Any {
     ///
     /// - `dnd_action`: action selected by the compositor
     #[inline]
-    fn action(
+    fn handle_action(
         &mut self,
         _slf: &Rc<WlDataOffer>,
         dnd_action: WlDataDeviceManagerDndAction,
@@ -807,6 +812,18 @@ impl ObjectPrivate for WlDataOffer {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlDataOffer, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -853,9 +870,9 @@ impl ObjectPrivate for WlDataOffer {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).accept(&self, arg0, arg1);
+                    (**handler).handle_accept(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.accept(&self, arg0, arg1);
+                    DefaultHandler.handle_accept(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -896,9 +913,9 @@ impl ObjectPrivate for WlDataOffer {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).receive(&self, arg0, arg1);
+                    (**handler).handle_receive(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.receive(&self, arg0, arg1);
+                    DefaultHandler.handle_receive(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -913,9 +930,9 @@ impl ObjectPrivate for WlDataOffer {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             3 => {
@@ -929,9 +946,9 @@ impl ObjectPrivate for WlDataOffer {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).finish(&self);
+                    (**handler).handle_finish(&self);
                 } else {
-                    DefaultHandler.finish(&self);
+                    DefaultHandler.handle_finish(&self);
                 }
             }
             4 => {
@@ -950,9 +967,9 @@ impl ObjectPrivate for WlDataOffer {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_actions(&self, arg0, arg1);
+                    (**handler).handle_set_actions(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_actions(&self, arg0, arg1);
+                    DefaultHandler.handle_set_actions(&self, arg0, arg1);
                 }
             }
             n => {
@@ -1006,9 +1023,9 @@ impl ObjectPrivate for WlDataOffer {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).offer(&self, arg0);
+                    (**handler).handle_offer(&self, arg0);
                 } else {
-                    DefaultHandler.offer(&self, arg0);
+                    DefaultHandler.handle_offer(&self, arg0);
                 }
             }
             1 => {
@@ -1025,9 +1042,9 @@ impl ObjectPrivate for WlDataOffer {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).source_actions(&self, arg0);
+                    (**handler).handle_source_actions(&self, arg0);
                 } else {
-                    DefaultHandler.source_actions(&self, arg0);
+                    DefaultHandler.handle_source_actions(&self, arg0);
                 }
             }
             2 => {
@@ -1044,9 +1061,9 @@ impl ObjectPrivate for WlDataOffer {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).action(&self, arg0);
+                    (**handler).handle_action(&self, arg0);
                 } else {
-                    DefaultHandler.action(&self, arg0);
+                    DefaultHandler.handle_action(&self, arg0);
                 }
             }
             n => {

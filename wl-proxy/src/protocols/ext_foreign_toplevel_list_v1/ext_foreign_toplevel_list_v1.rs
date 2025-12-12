@@ -241,6 +241,11 @@ impl ExtForeignToplevelListV1 {
 
 /// A message handler for [ExtForeignToplevelListV1] proxies.
 pub trait ExtForeignToplevelListV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ExtForeignToplevelListV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// a toplevel has been created
     ///
     /// This event is emitted whenever a new toplevel window is created. It is
@@ -256,7 +261,7 @@ pub trait ExtForeignToplevelListV1Handler: Any {
     ///
     /// - `toplevel`:
     #[inline]
-    fn toplevel(
+    fn handle_toplevel(
         &mut self,
         _slf: &Rc<ExtForeignToplevelListV1>,
         toplevel: &Rc<ExtForeignToplevelHandleV1>,
@@ -277,7 +282,7 @@ pub trait ExtForeignToplevelListV1Handler: Any {
     ///
     /// The compositor must not send any more toplevel events after this event.
     #[inline]
-    fn finished(
+    fn handle_finished(
         &mut self,
         _slf: &Rc<ExtForeignToplevelListV1>,
     ) {
@@ -298,7 +303,7 @@ pub trait ExtForeignToplevelListV1Handler: Any {
     /// The client should wait for a ext_foreign_toplevel_list_v1.finished
     /// event before destroying this object.
     #[inline]
-    fn stop(
+    fn handle_stop(
         &mut self,
         _slf: &Rc<ExtForeignToplevelListV1>,
     ) {
@@ -319,7 +324,7 @@ pub trait ExtForeignToplevelListV1Handler: Any {
     /// ext_foreign_toplevel_list_v1.stop request and wait for a ext_foreign_toplevel_list_v1.finished
     /// event, then destroy the handles and then this object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ExtForeignToplevelListV1>,
     ) {
@@ -339,6 +344,18 @@ impl ObjectPrivate for ExtForeignToplevelListV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -356,9 +373,9 @@ impl ObjectPrivate for ExtForeignToplevelListV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).stop(&self);
+                    (**handler).handle_stop(&self);
                 } else {
-                    DefaultHandler.stop(&self);
+                    DefaultHandler.handle_stop(&self);
                 }
             }
             1 => {
@@ -373,9 +390,9 @@ impl ObjectPrivate for ExtForeignToplevelListV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -413,9 +430,9 @@ impl ObjectPrivate for ExtForeignToplevelListV1 {
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "toplevel", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).toplevel(&self, arg0);
+                    (**handler).handle_toplevel(&self, arg0);
                 } else {
-                    DefaultHandler.toplevel(&self, arg0);
+                    DefaultHandler.handle_toplevel(&self, arg0);
                 }
             }
             1 => {
@@ -429,9 +446,9 @@ impl ObjectPrivate for ExtForeignToplevelListV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).finished(&self);
+                    (**handler).handle_finished(&self);
                 } else {
-                    DefaultHandler.finished(&self);
+                    DefaultHandler.handle_finished(&self);
                 }
             }
             n => {

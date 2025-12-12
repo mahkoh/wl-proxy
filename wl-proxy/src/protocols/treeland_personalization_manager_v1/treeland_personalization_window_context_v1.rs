@@ -372,6 +372,11 @@ impl TreelandPersonalizationWindowContextV1 {
 
 /// A message handler for [TreelandPersonalizationWindowContextV1] proxies.
 pub trait TreelandPersonalizationWindowContextV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandPersonalizationWindowContextV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// set window background blend mode
     ///
     /// Set window background blend mode
@@ -380,7 +385,7 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
     ///
     /// - `mode`:
     #[inline]
-    fn set_blend_mode(
+    fn handle_set_blend_mode(
         &mut self,
         _slf: &Rc<TreelandPersonalizationWindowContextV1>,
         mode: TreelandPersonalizationWindowContextV1BlendMode,
@@ -405,7 +410,7 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
     ///
     /// - `radius`:
     #[inline]
-    fn set_round_corner_radius(
+    fn handle_set_round_corner_radius(
         &mut self,
         _slf: &Rc<TreelandPersonalizationWindowContextV1>,
         radius: i32,
@@ -435,7 +440,7 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
     /// - `b`:
     /// - `a`:
     #[inline]
-    fn set_shadow(
+    fn handle_set_shadow(
         &mut self,
         _slf: &Rc<TreelandPersonalizationWindowContextV1>,
         radius: i32,
@@ -472,7 +477,7 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
     /// - `b`:
     /// - `a`:
     #[inline]
-    fn set_border(
+    fn handle_set_border(
         &mut self,
         _slf: &Rc<TreelandPersonalizationWindowContextV1>,
         width: i32,
@@ -501,7 +506,7 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
     ///
     /// - `mode`:
     #[inline]
-    fn set_titlebar(
+    fn handle_set_titlebar(
         &mut self,
         _slf: &Rc<TreelandPersonalizationWindowContextV1>,
         mode: TreelandPersonalizationWindowContextV1EnableMode,
@@ -518,7 +523,7 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
     ///
     /// Destroy the context object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<TreelandPersonalizationWindowContextV1>,
     ) {
@@ -536,6 +541,18 @@ impl ObjectPrivate for TreelandPersonalizationWindowContextV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandPersonalizationWindowContextV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -558,9 +575,9 @@ impl ObjectPrivate for TreelandPersonalizationWindowContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_blend_mode(&self, arg0);
+                    (**handler).handle_set_blend_mode(&self, arg0);
                 } else {
-                    DefaultHandler.set_blend_mode(&self, arg0);
+                    DefaultHandler.handle_set_blend_mode(&self, arg0);
                 }
             }
             1 => {
@@ -577,9 +594,9 @@ impl ObjectPrivate for TreelandPersonalizationWindowContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_round_corner_radius(&self, arg0);
+                    (**handler).handle_set_round_corner_radius(&self, arg0);
                 } else {
-                    DefaultHandler.set_round_corner_radius(&self, arg0);
+                    DefaultHandler.handle_set_round_corner_radius(&self, arg0);
                 }
             }
             2 => {
@@ -608,9 +625,9 @@ impl ObjectPrivate for TreelandPersonalizationWindowContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_shadow(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+                    (**handler).handle_set_shadow(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
                 } else {
-                    DefaultHandler.set_shadow(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+                    DefaultHandler.handle_set_shadow(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6);
                 }
             }
             3 => {
@@ -635,9 +652,9 @@ impl ObjectPrivate for TreelandPersonalizationWindowContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_border(&self, arg0, arg1, arg2, arg3, arg4);
+                    (**handler).handle_set_border(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultHandler.set_border(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.handle_set_border(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             4 => {
@@ -654,9 +671,9 @@ impl ObjectPrivate for TreelandPersonalizationWindowContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_titlebar(&self, arg0);
+                    (**handler).handle_set_titlebar(&self, arg0);
                 } else {
-                    DefaultHandler.set_titlebar(&self, arg0);
+                    DefaultHandler.handle_set_titlebar(&self, arg0);
                 }
             }
             5 => {
@@ -671,9 +688,9 @@ impl ObjectPrivate for TreelandPersonalizationWindowContextV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {

@@ -170,13 +170,18 @@ impl WpSinglePixelBufferManagerV1 {
 
 /// A message handler for [WpSinglePixelBufferManagerV1] proxies.
 pub trait WpSinglePixelBufferManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpSinglePixelBufferManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the manager
     ///
     /// Destroy the wp_single_pixel_buffer_manager_v1 object.
     ///
     /// The child objects created via this interface are unaffected.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpSinglePixelBufferManagerV1>,
     ) {
@@ -211,7 +216,7 @@ pub trait WpSinglePixelBufferManagerV1Handler: Any {
     /// - `b`: value of the buffer's blue channel
     /// - `a`: value of the buffer's alpha channel
     #[inline]
-    fn create_u32_rgba_buffer(
+    fn handle_create_u32_rgba_buffer(
         &mut self,
         _slf: &Rc<WpSinglePixelBufferManagerV1>,
         id: &Rc<WlBuffer>,
@@ -241,6 +246,18 @@ impl ObjectPrivate for WpSinglePixelBufferManagerV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -259,9 +276,9 @@ impl ObjectPrivate for WpSinglePixelBufferManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -286,9 +303,9 @@ impl ObjectPrivate for WpSinglePixelBufferManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_u32_rgba_buffer(&self, arg0, arg1, arg2, arg3, arg4);
+                    (**handler).handle_create_u32_rgba_buffer(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultHandler.create_u32_rgba_buffer(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.handle_create_u32_rgba_buffer(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             n => {

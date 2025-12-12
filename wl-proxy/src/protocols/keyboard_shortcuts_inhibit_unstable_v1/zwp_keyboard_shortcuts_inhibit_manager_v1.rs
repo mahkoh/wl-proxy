@@ -159,11 +159,16 @@ impl ZwpKeyboardShortcutsInhibitManagerV1 {
 
 /// A message handler for [ZwpKeyboardShortcutsInhibitManagerV1] proxies.
 pub trait ZwpKeyboardShortcutsInhibitManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpKeyboardShortcutsInhibitManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the keyboard shortcuts inhibitor object
     ///
     /// Destroy the keyboard shortcuts inhibitor manager.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpKeyboardShortcutsInhibitManagerV1>,
     ) {
@@ -191,7 +196,7 @@ pub trait ZwpKeyboardShortcutsInhibitManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn inhibit_shortcuts(
+    fn handle_inhibit_shortcuts(
         &mut self,
         _slf: &Rc<ZwpKeyboardShortcutsInhibitManagerV1>,
         id: &Rc<ZwpKeyboardShortcutsInhibitorV1>,
@@ -217,6 +222,18 @@ impl ObjectPrivate for ZwpKeyboardShortcutsInhibitManagerV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -235,9 +252,9 @@ impl ObjectPrivate for ZwpKeyboardShortcutsInhibitManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -278,9 +295,9 @@ impl ObjectPrivate for ZwpKeyboardShortcutsInhibitManagerV1 {
                 let arg1 = &arg1;
                 let arg2 = &arg2;
                 if let Some(handler) = handler {
-                    (**handler).inhibit_shortcuts(&self, arg0, arg1, arg2);
+                    (**handler).handle_inhibit_shortcuts(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.inhibit_shortcuts(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_inhibit_shortcuts(&self, arg0, arg1, arg2);
                 }
             }
             n => {

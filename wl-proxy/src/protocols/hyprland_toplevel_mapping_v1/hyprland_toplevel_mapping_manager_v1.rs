@@ -207,6 +207,11 @@ impl HyprlandToplevelMappingManagerV1 {
 
 /// A message handler for [HyprlandToplevelMappingManagerV1] proxies.
 pub trait HyprlandToplevelMappingManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<HyprlandToplevelMappingManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// get window address for toplevel
     ///
     /// Get the window address for a toplevel.
@@ -219,7 +224,7 @@ pub trait HyprlandToplevelMappingManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_window_for_toplevel(
+    fn handle_get_window_for_toplevel(
         &mut self,
         _slf: &Rc<HyprlandToplevelMappingManagerV1>,
         handle: &Rc<HyprlandToplevelWindowMappingHandleV1>,
@@ -246,7 +251,7 @@ pub trait HyprlandToplevelMappingManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_window_for_toplevel_wlr(
+    fn handle_get_window_for_toplevel_wlr(
         &mut self,
         _slf: &Rc<HyprlandToplevelMappingManagerV1>,
         handle: &Rc<HyprlandToplevelWindowMappingHandleV1>,
@@ -266,7 +271,7 @@ pub trait HyprlandToplevelMappingManagerV1Handler: Any {
     /// All objects created by the manager will still remain valid, until their appropriate destroy
     /// request has been called.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<HyprlandToplevelMappingManagerV1>,
     ) {
@@ -284,6 +289,18 @@ impl ObjectPrivate for HyprlandToplevelMappingManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::HyprlandToplevelMappingManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -320,9 +337,9 @@ impl ObjectPrivate for HyprlandToplevelMappingManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_window_for_toplevel(&self, arg0, arg1);
+                    (**handler).handle_get_window_for_toplevel(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_window_for_toplevel(&self, arg0, arg1);
+                    DefaultHandler.handle_get_window_for_toplevel(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -353,9 +370,9 @@ impl ObjectPrivate for HyprlandToplevelMappingManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_window_for_toplevel_wlr(&self, arg0, arg1);
+                    (**handler).handle_get_window_for_toplevel_wlr(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_window_for_toplevel_wlr(&self, arg0, arg1);
+                    DefaultHandler.handle_get_window_for_toplevel_wlr(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -370,9 +387,9 @@ impl ObjectPrivate for HyprlandToplevelMappingManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {

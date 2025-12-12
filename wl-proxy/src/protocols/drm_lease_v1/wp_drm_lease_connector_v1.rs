@@ -333,6 +333,11 @@ impl WpDrmLeaseConnectorV1 {
 
 /// A message handler for [WpDrmLeaseConnectorV1] proxies.
 pub trait WpDrmLeaseConnectorV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpDrmLeaseConnectorV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// name
     ///
     /// The compositor sends this event once the connector is created to
@@ -348,7 +353,7 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
     ///
     /// - `name`: connector name
     #[inline]
-    fn name(
+    fn handle_name(
         &mut self,
         _slf: &Rc<WpDrmLeaseConnectorV1>,
         name: &str,
@@ -372,7 +377,7 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
     ///
     /// - `description`: connector description
     #[inline]
-    fn description(
+    fn handle_description(
         &mut self,
         _slf: &Rc<WpDrmLeaseConnectorV1>,
         description: &str,
@@ -396,7 +401,7 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
     ///
     /// - `connector_id`: DRM connector ID
     #[inline]
-    fn connector_id(
+    fn handle_connector_id(
         &mut self,
         _slf: &Rc<WpDrmLeaseConnectorV1>,
         connector_id: u32,
@@ -415,7 +420,7 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
     /// This allows changes to the properties to be seen as atomic even if they
     /// happen via multiple events.
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<WpDrmLeaseConnectorV1>,
     ) {
@@ -440,7 +445,7 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
     /// remains the same. The client should destroy the object after receiving
     /// this event.
     #[inline]
-    fn withdrawn(
+    fn handle_withdrawn(
         &mut self,
         _slf: &Rc<WpDrmLeaseConnectorV1>,
     ) {
@@ -459,7 +464,7 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
     /// associated with this connector offer. Neither existing lease requests
     /// nor leases will be affected.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpDrmLeaseConnectorV1>,
     ) {
@@ -477,6 +482,18 @@ impl ObjectPrivate for WpDrmLeaseConnectorV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpDrmLeaseConnectorV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -497,9 +514,9 @@ impl ObjectPrivate for WpDrmLeaseConnectorV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -553,9 +570,9 @@ impl ObjectPrivate for WpDrmLeaseConnectorV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).name(&self, arg0);
+                    (**handler).handle_name(&self, arg0);
                 } else {
-                    DefaultHandler.name(&self, arg0);
+                    DefaultHandler.handle_name(&self, arg0);
                 }
             }
             1 => {
@@ -592,9 +609,9 @@ impl ObjectPrivate for WpDrmLeaseConnectorV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).description(&self, arg0);
+                    (**handler).handle_description(&self, arg0);
                 } else {
-                    DefaultHandler.description(&self, arg0);
+                    DefaultHandler.handle_description(&self, arg0);
                 }
             }
             2 => {
@@ -610,9 +627,9 @@ impl ObjectPrivate for WpDrmLeaseConnectorV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).connector_id(&self, arg0);
+                    (**handler).handle_connector_id(&self, arg0);
                 } else {
-                    DefaultHandler.connector_id(&self, arg0);
+                    DefaultHandler.handle_connector_id(&self, arg0);
                 }
             }
             3 => {
@@ -626,9 +643,9 @@ impl ObjectPrivate for WpDrmLeaseConnectorV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).done(&self);
+                    (**handler).handle_done(&self);
                 } else {
-                    DefaultHandler.done(&self);
+                    DefaultHandler.handle_done(&self);
                 }
             }
             4 => {
@@ -642,9 +659,9 @@ impl ObjectPrivate for WpDrmLeaseConnectorV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).withdrawn(&self);
+                    (**handler).handle_withdrawn(&self);
                 } else {
-                    DefaultHandler.withdrawn(&self);
+                    DefaultHandler.handle_withdrawn(&self);
                 }
             }
             n => {

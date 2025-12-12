@@ -195,6 +195,11 @@ impl ZwlrDataControlOfferV1 {
 
 /// A message handler for [ZwlrDataControlOfferV1] proxies.
 pub trait ZwlrDataControlOfferV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwlrDataControlOfferV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// request that the data is transferred
     ///
     /// To transfer the offered data, the client issues this request and
@@ -213,7 +218,7 @@ pub trait ZwlrDataControlOfferV1Handler: Any {
     /// - `mime_type`: MIME type desired by receiver
     /// - `fd`: file descriptor for data transfer
     #[inline]
-    fn receive(
+    fn handle_receive(
         &mut self,
         _slf: &Rc<ZwlrDataControlOfferV1>,
         mime_type: &str,
@@ -232,7 +237,7 @@ pub trait ZwlrDataControlOfferV1Handler: Any {
     ///
     /// Destroys the data offer object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwlrDataControlOfferV1>,
     ) {
@@ -252,7 +257,7 @@ pub trait ZwlrDataControlOfferV1Handler: Any {
     ///
     /// - `mime_type`: offered MIME type
     #[inline]
-    fn offer(
+    fn handle_offer(
         &mut self,
         _slf: &Rc<ZwlrDataControlOfferV1>,
         mime_type: &str,
@@ -272,6 +277,18 @@ impl ObjectPrivate for ZwlrDataControlOfferV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrDataControlOfferV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -318,9 +335,9 @@ impl ObjectPrivate for ZwlrDataControlOfferV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).receive(&self, arg0, arg1);
+                    (**handler).handle_receive(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.receive(&self, arg0, arg1);
+                    DefaultHandler.handle_receive(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -335,9 +352,9 @@ impl ObjectPrivate for ZwlrDataControlOfferV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -391,9 +408,9 @@ impl ObjectPrivate for ZwlrDataControlOfferV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).offer(&self, arg0);
+                    (**handler).handle_offer(&self, arg0);
                 } else {
-                    DefaultHandler.offer(&self, arg0);
+                    DefaultHandler.handle_offer(&self, arg0);
                 }
             }
             n => {

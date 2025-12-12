@@ -174,13 +174,18 @@ impl XdgDialogV1 {
 
 /// A message handler for [XdgDialogV1] proxies.
 pub trait XdgDialogV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<XdgDialogV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the dialog object
     ///
     /// Destroys the xdg_dialog_v1 object. If this object is destroyed
     /// before the related xdg_toplevel, the compositor should unapply its
     /// effects.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<XdgDialogV1>,
     ) {
@@ -205,7 +210,7 @@ pub trait XdgDialogV1Handler: Any {
     /// toplevel, from delivering all events unfiltered to using them for
     /// internal consumption.
     #[inline]
-    fn set_modal(
+    fn handle_set_modal(
         &mut self,
         _slf: &Rc<XdgDialogV1>,
     ) {
@@ -221,7 +226,7 @@ pub trait XdgDialogV1Handler: Any {
     /// Drops the hint that this dialog has "modal" behavior. See
     /// xdg_dialog_v1.set_modal for more details.
     #[inline]
-    fn unset_modal(
+    fn handle_unset_modal(
         &mut self,
         _slf: &Rc<XdgDialogV1>,
     ) {
@@ -239,6 +244,18 @@ impl ObjectPrivate for XdgDialogV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::XdgDialogV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -259,9 +276,9 @@ impl ObjectPrivate for XdgDialogV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -275,9 +292,9 @@ impl ObjectPrivate for XdgDialogV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_modal(&self);
+                    (**handler).handle_set_modal(&self);
                 } else {
-                    DefaultHandler.set_modal(&self);
+                    DefaultHandler.handle_set_modal(&self);
                 }
             }
             2 => {
@@ -291,9 +308,9 @@ impl ObjectPrivate for XdgDialogV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).unset_modal(&self);
+                    (**handler).handle_unset_modal(&self);
                 } else {
-                    DefaultHandler.unset_modal(&self);
+                    DefaultHandler.handle_unset_modal(&self);
                 }
             }
             n => {

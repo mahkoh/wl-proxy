@@ -883,6 +883,11 @@ impl ZwlrForeignToplevelHandleV1 {
 
 /// A message handler for [ZwlrForeignToplevelHandleV1] proxies.
 pub trait ZwlrForeignToplevelHandleV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwlrForeignToplevelHandleV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// title change
     ///
     /// This event is emitted whenever the title of the toplevel changes.
@@ -891,7 +896,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     ///
     /// - `title`:
     #[inline]
-    fn title(
+    fn handle_title(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
         title: &str,
@@ -912,7 +917,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     ///
     /// - `app_id`:
     #[inline]
-    fn app_id(
+    fn handle_app_id(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
         app_id: &str,
@@ -937,7 +942,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn output_enter(
+    fn handle_output_enter(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
         output: &Rc<WlOutput>,
@@ -970,7 +975,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn output_leave(
+    fn handle_output_leave(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
         output: &Rc<WlOutput>,
@@ -995,7 +1000,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     /// Requests that the toplevel be maximized. If the maximized state actually
     /// changes, this will be indicated by the state event.
     #[inline]
-    fn set_maximized(
+    fn handle_set_maximized(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
@@ -1011,7 +1016,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     /// Requests that the toplevel be unmaximized. If the maximized state actually
     /// changes, this will be indicated by the state event.
     #[inline]
-    fn unset_maximized(
+    fn handle_unset_maximized(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
@@ -1027,7 +1032,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     /// Requests that the toplevel be minimized. If the minimized state actually
     /// changes, this will be indicated by the state event.
     #[inline]
-    fn set_minimized(
+    fn handle_set_minimized(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
@@ -1043,7 +1048,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     /// Requests that the toplevel be unminimized. If the minimized state actually
     /// changes, this will be indicated by the state event.
     #[inline]
-    fn unset_minimized(
+    fn handle_unset_minimized(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
@@ -1066,7 +1071,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn activate(
+    fn handle_activate(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
         seat: &Rc<WlSeat>,
@@ -1089,7 +1094,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     ///
     /// - `state`:
     #[inline]
-    fn state(
+    fn handle_state(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
         state: &[u8],
@@ -1110,7 +1115,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     /// This allows changes to the zwlr_foreign_toplevel_handle_v1 properties
     /// to be seen as atomic, even if they happen via multiple events.
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
@@ -1130,7 +1135,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     /// this happens, the zwlr_foreign_toplevel_handle_v1.closed event will
     /// be emitted.
     #[inline]
-    fn close(
+    fn handle_close(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
@@ -1166,7 +1171,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_rectangle(
+    fn handle_set_rectangle(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
         surface: &Rc<WlSurface>,
@@ -1194,7 +1199,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     /// toplevel itself becomes inert so any requests will be ignored except the
     /// destroy request.
     #[inline]
-    fn closed(
+    fn handle_closed(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
@@ -1213,7 +1218,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     /// use the toplevel anymore or after the closed event to finalize the
     /// destruction of the object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
@@ -1242,7 +1247,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_fullscreen(
+    fn handle_set_fullscreen(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
         output: Option<&Rc<WlOutput>>,
@@ -1260,7 +1265,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     /// Requests that the toplevel be unfullscreened. If the fullscreen state
     /// actually changes, this will be indicated by the state event.
     #[inline]
-    fn unset_fullscreen(
+    fn handle_unset_fullscreen(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
@@ -1284,7 +1289,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn parent(
+    fn handle_parent(
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
         parent: Option<&Rc<ZwlrForeignToplevelHandleV1>>,
@@ -1315,6 +1320,18 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -1332,9 +1349,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_maximized(&self);
+                    (**handler).handle_set_maximized(&self);
                 } else {
-                    DefaultHandler.set_maximized(&self);
+                    DefaultHandler.handle_set_maximized(&self);
                 }
             }
             1 => {
@@ -1348,9 +1365,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).unset_maximized(&self);
+                    (**handler).handle_unset_maximized(&self);
                 } else {
-                    DefaultHandler.unset_maximized(&self);
+                    DefaultHandler.handle_unset_maximized(&self);
                 }
             }
             2 => {
@@ -1364,9 +1381,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_minimized(&self);
+                    (**handler).handle_set_minimized(&self);
                 } else {
-                    DefaultHandler.set_minimized(&self);
+                    DefaultHandler.handle_set_minimized(&self);
                 }
             }
             3 => {
@@ -1380,9 +1397,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).unset_minimized(&self);
+                    (**handler).handle_unset_minimized(&self);
                 } else {
-                    DefaultHandler.unset_minimized(&self);
+                    DefaultHandler.handle_unset_minimized(&self);
                 }
             }
             4 => {
@@ -1407,9 +1424,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).activate(&self, arg0);
+                    (**handler).handle_activate(&self, arg0);
                 } else {
-                    DefaultHandler.activate(&self, arg0);
+                    DefaultHandler.handle_activate(&self, arg0);
                 }
             }
             5 => {
@@ -1423,9 +1440,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).close(&self);
+                    (**handler).handle_close(&self);
                 } else {
-                    DefaultHandler.close(&self);
+                    DefaultHandler.handle_close(&self);
                 }
             }
             6 => {
@@ -1458,9 +1475,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).set_rectangle(&self, arg0, arg1, arg2, arg3, arg4);
+                    (**handler).handle_set_rectangle(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultHandler.set_rectangle(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.handle_set_rectangle(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             7 => {
@@ -1475,9 +1492,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             8 => {
@@ -1507,9 +1524,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).set_fullscreen(&self, arg0);
+                    (**handler).handle_set_fullscreen(&self, arg0);
                 } else {
-                    DefaultHandler.set_fullscreen(&self, arg0);
+                    DefaultHandler.handle_set_fullscreen(&self, arg0);
                 }
             }
             9 => {
@@ -1523,9 +1540,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).unset_fullscreen(&self);
+                    (**handler).handle_unset_fullscreen(&self);
                 } else {
-                    DefaultHandler.unset_fullscreen(&self);
+                    DefaultHandler.handle_unset_fullscreen(&self);
                 }
             }
             n => {
@@ -1579,9 +1596,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).title(&self, arg0);
+                    (**handler).handle_title(&self, arg0);
                 } else {
-                    DefaultHandler.title(&self, arg0);
+                    DefaultHandler.handle_title(&self, arg0);
                 }
             }
             1 => {
@@ -1618,9 +1635,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).app_id(&self, arg0);
+                    (**handler).handle_app_id(&self, arg0);
                 } else {
-                    DefaultHandler.app_id(&self, arg0);
+                    DefaultHandler.handle_app_id(&self, arg0);
                 }
             }
             2 => {
@@ -1645,9 +1662,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).output_enter(&self, arg0);
+                    (**handler).handle_output_enter(&self, arg0);
                 } else {
-                    DefaultHandler.output_enter(&self, arg0);
+                    DefaultHandler.handle_output_enter(&self, arg0);
                 }
             }
             3 => {
@@ -1672,9 +1689,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).output_leave(&self, arg0);
+                    (**handler).handle_output_leave(&self, arg0);
                 } else {
-                    DefaultHandler.output_leave(&self, arg0);
+                    DefaultHandler.handle_output_leave(&self, arg0);
                 }
             }
             4 => {
@@ -1703,9 +1720,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).state(&self, arg0);
+                    (**handler).handle_state(&self, arg0);
                 } else {
-                    DefaultHandler.state(&self, arg0);
+                    DefaultHandler.handle_state(&self, arg0);
                 }
             }
             5 => {
@@ -1719,9 +1736,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).done(&self);
+                    (**handler).handle_done(&self);
                 } else {
-                    DefaultHandler.done(&self);
+                    DefaultHandler.handle_done(&self);
                 }
             }
             6 => {
@@ -1735,9 +1752,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).closed(&self);
+                    (**handler).handle_closed(&self);
                 } else {
-                    DefaultHandler.closed(&self);
+                    DefaultHandler.handle_closed(&self);
                 }
             }
             7 => {
@@ -1767,9 +1784,9 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).parent(&self, arg0);
+                    (**handler).handle_parent(&self, arg0);
                 } else {
-                    DefaultHandler.parent(&self, arg0);
+                    DefaultHandler.handle_parent(&self, arg0);
                 }
             }
             n => {

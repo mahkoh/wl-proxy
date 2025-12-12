@@ -218,11 +218,16 @@ impl WpCursorShapeManagerV1 {
 
 /// A message handler for [WpCursorShapeManagerV1] proxies.
 pub trait WpCursorShapeManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpCursorShapeManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the manager
     ///
     /// Destroy the cursor shape manager.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpCursorShapeManagerV1>,
     ) {
@@ -248,7 +253,7 @@ pub trait WpCursorShapeManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_pointer(
+    fn handle_get_pointer(
         &mut self,
         _slf: &Rc<WpCursorShapeManagerV1>,
         cursor_shape_device: &Rc<WpCursorShapeDeviceV1>,
@@ -278,7 +283,7 @@ pub trait WpCursorShapeManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_tablet_tool_v2(
+    fn handle_get_tablet_tool_v2(
         &mut self,
         _slf: &Rc<WpCursorShapeManagerV1>,
         cursor_shape_device: &Rc<WpCursorShapeDeviceV1>,
@@ -302,6 +307,18 @@ impl ObjectPrivate for WpCursorShapeManagerV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -320,9 +337,9 @@ impl ObjectPrivate for WpCursorShapeManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -353,9 +370,9 @@ impl ObjectPrivate for WpCursorShapeManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_pointer(&self, arg0, arg1);
+                    (**handler).handle_get_pointer(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_pointer(&self, arg0, arg1);
+                    DefaultHandler.handle_get_pointer(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -386,9 +403,9 @@ impl ObjectPrivate for WpCursorShapeManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_tablet_tool_v2(&self, arg0, arg1);
+                    (**handler).handle_get_tablet_tool_v2(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_tablet_tool_v2(&self, arg0, arg1);
+                    DefaultHandler.handle_get_tablet_tool_v2(&self, arg0, arg1);
                 }
             }
             n => {

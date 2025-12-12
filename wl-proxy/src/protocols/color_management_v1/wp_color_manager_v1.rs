@@ -786,12 +786,17 @@ impl WpColorManagerV1 {
 
 /// A message handler for [WpColorManagerV1] proxies.
 pub trait WpColorManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpColorManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the color manager
     ///
     /// Destroy the wp_color_manager_v1 object. This does not affect any other
     /// objects in any way.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpColorManagerV1>,
     ) {
@@ -817,7 +822,7 @@ pub trait WpColorManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_output(
+    fn handle_get_output(
         &mut self,
         _slf: &Rc<WpColorManagerV1>,
         id: &Rc<WpColorManagementOutputV1>,
@@ -850,7 +855,7 @@ pub trait WpColorManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_surface(
+    fn handle_get_surface(
         &mut self,
         _slf: &Rc<WpColorManagerV1>,
         id: &Rc<WpColorManagementSurfaceV1>,
@@ -881,7 +886,7 @@ pub trait WpColorManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_surface_feedback(
+    fn handle_get_surface_feedback(
         &mut self,
         _slf: &Rc<WpColorManagerV1>,
         id: &Rc<WpColorManagementSurfaceFeedbackV1>,
@@ -911,7 +916,7 @@ pub trait WpColorManagerV1Handler: Any {
     ///
     /// - `obj`: the new creator object
     #[inline]
-    fn create_icc_creator(
+    fn handle_create_icc_creator(
         &mut self,
         _slf: &Rc<WpColorManagerV1>,
         obj: &Rc<WpImageDescriptionCreatorIccV1>,
@@ -939,7 +944,7 @@ pub trait WpColorManagerV1Handler: Any {
     ///
     /// - `obj`: the new creator object
     #[inline]
-    fn create_parametric_creator(
+    fn handle_create_parametric_creator(
         &mut self,
         _slf: &Rc<WpColorManagerV1>,
         obj: &Rc<WpImageDescriptionCreatorParamsV1>,
@@ -1003,7 +1008,7 @@ pub trait WpColorManagerV1Handler: Any {
     ///
     /// - `image_description`:
     #[inline]
-    fn create_windows_scrgb(
+    fn handle_create_windows_scrgb(
         &mut self,
         _slf: &Rc<WpColorManagerV1>,
         image_description: &Rc<WpImageDescriptionV1>,
@@ -1028,7 +1033,7 @@ pub trait WpColorManagerV1Handler: Any {
     ///
     /// - `render_intent`: rendering intent
     #[inline]
-    fn supported_intent(
+    fn handle_supported_intent(
         &mut self,
         _slf: &Rc<WpColorManagerV1>,
         render_intent: WpColorManagerV1RenderIntent,
@@ -1053,7 +1058,7 @@ pub trait WpColorManagerV1Handler: Any {
     ///
     /// - `feature`: supported feature
     #[inline]
-    fn supported_feature(
+    fn handle_supported_feature(
         &mut self,
         _slf: &Rc<WpColorManagerV1>,
         feature: WpColorManagerV1Feature,
@@ -1079,7 +1084,7 @@ pub trait WpColorManagerV1Handler: Any {
     ///
     /// - `tf`: Named transfer function
     #[inline]
-    fn supported_tf_named(
+    fn handle_supported_tf_named(
         &mut self,
         _slf: &Rc<WpColorManagerV1>,
         tf: WpColorManagerV1TransferFunction,
@@ -1105,7 +1110,7 @@ pub trait WpColorManagerV1Handler: Any {
     ///
     /// - `primaries`: Named color primaries
     #[inline]
-    fn supported_primaries_named(
+    fn handle_supported_primaries_named(
         &mut self,
         _slf: &Rc<WpColorManagerV1>,
         primaries: WpColorManagerV1Primaries,
@@ -1123,7 +1128,7 @@ pub trait WpColorManagerV1Handler: Any {
     /// This event is sent when all supported rendering intents, features,
     /// transfer functions and named primaries have been sent.
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<WpColorManagerV1>,
     ) {
@@ -1149,7 +1154,7 @@ pub trait WpColorManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_image_description(
+    fn handle_get_image_description(
         &mut self,
         _slf: &Rc<WpColorManagerV1>,
         image_description: &Rc<WpImageDescriptionV1>,
@@ -1173,6 +1178,18 @@ impl ObjectPrivate for WpColorManagerV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -1191,9 +1208,9 @@ impl ObjectPrivate for WpColorManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -1224,9 +1241,9 @@ impl ObjectPrivate for WpColorManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_output(&self, arg0, arg1);
+                    (**handler).handle_get_output(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_output(&self, arg0, arg1);
+                    DefaultHandler.handle_get_output(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -1257,9 +1274,9 @@ impl ObjectPrivate for WpColorManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_surface(&self, arg0, arg1);
+                    (**handler).handle_get_surface(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_surface(&self, arg0, arg1);
+                    DefaultHandler.handle_get_surface(&self, arg0, arg1);
                 }
             }
             3 => {
@@ -1290,9 +1307,9 @@ impl ObjectPrivate for WpColorManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_surface_feedback(&self, arg0, arg1);
+                    (**handler).handle_get_surface_feedback(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_surface_feedback(&self, arg0, arg1);
+                    DefaultHandler.handle_get_surface_feedback(&self, arg0, arg1);
                 }
             }
             4 => {
@@ -1313,9 +1330,9 @@ impl ObjectPrivate for WpColorManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "obj", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_icc_creator(&self, arg0);
+                    (**handler).handle_create_icc_creator(&self, arg0);
                 } else {
-                    DefaultHandler.create_icc_creator(&self, arg0);
+                    DefaultHandler.handle_create_icc_creator(&self, arg0);
                 }
             }
             5 => {
@@ -1336,9 +1353,9 @@ impl ObjectPrivate for WpColorManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "obj", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_parametric_creator(&self, arg0);
+                    (**handler).handle_create_parametric_creator(&self, arg0);
                 } else {
-                    DefaultHandler.create_parametric_creator(&self, arg0);
+                    DefaultHandler.handle_create_parametric_creator(&self, arg0);
                 }
             }
             6 => {
@@ -1359,9 +1376,9 @@ impl ObjectPrivate for WpColorManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "image_description", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_windows_scrgb(&self, arg0);
+                    (**handler).handle_create_windows_scrgb(&self, arg0);
                 } else {
-                    DefaultHandler.create_windows_scrgb(&self, arg0);
+                    DefaultHandler.handle_create_windows_scrgb(&self, arg0);
                 }
             }
             7 => {
@@ -1392,9 +1409,9 @@ impl ObjectPrivate for WpColorManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_image_description(&self, arg0, arg1);
+                    (**handler).handle_get_image_description(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_image_description(&self, arg0, arg1);
+                    DefaultHandler.handle_get_image_description(&self, arg0, arg1);
                 }
             }
             n => {
@@ -1428,9 +1445,9 @@ impl ObjectPrivate for WpColorManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).supported_intent(&self, arg0);
+                    (**handler).handle_supported_intent(&self, arg0);
                 } else {
-                    DefaultHandler.supported_intent(&self, arg0);
+                    DefaultHandler.handle_supported_intent(&self, arg0);
                 }
             }
             1 => {
@@ -1447,9 +1464,9 @@ impl ObjectPrivate for WpColorManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).supported_feature(&self, arg0);
+                    (**handler).handle_supported_feature(&self, arg0);
                 } else {
-                    DefaultHandler.supported_feature(&self, arg0);
+                    DefaultHandler.handle_supported_feature(&self, arg0);
                 }
             }
             2 => {
@@ -1466,9 +1483,9 @@ impl ObjectPrivate for WpColorManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).supported_tf_named(&self, arg0);
+                    (**handler).handle_supported_tf_named(&self, arg0);
                 } else {
-                    DefaultHandler.supported_tf_named(&self, arg0);
+                    DefaultHandler.handle_supported_tf_named(&self, arg0);
                 }
             }
             3 => {
@@ -1485,9 +1502,9 @@ impl ObjectPrivate for WpColorManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).supported_primaries_named(&self, arg0);
+                    (**handler).handle_supported_primaries_named(&self, arg0);
                 } else {
-                    DefaultHandler.supported_primaries_named(&self, arg0);
+                    DefaultHandler.handle_supported_primaries_named(&self, arg0);
                 }
             }
             4 => {
@@ -1501,9 +1518,9 @@ impl ObjectPrivate for WpColorManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).done(&self);
+                    (**handler).handle_done(&self);
                 } else {
-                    DefaultHandler.done(&self);
+                    DefaultHandler.handle_done(&self);
                 }
             }
             n => {

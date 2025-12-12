@@ -493,12 +493,17 @@ impl ZwpLinuxBufferParamsV1 {
 
 /// A message handler for [ZwpLinuxBufferParamsV1] proxies.
 pub trait ZwpLinuxBufferParamsV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpLinuxBufferParamsV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// delete this object, used or not
     ///
     /// Cleans up the temporary data sent to the server for dmabuf-based
     /// wl_buffer creation.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpLinuxBufferParamsV1>,
     ) {
@@ -540,7 +545,7 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
     /// - `modifier_hi`: high 32 bits of layout modifier
     /// - `modifier_lo`: low 32 bits of layout modifier
     #[inline]
-    fn add(
+    fn handle_add(
         &mut self,
         _slf: &Rc<ZwpLinuxBufferParamsV1>,
         fd: &Rc<OwnedFd>,
@@ -632,7 +637,7 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
     /// - `format`: DRM_FORMAT code
     /// - `flags`: see enum flags
     #[inline]
-    fn create(
+    fn handle_create(
         &mut self,
         _slf: &Rc<ZwpLinuxBufferParamsV1>,
         width: i32,
@@ -663,7 +668,7 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
     ///
     /// - `buffer`: the newly created wl_buffer
     #[inline]
-    fn created(
+    fn handle_created(
         &mut self,
         _slf: &Rc<ZwpLinuxBufferParamsV1>,
         buffer: &Rc<WlBuffer>,
@@ -685,7 +690,7 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
     /// Upon receiving this event, the client should destroy the
     /// zwp_linux_buffer_params_v1 object.
     #[inline]
-    fn failed(
+    fn handle_failed(
         &mut self,
         _slf: &Rc<ZwpLinuxBufferParamsV1>,
     ) {
@@ -731,7 +736,7 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
     /// - `format`: DRM_FORMAT code
     /// - `flags`: see enum flags
     #[inline]
-    fn create_immed(
+    fn handle_create_immed(
         &mut self,
         _slf: &Rc<ZwpLinuxBufferParamsV1>,
         buffer_id: &Rc<WlBuffer>,
@@ -761,6 +766,18 @@ impl ObjectPrivate for ZwpLinuxBufferParamsV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -779,9 +796,9 @@ impl ObjectPrivate for ZwpLinuxBufferParamsV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -805,9 +822,9 @@ impl ObjectPrivate for ZwpLinuxBufferParamsV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).add(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    (**handler).handle_add(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 } else {
-                    DefaultHandler.add(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    DefaultHandler.handle_add(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 }
             }
             2 => {
@@ -829,9 +846,9 @@ impl ObjectPrivate for ZwpLinuxBufferParamsV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).create(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_create(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.create(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_create(&self, arg0, arg1, arg2, arg3);
                 }
             }
             3 => {
@@ -859,9 +876,9 @@ impl ObjectPrivate for ZwpLinuxBufferParamsV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "buffer_id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_immed(&self, arg0, arg1, arg2, arg3, arg4);
+                    (**handler).handle_create_immed(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultHandler.create_immed(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.handle_create_immed(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             n => {
@@ -899,9 +916,9 @@ impl ObjectPrivate for ZwpLinuxBufferParamsV1 {
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "buffer", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).created(&self, arg0);
+                    (**handler).handle_created(&self, arg0);
                 } else {
-                    DefaultHandler.created(&self, arg0);
+                    DefaultHandler.handle_created(&self, arg0);
                 }
             }
             1 => {
@@ -915,9 +932,9 @@ impl ObjectPrivate for ZwpLinuxBufferParamsV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).failed(&self);
+                    (**handler).handle_failed(&self);
                 } else {
-                    DefaultHandler.failed(&self);
+                    DefaultHandler.handle_failed(&self);
                 }
             }
             n => {

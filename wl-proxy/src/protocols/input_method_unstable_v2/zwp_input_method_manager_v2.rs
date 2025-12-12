@@ -152,6 +152,11 @@ impl ZwpInputMethodManagerV2 {
 
 /// A message handler for [ZwpInputMethodManagerV2] proxies.
 pub trait ZwpInputMethodManagerV2Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpInputMethodManagerV2>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// request an input method object
     ///
     /// Request a new input zwp_input_method_v2 object associated with a given
@@ -165,7 +170,7 @@ pub trait ZwpInputMethodManagerV2Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_input_method(
+    fn handle_get_input_method(
         &mut self,
         _slf: &Rc<ZwpInputMethodManagerV2>,
         seat: &Rc<WlSeat>,
@@ -186,7 +191,7 @@ pub trait ZwpInputMethodManagerV2Handler: Any {
     ///
     /// The zwp_input_method_v2 objects originating from it remain valid.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpInputMethodManagerV2>,
     ) {
@@ -204,6 +209,18 @@ impl ObjectPrivate for ZwpInputMethodManagerV2 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpInputMethodManagerV2, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -240,9 +257,9 @@ impl ObjectPrivate for ZwpInputMethodManagerV2 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_input_method(&self, arg0, arg1);
+                    (**handler).handle_get_input_method(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_input_method(&self, arg0, arg1);
+                    DefaultHandler.handle_get_input_method(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -257,9 +274,9 @@ impl ObjectPrivate for ZwpInputMethodManagerV2 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {

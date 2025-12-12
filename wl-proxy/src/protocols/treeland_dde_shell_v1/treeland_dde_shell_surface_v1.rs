@@ -429,6 +429,11 @@ impl TreelandDdeShellSurfaceV1 {
 
 /// A message handler for [TreelandDdeShellSurfaceV1] proxies.
 pub trait TreelandDdeShellSurfaceV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandDdeShellSurfaceV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the treeland_dde_shell_surface_v1 object
     ///
     /// The treeland_dde_shell_surface_v1 interface is removed from the
@@ -437,7 +442,7 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
     ///
     /// The shell surface role is lost and wl_surface is unmapped.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<TreelandDdeShellSurfaceV1>,
     ) {
@@ -460,7 +465,7 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
     /// - `x`: x coordinate in global space
     /// - `y`: y coordinate in global space
     #[inline]
-    fn set_surface_position(
+    fn handle_set_surface_position(
         &mut self,
         _slf: &Rc<TreelandDdeShellSurfaceV1>,
         x: i32,
@@ -483,7 +488,7 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
     ///
     /// - `role`:
     #[inline]
-    fn set_role(
+    fn handle_set_role(
         &mut self,
         _slf: &Rc<TreelandDdeShellSurfaceV1>,
         role: TreelandDdeShellSurfaceV1Role,
@@ -510,7 +515,7 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
     ///
     /// - `y_offset`: y position is relative to the cursor bottom
     #[inline]
-    fn set_auto_placement(
+    fn handle_set_auto_placement(
         &mut self,
         _slf: &Rc<TreelandDdeShellSurfaceV1>,
         y_offset: u32,
@@ -531,7 +536,7 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
     ///
     /// - `skip`: Boolean value that sets whether to skip the window switcher.
     #[inline]
-    fn set_skip_switcher(
+    fn handle_set_skip_switcher(
         &mut self,
         _slf: &Rc<TreelandDdeShellSurfaceV1>,
         skip: u32,
@@ -552,7 +557,7 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
     ///
     /// - `skip`: Boolean value that sets whether to skip the dock preview.
     #[inline]
-    fn set_skip_dock_preview(
+    fn handle_set_skip_dock_preview(
         &mut self,
         _slf: &Rc<TreelandDdeShellSurfaceV1>,
         skip: u32,
@@ -573,7 +578,7 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
     ///
     /// - `skip`: Boolean value that sets whether to skip the mutitask view.
     #[inline]
-    fn set_skip_muti_task_view(
+    fn handle_set_skip_muti_task_view(
         &mut self,
         _slf: &Rc<TreelandDdeShellSurfaceV1>,
         skip: u32,
@@ -596,7 +601,7 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
     ///
     /// - `accept`: Boolean value that sets whether to accept keyboard focus
     #[inline]
-    fn set_accept_keyboard_focus(
+    fn handle_set_accept_keyboard_focus(
         &mut self,
         _slf: &Rc<TreelandDdeShellSurfaceV1>,
         accept: u32,
@@ -618,6 +623,18 @@ impl ObjectPrivate for TreelandDdeShellSurfaceV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -636,9 +653,9 @@ impl ObjectPrivate for TreelandDdeShellSurfaceV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -657,9 +674,9 @@ impl ObjectPrivate for TreelandDdeShellSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_surface_position(&self, arg0, arg1);
+                    (**handler).handle_set_surface_position(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_surface_position(&self, arg0, arg1);
+                    DefaultHandler.handle_set_surface_position(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -676,9 +693,9 @@ impl ObjectPrivate for TreelandDdeShellSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_role(&self, arg0);
+                    (**handler).handle_set_role(&self, arg0);
                 } else {
-                    DefaultHandler.set_role(&self, arg0);
+                    DefaultHandler.handle_set_role(&self, arg0);
                 }
             }
             3 => {
@@ -694,9 +711,9 @@ impl ObjectPrivate for TreelandDdeShellSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_auto_placement(&self, arg0);
+                    (**handler).handle_set_auto_placement(&self, arg0);
                 } else {
-                    DefaultHandler.set_auto_placement(&self, arg0);
+                    DefaultHandler.handle_set_auto_placement(&self, arg0);
                 }
             }
             4 => {
@@ -712,9 +729,9 @@ impl ObjectPrivate for TreelandDdeShellSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_skip_switcher(&self, arg0);
+                    (**handler).handle_set_skip_switcher(&self, arg0);
                 } else {
-                    DefaultHandler.set_skip_switcher(&self, arg0);
+                    DefaultHandler.handle_set_skip_switcher(&self, arg0);
                 }
             }
             5 => {
@@ -730,9 +747,9 @@ impl ObjectPrivate for TreelandDdeShellSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_skip_dock_preview(&self, arg0);
+                    (**handler).handle_set_skip_dock_preview(&self, arg0);
                 } else {
-                    DefaultHandler.set_skip_dock_preview(&self, arg0);
+                    DefaultHandler.handle_set_skip_dock_preview(&self, arg0);
                 }
             }
             6 => {
@@ -748,9 +765,9 @@ impl ObjectPrivate for TreelandDdeShellSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_skip_muti_task_view(&self, arg0);
+                    (**handler).handle_set_skip_muti_task_view(&self, arg0);
                 } else {
-                    DefaultHandler.set_skip_muti_task_view(&self, arg0);
+                    DefaultHandler.handle_set_skip_muti_task_view(&self, arg0);
                 }
             }
             7 => {
@@ -766,9 +783,9 @@ impl ObjectPrivate for TreelandDdeShellSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_accept_keyboard_focus(&self, arg0);
+                    (**handler).handle_set_accept_keyboard_focus(&self, arg0);
                 } else {
-                    DefaultHandler.set_accept_keyboard_focus(&self, arg0);
+                    DefaultHandler.handle_set_accept_keyboard_focus(&self, arg0);
                 }
             }
             n => {

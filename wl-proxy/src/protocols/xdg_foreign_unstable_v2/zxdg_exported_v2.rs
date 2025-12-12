@@ -140,13 +140,18 @@ impl ZxdgExportedV2 {
 
 /// A message handler for [ZxdgExportedV2] proxies.
 pub trait ZxdgExportedV2Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZxdgExportedV2>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// unexport the exported surface
     ///
     /// Revoke the previously exported surface. This invalidates any
     /// relationship the importer may have set up using the xdg_imported created
     /// given the handle sent via xdg_exported.handle.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZxdgExportedV2>,
     ) {
@@ -168,7 +173,7 @@ pub trait ZxdgExportedV2Handler: Any {
     ///
     /// - `handle`: the exported surface handle
     #[inline]
-    fn handle(
+    fn handle_handle(
         &mut self,
         _slf: &Rc<ZxdgExportedV2>,
         handle: &str,
@@ -190,6 +195,18 @@ impl ObjectPrivate for ZxdgExportedV2 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -208,9 +225,9 @@ impl ObjectPrivate for ZxdgExportedV2 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -264,9 +281,9 @@ impl ObjectPrivate for ZxdgExportedV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).handle(&self, arg0);
+                    (**handler).handle_handle(&self, arg0);
                 } else {
-                    DefaultHandler.handle(&self, arg0);
+                    DefaultHandler.handle_handle(&self, arg0);
                 }
             }
             n => {

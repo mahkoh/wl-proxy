@@ -336,11 +336,16 @@ impl WpColorManagementSurfaceFeedbackV1 {
 
 /// A message handler for [WpColorManagementSurfaceFeedbackV1] proxies.
 pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpColorManagementSurfaceFeedbackV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the color management interface for a surface
     ///
     /// Destroy the wp_color_management_surface_feedback_v1 object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
     ) {
@@ -360,7 +365,7 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
     ///
     /// - `identity`: the 32-bit image description id number
     #[inline]
-    fn preferred_changed(
+    fn handle_preferred_changed(
         &mut self,
         _slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
         identity: u32,
@@ -413,7 +418,7 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
     ///
     /// - `image_description`:
     #[inline]
-    fn get_preferred(
+    fn handle_get_preferred(
         &mut self,
         _slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
         image_description: &Rc<WpImageDescriptionV1>,
@@ -439,7 +444,7 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
     ///
     /// - `image_description`:
     #[inline]
-    fn get_preferred_parametric(
+    fn handle_get_preferred_parametric(
         &mut self,
         _slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
         image_description: &Rc<WpImageDescriptionV1>,
@@ -476,7 +481,7 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
     /// - `identity_hi`: high 32 bits of the 64-bit image description id number
     /// - `identity_lo`: low 32 bits of the 64-bit image description id number
     #[inline]
-    fn preferred_changed2(
+    fn handle_preferred_changed2(
         &mut self,
         _slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
         identity_hi: u32,
@@ -500,6 +505,18 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -518,9 +535,9 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -541,9 +558,9 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "image_description", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_preferred(&self, arg0);
+                    (**handler).handle_get_preferred(&self, arg0);
                 } else {
-                    DefaultHandler.get_preferred(&self, arg0);
+                    DefaultHandler.handle_get_preferred(&self, arg0);
                 }
             }
             2 => {
@@ -564,9 +581,9 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "image_description", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_preferred_parametric(&self, arg0);
+                    (**handler).handle_get_preferred_parametric(&self, arg0);
                 } else {
-                    DefaultHandler.get_preferred_parametric(&self, arg0);
+                    DefaultHandler.handle_get_preferred_parametric(&self, arg0);
                 }
             }
             n => {
@@ -599,9 +616,9 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).preferred_changed(&self, arg0);
+                    (**handler).handle_preferred_changed(&self, arg0);
                 } else {
-                    DefaultHandler.preferred_changed(&self, arg0);
+                    DefaultHandler.handle_preferred_changed(&self, arg0);
                 }
             }
             1 => {
@@ -618,9 +635,9 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).preferred_changed2(&self, arg0, arg1);
+                    (**handler).handle_preferred_changed2(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.preferred_changed2(&self, arg0, arg1);
+                    DefaultHandler.handle_preferred_changed2(&self, arg0, arg1);
                 }
             }
             n => {

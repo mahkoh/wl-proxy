@@ -238,6 +238,11 @@ impl ZwlrGammaControlV1 {
 
 /// A message handler for [ZwlrGammaControlV1] proxies.
 pub trait ZwlrGammaControlV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwlrGammaControlV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// size of gamma ramps
     ///
     /// Advertise the size of each gamma ramp.
@@ -248,7 +253,7 @@ pub trait ZwlrGammaControlV1Handler: Any {
     ///
     /// - `size`: number of elements in a ramp
     #[inline]
-    fn gamma_size(
+    fn handle_gamma_size(
         &mut self,
         _slf: &Rc<ZwlrGammaControlV1>,
         size: u32,
@@ -275,7 +280,7 @@ pub trait ZwlrGammaControlV1Handler: Any {
     ///
     /// - `fd`: gamma table file descriptor
     #[inline]
-    fn set_gamma(
+    fn handle_set_gamma(
         &mut self,
         _slf: &Rc<ZwlrGammaControlV1>,
         fd: &Rc<OwnedFd>,
@@ -299,7 +304,7 @@ pub trait ZwlrGammaControlV1Handler: Any {
     ///
     /// Upon receiving this event, the client should destroy this object.
     #[inline]
-    fn failed(
+    fn handle_failed(
         &mut self,
         _slf: &Rc<ZwlrGammaControlV1>,
     ) {
@@ -315,7 +320,7 @@ pub trait ZwlrGammaControlV1Handler: Any {
     /// Destroys the gamma control object. If the object is still valid, this
     /// restores the original gamma tables.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwlrGammaControlV1>,
     ) {
@@ -333,6 +338,18 @@ impl ObjectPrivate for ZwlrGammaControlV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrGammaControlV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -356,9 +373,9 @@ impl ObjectPrivate for ZwlrGammaControlV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_gamma(&self, arg0);
+                    (**handler).handle_set_gamma(&self, arg0);
                 } else {
-                    DefaultHandler.set_gamma(&self, arg0);
+                    DefaultHandler.handle_set_gamma(&self, arg0);
                 }
             }
             1 => {
@@ -373,9 +390,9 @@ impl ObjectPrivate for ZwlrGammaControlV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -408,9 +425,9 @@ impl ObjectPrivate for ZwlrGammaControlV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).gamma_size(&self, arg0);
+                    (**handler).handle_gamma_size(&self, arg0);
                 } else {
-                    DefaultHandler.gamma_size(&self, arg0);
+                    DefaultHandler.handle_gamma_size(&self, arg0);
                 }
             }
             1 => {
@@ -424,9 +441,9 @@ impl ObjectPrivate for ZwlrGammaControlV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).failed(&self);
+                    (**handler).handle_failed(&self);
                 } else {
-                    DefaultHandler.failed(&self);
+                    DefaultHandler.handle_failed(&self);
                 }
             }
             n => {

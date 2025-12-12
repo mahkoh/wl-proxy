@@ -187,9 +187,14 @@ impl ZwpRelativePointerV1 {
 
 /// A message handler for [ZwpRelativePointerV1] proxies.
 pub trait ZwpRelativePointerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpRelativePointerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// release the relative pointer object
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpRelativePointerV1>,
     ) {
@@ -242,7 +247,7 @@ pub trait ZwpRelativePointerV1Handler: Any {
     /// - `dx_unaccel`: the x component of the unaccelerated motion vector
     /// - `dy_unaccel`: the y component of the unaccelerated motion vector
     #[inline]
-    fn relative_motion(
+    fn handle_relative_motion(
         &mut self,
         _slf: &Rc<ZwpRelativePointerV1>,
         utime_hi: u32,
@@ -274,6 +279,18 @@ impl ObjectPrivate for ZwpRelativePointerV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -292,9 +309,9 @@ impl ObjectPrivate for ZwpRelativePointerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -336,9 +353,9 @@ impl ObjectPrivate for ZwpRelativePointerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).relative_motion(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    (**handler).handle_relative_motion(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 } else {
-                    DefaultHandler.relative_motion(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    DefaultHandler.handle_relative_motion(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 }
             }
             n => {

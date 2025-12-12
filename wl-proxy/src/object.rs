@@ -24,6 +24,7 @@ pub(crate) trait ObjectPrivate: Any {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self>
     where
         Self: Sized;
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)>;
     fn handle_request(
         self: Rc<Self>,
         client: &Rc<Client>,

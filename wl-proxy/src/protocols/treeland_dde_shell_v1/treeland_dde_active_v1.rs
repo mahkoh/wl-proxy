@@ -241,9 +241,14 @@ impl TreelandDdeActiveV1 {
 
 /// A message handler for [TreelandDdeActiveV1] proxies.
 pub trait TreelandDdeActiveV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandDdeActiveV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the treeland_dde_active_v1 object
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<TreelandDdeActiveV1>,
     ) {
@@ -260,7 +265,7 @@ pub trait TreelandDdeActiveV1Handler: Any {
     ///
     /// - `reason`:
     #[inline]
-    fn active_in(
+    fn handle_active_in(
         &mut self,
         _slf: &Rc<TreelandDdeActiveV1>,
         reason: TreelandDdeActiveV1Reason,
@@ -279,7 +284,7 @@ pub trait TreelandDdeActiveV1Handler: Any {
     ///
     /// - `reason`:
     #[inline]
-    fn active_out(
+    fn handle_active_out(
         &mut self,
         _slf: &Rc<TreelandDdeActiveV1>,
         reason: TreelandDdeActiveV1Reason,
@@ -294,7 +299,7 @@ pub trait TreelandDdeActiveV1Handler: Any {
 
     /// sent when the compositor starts a drag operation
     #[inline]
-    fn start_drag(
+    fn handle_start_drag(
         &mut self,
         _slf: &Rc<TreelandDdeActiveV1>,
     ) {
@@ -307,7 +312,7 @@ pub trait TreelandDdeActiveV1Handler: Any {
 
     /// sent when the compositor drop operation
     #[inline]
-    fn drop(
+    fn handle_drop(
         &mut self,
         _slf: &Rc<TreelandDdeActiveV1>,
     ) {
@@ -325,6 +330,18 @@ impl ObjectPrivate for TreelandDdeActiveV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandDdeActiveV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -345,9 +362,9 @@ impl ObjectPrivate for TreelandDdeActiveV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -381,9 +398,9 @@ impl ObjectPrivate for TreelandDdeActiveV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).active_in(&self, arg0);
+                    (**handler).handle_active_in(&self, arg0);
                 } else {
-                    DefaultHandler.active_in(&self, arg0);
+                    DefaultHandler.handle_active_in(&self, arg0);
                 }
             }
             1 => {
@@ -400,9 +417,9 @@ impl ObjectPrivate for TreelandDdeActiveV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).active_out(&self, arg0);
+                    (**handler).handle_active_out(&self, arg0);
                 } else {
-                    DefaultHandler.active_out(&self, arg0);
+                    DefaultHandler.handle_active_out(&self, arg0);
                 }
             }
             2 => {
@@ -416,9 +433,9 @@ impl ObjectPrivate for TreelandDdeActiveV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).start_drag(&self);
+                    (**handler).handle_start_drag(&self);
                 } else {
-                    DefaultHandler.start_drag(&self);
+                    DefaultHandler.handle_start_drag(&self);
                 }
             }
             3 => {
@@ -432,9 +449,9 @@ impl ObjectPrivate for TreelandDdeActiveV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).drop(&self);
+                    (**handler).handle_drop(&self);
                 } else {
-                    DefaultHandler.drop(&self);
+                    DefaultHandler.handle_drop(&self);
                 }
             }
             n => {

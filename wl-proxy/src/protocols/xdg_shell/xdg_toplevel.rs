@@ -1218,12 +1218,17 @@ impl XdgToplevel {
 
 /// A message handler for [XdgToplevel] proxies.
 pub trait XdgToplevelHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<XdgToplevel>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the xdg_toplevel
     ///
     /// This request destroys the role surface and unmaps the surface;
     /// see "Unmapping" behavior in interface section for details.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<XdgToplevel>,
     ) {
@@ -1264,7 +1269,7 @@ pub trait XdgToplevelHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_parent(
+    fn handle_set_parent(
         &mut self,
         _slf: &Rc<XdgToplevel>,
         parent: Option<&Rc<XdgToplevel>>,
@@ -1291,7 +1296,7 @@ pub trait XdgToplevelHandler: Any {
     ///
     /// - `title`:
     #[inline]
-    fn set_title(
+    fn handle_set_title(
         &mut self,
         _slf: &Rc<XdgToplevel>,
         title: &str,
@@ -1334,7 +1339,7 @@ pub trait XdgToplevelHandler: Any {
     ///
     /// - `app_id`:
     #[inline]
-    fn set_app_id(
+    fn handle_set_app_id(
         &mut self,
         _slf: &Rc<XdgToplevel>,
         app_id: &str,
@@ -1372,7 +1377,7 @@ pub trait XdgToplevelHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn show_window_menu(
+    fn handle_show_window_menu(
         &mut self,
         _slf: &Rc<XdgToplevel>,
         seat: &Rc<WlSeat>,
@@ -1418,7 +1423,7 @@ pub trait XdgToplevelHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn r#move(
+    fn handle_move(
         &mut self,
         _slf: &Rc<XdgToplevel>,
         seat: &Rc<WlSeat>,
@@ -1476,7 +1481,7 @@ pub trait XdgToplevelHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn resize(
+    fn handle_resize(
         &mut self,
         _slf: &Rc<XdgToplevel>,
         seat: &Rc<WlSeat>,
@@ -1534,7 +1539,7 @@ pub trait XdgToplevelHandler: Any {
     /// - `width`:
     /// - `height`:
     #[inline]
-    fn set_max_size(
+    fn handle_set_max_size(
         &mut self,
         _slf: &Rc<XdgToplevel>,
         width: i32,
@@ -1590,7 +1595,7 @@ pub trait XdgToplevelHandler: Any {
     /// - `width`:
     /// - `height`:
     #[inline]
-    fn set_min_size(
+    fn handle_set_min_size(
         &mut self,
         _slf: &Rc<XdgToplevel>,
         width: i32,
@@ -1627,7 +1632,7 @@ pub trait XdgToplevelHandler: Any {
     /// effect. It may alter the state the surface is returned to when
     /// unmaximized unless overridden by the compositor.
     #[inline]
-    fn set_maximized(
+    fn handle_set_maximized(
         &mut self,
         _slf: &Rc<XdgToplevel>,
     ) {
@@ -1662,7 +1667,7 @@ pub trait XdgToplevelHandler: Any {
     /// effect. It may alter the state the surface is returned to when
     /// unmaximized unless overridden by the compositor.
     #[inline]
-    fn unset_maximized(
+    fn handle_unset_maximized(
         &mut self,
         _slf: &Rc<XdgToplevel>,
     ) {
@@ -1706,7 +1711,7 @@ pub trait XdgToplevelHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_fullscreen(
+    fn handle_set_fullscreen(
         &mut self,
         _slf: &Rc<XdgToplevel>,
         output: Option<&Rc<WlOutput>>,
@@ -1739,7 +1744,7 @@ pub trait XdgToplevelHandler: Any {
     /// The client must also acknowledge the configure when committing the new
     /// content (see ack_configure).
     #[inline]
-    fn unset_fullscreen(
+    fn handle_unset_fullscreen(
         &mut self,
         _slf: &Rc<XdgToplevel>,
     ) {
@@ -1761,7 +1766,7 @@ pub trait XdgToplevelHandler: Any {
     /// also work with live previews on windows in Alt-Tab, Expose or
     /// similar compositor features.
     #[inline]
-    fn set_minimized(
+    fn handle_set_minimized(
         &mut self,
         _slf: &Rc<XdgToplevel>,
     ) {
@@ -1800,7 +1805,7 @@ pub trait XdgToplevelHandler: Any {
     /// - `height`:
     /// - `states`:
     #[inline]
-    fn configure(
+    fn handle_configure(
         &mut self,
         _slf: &Rc<XdgToplevel>,
         width: i32,
@@ -1828,7 +1833,7 @@ pub trait XdgToplevelHandler: Any {
     /// window. The client may choose to ignore this request, or show
     /// a dialog to ask the user to save their data, etc.
     #[inline]
-    fn close(
+    fn handle_close(
         &mut self,
         _slf: &Rc<XdgToplevel>,
     ) {
@@ -1862,7 +1867,7 @@ pub trait XdgToplevelHandler: Any {
     /// - `width`:
     /// - `height`:
     #[inline]
-    fn configure_bounds(
+    fn handle_configure_bounds(
         &mut self,
         _slf: &Rc<XdgToplevel>,
         width: i32,
@@ -1904,7 +1909,7 @@ pub trait XdgToplevelHandler: Any {
     ///
     /// - `capabilities`: array of 32-bit capabilities
     #[inline]
-    fn wm_capabilities(
+    fn handle_wm_capabilities(
         &mut self,
         _slf: &Rc<XdgToplevel>,
         capabilities: &[u8],
@@ -1926,6 +1931,18 @@ impl ObjectPrivate for XdgToplevel {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -1944,9 +1961,9 @@ impl ObjectPrivate for XdgToplevel {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -1976,9 +1993,9 @@ impl ObjectPrivate for XdgToplevel {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).set_parent(&self, arg0);
+                    (**handler).handle_set_parent(&self, arg0);
                 } else {
-                    DefaultHandler.set_parent(&self, arg0);
+                    DefaultHandler.handle_set_parent(&self, arg0);
                 }
             }
             2 => {
@@ -2015,9 +2032,9 @@ impl ObjectPrivate for XdgToplevel {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_title(&self, arg0);
+                    (**handler).handle_set_title(&self, arg0);
                 } else {
-                    DefaultHandler.set_title(&self, arg0);
+                    DefaultHandler.handle_set_title(&self, arg0);
                 }
             }
             3 => {
@@ -2054,9 +2071,9 @@ impl ObjectPrivate for XdgToplevel {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_app_id(&self, arg0);
+                    (**handler).handle_set_app_id(&self, arg0);
                 } else {
-                    DefaultHandler.set_app_id(&self, arg0);
+                    DefaultHandler.handle_set_app_id(&self, arg0);
                 }
             }
             4 => {
@@ -2086,9 +2103,9 @@ impl ObjectPrivate for XdgToplevel {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).show_window_menu(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_show_window_menu(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.show_window_menu(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_show_window_menu(&self, arg0, arg1, arg2, arg3);
                 }
             }
             5 => {
@@ -2114,9 +2131,9 @@ impl ObjectPrivate for XdgToplevel {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).r#move(&self, arg0, arg1);
+                    (**handler).handle_move(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.r#move(&self, arg0, arg1);
+                    DefaultHandler.handle_move(&self, arg0, arg1);
                 }
             }
             6 => {
@@ -2144,9 +2161,9 @@ impl ObjectPrivate for XdgToplevel {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).resize(&self, arg0, arg1, arg2);
+                    (**handler).handle_resize(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.resize(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_resize(&self, arg0, arg1, arg2);
                 }
             }
             7 => {
@@ -2165,9 +2182,9 @@ impl ObjectPrivate for XdgToplevel {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_max_size(&self, arg0, arg1);
+                    (**handler).handle_set_max_size(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_max_size(&self, arg0, arg1);
+                    DefaultHandler.handle_set_max_size(&self, arg0, arg1);
                 }
             }
             8 => {
@@ -2186,9 +2203,9 @@ impl ObjectPrivate for XdgToplevel {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_min_size(&self, arg0, arg1);
+                    (**handler).handle_set_min_size(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_min_size(&self, arg0, arg1);
+                    DefaultHandler.handle_set_min_size(&self, arg0, arg1);
                 }
             }
             9 => {
@@ -2202,9 +2219,9 @@ impl ObjectPrivate for XdgToplevel {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_maximized(&self);
+                    (**handler).handle_set_maximized(&self);
                 } else {
-                    DefaultHandler.set_maximized(&self);
+                    DefaultHandler.handle_set_maximized(&self);
                 }
             }
             10 => {
@@ -2218,9 +2235,9 @@ impl ObjectPrivate for XdgToplevel {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).unset_maximized(&self);
+                    (**handler).handle_unset_maximized(&self);
                 } else {
-                    DefaultHandler.unset_maximized(&self);
+                    DefaultHandler.handle_unset_maximized(&self);
                 }
             }
             11 => {
@@ -2250,9 +2267,9 @@ impl ObjectPrivate for XdgToplevel {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).set_fullscreen(&self, arg0);
+                    (**handler).handle_set_fullscreen(&self, arg0);
                 } else {
-                    DefaultHandler.set_fullscreen(&self, arg0);
+                    DefaultHandler.handle_set_fullscreen(&self, arg0);
                 }
             }
             12 => {
@@ -2266,9 +2283,9 @@ impl ObjectPrivate for XdgToplevel {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).unset_fullscreen(&self);
+                    (**handler).handle_unset_fullscreen(&self);
                 } else {
-                    DefaultHandler.unset_fullscreen(&self);
+                    DefaultHandler.handle_unset_fullscreen(&self);
                 }
             }
             13 => {
@@ -2282,9 +2299,9 @@ impl ObjectPrivate for XdgToplevel {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_minimized(&self);
+                    (**handler).handle_set_minimized(&self);
                 } else {
-                    DefaultHandler.set_minimized(&self);
+                    DefaultHandler.handle_set_minimized(&self);
                 }
             }
             n => {
@@ -2340,9 +2357,9 @@ impl ObjectPrivate for XdgToplevel {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).configure(&self, arg0, arg1, arg2);
+                    (**handler).handle_configure(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.configure(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_configure(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
@@ -2356,9 +2373,9 @@ impl ObjectPrivate for XdgToplevel {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).close(&self);
+                    (**handler).handle_close(&self);
                 } else {
-                    DefaultHandler.close(&self);
+                    DefaultHandler.handle_close(&self);
                 }
             }
             2 => {
@@ -2377,9 +2394,9 @@ impl ObjectPrivate for XdgToplevel {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).configure_bounds(&self, arg0, arg1);
+                    (**handler).handle_configure_bounds(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.configure_bounds(&self, arg0, arg1);
+                    DefaultHandler.handle_configure_bounds(&self, arg0, arg1);
                 }
             }
             3 => {
@@ -2408,9 +2425,9 @@ impl ObjectPrivate for XdgToplevel {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).wm_capabilities(&self, arg0);
+                    (**handler).handle_wm_capabilities(&self, arg0);
                 } else {
-                    DefaultHandler.wm_capabilities(&self, arg0);
+                    DefaultHandler.handle_wm_capabilities(&self, arg0);
                 }
             }
             n => {

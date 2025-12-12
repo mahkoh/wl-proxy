@@ -356,6 +356,11 @@ impl WpImageDescriptionV1 {
 
 /// A message handler for [WpImageDescriptionV1] proxies.
 pub trait WpImageDescriptionV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpImageDescriptionV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the image description
     ///
     /// Destroy this object. It is safe to destroy an object which is not ready.
@@ -364,7 +369,7 @@ pub trait WpImageDescriptionV1Handler: Any {
     /// even if a wp_color_management_surface_v1.set_image_description has not
     /// yet been followed by a wl_surface.commit.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpImageDescriptionV1>,
     ) {
@@ -393,7 +398,7 @@ pub trait WpImageDescriptionV1Handler: Any {
     /// - `cause`: generic reason
     /// - `msg`: ad hoc human-readable explanation
     #[inline]
-    fn failed(
+    fn handle_failed(
         &mut self,
         _slf: &Rc<WpImageDescriptionV1>,
         cause: WpImageDescriptionV1Cause,
@@ -425,7 +430,7 @@ pub trait WpImageDescriptionV1Handler: Any {
     ///
     /// - `identity`: the 32-bit image description id number
     #[inline]
-    fn ready(
+    fn handle_ready(
         &mut self,
         _slf: &Rc<WpImageDescriptionV1>,
         identity: u32,
@@ -452,7 +457,7 @@ pub trait WpImageDescriptionV1Handler: Any {
     ///
     /// - `information`:
     #[inline]
-    fn get_information(
+    fn handle_get_information(
         &mut self,
         _slf: &Rc<WpImageDescriptionV1>,
         information: &Rc<WpImageDescriptionInfoV1>,
@@ -497,7 +502,7 @@ pub trait WpImageDescriptionV1Handler: Any {
     /// - `identity_hi`: high 32 bits of the 64-bit image description id number
     /// - `identity_lo`: low 32 bits of the 64-bit image description id number
     #[inline]
-    fn ready2(
+    fn handle_ready2(
         &mut self,
         _slf: &Rc<WpImageDescriptionV1>,
         identity_hi: u32,
@@ -521,6 +526,18 @@ impl ObjectPrivate for WpImageDescriptionV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -539,9 +556,9 @@ impl ObjectPrivate for WpImageDescriptionV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -562,9 +579,9 @@ impl ObjectPrivate for WpImageDescriptionV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "information", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_information(&self, arg0);
+                    (**handler).handle_get_information(&self, arg0);
                 } else {
-                    DefaultHandler.get_information(&self, arg0);
+                    DefaultHandler.handle_get_information(&self, arg0);
                 }
             }
             n => {
@@ -623,9 +640,9 @@ impl ObjectPrivate for WpImageDescriptionV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).failed(&self, arg0, arg1);
+                    (**handler).handle_failed(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.failed(&self, arg0, arg1);
+                    DefaultHandler.handle_failed(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -641,9 +658,9 @@ impl ObjectPrivate for WpImageDescriptionV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).ready(&self, arg0);
+                    (**handler).handle_ready(&self, arg0);
                 } else {
-                    DefaultHandler.ready(&self, arg0);
+                    DefaultHandler.handle_ready(&self, arg0);
                 }
             }
             2 => {
@@ -660,9 +677,9 @@ impl ObjectPrivate for WpImageDescriptionV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).ready2(&self, arg0, arg1);
+                    (**handler).handle_ready2(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.ready2(&self, arg0, arg1);
+                    DefaultHandler.handle_ready2(&self, arg0, arg1);
                 }
             }
             n => {

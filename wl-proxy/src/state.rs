@@ -364,11 +364,17 @@ impl State {
     }
 
     pub(crate) fn handle_delete_id(&self, id: u32) {
-        let proxy = self.server.objects.borrow_mut().remove(&id).unwrap();
-        let core = proxy.core();
+        let object = self.server.objects.borrow_mut().remove(&id).unwrap();
+        let core = object.core();
         core.server_obj_id.take();
         self.server.idl.release(id);
-        let _ = core.delete_id();
+        if let Err((e, object)) = object.delete_id() {
+            log::warn!(
+                "Could not handle a wl_display.delete_id message: {}",
+                Report::new(e)
+            );
+            let _ = object.delete_id();
+        }
     }
 
     pub(crate) fn perform_writes(&self, _: &HandlerLock<'_>) -> Result<(), StateError> {

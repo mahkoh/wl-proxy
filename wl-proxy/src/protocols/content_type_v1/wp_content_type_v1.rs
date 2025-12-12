@@ -145,13 +145,18 @@ impl WpContentTypeV1 {
 
 /// A message handler for [WpContentTypeV1] proxies.
 pub trait WpContentTypeV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpContentTypeV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the content type object
     ///
     /// Switch back to not specifying the content type of this surface. This is
     /// equivalent to setting the content type to none, including double
     /// buffering semantics. See set_content_type for details.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpContentTypeV1>,
     ) {
@@ -177,7 +182,7 @@ pub trait WpContentTypeV1Handler: Any {
     ///
     /// - `content_type`: the content type
     #[inline]
-    fn set_content_type(
+    fn handle_set_content_type(
         &mut self,
         _slf: &Rc<WpContentTypeV1>,
         content_type: WpContentTypeV1Type,
@@ -199,6 +204,18 @@ impl ObjectPrivate for WpContentTypeV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -217,9 +234,9 @@ impl ObjectPrivate for WpContentTypeV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -236,9 +253,9 @@ impl ObjectPrivate for WpContentTypeV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_content_type(&self, arg0);
+                    (**handler).handle_set_content_type(&self, arg0);
                 } else {
-                    DefaultHandler.set_content_type(&self, arg0);
+                    DefaultHandler.handle_set_content_type(&self, arg0);
                 }
             }
             n => {

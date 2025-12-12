@@ -165,6 +165,11 @@ impl WpDrmLeaseRequestV1 {
 
 /// A message handler for [WpDrmLeaseRequestV1] proxies.
 pub trait WpDrmLeaseRequestV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpDrmLeaseRequestV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// request a connector for this lease
     ///
     /// Indicates that the client would like to lease the given connector.
@@ -185,7 +190,7 @@ pub trait WpDrmLeaseRequestV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn request_connector(
+    fn handle_request_connector(
         &mut self,
         _slf: &Rc<WpDrmLeaseRequestV1>,
         connector: &Rc<WpDrmLeaseConnectorV1>,
@@ -212,7 +217,7 @@ pub trait WpDrmLeaseRequestV1Handler: Any {
     ///
     /// - `id`:
     #[inline]
-    fn submit(
+    fn handle_submit(
         &mut self,
         _slf: &Rc<WpDrmLeaseRequestV1>,
         id: &Rc<WpDrmLeaseV1>,
@@ -232,6 +237,18 @@ impl ObjectPrivate for WpDrmLeaseRequestV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpDrmLeaseRequestV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -262,9 +279,9 @@ impl ObjectPrivate for WpDrmLeaseRequestV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).request_connector(&self, arg0);
+                    (**handler).handle_request_connector(&self, arg0);
                 } else {
-                    DefaultHandler.request_connector(&self, arg0);
+                    DefaultHandler.handle_request_connector(&self, arg0);
                 }
             }
             1 => {
@@ -286,9 +303,9 @@ impl ObjectPrivate for WpDrmLeaseRequestV1 {
                 let arg0 = &arg0;
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).submit(&self, arg0);
+                    (**handler).handle_submit(&self, arg0);
                 } else {
-                    DefaultHandler.submit(&self, arg0);
+                    DefaultHandler.handle_submit(&self, arg0);
                 }
             }
             n => {

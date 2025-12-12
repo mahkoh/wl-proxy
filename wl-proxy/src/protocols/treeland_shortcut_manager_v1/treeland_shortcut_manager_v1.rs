@@ -115,6 +115,11 @@ impl TreelandShortcutManagerV1 {
 
 /// A message handler for [TreelandShortcutManagerV1] proxies.
 pub trait TreelandShortcutManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandShortcutManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// register shortcut key
     ///
     /// The format of the shortcut key is 'Modify+Key', such as 'Ctrl+Alt+T'.
@@ -127,7 +132,7 @@ pub trait TreelandShortcutManagerV1Handler: Any {
     /// - `key`:
     /// - `id`:
     #[inline]
-    fn register_shortcut_context(
+    fn handle_register_shortcut_context(
         &mut self,
         _slf: &Rc<TreelandShortcutManagerV1>,
         key: &str,
@@ -149,6 +154,18 @@ impl ObjectPrivate for TreelandShortcutManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandShortcutManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -200,9 +217,9 @@ impl ObjectPrivate for TreelandShortcutManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg1_id, "id", e))?;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).register_shortcut_context(&self, arg0, arg1);
+                    (**handler).handle_register_shortcut_context(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.register_shortcut_context(&self, arg0, arg1);
+                    DefaultHandler.handle_register_shortcut_context(&self, arg0, arg1);
                 }
             }
             n => {

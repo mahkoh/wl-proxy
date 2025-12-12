@@ -1138,11 +1138,16 @@ impl WlSurface {
 
 /// A message handler for [WlSurface] proxies.
 pub trait WlSurfaceHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlSurface>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// delete surface
     ///
     /// Deletes the surface and invalidates its object ID.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WlSurface>,
     ) {
@@ -1230,7 +1235,7 @@ pub trait WlSurfaceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn attach(
+    fn handle_attach(
         &mut self,
         _slf: &Rc<WlSurface>,
         buffer: Option<&Rc<WlBuffer>>,
@@ -1278,7 +1283,7 @@ pub trait WlSurfaceHandler: Any {
     /// - `width`: width of damage rectangle
     /// - `height`: height of damage rectangle
     #[inline]
-    fn damage(
+    fn handle_damage(
         &mut self,
         _slf: &Rc<WlSurface>,
         x: i32,
@@ -1336,7 +1341,7 @@ pub trait WlSurfaceHandler: Any {
     ///
     /// - `callback`: callback object for the frame request
     #[inline]
-    fn frame(
+    fn handle_frame(
         &mut self,
         _slf: &Rc<WlSurface>,
         callback: &Rc<WlCallback>,
@@ -1383,7 +1388,7 @@ pub trait WlSurfaceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_opaque_region(
+    fn handle_set_opaque_region(
         &mut self,
         _slf: &Rc<WlSurface>,
         region: Option<&Rc<WlRegion>>,
@@ -1428,7 +1433,7 @@ pub trait WlSurfaceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_input_region(
+    fn handle_set_input_region(
         &mut self,
         _slf: &Rc<WlSurface>,
         region: Option<&Rc<WlRegion>>,
@@ -1463,7 +1468,7 @@ pub trait WlSurfaceHandler: Any {
     ///
     /// Other interfaces may add further double-buffered surface state.
     #[inline]
-    fn commit(
+    fn handle_commit(
         &mut self,
         _slf: &Rc<WlSurface>,
     ) {
@@ -1489,7 +1494,7 @@ pub trait WlSurfaceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn enter(
+    fn handle_enter(
         &mut self,
         _slf: &Rc<WlSurface>,
         output: &Rc<WlOutput>,
@@ -1528,7 +1533,7 @@ pub trait WlSurfaceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn leave(
+    fn handle_leave(
         &mut self,
         _slf: &Rc<WlSurface>,
         output: &Rc<WlOutput>,
@@ -1586,7 +1591,7 @@ pub trait WlSurfaceHandler: Any {
     ///
     /// - `transform`: transform for interpreting buffer contents
     #[inline]
-    fn set_buffer_transform(
+    fn handle_set_buffer_transform(
         &mut self,
         _slf: &Rc<WlSurface>,
         transform: WlOutputTransform,
@@ -1629,7 +1634,7 @@ pub trait WlSurfaceHandler: Any {
     ///
     /// - `scale`: scale for interpreting buffer contents
     #[inline]
-    fn set_buffer_scale(
+    fn handle_set_buffer_scale(
         &mut self,
         _slf: &Rc<WlSurface>,
         scale: i32,
@@ -1684,7 +1689,7 @@ pub trait WlSurfaceHandler: Any {
     /// - `width`: width of damage rectangle
     /// - `height`: height of damage rectangle
     #[inline]
-    fn damage_buffer(
+    fn handle_damage_buffer(
         &mut self,
         _slf: &Rc<WlSurface>,
         x: i32,
@@ -1726,7 +1731,7 @@ pub trait WlSurfaceHandler: Any {
     /// - `x`: surface-local x coordinate
     /// - `y`: surface-local y coordinate
     #[inline]
-    fn offset(
+    fn handle_offset(
         &mut self,
         _slf: &Rc<WlSurface>,
         x: i32,
@@ -1760,7 +1765,7 @@ pub trait WlSurfaceHandler: Any {
     ///
     /// - `factor`: preferred scaling factor
     #[inline]
-    fn preferred_buffer_scale(
+    fn handle_preferred_buffer_scale(
         &mut self,
         _slf: &Rc<WlSurface>,
         factor: i32,
@@ -1789,7 +1794,7 @@ pub trait WlSurfaceHandler: Any {
     ///
     /// - `transform`: preferred transform
     #[inline]
-    fn preferred_buffer_transform(
+    fn handle_preferred_buffer_transform(
         &mut self,
         _slf: &Rc<WlSurface>,
         transform: WlOutputTransform,
@@ -1811,6 +1816,18 @@ impl ObjectPrivate for WlSurface {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -1829,9 +1846,9 @@ impl ObjectPrivate for WlSurface {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -1865,9 +1882,9 @@ impl ObjectPrivate for WlSurface {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).attach(&self, arg0, arg1, arg2);
+                    (**handler).handle_attach(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.attach(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_attach(&self, arg0, arg1, arg2);
                 }
             }
             2 => {
@@ -1890,9 +1907,9 @@ impl ObjectPrivate for WlSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).damage(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_damage(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.damage(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_damage(&self, arg0, arg1, arg2, arg3);
                 }
             }
             3 => {
@@ -1913,9 +1930,9 @@ impl ObjectPrivate for WlSurface {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "callback", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).frame(&self, arg0);
+                    (**handler).handle_frame(&self, arg0);
                 } else {
-                    DefaultHandler.frame(&self, arg0);
+                    DefaultHandler.handle_frame(&self, arg0);
                 }
             }
             4 => {
@@ -1945,9 +1962,9 @@ impl ObjectPrivate for WlSurface {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).set_opaque_region(&self, arg0);
+                    (**handler).handle_set_opaque_region(&self, arg0);
                 } else {
-                    DefaultHandler.set_opaque_region(&self, arg0);
+                    DefaultHandler.handle_set_opaque_region(&self, arg0);
                 }
             }
             5 => {
@@ -1977,9 +1994,9 @@ impl ObjectPrivate for WlSurface {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).set_input_region(&self, arg0);
+                    (**handler).handle_set_input_region(&self, arg0);
                 } else {
-                    DefaultHandler.set_input_region(&self, arg0);
+                    DefaultHandler.handle_set_input_region(&self, arg0);
                 }
             }
             6 => {
@@ -1993,9 +2010,9 @@ impl ObjectPrivate for WlSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).commit(&self);
+                    (**handler).handle_commit(&self);
                 } else {
-                    DefaultHandler.commit(&self);
+                    DefaultHandler.handle_commit(&self);
                 }
             }
             7 => {
@@ -2012,9 +2029,9 @@ impl ObjectPrivate for WlSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_buffer_transform(&self, arg0);
+                    (**handler).handle_set_buffer_transform(&self, arg0);
                 } else {
-                    DefaultHandler.set_buffer_transform(&self, arg0);
+                    DefaultHandler.handle_set_buffer_transform(&self, arg0);
                 }
             }
             8 => {
@@ -2031,9 +2048,9 @@ impl ObjectPrivate for WlSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_buffer_scale(&self, arg0);
+                    (**handler).handle_set_buffer_scale(&self, arg0);
                 } else {
-                    DefaultHandler.set_buffer_scale(&self, arg0);
+                    DefaultHandler.handle_set_buffer_scale(&self, arg0);
                 }
             }
             9 => {
@@ -2056,9 +2073,9 @@ impl ObjectPrivate for WlSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).damage_buffer(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_damage_buffer(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.damage_buffer(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_damage_buffer(&self, arg0, arg1, arg2, arg3);
                 }
             }
             10 => {
@@ -2077,9 +2094,9 @@ impl ObjectPrivate for WlSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).offset(&self, arg0, arg1);
+                    (**handler).handle_offset(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.offset(&self, arg0, arg1);
+                    DefaultHandler.handle_offset(&self, arg0, arg1);
                 }
             }
             n => {
@@ -2121,9 +2138,9 @@ impl ObjectPrivate for WlSurface {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).enter(&self, arg0);
+                    (**handler).handle_enter(&self, arg0);
                 } else {
-                    DefaultHandler.enter(&self, arg0);
+                    DefaultHandler.handle_enter(&self, arg0);
                 }
             }
             1 => {
@@ -2148,9 +2165,9 @@ impl ObjectPrivate for WlSurface {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).leave(&self, arg0);
+                    (**handler).handle_leave(&self, arg0);
                 } else {
-                    DefaultHandler.leave(&self, arg0);
+                    DefaultHandler.handle_leave(&self, arg0);
                 }
             }
             2 => {
@@ -2167,9 +2184,9 @@ impl ObjectPrivate for WlSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).preferred_buffer_scale(&self, arg0);
+                    (**handler).handle_preferred_buffer_scale(&self, arg0);
                 } else {
-                    DefaultHandler.preferred_buffer_scale(&self, arg0);
+                    DefaultHandler.handle_preferred_buffer_scale(&self, arg0);
                 }
             }
             3 => {
@@ -2186,9 +2203,9 @@ impl ObjectPrivate for WlSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).preferred_buffer_transform(&self, arg0);
+                    (**handler).handle_preferred_buffer_transform(&self, arg0);
                 } else {
-                    DefaultHandler.preferred_buffer_transform(&self, arg0);
+                    DefaultHandler.handle_preferred_buffer_transform(&self, arg0);
                 }
             }
             n => {

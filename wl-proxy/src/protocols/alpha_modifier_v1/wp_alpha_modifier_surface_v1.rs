@@ -150,13 +150,18 @@ impl WpAlphaModifierSurfaceV1 {
 
 /// A message handler for [WpAlphaModifierSurfaceV1] proxies.
 pub trait WpAlphaModifierSurfaceV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpAlphaModifierSurfaceV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the alpha modifier object
     ///
     /// This destroys the object, and is equivalent to set_multiplier with
     /// a value of UINT32_MAX, with the same double-buffered semantics as
     /// set_multiplier.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpAlphaModifierSurfaceV1>,
     ) {
@@ -187,7 +192,7 @@ pub trait WpAlphaModifierSurfaceV1Handler: Any {
     ///
     /// - `factor`:
     #[inline]
-    fn set_multiplier(
+    fn handle_set_multiplier(
         &mut self,
         _slf: &Rc<WpAlphaModifierSurfaceV1>,
         factor: u32,
@@ -209,6 +214,18 @@ impl ObjectPrivate for WpAlphaModifierSurfaceV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -227,9 +244,9 @@ impl ObjectPrivate for WpAlphaModifierSurfaceV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -245,9 +262,9 @@ impl ObjectPrivate for WpAlphaModifierSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_multiplier(&self, arg0);
+                    (**handler).handle_set_multiplier(&self, arg0);
                 } else {
-                    DefaultHandler.set_multiplier(&self, arg0);
+                    DefaultHandler.handle_set_multiplier(&self, arg0);
                 }
             }
             n => {

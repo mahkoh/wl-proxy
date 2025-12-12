@@ -317,11 +317,16 @@ impl TreelandDockPreviewContextV1 {
 
 /// A message handler for [TreelandDockPreviewContextV1] proxies.
 pub trait TreelandDockPreviewContextV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandDockPreviewContextV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// enter preview box
     ///
     /// This event is sent after mouse enter preview box.
     #[inline]
-    fn enter(
+    fn handle_enter(
         &mut self,
         _slf: &Rc<TreelandDockPreviewContextV1>,
     ) {
@@ -336,7 +341,7 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
     ///
     /// This event is sent after mouse leave preview box.
     #[inline]
-    fn leave(
+    fn handle_leave(
         &mut self,
         _slf: &Rc<TreelandDockPreviewContextV1>,
     ) {
@@ -359,7 +364,7 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
     /// - `y`:
     /// - `direction`:
     #[inline]
-    fn show(
+    fn handle_show(
         &mut self,
         _slf: &Rc<TreelandDockPreviewContextV1>,
         surfaces: &[u8],
@@ -385,7 +390,7 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
     /// - `y`:
     /// - `direction`:
     #[inline]
-    fn show_tooltip(
+    fn handle_show_tooltip(
         &mut self,
         _slf: &Rc<TreelandDockPreviewContextV1>,
         tooltip: &str,
@@ -408,7 +413,7 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
     ///
     /// close preview box
     #[inline]
-    fn close(
+    fn handle_close(
         &mut self,
         _slf: &Rc<TreelandDockPreviewContextV1>,
     ) {
@@ -423,7 +428,7 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
     ///
     /// Destroy the context object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<TreelandDockPreviewContextV1>,
     ) {
@@ -441,6 +446,18 @@ impl ObjectPrivate for TreelandDockPreviewContextV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandDockPreviewContextV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -489,9 +506,9 @@ impl ObjectPrivate for TreelandDockPreviewContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).show(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_show(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.show(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_show(&self, arg0, arg1, arg2, arg3);
                 }
             }
             1 => {
@@ -542,9 +559,9 @@ impl ObjectPrivate for TreelandDockPreviewContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).show_tooltip(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_show_tooltip(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.show_tooltip(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_show_tooltip(&self, arg0, arg1, arg2, arg3);
                 }
             }
             2 => {
@@ -558,9 +575,9 @@ impl ObjectPrivate for TreelandDockPreviewContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).close(&self);
+                    (**handler).handle_close(&self);
                 } else {
-                    DefaultHandler.close(&self);
+                    DefaultHandler.handle_close(&self);
                 }
             }
             3 => {
@@ -575,9 +592,9 @@ impl ObjectPrivate for TreelandDockPreviewContextV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -608,9 +625,9 @@ impl ObjectPrivate for TreelandDockPreviewContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).enter(&self);
+                    (**handler).handle_enter(&self);
                 } else {
-                    DefaultHandler.enter(&self);
+                    DefaultHandler.handle_enter(&self);
                 }
             }
             1 => {
@@ -624,9 +641,9 @@ impl ObjectPrivate for TreelandDockPreviewContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).leave(&self);
+                    (**handler).handle_leave(&self);
                 } else {
-                    DefaultHandler.leave(&self);
+                    DefaultHandler.handle_leave(&self);
                 }
             }
             n => {

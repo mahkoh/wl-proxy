@@ -105,6 +105,11 @@ impl WlCallback {
 
 /// A message handler for [WlCallback] proxies.
 pub trait WlCallbackHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlCallback>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// done event
     ///
     /// Notify the client when the related request is done.
@@ -113,7 +118,7 @@ pub trait WlCallbackHandler: Any {
     ///
     /// - `callback_data`: request-specific data for the callback
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<WlCallback>,
         callback_data: u32,
@@ -133,6 +138,18 @@ impl ObjectPrivate for WlCallback {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlCallback, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -171,9 +188,9 @@ impl ObjectPrivate for WlCallback {
                 }
                 self.core.handle_server_destroy();
                 if let Some(handler) = handler {
-                    (**handler).done(&self, arg0);
+                    (**handler).handle_done(&self, arg0);
                 } else {
-                    DefaultHandler.done(&self, arg0);
+                    DefaultHandler.handle_done(&self, arg0);
                 }
             }
             n => {

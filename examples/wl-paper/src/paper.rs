@@ -94,7 +94,7 @@ struct DisplayHandler {
 }
 
 impl WlDisplayHandler for DisplayHandler {
-    fn get_registry(&mut self, slf: &Rc<WlDisplay>, registry: &Rc<WlRegistry>) {
+    fn handle_get_registry(&mut self, slf: &Rc<WlDisplay>, registry: &Rc<WlRegistry>) {
         if !self.init {
             self.init = true;
             let wl_registry = slf.create_child::<WlRegistry>();
@@ -131,7 +131,7 @@ struct FirstRegistryHandler {
 }
 
 impl WlRegistryHandler for FirstRegistryHandler {
-    fn global(
+    fn handle_global(
         &mut self,
         slf: &Rc<WlRegistry>,
         name: u32,
@@ -159,7 +159,7 @@ struct FirstSyncHandler {
 }
 
 impl WlCallbackHandler for FirstSyncHandler {
-    fn done(&mut self, _slf: &Rc<WlCallback>, _callback_data: u32) {
+    fn handle_done(&mut self, _slf: &Rc<WlCallback>, _callback_data: u32) {
         let rh = self
             .registry
             .get_handler_ref::<FirstRegistryHandler>()
@@ -185,7 +185,7 @@ struct WlRegistryHandlerImpl {
 }
 
 impl WlRegistryHandler for WlRegistryHandlerImpl {
-    fn bind(&mut self, slf: &Rc<WlRegistry>, name: u32, id: Rc<dyn Object>) {
+    fn handle_bind(&mut self, slf: &Rc<WlRegistry>, name: u32, id: Rc<dyn Object>) {
         match id.interface() {
             XdgWmBase::INTERFACE => {
                 let id = id.clone().downcast::<XdgWmBase>().unwrap();
@@ -212,7 +212,7 @@ impl WlRegistryHandler for WlRegistryHandlerImpl {
         let _ = self.filter.handle_client_bind(slf, name, &id);
     }
 
-    fn global(
+    fn handle_global(
         &mut self,
         slf: &Rc<WlRegistry>,
         name: u32,
@@ -236,7 +236,7 @@ impl WlRegistryHandler for WlRegistryHandlerImpl {
         }
     }
 
-    fn global_remove(&mut self, slf: &Rc<WlRegistry>, name: u32) {
+    fn handle_global_remove(&mut self, slf: &Rc<WlRegistry>, name: u32) {
         let _ = self.filter.handle_server_global_remove(slf, name);
     }
 }
@@ -247,14 +247,14 @@ struct XdgWmBaseHandlerImpl {
 }
 
 impl XdgWmBaseHandler for XdgWmBaseHandlerImpl {
-    fn create_positioner(&mut self, slf: &Rc<XdgWmBase>, id: &Rc<XdgPositioner>) {
+    fn handle_create_positioner(&mut self, slf: &Rc<XdgWmBase>, id: &Rc<XdgPositioner>) {
         id.set_handler(XdgPositionerHandlerImpl {
             anchor_rect: Default::default(),
         });
         let _ = slf.send_create_positioner(id);
     }
 
-    fn get_xdg_surface(
+    fn handle_get_xdg_surface(
         &mut self,
         slf: &Rc<XdgWmBase>,
         id: &Rc<XdgSurface>,
@@ -285,7 +285,7 @@ struct XdgSurfaceHandlerImpl {
 }
 
 impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
-    fn destroy(&mut self, slf: &Rc<XdgSurface>) {
+    fn handle_destroy(&mut self, slf: &Rc<XdgSurface>) {
         slf.unset_handler();
         if self.has_server {
             let _ = slf.send_destroy();
@@ -295,7 +295,7 @@ impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
         }
     }
 
-    fn get_toplevel(&mut self, _slf: &Rc<XdgSurface>, id: &Rc<XdgToplevel>) {
+    fn handle_get_toplevel(&mut self, _slf: &Rc<XdgSurface>, id: &Rc<XdgToplevel>) {
         let zwlr_layer_surface_v1 = self
             .zwlr_layer_shell_v1
             .create_child::<ZwlrLayerSurfaceV1>();
@@ -335,7 +335,7 @@ impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
         self.zwlr_layer_surface_v1 = Some(zwlr_layer_surface_v1.clone());
     }
 
-    fn get_popup(
+    fn handle_get_popup(
         &mut self,
         slf: &Rc<XdgSurface>,
         id: &Rc<XdgPopup>,
@@ -384,7 +384,7 @@ impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
         }
     }
 
-    fn set_window_geometry(
+    fn handle_set_window_geometry(
         &mut self,
         slf: &Rc<XdgSurface>,
         x: i32,
@@ -398,7 +398,7 @@ impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
         }
     }
 
-    fn ack_configure(&mut self, slf: &Rc<XdgSurface>, serial: u32) {
+    fn handle_ack_configure(&mut self, slf: &Rc<XdgSurface>, serial: u32) {
         if let Some(tl) = &self.zwlr_layer_surface_v1 {
             let _ = tl.send_ack_configure(serial);
         } else if self.has_server {
@@ -412,26 +412,24 @@ struct XdgToplevelHandlerImpl {
 }
 
 impl XdgToplevelHandler for XdgToplevelHandlerImpl {
-    fn destroy(&mut self, slf: &Rc<XdgToplevel>) {
+    fn handle_destroy(&mut self, slf: &Rc<XdgToplevel>) {
         slf.unset_handler();
-        self.zwlr_layer_surface_v1.unset_handler();
         let _ = self.zwlr_layer_surface_v1.send_destroy();
-        let _ = slf.delete_id();
     }
 
-    fn set_parent(&mut self, _slf: &Rc<XdgToplevel>, _parent: Option<&Rc<XdgToplevel>>) {
+    fn handle_set_parent(&mut self, _slf: &Rc<XdgToplevel>, _parent: Option<&Rc<XdgToplevel>>) {
         // nothing
     }
 
-    fn set_title(&mut self, _slf: &Rc<XdgToplevel>, _title: &str) {
+    fn handle_set_title(&mut self, _slf: &Rc<XdgToplevel>, _title: &str) {
         // nothing
     }
 
-    fn set_app_id(&mut self, _slf: &Rc<XdgToplevel>, _app_id: &str) {
+    fn handle_set_app_id(&mut self, _slf: &Rc<XdgToplevel>, _app_id: &str) {
         // nothing
     }
 
-    fn show_window_menu(
+    fn handle_show_window_menu(
         &mut self,
         _slf: &Rc<XdgToplevel>,
         _seat: &Rc<WlSeat>,
@@ -442,11 +440,11 @@ impl XdgToplevelHandler for XdgToplevelHandlerImpl {
         // nothing
     }
 
-    fn r#move(&mut self, _slf: &Rc<XdgToplevel>, _seat: &Rc<WlSeat>, _serial: u32) {
+    fn handle_move(&mut self, _slf: &Rc<XdgToplevel>, _seat: &Rc<WlSeat>, _serial: u32) {
         // nothing
     }
 
-    fn resize(
+    fn handle_resize(
         &mut self,
         _slf: &Rc<XdgToplevel>,
         _seat: &Rc<WlSeat>,
@@ -456,31 +454,31 @@ impl XdgToplevelHandler for XdgToplevelHandlerImpl {
         // nothing
     }
 
-    fn set_max_size(&mut self, _slf: &Rc<XdgToplevel>, _width: i32, _height: i32) {
+    fn handle_set_max_size(&mut self, _slf: &Rc<XdgToplevel>, _width: i32, _height: i32) {
         // nothing
     }
 
-    fn set_min_size(&mut self, _slf: &Rc<XdgToplevel>, _width: i32, _height: i32) {
+    fn handle_set_min_size(&mut self, _slf: &Rc<XdgToplevel>, _width: i32, _height: i32) {
         // nothing
     }
 
-    fn set_maximized(&mut self, _slf: &Rc<XdgToplevel>) {
+    fn handle_set_maximized(&mut self, _slf: &Rc<XdgToplevel>) {
         // nothing
     }
 
-    fn unset_maximized(&mut self, _slf: &Rc<XdgToplevel>) {
+    fn handle_unset_maximized(&mut self, _slf: &Rc<XdgToplevel>) {
         // nothing
     }
 
-    fn set_fullscreen(&mut self, _slf: &Rc<XdgToplevel>, _output: Option<&Rc<WlOutput>>) {
+    fn handle_set_fullscreen(&mut self, _slf: &Rc<XdgToplevel>, _output: Option<&Rc<WlOutput>>) {
         // nothing
     }
 
-    fn unset_fullscreen(&mut self, _slf: &Rc<XdgToplevel>) {
+    fn handle_unset_fullscreen(&mut self, _slf: &Rc<XdgToplevel>) {
         // nothing
     }
 
-    fn set_minimized(&mut self, _slf: &Rc<XdgToplevel>) {
+    fn handle_set_minimized(&mut self, _slf: &Rc<XdgToplevel>) {
         // nothing
     }
 }
@@ -491,7 +489,18 @@ struct ZwlrLayerSurfaceV1HandlerImpl {
 }
 
 impl ZwlrLayerSurfaceV1Handler for ZwlrLayerSurfaceV1HandlerImpl {
-    fn configure(&mut self, _slf: &Rc<ZwlrLayerSurfaceV1>, serial: u32, width: u32, height: u32) {
+    fn delete_id(&mut self, slf: &Rc<ZwlrLayerSurfaceV1>) {
+        slf.unset_handler();
+        let _ = self.xdg_toplevel.delete_id();
+    }
+
+    fn handle_configure(
+        &mut self,
+        _slf: &Rc<ZwlrLayerSurfaceV1>,
+        serial: u32,
+        width: u32,
+        height: u32,
+    ) {
         let states = [
             XdgToplevelState::ACTIVATED.0,
             XdgToplevelState::TILED_LEFT.0,
@@ -510,7 +519,7 @@ impl ZwlrLayerSurfaceV1Handler for ZwlrLayerSurfaceV1HandlerImpl {
         let _ = self.xdg_surface.send_configure(serial);
     }
 
-    fn closed(&mut self, _slf: &Rc<ZwlrLayerSurfaceV1>) {
+    fn handle_closed(&mut self, _slf: &Rc<ZwlrLayerSurfaceV1>) {
         let _ = self.xdg_toplevel.send_close();
     }
 }
@@ -520,7 +529,7 @@ struct XdgPositionerHandlerImpl {
 }
 
 impl XdgPositionerHandler for XdgPositionerHandlerImpl {
-    fn set_anchor_rect(
+    fn handle_set_anchor_rect(
         &mut self,
         slf: &Rc<XdgPositioner>,
         x: i32,
@@ -538,7 +547,7 @@ struct XdgPopupHandlerImpl {
 }
 
 impl XdgPopupHandler for XdgPopupHandlerImpl {
-    fn configure(&mut self, slf: &Rc<XdgPopup>, x: i32, y: i32, width: i32, height: i32) {
+    fn handle_configure(&mut self, slf: &Rc<XdgPopup>, x: i32, y: i32, width: i32, height: i32) {
         let [dx, dy, ..] = self.parent_geometry;
         let _ = slf.send_configure(x - dx, y - dy, width, height);
     }
@@ -547,11 +556,11 @@ impl XdgPopupHandler for XdgPopupHandlerImpl {
 struct ZxdgDecorationManagerV1HandlerImpl;
 
 impl ZxdgDecorationManagerV1Handler for ZxdgDecorationManagerV1HandlerImpl {
-    fn destroy(&mut self, slf: &Rc<ZxdgDecorationManagerV1>) {
+    fn handle_destroy(&mut self, slf: &Rc<ZxdgDecorationManagerV1>) {
         let _ = slf.delete_id();
     }
 
-    fn get_toplevel_decoration(
+    fn handle_get_toplevel_decoration(
         &mut self,
         _slf: &Rc<ZxdgDecorationManagerV1>,
         id: &Rc<ZxdgToplevelDecorationV1>,
@@ -565,11 +574,11 @@ impl ZxdgDecorationManagerV1Handler for ZxdgDecorationManagerV1HandlerImpl {
 struct ZxdgToplevelDecorationV1HandlerImpl;
 
 impl ZxdgToplevelDecorationV1Handler for ZxdgToplevelDecorationV1HandlerImpl {
-    fn destroy(&mut self, slf: &Rc<ZxdgToplevelDecorationV1>) {
+    fn handle_destroy(&mut self, slf: &Rc<ZxdgToplevelDecorationV1>) {
         let _ = slf.delete_id();
     }
 
-    fn set_mode(
+    fn handle_set_mode(
         &mut self,
         slf: &Rc<ZxdgToplevelDecorationV1>,
         _mode: ZxdgToplevelDecorationV1Mode,
@@ -577,7 +586,7 @@ impl ZxdgToplevelDecorationV1Handler for ZxdgToplevelDecorationV1HandlerImpl {
         let _ = slf.send_configure(ZxdgToplevelDecorationV1Mode::SERVER_SIDE);
     }
 
-    fn unset_mode(&mut self, slf: &Rc<ZxdgToplevelDecorationV1>) {
+    fn handle_unset_mode(&mut self, slf: &Rc<ZxdgToplevelDecorationV1>) {
         let _ = slf.send_configure(ZxdgToplevelDecorationV1Mode::SERVER_SIDE);
     }
 }
@@ -585,7 +594,7 @@ impl ZxdgToplevelDecorationV1Handler for ZxdgToplevelDecorationV1HandlerImpl {
 struct OrgKdeKwinServerDecorationManagerHandlerImpl;
 
 impl OrgKdeKwinServerDecorationManagerHandler for OrgKdeKwinServerDecorationManagerHandlerImpl {
-    fn create(
+    fn handle_create(
         &mut self,
         _slf: &Rc<OrgKdeKwinServerDecorationManager>,
         id: &Rc<OrgKdeKwinServerDecoration>,
@@ -599,11 +608,11 @@ impl OrgKdeKwinServerDecorationManagerHandler for OrgKdeKwinServerDecorationMana
 struct OrgKdeKwinServerDecorationHandlerImpl;
 
 impl OrgKdeKwinServerDecorationHandler for OrgKdeKwinServerDecorationHandlerImpl {
-    fn release(&mut self, slf: &Rc<OrgKdeKwinServerDecoration>) {
+    fn handle_release(&mut self, slf: &Rc<OrgKdeKwinServerDecoration>) {
         let _ = slf.delete_id();
     }
 
-    fn request_mode(&mut self, slf: &Rc<OrgKdeKwinServerDecoration>, mode: u32) {
+    fn handle_request_mode(&mut self, slf: &Rc<OrgKdeKwinServerDecoration>, mode: u32) {
         let _ = slf.send_mode(mode);
     }
 }

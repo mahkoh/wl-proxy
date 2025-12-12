@@ -337,6 +337,11 @@ impl ZwpInputMethodKeyboardGrabV2 {
 
 /// A message handler for [ZwpInputMethodKeyboardGrabV2] proxies.
 pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpInputMethodKeyboardGrabV2>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// keyboard mapping
     ///
     /// This event provides a file descriptor to the client which can be
@@ -348,7 +353,7 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
     /// - `fd`: keymap file descriptor
     /// - `size`: keymap size, in bytes
     #[inline]
-    fn keymap(
+    fn handle_keymap(
         &mut self,
         _slf: &Rc<ZwpInputMethodKeyboardGrabV2>,
         format: WlKeyboardKeymapFormat,
@@ -378,7 +383,7 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
     /// - `key`: key that produced the event
     /// - `state`: physical state of the key
     #[inline]
-    fn key(
+    fn handle_key(
         &mut self,
         _slf: &Rc<ZwpInputMethodKeyboardGrabV2>,
         serial: u32,
@@ -410,7 +415,7 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
     /// - `mods_locked`: locked modifiers
     /// - `group`: keyboard layout
     #[inline]
-    fn modifiers(
+    fn handle_modifiers(
         &mut self,
         _slf: &Rc<ZwpInputMethodKeyboardGrabV2>,
         serial: u32,
@@ -433,7 +438,7 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
 
     /// release the grab object
     #[inline]
-    fn release(
+    fn handle_release(
         &mut self,
         _slf: &Rc<ZwpInputMethodKeyboardGrabV2>,
     ) {
@@ -464,7 +469,7 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
     /// - `rate`: the rate of repeating keys in characters per second
     /// - `delay`: delay in milliseconds since key down until repeating starts
     #[inline]
-    fn repeat_info(
+    fn handle_repeat_info(
         &mut self,
         _slf: &Rc<ZwpInputMethodKeyboardGrabV2>,
         rate: i32,
@@ -488,6 +493,18 @@ impl ObjectPrivate for ZwpInputMethodKeyboardGrabV2 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -506,9 +523,9 @@ impl ObjectPrivate for ZwpInputMethodKeyboardGrabV2 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).release(&self);
+                    (**handler).handle_release(&self);
                 } else {
-                    DefaultHandler.release(&self);
+                    DefaultHandler.handle_release(&self);
                 }
             }
             n => {
@@ -547,9 +564,9 @@ impl ObjectPrivate for ZwpInputMethodKeyboardGrabV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).keymap(&self, arg0, arg1, arg2);
+                    (**handler).handle_keymap(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.keymap(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_keymap(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
@@ -569,9 +586,9 @@ impl ObjectPrivate for ZwpInputMethodKeyboardGrabV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).key(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_key(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.key(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_key(&self, arg0, arg1, arg2, arg3);
                 }
             }
             2 => {
@@ -591,9 +608,9 @@ impl ObjectPrivate for ZwpInputMethodKeyboardGrabV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).modifiers(&self, arg0, arg1, arg2, arg3, arg4);
+                    (**handler).handle_modifiers(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultHandler.modifiers(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.handle_modifiers(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             3 => {
@@ -612,9 +629,9 @@ impl ObjectPrivate for ZwpInputMethodKeyboardGrabV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).repeat_info(&self, arg0, arg1);
+                    (**handler).handle_repeat_info(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.repeat_info(&self, arg0, arg1);
+                    DefaultHandler.handle_repeat_info(&self, arg0, arg1);
                 }
             }
             n => {

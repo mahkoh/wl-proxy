@@ -586,11 +586,16 @@ impl XdgPositioner {
 
 /// A message handler for [XdgPositioner] proxies.
 pub trait XdgPositionerHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<XdgPositioner>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the xdg_positioner object
     ///
     /// Notify the compositor that the xdg_positioner will no longer be used.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<XdgPositioner>,
     ) {
@@ -614,7 +619,7 @@ pub trait XdgPositionerHandler: Any {
     /// - `width`: width of positioned rectangle
     /// - `height`: height of positioned rectangle
     #[inline]
-    fn set_size(
+    fn handle_set_size(
         &mut self,
         _slf: &Rc<XdgPositioner>,
         width: i32,
@@ -649,7 +654,7 @@ pub trait XdgPositionerHandler: Any {
     /// - `width`: width of anchor rectangle
     /// - `height`: height of anchor rectangle
     #[inline]
-    fn set_anchor_rect(
+    fn handle_set_anchor_rect(
         &mut self,
         _slf: &Rc<XdgPositioner>,
         x: i32,
@@ -681,7 +686,7 @@ pub trait XdgPositionerHandler: Any {
     ///
     /// - `anchor`: anchor
     #[inline]
-    fn set_anchor(
+    fn handle_set_anchor(
         &mut self,
         _slf: &Rc<XdgPositioner>,
         anchor: XdgPositionerAnchor,
@@ -708,7 +713,7 @@ pub trait XdgPositionerHandler: Any {
     ///
     /// - `gravity`: gravity direction
     #[inline]
-    fn set_gravity(
+    fn handle_set_gravity(
         &mut self,
         _slf: &Rc<XdgPositioner>,
         gravity: XdgPositionerGravity,
@@ -741,7 +746,7 @@ pub trait XdgPositionerHandler: Any {
     ///
     /// - `constraint_adjustment`: bit mask of constraint adjustments
     #[inline]
-    fn set_constraint_adjustment(
+    fn handle_set_constraint_adjustment(
         &mut self,
         _slf: &Rc<XdgPositioner>,
         constraint_adjustment: XdgPositionerConstraintAdjustment,
@@ -773,7 +778,7 @@ pub trait XdgPositionerHandler: Any {
     /// - `x`: surface position x offset
     /// - `y`: surface position y offset
     #[inline]
-    fn set_offset(
+    fn handle_set_offset(
         &mut self,
         _slf: &Rc<XdgPositioner>,
         x: i32,
@@ -797,7 +802,7 @@ pub trait XdgPositionerHandler: Any {
     /// xdg_popup.configure event is sent with updated geometry, followed by an
     /// xdg_surface.configure event.
     #[inline]
-    fn set_reactive(
+    fn handle_set_reactive(
         &mut self,
         _slf: &Rc<XdgPositioner>,
     ) {
@@ -822,7 +827,7 @@ pub trait XdgPositionerHandler: Any {
     /// - `parent_width`: future window geometry width of parent
     /// - `parent_height`: future window geometry height of parent
     #[inline]
-    fn set_parent_size(
+    fn handle_set_parent_size(
         &mut self,
         _slf: &Rc<XdgPositioner>,
         parent_width: i32,
@@ -848,7 +853,7 @@ pub trait XdgPositionerHandler: Any {
     ///
     /// - `serial`: serial of parent configure event
     #[inline]
-    fn set_parent_configure(
+    fn handle_set_parent_configure(
         &mut self,
         _slf: &Rc<XdgPositioner>,
         serial: u32,
@@ -870,6 +875,18 @@ impl ObjectPrivate for XdgPositioner {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -888,9 +905,9 @@ impl ObjectPrivate for XdgPositioner {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -909,9 +926,9 @@ impl ObjectPrivate for XdgPositioner {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_size(&self, arg0, arg1);
+                    (**handler).handle_set_size(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_size(&self, arg0, arg1);
+                    DefaultHandler.handle_set_size(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -934,9 +951,9 @@ impl ObjectPrivate for XdgPositioner {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_anchor_rect(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_set_anchor_rect(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.set_anchor_rect(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_set_anchor_rect(&self, arg0, arg1, arg2, arg3);
                 }
             }
             3 => {
@@ -953,9 +970,9 @@ impl ObjectPrivate for XdgPositioner {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_anchor(&self, arg0);
+                    (**handler).handle_set_anchor(&self, arg0);
                 } else {
-                    DefaultHandler.set_anchor(&self, arg0);
+                    DefaultHandler.handle_set_anchor(&self, arg0);
                 }
             }
             4 => {
@@ -972,9 +989,9 @@ impl ObjectPrivate for XdgPositioner {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_gravity(&self, arg0);
+                    (**handler).handle_set_gravity(&self, arg0);
                 } else {
-                    DefaultHandler.set_gravity(&self, arg0);
+                    DefaultHandler.handle_set_gravity(&self, arg0);
                 }
             }
             5 => {
@@ -991,9 +1008,9 @@ impl ObjectPrivate for XdgPositioner {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_constraint_adjustment(&self, arg0);
+                    (**handler).handle_set_constraint_adjustment(&self, arg0);
                 } else {
-                    DefaultHandler.set_constraint_adjustment(&self, arg0);
+                    DefaultHandler.handle_set_constraint_adjustment(&self, arg0);
                 }
             }
             6 => {
@@ -1012,9 +1029,9 @@ impl ObjectPrivate for XdgPositioner {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_offset(&self, arg0, arg1);
+                    (**handler).handle_set_offset(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_offset(&self, arg0, arg1);
+                    DefaultHandler.handle_set_offset(&self, arg0, arg1);
                 }
             }
             7 => {
@@ -1028,9 +1045,9 @@ impl ObjectPrivate for XdgPositioner {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_reactive(&self);
+                    (**handler).handle_set_reactive(&self);
                 } else {
-                    DefaultHandler.set_reactive(&self);
+                    DefaultHandler.handle_set_reactive(&self);
                 }
             }
             8 => {
@@ -1049,9 +1066,9 @@ impl ObjectPrivate for XdgPositioner {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_parent_size(&self, arg0, arg1);
+                    (**handler).handle_set_parent_size(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_parent_size(&self, arg0, arg1);
+                    DefaultHandler.handle_set_parent_size(&self, arg0, arg1);
                 }
             }
             9 => {
@@ -1067,9 +1084,9 @@ impl ObjectPrivate for XdgPositioner {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_parent_configure(&self, arg0);
+                    (**handler).handle_set_parent_configure(&self, arg0);
                 } else {
-                    DefaultHandler.set_parent_configure(&self, arg0);
+                    DefaultHandler.handle_set_parent_configure(&self, arg0);
                 }
             }
             n => {

@@ -381,6 +381,11 @@ impl ZwpFullscreenShellV1 {
 
 /// A message handler for [ZwpFullscreenShellV1] proxies.
 pub trait ZwpFullscreenShellV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpFullscreenShellV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// release the wl_fullscreen_shell interface
     ///
     /// Release the binding from the wl_fullscreen_shell interface.
@@ -389,7 +394,7 @@ pub trait ZwpFullscreenShellV1Handler: Any {
     /// the client binds to wl_fullscreen_shell multiple times, it may wish
     /// to free some of those bindings.
     #[inline]
-    fn release(
+    fn handle_release(
         &mut self,
         _slf: &Rc<ZwpFullscreenShellV1>,
     ) {
@@ -415,7 +420,7 @@ pub trait ZwpFullscreenShellV1Handler: Any {
     ///
     /// - `capability`:
     #[inline]
-    fn capability(
+    fn handle_capability(
         &mut self,
         _slf: &Rc<ZwpFullscreenShellV1>,
         capability: ZwpFullscreenShellV1Capability,
@@ -461,7 +466,7 @@ pub trait ZwpFullscreenShellV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn present_surface(
+    fn handle_present_surface(
         &mut self,
         _slf: &Rc<ZwpFullscreenShellV1>,
         surface: Option<&Rc<WlSurface>>,
@@ -532,7 +537,7 @@ pub trait ZwpFullscreenShellV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn present_surface_for_mode(
+    fn handle_present_surface_for_mode(
         &mut self,
         _slf: &Rc<ZwpFullscreenShellV1>,
         surface: &Rc<WlSurface>,
@@ -560,6 +565,18 @@ impl ObjectPrivate for ZwpFullscreenShellV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -578,9 +595,9 @@ impl ObjectPrivate for ZwpFullscreenShellV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).release(&self);
+                    (**handler).handle_release(&self);
                 } else {
-                    DefaultHandler.release(&self);
+                    DefaultHandler.handle_release(&self);
                 }
             }
             1 => {
@@ -627,9 +644,9 @@ impl ObjectPrivate for ZwpFullscreenShellV1 {
                 let arg0 = arg0.as_ref();
                 let arg2 = arg2.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).present_surface(&self, arg0, arg1, arg2);
+                    (**handler).handle_present_surface(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.present_surface(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_present_surface(&self, arg0, arg1, arg2);
                 }
             }
             2 => {
@@ -672,9 +689,9 @@ impl ObjectPrivate for ZwpFullscreenShellV1 {
                 let arg1 = &arg1;
                 let arg3 = &arg3;
                 if let Some(handler) = handler {
-                    (**handler).present_surface_for_mode(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_present_surface_for_mode(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.present_surface_for_mode(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_present_surface_for_mode(&self, arg0, arg1, arg2, arg3);
                 }
             }
             n => {
@@ -708,9 +725,9 @@ impl ObjectPrivate for ZwpFullscreenShellV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).capability(&self, arg0);
+                    (**handler).handle_capability(&self, arg0);
                 } else {
-                    DefaultHandler.capability(&self, arg0);
+                    DefaultHandler.handle_capability(&self, arg0);
                 }
             }
             n => {

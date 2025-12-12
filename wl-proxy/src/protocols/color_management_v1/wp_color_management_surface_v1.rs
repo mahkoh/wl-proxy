@@ -222,12 +222,17 @@ impl WpColorManagementSurfaceV1 {
 
 /// A message handler for [WpColorManagementSurfaceV1] proxies.
 pub trait WpColorManagementSurfaceV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpColorManagementSurfaceV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the color management interface for a surface
     ///
     /// Destroy the wp_color_management_surface_v1 object and do the same as
     /// unset_image_description.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpColorManagementSurfaceV1>,
     ) {
@@ -288,7 +293,7 @@ pub trait WpColorManagementSurfaceV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_image_description(
+    fn handle_set_image_description(
         &mut self,
         _slf: &Rc<WpColorManagementSurfaceV1>,
         image_description: &Rc<WpImageDescriptionV1>,
@@ -312,7 +317,7 @@ pub trait WpColorManagementSurfaceV1Handler: Any {
     /// an image description. This is double-buffered state, see
     /// wl_surface.commit.
     #[inline]
-    fn unset_image_description(
+    fn handle_unset_image_description(
         &mut self,
         _slf: &Rc<WpColorManagementSurfaceV1>,
     ) {
@@ -330,6 +335,18 @@ impl ObjectPrivate for WpColorManagementSurfaceV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpColorManagementSurfaceV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -350,9 +367,9 @@ impl ObjectPrivate for WpColorManagementSurfaceV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -379,9 +396,9 @@ impl ObjectPrivate for WpColorManagementSurfaceV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).set_image_description(&self, arg0, arg1);
+                    (**handler).handle_set_image_description(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_image_description(&self, arg0, arg1);
+                    DefaultHandler.handle_set_image_description(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -395,9 +412,9 @@ impl ObjectPrivate for WpColorManagementSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).unset_image_description(&self);
+                    (**handler).handle_unset_image_description(&self);
                 } else {
-                    DefaultHandler.unset_image_description(&self);
+                    DefaultHandler.handle_unset_image_description(&self);
                 }
             }
             n => {

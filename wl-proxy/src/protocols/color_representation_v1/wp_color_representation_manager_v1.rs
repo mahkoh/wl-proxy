@@ -301,12 +301,17 @@ impl WpColorRepresentationManagerV1 {
 
 /// A message handler for [WpColorRepresentationManagerV1] proxies.
 pub trait WpColorRepresentationManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpColorRepresentationManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the manager
     ///
     /// Destroy the wp_color_representation_manager_v1 object. This does not
     /// affect any other objects in any way.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpColorRepresentationManagerV1>,
     ) {
@@ -335,7 +340,7 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_surface(
+    fn handle_get_surface(
         &mut self,
         _slf: &Rc<WpColorRepresentationManagerV1>,
         id: &Rc<WpColorRepresentationSurfaceV1>,
@@ -362,7 +367,7 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
     ///
     /// - `alpha_mode`: supported alpha mode
     #[inline]
-    fn supported_alpha_mode(
+    fn handle_supported_alpha_mode(
         &mut self,
         _slf: &Rc<WpColorRepresentationManagerV1>,
         alpha_mode: WpColorRepresentationSurfaceV1AlphaMode,
@@ -390,7 +395,7 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
     /// - `coefficients`: supported matrix coefficients
     /// - `range`: full range flag
     #[inline]
-    fn supported_coefficients_and_ranges(
+    fn handle_supported_coefficients_and_ranges(
         &mut self,
         _slf: &Rc<WpColorRepresentationManagerV1>,
         coefficients: WpColorRepresentationSurfaceV1Coefficients,
@@ -409,7 +414,7 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
     ///
     /// This event is sent when all supported features have been sent.
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<WpColorRepresentationManagerV1>,
     ) {
@@ -427,6 +432,18 @@ impl ObjectPrivate for WpColorRepresentationManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpColorRepresentationManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -447,9 +464,9 @@ impl ObjectPrivate for WpColorRepresentationManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -480,9 +497,9 @@ impl ObjectPrivate for WpColorRepresentationManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_surface(&self, arg0, arg1);
+                    (**handler).handle_get_surface(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_surface(&self, arg0, arg1);
+                    DefaultHandler.handle_get_surface(&self, arg0, arg1);
                 }
             }
             n => {
@@ -516,9 +533,9 @@ impl ObjectPrivate for WpColorRepresentationManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).supported_alpha_mode(&self, arg0);
+                    (**handler).handle_supported_alpha_mode(&self, arg0);
                 } else {
-                    DefaultHandler.supported_alpha_mode(&self, arg0);
+                    DefaultHandler.handle_supported_alpha_mode(&self, arg0);
                 }
             }
             1 => {
@@ -537,9 +554,9 @@ impl ObjectPrivate for WpColorRepresentationManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).supported_coefficients_and_ranges(&self, arg0, arg1);
+                    (**handler).handle_supported_coefficients_and_ranges(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.supported_coefficients_and_ranges(&self, arg0, arg1);
+                    DefaultHandler.handle_supported_coefficients_and_ranges(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -553,9 +570,9 @@ impl ObjectPrivate for WpColorRepresentationManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).done(&self);
+                    (**handler).handle_done(&self);
                 } else {
-                    DefaultHandler.done(&self);
+                    DefaultHandler.handle_done(&self);
                 }
             }
             n => {

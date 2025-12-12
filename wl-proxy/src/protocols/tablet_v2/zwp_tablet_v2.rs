@@ -400,11 +400,16 @@ impl ZwpTabletV2 {
 
 /// A message handler for [ZwpTabletV2] proxies.
 pub trait ZwpTabletV2Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpTabletV2>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the tablet object
     ///
     /// This destroys the client's resource for this tablet object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpTabletV2>,
     ) {
@@ -428,7 +433,7 @@ pub trait ZwpTabletV2Handler: Any {
     ///
     /// - `name`: the device name
     #[inline]
-    fn name(
+    fn handle_name(
         &mut self,
         _slf: &Rc<ZwpTabletV2>,
         name: &str,
@@ -461,7 +466,7 @@ pub trait ZwpTabletV2Handler: Any {
     /// - `vid`: vendor id
     /// - `pid`: product id
     #[inline]
-    fn id(
+    fn handle_id(
         &mut self,
         _slf: &Rc<ZwpTabletV2>,
         vid: u32,
@@ -497,7 +502,7 @@ pub trait ZwpTabletV2Handler: Any {
     ///
     /// - `path`: path to local device
     #[inline]
-    fn path(
+    fn handle_path(
         &mut self,
         _slf: &Rc<ZwpTabletV2>,
         path: &str,
@@ -517,7 +522,7 @@ pub trait ZwpTabletV2Handler: Any {
     /// description of the tablet to be complete and finalize initialization
     /// of the tablet.
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<ZwpTabletV2>,
     ) {
@@ -536,7 +541,7 @@ pub trait ZwpTabletV2Handler: Any {
     /// When this event is received, the client must zwp_tablet_v2.destroy
     /// the object.
     #[inline]
-    fn removed(
+    fn handle_removed(
         &mut self,
         _slf: &Rc<ZwpTabletV2>,
     ) {
@@ -562,7 +567,7 @@ pub trait ZwpTabletV2Handler: Any {
     ///
     /// - `bustype`: bus type
     #[inline]
-    fn bustype(
+    fn handle_bustype(
         &mut self,
         _slf: &Rc<ZwpTabletV2>,
         bustype: ZwpTabletV2Bustype,
@@ -584,6 +589,18 @@ impl ObjectPrivate for ZwpTabletV2 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -602,9 +619,9 @@ impl ObjectPrivate for ZwpTabletV2 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -658,9 +675,9 @@ impl ObjectPrivate for ZwpTabletV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).name(&self, arg0);
+                    (**handler).handle_name(&self, arg0);
                 } else {
-                    DefaultHandler.name(&self, arg0);
+                    DefaultHandler.handle_name(&self, arg0);
                 }
             }
             1 => {
@@ -677,9 +694,9 @@ impl ObjectPrivate for ZwpTabletV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).id(&self, arg0, arg1);
+                    (**handler).handle_id(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.id(&self, arg0, arg1);
+                    DefaultHandler.handle_id(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -716,9 +733,9 @@ impl ObjectPrivate for ZwpTabletV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).path(&self, arg0);
+                    (**handler).handle_path(&self, arg0);
                 } else {
-                    DefaultHandler.path(&self, arg0);
+                    DefaultHandler.handle_path(&self, arg0);
                 }
             }
             3 => {
@@ -732,9 +749,9 @@ impl ObjectPrivate for ZwpTabletV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).done(&self);
+                    (**handler).handle_done(&self);
                 } else {
-                    DefaultHandler.done(&self);
+                    DefaultHandler.handle_done(&self);
                 }
             }
             4 => {
@@ -748,9 +765,9 @@ impl ObjectPrivate for ZwpTabletV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).removed(&self);
+                    (**handler).handle_removed(&self);
                 } else {
-                    DefaultHandler.removed(&self);
+                    DefaultHandler.handle_removed(&self);
                 }
             }
             5 => {
@@ -767,9 +784,9 @@ impl ObjectPrivate for ZwpTabletV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).bustype(&self, arg0);
+                    (**handler).handle_bustype(&self, arg0);
                 } else {
-                    DefaultHandler.bustype(&self, arg0);
+                    DefaultHandler.handle_bustype(&self, arg0);
                 }
             }
             n => {

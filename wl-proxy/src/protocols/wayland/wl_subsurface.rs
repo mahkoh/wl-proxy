@@ -413,6 +413,11 @@ impl WlSubsurface {
 
 /// A message handler for [WlSubsurface] proxies.
 pub trait WlSubsurfaceHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlSubsurface>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// remove sub-surface interface
     ///
     /// The sub-surface interface is removed from the wl_surface object
@@ -420,7 +425,7 @@ pub trait WlSubsurfaceHandler: Any {
     /// wl_subcompositor.get_subsurface request. The wl_surface's association
     /// to the parent is deleted. The wl_surface is unmapped immediately.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WlSubsurface>,
     ) {
@@ -453,7 +458,7 @@ pub trait WlSubsurfaceHandler: Any {
     /// - `x`: x coordinate in the parent surface
     /// - `y`: y coordinate in the parent surface
     #[inline]
-    fn set_position(
+    fn handle_set_position(
         &mut self,
         _slf: &Rc<WlSubsurface>,
         x: i32,
@@ -491,7 +496,7 @@ pub trait WlSubsurfaceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn place_above(
+    fn handle_place_above(
         &mut self,
         _slf: &Rc<WlSubsurface>,
         sibling: &Rc<WlSurface>,
@@ -516,7 +521,7 @@ pub trait WlSubsurfaceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn place_below(
+    fn handle_place_below(
         &mut self,
         _slf: &Rc<WlSubsurface>,
         sibling: &Rc<WlSurface>,
@@ -545,7 +550,7 @@ pub trait WlSubsurfaceHandler: Any {
     ///
     /// See wl_subsurface for the recursive effect of this mode.
     #[inline]
-    fn set_sync(
+    fn handle_set_sync(
         &mut self,
         _slf: &Rc<WlSubsurface>,
     ) {
@@ -578,7 +583,7 @@ pub trait WlSubsurfaceHandler: Any {
     /// If a surface's parent surface behaves as desynchronized, then
     /// the cached state is applied on set_desync.
     #[inline]
-    fn set_desync(
+    fn handle_set_desync(
         &mut self,
         _slf: &Rc<WlSubsurface>,
     ) {
@@ -596,6 +601,18 @@ impl ObjectPrivate for WlSubsurface {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlSubsurface, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -616,9 +633,9 @@ impl ObjectPrivate for WlSubsurface {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -637,9 +654,9 @@ impl ObjectPrivate for WlSubsurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_position(&self, arg0, arg1);
+                    (**handler).handle_set_position(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_position(&self, arg0, arg1);
+                    DefaultHandler.handle_set_position(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -664,9 +681,9 @@ impl ObjectPrivate for WlSubsurface {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).place_above(&self, arg0);
+                    (**handler).handle_place_above(&self, arg0);
                 } else {
-                    DefaultHandler.place_above(&self, arg0);
+                    DefaultHandler.handle_place_above(&self, arg0);
                 }
             }
             3 => {
@@ -691,9 +708,9 @@ impl ObjectPrivate for WlSubsurface {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).place_below(&self, arg0);
+                    (**handler).handle_place_below(&self, arg0);
                 } else {
-                    DefaultHandler.place_below(&self, arg0);
+                    DefaultHandler.handle_place_below(&self, arg0);
                 }
             }
             4 => {
@@ -707,9 +724,9 @@ impl ObjectPrivate for WlSubsurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_sync(&self);
+                    (**handler).handle_set_sync(&self);
                 } else {
-                    DefaultHandler.set_sync(&self);
+                    DefaultHandler.handle_set_sync(&self);
                 }
             }
             5 => {
@@ -723,9 +740,9 @@ impl ObjectPrivate for WlSubsurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_desync(&self);
+                    (**handler).handle_set_desync(&self);
                 } else {
-                    DefaultHandler.set_desync(&self);
+                    DefaultHandler.handle_set_desync(&self);
                 }
             }
             n => {

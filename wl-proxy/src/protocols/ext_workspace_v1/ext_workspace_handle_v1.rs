@@ -596,6 +596,11 @@ impl ExtWorkspaceHandleV1 {
 
 /// A message handler for [ExtWorkspaceHandleV1] proxies.
 pub trait ExtWorkspaceHandleV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ExtWorkspaceHandleV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// workspace id
     ///
     /// If this event is emitted, it will be send immediately after the
@@ -616,7 +621,7 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     ///
     /// - `id`:
     #[inline]
-    fn id(
+    fn handle_id(
         &mut self,
         _slf: &Rc<ExtWorkspaceHandleV1>,
         id: &str,
@@ -641,7 +646,7 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     ///
     /// - `name`:
     #[inline]
-    fn name(
+    fn handle_name(
         &mut self,
         _slf: &Rc<ExtWorkspaceHandleV1>,
         name: &str,
@@ -679,7 +684,7 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     ///
     /// - `coordinates`:
     #[inline]
-    fn coordinates(
+    fn handle_coordinates(
         &mut self,
         _slf: &Rc<ExtWorkspaceHandleV1>,
         coordinates: &[u8],
@@ -705,7 +710,7 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     ///
     /// - `state`:
     #[inline]
-    fn state(
+    fn handle_state(
         &mut self,
         _slf: &Rc<ExtWorkspaceHandleV1>,
         state: ExtWorkspaceHandleV1State,
@@ -738,7 +743,7 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     ///
     /// - `capabilities`: capabilities
     #[inline]
-    fn capabilities(
+    fn handle_capabilities(
         &mut self,
         _slf: &Rc<ExtWorkspaceHandleV1>,
         capabilities: ExtWorkspaceHandleV1WorkspaceCapabilities,
@@ -763,7 +768,7 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     /// The compositor must only remove a workspaces not currently belonging to any
     /// workspace_group.
     #[inline]
-    fn removed(
+    fn handle_removed(
         &mut self,
         _slf: &Rc<ExtWorkspaceHandleV1>,
     ) {
@@ -782,7 +787,7 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     /// use the workspace object any more or after the remove event to finalize
     /// the destruction of the object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ExtWorkspaceHandleV1>,
     ) {
@@ -802,7 +807,7 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     /// workspace may or may not deactivate all other workspaces in the same
     /// group.
     #[inline]
-    fn activate(
+    fn handle_activate(
         &mut self,
         _slf: &Rc<ExtWorkspaceHandleV1>,
     ) {
@@ -819,7 +824,7 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     ///
     /// There is no guarantee the workspace will be actually deactivated.
     #[inline]
-    fn deactivate(
+    fn handle_deactivate(
         &mut self,
         _slf: &Rc<ExtWorkspaceHandleV1>,
     ) {
@@ -843,7 +848,7 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn assign(
+    fn handle_assign(
         &mut self,
         _slf: &Rc<ExtWorkspaceHandleV1>,
         workspace_group: &Rc<ExtWorkspaceGroupHandleV1>,
@@ -862,7 +867,7 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     ///
     /// There is no guarantee the workspace will be actually removed.
     #[inline]
-    fn remove(
+    fn handle_remove(
         &mut self,
         _slf: &Rc<ExtWorkspaceHandleV1>,
     ) {
@@ -880,6 +885,18 @@ impl ObjectPrivate for ExtWorkspaceHandleV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtWorkspaceHandleV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -900,9 +917,9 @@ impl ObjectPrivate for ExtWorkspaceHandleV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -916,9 +933,9 @@ impl ObjectPrivate for ExtWorkspaceHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).activate(&self);
+                    (**handler).handle_activate(&self);
                 } else {
-                    DefaultHandler.activate(&self);
+                    DefaultHandler.handle_activate(&self);
                 }
             }
             2 => {
@@ -932,9 +949,9 @@ impl ObjectPrivate for ExtWorkspaceHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).deactivate(&self);
+                    (**handler).handle_deactivate(&self);
                 } else {
-                    DefaultHandler.deactivate(&self);
+                    DefaultHandler.handle_deactivate(&self);
                 }
             }
             3 => {
@@ -959,9 +976,9 @@ impl ObjectPrivate for ExtWorkspaceHandleV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).assign(&self, arg0);
+                    (**handler).handle_assign(&self, arg0);
                 } else {
-                    DefaultHandler.assign(&self, arg0);
+                    DefaultHandler.handle_assign(&self, arg0);
                 }
             }
             4 => {
@@ -975,9 +992,9 @@ impl ObjectPrivate for ExtWorkspaceHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).remove(&self);
+                    (**handler).handle_remove(&self);
                 } else {
-                    DefaultHandler.remove(&self);
+                    DefaultHandler.handle_remove(&self);
                 }
             }
             n => {
@@ -1031,9 +1048,9 @@ impl ObjectPrivate for ExtWorkspaceHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).id(&self, arg0);
+                    (**handler).handle_id(&self, arg0);
                 } else {
-                    DefaultHandler.id(&self, arg0);
+                    DefaultHandler.handle_id(&self, arg0);
                 }
             }
             1 => {
@@ -1070,9 +1087,9 @@ impl ObjectPrivate for ExtWorkspaceHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).name(&self, arg0);
+                    (**handler).handle_name(&self, arg0);
                 } else {
-                    DefaultHandler.name(&self, arg0);
+                    DefaultHandler.handle_name(&self, arg0);
                 }
             }
             2 => {
@@ -1101,9 +1118,9 @@ impl ObjectPrivate for ExtWorkspaceHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).coordinates(&self, arg0);
+                    (**handler).handle_coordinates(&self, arg0);
                 } else {
-                    DefaultHandler.coordinates(&self, arg0);
+                    DefaultHandler.handle_coordinates(&self, arg0);
                 }
             }
             3 => {
@@ -1120,9 +1137,9 @@ impl ObjectPrivate for ExtWorkspaceHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).state(&self, arg0);
+                    (**handler).handle_state(&self, arg0);
                 } else {
-                    DefaultHandler.state(&self, arg0);
+                    DefaultHandler.handle_state(&self, arg0);
                 }
             }
             4 => {
@@ -1139,9 +1156,9 @@ impl ObjectPrivate for ExtWorkspaceHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).capabilities(&self, arg0);
+                    (**handler).handle_capabilities(&self, arg0);
                 } else {
-                    DefaultHandler.capabilities(&self, arg0);
+                    DefaultHandler.handle_capabilities(&self, arg0);
                 }
             }
             5 => {
@@ -1155,9 +1172,9 @@ impl ObjectPrivate for ExtWorkspaceHandleV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).removed(&self);
+                    (**handler).handle_removed(&self);
                 } else {
-                    DefaultHandler.removed(&self);
+                    DefaultHandler.handle_removed(&self);
                 }
             }
             n => {

@@ -200,11 +200,16 @@ impl ZwpKeyboardShortcutsInhibitorV1 {
 
 /// A message handler for [ZwpKeyboardShortcutsInhibitorV1] proxies.
 pub trait ZwpKeyboardShortcutsInhibitorV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpKeyboardShortcutsInhibitorV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the keyboard shortcuts inhibitor object
     ///
     /// Remove the keyboard shortcuts inhibitor from the associated wl_surface.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpKeyboardShortcutsInhibitorV1>,
     ) {
@@ -229,7 +234,7 @@ pub trait ZwpKeyboardShortcutsInhibitorV1Handler: Any {
     /// re-enable and existing shortcuts inhibitor using any mechanism
     /// offered by the compositor.
     #[inline]
-    fn active(
+    fn handle_active(
         &mut self,
         _slf: &Rc<ZwpKeyboardShortcutsInhibitorV1>,
     ) {
@@ -245,7 +250,7 @@ pub trait ZwpKeyboardShortcutsInhibitorV1Handler: Any {
     /// This event indicates that the shortcuts inhibitor is inactive,
     /// normal shortcuts processing is restored by the compositor.
     #[inline]
-    fn inactive(
+    fn handle_inactive(
         &mut self,
         _slf: &Rc<ZwpKeyboardShortcutsInhibitorV1>,
     ) {
@@ -263,6 +268,18 @@ impl ObjectPrivate for ZwpKeyboardShortcutsInhibitorV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpKeyboardShortcutsInhibitorV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -283,9 +300,9 @@ impl ObjectPrivate for ZwpKeyboardShortcutsInhibitorV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -316,9 +333,9 @@ impl ObjectPrivate for ZwpKeyboardShortcutsInhibitorV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).active(&self);
+                    (**handler).handle_active(&self);
                 } else {
-                    DefaultHandler.active(&self);
+                    DefaultHandler.handle_active(&self);
                 }
             }
             1 => {
@@ -332,9 +349,9 @@ impl ObjectPrivate for ZwpKeyboardShortcutsInhibitorV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).inactive(&self);
+                    (**handler).handle_inactive(&self);
                 } else {
-                    DefaultHandler.inactive(&self);
+                    DefaultHandler.handle_inactive(&self);
                 }
             }
             n => {

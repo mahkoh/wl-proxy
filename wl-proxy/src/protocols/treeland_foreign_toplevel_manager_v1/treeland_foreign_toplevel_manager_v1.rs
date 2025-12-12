@@ -246,6 +246,11 @@ impl TreelandForeignToplevelManagerV1 {
 
 /// A message handler for [TreelandForeignToplevelManagerV1] proxies.
 pub trait TreelandForeignToplevelManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandForeignToplevelManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// a toplevel has been created
     ///
     /// This event is emitted whenever a new toplevel window is created. It
@@ -260,7 +265,7 @@ pub trait TreelandForeignToplevelManagerV1Handler: Any {
     ///
     /// - `toplevel`:
     #[inline]
-    fn toplevel(
+    fn handle_toplevel(
         &mut self,
         _slf: &Rc<TreelandForeignToplevelManagerV1>,
         toplevel: &Rc<TreelandForeignToplevelHandleV1>,
@@ -281,7 +286,7 @@ pub trait TreelandForeignToplevelManagerV1Handler: Any {
     ///
     /// The client must not send any more requests after this one.
     #[inline]
-    fn stop(
+    fn handle_stop(
         &mut self,
         _slf: &Rc<TreelandForeignToplevelManagerV1>,
     ) {
@@ -299,7 +304,7 @@ pub trait TreelandForeignToplevelManagerV1Handler: Any {
     /// immediately after sending this request, so it will become invalid and
     /// the client should free any resources associated with it.
     #[inline]
-    fn finished(
+    fn handle_finished(
         &mut self,
         _slf: &Rc<TreelandForeignToplevelManagerV1>,
     ) {
@@ -318,7 +323,7 @@ pub trait TreelandForeignToplevelManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_dock_preview_context(
+    fn handle_get_dock_preview_context(
         &mut self,
         _slf: &Rc<TreelandForeignToplevelManagerV1>,
         relative_surface: &Rc<WlSurface>,
@@ -342,6 +347,18 @@ impl ObjectPrivate for TreelandForeignToplevelManagerV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -359,9 +376,9 @@ impl ObjectPrivate for TreelandForeignToplevelManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).stop(&self);
+                    (**handler).handle_stop(&self);
                 } else {
-                    DefaultHandler.stop(&self);
+                    DefaultHandler.handle_stop(&self);
                 }
             }
             1 => {
@@ -392,9 +409,9 @@ impl ObjectPrivate for TreelandForeignToplevelManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_dock_preview_context(&self, arg0, arg1);
+                    (**handler).handle_get_dock_preview_context(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_dock_preview_context(&self, arg0, arg1);
+                    DefaultHandler.handle_get_dock_preview_context(&self, arg0, arg1);
                 }
             }
             n => {
@@ -432,9 +449,9 @@ impl ObjectPrivate for TreelandForeignToplevelManagerV1 {
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "toplevel", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).toplevel(&self, arg0);
+                    (**handler).handle_toplevel(&self, arg0);
                 } else {
-                    DefaultHandler.toplevel(&self, arg0);
+                    DefaultHandler.handle_toplevel(&self, arg0);
                 }
             }
             1 => {
@@ -449,9 +466,9 @@ impl ObjectPrivate for TreelandForeignToplevelManagerV1 {
                 }
                 self.core.handle_server_destroy();
                 if let Some(handler) = handler {
-                    (**handler).finished(&self);
+                    (**handler).handle_finished(&self);
                 } else {
-                    DefaultHandler.finished(&self);
+                    DefaultHandler.handle_finished(&self);
                 }
             }
             n => {

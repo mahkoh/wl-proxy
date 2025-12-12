@@ -151,11 +151,16 @@ impl XdgSystemBellV1 {
 
 /// A message handler for [XdgSystemBellV1] proxies.
 pub trait XdgSystemBellV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<XdgSystemBellV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the system bell object
     ///
     /// Notify that the object will no longer be used.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<XdgSystemBellV1>,
     ) {
@@ -185,7 +190,7 @@ pub trait XdgSystemBellV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn ring(
+    fn handle_ring(
         &mut self,
         _slf: &Rc<XdgSystemBellV1>,
         surface: Option<&Rc<WlSurface>>,
@@ -207,6 +212,18 @@ impl ObjectPrivate for XdgSystemBellV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -225,9 +242,9 @@ impl ObjectPrivate for XdgSystemBellV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -257,9 +274,9 @@ impl ObjectPrivate for XdgSystemBellV1 {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).ring(&self, arg0);
+                    (**handler).handle_ring(&self, arg0);
                 } else {
-                    DefaultHandler.ring(&self, arg0);
+                    DefaultHandler.handle_ring(&self, arg0);
                 }
             }
             n => {

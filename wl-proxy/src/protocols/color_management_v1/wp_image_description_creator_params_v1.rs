@@ -835,6 +835,11 @@ impl WpImageDescriptionCreatorParamsV1 {
 
 /// A message handler for [WpImageDescriptionCreatorParamsV1] proxies.
 pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpImageDescriptionCreatorParamsV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// Create the image description object using params
     ///
     /// Create an image description object based on the parameters previously
@@ -872,7 +877,7 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     ///
     /// - `image_description`:
     #[inline]
-    fn create(
+    fn handle_create(
         &mut self,
         _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         image_description: &Rc<WpImageDescriptionV1>,
@@ -904,7 +909,7 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     ///
     /// - `tf`: named transfer function
     #[inline]
-    fn set_tf_named(
+    fn handle_set_tf_named(
         &mut self,
         _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         tf: WpColorManagerV1TransferFunction,
@@ -942,7 +947,7 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     ///
     /// - `eexp`: the exponent * 10000
     #[inline]
-    fn set_tf_power(
+    fn handle_set_tf_power(
         &mut self,
         _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         eexp: u32,
@@ -972,7 +977,7 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     ///
     /// - `primaries`: named primaries
     #[inline]
-    fn set_primaries_named(
+    fn handle_set_primaries_named(
         &mut self,
         _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         primaries: WpColorManagerV1Primaries,
@@ -1012,7 +1017,7 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     /// - `w_x`: White x * 1M
     /// - `w_y`: White y * 1M
     #[inline]
-    fn set_primaries(
+    fn handle_set_primaries(
         &mut self,
         _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         r_x: i32,
@@ -1097,7 +1102,7 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     /// - `max_lum`: maximum luminance (cd/m²)
     /// - `reference_lum`: reference white luminance (cd/m²)
     #[inline]
-    fn set_luminances(
+    fn handle_set_luminances(
         &mut self,
         _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         min_lum: u32,
@@ -1174,7 +1179,7 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     /// - `w_x`: White x * 1M
     /// - `w_y`: White y * 1M
     #[inline]
-    fn set_mastering_display_primaries(
+    fn handle_set_mastering_display_primaries(
         &mut self,
         _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         r_x: i32,
@@ -1242,7 +1247,7 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     /// - `min_lum`: min L (cd/m²) * 10000
     /// - `max_lum`: max L (cd/m²)
     #[inline]
-    fn set_mastering_luminance(
+    fn handle_set_mastering_luminance(
         &mut self,
         _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         min_lum: u32,
@@ -1267,7 +1272,7 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     ///
     /// - `max_cll`: Maximum content light level (cd/m²)
     #[inline]
-    fn set_max_cll(
+    fn handle_set_max_cll(
         &mut self,
         _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         max_cll: u32,
@@ -1291,7 +1296,7 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     ///
     /// - `max_fall`: Maximum frame-average light level (cd/m²)
     #[inline]
-    fn set_max_fall(
+    fn handle_set_max_fall(
         &mut self,
         _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         max_fall: u32,
@@ -1311,6 +1316,18 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpImageDescriptionCreatorParamsV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -1338,9 +1355,9 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                 let arg0 = &arg0;
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).create(&self, arg0);
+                    (**handler).handle_create(&self, arg0);
                 } else {
-                    DefaultHandler.create(&self, arg0);
+                    DefaultHandler.handle_create(&self, arg0);
                 }
             }
             1 => {
@@ -1357,9 +1374,9 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_tf_named(&self, arg0);
+                    (**handler).handle_set_tf_named(&self, arg0);
                 } else {
-                    DefaultHandler.set_tf_named(&self, arg0);
+                    DefaultHandler.handle_set_tf_named(&self, arg0);
                 }
             }
             2 => {
@@ -1375,9 +1392,9 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_tf_power(&self, arg0);
+                    (**handler).handle_set_tf_power(&self, arg0);
                 } else {
-                    DefaultHandler.set_tf_power(&self, arg0);
+                    DefaultHandler.handle_set_tf_power(&self, arg0);
                 }
             }
             3 => {
@@ -1394,9 +1411,9 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_primaries_named(&self, arg0);
+                    (**handler).handle_set_primaries_named(&self, arg0);
                 } else {
-                    DefaultHandler.set_primaries_named(&self, arg0);
+                    DefaultHandler.handle_set_primaries_named(&self, arg0);
                 }
             }
             4 => {
@@ -1427,9 +1444,9 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                    (**handler).handle_set_primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 } else {
-                    DefaultHandler.set_primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                    DefaultHandler.handle_set_primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 }
             }
             5 => {
@@ -1447,9 +1464,9 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_luminances(&self, arg0, arg1, arg2);
+                    (**handler).handle_set_luminances(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.set_luminances(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_set_luminances(&self, arg0, arg1, arg2);
                 }
             }
             6 => {
@@ -1480,9 +1497,9 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_mastering_display_primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                    (**handler).handle_set_mastering_display_primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 } else {
-                    DefaultHandler.set_mastering_display_primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                    DefaultHandler.handle_set_mastering_display_primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 }
             }
             7 => {
@@ -1499,9 +1516,9 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_mastering_luminance(&self, arg0, arg1);
+                    (**handler).handle_set_mastering_luminance(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_mastering_luminance(&self, arg0, arg1);
+                    DefaultHandler.handle_set_mastering_luminance(&self, arg0, arg1);
                 }
             }
             8 => {
@@ -1517,9 +1534,9 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_max_cll(&self, arg0);
+                    (**handler).handle_set_max_cll(&self, arg0);
                 } else {
-                    DefaultHandler.set_max_cll(&self, arg0);
+                    DefaultHandler.handle_set_max_cll(&self, arg0);
                 }
             }
             9 => {
@@ -1535,9 +1552,9 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_max_fall(&self, arg0);
+                    (**handler).handle_set_max_fall(&self, arg0);
                 } else {
-                    DefaultHandler.set_max_fall(&self, arg0);
+                    DefaultHandler.handle_set_max_fall(&self, arg0);
                 }
             }
             n => {

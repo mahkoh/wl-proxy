@@ -147,12 +147,17 @@ impl ZxdgImporterV2 {
 
 /// A message handler for [ZxdgImporterV2] proxies.
 pub trait ZxdgImporterV2Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZxdgImporterV2>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the xdg_importer object
     ///
     /// Notify the compositor that the xdg_importer object will no longer be
     /// used.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZxdgImporterV2>,
     ) {
@@ -176,7 +181,7 @@ pub trait ZxdgImporterV2Handler: Any {
     /// - `id`: the new xdg_imported object
     /// - `handle`: the exported surface handle
     #[inline]
-    fn import_toplevel(
+    fn handle_import_toplevel(
         &mut self,
         _slf: &Rc<ZxdgImporterV2>,
         id: &Rc<ZxdgImportedV2>,
@@ -200,6 +205,18 @@ impl ObjectPrivate for ZxdgImporterV2 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -218,9 +235,9 @@ impl ObjectPrivate for ZxdgImporterV2 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -266,9 +283,9 @@ impl ObjectPrivate for ZxdgImporterV2 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).import_toplevel(&self, arg0, arg1);
+                    (**handler).handle_import_toplevel(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.import_toplevel(&self, arg0, arg1);
+                    DefaultHandler.handle_import_toplevel(&self, arg0, arg1);
                 }
             }
             n => {

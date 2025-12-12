@@ -152,6 +152,11 @@ impl TreelandScreensaver {
 
 /// A message handler for [TreelandScreensaver] proxies.
 pub trait TreelandScreensaverHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandScreensaver>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// Inhibit idleness
     ///
     /// Inhibit idleness with given application_name and reason_for_inhibit.
@@ -161,7 +166,7 @@ pub trait TreelandScreensaverHandler: Any {
     /// - `application_name`:
     /// - `reason_for_inhibit`:
     #[inline]
-    fn inhibit(
+    fn handle_inhibit(
         &mut self,
         _slf: &Rc<TreelandScreensaver>,
         application_name: &str,
@@ -180,7 +185,7 @@ pub trait TreelandScreensaverHandler: Any {
     ///
     /// Uninhibit idleness previously inhibited by inhibit request.
     #[inline]
-    fn uninhibit(
+    fn handle_uninhibit(
         &mut self,
         _slf: &Rc<TreelandScreensaver>,
     ) {
@@ -198,6 +203,18 @@ impl ObjectPrivate for TreelandScreensaver {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandScreensaver, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -262,9 +279,9 @@ impl ObjectPrivate for TreelandScreensaver {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).inhibit(&self, arg0, arg1);
+                    (**handler).handle_inhibit(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.inhibit(&self, arg0, arg1);
+                    DefaultHandler.handle_inhibit(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -278,9 +295,9 @@ impl ObjectPrivate for TreelandScreensaver {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).uninhibit(&self);
+                    (**handler).handle_uninhibit(&self);
                 } else {
-                    DefaultHandler.uninhibit(&self);
+                    DefaultHandler.handle_uninhibit(&self);
                 }
             }
             n => {

@@ -177,12 +177,17 @@ impl WpSecurityContextManagerV1 {
 
 /// A message handler for [WpSecurityContextManagerV1] proxies.
 pub trait WpSecurityContextManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpSecurityContextManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the manager object
     ///
     /// Destroy the manager. This doesn't destroy objects created with the
     /// manager.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpSecurityContextManagerV1>,
     ) {
@@ -217,7 +222,7 @@ pub trait WpSecurityContextManagerV1Handler: Any {
     /// - `listen_fd`: listening socket FD
     /// - `close_fd`: FD signaling when done
     #[inline]
-    fn create_listener(
+    fn handle_create_listener(
         &mut self,
         _slf: &Rc<WpSecurityContextManagerV1>,
         id: &Rc<WpSecurityContextV1>,
@@ -243,6 +248,18 @@ impl ObjectPrivate for WpSecurityContextManagerV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -261,9 +278,9 @@ impl ObjectPrivate for WpSecurityContextManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -292,9 +309,9 @@ impl ObjectPrivate for WpSecurityContextManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_listener(&self, arg0, arg1, arg2);
+                    (**handler).handle_create_listener(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.create_listener(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_create_listener(&self, arg0, arg1, arg2);
                 }
             }
             n => {

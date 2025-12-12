@@ -550,6 +550,11 @@ impl HyprlandToplevelExportFrameV1 {
 
 /// A message handler for [HyprlandToplevelExportFrameV1] proxies.
 pub trait HyprlandToplevelExportFrameV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<HyprlandToplevelExportFrameV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// wl_shm buffer information
     ///
     /// Provides information about wl_shm buffer parameters that need to be
@@ -563,7 +568,7 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     /// - `height`: buffer height
     /// - `stride`: buffer stride
     #[inline]
-    fn buffer(
+    fn handle_buffer(
         &mut self,
         _slf: &Rc<HyprlandToplevelExportFrameV1>,
         format: WlShmFormat,
@@ -603,7 +608,7 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn copy(
+    fn handle_copy(
         &mut self,
         _slf: &Rc<HyprlandToplevelExportFrameV1>,
         buffer: &Rc<WlBuffer>,
@@ -638,7 +643,7 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     /// - `width`: current width
     /// - `height`: current height
     #[inline]
-    fn damage(
+    fn handle_damage(
         &mut self,
         _slf: &Rc<HyprlandToplevelExportFrameV1>,
         x: u32,
@@ -666,7 +671,7 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     ///
     /// - `flags`: frame flags
     #[inline]
-    fn flags(
+    fn handle_flags(
         &mut self,
         _slf: &Rc<HyprlandToplevelExportFrameV1>,
         flags: HyprlandToplevelExportFrameV1Flags,
@@ -700,7 +705,7 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     /// - `tv_sec_lo`: low 32 bits of the seconds part of the timestamp
     /// - `tv_nsec`: nanoseconds part of the timestamp
     #[inline]
-    fn ready(
+    fn handle_ready(
         &mut self,
         _slf: &Rc<HyprlandToplevelExportFrameV1>,
         tv_sec_hi: u32,
@@ -723,7 +728,7 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     ///
     /// After receiving this event, the client should destroy the object.
     #[inline]
-    fn failed(
+    fn handle_failed(
         &mut self,
         _slf: &Rc<HyprlandToplevelExportFrameV1>,
     ) {
@@ -738,7 +743,7 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     ///
     /// Destroys the frame. This request can be sent at any time by the client.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<HyprlandToplevelExportFrameV1>,
     ) {
@@ -761,7 +766,7 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     /// - `width`: buffer width
     /// - `height`: buffer height
     #[inline]
-    fn linux_dmabuf(
+    fn handle_linux_dmabuf(
         &mut self,
         _slf: &Rc<HyprlandToplevelExportFrameV1>,
         format: u32,
@@ -785,7 +790,7 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     /// The client should proceed to create a buffer of one of the supported
     /// types, and send a "copy" request.
     #[inline]
-    fn buffer_done(
+    fn handle_buffer_done(
         &mut self,
         _slf: &Rc<HyprlandToplevelExportFrameV1>,
     ) {
@@ -803,6 +808,18 @@ impl ObjectPrivate for HyprlandToplevelExportFrameV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::HyprlandToplevelExportFrameV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -835,9 +852,9 @@ impl ObjectPrivate for HyprlandToplevelExportFrameV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).copy(&self, arg0, arg1);
+                    (**handler).handle_copy(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.copy(&self, arg0, arg1);
+                    DefaultHandler.handle_copy(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -852,9 +869,9 @@ impl ObjectPrivate for HyprlandToplevelExportFrameV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -891,9 +908,9 @@ impl ObjectPrivate for HyprlandToplevelExportFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).buffer(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_buffer(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.buffer(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_buffer(&self, arg0, arg1, arg2, arg3);
                 }
             }
             1 => {
@@ -912,9 +929,9 @@ impl ObjectPrivate for HyprlandToplevelExportFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).damage(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_damage(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.damage(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_damage(&self, arg0, arg1, arg2, arg3);
                 }
             }
             2 => {
@@ -931,9 +948,9 @@ impl ObjectPrivate for HyprlandToplevelExportFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).flags(&self, arg0);
+                    (**handler).handle_flags(&self, arg0);
                 } else {
-                    DefaultHandler.flags(&self, arg0);
+                    DefaultHandler.handle_flags(&self, arg0);
                 }
             }
             3 => {
@@ -951,9 +968,9 @@ impl ObjectPrivate for HyprlandToplevelExportFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).ready(&self, arg0, arg1, arg2);
+                    (**handler).handle_ready(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.ready(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_ready(&self, arg0, arg1, arg2);
                 }
             }
             4 => {
@@ -967,9 +984,9 @@ impl ObjectPrivate for HyprlandToplevelExportFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).failed(&self);
+                    (**handler).handle_failed(&self);
                 } else {
-                    DefaultHandler.failed(&self);
+                    DefaultHandler.handle_failed(&self);
                 }
             }
             5 => {
@@ -987,9 +1004,9 @@ impl ObjectPrivate for HyprlandToplevelExportFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).linux_dmabuf(&self, arg0, arg1, arg2);
+                    (**handler).handle_linux_dmabuf(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.linux_dmabuf(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_linux_dmabuf(&self, arg0, arg1, arg2);
                 }
             }
             6 => {
@@ -1003,9 +1020,9 @@ impl ObjectPrivate for HyprlandToplevelExportFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).buffer_done(&self);
+                    (**handler).handle_buffer_done(&self);
                 } else {
-                    DefaultHandler.buffer_done(&self);
+                    DefaultHandler.handle_buffer_done(&self);
                 }
             }
             n => {

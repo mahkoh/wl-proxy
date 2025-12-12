@@ -155,6 +155,11 @@ impl ZwpInputPopupSurfaceV2 {
 
 /// A message handler for [ZwpInputPopupSurfaceV2] proxies.
 pub trait ZwpInputPopupSurfaceV2Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpInputPopupSurfaceV2>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// set text input area position
     ///
     /// Notify about the position of the area of the text input expressed as a
@@ -170,7 +175,7 @@ pub trait ZwpInputPopupSurfaceV2Handler: Any {
     /// - `width`:
     /// - `height`:
     #[inline]
-    fn text_input_rectangle(
+    fn handle_text_input_rectangle(
         &mut self,
         _slf: &Rc<ZwpInputPopupSurfaceV2>,
         x: i32,
@@ -190,7 +195,7 @@ pub trait ZwpInputPopupSurfaceV2Handler: Any {
     }
 
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpInputPopupSurfaceV2>,
     ) {
@@ -208,6 +213,18 @@ impl ObjectPrivate for ZwpInputPopupSurfaceV2 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpInputPopupSurfaceV2, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -228,9 +245,9 @@ impl ObjectPrivate for ZwpInputPopupSurfaceV2 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -270,9 +287,9 @@ impl ObjectPrivate for ZwpInputPopupSurfaceV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).text_input_rectangle(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_text_input_rectangle(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.text_input_rectangle(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_text_input_rectangle(&self, arg0, arg1, arg2, arg3);
                 }
             }
             n => {

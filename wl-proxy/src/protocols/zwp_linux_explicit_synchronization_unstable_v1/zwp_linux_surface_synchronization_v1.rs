@@ -250,6 +250,11 @@ impl ZwpLinuxSurfaceSynchronizationV1 {
 
 /// A message handler for [ZwpLinuxSurfaceSynchronizationV1] proxies.
 pub trait ZwpLinuxSurfaceSynchronizationV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpLinuxSurfaceSynchronizationV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy synchronization object
     ///
     /// Destroy this explicit synchronization object.
@@ -261,7 +266,7 @@ pub trait ZwpLinuxSurfaceSynchronizationV1Handler: Any {
     /// zwp_linux_buffer_release_v1 objects created by this object are not
     /// affected by this request.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpLinuxSurfaceSynchronizationV1>,
     ) {
@@ -302,7 +307,7 @@ pub trait ZwpLinuxSurfaceSynchronizationV1Handler: Any {
     ///
     /// - `fd`: acquire fence fd
     #[inline]
-    fn set_acquire_fence(
+    fn handle_set_acquire_fence(
         &mut self,
         _slf: &Rc<ZwpLinuxSurfaceSynchronizationV1>,
         fd: &Rc<OwnedFd>,
@@ -339,7 +344,7 @@ pub trait ZwpLinuxSurfaceSynchronizationV1Handler: Any {
     ///
     /// - `release`: new zwp_linux_buffer_release_v1 object
     #[inline]
-    fn get_release(
+    fn handle_get_release(
         &mut self,
         _slf: &Rc<ZwpLinuxSurfaceSynchronizationV1>,
         release: &Rc<ZwpLinuxBufferReleaseV1>,
@@ -361,6 +366,18 @@ impl ObjectPrivate for ZwpLinuxSurfaceSynchronizationV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -379,9 +396,9 @@ impl ObjectPrivate for ZwpLinuxSurfaceSynchronizationV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -399,9 +416,9 @@ impl ObjectPrivate for ZwpLinuxSurfaceSynchronizationV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_acquire_fence(&self, arg0);
+                    (**handler).handle_set_acquire_fence(&self, arg0);
                 } else {
-                    DefaultHandler.set_acquire_fence(&self, arg0);
+                    DefaultHandler.handle_set_acquire_fence(&self, arg0);
                 }
             }
             2 => {
@@ -422,9 +439,9 @@ impl ObjectPrivate for ZwpLinuxSurfaceSynchronizationV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "release", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_release(&self, arg0);
+                    (**handler).handle_get_release(&self, arg0);
                 } else {
-                    DefaultHandler.get_release(&self, arg0);
+                    DefaultHandler.handle_get_release(&self, arg0);
                 }
             }
             n => {

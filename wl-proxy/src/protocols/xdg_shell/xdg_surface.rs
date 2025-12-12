@@ -501,13 +501,18 @@ impl XdgSurface {
 
 /// A message handler for [XdgSurface] proxies.
 pub trait XdgSurfaceHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<XdgSurface>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the xdg_surface
     ///
     /// Destroy the xdg_surface object. An xdg_surface must only be destroyed
     /// after its role object has been destroyed, otherwise
     /// a defunct_role_object error is raised.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<XdgSurface>,
     ) {
@@ -530,7 +535,7 @@ pub trait XdgSurfaceHandler: Any {
     ///
     /// - `id`:
     #[inline]
-    fn get_toplevel(
+    fn handle_get_toplevel(
         &mut self,
         _slf: &Rc<XdgSurface>,
         id: &Rc<XdgToplevel>,
@@ -563,7 +568,7 @@ pub trait XdgSurfaceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_popup(
+    fn handle_get_popup(
         &mut self,
         _slf: &Rc<XdgSurface>,
         id: &Rc<XdgPopup>,
@@ -630,7 +635,7 @@ pub trait XdgSurfaceHandler: Any {
     /// - `width`:
     /// - `height`:
     #[inline]
-    fn set_window_geometry(
+    fn handle_set_window_geometry(
         &mut self,
         _slf: &Rc<XdgSurface>,
         x: i32,
@@ -688,7 +693,7 @@ pub trait XdgSurfaceHandler: Any {
     ///
     /// - `serial`: the serial from the configure event
     #[inline]
-    fn ack_configure(
+    fn handle_ack_configure(
         &mut self,
         _slf: &Rc<XdgSurface>,
         serial: u32,
@@ -724,7 +729,7 @@ pub trait XdgSurfaceHandler: Any {
     ///
     /// - `serial`: serial of the configure event
     #[inline]
-    fn configure(
+    fn handle_configure(
         &mut self,
         _slf: &Rc<XdgSurface>,
         serial: u32,
@@ -746,6 +751,18 @@ impl ObjectPrivate for XdgSurface {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -764,9 +781,9 @@ impl ObjectPrivate for XdgSurface {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -787,9 +804,9 @@ impl ObjectPrivate for XdgSurface {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_toplevel(&self, arg0);
+                    (**handler).handle_get_toplevel(&self, arg0);
                 } else {
-                    DefaultHandler.get_toplevel(&self, arg0);
+                    DefaultHandler.handle_get_toplevel(&self, arg0);
                 }
             }
             2 => {
@@ -835,9 +852,9 @@ impl ObjectPrivate for XdgSurface {
                 let arg1 = arg1.as_ref();
                 let arg2 = &arg2;
                 if let Some(handler) = handler {
-                    (**handler).get_popup(&self, arg0, arg1, arg2);
+                    (**handler).handle_get_popup(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.get_popup(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_get_popup(&self, arg0, arg1, arg2);
                 }
             }
             3 => {
@@ -860,9 +877,9 @@ impl ObjectPrivate for XdgSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_window_geometry(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_set_window_geometry(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.set_window_geometry(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_set_window_geometry(&self, arg0, arg1, arg2, arg3);
                 }
             }
             4 => {
@@ -878,9 +895,9 @@ impl ObjectPrivate for XdgSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).ack_configure(&self, arg0);
+                    (**handler).handle_ack_configure(&self, arg0);
                 } else {
-                    DefaultHandler.ack_configure(&self, arg0);
+                    DefaultHandler.handle_ack_configure(&self, arg0);
                 }
             }
             n => {
@@ -913,9 +930,9 @@ impl ObjectPrivate for XdgSurface {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).configure(&self, arg0);
+                    (**handler).handle_configure(&self, arg0);
                 } else {
-                    DefaultHandler.configure(&self, arg0);
+                    DefaultHandler.handle_configure(&self, arg0);
                 }
             }
             n => {

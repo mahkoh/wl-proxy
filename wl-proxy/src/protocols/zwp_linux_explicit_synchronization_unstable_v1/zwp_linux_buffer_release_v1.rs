@@ -177,6 +177,11 @@ impl ZwpLinuxBufferReleaseV1 {
 
 /// A message handler for [ZwpLinuxBufferReleaseV1] proxies.
 pub trait ZwpLinuxBufferReleaseV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpLinuxBufferReleaseV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// release buffer with fence
     ///
     /// Sent when the compositor has finalised its usage of the associated
@@ -195,7 +200,7 @@ pub trait ZwpLinuxBufferReleaseV1Handler: Any {
     ///
     /// - `fence`: fence for last operation on buffer
     #[inline]
-    fn fenced_release(
+    fn handle_fenced_release(
         &mut self,
         _slf: &Rc<ZwpLinuxBufferReleaseV1>,
         fence: &Rc<OwnedFd>,
@@ -222,7 +227,7 @@ pub trait ZwpLinuxBufferReleaseV1Handler: Any {
     ///
     /// This event destroys the zwp_linux_buffer_release_v1 object.
     #[inline]
-    fn immediate_release(
+    fn handle_immediate_release(
         &mut self,
         _slf: &Rc<ZwpLinuxBufferReleaseV1>,
     ) {
@@ -240,6 +245,18 @@ impl ObjectPrivate for ZwpLinuxBufferReleaseV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpLinuxBufferReleaseV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -280,9 +297,9 @@ impl ObjectPrivate for ZwpLinuxBufferReleaseV1 {
                 }
                 self.core.handle_server_destroy();
                 if let Some(handler) = handler {
-                    (**handler).fenced_release(&self, arg0);
+                    (**handler).handle_fenced_release(&self, arg0);
                 } else {
-                    DefaultHandler.fenced_release(&self, arg0);
+                    DefaultHandler.handle_fenced_release(&self, arg0);
                 }
             }
             1 => {
@@ -297,9 +314,9 @@ impl ObjectPrivate for ZwpLinuxBufferReleaseV1 {
                 }
                 self.core.handle_server_destroy();
                 if let Some(handler) = handler {
-                    (**handler).immediate_release(&self);
+                    (**handler).handle_immediate_release(&self);
                 } else {
-                    DefaultHandler.immediate_release(&self);
+                    DefaultHandler.handle_immediate_release(&self);
                 }
             }
             n => {

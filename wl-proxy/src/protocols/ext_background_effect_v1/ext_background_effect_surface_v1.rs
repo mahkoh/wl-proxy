@@ -159,12 +159,17 @@ impl ExtBackgroundEffectSurfaceV1 {
 
 /// A message handler for [ExtBackgroundEffectSurfaceV1] proxies.
 pub trait ExtBackgroundEffectSurfaceV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ExtBackgroundEffectSurfaceV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// release the blur object
     ///
     /// Informs the server that the client will no longer be using this protocol
     /// object. The effect regions will be removed on the next commit.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ExtBackgroundEffectSurfaceV1>,
     ) {
@@ -202,7 +207,7 @@ pub trait ExtBackgroundEffectSurfaceV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_blur_region(
+    fn handle_set_blur_region(
         &mut self,
         _slf: &Rc<ExtBackgroundEffectSurfaceV1>,
         region: Option<&Rc<WlRegion>>,
@@ -224,6 +229,18 @@ impl ObjectPrivate for ExtBackgroundEffectSurfaceV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -242,9 +259,9 @@ impl ObjectPrivate for ExtBackgroundEffectSurfaceV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -274,9 +291,9 @@ impl ObjectPrivate for ExtBackgroundEffectSurfaceV1 {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).set_blur_region(&self, arg0);
+                    (**handler).handle_set_blur_region(&self, arg0);
                 } else {
-                    DefaultHandler.set_blur_region(&self, arg0);
+                    DefaultHandler.handle_set_blur_region(&self, arg0);
                 }
             }
             n => {

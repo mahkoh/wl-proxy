@@ -144,6 +144,11 @@ impl WlCompositor {
 
 /// A message handler for [WlCompositor] proxies.
 pub trait WlCompositorHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlCompositor>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// create new surface
     ///
     /// Ask the compositor to create a new surface.
@@ -152,7 +157,7 @@ pub trait WlCompositorHandler: Any {
     ///
     /// - `id`: the new surface
     #[inline]
-    fn create_surface(
+    fn handle_create_surface(
         &mut self,
         _slf: &Rc<WlCompositor>,
         id: &Rc<WlSurface>,
@@ -173,7 +178,7 @@ pub trait WlCompositorHandler: Any {
     ///
     /// - `id`: the new region
     #[inline]
-    fn create_region(
+    fn handle_create_region(
         &mut self,
         _slf: &Rc<WlCompositor>,
         id: &Rc<WlRegion>,
@@ -193,6 +198,18 @@ impl ObjectPrivate for WlCompositor {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlCompositor, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -219,9 +236,9 @@ impl ObjectPrivate for WlCompositor {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_surface(&self, arg0);
+                    (**handler).handle_create_surface(&self, arg0);
                 } else {
-                    DefaultHandler.create_surface(&self, arg0);
+                    DefaultHandler.handle_create_surface(&self, arg0);
                 }
             }
             1 => {
@@ -242,9 +259,9 @@ impl ObjectPrivate for WlCompositor {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_region(&self, arg0);
+                    (**handler).handle_create_region(&self, arg0);
                 } else {
-                    DefaultHandler.create_region(&self, arg0);
+                    DefaultHandler.handle_create_region(&self, arg0);
                 }
             }
             n => {

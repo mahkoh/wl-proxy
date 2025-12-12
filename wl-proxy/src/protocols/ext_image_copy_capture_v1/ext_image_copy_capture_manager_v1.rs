@@ -231,6 +231,11 @@ impl ExtImageCopyCaptureManagerV1 {
 
 /// A message handler for [ExtImageCopyCaptureManagerV1] proxies.
 pub trait ExtImageCopyCaptureManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ExtImageCopyCaptureManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// capture an image capture source
     ///
     /// Create a capturing session for an image capture source.
@@ -251,7 +256,7 @@ pub trait ExtImageCopyCaptureManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn create_session(
+    fn handle_create_session(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureManagerV1>,
         session: &Rc<ExtImageCopyCaptureSessionV1>,
@@ -282,7 +287,7 @@ pub trait ExtImageCopyCaptureManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn create_pointer_cursor_session(
+    fn handle_create_pointer_cursor_session(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureManagerV1>,
         session: &Rc<ExtImageCopyCaptureCursorSessionV1>,
@@ -305,7 +310,7 @@ pub trait ExtImageCopyCaptureManagerV1Handler: Any {
     ///
     /// Other objects created via this interface are unaffected.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureManagerV1>,
     ) {
@@ -323,6 +328,18 @@ impl ObjectPrivate for ExtImageCopyCaptureManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtImageCopyCaptureManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -361,9 +378,9 @@ impl ObjectPrivate for ExtImageCopyCaptureManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).create_session(&self, arg0, arg1, arg2);
+                    (**handler).handle_create_session(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.create_session(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_create_session(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
@@ -404,9 +421,9 @@ impl ObjectPrivate for ExtImageCopyCaptureManagerV1 {
                 let arg1 = &arg1;
                 let arg2 = &arg2;
                 if let Some(handler) = handler {
-                    (**handler).create_pointer_cursor_session(&self, arg0, arg1, arg2);
+                    (**handler).handle_create_pointer_cursor_session(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.create_pointer_cursor_session(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_create_pointer_cursor_session(&self, arg0, arg1, arg2);
                 }
             }
             2 => {
@@ -421,9 +438,9 @@ impl ObjectPrivate for ExtImageCopyCaptureManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {

@@ -132,6 +132,11 @@ impl HyprlandFocusGrabManagerV1 {
 
 /// A message handler for [HyprlandFocusGrabManagerV1] proxies.
 pub trait HyprlandFocusGrabManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<HyprlandFocusGrabManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// create a focus grab object
     ///
     /// Create a surface grab object.
@@ -140,7 +145,7 @@ pub trait HyprlandFocusGrabManagerV1Handler: Any {
     ///
     /// - `grab`:
     #[inline]
-    fn create_grab(
+    fn handle_create_grab(
         &mut self,
         _slf: &Rc<HyprlandFocusGrabManagerV1>,
         grab: &Rc<HyprlandFocusGrabV1>,
@@ -158,7 +163,7 @@ pub trait HyprlandFocusGrabManagerV1Handler: Any {
     /// Destroy the focus grab manager.
     /// This doesn't destroy existing focus grab objects.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<HyprlandFocusGrabManagerV1>,
     ) {
@@ -176,6 +181,18 @@ impl ObjectPrivate for HyprlandFocusGrabManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::HyprlandFocusGrabManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -202,9 +219,9 @@ impl ObjectPrivate for HyprlandFocusGrabManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "grab", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_grab(&self, arg0);
+                    (**handler).handle_create_grab(&self, arg0);
                 } else {
-                    DefaultHandler.create_grab(&self, arg0);
+                    DefaultHandler.handle_create_grab(&self, arg0);
                 }
             }
             1 => {
@@ -219,9 +236,9 @@ impl ObjectPrivate for HyprlandFocusGrabManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {

@@ -249,6 +249,11 @@ impl WlRegistry {
 
 /// A message handler for [WlRegistry] proxies.
 pub trait WlRegistryHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlRegistry>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// bind an object to the display
     ///
     /// Binds a new, client-created object to the server using the
@@ -259,7 +264,7 @@ pub trait WlRegistryHandler: Any {
     /// - `name`: unique numeric name of the object
     /// - `id`: bounded object
     #[inline]
-    fn bind(
+    fn handle_bind(
         &mut self,
         _slf: &Rc<WlRegistry>,
         name: u32,
@@ -288,7 +293,7 @@ pub trait WlRegistryHandler: Any {
     /// - `interface`: interface implemented by the object
     /// - `version`: interface version
     #[inline]
-    fn global(
+    fn handle_global(
         &mut self,
         _slf: &Rc<WlRegistry>,
         name: u32,
@@ -322,7 +327,7 @@ pub trait WlRegistryHandler: Any {
     ///
     /// - `name`: numeric name of the global object
     #[inline]
-    fn global_remove(
+    fn handle_global_remove(
         &mut self,
         _slf: &Rc<WlRegistry>,
         name: u32,
@@ -342,6 +347,18 @@ impl ObjectPrivate for WlRegistry {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlRegistry, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -400,9 +417,9 @@ impl ObjectPrivate for WlRegistry {
                 arg1.core().set_client_id(client, arg1_id, arg1.clone())
                     .map_err(|e| ObjectError::SetClientId(arg1_id, "id", e))?;
                 if let Some(handler) = handler {
-                    (**handler).bind(&self, arg0, arg1);
+                    (**handler).handle_bind(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.bind(&self, arg0, arg1);
+                    DefaultHandler.handle_bind(&self, arg0, arg1);
                 }
             }
             n => {
@@ -468,9 +485,9 @@ impl ObjectPrivate for WlRegistry {
                 };
                 let arg2 = arg1.xml_version().min(arg2);
                 if let Some(handler) = handler {
-                    (**handler).global(&self, arg0, arg1, arg2);
+                    (**handler).handle_global(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.global(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_global(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
@@ -486,9 +503,9 @@ impl ObjectPrivate for WlRegistry {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).global_remove(&self, arg0);
+                    (**handler).handle_global_remove(&self, arg0);
                 } else {
-                    DefaultHandler.global_remove(&self, arg0);
+                    DefaultHandler.handle_global_remove(&self, arg0);
                 }
             }
             n => {

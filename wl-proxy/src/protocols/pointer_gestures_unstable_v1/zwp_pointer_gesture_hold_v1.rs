@@ -231,9 +231,14 @@ impl ZwpPointerGestureHoldV1 {
 
 /// A message handler for [ZwpPointerGestureHoldV1] proxies.
 pub trait ZwpPointerGestureHoldV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpPointerGestureHoldV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the hold gesture object
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpPointerGestureHoldV1>,
     ) {
@@ -258,7 +263,7 @@ pub trait ZwpPointerGestureHoldV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn begin(
+    fn handle_begin(
         &mut self,
         _slf: &Rc<ZwpPointerGestureHoldV1>,
         serial: u32,
@@ -302,7 +307,7 @@ pub trait ZwpPointerGestureHoldV1Handler: Any {
     /// - `time`: timestamp with millisecond granularity
     /// - `cancelled`: 1 if the gesture was cancelled, 0 otherwise
     #[inline]
-    fn end(
+    fn handle_end(
         &mut self,
         _slf: &Rc<ZwpPointerGestureHoldV1>,
         serial: u32,
@@ -328,6 +333,18 @@ impl ObjectPrivate for ZwpPointerGestureHoldV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -346,9 +363,9 @@ impl ObjectPrivate for ZwpPointerGestureHoldV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -393,9 +410,9 @@ impl ObjectPrivate for ZwpPointerGestureHoldV1 {
                 };
                 let arg2 = &arg2;
                 if let Some(handler) = handler {
-                    (**handler).begin(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_begin(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.begin(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_begin(&self, arg0, arg1, arg2, arg3);
                 }
             }
             1 => {
@@ -414,9 +431,9 @@ impl ObjectPrivate for ZwpPointerGestureHoldV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).end(&self, arg0, arg1, arg2);
+                    (**handler).handle_end(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.end(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_end(&self, arg0, arg1, arg2);
                 }
             }
             n => {

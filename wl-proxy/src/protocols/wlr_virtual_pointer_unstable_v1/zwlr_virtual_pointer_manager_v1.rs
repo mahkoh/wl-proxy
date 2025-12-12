@@ -226,6 +226,11 @@ impl ZwlrVirtualPointerManagerV1 {
 
 /// A message handler for [ZwlrVirtualPointerManagerV1] proxies.
 pub trait ZwlrVirtualPointerManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwlrVirtualPointerManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// Create a new virtual pointer
     ///
     /// Creates a new virtual pointer. The optional seat is a suggestion to the
@@ -239,7 +244,7 @@ pub trait ZwlrVirtualPointerManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn create_virtual_pointer(
+    fn handle_create_virtual_pointer(
         &mut self,
         _slf: &Rc<ZwlrVirtualPointerManagerV1>,
         seat: Option<&Rc<WlSeat>>,
@@ -256,7 +261,7 @@ pub trait ZwlrVirtualPointerManagerV1Handler: Any {
 
     /// destroy the virtual pointer manager
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwlrVirtualPointerManagerV1>,
     ) {
@@ -283,7 +288,7 @@ pub trait ZwlrVirtualPointerManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn create_virtual_pointer_with_output(
+    fn handle_create_virtual_pointer_with_output(
         &mut self,
         _slf: &Rc<ZwlrVirtualPointerManagerV1>,
         seat: Option<&Rc<WlSeat>>,
@@ -307,6 +312,18 @@ impl ObjectPrivate for ZwlrVirtualPointerManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrVirtualPointerManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -348,9 +365,9 @@ impl ObjectPrivate for ZwlrVirtualPointerManagerV1 {
                 let arg0 = arg0.as_ref();
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).create_virtual_pointer(&self, arg0, arg1);
+                    (**handler).handle_create_virtual_pointer(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.create_virtual_pointer(&self, arg0, arg1);
+                    DefaultHandler.handle_create_virtual_pointer(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -365,9 +382,9 @@ impl ObjectPrivate for ZwlrVirtualPointerManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             2 => {
@@ -418,9 +435,9 @@ impl ObjectPrivate for ZwlrVirtualPointerManagerV1 {
                 let arg1 = arg1.as_ref();
                 let arg2 = &arg2;
                 if let Some(handler) = handler {
-                    (**handler).create_virtual_pointer_with_output(&self, arg0, arg1, arg2);
+                    (**handler).handle_create_virtual_pointer_with_output(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.create_virtual_pointer_with_output(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_create_virtual_pointer_with_output(&self, arg0, arg1, arg2);
                 }
             }
             n => {

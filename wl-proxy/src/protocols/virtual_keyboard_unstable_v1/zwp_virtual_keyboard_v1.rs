@@ -273,6 +273,11 @@ impl ZwpVirtualKeyboardV1 {
 
 /// A message handler for [ZwpVirtualKeyboardV1] proxies.
 pub trait ZwpVirtualKeyboardV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpVirtualKeyboardV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// keyboard mapping
     ///
     /// Provide a file descriptor to the compositor which can be
@@ -286,7 +291,7 @@ pub trait ZwpVirtualKeyboardV1Handler: Any {
     /// - `fd`: keymap file descriptor
     /// - `size`: keymap size, in bytes
     #[inline]
-    fn keymap(
+    fn handle_keymap(
         &mut self,
         _slf: &Rc<ZwpVirtualKeyboardV1>,
         format: u32,
@@ -320,7 +325,7 @@ pub trait ZwpVirtualKeyboardV1Handler: Any {
     /// - `key`: key that produced the event
     /// - `state`: physical state of the key
     #[inline]
-    fn key(
+    fn handle_key(
         &mut self,
         _slf: &Rc<ZwpVirtualKeyboardV1>,
         time: u32,
@@ -354,7 +359,7 @@ pub trait ZwpVirtualKeyboardV1Handler: Any {
     /// - `mods_locked`: locked modifiers
     /// - `group`: keyboard layout
     #[inline]
-    fn modifiers(
+    fn handle_modifiers(
         &mut self,
         _slf: &Rc<ZwpVirtualKeyboardV1>,
         mods_depressed: u32,
@@ -375,7 +380,7 @@ pub trait ZwpVirtualKeyboardV1Handler: Any {
 
     /// destroy the virtual keyboard keyboard object
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpVirtualKeyboardV1>,
     ) {
@@ -393,6 +398,18 @@ impl ObjectPrivate for ZwpVirtualKeyboardV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpVirtualKeyboardV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -419,9 +436,9 @@ impl ObjectPrivate for ZwpVirtualKeyboardV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).keymap(&self, arg0, arg1, arg2);
+                    (**handler).handle_keymap(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.keymap(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_keymap(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
@@ -439,9 +456,9 @@ impl ObjectPrivate for ZwpVirtualKeyboardV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).key(&self, arg0, arg1, arg2);
+                    (**handler).handle_key(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.key(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_key(&self, arg0, arg1, arg2);
                 }
             }
             2 => {
@@ -460,9 +477,9 @@ impl ObjectPrivate for ZwpVirtualKeyboardV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).modifiers(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_modifiers(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.modifiers(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_modifiers(&self, arg0, arg1, arg2, arg3);
                 }
             }
             3 => {
@@ -477,9 +494,9 @@ impl ObjectPrivate for ZwpVirtualKeyboardV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {

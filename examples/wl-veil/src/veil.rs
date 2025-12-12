@@ -63,7 +63,7 @@ struct WlDisplayHandlerImpl {
 }
 
 impl WlDisplayHandler for WlDisplayHandlerImpl {
-    fn get_registry(&mut self, slf: &Rc<WlDisplay>, registry: &Rc<WlRegistry>) {
+    fn handle_get_registry(&mut self, slf: &Rc<WlDisplay>, registry: &Rc<WlRegistry>) {
         registry.set_handler(WlRegistryHandlerImpl {
             filter: self.filter.clone(),
             filtered_globals: Default::default(),
@@ -78,7 +78,7 @@ struct WlRegistryHandlerImpl {
 }
 
 impl WlRegistryHandler for WlRegistryHandlerImpl {
-    fn global(
+    fn handle_global(
         &mut self,
         slf: &Rc<WlRegistry>,
         name: u32,
@@ -98,7 +98,7 @@ impl WlRegistryHandler for WlRegistryHandlerImpl {
         }
     }
 
-    fn global_remove(&mut self, slf: &Rc<WlRegistry>, name: u32) {
+    fn handle_global_remove(&mut self, slf: &Rc<WlRegistry>, name: u32) {
         if self.filtered_globals.remove(&name) {
             return;
         }

@@ -164,6 +164,11 @@ impl XwaylandSurfaceV1 {
 
 /// A message handler for [XwaylandSurfaceV1] proxies.
 pub trait XwaylandSurfaceV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<XwaylandSurfaceV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// associates a Xwayland window to a wl_surface
     ///
     /// Associates an Xwayland window to a wl_surface.
@@ -193,7 +198,7 @@ pub trait XwaylandSurfaceV1Handler: Any {
     /// - `serial_lo`: The lower 32-bits of the serial number associated with the X11 window
     /// - `serial_hi`: The upper 32-bits of the serial number associated with the X11 window
     #[inline]
-    fn set_serial(
+    fn handle_set_serial(
         &mut self,
         _slf: &Rc<XwaylandSurfaceV1>,
         serial_lo: u32,
@@ -214,7 +219,7 @@ pub trait XwaylandSurfaceV1Handler: Any {
     ///
     /// Any already existing associations are unaffected by this action.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<XwaylandSurfaceV1>,
     ) {
@@ -232,6 +237,18 @@ impl ObjectPrivate for XwaylandSurfaceV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::XwaylandSurfaceV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -254,9 +271,9 @@ impl ObjectPrivate for XwaylandSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_serial(&self, arg0, arg1);
+                    (**handler).handle_set_serial(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_serial(&self, arg0, arg1);
+                    DefaultHandler.handle_set_serial(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -271,9 +288,9 @@ impl ObjectPrivate for XwaylandSurfaceV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {

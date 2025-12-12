@@ -160,6 +160,11 @@ impl XdgToplevelDragV1 {
 
 /// A message handler for [XdgToplevelDragV1] proxies.
 pub trait XdgToplevelDragV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<XdgToplevelDragV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy an xdg_toplevel_drag_v1 object
     ///
     /// Destroy this xdg_toplevel_drag_v1 object. This request must only be
@@ -167,7 +172,7 @@ pub trait XdgToplevelDragV1Handler: Any {
     /// by the dnd_drop_performed or cancelled events. In any other case an
     /// ongoing_drag error is raised.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<XdgToplevelDragV1>,
     ) {
@@ -205,7 +210,7 @@ pub trait XdgToplevelDragV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn attach(
+    fn handle_attach(
         &mut self,
         _slf: &Rc<XdgToplevelDragV1>,
         toplevel: &Rc<XdgToplevel>,
@@ -231,6 +236,18 @@ impl ObjectPrivate for XdgToplevelDragV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -249,9 +266,9 @@ impl ObjectPrivate for XdgToplevelDragV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -280,9 +297,9 @@ impl ObjectPrivate for XdgToplevelDragV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).attach(&self, arg0, arg1, arg2);
+                    (**handler).handle_attach(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.attach(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_attach(&self, arg0, arg1, arg2);
                 }
             }
             n => {

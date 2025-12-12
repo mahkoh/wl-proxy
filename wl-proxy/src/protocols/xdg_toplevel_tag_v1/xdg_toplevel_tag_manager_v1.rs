@@ -226,12 +226,17 @@ impl XdgToplevelTagManagerV1 {
 
 /// A message handler for [XdgToplevelTagManagerV1] proxies.
 pub trait XdgToplevelTagManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<XdgToplevelTagManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy toplevel tag object
     ///
     /// Destroy this toplevel tag manager object. This request has no other
     /// effects.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<XdgToplevelTagManagerV1>,
     ) {
@@ -267,7 +272,7 @@ pub trait XdgToplevelTagManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_toplevel_tag(
+    fn handle_set_toplevel_tag(
         &mut self,
         _slf: &Rc<XdgToplevelTagManagerV1>,
         toplevel: &Rc<XdgToplevel>,
@@ -301,7 +306,7 @@ pub trait XdgToplevelTagManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_toplevel_description(
+    fn handle_set_toplevel_description(
         &mut self,
         _slf: &Rc<XdgToplevelTagManagerV1>,
         toplevel: &Rc<XdgToplevel>,
@@ -325,6 +330,18 @@ impl ObjectPrivate for XdgToplevelTagManagerV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -343,9 +360,9 @@ impl ObjectPrivate for XdgToplevelTagManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -395,9 +412,9 @@ impl ObjectPrivate for XdgToplevelTagManagerV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).set_toplevel_tag(&self, arg0, arg1);
+                    (**handler).handle_set_toplevel_tag(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_toplevel_tag(&self, arg0, arg1);
+                    DefaultHandler.handle_set_toplevel_tag(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -447,9 +464,9 @@ impl ObjectPrivate for XdgToplevelTagManagerV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).set_toplevel_description(&self, arg0, arg1);
+                    (**handler).handle_set_toplevel_description(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_toplevel_description(&self, arg0, arg1);
+                    DefaultHandler.handle_set_toplevel_description(&self, arg0, arg1);
                 }
             }
             n => {

@@ -343,6 +343,11 @@ impl ExtWorkspaceManagerV1 {
 
 /// A message handler for [ExtWorkspaceManagerV1] proxies.
 pub trait ExtWorkspaceManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ExtWorkspaceManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// a workspace group has been created
     ///
     /// This event is emitted whenever a new workspace group has been created.
@@ -355,7 +360,7 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
     ///
     /// - `workspace_group`:
     #[inline]
-    fn workspace_group(
+    fn handle_workspace_group(
         &mut self,
         _slf: &Rc<ExtWorkspaceManagerV1>,
         workspace_group: &Rc<ExtWorkspaceGroupHandleV1>,
@@ -382,7 +387,7 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
     ///
     /// - `workspace`:
     #[inline]
-    fn workspace(
+    fn handle_workspace(
         &mut self,
         _slf: &Rc<ExtWorkspaceManagerV1>,
         workspace: &Rc<ExtWorkspaceHandleV1>,
@@ -406,7 +411,7 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
     /// multiple ext_workspace_handle_v1 objects, for example, deactivating one
     /// workspace and activating another.
     #[inline]
-    fn commit(
+    fn handle_commit(
         &mut self,
         _slf: &Rc<ExtWorkspaceManagerV1>,
     ) {
@@ -431,7 +436,7 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
     /// the done event only after updating the output information in both
     /// workspace groups.
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<ExtWorkspaceManagerV1>,
     ) {
@@ -448,7 +453,7 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
     /// ext_workspace_manager_v1. The server will destroy the object
     /// immediately after sending this request.
     #[inline]
-    fn finished(
+    fn handle_finished(
         &mut self,
         _slf: &Rc<ExtWorkspaceManagerV1>,
     ) {
@@ -469,7 +474,7 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
     /// The client must not send any requests after this one, doing so will raise a wl_display
     /// invalid_object error.
     #[inline]
-    fn stop(
+    fn handle_stop(
         &mut self,
         _slf: &Rc<ExtWorkspaceManagerV1>,
     ) {
@@ -489,6 +494,18 @@ impl ObjectPrivate for ExtWorkspaceManagerV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -506,9 +523,9 @@ impl ObjectPrivate for ExtWorkspaceManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).commit(&self);
+                    (**handler).handle_commit(&self);
                 } else {
-                    DefaultHandler.commit(&self);
+                    DefaultHandler.handle_commit(&self);
                 }
             }
             1 => {
@@ -522,9 +539,9 @@ impl ObjectPrivate for ExtWorkspaceManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).stop(&self);
+                    (**handler).handle_stop(&self);
                 } else {
-                    DefaultHandler.stop(&self);
+                    DefaultHandler.handle_stop(&self);
                 }
             }
             n => {
@@ -562,9 +579,9 @@ impl ObjectPrivate for ExtWorkspaceManagerV1 {
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "workspace_group", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).workspace_group(&self, arg0);
+                    (**handler).handle_workspace_group(&self, arg0);
                 } else {
-                    DefaultHandler.workspace_group(&self, arg0);
+                    DefaultHandler.handle_workspace_group(&self, arg0);
                 }
             }
             1 => {
@@ -585,9 +602,9 @@ impl ObjectPrivate for ExtWorkspaceManagerV1 {
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "workspace", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).workspace(&self, arg0);
+                    (**handler).handle_workspace(&self, arg0);
                 } else {
-                    DefaultHandler.workspace(&self, arg0);
+                    DefaultHandler.handle_workspace(&self, arg0);
                 }
             }
             2 => {
@@ -601,9 +618,9 @@ impl ObjectPrivate for ExtWorkspaceManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).done(&self);
+                    (**handler).handle_done(&self);
                 } else {
-                    DefaultHandler.done(&self);
+                    DefaultHandler.handle_done(&self);
                 }
             }
             3 => {
@@ -618,9 +635,9 @@ impl ObjectPrivate for ExtWorkspaceManagerV1 {
                 }
                 self.core.handle_server_destroy();
                 if let Some(handler) = handler {
-                    (**handler).finished(&self);
+                    (**handler).handle_finished(&self);
                 } else {
-                    DefaultHandler.finished(&self);
+                    DefaultHandler.handle_finished(&self);
                 }
             }
             n => {

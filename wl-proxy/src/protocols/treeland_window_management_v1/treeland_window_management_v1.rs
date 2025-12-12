@@ -184,6 +184,11 @@ impl TreelandWindowManagementV1 {
 
 /// A message handler for [TreelandWindowManagementV1] proxies.
 pub trait TreelandWindowManagementV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandWindowManagementV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// show/hide the desktop
     ///
     /// Tell the compositor to show/hide the desktop.
@@ -192,7 +197,7 @@ pub trait TreelandWindowManagementV1Handler: Any {
     ///
     /// - `state`: requested state
     #[inline]
-    fn set_desktop(
+    fn handle_set_desktop(
         &mut self,
         _slf: &Rc<TreelandWindowManagementV1>,
         state: u32,
@@ -217,7 +222,7 @@ pub trait TreelandWindowManagementV1Handler: Any {
     ///
     /// - `state`: new state
     #[inline]
-    fn show_desktop(
+    fn handle_show_desktop(
         &mut self,
         _slf: &Rc<TreelandWindowManagementV1>,
         state: u32,
@@ -232,7 +237,7 @@ pub trait TreelandWindowManagementV1Handler: Any {
 
     /// destroy the window manager object
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<TreelandWindowManagementV1>,
     ) {
@@ -250,6 +255,18 @@ impl ObjectPrivate for TreelandWindowManagementV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandWindowManagementV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -271,9 +288,9 @@ impl ObjectPrivate for TreelandWindowManagementV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_desktop(&self, arg0);
+                    (**handler).handle_set_desktop(&self, arg0);
                 } else {
-                    DefaultHandler.set_desktop(&self, arg0);
+                    DefaultHandler.handle_set_desktop(&self, arg0);
                 }
             }
             1 => {
@@ -288,9 +305,9 @@ impl ObjectPrivate for TreelandWindowManagementV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -323,9 +340,9 @@ impl ObjectPrivate for TreelandWindowManagementV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).show_desktop(&self, arg0);
+                    (**handler).handle_show_desktop(&self, arg0);
                 } else {
-                    DefaultHandler.show_desktop(&self, arg0);
+                    DefaultHandler.handle_show_desktop(&self, arg0);
                 }
             }
             n => {

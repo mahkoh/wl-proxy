@@ -177,6 +177,11 @@ impl OrgKdeKwinServerDecorationManager {
 
 /// A message handler for [OrgKdeKwinServerDecorationManager] proxies.
 pub trait OrgKdeKwinServerDecorationManagerHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<OrgKdeKwinServerDecorationManager>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// Create a server-side decoration object for a given surface
     ///
     /// When a client creates a server-side decoration object it indicates
@@ -198,7 +203,7 @@ pub trait OrgKdeKwinServerDecorationManagerHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn create(
+    fn handle_create(
         &mut self,
         _slf: &Rc<OrgKdeKwinServerDecorationManager>,
         id: &Rc<OrgKdeKwinServerDecoration>,
@@ -226,7 +231,7 @@ pub trait OrgKdeKwinServerDecorationManagerHandler: Any {
     ///
     /// - `mode`: The default decoration mode applied to newly created server decorations.
     #[inline]
-    fn default_mode(
+    fn handle_default_mode(
         &mut self,
         _slf: &Rc<OrgKdeKwinServerDecorationManager>,
         mode: u32,
@@ -246,6 +251,18 @@ impl ObjectPrivate for OrgKdeKwinServerDecorationManager {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::OrgKdeKwinServerDecorationManager, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -282,9 +299,9 @@ impl ObjectPrivate for OrgKdeKwinServerDecorationManager {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).create(&self, arg0, arg1);
+                    (**handler).handle_create(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.create(&self, arg0, arg1);
+                    DefaultHandler.handle_create(&self, arg0, arg1);
                 }
             }
             n => {
@@ -317,9 +334,9 @@ impl ObjectPrivate for OrgKdeKwinServerDecorationManager {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).default_mode(&self, arg0);
+                    (**handler).handle_default_mode(&self, arg0);
                 } else {
-                    DefaultHandler.default_mode(&self, arg0);
+                    DefaultHandler.handle_default_mode(&self, arg0);
                 }
             }
             n => {

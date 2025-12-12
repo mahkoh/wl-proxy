@@ -151,6 +151,11 @@ impl ZwlrExportDmabufManagerV1 {
 
 /// A message handler for [ZwlrExportDmabufManagerV1] proxies.
 pub trait ZwlrExportDmabufManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwlrExportDmabufManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// capture a frame from an output
     ///
     /// Capture the next frame of an entire output.
@@ -164,7 +169,7 @@ pub trait ZwlrExportDmabufManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn capture_output(
+    fn handle_capture_output(
         &mut self,
         _slf: &Rc<ZwlrExportDmabufManagerV1>,
         frame: &Rc<ZwlrExportDmabufFrameV1>,
@@ -186,7 +191,7 @@ pub trait ZwlrExportDmabufManagerV1Handler: Any {
     /// All objects created by the manager will still remain valid, until their
     /// appropriate destroy request has been called.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwlrExportDmabufManagerV1>,
     ) {
@@ -204,6 +209,18 @@ impl ObjectPrivate for ZwlrExportDmabufManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrExportDmabufManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -242,9 +259,9 @@ impl ObjectPrivate for ZwlrExportDmabufManagerV1 {
                 let arg0 = &arg0;
                 let arg2 = &arg2;
                 if let Some(handler) = handler {
-                    (**handler).capture_output(&self, arg0, arg1, arg2);
+                    (**handler).handle_capture_output(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.capture_output(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_capture_output(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
@@ -259,9 +276,9 @@ impl ObjectPrivate for ZwlrExportDmabufManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {

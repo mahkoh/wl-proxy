@@ -289,13 +289,18 @@ impl ZwpInputTimestampsManagerV1 {
 
 /// A message handler for [ZwpInputTimestampsManagerV1] proxies.
 pub trait ZwpInputTimestampsManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpInputTimestampsManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the input timestamps manager object
     ///
     /// Informs the server that the client will no longer be using this
     /// protocol object. Existing objects created by this object are not
     /// affected.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpInputTimestampsManagerV1>,
     ) {
@@ -325,7 +330,7 @@ pub trait ZwpInputTimestampsManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_keyboard_timestamps(
+    fn handle_get_keyboard_timestamps(
         &mut self,
         _slf: &Rc<ZwpInputTimestampsManagerV1>,
         id: &Rc<ZwpInputTimestampsV1>,
@@ -359,7 +364,7 @@ pub trait ZwpInputTimestampsManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_pointer_timestamps(
+    fn handle_get_pointer_timestamps(
         &mut self,
         _slf: &Rc<ZwpInputTimestampsManagerV1>,
         id: &Rc<ZwpInputTimestampsV1>,
@@ -393,7 +398,7 @@ pub trait ZwpInputTimestampsManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_touch_timestamps(
+    fn handle_get_touch_timestamps(
         &mut self,
         _slf: &Rc<ZwpInputTimestampsManagerV1>,
         id: &Rc<ZwpInputTimestampsV1>,
@@ -417,6 +422,18 @@ impl ObjectPrivate for ZwpInputTimestampsManagerV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -435,9 +452,9 @@ impl ObjectPrivate for ZwpInputTimestampsManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -468,9 +485,9 @@ impl ObjectPrivate for ZwpInputTimestampsManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_keyboard_timestamps(&self, arg0, arg1);
+                    (**handler).handle_get_keyboard_timestamps(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_keyboard_timestamps(&self, arg0, arg1);
+                    DefaultHandler.handle_get_keyboard_timestamps(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -501,9 +518,9 @@ impl ObjectPrivate for ZwpInputTimestampsManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_pointer_timestamps(&self, arg0, arg1);
+                    (**handler).handle_get_pointer_timestamps(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_pointer_timestamps(&self, arg0, arg1);
+                    DefaultHandler.handle_get_pointer_timestamps(&self, arg0, arg1);
                 }
             }
             3 => {
@@ -534,9 +551,9 @@ impl ObjectPrivate for ZwpInputTimestampsManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_touch_timestamps(&self, arg0, arg1);
+                    (**handler).handle_get_touch_timestamps(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_touch_timestamps(&self, arg0, arg1);
+                    DefaultHandler.handle_get_touch_timestamps(&self, arg0, arg1);
                 }
             }
             n => {

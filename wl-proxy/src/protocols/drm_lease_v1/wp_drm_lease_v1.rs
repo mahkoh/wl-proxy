@@ -199,6 +199,11 @@ impl WpDrmLeaseV1 {
 
 /// A message handler for [WpDrmLeaseV1] proxies.
 pub trait WpDrmLeaseV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpDrmLeaseV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// shares the DRM file descriptor
     ///
     /// This event returns a file descriptor suitable for use with DRM-related
@@ -216,7 +221,7 @@ pub trait WpDrmLeaseV1Handler: Any {
     ///
     /// - `leased_fd`: leased DRM file descriptor
     #[inline]
-    fn lease_fd(
+    fn handle_lease_fd(
         &mut self,
         _slf: &Rc<WpDrmLeaseV1>,
         leased_fd: &Rc<OwnedFd>,
@@ -242,7 +247,7 @@ pub trait WpDrmLeaseV1Handler: Any {
     /// for leasing again, if the resource is available, by sending the
     /// connector event through the wp_drm_lease_device_v1 interface.
     #[inline]
-    fn finished(
+    fn handle_finished(
         &mut self,
         _slf: &Rc<WpDrmLeaseV1>,
     ) {
@@ -263,7 +268,7 @@ pub trait WpDrmLeaseV1Handler: Any {
     /// leasing again by sending the connector event through the
     /// wp_drm_lease_device_v1 interface.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpDrmLeaseV1>,
     ) {
@@ -281,6 +286,18 @@ impl ObjectPrivate for WpDrmLeaseV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpDrmLeaseV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -301,9 +318,9 @@ impl ObjectPrivate for WpDrmLeaseV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -338,9 +355,9 @@ impl ObjectPrivate for WpDrmLeaseV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).lease_fd(&self, arg0);
+                    (**handler).handle_lease_fd(&self, arg0);
                 } else {
-                    DefaultHandler.lease_fd(&self, arg0);
+                    DefaultHandler.handle_lease_fd(&self, arg0);
                 }
             }
             1 => {
@@ -354,9 +371,9 @@ impl ObjectPrivate for WpDrmLeaseV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).finished(&self);
+                    (**handler).handle_finished(&self);
                 } else {
-                    DefaultHandler.finished(&self);
+                    DefaultHandler.handle_finished(&self);
                 }
             }
             n => {

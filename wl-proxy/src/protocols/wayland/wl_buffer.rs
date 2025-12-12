@@ -151,6 +151,11 @@ impl WlBuffer {
 
 /// A message handler for [WlBuffer] proxies.
 pub trait WlBufferHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlBuffer>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy a buffer
     ///
     /// Destroy a buffer. If and how you need to release the backing
@@ -158,7 +163,7 @@ pub trait WlBufferHandler: Any {
     ///
     /// For possible side-effects to a surface, see wl_surface.attach.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WlBuffer>,
     ) {
@@ -186,7 +191,7 @@ pub trait WlBufferHandler: Any {
     /// wl_surface contents, e.g. as a GL texture. This is an important
     /// optimization for GL(ES) compositors with wl_shm clients.
     #[inline]
-    fn release(
+    fn handle_release(
         &mut self,
         _slf: &Rc<WlBuffer>,
     ) {
@@ -204,6 +209,18 @@ impl ObjectPrivate for WlBuffer {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlBuffer, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -224,9 +241,9 @@ impl ObjectPrivate for WlBuffer {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -257,9 +274,9 @@ impl ObjectPrivate for WlBuffer {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).release(&self);
+                    (**handler).handle_release(&self);
                 } else {
-                    DefaultHandler.release(&self);
+                    DefaultHandler.handle_release(&self);
                 }
             }
             n => {

@@ -154,13 +154,18 @@ impl WpCursorShapeDeviceV1 {
 
 /// A message handler for [WpCursorShapeDeviceV1] proxies.
 pub trait WpCursorShapeDeviceV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpCursorShapeDeviceV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the cursor shape device
     ///
     /// Destroy the cursor shape device.
     ///
     /// The device cursor shape remains unchanged.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpCursorShapeDeviceV1>,
     ) {
@@ -197,7 +202,7 @@ pub trait WpCursorShapeDeviceV1Handler: Any {
     /// - `serial`: serial number of the enter event
     /// - `shape`:
     #[inline]
-    fn set_shape(
+    fn handle_set_shape(
         &mut self,
         _slf: &Rc<WpCursorShapeDeviceV1>,
         serial: u32,
@@ -221,6 +226,18 @@ impl ObjectPrivate for WpCursorShapeDeviceV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -239,9 +256,9 @@ impl ObjectPrivate for WpCursorShapeDeviceV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -259,9 +276,9 @@ impl ObjectPrivate for WpCursorShapeDeviceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_shape(&self, arg0, arg1);
+                    (**handler).handle_set_shape(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_shape(&self, arg0, arg1);
+                    DefaultHandler.handle_set_shape(&self, arg0, arg1);
                 }
             }
             n => {

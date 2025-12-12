@@ -468,6 +468,11 @@ impl TreelandPersonalizationFontContextV1 {
 
 /// A message handler for [TreelandPersonalizationFontContextV1] proxies.
 pub trait TreelandPersonalizationFontContextV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandPersonalizationFontContextV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// font event
     ///
     /// Send this signal after setting the system font.
@@ -476,7 +481,7 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
     ///
     /// - `font_name`: font name
     #[inline]
-    fn font(
+    fn handle_font(
         &mut self,
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         font_name: &str,
@@ -497,7 +502,7 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
     ///
     /// - `font_name`: monospace font name
     #[inline]
-    fn monospace_font(
+    fn handle_monospace_font(
         &mut self,
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         font_name: &str,
@@ -518,7 +523,7 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
     ///
     /// - `font_size`: font size
     #[inline]
-    fn font_size(
+    fn handle_font_size(
         &mut self,
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         font_size: u32,
@@ -539,7 +544,7 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
     ///
     /// - `size`: font size
     #[inline]
-    fn set_font_size(
+    fn handle_set_font_size(
         &mut self,
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         size: u32,
@@ -556,7 +561,7 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
     ///
     /// Get the system font size
     #[inline]
-    fn get_font_size(
+    fn handle_get_font_size(
         &mut self,
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
     ) {
@@ -575,7 +580,7 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
     ///
     /// - `font_name`: font name
     #[inline]
-    fn set_font(
+    fn handle_set_font(
         &mut self,
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         font_name: &str,
@@ -592,7 +597,7 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
     ///
     /// Get the system font
     #[inline]
-    fn get_font(
+    fn handle_get_font(
         &mut self,
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
     ) {
@@ -611,7 +616,7 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
     ///
     /// - `font_name`: monospace font name
     #[inline]
-    fn set_monospace_font(
+    fn handle_set_monospace_font(
         &mut self,
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         font_name: &str,
@@ -628,7 +633,7 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
     ///
     /// Get the system monospace font
     #[inline]
-    fn get_monospace_font(
+    fn handle_get_monospace_font(
         &mut self,
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
     ) {
@@ -643,7 +648,7 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
     ///
     /// Destroy the context object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
     ) {
@@ -661,6 +666,18 @@ impl ObjectPrivate for TreelandPersonalizationFontContextV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandPersonalizationFontContextV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -682,9 +699,9 @@ impl ObjectPrivate for TreelandPersonalizationFontContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_font_size(&self, arg0);
+                    (**handler).handle_set_font_size(&self, arg0);
                 } else {
-                    DefaultHandler.set_font_size(&self, arg0);
+                    DefaultHandler.handle_set_font_size(&self, arg0);
                 }
             }
             1 => {
@@ -698,9 +715,9 @@ impl ObjectPrivate for TreelandPersonalizationFontContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).get_font_size(&self);
+                    (**handler).handle_get_font_size(&self);
                 } else {
-                    DefaultHandler.get_font_size(&self);
+                    DefaultHandler.handle_get_font_size(&self);
                 }
             }
             2 => {
@@ -737,9 +754,9 @@ impl ObjectPrivate for TreelandPersonalizationFontContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_font(&self, arg0);
+                    (**handler).handle_set_font(&self, arg0);
                 } else {
-                    DefaultHandler.set_font(&self, arg0);
+                    DefaultHandler.handle_set_font(&self, arg0);
                 }
             }
             3 => {
@@ -753,9 +770,9 @@ impl ObjectPrivate for TreelandPersonalizationFontContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).get_font(&self);
+                    (**handler).handle_get_font(&self);
                 } else {
-                    DefaultHandler.get_font(&self);
+                    DefaultHandler.handle_get_font(&self);
                 }
             }
             4 => {
@@ -792,9 +809,9 @@ impl ObjectPrivate for TreelandPersonalizationFontContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_monospace_font(&self, arg0);
+                    (**handler).handle_set_monospace_font(&self, arg0);
                 } else {
-                    DefaultHandler.set_monospace_font(&self, arg0);
+                    DefaultHandler.handle_set_monospace_font(&self, arg0);
                 }
             }
             5 => {
@@ -808,9 +825,9 @@ impl ObjectPrivate for TreelandPersonalizationFontContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).get_monospace_font(&self);
+                    (**handler).handle_get_monospace_font(&self);
                 } else {
-                    DefaultHandler.get_monospace_font(&self);
+                    DefaultHandler.handle_get_monospace_font(&self);
                 }
             }
             6 => {
@@ -825,9 +842,9 @@ impl ObjectPrivate for TreelandPersonalizationFontContextV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -881,9 +898,9 @@ impl ObjectPrivate for TreelandPersonalizationFontContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).font(&self, arg0);
+                    (**handler).handle_font(&self, arg0);
                 } else {
-                    DefaultHandler.font(&self, arg0);
+                    DefaultHandler.handle_font(&self, arg0);
                 }
             }
             1 => {
@@ -920,9 +937,9 @@ impl ObjectPrivate for TreelandPersonalizationFontContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).monospace_font(&self, arg0);
+                    (**handler).handle_monospace_font(&self, arg0);
                 } else {
-                    DefaultHandler.monospace_font(&self, arg0);
+                    DefaultHandler.handle_monospace_font(&self, arg0);
                 }
             }
             2 => {
@@ -938,9 +955,9 @@ impl ObjectPrivate for TreelandPersonalizationFontContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).font_size(&self, arg0);
+                    (**handler).handle_font_size(&self, arg0);
                 } else {
-                    DefaultHandler.font_size(&self, arg0);
+                    DefaultHandler.handle_font_size(&self, arg0);
                 }
             }
             n => {

@@ -360,11 +360,16 @@ impl TreelandDdeShellManagerV1 {
 
 /// A message handler for [TreelandDdeShellManagerV1] proxies.
 pub trait TreelandDdeShellManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandDdeShellManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// # Arguments
     ///
     /// - `id`:
     #[inline]
-    fn get_window_overlap_checker(
+    fn handle_get_window_overlap_checker(
         &mut self,
         _slf: &Rc<TreelandDdeShellManagerV1>,
         id: &Rc<TreelandWindowOverlapChecker>,
@@ -393,7 +398,7 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_shell_surface(
+    fn handle_get_shell_surface(
         &mut self,
         _slf: &Rc<TreelandDdeShellManagerV1>,
         id: &Rc<TreelandDdeShellSurfaceV1>,
@@ -420,7 +425,7 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_treeland_dde_active(
+    fn handle_get_treeland_dde_active(
         &mut self,
         _slf: &Rc<TreelandDdeShellManagerV1>,
         id: &Rc<TreelandDdeActiveV1>,
@@ -443,7 +448,7 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
     ///
     /// - `id`:
     #[inline]
-    fn get_treeland_multitaskview(
+    fn handle_get_treeland_multitaskview(
         &mut self,
         _slf: &Rc<TreelandDdeShellManagerV1>,
         id: &Rc<TreelandMultitaskviewV1>,
@@ -464,7 +469,7 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
     ///
     /// - `id`:
     #[inline]
-    fn get_treeland_window_picker(
+    fn handle_get_treeland_window_picker(
         &mut self,
         _slf: &Rc<TreelandDdeShellManagerV1>,
         id: &Rc<TreelandWindowPickerV1>,
@@ -485,7 +490,7 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
     ///
     /// - `id`:
     #[inline]
-    fn get_treeland_lockscreen(
+    fn handle_get_treeland_lockscreen(
         &mut self,
         _slf: &Rc<TreelandDdeShellManagerV1>,
         id: &Rc<TreelandLockscreenV1>,
@@ -505,6 +510,18 @@ impl ObjectPrivate for TreelandDdeShellManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandDdeShellManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -531,9 +548,9 @@ impl ObjectPrivate for TreelandDdeShellManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_window_overlap_checker(&self, arg0);
+                    (**handler).handle_get_window_overlap_checker(&self, arg0);
                 } else {
-                    DefaultHandler.get_window_overlap_checker(&self, arg0);
+                    DefaultHandler.handle_get_window_overlap_checker(&self, arg0);
                 }
             }
             1 => {
@@ -564,9 +581,9 @@ impl ObjectPrivate for TreelandDdeShellManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_shell_surface(&self, arg0, arg1);
+                    (**handler).handle_get_shell_surface(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_shell_surface(&self, arg0, arg1);
+                    DefaultHandler.handle_get_shell_surface(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -597,9 +614,9 @@ impl ObjectPrivate for TreelandDdeShellManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_treeland_dde_active(&self, arg0, arg1);
+                    (**handler).handle_get_treeland_dde_active(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_treeland_dde_active(&self, arg0, arg1);
+                    DefaultHandler.handle_get_treeland_dde_active(&self, arg0, arg1);
                 }
             }
             3 => {
@@ -620,9 +637,9 @@ impl ObjectPrivate for TreelandDdeShellManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_treeland_multitaskview(&self, arg0);
+                    (**handler).handle_get_treeland_multitaskview(&self, arg0);
                 } else {
-                    DefaultHandler.get_treeland_multitaskview(&self, arg0);
+                    DefaultHandler.handle_get_treeland_multitaskview(&self, arg0);
                 }
             }
             4 => {
@@ -643,9 +660,9 @@ impl ObjectPrivate for TreelandDdeShellManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_treeland_window_picker(&self, arg0);
+                    (**handler).handle_get_treeland_window_picker(&self, arg0);
                 } else {
-                    DefaultHandler.get_treeland_window_picker(&self, arg0);
+                    DefaultHandler.handle_get_treeland_window_picker(&self, arg0);
                 }
             }
             5 => {
@@ -666,9 +683,9 @@ impl ObjectPrivate for TreelandDdeShellManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_treeland_lockscreen(&self, arg0);
+                    (**handler).handle_get_treeland_lockscreen(&self, arg0);
                 } else {
-                    DefaultHandler.get_treeland_lockscreen(&self, arg0);
+                    DefaultHandler.handle_get_treeland_lockscreen(&self, arg0);
                 }
             }
             n => {

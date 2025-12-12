@@ -737,6 +737,11 @@ impl ZwlrLayerSurfaceV1 {
 
 /// A message handler for [ZwlrLayerSurfaceV1] proxies.
 pub trait ZwlrLayerSurfaceV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwlrLayerSurfaceV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// sets the size of the surface
     ///
     /// Sets the size of the surface in surface-local coordinates. The
@@ -755,7 +760,7 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     /// - `width`:
     /// - `height`:
     #[inline]
-    fn set_size(
+    fn handle_set_size(
         &mut self,
         _slf: &Rc<ZwlrLayerSurfaceV1>,
         width: u32,
@@ -784,7 +789,7 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     ///
     /// - `anchor`:
     #[inline]
-    fn set_anchor(
+    fn handle_set_anchor(
         &mut self,
         _slf: &Rc<ZwlrLayerSurfaceV1>,
         anchor: ZwlrLayerSurfaceV1Anchor,
@@ -836,7 +841,7 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     ///
     /// - `zone`:
     #[inline]
-    fn set_exclusive_zone(
+    fn handle_set_exclusive_zone(
         &mut self,
         _slf: &Rc<ZwlrLayerSurfaceV1>,
         zone: i32,
@@ -866,7 +871,7 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     /// - `bottom`:
     /// - `left`:
     #[inline]
-    fn set_margin(
+    fn handle_set_margin(
         &mut self,
         _slf: &Rc<ZwlrLayerSurfaceV1>,
         top: i32,
@@ -904,7 +909,7 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     ///
     /// - `keyboard_interactivity`:
     #[inline]
-    fn set_keyboard_interactivity(
+    fn handle_set_keyboard_interactivity(
         &mut self,
         _slf: &Rc<ZwlrLayerSurfaceV1>,
         keyboard_interactivity: ZwlrLayerSurfaceV1KeyboardInteractivity,
@@ -934,7 +939,7 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_popup(
+    fn handle_get_popup(
         &mut self,
         _slf: &Rc<ZwlrLayerSurfaceV1>,
         popup: &Rc<XdgPopup>,
@@ -969,7 +974,7 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     ///
     /// - `serial`: the serial from the configure event
     #[inline]
-    fn ack_configure(
+    fn handle_ack_configure(
         &mut self,
         _slf: &Rc<ZwlrLayerSurfaceV1>,
         serial: u32,
@@ -986,7 +991,7 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     ///
     /// This request destroys the layer surface.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwlrLayerSurfaceV1>,
     ) {
@@ -1026,7 +1031,7 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     /// - `width`:
     /// - `height`:
     #[inline]
-    fn configure(
+    fn handle_configure(
         &mut self,
         _slf: &Rc<ZwlrLayerSurfaceV1>,
         serial: u32,
@@ -1051,7 +1056,7 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     /// ignored. The client should destroy the resource after receiving this
     /// event, and create a new surface if they so choose.
     #[inline]
-    fn closed(
+    fn handle_closed(
         &mut self,
         _slf: &Rc<ZwlrLayerSurfaceV1>,
     ) {
@@ -1072,7 +1077,7 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     ///
     /// - `layer`: layer to move this surface to
     #[inline]
-    fn set_layer(
+    fn handle_set_layer(
         &mut self,
         _slf: &Rc<ZwlrLayerSurfaceV1>,
         layer: ZwlrLayerShellV1Layer,
@@ -1100,7 +1105,7 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     ///
     /// - `edge`:
     #[inline]
-    fn set_exclusive_edge(
+    fn handle_set_exclusive_edge(
         &mut self,
         _slf: &Rc<ZwlrLayerSurfaceV1>,
         edge: ZwlrLayerSurfaceV1Anchor,
@@ -1120,6 +1125,18 @@ impl ObjectPrivate for ZwlrLayerSurfaceV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrLayerSurfaceV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -1142,9 +1159,9 @@ impl ObjectPrivate for ZwlrLayerSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_size(&self, arg0, arg1);
+                    (**handler).handle_set_size(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_size(&self, arg0, arg1);
+                    DefaultHandler.handle_set_size(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -1161,9 +1178,9 @@ impl ObjectPrivate for ZwlrLayerSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_anchor(&self, arg0);
+                    (**handler).handle_set_anchor(&self, arg0);
                 } else {
-                    DefaultHandler.set_anchor(&self, arg0);
+                    DefaultHandler.handle_set_anchor(&self, arg0);
                 }
             }
             2 => {
@@ -1180,9 +1197,9 @@ impl ObjectPrivate for ZwlrLayerSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_exclusive_zone(&self, arg0);
+                    (**handler).handle_set_exclusive_zone(&self, arg0);
                 } else {
-                    DefaultHandler.set_exclusive_zone(&self, arg0);
+                    DefaultHandler.handle_set_exclusive_zone(&self, arg0);
                 }
             }
             3 => {
@@ -1205,9 +1222,9 @@ impl ObjectPrivate for ZwlrLayerSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_margin(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_set_margin(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.set_margin(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_set_margin(&self, arg0, arg1, arg2, arg3);
                 }
             }
             4 => {
@@ -1224,9 +1241,9 @@ impl ObjectPrivate for ZwlrLayerSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_keyboard_interactivity(&self, arg0);
+                    (**handler).handle_set_keyboard_interactivity(&self, arg0);
                 } else {
-                    DefaultHandler.set_keyboard_interactivity(&self, arg0);
+                    DefaultHandler.handle_set_keyboard_interactivity(&self, arg0);
                 }
             }
             5 => {
@@ -1251,9 +1268,9 @@ impl ObjectPrivate for ZwlrLayerSurfaceV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_popup(&self, arg0);
+                    (**handler).handle_get_popup(&self, arg0);
                 } else {
-                    DefaultHandler.get_popup(&self, arg0);
+                    DefaultHandler.handle_get_popup(&self, arg0);
                 }
             }
             6 => {
@@ -1269,9 +1286,9 @@ impl ObjectPrivate for ZwlrLayerSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).ack_configure(&self, arg0);
+                    (**handler).handle_ack_configure(&self, arg0);
                 } else {
-                    DefaultHandler.ack_configure(&self, arg0);
+                    DefaultHandler.handle_ack_configure(&self, arg0);
                 }
             }
             7 => {
@@ -1286,9 +1303,9 @@ impl ObjectPrivate for ZwlrLayerSurfaceV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             8 => {
@@ -1305,9 +1322,9 @@ impl ObjectPrivate for ZwlrLayerSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_layer(&self, arg0);
+                    (**handler).handle_set_layer(&self, arg0);
                 } else {
-                    DefaultHandler.set_layer(&self, arg0);
+                    DefaultHandler.handle_set_layer(&self, arg0);
                 }
             }
             9 => {
@@ -1324,9 +1341,9 @@ impl ObjectPrivate for ZwlrLayerSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_exclusive_edge(&self, arg0);
+                    (**handler).handle_set_exclusive_edge(&self, arg0);
                 } else {
-                    DefaultHandler.set_exclusive_edge(&self, arg0);
+                    DefaultHandler.handle_set_exclusive_edge(&self, arg0);
                 }
             }
             n => {
@@ -1361,9 +1378,9 @@ impl ObjectPrivate for ZwlrLayerSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).configure(&self, arg0, arg1, arg2);
+                    (**handler).handle_configure(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.configure(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_configure(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
@@ -1377,9 +1394,9 @@ impl ObjectPrivate for ZwlrLayerSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).closed(&self);
+                    (**handler).handle_closed(&self);
                 } else {
-                    DefaultHandler.closed(&self);
+                    DefaultHandler.handle_closed(&self);
                 }
             }
             n => {

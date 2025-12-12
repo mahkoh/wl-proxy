@@ -415,13 +415,18 @@ impl TreelandPersonalizationCursorContextV1 {
 
 /// A message handler for [TreelandPersonalizationCursorContextV1] proxies.
 pub trait TreelandPersonalizationCursorContextV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandPersonalizationCursorContextV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// set system cursor theme
     ///
     /// # Arguments
     ///
     /// - `name`: cursor theme name
     #[inline]
-    fn set_theme(
+    fn handle_set_theme(
         &mut self,
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
         name: &str,
@@ -436,7 +441,7 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
 
     /// get system cursor theme
     #[inline]
-    fn get_theme(
+    fn handle_get_theme(
         &mut self,
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
     ) {
@@ -453,7 +458,7 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
     ///
     /// - `size`: cursor size
     #[inline]
-    fn set_size(
+    fn handle_set_size(
         &mut self,
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
         size: u32,
@@ -468,7 +473,7 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
 
     /// get system cursor size
     #[inline]
-    fn get_size(
+    fn handle_get_size(
         &mut self,
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
     ) {
@@ -483,7 +488,7 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
     ///
     /// if only one commit fails validation, the commit will fail
     #[inline]
-    fn commit(
+    fn handle_commit(
         &mut self,
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
     ) {
@@ -498,7 +503,7 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
     ///
     /// Destroy the context object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
     ) {
@@ -517,7 +522,7 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
     ///
     /// - `success`: check whether the configuration is successful
     #[inline]
-    fn verfity(
+    fn handle_verfity(
         &mut self,
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
         success: i32,
@@ -538,7 +543,7 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
     ///
     /// - `name`: cursor theme name
     #[inline]
-    fn theme(
+    fn handle_theme(
         &mut self,
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
         name: &str,
@@ -559,7 +564,7 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
     ///
     /// - `size`: cursor size
     #[inline]
-    fn size(
+    fn handle_size(
         &mut self,
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
         size: u32,
@@ -579,6 +584,18 @@ impl ObjectPrivate for TreelandPersonalizationCursorContextV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandPersonalizationCursorContextV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -621,9 +638,9 @@ impl ObjectPrivate for TreelandPersonalizationCursorContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_theme(&self, arg0);
+                    (**handler).handle_set_theme(&self, arg0);
                 } else {
-                    DefaultHandler.set_theme(&self, arg0);
+                    DefaultHandler.handle_set_theme(&self, arg0);
                 }
             }
             1 => {
@@ -637,9 +654,9 @@ impl ObjectPrivate for TreelandPersonalizationCursorContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).get_theme(&self);
+                    (**handler).handle_get_theme(&self);
                 } else {
-                    DefaultHandler.get_theme(&self);
+                    DefaultHandler.handle_get_theme(&self);
                 }
             }
             2 => {
@@ -655,9 +672,9 @@ impl ObjectPrivate for TreelandPersonalizationCursorContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_size(&self, arg0);
+                    (**handler).handle_set_size(&self, arg0);
                 } else {
-                    DefaultHandler.set_size(&self, arg0);
+                    DefaultHandler.handle_set_size(&self, arg0);
                 }
             }
             3 => {
@@ -671,9 +688,9 @@ impl ObjectPrivate for TreelandPersonalizationCursorContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).get_size(&self);
+                    (**handler).handle_get_size(&self);
                 } else {
-                    DefaultHandler.get_size(&self);
+                    DefaultHandler.handle_get_size(&self);
                 }
             }
             4 => {
@@ -687,9 +704,9 @@ impl ObjectPrivate for TreelandPersonalizationCursorContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).commit(&self);
+                    (**handler).handle_commit(&self);
                 } else {
-                    DefaultHandler.commit(&self);
+                    DefaultHandler.handle_commit(&self);
                 }
             }
             5 => {
@@ -704,9 +721,9 @@ impl ObjectPrivate for TreelandPersonalizationCursorContextV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -740,9 +757,9 @@ impl ObjectPrivate for TreelandPersonalizationCursorContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).verfity(&self, arg0);
+                    (**handler).handle_verfity(&self, arg0);
                 } else {
-                    DefaultHandler.verfity(&self, arg0);
+                    DefaultHandler.handle_verfity(&self, arg0);
                 }
             }
             1 => {
@@ -779,9 +796,9 @@ impl ObjectPrivate for TreelandPersonalizationCursorContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).theme(&self, arg0);
+                    (**handler).handle_theme(&self, arg0);
                 } else {
-                    DefaultHandler.theme(&self, arg0);
+                    DefaultHandler.handle_theme(&self, arg0);
                 }
             }
             2 => {
@@ -797,9 +814,9 @@ impl ObjectPrivate for TreelandPersonalizationCursorContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).size(&self, arg0);
+                    (**handler).handle_size(&self, arg0);
                 } else {
-                    DefaultHandler.size(&self, arg0);
+                    DefaultHandler.handle_size(&self, arg0);
                 }
             }
             n => {

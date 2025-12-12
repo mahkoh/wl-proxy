@@ -216,12 +216,17 @@ impl WpLinuxDrmSyncobjManagerV1 {
 
 /// A message handler for [WpLinuxDrmSyncobjManagerV1] proxies.
 pub trait WpLinuxDrmSyncobjManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpLinuxDrmSyncobjManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy explicit synchronization factory object
     ///
     /// Destroy this explicit synchronization factory object. Other objects
     /// shall not be affected by this request.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpLinuxDrmSyncobjManagerV1>,
     ) {
@@ -254,7 +259,7 @@ pub trait WpLinuxDrmSyncobjManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_surface(
+    fn handle_get_surface(
         &mut self,
         _slf: &Rc<WpLinuxDrmSyncobjManagerV1>,
         id: &Rc<WpLinuxDrmSyncobjSurfaceV1>,
@@ -280,7 +285,7 @@ pub trait WpLinuxDrmSyncobjManagerV1Handler: Any {
     /// - `id`:
     /// - `fd`: drm_syncobj file descriptor
     #[inline]
-    fn import_timeline(
+    fn handle_import_timeline(
         &mut self,
         _slf: &Rc<WpLinuxDrmSyncobjManagerV1>,
         id: &Rc<WpLinuxDrmSyncobjTimelineV1>,
@@ -304,6 +309,18 @@ impl ObjectPrivate for WpLinuxDrmSyncobjManagerV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -322,9 +339,9 @@ impl ObjectPrivate for WpLinuxDrmSyncobjManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -355,9 +372,9 @@ impl ObjectPrivate for WpLinuxDrmSyncobjManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_surface(&self, arg0, arg1);
+                    (**handler).handle_get_surface(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_surface(&self, arg0, arg1);
+                    DefaultHandler.handle_get_surface(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -382,9 +399,9 @@ impl ObjectPrivate for WpLinuxDrmSyncobjManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).import_timeline(&self, arg0, arg1);
+                    (**handler).handle_import_timeline(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.import_timeline(&self, arg0, arg1);
+                    DefaultHandler.handle_import_timeline(&self, arg0, arg1);
                 }
             }
             n => {

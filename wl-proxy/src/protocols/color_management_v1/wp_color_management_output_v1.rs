@@ -210,12 +210,17 @@ impl WpColorManagementOutputV1 {
 
 /// A message handler for [WpColorManagementOutputV1] proxies.
 pub trait WpColorManagementOutputV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpColorManagementOutputV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the color management output
     ///
     /// Destroy the color wp_color_management_output_v1 object. This does not
     /// affect any remaining protocol objects.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpColorManagementOutputV1>,
     ) {
@@ -236,7 +241,7 @@ pub trait WpColorManagementOutputV1Handler: Any {
     /// get_image_description again, because image description objects are
     /// immutable.
     #[inline]
-    fn image_description_changed(
+    fn handle_image_description_changed(
         &mut self,
         _slf: &Rc<WpColorManagementOutputV1>,
     ) {
@@ -285,7 +290,7 @@ pub trait WpColorManagementOutputV1Handler: Any {
     ///
     /// - `image_description`:
     #[inline]
-    fn get_image_description(
+    fn handle_get_image_description(
         &mut self,
         _slf: &Rc<WpColorManagementOutputV1>,
         image_description: &Rc<WpImageDescriptionV1>,
@@ -307,6 +312,18 @@ impl ObjectPrivate for WpColorManagementOutputV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -325,9 +342,9 @@ impl ObjectPrivate for WpColorManagementOutputV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -348,9 +365,9 @@ impl ObjectPrivate for WpColorManagementOutputV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "image_description", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_image_description(&self, arg0);
+                    (**handler).handle_get_image_description(&self, arg0);
                 } else {
-                    DefaultHandler.get_image_description(&self, arg0);
+                    DefaultHandler.handle_get_image_description(&self, arg0);
                 }
             }
             n => {
@@ -381,9 +398,9 @@ impl ObjectPrivate for WpColorManagementOutputV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).image_description_changed(&self);
+                    (**handler).handle_image_description_changed(&self);
                 } else {
-                    DefaultHandler.image_description_changed(&self);
+                    DefaultHandler.handle_image_description_changed(&self);
                 }
             }
             n => {

@@ -259,6 +259,11 @@ impl TreelandVirtualOutputManagerV1 {
 
 /// A message handler for [TreelandVirtualOutputManagerV1] proxies.
 pub trait TreelandVirtualOutputManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandVirtualOutputManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// Create a virtual output
     ///
     /// Create virtual output that can be used when setting screen copy mode for use
@@ -279,7 +284,7 @@ pub trait TreelandVirtualOutputManagerV1Handler: Any {
     /// - `name`: The name of the user readable virtual output
     /// - `outputs`: Screen name array
     #[inline]
-    fn create_virtual_output(
+    fn handle_create_virtual_output(
         &mut self,
         _slf: &Rc<TreelandVirtualOutputManagerV1>,
         id: &Rc<TreelandVirtualOutputV1>,
@@ -300,7 +305,7 @@ pub trait TreelandVirtualOutputManagerV1Handler: Any {
     ///
     /// Gets a list of virtual output names.
     #[inline]
-    fn get_virtual_output_list(
+    fn handle_get_virtual_output_list(
         &mut self,
         _slf: &Rc<TreelandVirtualOutputManagerV1>,
     ) {
@@ -319,7 +324,7 @@ pub trait TreelandVirtualOutputManagerV1Handler: Any {
     ///
     /// - `names`: List of virtual output names
     #[inline]
-    fn virtual_output_list(
+    fn handle_virtual_output_list(
         &mut self,
         _slf: &Rc<TreelandVirtualOutputManagerV1>,
         names: &[u8],
@@ -342,7 +347,7 @@ pub trait TreelandVirtualOutputManagerV1Handler: Any {
     /// - `name`: The name of the user readable virtual output
     /// - `id`:
     #[inline]
-    fn get_virtual_output(
+    fn handle_get_virtual_output(
         &mut self,
         _slf: &Rc<TreelandVirtualOutputManagerV1>,
         name: &str,
@@ -364,6 +369,18 @@ impl ObjectPrivate for TreelandVirtualOutputManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandVirtualOutputManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -429,9 +446,9 @@ impl ObjectPrivate for TreelandVirtualOutputManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_virtual_output(&self, arg0, arg1, arg2);
+                    (**handler).handle_create_virtual_output(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.create_virtual_output(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_create_virtual_output(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
@@ -445,9 +462,9 @@ impl ObjectPrivate for TreelandVirtualOutputManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).get_virtual_output_list(&self);
+                    (**handler).handle_get_virtual_output_list(&self);
                 } else {
-                    DefaultHandler.get_virtual_output_list(&self);
+                    DefaultHandler.handle_get_virtual_output_list(&self);
                 }
             }
             2 => {
@@ -493,9 +510,9 @@ impl ObjectPrivate for TreelandVirtualOutputManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg1_id, "id", e))?;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_virtual_output(&self, arg0, arg1);
+                    (**handler).handle_get_virtual_output(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_virtual_output(&self, arg0, arg1);
+                    DefaultHandler.handle_get_virtual_output(&self, arg0, arg1);
                 }
             }
             n => {
@@ -541,9 +558,9 @@ impl ObjectPrivate for TreelandVirtualOutputManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).virtual_output_list(&self, arg0);
+                    (**handler).handle_virtual_output_list(&self, arg0);
                 } else {
-                    DefaultHandler.virtual_output_list(&self, arg0);
+                    DefaultHandler.handle_virtual_output_list(&self, arg0);
                 }
             }
             n => {

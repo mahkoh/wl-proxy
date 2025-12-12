@@ -346,6 +346,11 @@ impl XdgActivationTokenV1 {
 
 /// A message handler for [XdgActivationTokenV1] proxies.
 pub trait XdgActivationTokenV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<XdgActivationTokenV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// specifies the seat and serial of the activating event
     ///
     /// Provides information about the seat and serial event that requested the
@@ -369,7 +374,7 @@ pub trait XdgActivationTokenV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_serial(
+    fn handle_set_serial(
         &mut self,
         _slf: &Rc<XdgActivationTokenV1>,
         serial: u32,
@@ -395,7 +400,7 @@ pub trait XdgActivationTokenV1Handler: Any {
     ///
     /// - `app_id`: the application id of the client being activated.
     #[inline]
-    fn set_app_id(
+    fn handle_set_app_id(
         &mut self,
         _slf: &Rc<XdgActivationTokenV1>,
         app_id: &str,
@@ -425,7 +430,7 @@ pub trait XdgActivationTokenV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_surface(
+    fn handle_set_surface(
         &mut self,
         _slf: &Rc<XdgActivationTokenV1>,
         surface: &Rc<WlSurface>,
@@ -443,7 +448,7 @@ pub trait XdgActivationTokenV1Handler: Any {
     /// Requests an activation token based on the different parameters that
     /// have been offered through set_serial, set_surface and set_app_id.
     #[inline]
-    fn commit(
+    fn handle_commit(
         &mut self,
         _slf: &Rc<XdgActivationTokenV1>,
     ) {
@@ -463,7 +468,7 @@ pub trait XdgActivationTokenV1Handler: Any {
     ///
     /// - `token`: the exported activation token
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<XdgActivationTokenV1>,
         token: &str,
@@ -481,7 +486,7 @@ pub trait XdgActivationTokenV1Handler: Any {
     /// Notify the compositor that the xdg_activation_token_v1 object will no
     /// longer be used. The received token stays valid.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<XdgActivationTokenV1>,
     ) {
@@ -499,6 +504,18 @@ impl ObjectPrivate for XdgActivationTokenV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::XdgActivationTokenV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -530,9 +547,9 @@ impl ObjectPrivate for XdgActivationTokenV1 {
                 };
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).set_serial(&self, arg0, arg1);
+                    (**handler).handle_set_serial(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_serial(&self, arg0, arg1);
+                    DefaultHandler.handle_set_serial(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -569,9 +586,9 @@ impl ObjectPrivate for XdgActivationTokenV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_app_id(&self, arg0);
+                    (**handler).handle_set_app_id(&self, arg0);
                 } else {
-                    DefaultHandler.set_app_id(&self, arg0);
+                    DefaultHandler.handle_set_app_id(&self, arg0);
                 }
             }
             2 => {
@@ -596,9 +613,9 @@ impl ObjectPrivate for XdgActivationTokenV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).set_surface(&self, arg0);
+                    (**handler).handle_set_surface(&self, arg0);
                 } else {
-                    DefaultHandler.set_surface(&self, arg0);
+                    DefaultHandler.handle_set_surface(&self, arg0);
                 }
             }
             3 => {
@@ -612,9 +629,9 @@ impl ObjectPrivate for XdgActivationTokenV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).commit(&self);
+                    (**handler).handle_commit(&self);
                 } else {
-                    DefaultHandler.commit(&self);
+                    DefaultHandler.handle_commit(&self);
                 }
             }
             4 => {
@@ -629,9 +646,9 @@ impl ObjectPrivate for XdgActivationTokenV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -685,9 +702,9 @@ impl ObjectPrivate for XdgActivationTokenV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).done(&self, arg0);
+                    (**handler).handle_done(&self, arg0);
                 } else {
-                    DefaultHandler.done(&self, arg0);
+                    DefaultHandler.handle_done(&self, arg0);
                 }
             }
             n => {

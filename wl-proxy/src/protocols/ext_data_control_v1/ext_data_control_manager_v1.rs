@@ -193,6 +193,11 @@ impl ExtDataControlManagerV1 {
 
 /// A message handler for [ExtDataControlManagerV1] proxies.
 pub trait ExtDataControlManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ExtDataControlManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// create a new data source
     ///
     /// Create a new data source.
@@ -201,7 +206,7 @@ pub trait ExtDataControlManagerV1Handler: Any {
     ///
     /// - `id`: data source to create
     #[inline]
-    fn create_data_source(
+    fn handle_create_data_source(
         &mut self,
         _slf: &Rc<ExtDataControlManagerV1>,
         id: &Rc<ExtDataControlSourceV1>,
@@ -226,7 +231,7 @@ pub trait ExtDataControlManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_data_device(
+    fn handle_get_data_device(
         &mut self,
         _slf: &Rc<ExtDataControlManagerV1>,
         id: &Rc<ExtDataControlDeviceV1>,
@@ -246,7 +251,7 @@ pub trait ExtDataControlManagerV1Handler: Any {
     /// All objects created by the manager will still remain valid, until their
     /// appropriate destroy request has been called.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ExtDataControlManagerV1>,
     ) {
@@ -264,6 +269,18 @@ impl ObjectPrivate for ExtDataControlManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtDataControlManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -290,9 +307,9 @@ impl ObjectPrivate for ExtDataControlManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_data_source(&self, arg0);
+                    (**handler).handle_create_data_source(&self, arg0);
                 } else {
-                    DefaultHandler.create_data_source(&self, arg0);
+                    DefaultHandler.handle_create_data_source(&self, arg0);
                 }
             }
             1 => {
@@ -323,9 +340,9 @@ impl ObjectPrivate for ExtDataControlManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_data_device(&self, arg0, arg1);
+                    (**handler).handle_get_data_device(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_data_device(&self, arg0, arg1);
+                    DefaultHandler.handle_get_data_device(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -340,9 +357,9 @@ impl ObjectPrivate for ExtDataControlManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {

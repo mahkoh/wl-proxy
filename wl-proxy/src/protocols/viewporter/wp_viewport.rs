@@ -267,12 +267,17 @@ impl WpViewport {
 
 /// A message handler for [WpViewport] proxies.
 pub trait WpViewportHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpViewport>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// remove scaling and cropping from the surface
     ///
     /// The associated wl_surface's crop and scale state is removed.
     /// The change is applied on the next wl_surface.commit.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpViewport>,
     ) {
@@ -303,7 +308,7 @@ pub trait WpViewportHandler: Any {
     /// - `width`: source rectangle width
     /// - `height`: source rectangle height
     #[inline]
-    fn set_source(
+    fn handle_set_source(
         &mut self,
         _slf: &Rc<WpViewport>,
         x: Fixed,
@@ -340,7 +345,7 @@ pub trait WpViewportHandler: Any {
     /// - `width`: surface width
     /// - `height`: surface height
     #[inline]
-    fn set_destination(
+    fn handle_set_destination(
         &mut self,
         _slf: &Rc<WpViewport>,
         width: i32,
@@ -364,6 +369,18 @@ impl ObjectPrivate for WpViewport {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -382,9 +399,9 @@ impl ObjectPrivate for WpViewport {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -407,9 +424,9 @@ impl ObjectPrivate for WpViewport {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_source(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_set_source(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.set_source(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_set_source(&self, arg0, arg1, arg2, arg3);
                 }
             }
             2 => {
@@ -428,9 +445,9 @@ impl ObjectPrivate for WpViewport {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_destination(&self, arg0, arg1);
+                    (**handler).handle_set_destination(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_destination(&self, arg0, arg1);
+                    DefaultHandler.handle_set_destination(&self, arg0, arg1);
                 }
             }
             n => {

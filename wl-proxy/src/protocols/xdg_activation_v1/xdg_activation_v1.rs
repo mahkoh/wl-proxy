@@ -205,6 +205,11 @@ impl XdgActivationV1 {
 
 /// A message handler for [XdgActivationV1] proxies.
 pub trait XdgActivationV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<XdgActivationV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the xdg_activation object
     ///
     /// Notify the compositor that the xdg_activation object will no longer be
@@ -213,7 +218,7 @@ pub trait XdgActivationV1Handler: Any {
     /// The child objects created via this interface are unaffected and should
     /// be destroyed separately.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<XdgActivationV1>,
     ) {
@@ -234,7 +239,7 @@ pub trait XdgActivationV1Handler: Any {
     ///
     /// - `id`:
     #[inline]
-    fn get_activation_token(
+    fn handle_get_activation_token(
         &mut self,
         _slf: &Rc<XdgActivationV1>,
         id: &Rc<XdgActivationTokenV1>,
@@ -268,7 +273,7 @@ pub trait XdgActivationV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn activate(
+    fn handle_activate(
         &mut self,
         _slf: &Rc<XdgActivationV1>,
         token: &str,
@@ -292,6 +297,18 @@ impl ObjectPrivate for XdgActivationV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -310,9 +327,9 @@ impl ObjectPrivate for XdgActivationV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -333,9 +350,9 @@ impl ObjectPrivate for XdgActivationV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_activation_token(&self, arg0);
+                    (**handler).handle_get_activation_token(&self, arg0);
                 } else {
-                    DefaultHandler.get_activation_token(&self, arg0);
+                    DefaultHandler.handle_get_activation_token(&self, arg0);
                 }
             }
             2 => {
@@ -385,9 +402,9 @@ impl ObjectPrivate for XdgActivationV1 {
                 };
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).activate(&self, arg0, arg1);
+                    (**handler).handle_activate(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.activate(&self, arg0, arg1);
+                    DefaultHandler.handle_activate(&self, arg0, arg1);
                 }
             }
             n => {

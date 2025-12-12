@@ -138,6 +138,11 @@ impl ExtTransientSeatManagerV1 {
 
 /// A message handler for [ExtTransientSeatManagerV1] proxies.
 pub trait ExtTransientSeatManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ExtTransientSeatManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// create a transient seat
     ///
     /// Create a new seat that is removed when the client side transient seat
@@ -150,7 +155,7 @@ pub trait ExtTransientSeatManagerV1Handler: Any {
     ///
     /// - `seat`:
     #[inline]
-    fn create(
+    fn handle_create(
         &mut self,
         _slf: &Rc<ExtTransientSeatManagerV1>,
         seat: &Rc<ExtTransientSeatV1>,
@@ -170,7 +175,7 @@ pub trait ExtTransientSeatManagerV1Handler: Any {
     /// All objects created by the manager will remain valid until they are
     /// destroyed themselves.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ExtTransientSeatManagerV1>,
     ) {
@@ -188,6 +193,18 @@ impl ObjectPrivate for ExtTransientSeatManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtTransientSeatManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -214,9 +231,9 @@ impl ObjectPrivate for ExtTransientSeatManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "seat", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create(&self, arg0);
+                    (**handler).handle_create(&self, arg0);
                 } else {
-                    DefaultHandler.create(&self, arg0);
+                    DefaultHandler.handle_create(&self, arg0);
                 }
             }
             1 => {
@@ -231,9 +248,9 @@ impl ObjectPrivate for ExtTransientSeatManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {

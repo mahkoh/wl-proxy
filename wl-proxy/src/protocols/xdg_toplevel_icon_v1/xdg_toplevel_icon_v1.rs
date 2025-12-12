@@ -231,13 +231,18 @@ impl XdgToplevelIconV1 {
 
 /// A message handler for [XdgToplevelIconV1] proxies.
 pub trait XdgToplevelIconV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<XdgToplevelIconV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the icon object
     ///
     /// Destroys the 'xdg_toplevel_icon_v1' object.
     /// The icon must still remain set on every toplevel it was assigned to,
     /// until the toplevel icon is reset explicitly.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<XdgToplevelIconV1>,
     ) {
@@ -270,7 +275,7 @@ pub trait XdgToplevelIconV1Handler: Any {
     ///
     /// - `icon_name`:
     #[inline]
-    fn set_name(
+    fn handle_set_name(
         &mut self,
         _slf: &Rc<XdgToplevelIconV1>,
         icon_name: &str,
@@ -318,7 +323,7 @@ pub trait XdgToplevelIconV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn add_buffer(
+    fn handle_add_buffer(
         &mut self,
         _slf: &Rc<XdgToplevelIconV1>,
         buffer: &Rc<WlBuffer>,
@@ -342,6 +347,18 @@ impl ObjectPrivate for XdgToplevelIconV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -360,9 +377,9 @@ impl ObjectPrivate for XdgToplevelIconV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -399,9 +416,9 @@ impl ObjectPrivate for XdgToplevelIconV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_name(&self, arg0);
+                    (**handler).handle_set_name(&self, arg0);
                 } else {
-                    DefaultHandler.set_name(&self, arg0);
+                    DefaultHandler.handle_set_name(&self, arg0);
                 }
             }
             2 => {
@@ -428,9 +445,9 @@ impl ObjectPrivate for XdgToplevelIconV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).add_buffer(&self, arg0, arg1);
+                    (**handler).handle_add_buffer(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.add_buffer(&self, arg0, arg1);
+                    DefaultHandler.handle_add_buffer(&self, arg0, arg1);
                 }
             }
             n => {

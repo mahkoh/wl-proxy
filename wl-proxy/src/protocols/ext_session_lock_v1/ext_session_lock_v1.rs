@@ -378,6 +378,11 @@ impl ExtSessionLockV1 {
 
 /// A message handler for [ExtSessionLockV1] proxies.
 pub trait ExtSessionLockV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ExtSessionLockV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the session lock
     ///
     /// This informs the compositor that the lock object will no longer be
@@ -390,7 +395,7 @@ pub trait ExtSessionLockV1Handler: Any {
     /// It is a protocol error to make this request if the locked event was
     /// sent, the unlock_and_destroy request must be used instead.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ExtSessionLockV1>,
     ) {
@@ -413,7 +418,7 @@ pub trait ExtSessionLockV1Handler: Any {
     /// If this event is sent, making the destroy request is a protocol error,
     /// the lock object must be destroyed using the unlock_and_destroy request.
     #[inline]
-    fn locked(
+    fn handle_locked(
         &mut self,
         _slf: &Rc<ExtSessionLockV1>,
     ) {
@@ -449,7 +454,7 @@ pub trait ExtSessionLockV1Handler: Any {
     /// request or the unlock_and_destroy request, depending on whether or
     /// not the locked event was received on this object.
     #[inline]
-    fn finished(
+    fn handle_finished(
         &mut self,
         _slf: &Rc<ExtSessionLockV1>,
     ) {
@@ -483,7 +488,7 @@ pub trait ExtSessionLockV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_lock_surface(
+    fn handle_get_lock_surface(
         &mut self,
         _slf: &Rc<ExtSessionLockV1>,
         id: &Rc<ExtSessionLockSurfaceV1>,
@@ -526,7 +531,7 @@ pub trait ExtSessionLockV1Handler: Any {
     /// the server might terminate the client with a protocol error before
     /// it processes the unlock_and_destroy request.
     #[inline]
-    fn unlock_and_destroy(
+    fn handle_unlock_and_destroy(
         &mut self,
         _slf: &Rc<ExtSessionLockV1>,
     ) {
@@ -544,6 +549,18 @@ impl ObjectPrivate for ExtSessionLockV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtSessionLockV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -564,9 +581,9 @@ impl ObjectPrivate for ExtSessionLockV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -607,9 +624,9 @@ impl ObjectPrivate for ExtSessionLockV1 {
                 let arg1 = &arg1;
                 let arg2 = &arg2;
                 if let Some(handler) = handler {
-                    (**handler).get_lock_surface(&self, arg0, arg1, arg2);
+                    (**handler).handle_get_lock_surface(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.get_lock_surface(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_get_lock_surface(&self, arg0, arg1, arg2);
                 }
             }
             2 => {
@@ -624,9 +641,9 @@ impl ObjectPrivate for ExtSessionLockV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).unlock_and_destroy(&self);
+                    (**handler).handle_unlock_and_destroy(&self);
                 } else {
-                    DefaultHandler.unlock_and_destroy(&self);
+                    DefaultHandler.handle_unlock_and_destroy(&self);
                 }
             }
             n => {
@@ -657,9 +674,9 @@ impl ObjectPrivate for ExtSessionLockV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).locked(&self);
+                    (**handler).handle_locked(&self);
                 } else {
-                    DefaultHandler.locked(&self);
+                    DefaultHandler.handle_locked(&self);
                 }
             }
             1 => {
@@ -673,9 +690,9 @@ impl ObjectPrivate for ExtSessionLockV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).finished(&self);
+                    (**handler).handle_finished(&self);
                 } else {
-                    DefaultHandler.finished(&self);
+                    DefaultHandler.handle_finished(&self);
                 }
             }
             n => {

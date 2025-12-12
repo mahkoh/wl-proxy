@@ -169,13 +169,18 @@ impl XwaylandShellV1 {
 
 /// A message handler for [XwaylandShellV1] proxies.
 pub trait XwaylandShellV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<XwaylandShellV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the Xwayland shell object
     ///
     /// Destroy the xwayland_shell_v1 object.
     ///
     /// The child objects created via this interface are unaffected.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<XwaylandShellV1>,
     ) {
@@ -206,7 +211,7 @@ pub trait XwaylandShellV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_xwayland_surface(
+    fn handle_get_xwayland_surface(
         &mut self,
         _slf: &Rc<XwaylandShellV1>,
         id: &Rc<XwaylandSurfaceV1>,
@@ -230,6 +235,18 @@ impl ObjectPrivate for XwaylandShellV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -248,9 +265,9 @@ impl ObjectPrivate for XwaylandShellV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -281,9 +298,9 @@ impl ObjectPrivate for XwaylandShellV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_xwayland_surface(&self, arg0, arg1);
+                    (**handler).handle_get_xwayland_surface(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_xwayland_surface(&self, arg0, arg1);
+                    DefaultHandler.handle_get_xwayland_surface(&self, arg0, arg1);
                 }
             }
             n => {

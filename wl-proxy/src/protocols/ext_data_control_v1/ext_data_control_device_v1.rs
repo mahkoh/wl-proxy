@@ -436,6 +436,11 @@ impl ExtDataControlDeviceV1 {
 
 /// A message handler for [ExtDataControlDeviceV1] proxies.
 pub trait ExtDataControlDeviceV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ExtDataControlDeviceV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// copy data to the selection
     ///
     /// This request asks the compositor to set the selection to the data from
@@ -454,7 +459,7 @@ pub trait ExtDataControlDeviceV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_selection(
+    fn handle_set_selection(
         &mut self,
         _slf: &Rc<ExtDataControlDeviceV1>,
         source: Option<&Rc<ExtDataControlSourceV1>>,
@@ -471,7 +476,7 @@ pub trait ExtDataControlDeviceV1Handler: Any {
     ///
     /// Destroys the data device object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ExtDataControlDeviceV1>,
     ) {
@@ -497,7 +502,7 @@ pub trait ExtDataControlDeviceV1Handler: Any {
     ///
     /// - `id`:
     #[inline]
-    fn data_offer(
+    fn handle_data_offer(
         &mut self,
         _slf: &Rc<ExtDataControlDeviceV1>,
         id: &Rc<ExtDataControlOfferV1>,
@@ -533,7 +538,7 @@ pub trait ExtDataControlDeviceV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn selection(
+    fn handle_selection(
         &mut self,
         _slf: &Rc<ExtDataControlDeviceV1>,
         id: Option<&Rc<ExtDataControlOfferV1>>,
@@ -560,7 +565,7 @@ pub trait ExtDataControlDeviceV1Handler: Any {
     /// This data control object is no longer valid and should be destroyed by
     /// the client.
     #[inline]
-    fn finished(
+    fn handle_finished(
         &mut self,
         _slf: &Rc<ExtDataControlDeviceV1>,
     ) {
@@ -596,7 +601,7 @@ pub trait ExtDataControlDeviceV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn primary_selection(
+    fn handle_primary_selection(
         &mut self,
         _slf: &Rc<ExtDataControlDeviceV1>,
         id: Option<&Rc<ExtDataControlOfferV1>>,
@@ -639,7 +644,7 @@ pub trait ExtDataControlDeviceV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_primary_selection(
+    fn handle_set_primary_selection(
         &mut self,
         _slf: &Rc<ExtDataControlDeviceV1>,
         source: Option<&Rc<ExtDataControlSourceV1>>,
@@ -659,6 +664,18 @@ impl ObjectPrivate for ExtDataControlDeviceV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtDataControlDeviceV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -694,9 +711,9 @@ impl ObjectPrivate for ExtDataControlDeviceV1 {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).set_selection(&self, arg0);
+                    (**handler).handle_set_selection(&self, arg0);
                 } else {
-                    DefaultHandler.set_selection(&self, arg0);
+                    DefaultHandler.handle_set_selection(&self, arg0);
                 }
             }
             1 => {
@@ -711,9 +728,9 @@ impl ObjectPrivate for ExtDataControlDeviceV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             2 => {
@@ -743,9 +760,9 @@ impl ObjectPrivate for ExtDataControlDeviceV1 {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).set_primary_selection(&self, arg0);
+                    (**handler).handle_set_primary_selection(&self, arg0);
                 } else {
-                    DefaultHandler.set_primary_selection(&self, arg0);
+                    DefaultHandler.handle_set_primary_selection(&self, arg0);
                 }
             }
             n => {
@@ -783,9 +800,9 @@ impl ObjectPrivate for ExtDataControlDeviceV1 {
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).data_offer(&self, arg0);
+                    (**handler).handle_data_offer(&self, arg0);
                 } else {
-                    DefaultHandler.data_offer(&self, arg0);
+                    DefaultHandler.handle_data_offer(&self, arg0);
                 }
             }
             1 => {
@@ -815,9 +832,9 @@ impl ObjectPrivate for ExtDataControlDeviceV1 {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).selection(&self, arg0);
+                    (**handler).handle_selection(&self, arg0);
                 } else {
-                    DefaultHandler.selection(&self, arg0);
+                    DefaultHandler.handle_selection(&self, arg0);
                 }
             }
             2 => {
@@ -831,9 +848,9 @@ impl ObjectPrivate for ExtDataControlDeviceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).finished(&self);
+                    (**handler).handle_finished(&self);
                 } else {
-                    DefaultHandler.finished(&self);
+                    DefaultHandler.handle_finished(&self);
                 }
             }
             3 => {
@@ -863,9 +880,9 @@ impl ObjectPrivate for ExtDataControlDeviceV1 {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).primary_selection(&self, arg0);
+                    (**handler).handle_primary_selection(&self, arg0);
                 } else {
-                    DefaultHandler.primary_selection(&self, arg0);
+                    DefaultHandler.handle_primary_selection(&self, arg0);
                 }
             }
             n => {

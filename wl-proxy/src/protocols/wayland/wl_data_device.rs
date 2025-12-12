@@ -610,6 +610,11 @@ impl WlDataDevice {
 
 /// A message handler for [WlDataDevice] proxies.
 pub trait WlDataDeviceHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlDataDevice>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// start drag-and-drop operation
     ///
     /// This request asks the compositor to start a drag-and-drop
@@ -652,7 +657,7 @@ pub trait WlDataDeviceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn start_drag(
+    fn handle_start_drag(
         &mut self,
         _slf: &Rc<WlDataDevice>,
         source: Option<&Rc<WlDataSource>>,
@@ -690,7 +695,7 @@ pub trait WlDataDeviceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_selection(
+    fn handle_set_selection(
         &mut self,
         _slf: &Rc<WlDataDevice>,
         source: Option<&Rc<WlDataSource>>,
@@ -719,7 +724,7 @@ pub trait WlDataDeviceHandler: Any {
     ///
     /// - `id`: the new data_offer object
     #[inline]
-    fn data_offer(
+    fn handle_data_offer(
         &mut self,
         _slf: &Rc<WlDataDevice>,
         id: &Rc<WlDataOffer>,
@@ -750,7 +755,7 @@ pub trait WlDataDeviceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn enter(
+    fn handle_enter(
         &mut self,
         _slf: &Rc<WlDataDevice>,
         serial: u32,
@@ -791,7 +796,7 @@ pub trait WlDataDeviceHandler: Any {
     /// surface and the session ends.  The client must destroy the
     /// wl_data_offer introduced at enter time at this point.
     #[inline]
-    fn leave(
+    fn handle_leave(
         &mut self,
         _slf: &Rc<WlDataDevice>,
     ) {
@@ -815,7 +820,7 @@ pub trait WlDataDeviceHandler: Any {
     /// - `x`: surface-local x coordinate
     /// - `y`: surface-local y coordinate
     #[inline]
-    fn motion(
+    fn handle_motion(
         &mut self,
         _slf: &Rc<WlDataDevice>,
         time: u32,
@@ -848,7 +853,7 @@ pub trait WlDataDeviceHandler: Any {
     /// wl_data_offer.set_actions request, or wl_data_offer.destroy in order
     /// to cancel the operation.
     #[inline]
-    fn drop(
+    fn handle_drop(
         &mut self,
         _slf: &Rc<WlDataDevice>,
     ) {
@@ -881,7 +886,7 @@ pub trait WlDataDeviceHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn selection(
+    fn handle_selection(
         &mut self,
         _slf: &Rc<WlDataDevice>,
         id: Option<&Rc<WlDataOffer>>,
@@ -907,7 +912,7 @@ pub trait WlDataDeviceHandler: Any {
     ///
     /// This request destroys the data device.
     #[inline]
-    fn release(
+    fn handle_release(
         &mut self,
         _slf: &Rc<WlDataDevice>,
     ) {
@@ -925,6 +930,18 @@ impl ObjectPrivate for WlDataDevice {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlDataDevice, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -986,9 +1003,9 @@ impl ObjectPrivate for WlDataDevice {
                 let arg1 = &arg1;
                 let arg2 = arg2.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).start_drag(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_start_drag(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.start_drag(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_start_drag(&self, arg0, arg1, arg2, arg3);
                 }
             }
             1 => {
@@ -1019,9 +1036,9 @@ impl ObjectPrivate for WlDataDevice {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).set_selection(&self, arg0, arg1);
+                    (**handler).handle_set_selection(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_selection(&self, arg0, arg1);
+                    DefaultHandler.handle_set_selection(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -1036,9 +1053,9 @@ impl ObjectPrivate for WlDataDevice {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).release(&self);
+                    (**handler).handle_release(&self);
                 } else {
-                    DefaultHandler.release(&self);
+                    DefaultHandler.handle_release(&self);
                 }
             }
             n => {
@@ -1076,9 +1093,9 @@ impl ObjectPrivate for WlDataDevice {
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).data_offer(&self, arg0);
+                    (**handler).handle_data_offer(&self, arg0);
                 } else {
-                    DefaultHandler.data_offer(&self, arg0);
+                    DefaultHandler.handle_data_offer(&self, arg0);
                 }
             }
             1 => {
@@ -1123,9 +1140,9 @@ impl ObjectPrivate for WlDataDevice {
                 let arg1 = &arg1;
                 let arg4 = arg4.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).enter(&self, arg0, arg1, arg2, arg3, arg4);
+                    (**handler).handle_enter(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultHandler.enter(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.handle_enter(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             2 => {
@@ -1139,9 +1156,9 @@ impl ObjectPrivate for WlDataDevice {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).leave(&self);
+                    (**handler).handle_leave(&self);
                 } else {
-                    DefaultHandler.leave(&self);
+                    DefaultHandler.handle_leave(&self);
                 }
             }
             3 => {
@@ -1161,9 +1178,9 @@ impl ObjectPrivate for WlDataDevice {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).motion(&self, arg0, arg1, arg2);
+                    (**handler).handle_motion(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.motion(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_motion(&self, arg0, arg1, arg2);
                 }
             }
             4 => {
@@ -1177,9 +1194,9 @@ impl ObjectPrivate for WlDataDevice {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).drop(&self);
+                    (**handler).handle_drop(&self);
                 } else {
-                    DefaultHandler.drop(&self);
+                    DefaultHandler.handle_drop(&self);
                 }
             }
             5 => {
@@ -1209,9 +1226,9 @@ impl ObjectPrivate for WlDataDevice {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).selection(&self, arg0);
+                    (**handler).handle_selection(&self, arg0);
                 } else {
-                    DefaultHandler.selection(&self, arg0);
+                    DefaultHandler.handle_selection(&self, arg0);
                 }
             }
             n => {

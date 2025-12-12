@@ -381,6 +381,11 @@ impl WlSeat {
 
 /// A message handler for [WlSeat] proxies.
 pub trait WlSeatHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlSeat>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// seat capabilities changed
     ///
     /// This is sent on binding to the seat global or whenever a seat gains
@@ -413,7 +418,7 @@ pub trait WlSeatHandler: Any {
     ///
     /// - `capabilities`: capabilities of the seat
     #[inline]
-    fn capabilities(
+    fn handle_capabilities(
         &mut self,
         _slf: &Rc<WlSeat>,
         capabilities: WlSeatCapability,
@@ -441,7 +446,7 @@ pub trait WlSeatHandler: Any {
     ///
     /// - `id`: seat pointer
     #[inline]
-    fn get_pointer(
+    fn handle_get_pointer(
         &mut self,
         _slf: &Rc<WlSeat>,
         id: &Rc<WlPointer>,
@@ -469,7 +474,7 @@ pub trait WlSeatHandler: Any {
     ///
     /// - `id`: seat keyboard
     #[inline]
-    fn get_keyboard(
+    fn handle_get_keyboard(
         &mut self,
         _slf: &Rc<WlSeat>,
         id: &Rc<WlKeyboard>,
@@ -497,7 +502,7 @@ pub trait WlSeatHandler: Any {
     ///
     /// - `id`: seat touch interface
     #[inline]
-    fn get_touch(
+    fn handle_get_touch(
         &mut self,
         _slf: &Rc<WlSeat>,
         id: &Rc<WlTouch>,
@@ -533,7 +538,7 @@ pub trait WlSeatHandler: Any {
     ///
     /// - `name`: seat identifier
     #[inline]
-    fn name(
+    fn handle_name(
         &mut self,
         _slf: &Rc<WlSeat>,
         name: &str,
@@ -551,7 +556,7 @@ pub trait WlSeatHandler: Any {
     /// Using this request a client can tell the server that it is not going to
     /// use the seat object anymore.
     #[inline]
-    fn release(
+    fn handle_release(
         &mut self,
         _slf: &Rc<WlSeat>,
     ) {
@@ -569,6 +574,18 @@ impl ObjectPrivate for WlSeat {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlSeat, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -595,9 +612,9 @@ impl ObjectPrivate for WlSeat {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_pointer(&self, arg0);
+                    (**handler).handle_get_pointer(&self, arg0);
                 } else {
-                    DefaultHandler.get_pointer(&self, arg0);
+                    DefaultHandler.handle_get_pointer(&self, arg0);
                 }
             }
             1 => {
@@ -618,9 +635,9 @@ impl ObjectPrivate for WlSeat {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_keyboard(&self, arg0);
+                    (**handler).handle_get_keyboard(&self, arg0);
                 } else {
-                    DefaultHandler.get_keyboard(&self, arg0);
+                    DefaultHandler.handle_get_keyboard(&self, arg0);
                 }
             }
             2 => {
@@ -641,9 +658,9 @@ impl ObjectPrivate for WlSeat {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_touch(&self, arg0);
+                    (**handler).handle_get_touch(&self, arg0);
                 } else {
-                    DefaultHandler.get_touch(&self, arg0);
+                    DefaultHandler.handle_get_touch(&self, arg0);
                 }
             }
             3 => {
@@ -658,9 +675,9 @@ impl ObjectPrivate for WlSeat {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).release(&self);
+                    (**handler).handle_release(&self);
                 } else {
-                    DefaultHandler.release(&self);
+                    DefaultHandler.handle_release(&self);
                 }
             }
             n => {
@@ -694,9 +711,9 @@ impl ObjectPrivate for WlSeat {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).capabilities(&self, arg0);
+                    (**handler).handle_capabilities(&self, arg0);
                 } else {
-                    DefaultHandler.capabilities(&self, arg0);
+                    DefaultHandler.handle_capabilities(&self, arg0);
                 }
             }
             1 => {
@@ -733,9 +750,9 @@ impl ObjectPrivate for WlSeat {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).name(&self, arg0);
+                    (**handler).handle_name(&self, arg0);
                 } else {
-                    DefaultHandler.name(&self, arg0);
+                    DefaultHandler.handle_name(&self, arg0);
                 }
             }
             n => {

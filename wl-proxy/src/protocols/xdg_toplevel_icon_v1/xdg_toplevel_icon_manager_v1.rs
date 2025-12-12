@@ -310,12 +310,17 @@ impl XdgToplevelIconManagerV1 {
 
 /// A message handler for [XdgToplevelIconManagerV1] proxies.
 pub trait XdgToplevelIconManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<XdgToplevelIconManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the toplevel icon manager
     ///
     /// Destroy the toplevel icon manager.
     /// This does not destroy objects created with the manager.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<XdgToplevelIconManagerV1>,
     ) {
@@ -335,7 +340,7 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
     ///
     /// - `id`:
     #[inline]
-    fn create_icon(
+    fn handle_create_icon(
         &mut self,
         _slf: &Rc<XdgToplevelIconManagerV1>,
         id: &Rc<XdgToplevelIconV1>,
@@ -379,7 +384,7 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_icon(
+    fn handle_set_icon(
         &mut self,
         _slf: &Rc<XdgToplevelIconManagerV1>,
         toplevel: &Rc<XdgToplevel>,
@@ -413,7 +418,7 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
     ///
     /// - `size`: the edge size of the square icon in surface-local coordinates, e.g. 64
     #[inline]
-    fn icon_size(
+    fn handle_icon_size(
         &mut self,
         _slf: &Rc<XdgToplevelIconManagerV1>,
         size: i32,
@@ -430,7 +435,7 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
     ///
     /// This event is sent after all 'icon_size' events have been sent.
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<XdgToplevelIconManagerV1>,
     ) {
@@ -448,6 +453,18 @@ impl ObjectPrivate for XdgToplevelIconManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::XdgToplevelIconManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -468,9 +485,9 @@ impl ObjectPrivate for XdgToplevelIconManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -491,9 +508,9 @@ impl ObjectPrivate for XdgToplevelIconManagerV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_icon(&self, arg0);
+                    (**handler).handle_create_icon(&self, arg0);
                 } else {
-                    DefaultHandler.create_icon(&self, arg0);
+                    DefaultHandler.handle_create_icon(&self, arg0);
                 }
             }
             2 => {
@@ -533,9 +550,9 @@ impl ObjectPrivate for XdgToplevelIconManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = arg1.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).set_icon(&self, arg0, arg1);
+                    (**handler).handle_set_icon(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_icon(&self, arg0, arg1);
+                    DefaultHandler.handle_set_icon(&self, arg0, arg1);
                 }
             }
             n => {
@@ -569,9 +586,9 @@ impl ObjectPrivate for XdgToplevelIconManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).icon_size(&self, arg0);
+                    (**handler).handle_icon_size(&self, arg0);
                 } else {
-                    DefaultHandler.icon_size(&self, arg0);
+                    DefaultHandler.handle_icon_size(&self, arg0);
                 }
             }
             1 => {
@@ -585,9 +602,9 @@ impl ObjectPrivate for XdgToplevelIconManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).done(&self);
+                    (**handler).handle_done(&self);
                 } else {
-                    DefaultHandler.done(&self);
+                    DefaultHandler.handle_done(&self);
                 }
             }
             n => {

@@ -140,6 +140,11 @@ impl ZwpInputPanelSurfaceV1 {
 
 /// A message handler for [ZwpInputPanelSurfaceV1] proxies.
 pub trait ZwpInputPanelSurfaceV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpInputPanelSurfaceV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// set the surface type as a keyboard
     ///
     /// Set the input_panel_surface type to keyboard.
@@ -154,7 +159,7 @@ pub trait ZwpInputPanelSurfaceV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_toplevel(
+    fn handle_set_toplevel(
         &mut self,
         _slf: &Rc<ZwpInputPanelSurfaceV1>,
         output: &Rc<WlOutput>,
@@ -176,7 +181,7 @@ pub trait ZwpInputPanelSurfaceV1Handler: Any {
     /// This is shown near the input cursor above the application window when
     /// a text input is active.
     #[inline]
-    fn set_overlay_panel(
+    fn handle_set_overlay_panel(
         &mut self,
         _slf: &Rc<ZwpInputPanelSurfaceV1>,
     ) {
@@ -194,6 +199,18 @@ impl ObjectPrivate for ZwpInputPanelSurfaceV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpInputPanelSurfaceV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -225,9 +242,9 @@ impl ObjectPrivate for ZwpInputPanelSurfaceV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).set_toplevel(&self, arg0, arg1);
+                    (**handler).handle_set_toplevel(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_toplevel(&self, arg0, arg1);
+                    DefaultHandler.handle_set_toplevel(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -241,9 +258,9 @@ impl ObjectPrivate for ZwpInputPanelSurfaceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_overlay_panel(&self);
+                    (**handler).handle_set_overlay_panel(&self);
                 } else {
-                    DefaultHandler.set_overlay_panel(&self);
+                    DefaultHandler.handle_set_overlay_panel(&self);
                 }
             }
             n => {

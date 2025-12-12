@@ -165,6 +165,11 @@ impl WlDataDeviceManager {
 
 /// A message handler for [WlDataDeviceManager] proxies.
 pub trait WlDataDeviceManagerHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlDataDeviceManager>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// create a new data source
     ///
     /// Create a new data source.
@@ -173,7 +178,7 @@ pub trait WlDataDeviceManagerHandler: Any {
     ///
     /// - `id`: data source to create
     #[inline]
-    fn create_data_source(
+    fn handle_create_data_source(
         &mut self,
         _slf: &Rc<WlDataDeviceManager>,
         id: &Rc<WlDataSource>,
@@ -198,7 +203,7 @@ pub trait WlDataDeviceManagerHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_data_device(
+    fn handle_get_data_device(
         &mut self,
         _slf: &Rc<WlDataDeviceManager>,
         id: &Rc<WlDataDevice>,
@@ -220,6 +225,18 @@ impl ObjectPrivate for WlDataDeviceManager {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlDataDeviceManager, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -246,9 +263,9 @@ impl ObjectPrivate for WlDataDeviceManager {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_data_source(&self, arg0);
+                    (**handler).handle_create_data_source(&self, arg0);
                 } else {
-                    DefaultHandler.create_data_source(&self, arg0);
+                    DefaultHandler.handle_create_data_source(&self, arg0);
                 }
             }
             1 => {
@@ -279,9 +296,9 @@ impl ObjectPrivate for WlDataDeviceManager {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_data_device(&self, arg0, arg1);
+                    (**handler).handle_get_data_device(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_data_device(&self, arg0, arg1);
+                    DefaultHandler.handle_get_data_device(&self, arg0, arg1);
                 }
             }
             n => {

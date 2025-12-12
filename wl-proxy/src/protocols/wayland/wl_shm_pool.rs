@@ -234,6 +234,11 @@ impl WlShmPool {
 
 /// A message handler for [WlShmPool] proxies.
 pub trait WlShmPoolHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlShmPool>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// create a buffer from the pool
     ///
     /// Create a wl_buffer object from the pool.
@@ -257,7 +262,7 @@ pub trait WlShmPoolHandler: Any {
     /// - `stride`: number of bytes from the beginning of one row to the beginning of the next row
     /// - `format`: buffer pixel format
     #[inline]
-    fn create_buffer(
+    fn handle_create_buffer(
         &mut self,
         _slf: &Rc<WlShmPool>,
         id: &Rc<WlBuffer>,
@@ -288,7 +293,7 @@ pub trait WlShmPoolHandler: Any {
     /// buffers that have been created from this pool
     /// are gone.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WlShmPool>,
     ) {
@@ -316,7 +321,7 @@ pub trait WlShmPoolHandler: Any {
     ///
     /// - `size`: new size of the pool, in bytes
     #[inline]
-    fn resize(
+    fn handle_resize(
         &mut self,
         _slf: &Rc<WlShmPool>,
         size: i32,
@@ -336,6 +341,18 @@ impl ObjectPrivate for WlShmPool {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlShmPool, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -372,9 +389,9 @@ impl ObjectPrivate for WlShmPool {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_buffer(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    (**handler).handle_create_buffer(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 } else {
-                    DefaultHandler.create_buffer(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    DefaultHandler.handle_create_buffer(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 }
             }
             1 => {
@@ -389,9 +406,9 @@ impl ObjectPrivate for WlShmPool {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             2 => {
@@ -408,9 +425,9 @@ impl ObjectPrivate for WlShmPool {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).resize(&self, arg0);
+                    (**handler).handle_resize(&self, arg0);
                 } else {
-                    DefaultHandler.resize(&self, arg0);
+                    DefaultHandler.handle_resize(&self, arg0);
                 }
             }
             n => {

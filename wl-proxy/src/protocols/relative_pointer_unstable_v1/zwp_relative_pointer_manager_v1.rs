@@ -148,12 +148,17 @@ impl ZwpRelativePointerManagerV1 {
 
 /// A message handler for [ZwpRelativePointerManagerV1] proxies.
 pub trait ZwpRelativePointerManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpRelativePointerManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the relative pointer manager object
     ///
     /// Used by the client to notify the server that it will no longer use this
     /// relative pointer manager object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpRelativePointerManagerV1>,
     ) {
@@ -177,7 +182,7 @@ pub trait ZwpRelativePointerManagerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_relative_pointer(
+    fn handle_get_relative_pointer(
         &mut self,
         _slf: &Rc<ZwpRelativePointerManagerV1>,
         id: &Rc<ZwpRelativePointerV1>,
@@ -201,6 +206,18 @@ impl ObjectPrivate for ZwpRelativePointerManagerV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -219,9 +236,9 @@ impl ObjectPrivate for ZwpRelativePointerManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -252,9 +269,9 @@ impl ObjectPrivate for ZwpRelativePointerManagerV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_relative_pointer(&self, arg0, arg1);
+                    (**handler).handle_get_relative_pointer(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_relative_pointer(&self, arg0, arg1);
+                    DefaultHandler.handle_get_relative_pointer(&self, arg0, arg1);
                 }
             }
             n => {

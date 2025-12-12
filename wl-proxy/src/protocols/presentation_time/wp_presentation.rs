@@ -246,13 +246,18 @@ impl WpPresentation {
 
 /// A message handler for [WpPresentation] proxies.
 pub trait WpPresentationHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpPresentation>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// unbind from the presentation interface
     ///
     /// Informs the server that the client will no longer be using
     /// this protocol object. Existing objects created by this object
     /// are not affected.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpPresentation>,
     ) {
@@ -282,7 +287,7 @@ pub trait WpPresentationHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn feedback(
+    fn handle_feedback(
         &mut self,
         _slf: &Rc<WpPresentation>,
         surface: &Rc<WlSurface>,
@@ -332,7 +337,7 @@ pub trait WpPresentationHandler: Any {
     ///
     /// - `clk_id`: platform clock identifier
     #[inline]
-    fn clock_id(
+    fn handle_clock_id(
         &mut self,
         _slf: &Rc<WpPresentation>,
         clk_id: u32,
@@ -354,6 +359,18 @@ impl ObjectPrivate for WpPresentation {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -372,9 +389,9 @@ impl ObjectPrivate for WpPresentation {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -405,9 +422,9 @@ impl ObjectPrivate for WpPresentation {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).feedback(&self, arg0, arg1);
+                    (**handler).handle_feedback(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.feedback(&self, arg0, arg1);
+                    DefaultHandler.handle_feedback(&self, arg0, arg1);
                 }
             }
             n => {
@@ -440,9 +457,9 @@ impl ObjectPrivate for WpPresentation {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).clock_id(&self, arg0);
+                    (**handler).handle_clock_id(&self, arg0);
                 } else {
-                    DefaultHandler.clock_id(&self, arg0);
+                    DefaultHandler.handle_clock_id(&self, arg0);
                 }
             }
             n => {

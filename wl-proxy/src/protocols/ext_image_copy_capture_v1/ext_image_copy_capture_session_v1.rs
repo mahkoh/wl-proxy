@@ -451,6 +451,11 @@ impl ExtImageCopyCaptureSessionV1 {
 
 /// A message handler for [ExtImageCopyCaptureSessionV1] proxies.
 pub trait ExtImageCopyCaptureSessionV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ExtImageCopyCaptureSessionV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// image capture source dimensions
     ///
     /// Provides the dimensions of the source image in buffer pixel coordinates.
@@ -462,7 +467,7 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     /// - `width`: buffer width
     /// - `height`: buffer height
     #[inline]
-    fn buffer_size(
+    fn handle_buffer_size(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureSessionV1>,
         width: u32,
@@ -488,7 +493,7 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     ///
     /// - `format`: shm format
     #[inline]
-    fn shm_format(
+    fn handle_shm_format(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureSessionV1>,
         format: WlShmFormat,
@@ -515,7 +520,7 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     ///
     /// - `device`: device dev_t value
     #[inline]
-    fn dmabuf_device(
+    fn handle_dmabuf_device(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureSessionV1>,
         device: &[u8],
@@ -543,7 +548,7 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     /// - `format`: drm format code
     /// - `modifiers`: drm format modifiers
     #[inline]
-    fn dmabuf_format(
+    fn handle_dmabuf_format(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureSessionV1>,
         format: u32,
@@ -567,7 +572,7 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     /// this event, regardless of whether it sends the initial constraints or
     /// an update.
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureSessionV1>,
     ) {
@@ -587,7 +592,7 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     ///
     /// The client should destroy the session after receiving this event.
     #[inline]
-    fn stopped(
+    fn handle_stopped(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureSessionV1>,
     ) {
@@ -610,7 +615,7 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     ///
     /// - `frame`:
     #[inline]
-    fn create_frame(
+    fn handle_create_frame(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureSessionV1>,
         frame: &Rc<ExtImageCopyCaptureFrameV1>,
@@ -631,7 +636,7 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     /// This request doesn't affect ext_image_copy_capture_frame_v1 objects created by
     /// this object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureSessionV1>,
     ) {
@@ -649,6 +654,18 @@ impl ObjectPrivate for ExtImageCopyCaptureSessionV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtImageCopyCaptureSessionV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -675,9 +692,9 @@ impl ObjectPrivate for ExtImageCopyCaptureSessionV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "frame", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_frame(&self, arg0);
+                    (**handler).handle_create_frame(&self, arg0);
                 } else {
-                    DefaultHandler.create_frame(&self, arg0);
+                    DefaultHandler.handle_create_frame(&self, arg0);
                 }
             }
             1 => {
@@ -692,9 +709,9 @@ impl ObjectPrivate for ExtImageCopyCaptureSessionV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -728,9 +745,9 @@ impl ObjectPrivate for ExtImageCopyCaptureSessionV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).buffer_size(&self, arg0, arg1);
+                    (**handler).handle_buffer_size(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.buffer_size(&self, arg0, arg1);
+                    DefaultHandler.handle_buffer_size(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -747,9 +764,9 @@ impl ObjectPrivate for ExtImageCopyCaptureSessionV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).shm_format(&self, arg0);
+                    (**handler).handle_shm_format(&self, arg0);
                 } else {
-                    DefaultHandler.shm_format(&self, arg0);
+                    DefaultHandler.handle_shm_format(&self, arg0);
                 }
             }
             2 => {
@@ -778,9 +795,9 @@ impl ObjectPrivate for ExtImageCopyCaptureSessionV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).dmabuf_device(&self, arg0);
+                    (**handler).handle_dmabuf_device(&self, arg0);
                 } else {
-                    DefaultHandler.dmabuf_device(&self, arg0);
+                    DefaultHandler.handle_dmabuf_device(&self, arg0);
                 }
             }
             3 => {
@@ -813,9 +830,9 @@ impl ObjectPrivate for ExtImageCopyCaptureSessionV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).dmabuf_format(&self, arg0, arg1);
+                    (**handler).handle_dmabuf_format(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.dmabuf_format(&self, arg0, arg1);
+                    DefaultHandler.handle_dmabuf_format(&self, arg0, arg1);
                 }
             }
             4 => {
@@ -829,9 +846,9 @@ impl ObjectPrivate for ExtImageCopyCaptureSessionV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).done(&self);
+                    (**handler).handle_done(&self);
                 } else {
-                    DefaultHandler.done(&self);
+                    DefaultHandler.handle_done(&self);
                 }
             }
             5 => {
@@ -845,9 +862,9 @@ impl ObjectPrivate for ExtImageCopyCaptureSessionV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).stopped(&self);
+                    (**handler).handle_stopped(&self);
                 } else {
-                    DefaultHandler.stopped(&self);
+                    DefaultHandler.handle_stopped(&self);
                 }
             }
             n => {

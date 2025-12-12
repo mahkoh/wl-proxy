@@ -423,6 +423,11 @@ impl TreelandPersonalizationWallpaperContextV1 {
 
 /// A message handler for [TreelandPersonalizationWallpaperContextV1] proxies.
 pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandPersonalizationWallpaperContextV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// set the current user's wallpaper fd
     ///
     /// # Arguments
@@ -430,7 +435,7 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     /// - `fd`: wallpaper file fd
     /// - `metadata`: file related metadata information
     #[inline]
-    fn set_fd(
+    fn handle_set_fd(
         &mut self,
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         fd: &Rc<OwnedFd>,
@@ -451,7 +456,7 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     ///
     /// - `identifier`: Identifier for the application window
     #[inline]
-    fn set_identifier(
+    fn handle_set_identifier(
         &mut self,
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         identifier: &str,
@@ -470,7 +475,7 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     ///
     /// - `output`: system output name
     #[inline]
-    fn set_output(
+    fn handle_set_output(
         &mut self,
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         output: &str,
@@ -489,7 +494,7 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     ///
     /// - `options`: xdg desktop portal options
     #[inline]
-    fn set_on(
+    fn handle_set_on(
         &mut self,
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         options: TreelandPersonalizationWallpaperContextV1Options,
@@ -508,7 +513,7 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     ///
     /// - `isdark`: is dark
     #[inline]
-    fn set_isdark(
+    fn handle_set_isdark(
         &mut self,
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         isdark: u32,
@@ -523,7 +528,7 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
 
     /// commit configuration
     #[inline]
-    fn commit(
+    fn handle_commit(
         &mut self,
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
     ) {
@@ -538,7 +543,7 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     ///
     /// get the current user's wallpaper
     #[inline]
-    fn get_metadata(
+    fn handle_get_metadata(
         &mut self,
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
     ) {
@@ -553,7 +558,7 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     ///
     /// Destroy the context object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
     ) {
@@ -572,7 +577,7 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     ///
     /// - `metadata`: user meta data
     #[inline]
-    fn metadata(
+    fn handle_metadata(
         &mut self,
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         metadata: &str,
@@ -592,6 +597,18 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandPersonalizationWallpaperContextV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -638,9 +655,9 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_fd(&self, arg0, arg1);
+                    (**handler).handle_set_fd(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_fd(&self, arg0, arg1);
+                    DefaultHandler.handle_set_fd(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -677,9 +694,9 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_identifier(&self, arg0);
+                    (**handler).handle_set_identifier(&self, arg0);
                 } else {
-                    DefaultHandler.set_identifier(&self, arg0);
+                    DefaultHandler.handle_set_identifier(&self, arg0);
                 }
             }
             2 => {
@@ -716,9 +733,9 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_output(&self, arg0);
+                    (**handler).handle_set_output(&self, arg0);
                 } else {
-                    DefaultHandler.set_output(&self, arg0);
+                    DefaultHandler.handle_set_output(&self, arg0);
                 }
             }
             3 => {
@@ -735,9 +752,9 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_on(&self, arg0);
+                    (**handler).handle_set_on(&self, arg0);
                 } else {
-                    DefaultHandler.set_on(&self, arg0);
+                    DefaultHandler.handle_set_on(&self, arg0);
                 }
             }
             4 => {
@@ -753,9 +770,9 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_isdark(&self, arg0);
+                    (**handler).handle_set_isdark(&self, arg0);
                 } else {
-                    DefaultHandler.set_isdark(&self, arg0);
+                    DefaultHandler.handle_set_isdark(&self, arg0);
                 }
             }
             5 => {
@@ -769,9 +786,9 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).commit(&self);
+                    (**handler).handle_commit(&self);
                 } else {
-                    DefaultHandler.commit(&self);
+                    DefaultHandler.handle_commit(&self);
                 }
             }
             6 => {
@@ -785,9 +802,9 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).get_metadata(&self);
+                    (**handler).handle_get_metadata(&self);
                 } else {
-                    DefaultHandler.get_metadata(&self);
+                    DefaultHandler.handle_get_metadata(&self);
                 }
             }
             7 => {
@@ -802,9 +819,9 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -858,9 +875,9 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).metadata(&self, arg0);
+                    (**handler).handle_metadata(&self, arg0);
                 } else {
-                    DefaultHandler.metadata(&self, arg0);
+                    DefaultHandler.handle_metadata(&self, arg0);
                 }
             }
             n => {

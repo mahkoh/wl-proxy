@@ -500,12 +500,17 @@ impl ZwpTabletPadGroupV2 {
 
 /// A message handler for [ZwpTabletPadGroupV2] proxies.
 pub trait ZwpTabletPadGroupV2Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpTabletPadGroupV2>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the pad object
     ///
     /// Destroy the zwp_tablet_pad_group_v2 object. Objects created from this object
     /// are unaffected and should be destroyed separately.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpTabletPadGroupV2>,
     ) {
@@ -535,7 +540,7 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
     ///
     /// - `buttons`: buttons in this group
     #[inline]
-    fn buttons(
+    fn handle_buttons(
         &mut self,
         _slf: &Rc<ZwpTabletPadGroupV2>,
         buttons: &[u8],
@@ -560,7 +565,7 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
     ///
     /// - `ring`:
     #[inline]
-    fn ring(
+    fn handle_ring(
         &mut self,
         _slf: &Rc<ZwpTabletPadGroupV2>,
         ring: &Rc<ZwpTabletPadRingV2>,
@@ -585,7 +590,7 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
     ///
     /// - `strip`:
     #[inline]
-    fn strip(
+    fn handle_strip(
         &mut self,
         _slf: &Rc<ZwpTabletPadGroupV2>,
         strip: &Rc<ZwpTabletPadStripV2>,
@@ -617,7 +622,7 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
     ///
     /// - `modes`: the number of modes
     #[inline]
-    fn modes(
+    fn handle_modes(
         &mut self,
         _slf: &Rc<ZwpTabletPadGroupV2>,
         modes: u32,
@@ -637,7 +642,7 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
     /// description of the tablet to be complete and finalize initialization
     /// of the tablet group.
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<ZwpTabletPadGroupV2>,
     ) {
@@ -684,7 +689,7 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
     /// - `serial`:
     /// - `mode`: the new mode of the pad
     #[inline]
-    fn mode_switch(
+    fn handle_mode_switch(
         &mut self,
         _slf: &Rc<ZwpTabletPadGroupV2>,
         time: u32,
@@ -713,7 +718,7 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
     ///
     /// - `dial`:
     #[inline]
-    fn dial(
+    fn handle_dial(
         &mut self,
         _slf: &Rc<ZwpTabletPadGroupV2>,
         dial: &Rc<ZwpTabletPadDialV2>,
@@ -735,6 +740,18 @@ impl ObjectPrivate for ZwpTabletPadGroupV2 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -753,9 +770,9 @@ impl ObjectPrivate for ZwpTabletPadGroupV2 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -801,9 +818,9 @@ impl ObjectPrivate for ZwpTabletPadGroupV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).buttons(&self, arg0);
+                    (**handler).handle_buttons(&self, arg0);
                 } else {
-                    DefaultHandler.buttons(&self, arg0);
+                    DefaultHandler.handle_buttons(&self, arg0);
                 }
             }
             1 => {
@@ -824,9 +841,9 @@ impl ObjectPrivate for ZwpTabletPadGroupV2 {
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "ring", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).ring(&self, arg0);
+                    (**handler).handle_ring(&self, arg0);
                 } else {
-                    DefaultHandler.ring(&self, arg0);
+                    DefaultHandler.handle_ring(&self, arg0);
                 }
             }
             2 => {
@@ -847,9 +864,9 @@ impl ObjectPrivate for ZwpTabletPadGroupV2 {
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "strip", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).strip(&self, arg0);
+                    (**handler).handle_strip(&self, arg0);
                 } else {
-                    DefaultHandler.strip(&self, arg0);
+                    DefaultHandler.handle_strip(&self, arg0);
                 }
             }
             3 => {
@@ -865,9 +882,9 @@ impl ObjectPrivate for ZwpTabletPadGroupV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).modes(&self, arg0);
+                    (**handler).handle_modes(&self, arg0);
                 } else {
-                    DefaultHandler.modes(&self, arg0);
+                    DefaultHandler.handle_modes(&self, arg0);
                 }
             }
             4 => {
@@ -881,9 +898,9 @@ impl ObjectPrivate for ZwpTabletPadGroupV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).done(&self);
+                    (**handler).handle_done(&self);
                 } else {
-                    DefaultHandler.done(&self);
+                    DefaultHandler.handle_done(&self);
                 }
             }
             5 => {
@@ -901,9 +918,9 @@ impl ObjectPrivate for ZwpTabletPadGroupV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).mode_switch(&self, arg0, arg1, arg2);
+                    (**handler).handle_mode_switch(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.mode_switch(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_mode_switch(&self, arg0, arg1, arg2);
                 }
             }
             6 => {
@@ -924,9 +941,9 @@ impl ObjectPrivate for ZwpTabletPadGroupV2 {
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "dial", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).dial(&self, arg0);
+                    (**handler).handle_dial(&self, arg0);
                 } else {
-                    DefaultHandler.dial(&self, arg0);
+                    DefaultHandler.handle_dial(&self, arg0);
                 }
             }
             n => {

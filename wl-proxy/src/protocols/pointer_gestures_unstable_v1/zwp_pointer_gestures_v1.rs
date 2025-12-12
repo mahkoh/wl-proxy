@@ -284,6 +284,11 @@ impl ZwpPointerGesturesV1 {
 
 /// A message handler for [ZwpPointerGesturesV1] proxies.
 pub trait ZwpPointerGesturesV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpPointerGesturesV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// get swipe gesture
     ///
     /// Create a swipe gesture object. See the
@@ -297,7 +302,7 @@ pub trait ZwpPointerGesturesV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_swipe_gesture(
+    fn handle_get_swipe_gesture(
         &mut self,
         _slf: &Rc<ZwpPointerGesturesV1>,
         id: &Rc<ZwpPointerGestureSwipeV1>,
@@ -325,7 +330,7 @@ pub trait ZwpPointerGesturesV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_pinch_gesture(
+    fn handle_get_pinch_gesture(
         &mut self,
         _slf: &Rc<ZwpPointerGesturesV1>,
         id: &Rc<ZwpPointerGesturePinchV1>,
@@ -345,7 +350,7 @@ pub trait ZwpPointerGesturesV1Handler: Any {
     /// Destroy the pointer gesture object. Swipe, pinch and hold objects
     /// created via this gesture object remain valid.
     #[inline]
-    fn release(
+    fn handle_release(
         &mut self,
         _slf: &Rc<ZwpPointerGesturesV1>,
     ) {
@@ -369,7 +374,7 @@ pub trait ZwpPointerGesturesV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_hold_gesture(
+    fn handle_get_hold_gesture(
         &mut self,
         _slf: &Rc<ZwpPointerGesturesV1>,
         id: &Rc<ZwpPointerGestureHoldV1>,
@@ -391,6 +396,18 @@ impl ObjectPrivate for ZwpPointerGesturesV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpPointerGesturesV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -427,9 +444,9 @@ impl ObjectPrivate for ZwpPointerGesturesV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_swipe_gesture(&self, arg0, arg1);
+                    (**handler).handle_get_swipe_gesture(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_swipe_gesture(&self, arg0, arg1);
+                    DefaultHandler.handle_get_swipe_gesture(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -460,9 +477,9 @@ impl ObjectPrivate for ZwpPointerGesturesV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_pinch_gesture(&self, arg0, arg1);
+                    (**handler).handle_get_pinch_gesture(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_pinch_gesture(&self, arg0, arg1);
+                    DefaultHandler.handle_get_pinch_gesture(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -477,9 +494,9 @@ impl ObjectPrivate for ZwpPointerGesturesV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).release(&self);
+                    (**handler).handle_release(&self);
                 } else {
-                    DefaultHandler.release(&self);
+                    DefaultHandler.handle_release(&self);
                 }
             }
             3 => {
@@ -510,9 +527,9 @@ impl ObjectPrivate for ZwpPointerGesturesV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_hold_gesture(&self, arg0, arg1);
+                    (**handler).handle_get_hold_gesture(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.get_hold_gesture(&self, arg0, arg1);
+                    DefaultHandler.handle_get_hold_gesture(&self, arg0, arg1);
                 }
             }
             n => {

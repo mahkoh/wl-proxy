@@ -323,12 +323,17 @@ impl ZwpPointerConstraintsV1 {
 
 /// A message handler for [ZwpPointerConstraintsV1] proxies.
 pub trait ZwpPointerConstraintsV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpPointerConstraintsV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the pointer constraints manager object
     ///
     /// Used by the client to notify the server that it will no longer use this
     /// pointer constraints object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpPointerConstraintsV1>,
     ) {
@@ -387,7 +392,7 @@ pub trait ZwpPointerConstraintsV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn lock_pointer(
+    fn handle_lock_pointer(
         &mut self,
         _slf: &Rc<ZwpPointerConstraintsV1>,
         id: &Rc<ZwpLockedPointerV1>,
@@ -439,7 +444,7 @@ pub trait ZwpPointerConstraintsV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn confine_pointer(
+    fn handle_confine_pointer(
         &mut self,
         _slf: &Rc<ZwpPointerConstraintsV1>,
         id: &Rc<ZwpConfinedPointerV1>,
@@ -469,6 +474,18 @@ impl ObjectPrivate for ZwpPointerConstraintsV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -487,9 +504,9 @@ impl ObjectPrivate for ZwpPointerConstraintsV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -547,9 +564,9 @@ impl ObjectPrivate for ZwpPointerConstraintsV1 {
                 let arg2 = &arg2;
                 let arg3 = arg3.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).lock_pointer(&self, arg0, arg1, arg2, arg3, arg4);
+                    (**handler).handle_lock_pointer(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultHandler.lock_pointer(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.handle_lock_pointer(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             2 => {
@@ -607,9 +624,9 @@ impl ObjectPrivate for ZwpPointerConstraintsV1 {
                 let arg2 = &arg2;
                 let arg3 = arg3.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).confine_pointer(&self, arg0, arg1, arg2, arg3, arg4);
+                    (**handler).handle_confine_pointer(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultHandler.confine_pointer(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.handle_confine_pointer(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             n => {

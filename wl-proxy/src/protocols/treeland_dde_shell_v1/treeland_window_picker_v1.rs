@@ -175,9 +175,14 @@ impl TreelandWindowPickerV1 {
 
 /// A message handler for [TreelandWindowPickerV1] proxies.
 pub trait TreelandWindowPickerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandWindowPickerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the treeland_window_picker_v1 object
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<TreelandWindowPickerV1>,
     ) {
@@ -196,7 +201,7 @@ pub trait TreelandWindowPickerV1Handler: Any {
     ///
     /// - `hint`: Hint of pick process
     #[inline]
-    fn pick(
+    fn handle_pick(
         &mut self,
         _slf: &Rc<TreelandWindowPickerV1>,
         hint: &str,
@@ -217,7 +222,7 @@ pub trait TreelandWindowPickerV1Handler: Any {
     ///
     /// - `pid`: Pid of picked window
     #[inline]
-    fn window(
+    fn handle_window(
         &mut self,
         _slf: &Rc<TreelandWindowPickerV1>,
         pid: i32,
@@ -239,6 +244,18 @@ impl ObjectPrivate for TreelandWindowPickerV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -257,9 +274,9 @@ impl ObjectPrivate for TreelandWindowPickerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -296,9 +313,9 @@ impl ObjectPrivate for TreelandWindowPickerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).pick(&self, arg0);
+                    (**handler).handle_pick(&self, arg0);
                 } else {
-                    DefaultHandler.pick(&self, arg0);
+                    DefaultHandler.handle_pick(&self, arg0);
                 }
             }
             n => {
@@ -332,9 +349,9 @@ impl ObjectPrivate for TreelandWindowPickerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).window(&self, arg0);
+                    (**handler).handle_window(&self, arg0);
                 } else {
-                    DefaultHandler.window(&self, arg0);
+                    DefaultHandler.handle_window(&self, arg0);
                 }
             }
             n => {

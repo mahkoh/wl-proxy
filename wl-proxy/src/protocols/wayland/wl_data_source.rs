@@ -511,6 +511,11 @@ impl WlDataSource {
 
 /// A message handler for [WlDataSource] proxies.
 pub trait WlDataSourceHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlDataSource>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// add an offered mime type
     ///
     /// This request adds a mime type to the set of mime types
@@ -521,7 +526,7 @@ pub trait WlDataSourceHandler: Any {
     ///
     /// - `mime_type`: mime type offered by the data source
     #[inline]
-    fn offer(
+    fn handle_offer(
         &mut self,
         _slf: &Rc<WlDataSource>,
         mime_type: &str,
@@ -538,7 +543,7 @@ pub trait WlDataSourceHandler: Any {
     ///
     /// Destroy the data source.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WlDataSource>,
     ) {
@@ -560,7 +565,7 @@ pub trait WlDataSourceHandler: Any {
     ///
     /// - `mime_type`: mime type accepted by the target
     #[inline]
-    fn target(
+    fn handle_target(
         &mut self,
         _slf: &Rc<WlDataSource>,
         mime_type: Option<&str>,
@@ -584,7 +589,7 @@ pub trait WlDataSourceHandler: Any {
     /// - `mime_type`: mime type for the data
     /// - `fd`: file descriptor for the data
     #[inline]
-    fn send(
+    fn handle_send(
         &mut self,
         _slf: &Rc<WlDataSource>,
         mime_type: &str,
@@ -622,7 +627,7 @@ pub trait WlDataSourceHandler: Any {
     /// only be emitted if the data source was replaced by another data
     /// source.
     #[inline]
-    fn cancelled(
+    fn handle_cancelled(
         &mut self,
         _slf: &Rc<WlDataSource>,
     ) {
@@ -653,7 +658,7 @@ pub trait WlDataSourceHandler: Any {
     ///
     /// - `dnd_actions`: actions supported by the data source
     #[inline]
-    fn set_actions(
+    fn handle_set_actions(
         &mut self,
         _slf: &Rc<WlDataSource>,
         dnd_actions: WlDataDeviceManagerDndAction,
@@ -678,7 +683,7 @@ pub trait WlDataSourceHandler: Any {
     /// Note that the data_source may still be used in the future and should
     /// not be destroyed here.
     #[inline]
-    fn dnd_drop_performed(
+    fn handle_dnd_drop_performed(
         &mut self,
         _slf: &Rc<WlDataSource>,
     ) {
@@ -698,7 +703,7 @@ pub trait WlDataSourceHandler: Any {
     /// If the action used to perform the operation was "move", the
     /// source can now delete the transferred data.
     #[inline]
-    fn dnd_finished(
+    fn handle_dnd_finished(
         &mut self,
         _slf: &Rc<WlDataSource>,
     ) {
@@ -741,7 +746,7 @@ pub trait WlDataSourceHandler: Any {
     ///
     /// - `dnd_action`: action selected by the compositor
     #[inline]
-    fn action(
+    fn handle_action(
         &mut self,
         _slf: &Rc<WlDataSource>,
         dnd_action: WlDataDeviceManagerDndAction,
@@ -761,6 +766,18 @@ impl ObjectPrivate for WlDataSource {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlDataSource, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -803,9 +820,9 @@ impl ObjectPrivate for WlDataSource {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).offer(&self, arg0);
+                    (**handler).handle_offer(&self, arg0);
                 } else {
-                    DefaultHandler.offer(&self, arg0);
+                    DefaultHandler.handle_offer(&self, arg0);
                 }
             }
             1 => {
@@ -820,9 +837,9 @@ impl ObjectPrivate for WlDataSource {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             2 => {
@@ -839,9 +856,9 @@ impl ObjectPrivate for WlDataSource {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_actions(&self, arg0);
+                    (**handler).handle_set_actions(&self, arg0);
                 } else {
-                    DefaultHandler.set_actions(&self, arg0);
+                    DefaultHandler.handle_set_actions(&self, arg0);
                 }
             }
             n => {
@@ -895,9 +912,9 @@ impl ObjectPrivate for WlDataSource {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).target(&self, arg0);
+                    (**handler).handle_target(&self, arg0);
                 } else {
-                    DefaultHandler.target(&self, arg0);
+                    DefaultHandler.handle_target(&self, arg0);
                 }
             }
             1 => {
@@ -938,9 +955,9 @@ impl ObjectPrivate for WlDataSource {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).send(&self, arg0, arg1);
+                    (**handler).handle_send(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.send(&self, arg0, arg1);
+                    DefaultHandler.handle_send(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -954,9 +971,9 @@ impl ObjectPrivate for WlDataSource {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).cancelled(&self);
+                    (**handler).handle_cancelled(&self);
                 } else {
-                    DefaultHandler.cancelled(&self);
+                    DefaultHandler.handle_cancelled(&self);
                 }
             }
             3 => {
@@ -970,9 +987,9 @@ impl ObjectPrivate for WlDataSource {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).dnd_drop_performed(&self);
+                    (**handler).handle_dnd_drop_performed(&self);
                 } else {
-                    DefaultHandler.dnd_drop_performed(&self);
+                    DefaultHandler.handle_dnd_drop_performed(&self);
                 }
             }
             4 => {
@@ -986,9 +1003,9 @@ impl ObjectPrivate for WlDataSource {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).dnd_finished(&self);
+                    (**handler).handle_dnd_finished(&self);
                 } else {
-                    DefaultHandler.dnd_finished(&self);
+                    DefaultHandler.handle_dnd_finished(&self);
                 }
             }
             5 => {
@@ -1005,9 +1022,9 @@ impl ObjectPrivate for WlDataSource {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).action(&self, arg0);
+                    (**handler).handle_action(&self, arg0);
                 } else {
-                    DefaultHandler.action(&self, arg0);
+                    DefaultHandler.handle_action(&self, arg0);
                 }
             }
             n => {

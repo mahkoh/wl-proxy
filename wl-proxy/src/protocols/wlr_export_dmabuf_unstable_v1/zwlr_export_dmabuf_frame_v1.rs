@@ -399,6 +399,11 @@ impl ZwlrExportDmabufFrameV1 {
 
 /// A message handler for [ZwlrExportDmabufFrameV1] proxies.
 pub trait ZwlrExportDmabufFrameV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwlrExportDmabufFrameV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// a frame description
     ///
     /// Main event supplying the client with information about the frame. If the
@@ -422,7 +427,7 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
     /// - `mod_low`: drm format modifier, low
     /// - `num_objects`: indicates how many objects (FDs) the frame has (max 4)
     #[inline]
-    fn frame(
+    fn handle_frame(
         &mut self,
         _slf: &Rc<ZwlrExportDmabufFrameV1>,
         width: u32,
@@ -470,7 +475,7 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
     /// - `stride`: line size in bytes
     /// - `plane_index`: index of the plane the data in the object applies to
     #[inline]
-    fn object(
+    fn handle_object(
         &mut self,
         _slf: &Rc<ZwlrExportDmabufFrameV1>,
         index: u32,
@@ -514,7 +519,7 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
     /// - `tv_sec_lo`: low 32 bits of the seconds part of the timestamp
     /// - `tv_nsec`: nanoseconds part of the timestamp
     #[inline]
-    fn ready(
+    fn handle_ready(
         &mut self,
         _slf: &Rc<ZwlrExportDmabufFrameV1>,
         tv_sec_hi: u32,
@@ -547,7 +552,7 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
     ///
     /// - `reason`: indicates a reason for cancelling this frame capture
     #[inline]
-    fn cancel(
+    fn handle_cancel(
         &mut self,
         _slf: &Rc<ZwlrExportDmabufFrameV1>,
         reason: ZwlrExportDmabufFrameV1CancelReason,
@@ -568,7 +573,7 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
     /// It can be called at any time by the client. The client will still have
     /// to close any FDs it has been given.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwlrExportDmabufFrameV1>,
     ) {
@@ -586,6 +591,18 @@ impl ObjectPrivate for ZwlrExportDmabufFrameV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrExportDmabufFrameV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -606,9 +623,9 @@ impl ObjectPrivate for ZwlrExportDmabufFrameV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -651,9 +668,9 @@ impl ObjectPrivate for ZwlrExportDmabufFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).frame(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+                    (**handler).handle_frame(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
                 } else {
-                    DefaultHandler.frame(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+                    DefaultHandler.handle_frame(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
                 }
             }
             1 => {
@@ -677,9 +694,9 @@ impl ObjectPrivate for ZwlrExportDmabufFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).object(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    (**handler).handle_object(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 } else {
-                    DefaultHandler.object(&self, arg0, arg1, arg2, arg3, arg4, arg5);
+                    DefaultHandler.handle_object(&self, arg0, arg1, arg2, arg3, arg4, arg5);
                 }
             }
             2 => {
@@ -697,9 +714,9 @@ impl ObjectPrivate for ZwlrExportDmabufFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).ready(&self, arg0, arg1, arg2);
+                    (**handler).handle_ready(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.ready(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_ready(&self, arg0, arg1, arg2);
                 }
             }
             3 => {
@@ -716,9 +733,9 @@ impl ObjectPrivate for ZwlrExportDmabufFrameV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).cancel(&self, arg0);
+                    (**handler).handle_cancel(&self, arg0);
                 } else {
-                    DefaultHandler.cancel(&self, arg0);
+                    DefaultHandler.handle_cancel(&self, arg0);
                 }
             }
             n => {

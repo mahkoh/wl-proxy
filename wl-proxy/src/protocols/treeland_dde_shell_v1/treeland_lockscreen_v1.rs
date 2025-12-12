@@ -185,9 +185,14 @@ impl TreelandLockscreenV1 {
 
 /// A message handler for [TreelandLockscreenV1] proxies.
 pub trait TreelandLockscreenV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandLockscreenV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the treeland_lockscreen_v1 object
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<TreelandLockscreenV1>,
     ) {
@@ -202,7 +207,7 @@ pub trait TreelandLockscreenV1Handler: Any {
     ///
     /// Lock the screen.
     #[inline]
-    fn lock(
+    fn handle_lock(
         &mut self,
         _slf: &Rc<TreelandLockscreenV1>,
     ) {
@@ -217,7 +222,7 @@ pub trait TreelandLockscreenV1Handler: Any {
     ///
     /// Show shutdown.
     #[inline]
-    fn shutdown(
+    fn handle_shutdown(
         &mut self,
         _slf: &Rc<TreelandLockscreenV1>,
     ) {
@@ -232,7 +237,7 @@ pub trait TreelandLockscreenV1Handler: Any {
     ///
     /// Switch user.
     #[inline]
-    fn switch_user(
+    fn handle_switch_user(
         &mut self,
         _slf: &Rc<TreelandLockscreenV1>,
     ) {
@@ -250,6 +255,18 @@ impl ObjectPrivate for TreelandLockscreenV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandLockscreenV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -270,9 +287,9 @@ impl ObjectPrivate for TreelandLockscreenV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -286,9 +303,9 @@ impl ObjectPrivate for TreelandLockscreenV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).lock(&self);
+                    (**handler).handle_lock(&self);
                 } else {
-                    DefaultHandler.lock(&self);
+                    DefaultHandler.handle_lock(&self);
                 }
             }
             2 => {
@@ -302,9 +319,9 @@ impl ObjectPrivate for TreelandLockscreenV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).shutdown(&self);
+                    (**handler).handle_shutdown(&self);
                 } else {
-                    DefaultHandler.shutdown(&self);
+                    DefaultHandler.handle_shutdown(&self);
                 }
             }
             3 => {
@@ -318,9 +335,9 @@ impl ObjectPrivate for TreelandLockscreenV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).switch_user(&self);
+                    (**handler).handle_switch_user(&self);
                 } else {
-                    DefaultHandler.switch_user(&self);
+                    DefaultHandler.handle_switch_user(&self);
                 }
             }
             n => {

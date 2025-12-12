@@ -226,6 +226,11 @@ impl TreelandWallpaperColorManagerV1 {
 
 /// A message handler for [TreelandWallpaperColorManagerV1] proxies.
 pub trait TreelandWallpaperColorManagerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandWallpaperColorManagerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// watch wallpaper color
     ///
     /// Monitor the wallpaper color of a given screen.
@@ -234,7 +239,7 @@ pub trait TreelandWallpaperColorManagerV1Handler: Any {
     ///
     /// - `output`: system output name
     #[inline]
-    fn watch(
+    fn handle_watch(
         &mut self,
         _slf: &Rc<TreelandWallpaperColorManagerV1>,
         output: &str,
@@ -255,7 +260,7 @@ pub trait TreelandWallpaperColorManagerV1Handler: Any {
     ///
     /// - `output`: system output name
     #[inline]
-    fn unwatch(
+    fn handle_unwatch(
         &mut self,
         _slf: &Rc<TreelandWallpaperColorManagerV1>,
         output: &str,
@@ -272,7 +277,7 @@ pub trait TreelandWallpaperColorManagerV1Handler: Any {
     ///
     /// The client no longer cares about wallpaper_color.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<TreelandWallpaperColorManagerV1>,
     ) {
@@ -293,7 +298,7 @@ pub trait TreelandWallpaperColorManagerV1Handler: Any {
     /// - `output`: system output name
     /// - `isdark`:
     #[inline]
-    fn output_color(
+    fn handle_output_color(
         &mut self,
         _slf: &Rc<TreelandWallpaperColorManagerV1>,
         output: &str,
@@ -315,6 +320,18 @@ impl ObjectPrivate for TreelandWallpaperColorManagerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandWallpaperColorManagerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -357,9 +374,9 @@ impl ObjectPrivate for TreelandWallpaperColorManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).watch(&self, arg0);
+                    (**handler).handle_watch(&self, arg0);
                 } else {
-                    DefaultHandler.watch(&self, arg0);
+                    DefaultHandler.handle_watch(&self, arg0);
                 }
             }
             1 => {
@@ -396,9 +413,9 @@ impl ObjectPrivate for TreelandWallpaperColorManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).unwatch(&self, arg0);
+                    (**handler).handle_unwatch(&self, arg0);
                 } else {
-                    DefaultHandler.unwatch(&self, arg0);
+                    DefaultHandler.handle_unwatch(&self, arg0);
                 }
             }
             2 => {
@@ -413,9 +430,9 @@ impl ObjectPrivate for TreelandWallpaperColorManagerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -473,9 +490,9 @@ impl ObjectPrivate for TreelandWallpaperColorManagerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).output_color(&self, arg0, arg1);
+                    (**handler).handle_output_color(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.output_color(&self, arg0, arg1);
+                    DefaultHandler.handle_output_color(&self, arg0, arg1);
                 }
             }
             n => {

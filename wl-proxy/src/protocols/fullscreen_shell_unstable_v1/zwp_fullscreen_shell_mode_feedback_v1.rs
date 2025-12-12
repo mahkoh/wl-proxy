@@ -181,6 +181,11 @@ impl ZwpFullscreenShellModeFeedbackV1 {
 
 /// A message handler for [ZwpFullscreenShellModeFeedbackV1] proxies.
 pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpFullscreenShellModeFeedbackV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// mode switch succeeded
     ///
     /// This event indicates that the attempted mode switch operation was
@@ -190,7 +195,7 @@ pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
     /// Upon receiving this event, the client should destroy the
     /// wl_fullscreen_shell_mode_feedback object.
     #[inline]
-    fn mode_successful(
+    fn handle_mode_successful(
         &mut self,
         _slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
@@ -210,7 +215,7 @@ pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
     /// Upon receiving this event, the client should destroy the
     /// wl_fullscreen_shell_mode_feedback object.
     #[inline]
-    fn mode_failed(
+    fn handle_mode_failed(
         &mut self,
         _slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
@@ -230,7 +235,7 @@ pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
     /// Upon receiving this event, the client should destroy the
     /// wl_fullscreen_shell_mode_feedback object.
     #[inline]
-    fn present_cancelled(
+    fn handle_present_cancelled(
         &mut self,
         _slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
@@ -248,6 +253,18 @@ impl ObjectPrivate for ZwpFullscreenShellModeFeedbackV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpFullscreenShellModeFeedbackV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -284,9 +301,9 @@ impl ObjectPrivate for ZwpFullscreenShellModeFeedbackV1 {
                 }
                 self.core.handle_server_destroy();
                 if let Some(handler) = handler {
-                    (**handler).mode_successful(&self);
+                    (**handler).handle_mode_successful(&self);
                 } else {
-                    DefaultHandler.mode_successful(&self);
+                    DefaultHandler.handle_mode_successful(&self);
                 }
             }
             1 => {
@@ -301,9 +318,9 @@ impl ObjectPrivate for ZwpFullscreenShellModeFeedbackV1 {
                 }
                 self.core.handle_server_destroy();
                 if let Some(handler) = handler {
-                    (**handler).mode_failed(&self);
+                    (**handler).handle_mode_failed(&self);
                 } else {
-                    DefaultHandler.mode_failed(&self);
+                    DefaultHandler.handle_mode_failed(&self);
                 }
             }
             2 => {
@@ -318,9 +335,9 @@ impl ObjectPrivate for ZwpFullscreenShellModeFeedbackV1 {
                 }
                 self.core.handle_server_destroy();
                 if let Some(handler) = handler {
-                    (**handler).present_cancelled(&self);
+                    (**handler).handle_present_cancelled(&self);
                 } else {
-                    DefaultHandler.present_cancelled(&self);
+                    DefaultHandler.handle_present_cancelled(&self);
                 }
             }
             n => {

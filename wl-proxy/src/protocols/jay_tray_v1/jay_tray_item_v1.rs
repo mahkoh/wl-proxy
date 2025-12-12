@@ -463,6 +463,11 @@ impl JayTrayItemV1 {
 
 /// A message handler for [JayTrayItemV1] proxies.
 pub trait JayTrayItemV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<JayTrayItemV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy this object
     ///
     /// Destroy this object. The item is immediately removed from the tray.
@@ -470,7 +475,7 @@ pub trait JayTrayItemV1Handler: Any {
     /// The client must destroy all popups before this. Otherwise the has_popups
     /// error is emitted.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<JayTrayItemV1>,
     ) {
@@ -491,7 +496,7 @@ pub trait JayTrayItemV1Handler: Any {
     ///
     /// - `serial`: the serial
     #[inline]
-    fn ack_configure(
+    fn handle_ack_configure(
         &mut self,
         _slf: &Rc<JayTrayItemV1>,
         serial: u32,
@@ -533,7 +538,7 @@ pub trait JayTrayItemV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn get_popup(
+    fn handle_get_popup(
         &mut self,
         _slf: &Rc<JayTrayItemV1>,
         popup: &Rc<XdgPopup>,
@@ -577,7 +582,7 @@ pub trait JayTrayItemV1Handler: Any {
     /// - `width`: the optimal width in surface coordinates
     /// - `height`: the optimal height in surface coordinates
     #[inline]
-    fn configure_size(
+    fn handle_configure_size(
         &mut self,
         _slf: &Rc<JayTrayItemV1>,
         width: i32,
@@ -607,7 +612,7 @@ pub trait JayTrayItemV1Handler: Any {
     ///
     /// - `anchor`: the preferred anchor
     #[inline]
-    fn preferred_anchor(
+    fn handle_preferred_anchor(
         &mut self,
         _slf: &Rc<JayTrayItemV1>,
         anchor: XdgPositionerAnchor,
@@ -635,7 +640,7 @@ pub trait JayTrayItemV1Handler: Any {
     ///
     /// - `gravity`: the preferred gravity
     #[inline]
-    fn preferred_gravity(
+    fn handle_preferred_gravity(
         &mut self,
         _slf: &Rc<JayTrayItemV1>,
         gravity: XdgPositionerGravity,
@@ -660,7 +665,7 @@ pub trait JayTrayItemV1Handler: Any {
     ///
     /// - `serial`: the serial
     #[inline]
-    fn configure(
+    fn handle_configure(
         &mut self,
         _slf: &Rc<JayTrayItemV1>,
         serial: u32,
@@ -682,6 +687,18 @@ impl ObjectPrivate for JayTrayItemV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -700,9 +717,9 @@ impl ObjectPrivate for JayTrayItemV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -718,9 +735,9 @@ impl ObjectPrivate for JayTrayItemV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).ack_configure(&self, arg0);
+                    (**handler).handle_ack_configure(&self, arg0);
                 } else {
-                    DefaultHandler.ack_configure(&self, arg0);
+                    DefaultHandler.handle_ack_configure(&self, arg0);
                 }
             }
             2 => {
@@ -758,9 +775,9 @@ impl ObjectPrivate for JayTrayItemV1 {
                 let arg0 = &arg0;
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).get_popup(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_get_popup(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.get_popup(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_get_popup(&self, arg0, arg1, arg2, arg3);
                 }
             }
             n => {
@@ -796,9 +813,9 @@ impl ObjectPrivate for JayTrayItemV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).configure_size(&self, arg0, arg1);
+                    (**handler).handle_configure_size(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.configure_size(&self, arg0, arg1);
+                    DefaultHandler.handle_configure_size(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -815,9 +832,9 @@ impl ObjectPrivate for JayTrayItemV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).preferred_anchor(&self, arg0);
+                    (**handler).handle_preferred_anchor(&self, arg0);
                 } else {
-                    DefaultHandler.preferred_anchor(&self, arg0);
+                    DefaultHandler.handle_preferred_anchor(&self, arg0);
                 }
             }
             2 => {
@@ -834,9 +851,9 @@ impl ObjectPrivate for JayTrayItemV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).preferred_gravity(&self, arg0);
+                    (**handler).handle_preferred_gravity(&self, arg0);
                 } else {
-                    DefaultHandler.preferred_gravity(&self, arg0);
+                    DefaultHandler.handle_preferred_gravity(&self, arg0);
                 }
             }
             3 => {
@@ -852,9 +869,9 @@ impl ObjectPrivate for JayTrayItemV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).configure(&self, arg0);
+                    (**handler).handle_configure(&self, arg0);
                 } else {
-                    DefaultHandler.configure(&self, arg0);
+                    DefaultHandler.handle_configure(&self, arg0);
                 }
             }
             n => {

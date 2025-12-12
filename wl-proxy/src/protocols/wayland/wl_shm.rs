@@ -209,6 +209,11 @@ impl WlShm {
 
 /// A message handler for [WlShm] proxies.
 pub trait WlShmHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlShm>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// create a shm pool
     ///
     /// Create a new wl_shm_pool object.
@@ -223,7 +228,7 @@ pub trait WlShmHandler: Any {
     /// - `fd`: file descriptor for the pool
     /// - `size`: pool size, in bytes
     #[inline]
-    fn create_pool(
+    fn handle_create_pool(
         &mut self,
         _slf: &Rc<WlShm>,
         id: &Rc<WlShmPool>,
@@ -250,7 +255,7 @@ pub trait WlShmHandler: Any {
     ///
     /// - `format`: buffer pixel format
     #[inline]
-    fn format(
+    fn handle_format(
         &mut self,
         _slf: &Rc<WlShm>,
         format: WlShmFormat,
@@ -270,7 +275,7 @@ pub trait WlShmHandler: Any {
     ///
     /// Objects created via this interface remain unaffected.
     #[inline]
-    fn release(
+    fn handle_release(
         &mut self,
         _slf: &Rc<WlShm>,
     ) {
@@ -288,6 +293,18 @@ impl ObjectPrivate for WlShm {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlShm, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -320,9 +337,9 @@ impl ObjectPrivate for WlShm {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).create_pool(&self, arg0, arg1, arg2);
+                    (**handler).handle_create_pool(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.create_pool(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_create_pool(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
@@ -337,9 +354,9 @@ impl ObjectPrivate for WlShm {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).release(&self);
+                    (**handler).handle_release(&self);
                 } else {
-                    DefaultHandler.release(&self);
+                    DefaultHandler.handle_release(&self);
                 }
             }
             n => {
@@ -373,9 +390,9 @@ impl ObjectPrivate for WlShm {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).format(&self, arg0);
+                    (**handler).handle_format(&self, arg0);
                 } else {
-                    DefaultHandler.format(&self, arg0);
+                    DefaultHandler.handle_format(&self, arg0);
                 }
             }
             n => {

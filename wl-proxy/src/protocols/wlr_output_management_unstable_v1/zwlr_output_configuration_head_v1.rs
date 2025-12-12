@@ -347,6 +347,11 @@ impl ZwlrOutputConfigurationHeadV1 {
 
 /// A message handler for [ZwlrOutputConfigurationHeadV1] proxies.
 pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwlrOutputConfigurationHeadV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// set the mode
     ///
     /// This request sets the head's mode.
@@ -358,7 +363,7 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_mode(
+    fn handle_set_mode(
         &mut self,
         _slf: &Rc<ZwlrOutputConfigurationHeadV1>,
         mode: &Rc<ZwlrOutputModeV1>,
@@ -385,7 +390,7 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
     /// - `height`: height of the mode in hardware units
     /// - `refresh`: vertical refresh rate in mHz or zero
     #[inline]
-    fn set_custom_mode(
+    fn handle_set_custom_mode(
         &mut self,
         _slf: &Rc<ZwlrOutputConfigurationHeadV1>,
         width: i32,
@@ -411,7 +416,7 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
     /// - `x`: x position in the global compositor space
     /// - `y`: y position in the global compositor space
     #[inline]
-    fn set_position(
+    fn handle_set_position(
         &mut self,
         _slf: &Rc<ZwlrOutputConfigurationHeadV1>,
         x: i32,
@@ -434,7 +439,7 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
     ///
     /// - `transform`:
     #[inline]
-    fn set_transform(
+    fn handle_set_transform(
         &mut self,
         _slf: &Rc<ZwlrOutputConfigurationHeadV1>,
         transform: WlOutputTransform,
@@ -455,7 +460,7 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
     ///
     /// - `scale`:
     #[inline]
-    fn set_scale(
+    fn handle_set_scale(
         &mut self,
         _slf: &Rc<ZwlrOutputConfigurationHeadV1>,
         scale: Fixed,
@@ -477,7 +482,7 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
     ///
     /// - `state`:
     #[inline]
-    fn set_adaptive_sync(
+    fn handle_set_adaptive_sync(
         &mut self,
         _slf: &Rc<ZwlrOutputConfigurationHeadV1>,
         state: ZwlrOutputHeadV1AdaptiveSyncState,
@@ -497,6 +502,18 @@ impl ObjectPrivate for ZwlrOutputConfigurationHeadV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrOutputConfigurationHeadV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -527,9 +544,9 @@ impl ObjectPrivate for ZwlrOutputConfigurationHeadV1 {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).set_mode(&self, arg0);
+                    (**handler).handle_set_mode(&self, arg0);
                 } else {
-                    DefaultHandler.set_mode(&self, arg0);
+                    DefaultHandler.handle_set_mode(&self, arg0);
                 }
             }
             1 => {
@@ -550,9 +567,9 @@ impl ObjectPrivate for ZwlrOutputConfigurationHeadV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_custom_mode(&self, arg0, arg1, arg2);
+                    (**handler).handle_set_custom_mode(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.set_custom_mode(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_set_custom_mode(&self, arg0, arg1, arg2);
                 }
             }
             2 => {
@@ -571,9 +588,9 @@ impl ObjectPrivate for ZwlrOutputConfigurationHeadV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_position(&self, arg0, arg1);
+                    (**handler).handle_set_position(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_position(&self, arg0, arg1);
+                    DefaultHandler.handle_set_position(&self, arg0, arg1);
                 }
             }
             3 => {
@@ -590,9 +607,9 @@ impl ObjectPrivate for ZwlrOutputConfigurationHeadV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_transform(&self, arg0);
+                    (**handler).handle_set_transform(&self, arg0);
                 } else {
-                    DefaultHandler.set_transform(&self, arg0);
+                    DefaultHandler.handle_set_transform(&self, arg0);
                 }
             }
             4 => {
@@ -609,9 +626,9 @@ impl ObjectPrivate for ZwlrOutputConfigurationHeadV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_scale(&self, arg0);
+                    (**handler).handle_set_scale(&self, arg0);
                 } else {
-                    DefaultHandler.set_scale(&self, arg0);
+                    DefaultHandler.handle_set_scale(&self, arg0);
                 }
             }
             5 => {
@@ -628,9 +645,9 @@ impl ObjectPrivate for ZwlrOutputConfigurationHeadV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_adaptive_sync(&self, arg0);
+                    (**handler).handle_set_adaptive_sync(&self, arg0);
                 } else {
-                    DefaultHandler.set_adaptive_sync(&self, arg0);
+                    DefaultHandler.handle_set_adaptive_sync(&self, arg0);
                 }
             }
             n => {

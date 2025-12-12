@@ -190,6 +190,11 @@ impl WpFifoV1 {
 
 /// A message handler for [WpFifoV1] proxies.
 pub trait WpFifoV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WpFifoV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// sets the start point for a fifo constraint
     ///
     /// When the content update containing the "set_barrier" is applied,
@@ -207,7 +212,7 @@ pub trait WpFifoV1Handler: Any {
     /// Requesting set_barrier after the fifo object's surface is
     /// destroyed will generate a "surface_destroyed" error.
     #[inline]
-    fn set_barrier(
+    fn handle_set_barrier(
         &mut self,
         _slf: &Rc<WpFifoV1>,
     ) {
@@ -241,7 +246,7 @@ pub trait WpFifoV1Handler: Any {
     /// Requesting "wait_barrier" after the fifo object's surface is
     /// destroyed will generate a "surface_destroyed" error.
     #[inline]
-    fn wait_barrier(
+    fn handle_wait_barrier(
         &mut self,
         _slf: &Rc<WpFifoV1>,
     ) {
@@ -260,7 +265,7 @@ pub trait WpFifoV1Handler: Any {
     /// Surface state changes previously made by this protocol are
     /// unaffected by this object's destruction.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<WpFifoV1>,
     ) {
@@ -280,6 +285,18 @@ impl ObjectPrivate for WpFifoV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -297,9 +314,9 @@ impl ObjectPrivate for WpFifoV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_barrier(&self);
+                    (**handler).handle_set_barrier(&self);
                 } else {
-                    DefaultHandler.set_barrier(&self);
+                    DefaultHandler.handle_set_barrier(&self);
                 }
             }
             1 => {
@@ -313,9 +330,9 @@ impl ObjectPrivate for WpFifoV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).wait_barrier(&self);
+                    (**handler).handle_wait_barrier(&self);
                 } else {
-                    DefaultHandler.wait_barrier(&self);
+                    DefaultHandler.handle_wait_barrier(&self);
                 }
             }
             2 => {
@@ -330,9 +347,9 @@ impl ObjectPrivate for WpFifoV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {

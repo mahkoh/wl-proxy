@@ -271,6 +271,11 @@ impl ZwpTabletPadDialV2 {
 
 /// A message handler for [ZwpTabletPadDialV2] proxies.
 pub trait ZwpTabletPadDialV2Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpTabletPadDialV2>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// set compositor feedback
     ///
     /// Requests the compositor to use the provided feedback string
@@ -298,7 +303,7 @@ pub trait ZwpTabletPadDialV2Handler: Any {
     /// - `description`: dial description
     /// - `serial`: serial of the mode switch event
     #[inline]
-    fn set_feedback(
+    fn handle_set_feedback(
         &mut self,
         _slf: &Rc<ZwpTabletPadDialV2>,
         description: &str,
@@ -317,7 +322,7 @@ pub trait ZwpTabletPadDialV2Handler: Any {
     ///
     /// This destroys the client's resource for this dial object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpTabletPadDialV2>,
     ) {
@@ -345,7 +350,7 @@ pub trait ZwpTabletPadDialV2Handler: Any {
     ///
     /// - `value120`: rotation distance as fraction of 120
     #[inline]
-    fn delta(
+    fn handle_delta(
         &mut self,
         _slf: &Rc<ZwpTabletPadDialV2>,
         value120: i32,
@@ -376,7 +381,7 @@ pub trait ZwpTabletPadDialV2Handler: Any {
     ///
     /// - `time`: timestamp with millisecond granularity
     #[inline]
-    fn frame(
+    fn handle_frame(
         &mut self,
         _slf: &Rc<ZwpTabletPadDialV2>,
         time: u32,
@@ -396,6 +401,18 @@ impl ObjectPrivate for ZwpTabletPadDialV2 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpTabletPadDialV2, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -442,9 +459,9 @@ impl ObjectPrivate for ZwpTabletPadDialV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_feedback(&self, arg0, arg1);
+                    (**handler).handle_set_feedback(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_feedback(&self, arg0, arg1);
+                    DefaultHandler.handle_set_feedback(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -459,9 +476,9 @@ impl ObjectPrivate for ZwpTabletPadDialV2 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -495,9 +512,9 @@ impl ObjectPrivate for ZwpTabletPadDialV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).delta(&self, arg0);
+                    (**handler).handle_delta(&self, arg0);
                 } else {
-                    DefaultHandler.delta(&self, arg0);
+                    DefaultHandler.handle_delta(&self, arg0);
                 }
             }
             1 => {
@@ -513,9 +530,9 @@ impl ObjectPrivate for ZwpTabletPadDialV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).frame(&self, arg0);
+                    (**handler).handle_frame(&self, arg0);
                 } else {
-                    DefaultHandler.frame(&self, arg0);
+                    DefaultHandler.handle_frame(&self, arg0);
                 }
             }
             n => {

@@ -229,6 +229,11 @@ impl ZwlrDataControlSourceV1 {
 
 /// A message handler for [ZwlrDataControlSourceV1] proxies.
 pub trait ZwlrDataControlSourceV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwlrDataControlSourceV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// add an offered MIME type
     ///
     /// This request adds a MIME type to the set of MIME types advertised to
@@ -241,7 +246,7 @@ pub trait ZwlrDataControlSourceV1Handler: Any {
     ///
     /// - `mime_type`: MIME type offered by the data source
     #[inline]
-    fn offer(
+    fn handle_offer(
         &mut self,
         _slf: &Rc<ZwlrDataControlSourceV1>,
         mime_type: &str,
@@ -258,7 +263,7 @@ pub trait ZwlrDataControlSourceV1Handler: Any {
     ///
     /// Destroys the data source object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwlrDataControlSourceV1>,
     ) {
@@ -279,7 +284,7 @@ pub trait ZwlrDataControlSourceV1Handler: Any {
     /// - `mime_type`: MIME type for the data
     /// - `fd`: file descriptor for the data
     #[inline]
-    fn send(
+    fn handle_send(
         &mut self,
         _slf: &Rc<ZwlrDataControlSourceV1>,
         mime_type: &str,
@@ -301,7 +306,7 @@ pub trait ZwlrDataControlSourceV1Handler: Any {
     ///
     /// The client should clean up and destroy this data source.
     #[inline]
-    fn cancelled(
+    fn handle_cancelled(
         &mut self,
         _slf: &Rc<ZwlrDataControlSourceV1>,
     ) {
@@ -319,6 +324,18 @@ impl ObjectPrivate for ZwlrDataControlSourceV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrDataControlSourceV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -361,9 +378,9 @@ impl ObjectPrivate for ZwlrDataControlSourceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).offer(&self, arg0);
+                    (**handler).handle_offer(&self, arg0);
                 } else {
-                    DefaultHandler.offer(&self, arg0);
+                    DefaultHandler.handle_offer(&self, arg0);
                 }
             }
             1 => {
@@ -378,9 +395,9 @@ impl ObjectPrivate for ZwlrDataControlSourceV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -438,9 +455,9 @@ impl ObjectPrivate for ZwlrDataControlSourceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).send(&self, arg0, arg1);
+                    (**handler).handle_send(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.send(&self, arg0, arg1);
+                    DefaultHandler.handle_send(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -454,9 +471,9 @@ impl ObjectPrivate for ZwlrDataControlSourceV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).cancelled(&self);
+                    (**handler).handle_cancelled(&self);
                 } else {
-                    DefaultHandler.cancelled(&self);
+                    DefaultHandler.handle_cancelled(&self);
                 }
             }
             n => {

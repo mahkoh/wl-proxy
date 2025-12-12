@@ -256,6 +256,11 @@ impl ZwpPrimarySelectionDeviceV1 {
 
 /// A message handler for [ZwpPrimarySelectionDeviceV1] proxies.
 pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpPrimarySelectionDeviceV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// set the primary selection
     ///
     /// Replaces the current selection. The previous owner of the primary
@@ -271,7 +276,7 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_selection(
+    fn handle_set_selection(
         &mut self,
         _slf: &Rc<ZwpPrimarySelectionDeviceV1>,
         source: Option<&Rc<ZwpPrimarySelectionSourceV1>>,
@@ -298,7 +303,7 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
     ///
     /// - `offer`:
     #[inline]
-    fn data_offer(
+    fn handle_data_offer(
         &mut self,
         _slf: &Rc<ZwpPrimarySelectionDeviceV1>,
         offer: &Rc<ZwpPrimarySelectionOfferV1>,
@@ -330,7 +335,7 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn selection(
+    fn handle_selection(
         &mut self,
         _slf: &Rc<ZwpPrimarySelectionDeviceV1>,
         id: Option<&Rc<ZwpPrimarySelectionOfferV1>>,
@@ -356,7 +361,7 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
     ///
     /// Destroy the primary selection device.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpPrimarySelectionDeviceV1>,
     ) {
@@ -374,6 +379,18 @@ impl ObjectPrivate for ZwpPrimarySelectionDeviceV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpPrimarySelectionDeviceV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -410,9 +427,9 @@ impl ObjectPrivate for ZwpPrimarySelectionDeviceV1 {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).set_selection(&self, arg0, arg1);
+                    (**handler).handle_set_selection(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.set_selection(&self, arg0, arg1);
+                    DefaultHandler.handle_set_selection(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -427,9 +444,9 @@ impl ObjectPrivate for ZwpPrimarySelectionDeviceV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -467,9 +484,9 @@ impl ObjectPrivate for ZwpPrimarySelectionDeviceV1 {
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "offer", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).data_offer(&self, arg0);
+                    (**handler).handle_data_offer(&self, arg0);
                 } else {
-                    DefaultHandler.data_offer(&self, arg0);
+                    DefaultHandler.handle_data_offer(&self, arg0);
                 }
             }
             1 => {
@@ -499,9 +516,9 @@ impl ObjectPrivate for ZwpPrimarySelectionDeviceV1 {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).selection(&self, arg0);
+                    (**handler).handle_selection(&self, arg0);
                 } else {
-                    DefaultHandler.selection(&self, arg0);
+                    DefaultHandler.handle_selection(&self, arg0);
                 }
             }
             n => {

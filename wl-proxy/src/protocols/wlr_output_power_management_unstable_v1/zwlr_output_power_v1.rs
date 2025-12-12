@@ -230,6 +230,11 @@ impl ZwlrOutputPowerV1 {
 
 /// A message handler for [ZwlrOutputPowerV1] proxies.
 pub trait ZwlrOutputPowerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwlrOutputPowerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// Set an outputs power save mode
     ///
     /// Set an output's power save mode to the given mode. The mode change
@@ -240,7 +245,7 @@ pub trait ZwlrOutputPowerV1Handler: Any {
     ///
     /// - `mode`: the power save mode to set
     #[inline]
-    fn set_mode(
+    fn handle_set_mode(
         &mut self,
         _slf: &Rc<ZwlrOutputPowerV1>,
         mode: ZwlrOutputPowerV1Mode,
@@ -267,7 +272,7 @@ pub trait ZwlrOutputPowerV1Handler: Any {
     ///
     /// - `mode`: the output's new power management mode
     #[inline]
-    fn mode(
+    fn handle_mode(
         &mut self,
         _slf: &Rc<ZwlrOutputPowerV1>,
         mode: ZwlrOutputPowerV1Mode,
@@ -292,7 +297,7 @@ pub trait ZwlrOutputPowerV1Handler: Any {
     ///
     /// Upon receiving this event, the client should destroy this object.
     #[inline]
-    fn failed(
+    fn handle_failed(
         &mut self,
         _slf: &Rc<ZwlrOutputPowerV1>,
     ) {
@@ -307,7 +312,7 @@ pub trait ZwlrOutputPowerV1Handler: Any {
     ///
     /// Destroys the output power management mode control object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwlrOutputPowerV1>,
     ) {
@@ -325,6 +330,18 @@ impl ObjectPrivate for ZwlrOutputPowerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrOutputPowerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -347,9 +364,9 @@ impl ObjectPrivate for ZwlrOutputPowerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).set_mode(&self, arg0);
+                    (**handler).handle_set_mode(&self, arg0);
                 } else {
-                    DefaultHandler.set_mode(&self, arg0);
+                    DefaultHandler.handle_set_mode(&self, arg0);
                 }
             }
             1 => {
@@ -364,9 +381,9 @@ impl ObjectPrivate for ZwlrOutputPowerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -400,9 +417,9 @@ impl ObjectPrivate for ZwlrOutputPowerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).mode(&self, arg0);
+                    (**handler).handle_mode(&self, arg0);
                 } else {
-                    DefaultHandler.mode(&self, arg0);
+                    DefaultHandler.handle_mode(&self, arg0);
                 }
             }
             1 => {
@@ -416,9 +433,9 @@ impl ObjectPrivate for ZwlrOutputPowerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).failed(&self);
+                    (**handler).handle_failed(&self);
                 } else {
-                    DefaultHandler.failed(&self);
+                    DefaultHandler.handle_failed(&self);
                 }
             }
             n => {

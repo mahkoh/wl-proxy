@@ -526,6 +526,11 @@ impl WlOutput {
 
 /// A message handler for [WlOutput] proxies.
 pub trait WlOutputHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlOutput>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// properties of the output
     ///
     /// The geometry event describes geometric properties of the output.
@@ -560,7 +565,7 @@ pub trait WlOutputHandler: Any {
     /// - `model`: textual description of the model
     /// - `transform`: additional transformation applied to buffer contents during presentation
     #[inline]
-    fn geometry(
+    fn handle_geometry(
         &mut self,
         _slf: &Rc<WlOutput>,
         x: i32,
@@ -630,7 +635,7 @@ pub trait WlOutputHandler: Any {
     /// - `height`: height of the mode in hardware units
     /// - `refresh`: vertical refresh rate in mHz
     #[inline]
-    fn mode(
+    fn handle_mode(
         &mut self,
         _slf: &Rc<WlOutput>,
         flags: WlOutputMode,
@@ -657,7 +662,7 @@ pub trait WlOutputHandler: Any {
     /// changes to the output properties to be seen as
     /// atomic, even if they happen via multiple events.
     #[inline]
-    fn done(
+    fn handle_done(
         &mut self,
         _slf: &Rc<WlOutput>,
     ) {
@@ -693,7 +698,7 @@ pub trait WlOutputHandler: Any {
     ///
     /// - `factor`: scaling factor of output
     #[inline]
-    fn scale(
+    fn handle_scale(
         &mut self,
         _slf: &Rc<WlOutput>,
         factor: i32,
@@ -711,7 +716,7 @@ pub trait WlOutputHandler: Any {
     /// Using this request a client can tell the server that it is not going to
     /// use the output object anymore.
     #[inline]
-    fn release(
+    fn handle_release(
         &mut self,
         _slf: &Rc<WlOutput>,
     ) {
@@ -757,7 +762,7 @@ pub trait WlOutputHandler: Any {
     ///
     /// - `name`: output name
     #[inline]
-    fn name(
+    fn handle_name(
         &mut self,
         _slf: &Rc<WlOutput>,
         name: &str,
@@ -791,7 +796,7 @@ pub trait WlOutputHandler: Any {
     ///
     /// - `description`: output description
     #[inline]
-    fn description(
+    fn handle_description(
         &mut self,
         _slf: &Rc<WlOutput>,
         description: &str,
@@ -813,6 +818,18 @@ impl ObjectPrivate for WlOutput {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -831,9 +848,9 @@ impl ObjectPrivate for WlOutput {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).release(&self);
+                    (**handler).handle_release(&self);
                 } else {
-                    DefaultHandler.release(&self);
+                    DefaultHandler.handle_release(&self);
                 }
             }
             n => {
@@ -939,9 +956,9 @@ impl ObjectPrivate for WlOutput {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).geometry(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                    (**handler).handle_geometry(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 } else {
-                    DefaultHandler.geometry(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                    DefaultHandler.handle_geometry(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 }
             }
             1 => {
@@ -964,9 +981,9 @@ impl ObjectPrivate for WlOutput {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).mode(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_mode(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.mode(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_mode(&self, arg0, arg1, arg2, arg3);
                 }
             }
             2 => {
@@ -980,9 +997,9 @@ impl ObjectPrivate for WlOutput {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).done(&self);
+                    (**handler).handle_done(&self);
                 } else {
-                    DefaultHandler.done(&self);
+                    DefaultHandler.handle_done(&self);
                 }
             }
             3 => {
@@ -999,9 +1016,9 @@ impl ObjectPrivate for WlOutput {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).scale(&self, arg0);
+                    (**handler).handle_scale(&self, arg0);
                 } else {
-                    DefaultHandler.scale(&self, arg0);
+                    DefaultHandler.handle_scale(&self, arg0);
                 }
             }
             4 => {
@@ -1038,9 +1055,9 @@ impl ObjectPrivate for WlOutput {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).name(&self, arg0);
+                    (**handler).handle_name(&self, arg0);
                 } else {
-                    DefaultHandler.name(&self, arg0);
+                    DefaultHandler.handle_name(&self, arg0);
                 }
             }
             5 => {
@@ -1077,9 +1094,9 @@ impl ObjectPrivate for WlOutput {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).description(&self, arg0);
+                    (**handler).handle_description(&self, arg0);
                 } else {
-                    DefaultHandler.description(&self, arg0);
+                    DefaultHandler.handle_description(&self, arg0);
                 }
             }
             n => {

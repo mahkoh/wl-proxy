@@ -434,13 +434,15 @@ fn format_interface_message_handler(w: &mut impl Write, interface: &Interface) -
     let camel = format_camel(snake).to_string();
     wl!(r#"/// A message handler for [{camel}] proxies."#)?;
     wl!(r#"pub trait {PREFIX}{camel}Handler: Any {{"#)?;
-    for (idx, msg) in interface.messages.iter().enumerate() {
-        if idx > 0 {
-            wl!()?;
-        }
+    wl!(r#"    #[inline]"#)?;
+    wl!(r#"    fn delete_id(&mut self, slf: &Rc<{camel}>) {{"#)?;
+    wl!(r#"        let _ = slf.core.delete_id();"#)?;
+    wl!(r#"    }}"#)?;
+    for msg in &interface.messages {
+        wl!()?;
         format_message_doc(w, false, msg)?;
         wl!(r#"    #[inline]"#)?;
-        wl!(r#"    fn {}("#, escape_name(&msg.name))?;
+        wl!(r#"    fn handle_{}("#, msg.name)?;
         wl!(r#"        &mut self,"#)?;
         wl!(r#"        _slf: &Rc<{PREFIX}{camel}>,"#)?;
         for (idx, arg) in msg.args.iter().enumerate() {
@@ -868,6 +870,18 @@ fn format_object_impl(w: &mut impl Write, interface: &Interface) -> io::Result<(
     )?;
     wl!(r#"            handler: Default::default(),"#)?;
     wl!(r#"        }})"#)?;
+    wl!(r#"    }}"#)?;
+    wl!()?;
+    wl!(r#"    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {{"#)?;
+    wl!(r#"        let Some(mut handler) = self.handler.try_borrow() else {{"#)?;
+    wl!(r#"            return Err((ObjectError::HandlerBorrowed, self));"#)?;
+    wl!(r#"        }};"#)?;
+    wl!(r#"        if let Some(handler) = &mut *handler {{"#)?;
+    wl!(r#"            handler.delete_id(&self);"#)?;
+    wl!(r#"        }} else {{"#)?;
+    wl!(r#"            let _ = self.core.delete_id();"#)?;
+    wl!(r#"        }}"#)?;
+    wl!(r#"        Ok(())"#)?;
     wl!(r#"    }}"#)?;
     wl!()?;
     wl!(
@@ -1384,7 +1398,7 @@ fn format_object_message_handler_body<W: Write>(
         } else {
             macro_rules! format_call {
                 ($target:expr) => {
-                    w!(r#"{p}            {}.{}("#, $target, escape_name(&msg.name))?;
+                    w!(r#"{p}            {}.handle_{}("#, $target, msg.name)?;
                     w!(r#"&self"#)?;
                     for (idx, _) in msg.args.iter().enumerate() {
                         w!(r#", arg{idx}"#)?;

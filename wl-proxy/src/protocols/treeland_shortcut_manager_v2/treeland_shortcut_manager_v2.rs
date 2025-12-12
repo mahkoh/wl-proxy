@@ -618,12 +618,17 @@ impl TreelandShortcutManagerV2 {
 
 /// A message handler for [TreelandShortcutManagerV2] proxies.
 pub trait TreelandShortcutManagerV2Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<TreelandShortcutManagerV2>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the shortcut manager
     ///
     /// Destroy the shortcut manager.
     /// Existing shortcuts created through this interface remain valid.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<TreelandShortcutManagerV2>,
     ) {
@@ -644,7 +649,7 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     /// for a given session.
     /// If the shortcut manager is already acquired by another client, an protocol error
     #[inline]
-    fn acquire(
+    fn handle_acquire(
         &mut self,
         _slf: &Rc<TreelandShortcutManagerV2>,
     ) {
@@ -689,7 +694,7 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     /// - `mode`: mode for the keybinding
     /// - `action`: compositor action to be executed
     #[inline]
-    fn bind_key(
+    fn handle_bind_key(
         &mut self,
         _slf: &Rc<TreelandShortcutManagerV2>,
         name: &str,
@@ -735,7 +740,7 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     /// - `direction`: direction of the swipe gesture
     /// - `action`: compositor action to be executed
     #[inline]
-    fn bind_swipe_gesture(
+    fn handle_bind_swipe_gesture(
         &mut self,
         _slf: &Rc<TreelandShortcutManagerV2>,
         name: &str,
@@ -777,7 +782,7 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     /// - `finger`: number of fingers required for the hold gesture
     /// - `action`: compositor action to be executed
     #[inline]
-    fn bind_hold_gesture(
+    fn handle_bind_hold_gesture(
         &mut self,
         _slf: &Rc<TreelandShortcutManagerV2>,
         name: &str,
@@ -813,7 +818,7 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     /// Sending further commit requests before `commit_success` or `commit_failure`
     /// is sent is a protocol error.
     #[inline]
-    fn commit(
+    fn handle_commit(
         &mut self,
         _slf: &Rc<TreelandShortcutManagerV2>,
     ) {
@@ -835,7 +840,7 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     ///
     /// - `name`: unique name of the binding to be removed
     #[inline]
-    fn unbind(
+    fn handle_unbind(
         &mut self,
         _slf: &Rc<TreelandShortcutManagerV2>,
         name: &str,
@@ -859,7 +864,7 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     /// - `name`: binding id of the activated shortcut
     /// - `repeat`: indicates whether the shortcut activation is due to auto-repeat
     #[inline]
-    fn activated(
+    fn handle_activated(
         &mut self,
         _slf: &Rc<TreelandShortcutManagerV2>,
         name: &str,
@@ -879,7 +884,7 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     /// This event is emitted in response to a commit request,
     /// indicating that the commit was successful.
     #[inline]
-    fn commit_success(
+    fn handle_commit_success(
         &mut self,
         _slf: &Rc<TreelandShortcutManagerV2>,
     ) {
@@ -902,7 +907,7 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     /// - `name`: binding name that caused the failure
     /// - `error`: error code indicating the reason of the failure
     #[inline]
-    fn commit_failure(
+    fn handle_commit_failure(
         &mut self,
         _slf: &Rc<TreelandShortcutManagerV2>,
         name: &str,
@@ -926,6 +931,18 @@ impl ObjectPrivate for TreelandShortcutManagerV2 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -944,9 +961,9 @@ impl ObjectPrivate for TreelandShortcutManagerV2 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -960,9 +977,9 @@ impl ObjectPrivate for TreelandShortcutManagerV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).acquire(&self);
+                    (**handler).handle_acquire(&self);
                 } else {
-                    DefaultHandler.acquire(&self);
+                    DefaultHandler.handle_acquire(&self);
                 }
             }
             2 => {
@@ -1031,9 +1048,9 @@ impl ObjectPrivate for TreelandShortcutManagerV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).bind_key(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_bind_key(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.bind_key(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_bind_key(&self, arg0, arg1, arg2, arg3);
                 }
             }
             3 => {
@@ -1084,9 +1101,9 @@ impl ObjectPrivate for TreelandShortcutManagerV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).bind_swipe_gesture(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_bind_swipe_gesture(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.bind_swipe_gesture(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_bind_swipe_gesture(&self, arg0, arg1, arg2, arg3);
                 }
             }
             4 => {
@@ -1132,9 +1149,9 @@ impl ObjectPrivate for TreelandShortcutManagerV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).bind_hold_gesture(&self, arg0, arg1, arg2);
+                    (**handler).handle_bind_hold_gesture(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.bind_hold_gesture(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_bind_hold_gesture(&self, arg0, arg1, arg2);
                 }
             }
             5 => {
@@ -1148,9 +1165,9 @@ impl ObjectPrivate for TreelandShortcutManagerV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).commit(&self);
+                    (**handler).handle_commit(&self);
                 } else {
-                    DefaultHandler.commit(&self);
+                    DefaultHandler.handle_commit(&self);
                 }
             }
             6 => {
@@ -1187,9 +1204,9 @@ impl ObjectPrivate for TreelandShortcutManagerV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).unbind(&self, arg0);
+                    (**handler).handle_unbind(&self, arg0);
                 } else {
-                    DefaultHandler.unbind(&self, arg0);
+                    DefaultHandler.handle_unbind(&self, arg0);
                 }
             }
             n => {
@@ -1247,9 +1264,9 @@ impl ObjectPrivate for TreelandShortcutManagerV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).activated(&self, arg0, arg1);
+                    (**handler).handle_activated(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.activated(&self, arg0, arg1);
+                    DefaultHandler.handle_activated(&self, arg0, arg1);
                 }
             }
             1 => {
@@ -1263,9 +1280,9 @@ impl ObjectPrivate for TreelandShortcutManagerV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).commit_success(&self);
+                    (**handler).handle_commit_success(&self);
                 } else {
-                    DefaultHandler.commit_success(&self);
+                    DefaultHandler.handle_commit_success(&self);
                 }
             }
             2 => {
@@ -1307,9 +1324,9 @@ impl ObjectPrivate for TreelandShortcutManagerV2 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).commit_failure(&self, arg0, arg1);
+                    (**handler).handle_commit_failure(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.commit_failure(&self, arg0, arg1);
+                    DefaultHandler.handle_commit_failure(&self, arg0, arg1);
                 }
             }
             n => {

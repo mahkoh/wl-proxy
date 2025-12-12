@@ -245,12 +245,17 @@ impl ZwpConfinedPointerV1 {
 
 /// A message handler for [ZwpConfinedPointerV1] proxies.
 pub trait ZwpConfinedPointerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpConfinedPointerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// destroy the confined pointer object
     ///
     /// Destroy the confined pointer object. If applicable, the compositor will
     /// unconfine the pointer.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpConfinedPointerV1>,
     ) {
@@ -285,7 +290,7 @@ pub trait ZwpConfinedPointerV1Handler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_region(
+    fn handle_set_region(
         &mut self,
         _slf: &Rc<ZwpConfinedPointerV1>,
         region: Option<&Rc<WlRegion>>,
@@ -303,7 +308,7 @@ pub trait ZwpConfinedPointerV1Handler: Any {
     /// Notification that the pointer confinement of the seat's pointer is
     /// activated.
     #[inline]
-    fn confined(
+    fn handle_confined(
         &mut self,
         _slf: &Rc<ZwpConfinedPointerV1>,
     ) {
@@ -323,7 +328,7 @@ pub trait ZwpConfinedPointerV1Handler: Any {
     /// wp_pointer_constraints.lifetime) this pointer confinement may again
     /// reactivate in the future.
     #[inline]
-    fn unconfined(
+    fn handle_unconfined(
         &mut self,
         _slf: &Rc<ZwpConfinedPointerV1>,
     ) {
@@ -341,6 +346,18 @@ impl ObjectPrivate for ZwpConfinedPointerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpConfinedPointerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -361,9 +378,9 @@ impl ObjectPrivate for ZwpConfinedPointerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -393,9 +410,9 @@ impl ObjectPrivate for ZwpConfinedPointerV1 {
                 };
                 let arg0 = arg0.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).set_region(&self, arg0);
+                    (**handler).handle_set_region(&self, arg0);
                 } else {
-                    DefaultHandler.set_region(&self, arg0);
+                    DefaultHandler.handle_set_region(&self, arg0);
                 }
             }
             n => {
@@ -426,9 +443,9 @@ impl ObjectPrivate for ZwpConfinedPointerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).confined(&self);
+                    (**handler).handle_confined(&self);
                 } else {
-                    DefaultHandler.confined(&self);
+                    DefaultHandler.handle_confined(&self);
                 }
             }
             1 => {
@@ -442,9 +459,9 @@ impl ObjectPrivate for ZwpConfinedPointerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).unconfined(&self);
+                    (**handler).handle_unconfined(&self);
                 } else {
-                    DefaultHandler.unconfined(&self);
+                    DefaultHandler.handle_unconfined(&self);
                 }
             }
             n => {

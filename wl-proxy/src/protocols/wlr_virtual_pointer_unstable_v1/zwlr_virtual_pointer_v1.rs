@@ -511,6 +511,11 @@ impl ZwlrVirtualPointerV1 {
 
 /// A message handler for [ZwlrVirtualPointerV1] proxies.
 pub trait ZwlrVirtualPointerV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwlrVirtualPointerV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// pointer relative motion event
     ///
     /// The pointer has moved by a relative amount to the previous request.
@@ -523,7 +528,7 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
     /// - `dx`: displacement on the x-axis
     /// - `dy`: displacement on the y-axis
     #[inline]
-    fn motion(
+    fn handle_motion(
         &mut self,
         _slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
@@ -555,7 +560,7 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
     /// - `x_extent`: extent of the x-axis
     /// - `y_extent`: extent of the y-axis
     #[inline]
-    fn motion_absolute(
+    fn handle_motion_absolute(
         &mut self,
         _slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
@@ -586,7 +591,7 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
     /// - `button`: button that produced the event
     /// - `state`: physical state of the button
     #[inline]
-    fn button(
+    fn handle_button(
         &mut self,
         _slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
@@ -613,7 +618,7 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
     /// - `axis`: axis type
     /// - `value`: length of vector in touchpad coordinates
     #[inline]
-    fn axis(
+    fn handle_axis(
         &mut self,
         _slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
@@ -634,7 +639,7 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
     ///
     /// Indicates the set of events that logically belong together.
     #[inline]
-    fn frame(
+    fn handle_frame(
         &mut self,
         _slf: &Rc<ZwlrVirtualPointerV1>,
     ) {
@@ -653,7 +658,7 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
     ///
     /// - `axis_source`: source of the axis event
     #[inline]
-    fn axis_source(
+    fn handle_axis_source(
         &mut self,
         _slf: &Rc<ZwlrVirtualPointerV1>,
         axis_source: WlPointerAxisSource,
@@ -675,7 +680,7 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
     /// - `time`: timestamp with millisecond granularity
     /// - `axis`: the axis stopped with this event
     #[inline]
-    fn axis_stop(
+    fn handle_axis_stop(
         &mut self,
         _slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
@@ -704,7 +709,7 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
     /// - `value`: length of vector in touchpad coordinates
     /// - `discrete`: number of steps
     #[inline]
-    fn axis_discrete(
+    fn handle_axis_discrete(
         &mut self,
         _slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
@@ -725,7 +730,7 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
 
     /// destroy the virtual pointer object
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwlrVirtualPointerV1>,
     ) {
@@ -743,6 +748,18 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrVirtualPointerV1, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -768,9 +785,9 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).motion(&self, arg0, arg1, arg2);
+                    (**handler).handle_motion(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.motion(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_motion(&self, arg0, arg1, arg2);
                 }
             }
             1 => {
@@ -790,9 +807,9 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).motion_absolute(&self, arg0, arg1, arg2, arg3, arg4);
+                    (**handler).handle_motion_absolute(&self, arg0, arg1, arg2, arg3, arg4);
                 } else {
-                    DefaultHandler.motion_absolute(&self, arg0, arg1, arg2, arg3, arg4);
+                    DefaultHandler.handle_motion_absolute(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
             2 => {
@@ -811,9 +828,9 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).button(&self, arg0, arg1, arg2);
+                    (**handler).handle_button(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.button(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_button(&self, arg0, arg1, arg2);
                 }
             }
             3 => {
@@ -833,9 +850,9 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).axis(&self, arg0, arg1, arg2);
+                    (**handler).handle_axis(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.axis(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_axis(&self, arg0, arg1, arg2);
                 }
             }
             4 => {
@@ -849,9 +866,9 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).frame(&self);
+                    (**handler).handle_frame(&self);
                 } else {
-                    DefaultHandler.frame(&self);
+                    DefaultHandler.handle_frame(&self);
                 }
             }
             5 => {
@@ -868,9 +885,9 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).axis_source(&self, arg0);
+                    (**handler).handle_axis_source(&self, arg0);
                 } else {
-                    DefaultHandler.axis_source(&self, arg0);
+                    DefaultHandler.handle_axis_source(&self, arg0);
                 }
             }
             6 => {
@@ -888,9 +905,9 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).axis_stop(&self, arg0, arg1);
+                    (**handler).handle_axis_stop(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.axis_stop(&self, arg0, arg1);
+                    DefaultHandler.handle_axis_stop(&self, arg0, arg1);
                 }
             }
             7 => {
@@ -912,9 +929,9 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).axis_discrete(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_axis_discrete(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.axis_discrete(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_axis_discrete(&self, arg0, arg1, arg2, arg3);
                 }
             }
             8 => {
@@ -929,9 +946,9 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {

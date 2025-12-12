@@ -341,6 +341,11 @@ impl ExtImageCopyCaptureCursorSessionV1 {
 
 /// A message handler for [ExtImageCopyCaptureCursorSessionV1] proxies.
 pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ExtImageCopyCaptureCursorSessionV1>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// delete this object
     ///
     /// Destroys the session. This request can be sent at any time by the
@@ -349,7 +354,7 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
     /// This request doesn't affect ext_image_copy_capture_frame_v1 objects created by
     /// this object.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
     ) {
@@ -374,7 +379,7 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
     ///
     /// - `session`:
     #[inline]
-    fn get_capture_session(
+    fn handle_get_capture_session(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
         session: &Rc<ExtImageCopyCaptureSessionV1>,
@@ -397,7 +402,7 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
     /// with the captured area. Note, this is different from e.g.
     /// wl_pointer.enter.
     #[inline]
-    fn enter(
+    fn handle_enter(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
     ) {
@@ -414,7 +419,7 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
     /// event is generated for the cursor until the cursor enters the captured
     /// area again.
     #[inline]
-    fn leave(
+    fn handle_leave(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
     ) {
@@ -440,7 +445,7 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
     /// - `x`: position x coordinates
     /// - `y`: position y coordinates
     #[inline]
-    fn position(
+    fn handle_position(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
         x: i32,
@@ -473,7 +478,7 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
     /// - `x`: hotspot x coordinates
     /// - `y`: hotspot y coordinates
     #[inline]
-    fn hotspot(
+    fn handle_hotspot(
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
         x: i32,
@@ -497,6 +502,18 @@ impl ObjectPrivate for ExtImageCopyCaptureCursorSessionV1 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -515,9 +532,9 @@ impl ObjectPrivate for ExtImageCopyCaptureCursorSessionV1 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -538,9 +555,9 @@ impl ObjectPrivate for ExtImageCopyCaptureCursorSessionV1 {
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "session", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).get_capture_session(&self, arg0);
+                    (**handler).handle_get_capture_session(&self, arg0);
                 } else {
-                    DefaultHandler.get_capture_session(&self, arg0);
+                    DefaultHandler.handle_get_capture_session(&self, arg0);
                 }
             }
             n => {
@@ -571,9 +588,9 @@ impl ObjectPrivate for ExtImageCopyCaptureCursorSessionV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).enter(&self);
+                    (**handler).handle_enter(&self);
                 } else {
-                    DefaultHandler.enter(&self);
+                    DefaultHandler.handle_enter(&self);
                 }
             }
             1 => {
@@ -587,9 +604,9 @@ impl ObjectPrivate for ExtImageCopyCaptureCursorSessionV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).leave(&self);
+                    (**handler).handle_leave(&self);
                 } else {
-                    DefaultHandler.leave(&self);
+                    DefaultHandler.handle_leave(&self);
                 }
             }
             2 => {
@@ -608,9 +625,9 @@ impl ObjectPrivate for ExtImageCopyCaptureCursorSessionV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).position(&self, arg0, arg1);
+                    (**handler).handle_position(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.position(&self, arg0, arg1);
+                    DefaultHandler.handle_position(&self, arg0, arg1);
                 }
             }
             3 => {
@@ -629,9 +646,9 @@ impl ObjectPrivate for ExtImageCopyCaptureCursorSessionV1 {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).hotspot(&self, arg0, arg1);
+                    (**handler).handle_hotspot(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.hotspot(&self, arg0, arg1);
+                    DefaultHandler.handle_hotspot(&self, arg0, arg1);
                 }
             }
             n => {

@@ -247,12 +247,17 @@ impl ZwpTabletSeatV2 {
 
 /// A message handler for [ZwpTabletSeatV2] proxies.
 pub trait ZwpTabletSeatV2Handler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<ZwpTabletSeatV2>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// release the memory for the tablet seat object
     ///
     /// Destroy the zwp_tablet_seat_v2 object. Objects created from this
     /// object are unaffected and should be destroyed separately.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<ZwpTabletSeatV2>,
     ) {
@@ -274,7 +279,7 @@ pub trait ZwpTabletSeatV2Handler: Any {
     ///
     /// - `id`: the newly added graphics tablet
     #[inline]
-    fn tablet_added(
+    fn handle_tablet_added(
         &mut self,
         _slf: &Rc<ZwpTabletSeatV2>,
         id: &Rc<ZwpTabletV2>,
@@ -298,7 +303,7 @@ pub trait ZwpTabletSeatV2Handler: Any {
     ///
     /// - `id`: the newly added tablet tool
     #[inline]
-    fn tool_added(
+    fn handle_tool_added(
         &mut self,
         _slf: &Rc<ZwpTabletSeatV2>,
         id: &Rc<ZwpTabletToolV2>,
@@ -328,7 +333,7 @@ pub trait ZwpTabletSeatV2Handler: Any {
     ///
     /// - `id`: the newly added pad
     #[inline]
-    fn pad_added(
+    fn handle_pad_added(
         &mut self,
         _slf: &Rc<ZwpTabletSeatV2>,
         id: &Rc<ZwpTabletPadV2>,
@@ -350,6 +355,18 @@ impl ObjectPrivate for ZwpTabletSeatV2 {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -368,9 +385,9 @@ impl ObjectPrivate for ZwpTabletSeatV2 {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             n => {
@@ -408,9 +425,9 @@ impl ObjectPrivate for ZwpTabletSeatV2 {
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).tablet_added(&self, arg0);
+                    (**handler).handle_tablet_added(&self, arg0);
                 } else {
-                    DefaultHandler.tablet_added(&self, arg0);
+                    DefaultHandler.handle_tablet_added(&self, arg0);
                 }
             }
             1 => {
@@ -431,9 +448,9 @@ impl ObjectPrivate for ZwpTabletSeatV2 {
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).tool_added(&self, arg0);
+                    (**handler).handle_tool_added(&self, arg0);
                 } else {
-                    DefaultHandler.tool_added(&self, arg0);
+                    DefaultHandler.handle_tool_added(&self, arg0);
                 }
             }
             2 => {
@@ -454,9 +471,9 @@ impl ObjectPrivate for ZwpTabletSeatV2 {
                     .map_err(|e| ObjectError::SetServerId(arg0_id, "id", e))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).pad_added(&self, arg0);
+                    (**handler).handle_pad_added(&self, arg0);
                 } else {
-                    DefaultHandler.pad_added(&self, arg0);
+                    DefaultHandler.handle_pad_added(&self, arg0);
                 }
             }
             n => {

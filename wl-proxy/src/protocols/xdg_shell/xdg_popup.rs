@@ -452,6 +452,11 @@ impl XdgPopup {
 
 /// A message handler for [XdgPopup] proxies.
 pub trait XdgPopupHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<XdgPopup>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// remove xdg_popup interface
     ///
     /// This destroys the popup. Explicitly destroying the xdg_popup
@@ -460,7 +465,7 @@ pub trait XdgPopupHandler: Any {
     /// If this xdg_popup is not the "topmost" popup, the
     /// xdg_wm_base.not_the_topmost_popup protocol error will be sent.
     #[inline]
-    fn destroy(
+    fn handle_destroy(
         &mut self,
         _slf: &Rc<XdgPopup>,
     ) {
@@ -519,7 +524,7 @@ pub trait XdgPopupHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn grab(
+    fn handle_grab(
         &mut self,
         _slf: &Rc<XdgPopup>,
         seat: &Rc<WlSeat>,
@@ -556,7 +561,7 @@ pub trait XdgPopupHandler: Any {
     /// - `width`: window geometry width
     /// - `height`: window geometry height
     #[inline]
-    fn configure(
+    fn handle_configure(
         &mut self,
         _slf: &Rc<XdgPopup>,
         x: i32,
@@ -581,7 +586,7 @@ pub trait XdgPopupHandler: Any {
     /// compositor. The client should destroy the xdg_popup object at this
     /// point.
     #[inline]
-    fn popup_done(
+    fn handle_popup_done(
         &mut self,
         _slf: &Rc<XdgPopup>,
     ) {
@@ -626,7 +631,7 @@ pub trait XdgPopupHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn reposition(
+    fn handle_reposition(
         &mut self,
         _slf: &Rc<XdgPopup>,
         positioner: &Rc<XdgPositioner>,
@@ -663,7 +668,7 @@ pub trait XdgPopupHandler: Any {
     ///
     /// - `token`: reposition request token
     #[inline]
-    fn repositioned(
+    fn handle_repositioned(
         &mut self,
         _slf: &Rc<XdgPopup>,
         token: u32,
@@ -685,6 +690,18 @@ impl ObjectPrivate for XdgPopup {
         })
     }
 
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
+    }
+
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow() else {
             return Err(ObjectError::HandlerBorrowed);
@@ -703,9 +720,9 @@ impl ObjectPrivate for XdgPopup {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).destroy(&self);
+                    (**handler).handle_destroy(&self);
                 } else {
-                    DefaultHandler.destroy(&self);
+                    DefaultHandler.handle_destroy(&self);
                 }
             }
             1 => {
@@ -731,9 +748,9 @@ impl ObjectPrivate for XdgPopup {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).grab(&self, arg0, arg1);
+                    (**handler).handle_grab(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.grab(&self, arg0, arg1);
+                    DefaultHandler.handle_grab(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -759,9 +776,9 @@ impl ObjectPrivate for XdgPopup {
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).reposition(&self, arg0, arg1);
+                    (**handler).handle_reposition(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.reposition(&self, arg0, arg1);
+                    DefaultHandler.handle_reposition(&self, arg0, arg1);
                 }
             }
             n => {
@@ -801,9 +818,9 @@ impl ObjectPrivate for XdgPopup {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).configure(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_configure(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.configure(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_configure(&self, arg0, arg1, arg2, arg3);
                 }
             }
             1 => {
@@ -817,9 +834,9 @@ impl ObjectPrivate for XdgPopup {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).popup_done(&self);
+                    (**handler).handle_popup_done(&self);
                 } else {
-                    DefaultHandler.popup_done(&self);
+                    DefaultHandler.handle_popup_done(&self);
                 }
             }
             2 => {
@@ -835,9 +852,9 @@ impl ObjectPrivate for XdgPopup {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).repositioned(&self, arg0);
+                    (**handler).handle_repositioned(&self, arg0);
                 } else {
-                    DefaultHandler.repositioned(&self, arg0);
+                    DefaultHandler.handle_repositioned(&self, arg0);
                 }
             }
             n => {

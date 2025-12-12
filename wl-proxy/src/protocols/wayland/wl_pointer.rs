@@ -982,6 +982,11 @@ impl WlPointer {
 
 /// A message handler for [WlPointer] proxies.
 pub trait WlPointerHandler: Any {
+    #[inline]
+    fn delete_id(&mut self, slf: &Rc<WlPointer>) {
+        let _ = slf.core.delete_id();
+    }
+
     /// set the pointer surface
     ///
     /// Set the pointer surface, i.e., the surface that contains the
@@ -1028,7 +1033,7 @@ pub trait WlPointerHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn set_cursor(
+    fn handle_set_cursor(
         &mut self,
         _slf: &Rc<WlPointer>,
         serial: u32,
@@ -1066,7 +1071,7 @@ pub trait WlPointerHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn enter(
+    fn handle_enter(
         &mut self,
         _slf: &Rc<WlPointer>,
         serial: u32,
@@ -1108,7 +1113,7 @@ pub trait WlPointerHandler: Any {
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
     #[inline]
-    fn leave(
+    fn handle_leave(
         &mut self,
         _slf: &Rc<WlPointer>,
         serial: u32,
@@ -1142,7 +1147,7 @@ pub trait WlPointerHandler: Any {
     /// - `surface_x`: surface-local x coordinate
     /// - `surface_y`: surface-local y coordinate
     #[inline]
-    fn motion(
+    fn handle_motion(
         &mut self,
         _slf: &Rc<WlPointer>,
         time: u32,
@@ -1183,7 +1188,7 @@ pub trait WlPointerHandler: Any {
     /// - `button`: button that produced the event
     /// - `state`: physical state of the button
     #[inline]
-    fn button(
+    fn handle_button(
         &mut self,
         _slf: &Rc<WlPointer>,
         serial: u32,
@@ -1227,7 +1232,7 @@ pub trait WlPointerHandler: Any {
     /// - `axis`: axis type
     /// - `value`: length of vector in surface-local coordinate space
     #[inline]
-    fn axis(
+    fn handle_axis(
         &mut self,
         _slf: &Rc<WlPointer>,
         time: u32,
@@ -1252,7 +1257,7 @@ pub trait WlPointerHandler: Any {
     /// This request destroys the pointer proxy object, so clients must not call
     /// wl_pointer_destroy() after using this request.
     #[inline]
-    fn release(
+    fn handle_release(
         &mut self,
         _slf: &Rc<WlPointer>,
     ) {
@@ -1300,7 +1305,7 @@ pub trait WlPointerHandler: Any {
     /// wl_pointer.enter event being split across multiple wl_pointer.frame
     /// groups.
     #[inline]
-    fn frame(
+    fn handle_frame(
         &mut self,
         _slf: &Rc<WlPointer>,
     ) {
@@ -1343,7 +1348,7 @@ pub trait WlPointerHandler: Any {
     ///
     /// - `axis_source`: source of the axis event
     #[inline]
-    fn axis_source(
+    fn handle_axis_source(
         &mut self,
         _slf: &Rc<WlPointer>,
         axis_source: WlPointerAxisSource,
@@ -1378,7 +1383,7 @@ pub trait WlPointerHandler: Any {
     /// - `time`: timestamp with millisecond granularity
     /// - `axis`: the axis stopped with this event
     #[inline]
-    fn axis_stop(
+    fn handle_axis_stop(
         &mut self,
         _slf: &Rc<WlPointer>,
         time: u32,
@@ -1431,7 +1436,7 @@ pub trait WlPointerHandler: Any {
     /// - `axis`: axis type
     /// - `discrete`: number of steps
     #[inline]
-    fn axis_discrete(
+    fn handle_axis_discrete(
         &mut self,
         _slf: &Rc<WlPointer>,
         axis: WlPointerAxis,
@@ -1475,7 +1480,7 @@ pub trait WlPointerHandler: Any {
     /// - `axis`: axis type
     /// - `value120`: scroll distance as fraction of 120
     #[inline]
-    fn axis_value120(
+    fn handle_axis_value120(
         &mut self,
         _slf: &Rc<WlPointer>,
         axis: WlPointerAxis,
@@ -1533,7 +1538,7 @@ pub trait WlPointerHandler: Any {
     /// - `axis`: axis type
     /// - `direction`: physical direction relative to axis motion
     #[inline]
-    fn axis_relative_direction(
+    fn handle_axis_relative_direction(
         &mut self,
         _slf: &Rc<WlPointer>,
         axis: WlPointerAxis,
@@ -1555,6 +1560,18 @@ impl ObjectPrivate for WlPointer {
             core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlPointer, version),
             handler: Default::default(),
         })
+    }
+
+    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
+        let Some(mut handler) = self.handler.try_borrow() else {
+            return Err((ObjectError::HandlerBorrowed, self));
+        };
+        if let Some(handler) = &mut *handler {
+            handler.delete_id(&self);
+        } else {
+            let _ = self.core.delete_id();
+        }
+        Ok(())
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
@@ -1595,9 +1612,9 @@ impl ObjectPrivate for WlPointer {
                 };
                 let arg1 = arg1.as_ref();
                 if let Some(handler) = handler {
-                    (**handler).set_cursor(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_set_cursor(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.set_cursor(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_set_cursor(&self, arg0, arg1, arg2, arg3);
                 }
             }
             1 => {
@@ -1612,9 +1629,9 @@ impl ObjectPrivate for WlPointer {
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
-                    (**handler).release(&self);
+                    (**handler).handle_release(&self);
                 } else {
-                    DefaultHandler.release(&self);
+                    DefaultHandler.handle_release(&self);
                 }
             }
             n => {
@@ -1661,9 +1678,9 @@ impl ObjectPrivate for WlPointer {
                 };
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).enter(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_enter(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.enter(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_enter(&self, arg0, arg1, arg2, arg3);
                 }
             }
             1 => {
@@ -1689,9 +1706,9 @@ impl ObjectPrivate for WlPointer {
                 };
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
-                    (**handler).leave(&self, arg0, arg1);
+                    (**handler).handle_leave(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.leave(&self, arg0, arg1);
+                    DefaultHandler.handle_leave(&self, arg0, arg1);
                 }
             }
             2 => {
@@ -1711,9 +1728,9 @@ impl ObjectPrivate for WlPointer {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).motion(&self, arg0, arg1, arg2);
+                    (**handler).handle_motion(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.motion(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_motion(&self, arg0, arg1, arg2);
                 }
             }
             3 => {
@@ -1733,9 +1750,9 @@ impl ObjectPrivate for WlPointer {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).button(&self, arg0, arg1, arg2, arg3);
+                    (**handler).handle_button(&self, arg0, arg1, arg2, arg3);
                 } else {
-                    DefaultHandler.button(&self, arg0, arg1, arg2, arg3);
+                    DefaultHandler.handle_button(&self, arg0, arg1, arg2, arg3);
                 }
             }
             4 => {
@@ -1755,9 +1772,9 @@ impl ObjectPrivate for WlPointer {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).axis(&self, arg0, arg1, arg2);
+                    (**handler).handle_axis(&self, arg0, arg1, arg2);
                 } else {
-                    DefaultHandler.axis(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_axis(&self, arg0, arg1, arg2);
                 }
             }
             5 => {
@@ -1771,9 +1788,9 @@ impl ObjectPrivate for WlPointer {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).frame(&self);
+                    (**handler).handle_frame(&self);
                 } else {
-                    DefaultHandler.frame(&self);
+                    DefaultHandler.handle_frame(&self);
                 }
             }
             6 => {
@@ -1790,9 +1807,9 @@ impl ObjectPrivate for WlPointer {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).axis_source(&self, arg0);
+                    (**handler).handle_axis_source(&self, arg0);
                 } else {
-                    DefaultHandler.axis_source(&self, arg0);
+                    DefaultHandler.handle_axis_source(&self, arg0);
                 }
             }
             7 => {
@@ -1810,9 +1827,9 @@ impl ObjectPrivate for WlPointer {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).axis_stop(&self, arg0, arg1);
+                    (**handler).handle_axis_stop(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.axis_stop(&self, arg0, arg1);
+                    DefaultHandler.handle_axis_stop(&self, arg0, arg1);
                 }
             }
             8 => {
@@ -1831,9 +1848,9 @@ impl ObjectPrivate for WlPointer {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).axis_discrete(&self, arg0, arg1);
+                    (**handler).handle_axis_discrete(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.axis_discrete(&self, arg0, arg1);
+                    DefaultHandler.handle_axis_discrete(&self, arg0, arg1);
                 }
             }
             9 => {
@@ -1852,9 +1869,9 @@ impl ObjectPrivate for WlPointer {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).axis_value120(&self, arg0, arg1);
+                    (**handler).handle_axis_value120(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.axis_value120(&self, arg0, arg1);
+                    DefaultHandler.handle_axis_value120(&self, arg0, arg1);
                 }
             }
             10 => {
@@ -1873,9 +1890,9 @@ impl ObjectPrivate for WlPointer {
                     self.core.state.log(args);
                 }
                 if let Some(handler) = handler {
-                    (**handler).axis_relative_direction(&self, arg0, arg1);
+                    (**handler).handle_axis_relative_direction(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.axis_relative_direction(&self, arg0, arg1);
+                    DefaultHandler.handle_axis_relative_direction(&self, arg0, arg1);
                 }
             }
             n => {
