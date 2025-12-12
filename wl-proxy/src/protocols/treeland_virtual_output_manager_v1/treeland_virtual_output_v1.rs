@@ -223,6 +223,9 @@ pub trait TreelandVirtualOutputV1Handler: Any {
         name: &str,
         outputs: &[u8],
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_outputs(
             name,
             outputs,
@@ -248,6 +251,9 @@ pub trait TreelandVirtualOutputV1Handler: Any {
         code: u32,
         message: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_error(
             code,
             message,

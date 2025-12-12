@@ -178,6 +178,9 @@ pub trait ZwpInputPopupSurfaceV2Handler: Any {
         width: i32,
         height: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_text_input_rectangle(
             x,
             y,

@@ -564,6 +564,9 @@ pub trait XdgPopupHandler: Any {
         width: i32,
         height: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_configure(
             x,
             y,
@@ -585,6 +588,9 @@ pub trait XdgPopupHandler: Any {
         &mut self,
         _slf: &Rc<XdgPopup>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_popup_done(
         );
         if let Err(e) = res {
@@ -668,6 +674,9 @@ pub trait XdgPopupHandler: Any {
         _slf: &Rc<XdgPopup>,
         token: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_repositioned(
             token,
         );

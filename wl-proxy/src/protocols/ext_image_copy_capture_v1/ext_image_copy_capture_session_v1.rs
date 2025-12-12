@@ -468,6 +468,9 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         width: u32,
         height: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_buffer_size(
             width,
             height,
@@ -493,6 +496,9 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         _slf: &Rc<ExtImageCopyCaptureSessionV1>,
         format: WlShmFormat,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_shm_format(
             format,
         );
@@ -520,6 +526,9 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         _slf: &Rc<ExtImageCopyCaptureSessionV1>,
         device: &[u8],
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_dmabuf_device(
             device,
         );
@@ -549,6 +558,9 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         format: u32,
         modifiers: &[u8],
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_dmabuf_format(
             format,
             modifiers,
@@ -571,6 +583,9 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureSessionV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -591,6 +606,9 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureSessionV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_stopped(
         );
         if let Err(e) = res {

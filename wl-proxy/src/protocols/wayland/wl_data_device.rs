@@ -724,6 +724,9 @@ pub trait WlDataDeviceHandler: Any {
         _slf: &Rc<WlDataDevice>,
         id: &Rc<WlDataOffer>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_data_offer(
             id,
         );
@@ -759,6 +762,17 @@ pub trait WlDataDeviceHandler: Any {
         y: Fixed,
         id: Option<&Rc<WlDataOffer>>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
+        if surface.core().zombie.get() {
+            return;
+        }
+        if let Some(id) = id {
+            if id.core().zombie.get() {
+                return;
+            }
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -795,6 +809,9 @@ pub trait WlDataDeviceHandler: Any {
         &mut self,
         _slf: &Rc<WlDataDevice>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_leave(
         );
         if let Err(e) = res {
@@ -822,6 +839,9 @@ pub trait WlDataDeviceHandler: Any {
         x: Fixed,
         y: Fixed,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_motion(
             time,
             x,
@@ -852,6 +872,9 @@ pub trait WlDataDeviceHandler: Any {
         &mut self,
         _slf: &Rc<WlDataDevice>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_drop(
         );
         if let Err(e) = res {
@@ -886,6 +909,14 @@ pub trait WlDataDeviceHandler: Any {
         _slf: &Rc<WlDataDevice>,
         id: Option<&Rc<WlDataOffer>>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
+        if let Some(id) = id {
+            if id.core().zombie.get() {
+                return;
+            }
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {

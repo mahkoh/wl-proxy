@@ -252,6 +252,9 @@ pub trait ZwpRelativePointerV1Handler: Any {
         dx_unaccel: Fixed,
         dy_unaccel: Fixed,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_relative_motion(
             utime_hi,
             utime_lo,

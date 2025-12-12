@@ -231,6 +231,9 @@ pub trait OrgKdeKwinServerDecorationManagerHandler: Any {
         _slf: &Rc<OrgKdeKwinServerDecorationManager>,
         mode: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_default_mode(
             mode,
         );

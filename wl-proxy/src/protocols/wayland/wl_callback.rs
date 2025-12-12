@@ -118,6 +118,9 @@ pub trait WlCallbackHandler: Any {
         _slf: &Rc<WlCallback>,
         callback_data: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_done(
             callback_data,
         );

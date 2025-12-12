@@ -481,6 +481,9 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         font_name: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_font(
             font_name,
         );
@@ -502,6 +505,9 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         font_name: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_monospace_font(
             font_name,
         );
@@ -523,6 +529,9 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         font_size: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_font_size(
             font_size,
         );

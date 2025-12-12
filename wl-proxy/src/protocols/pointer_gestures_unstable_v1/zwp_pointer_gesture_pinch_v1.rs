@@ -342,6 +342,12 @@ pub trait ZwpPointerGesturePinchV1Handler: Any {
         surface: &Rc<WlSurface>,
         fingers: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
+        if surface.core().zombie.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -392,6 +398,9 @@ pub trait ZwpPointerGesturePinchV1Handler: Any {
         scale: Fixed,
         rotation: Fixed,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_update(
             time,
             dx,
@@ -427,6 +436,9 @@ pub trait ZwpPointerGesturePinchV1Handler: Any {
         time: u32,
         cancelled: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_end(
             serial,
             time,

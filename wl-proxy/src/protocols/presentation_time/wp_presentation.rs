@@ -337,6 +337,9 @@ pub trait WpPresentationHandler: Any {
         _slf: &Rc<WpPresentation>,
         clk_id: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_clock_id(
             clk_id,
         );

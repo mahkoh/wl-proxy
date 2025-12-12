@@ -235,6 +235,9 @@ pub trait ExtBackgroundEffectManagerV1Handler: Any {
         _slf: &Rc<ExtBackgroundEffectManagerV1>,
         flags: ExtBackgroundEffectManagerV1Capability,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_capabilities(
             flags,
         );

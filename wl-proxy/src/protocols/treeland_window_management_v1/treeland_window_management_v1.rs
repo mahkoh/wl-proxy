@@ -222,6 +222,9 @@ pub trait TreelandWindowManagementV1Handler: Any {
         _slf: &Rc<TreelandWindowManagementV1>,
         state: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_show_desktop(
             state,
         );

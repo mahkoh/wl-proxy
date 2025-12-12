@@ -190,6 +190,9 @@ pub trait WlBufferHandler: Any {
         &mut self,
         _slf: &Rc<WlBuffer>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_release(
         );
         if let Err(e) = res {

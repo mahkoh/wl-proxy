@@ -631,6 +631,9 @@ pub trait WlDataOfferHandler: Any {
         _slf: &Rc<WlDataOffer>,
         mime_type: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_offer(
             mime_type,
         );
@@ -737,6 +740,9 @@ pub trait WlDataOfferHandler: Any {
         _slf: &Rc<WlDataOffer>,
         source_actions: WlDataDeviceManagerDndAction,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_source_actions(
             source_actions,
         );
@@ -792,6 +798,9 @@ pub trait WlDataOfferHandler: Any {
         _slf: &Rc<WlDataOffer>,
         dnd_action: WlDataDeviceManagerDndAction,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_action(
             dnd_action,
         );

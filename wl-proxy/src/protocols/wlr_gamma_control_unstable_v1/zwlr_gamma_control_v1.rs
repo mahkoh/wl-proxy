@@ -253,6 +253,9 @@ pub trait ZwlrGammaControlV1Handler: Any {
         _slf: &Rc<ZwlrGammaControlV1>,
         size: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_gamma_size(
             size,
         );
@@ -303,6 +306,9 @@ pub trait ZwlrGammaControlV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrGammaControlV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_failed(
         );
         if let Err(e) = res {

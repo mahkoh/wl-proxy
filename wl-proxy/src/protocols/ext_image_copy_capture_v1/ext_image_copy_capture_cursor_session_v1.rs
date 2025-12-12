@@ -401,6 +401,9 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_enter(
         );
         if let Err(e) = res {
@@ -418,6 +421,9 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_leave(
         );
         if let Err(e) = res {
@@ -446,6 +452,9 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         x: i32,
         y: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_position(
             x,
             y,
@@ -479,6 +488,9 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         x: i32,
         y: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_hotspot(
             x,
             y,

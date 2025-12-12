@@ -729,6 +729,9 @@ pub trait XdgSurfaceHandler: Any {
         _slf: &Rc<XdgSurface>,
         serial: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_configure(
             serial,
         );

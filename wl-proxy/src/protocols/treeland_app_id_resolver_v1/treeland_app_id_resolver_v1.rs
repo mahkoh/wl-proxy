@@ -205,6 +205,9 @@ pub trait TreelandAppIdResolverV1Handler: Any {
         request_id: u32,
         pidfd: &Rc<OwnedFd>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_identify_request(
             request_id,
             pidfd,

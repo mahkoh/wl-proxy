@@ -307,6 +307,9 @@ pub trait ZwpConfinedPointerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpConfinedPointerV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_confined(
         );
         if let Err(e) = res {
@@ -327,6 +330,9 @@ pub trait ZwpConfinedPointerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpConfinedPointerV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_unconfined(
         );
         if let Err(e) = res {

@@ -448,7 +448,7 @@ fn format_interface_message_handler(w: &mut impl Write, interface: &Interface) -
         }
         wl!(r#"    ) {{"#)?;
         if !msg.is_request {
-            wl!(r#"        if _slf.core.is_zombie.get() {{"#)?;
+            wl!(r#"        if _slf.core.zombie.get() {{"#)?;
             wl!(r#"            return;"#)?;
             wl!(r#"        }}"#)?;
             for arg in &msg.args {
@@ -456,20 +456,20 @@ fn format_interface_message_handler(w: &mut impl Write, interface: &Interface) -
                     let mut prefix = "";
                     if arg.allow_null {
                         wl!(
-                            r#"            if let Some({}) = {} {{"#,
+                            r#"        if let Some({}) = {} {{"#,
                             escape_name(&arg.name),
                             escape_name(&arg.name),
                         )?;
                         prefix = "    ";
                     }
                     wl!(
-                        r#"            {prefix}if {}.core().is_zombie.get() {{"#,
+                        r#"        {prefix}if {}.core().zombie.get() {{"#,
                         escape_name(&arg.name)
                     )?;
-                    wl!(r#"            {prefix}    return;"#)?;
-                    wl!(r#"            {prefix}}}"#)?;
+                    wl!(r#"        {prefix}    return;"#)?;
+                    wl!(r#"        {prefix}}}"#)?;
                     if arg.allow_null {
-                        wl!(r#"            }}"#)?;
+                        wl!(r#"        }}"#)?;
                     }
                 }
             }

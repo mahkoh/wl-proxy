@@ -502,6 +502,9 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         _slf: &Rc<ExtDataControlDeviceV1>,
         id: &Rc<ExtDataControlOfferV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_data_offer(
             id,
         );
@@ -538,6 +541,14 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         _slf: &Rc<ExtDataControlDeviceV1>,
         id: Option<&Rc<ExtDataControlOfferV1>>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
+        if let Some(id) = id {
+            if id.core().zombie.get() {
+                return;
+            }
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {
@@ -564,6 +575,9 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtDataControlDeviceV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {
@@ -601,6 +615,14 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         _slf: &Rc<ExtDataControlDeviceV1>,
         id: Option<&Rc<ExtDataControlOfferV1>>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
+        if let Some(id) = id {
+            if id.core().zombie.get() {
+                return;
+            }
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {

@@ -340,6 +340,9 @@ pub trait ZxdgToplevelDecorationV1Handler: Any {
         _slf: &Rc<ZxdgToplevelDecorationV1>,
         mode: ZxdgToplevelDecorationV1Mode,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_configure(
             mode,
         );

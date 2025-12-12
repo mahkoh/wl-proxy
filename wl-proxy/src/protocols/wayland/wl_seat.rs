@@ -418,6 +418,9 @@ pub trait WlSeatHandler: Any {
         _slf: &Rc<WlSeat>,
         capabilities: WlSeatCapability,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_capabilities(
             capabilities,
         );
@@ -538,6 +541,9 @@ pub trait WlSeatHandler: Any {
         _slf: &Rc<WlSeat>,
         name: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_name(
             name,
         );

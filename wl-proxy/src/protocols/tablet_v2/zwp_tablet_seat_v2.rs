@@ -279,6 +279,9 @@ pub trait ZwpTabletSeatV2Handler: Any {
         _slf: &Rc<ZwpTabletSeatV2>,
         id: &Rc<ZwpTabletV2>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_tablet_added(
             id,
         );
@@ -303,6 +306,9 @@ pub trait ZwpTabletSeatV2Handler: Any {
         _slf: &Rc<ZwpTabletSeatV2>,
         id: &Rc<ZwpTabletToolV2>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_tool_added(
             id,
         );
@@ -333,6 +339,9 @@ pub trait ZwpTabletSeatV2Handler: Any {
         _slf: &Rc<ZwpTabletSeatV2>,
         id: &Rc<ZwpTabletPadV2>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_pad_added(
             id,
         );

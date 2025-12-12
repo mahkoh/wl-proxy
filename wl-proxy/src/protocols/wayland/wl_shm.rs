@@ -255,6 +255,9 @@ pub trait WlShmHandler: Any {
         _slf: &Rc<WlShm>,
         format: WlShmFormat,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_format(
             format,
         );

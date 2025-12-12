@@ -211,6 +211,9 @@ pub trait ExtIdleNotificationV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtIdleNotificationV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_idled(
         );
         if let Err(e) = res {
@@ -230,6 +233,9 @@ pub trait ExtIdleNotificationV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtIdleNotificationV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_resumed(
         );
         if let Err(e) = res {

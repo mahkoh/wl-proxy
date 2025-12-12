@@ -446,6 +446,9 @@ pub trait ZxdgOutputV1Handler: Any {
         x: i32,
         y: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_logical_position(
             x,
             y,
@@ -499,6 +502,9 @@ pub trait ZxdgOutputV1Handler: Any {
         width: i32,
         height: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_logical_size(
             width,
             height,
@@ -524,6 +530,9 @@ pub trait ZxdgOutputV1Handler: Any {
         &mut self,
         _slf: &Rc<ZxdgOutputV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -564,6 +573,9 @@ pub trait ZxdgOutputV1Handler: Any {
         _slf: &Rc<ZxdgOutputV1>,
         name: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_name(
             name,
         );
@@ -602,6 +614,9 @@ pub trait ZxdgOutputV1Handler: Any {
         _slf: &Rc<ZxdgOutputV1>,
         description: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_description(
             description,
         );

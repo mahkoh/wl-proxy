@@ -265,6 +265,9 @@ pub trait TreelandDdeActiveV1Handler: Any {
         _slf: &Rc<TreelandDdeActiveV1>,
         reason: TreelandDdeActiveV1Reason,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_active_in(
             reason,
         );
@@ -284,6 +287,9 @@ pub trait TreelandDdeActiveV1Handler: Any {
         _slf: &Rc<TreelandDdeActiveV1>,
         reason: TreelandDdeActiveV1Reason,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_active_out(
             reason,
         );
@@ -298,6 +304,9 @@ pub trait TreelandDdeActiveV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandDdeActiveV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_start_drag(
         );
         if let Err(e) = res {
@@ -311,6 +320,9 @@ pub trait TreelandDdeActiveV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandDdeActiveV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_drop(
         );
         if let Err(e) = res {

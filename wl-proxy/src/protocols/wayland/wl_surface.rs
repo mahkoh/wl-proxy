@@ -1494,6 +1494,12 @@ pub trait WlSurfaceHandler: Any {
         _slf: &Rc<WlSurface>,
         output: &Rc<WlOutput>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
+        if output.core().zombie.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1533,6 +1539,12 @@ pub trait WlSurfaceHandler: Any {
         _slf: &Rc<WlSurface>,
         output: &Rc<WlOutput>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
+        if output.core().zombie.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1765,6 +1777,9 @@ pub trait WlSurfaceHandler: Any {
         _slf: &Rc<WlSurface>,
         factor: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_preferred_buffer_scale(
             factor,
         );
@@ -1794,6 +1809,9 @@ pub trait WlSurfaceHandler: Any {
         _slf: &Rc<WlSurface>,
         transform: WlOutputTransform,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_preferred_buffer_transform(
             transform,
         );

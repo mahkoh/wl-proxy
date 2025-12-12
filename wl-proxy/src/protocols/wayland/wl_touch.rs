@@ -561,6 +561,12 @@ pub trait WlTouchHandler: Any {
         x: Fixed,
         y: Fixed,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
+        if surface.core().zombie.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -600,6 +606,9 @@ pub trait WlTouchHandler: Any {
         time: u32,
         id: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_up(
             serial,
             time,
@@ -629,6 +638,9 @@ pub trait WlTouchHandler: Any {
         x: Fixed,
         y: Fixed,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_motion(
             time,
             id,
@@ -655,6 +667,9 @@ pub trait WlTouchHandler: Any {
         &mut self,
         _slf: &Rc<WlTouch>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_frame(
         );
         if let Err(e) = res {
@@ -677,6 +692,9 @@ pub trait WlTouchHandler: Any {
         &mut self,
         _slf: &Rc<WlTouch>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_cancel(
         );
         if let Err(e) = res {
@@ -738,6 +756,9 @@ pub trait WlTouchHandler: Any {
         major: Fixed,
         minor: Fixed,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_shape(
             id,
             major,
@@ -785,6 +806,9 @@ pub trait WlTouchHandler: Any {
         id: i32,
         orientation: Fixed,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_orientation(
             id,
             orientation,

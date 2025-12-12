@@ -265,6 +265,9 @@ pub trait TreelandForeignToplevelManagerV1Handler: Any {
         _slf: &Rc<TreelandForeignToplevelManagerV1>,
         toplevel: &Rc<TreelandForeignToplevelHandleV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_toplevel(
             toplevel,
         );
@@ -303,6 +306,9 @@ pub trait TreelandForeignToplevelManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandForeignToplevelManagerV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {

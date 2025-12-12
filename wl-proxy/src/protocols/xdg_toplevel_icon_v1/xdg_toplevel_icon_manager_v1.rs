@@ -418,6 +418,9 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
         _slf: &Rc<XdgToplevelIconManagerV1>,
         size: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_icon_size(
             size,
         );
@@ -434,6 +437,9 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<XdgToplevelIconManagerV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {

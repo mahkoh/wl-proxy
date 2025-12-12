@@ -571,6 +571,9 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
         height: u32,
         stride: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_buffer(
             format,
             width,
@@ -646,6 +649,9 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
         width: u32,
         height: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_damage(
             x,
             y,
@@ -671,6 +677,9 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
         _slf: &Rc<HyprlandToplevelExportFrameV1>,
         flags: HyprlandToplevelExportFrameV1Flags,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_flags(
             flags,
         );
@@ -707,6 +716,9 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
         tv_sec_lo: u32,
         tv_nsec: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_ready(
             tv_sec_hi,
             tv_sec_lo,
@@ -727,6 +739,9 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandToplevelExportFrameV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_failed(
         );
         if let Err(e) = res {
@@ -768,6 +783,9 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
         width: u32,
         height: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_linux_dmabuf(
             format,
             width,
@@ -789,6 +807,9 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandToplevelExportFrameV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_buffer_done(
         );
         if let Err(e) = res {

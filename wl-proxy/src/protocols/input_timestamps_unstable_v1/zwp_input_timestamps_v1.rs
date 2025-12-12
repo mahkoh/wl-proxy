@@ -206,6 +206,9 @@ pub trait ZwpInputTimestampsV1Handler: Any {
         tv_sec_lo: u32,
         tv_nsec: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_timestamp(
             tv_sec_hi,
             tv_sec_lo,

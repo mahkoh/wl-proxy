@@ -261,6 +261,9 @@ pub trait ExtForeignToplevelListV1Handler: Any {
         _slf: &Rc<ExtForeignToplevelListV1>,
         toplevel: &Rc<ExtForeignToplevelHandleV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_toplevel(
             toplevel,
         );
@@ -281,6 +284,9 @@ pub trait ExtForeignToplevelListV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtForeignToplevelListV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {

@@ -433,6 +433,9 @@ pub trait ZwpTabletV2Handler: Any {
         _slf: &Rc<ZwpTabletV2>,
         name: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_name(
             name,
         );
@@ -467,6 +470,9 @@ pub trait ZwpTabletV2Handler: Any {
         vid: u32,
         pid: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_id(
             vid,
             pid,
@@ -502,6 +508,9 @@ pub trait ZwpTabletV2Handler: Any {
         _slf: &Rc<ZwpTabletV2>,
         path: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_path(
             path,
         );
@@ -521,6 +530,9 @@ pub trait ZwpTabletV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpTabletV2>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -540,6 +552,9 @@ pub trait ZwpTabletV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpTabletV2>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_removed(
         );
         if let Err(e) = res {
@@ -567,6 +582,9 @@ pub trait ZwpTabletV2Handler: Any {
         _slf: &Rc<ZwpTabletV2>,
         bustype: ZwpTabletV2Bustype,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_bustype(
             bustype,
         );

@@ -326,6 +326,9 @@ pub trait ExtSessionLockSurfaceV1Handler: Any {
         width: u32,
         height: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_configure(
             serial,
             width,

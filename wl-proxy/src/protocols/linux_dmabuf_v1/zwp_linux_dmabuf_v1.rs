@@ -515,6 +515,9 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
         _slf: &Rc<ZwpLinuxDmabufV1>,
         format: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_format(
             format,
         );
@@ -562,6 +565,9 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
         modifier_hi: u32,
         modifier_lo: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_modifier(
             format,
             modifier_hi,

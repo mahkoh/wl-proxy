@@ -338,6 +338,9 @@ pub trait WpImageDescriptionV1Handler: Any {
         cause: WpImageDescriptionV1Cause,
         msg: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_failed(
             cause,
             msg,
@@ -386,6 +389,9 @@ pub trait WpImageDescriptionV1Handler: Any {
         _slf: &Rc<WpImageDescriptionV1>,
         identity: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_ready(
             identity,
         );

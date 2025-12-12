@@ -128,6 +128,9 @@ pub trait TreelandShortcutContextV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandShortcutContextV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_shortcut(
         );
         if let Err(e) = res {

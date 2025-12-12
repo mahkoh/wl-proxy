@@ -169,6 +169,9 @@ pub trait WpFractionalScaleV1Handler: Any {
         _slf: &Rc<WpFractionalScaleV1>,
         scale: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_preferred_scale(
             scale,
         );

@@ -468,6 +468,9 @@ pub trait XdgActivationTokenV1Handler: Any {
         _slf: &Rc<XdgActivationTokenV1>,
         token: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_done(
             token,
         );

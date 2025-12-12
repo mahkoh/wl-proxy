@@ -390,6 +390,9 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtForeignToplevelHandleV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_closed(
         );
         if let Err(e) = res {
@@ -414,6 +417,9 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtForeignToplevelHandleV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -437,6 +443,9 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<ExtForeignToplevelHandleV1>,
         title: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_title(
             title,
         );
@@ -461,6 +470,9 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<ExtForeignToplevelHandleV1>,
         app_id: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_app_id(
             app_id,
         );
@@ -501,6 +513,9 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<ExtForeignToplevelHandleV1>,
         identifier: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_identifier(
             identifier,
         );

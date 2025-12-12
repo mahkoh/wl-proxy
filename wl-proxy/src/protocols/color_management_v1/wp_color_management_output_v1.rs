@@ -240,6 +240,9 @@ pub trait WpColorManagementOutputV1Handler: Any {
         &mut self,
         _slf: &Rc<WpColorManagementOutputV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_image_description_changed(
         );
         if let Err(e) = res {

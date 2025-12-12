@@ -335,6 +335,9 @@ pub trait ZwlrOutputManagerV1Handler: Any {
         _slf: &Rc<ZwlrOutputManagerV1>,
         head: &Rc<ZwlrOutputHeadV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_head(
             head,
         );
@@ -366,6 +369,9 @@ pub trait ZwlrOutputManagerV1Handler: Any {
         _slf: &Rc<ZwlrOutputManagerV1>,
         serial: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_done(
             serial,
         );
@@ -429,6 +435,9 @@ pub trait ZwlrOutputManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrOutputManagerV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {

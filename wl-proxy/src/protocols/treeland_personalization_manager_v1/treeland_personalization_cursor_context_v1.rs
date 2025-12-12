@@ -522,6 +522,9 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
         success: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_verfity(
             success,
         );
@@ -543,6 +546,9 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
         name: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_theme(
             name,
         );
@@ -564,6 +570,9 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
         size: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_size(
             size,
         );

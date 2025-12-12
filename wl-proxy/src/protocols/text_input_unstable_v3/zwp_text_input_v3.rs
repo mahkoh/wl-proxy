@@ -1252,6 +1252,12 @@ pub trait ZwpTextInputV3Handler: Any {
         _slf: &Rc<ZwpTextInputV3>,
         surface: &Rc<WlSurface>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
+        if surface.core().zombie.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1293,6 +1299,12 @@ pub trait ZwpTextInputV3Handler: Any {
         _slf: &Rc<ZwpTextInputV3>,
         surface: &Rc<WlSurface>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
+        if surface.core().zombie.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1342,6 +1354,9 @@ pub trait ZwpTextInputV3Handler: Any {
         cursor_begin: i32,
         cursor_end: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_preedit_string(
             text,
             cursor_begin,
@@ -1372,6 +1387,9 @@ pub trait ZwpTextInputV3Handler: Any {
         _slf: &Rc<ZwpTextInputV3>,
         text: Option<&str>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_commit_string(
             text,
         );
@@ -1408,6 +1426,9 @@ pub trait ZwpTextInputV3Handler: Any {
         before_length: u32,
         after_length: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_delete_surrounding_text(
             before_length,
             after_length,
@@ -1456,6 +1477,9 @@ pub trait ZwpTextInputV3Handler: Any {
         _slf: &Rc<ZwpTextInputV3>,
         serial: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_done(
             serial,
         );

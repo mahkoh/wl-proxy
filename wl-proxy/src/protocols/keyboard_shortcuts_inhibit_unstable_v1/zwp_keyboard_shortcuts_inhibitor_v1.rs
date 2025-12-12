@@ -233,6 +233,9 @@ pub trait ZwpKeyboardShortcutsInhibitorV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpKeyboardShortcutsInhibitorV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_active(
         );
         if let Err(e) = res {
@@ -249,6 +252,9 @@ pub trait ZwpKeyboardShortcutsInhibitorV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpKeyboardShortcutsInhibitorV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_inactive(
         );
         if let Err(e) = res {

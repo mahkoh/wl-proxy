@@ -200,6 +200,9 @@ pub trait ZwpLinuxBufferReleaseV1Handler: Any {
         _slf: &Rc<ZwpLinuxBufferReleaseV1>,
         fence: &Rc<OwnedFd>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_fenced_release(
             fence,
         );
@@ -226,6 +229,9 @@ pub trait ZwpLinuxBufferReleaseV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpLinuxBufferReleaseV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_immediate_release(
         );
         if let Err(e) = res {

@@ -260,6 +260,9 @@ pub trait ZwpPrimarySelectionOfferV1Handler: Any {
         _slf: &Rc<ZwpPrimarySelectionOfferV1>,
         mime_type: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_offer(
             mime_type,
         );

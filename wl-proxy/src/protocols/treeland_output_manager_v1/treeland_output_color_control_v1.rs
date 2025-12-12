@@ -423,6 +423,9 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         _slf: &Rc<TreelandOutputColorControlV1>,
         success: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_result(
             success,
         );
@@ -450,6 +453,9 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         _slf: &Rc<TreelandOutputColorControlV1>,
         temperature: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_color_temperature(
             temperature,
         );
@@ -474,6 +480,9 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         _slf: &Rc<TreelandOutputColorControlV1>,
         brightness: Fixed,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_brightness(
             brightness,
         );

@@ -533,6 +533,9 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrOutputConfigurationV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_succeeded(
         );
         if let Err(e) = res {
@@ -552,6 +555,9 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrOutputConfigurationV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_failed(
         );
         if let Err(e) = res {
@@ -574,6 +580,9 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrOutputConfigurationV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_cancelled(
         );
         if let Err(e) = res {

@@ -194,6 +194,9 @@ pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_mode_successful(
         );
         if let Err(e) = res {
@@ -214,6 +217,9 @@ pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_mode_failed(
         );
         if let Err(e) = res {
@@ -234,6 +240,9 @@ pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_present_cancelled(
         );
         if let Err(e) = res {

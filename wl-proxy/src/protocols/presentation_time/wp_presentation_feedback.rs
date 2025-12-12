@@ -306,6 +306,12 @@ pub trait WpPresentationFeedbackHandler: Any {
         _slf: &Rc<WpPresentationFeedback>,
         output: &Rc<WlOutput>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
+        if output.core().zombie.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -389,6 +395,9 @@ pub trait WpPresentationFeedbackHandler: Any {
         seq_lo: u32,
         flags: WpPresentationFeedbackKind,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_presented(
             tv_sec_hi,
             tv_sec_lo,
@@ -411,6 +420,9 @@ pub trait WpPresentationFeedbackHandler: Any {
         &mut self,
         _slf: &Rc<WpPresentationFeedback>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_discarded(
         );
         if let Err(e) = res {

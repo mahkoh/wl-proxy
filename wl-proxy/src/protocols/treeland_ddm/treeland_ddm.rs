@@ -498,6 +498,9 @@ pub trait TreelandDdmHandler: Any {
         _slf: &Rc<TreelandDdm>,
         vtnr: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_switch_to_vt(
             vtnr,
         );
@@ -520,6 +523,9 @@ pub trait TreelandDdmHandler: Any {
         _slf: &Rc<TreelandDdm>,
         vtnr: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_acquire_vt(
             vtnr,
         );

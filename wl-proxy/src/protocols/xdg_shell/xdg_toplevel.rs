@@ -1807,6 +1807,9 @@ pub trait XdgToplevelHandler: Any {
         height: i32,
         states: &[u8],
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_configure(
             width,
             height,
@@ -1832,6 +1835,9 @@ pub trait XdgToplevelHandler: Any {
         &mut self,
         _slf: &Rc<XdgToplevel>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_close(
         );
         if let Err(e) = res {
@@ -1868,6 +1874,9 @@ pub trait XdgToplevelHandler: Any {
         width: i32,
         height: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_configure_bounds(
             width,
             height,
@@ -1909,6 +1918,9 @@ pub trait XdgToplevelHandler: Any {
         _slf: &Rc<XdgToplevel>,
         capabilities: &[u8],
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_wm_capabilities(
             capabilities,
         );

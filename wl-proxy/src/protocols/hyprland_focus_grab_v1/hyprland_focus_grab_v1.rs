@@ -385,6 +385,9 @@ pub trait HyprlandFocusGrabV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandFocusGrabV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_cleared(
         );
         if let Err(e) = res {

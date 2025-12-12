@@ -417,6 +417,9 @@ pub trait ExtSessionLockV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtSessionLockV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_locked(
         );
         if let Err(e) = res {
@@ -453,6 +456,9 @@ pub trait ExtSessionLockV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtSessionLockV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {

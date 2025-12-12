@@ -583,6 +583,9 @@ pub trait JayTrayItemV1Handler: Any {
         width: i32,
         height: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_configure_size(
             width,
             height,
@@ -612,6 +615,9 @@ pub trait JayTrayItemV1Handler: Any {
         _slf: &Rc<JayTrayItemV1>,
         anchor: XdgPositionerAnchor,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_preferred_anchor(
             anchor,
         );
@@ -640,6 +646,9 @@ pub trait JayTrayItemV1Handler: Any {
         _slf: &Rc<JayTrayItemV1>,
         gravity: XdgPositionerGravity,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_preferred_gravity(
             gravity,
         );
@@ -665,6 +674,9 @@ pub trait JayTrayItemV1Handler: Any {
         _slf: &Rc<JayTrayItemV1>,
         serial: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_configure(
             serial,
         );

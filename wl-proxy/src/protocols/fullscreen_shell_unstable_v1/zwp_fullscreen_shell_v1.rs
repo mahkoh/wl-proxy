@@ -420,6 +420,9 @@ pub trait ZwpFullscreenShellV1Handler: Any {
         _slf: &Rc<ZwpFullscreenShellV1>,
         capability: ZwpFullscreenShellV1Capability,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_capability(
             capability,
         );

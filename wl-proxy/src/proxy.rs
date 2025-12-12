@@ -168,6 +168,7 @@ impl ProxyCore {
             proxy_id,
             interface,
             version,
+            zombie: Default::default(),
             server_obj_id: Default::default(),
             client_obj_id: Default::default(),
             client_id: Default::default(),

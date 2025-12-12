@@ -1229,6 +1229,9 @@ pub trait WlShellSurfaceHandler: Any {
         _slf: &Rc<WlShellSurface>,
         serial: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_ping(
             serial,
         );
@@ -1270,6 +1273,9 @@ pub trait WlShellSurfaceHandler: Any {
         width: i32,
         height: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_configure(
             edges,
             width,
@@ -1290,6 +1296,9 @@ pub trait WlShellSurfaceHandler: Any {
         &mut self,
         _slf: &Rc<WlShellSurface>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_popup_done(
         );
         if let Err(e) = res {

@@ -294,6 +294,9 @@ pub trait WlRegistryHandler: Any {
         interface: &str,
         version: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_global(
             name,
             interface,
@@ -326,6 +329,9 @@ pub trait WlRegistryHandler: Any {
         _slf: &Rc<WlRegistry>,
         name: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_global_remove(
             name,
         );

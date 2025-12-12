@@ -221,6 +221,9 @@ pub trait WpDrmLeaseV1Handler: Any {
         _slf: &Rc<WpDrmLeaseV1>,
         leased_fd: &Rc<OwnedFd>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_lease_fd(
             leased_fd,
         );
@@ -246,6 +249,9 @@ pub trait WpDrmLeaseV1Handler: Any {
         &mut self,
         _slf: &Rc<WpDrmLeaseV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {

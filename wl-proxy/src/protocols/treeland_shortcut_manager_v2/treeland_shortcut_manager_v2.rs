@@ -865,6 +865,9 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         name: &str,
         repeat: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_activated(
             name,
             repeat,
@@ -883,6 +886,9 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         &mut self,
         _slf: &Rc<TreelandShortcutManagerV2>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_commit_success(
         );
         if let Err(e) = res {
@@ -908,6 +914,9 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         name: &str,
         error: TreelandShortcutManagerV2BindError,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_commit_failure(
             name,
             error,

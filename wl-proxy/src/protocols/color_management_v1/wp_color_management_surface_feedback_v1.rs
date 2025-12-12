@@ -323,6 +323,9 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
         _slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
         identity: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_preferred_changed(
             identity,
         );

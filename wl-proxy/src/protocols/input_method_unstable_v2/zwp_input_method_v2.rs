@@ -922,6 +922,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_activate(
         );
         if let Err(e) = res {
@@ -945,6 +948,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_deactivate(
         );
         if let Err(e) = res {
@@ -997,6 +1003,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         cursor: u32,
         anchor: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_surrounding_text(
             text,
             cursor,
@@ -1034,6 +1043,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         _slf: &Rc<ZwpInputMethodV2>,
         cause: ZwpTextInputV3ChangeCause,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_text_change_cause(
             cause,
         );
@@ -1064,6 +1076,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         hint: ZwpTextInputV3ContentHint,
         purpose: ZwpTextInputV3ContentPurpose,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_content_type(
             hint,
             purpose,
@@ -1097,6 +1112,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -1351,6 +1369,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_unavailable(
         );
         if let Err(e) = res {

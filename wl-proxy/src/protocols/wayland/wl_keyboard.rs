@@ -544,6 +544,9 @@ pub trait WlKeyboardHandler: Any {
         fd: &Rc<OwnedFd>,
         size: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_keymap(
             format,
             fd,
@@ -586,6 +589,12 @@ pub trait WlKeyboardHandler: Any {
         surface: &Rc<WlSurface>,
         keys: &[u8],
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
+        if surface.core().zombie.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -630,6 +639,12 @@ pub trait WlKeyboardHandler: Any {
         serial: u32,
         surface: &Rc<WlSurface>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
+        if surface.core().zombie.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -687,6 +702,9 @@ pub trait WlKeyboardHandler: Any {
         key: u32,
         state: WlKeyboardKeyState,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_key(
             serial,
             time,
@@ -731,6 +749,9 @@ pub trait WlKeyboardHandler: Any {
         mods_locked: u32,
         group: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_modifiers(
             serial,
             mods_depressed,
@@ -782,6 +803,9 @@ pub trait WlKeyboardHandler: Any {
         rate: i32,
         delay: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_repeat_info(
             rate,
             delay,

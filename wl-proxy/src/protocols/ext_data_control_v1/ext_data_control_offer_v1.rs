@@ -257,6 +257,9 @@ pub trait ExtDataControlOfferV1Handler: Any {
         _slf: &Rc<ExtDataControlOfferV1>,
         mime_type: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_offer(
             mime_type,
         );

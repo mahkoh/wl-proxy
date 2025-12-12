@@ -1033,6 +1033,9 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
         width: u32,
         height: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_configure(
             serial,
             width,
@@ -1055,6 +1058,9 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrLayerSurfaceV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_closed(
         );
         if let Err(e) = res {

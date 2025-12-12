@@ -680,6 +680,9 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         _slf: &Rc<ExtImageCopyCaptureFrameV1>,
         transform: WlOutputTransform,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_transform(
             transform,
         );
@@ -714,6 +717,9 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         width: i32,
         height: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_damage(
             x,
             y,
@@ -750,6 +756,9 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         tv_sec_lo: u32,
         tv_nsec: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_presentation_time(
             tv_sec_hi,
             tv_sec_lo,
@@ -773,6 +782,9 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureFrameV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_ready(
         );
         if let Err(e) = res {
@@ -795,6 +807,9 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         _slf: &Rc<ExtImageCopyCaptureFrameV1>,
         reason: ExtImageCopyCaptureFrameV1FailureReason,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_failed(
             reason,
         );

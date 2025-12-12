@@ -173,6 +173,9 @@ pub trait ZxdgExportedV2Handler: Any {
         _slf: &Rc<ZxdgExportedV2>,
         handle: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_handle(
             handle,
         );

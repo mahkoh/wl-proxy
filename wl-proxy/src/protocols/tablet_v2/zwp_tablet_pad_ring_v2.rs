@@ -452,6 +452,9 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         _slf: &Rc<ZwpTabletPadRingV2>,
         source: ZwpTabletPadRingV2Source,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_source(
             source,
         );
@@ -476,6 +479,9 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         _slf: &Rc<ZwpTabletPadRingV2>,
         degrees: Fixed,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_angle(
             degrees,
         );
@@ -501,6 +507,9 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpTabletPadRingV2>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_stop(
         );
         if let Err(e) = res {
@@ -533,6 +542,9 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         _slf: &Rc<ZwpTabletPadRingV2>,
         time: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_frame(
             time,
         );

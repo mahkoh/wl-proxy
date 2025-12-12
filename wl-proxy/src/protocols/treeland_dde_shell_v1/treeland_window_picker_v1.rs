@@ -222,6 +222,9 @@ pub trait TreelandWindowPickerV1Handler: Any {
         _slf: &Rc<TreelandWindowPickerV1>,
         pid: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_window(
             pid,
         );

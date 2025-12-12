@@ -238,6 +238,9 @@ pub trait ZxdgImportedV2Handler: Any {
         &mut self,
         _slf: &Rc<ZxdgImportedV2>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_destroyed(
         );
         if let Err(e) = res {

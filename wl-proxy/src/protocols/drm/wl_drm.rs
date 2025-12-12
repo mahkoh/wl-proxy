@@ -617,6 +617,9 @@ pub trait WlDrmHandler: Any {
         _slf: &Rc<WlDrm>,
         name: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_device(
             name,
         );
@@ -634,6 +637,9 @@ pub trait WlDrmHandler: Any {
         _slf: &Rc<WlDrm>,
         format: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_format(
             format,
         );
@@ -647,6 +653,9 @@ pub trait WlDrmHandler: Any {
         &mut self,
         _slf: &Rc<WlDrm>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_authenticated(
         );
         if let Err(e) = res {
@@ -663,6 +672,9 @@ pub trait WlDrmHandler: Any {
         _slf: &Rc<WlDrm>,
         value: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_capabilities(
             value,
         );

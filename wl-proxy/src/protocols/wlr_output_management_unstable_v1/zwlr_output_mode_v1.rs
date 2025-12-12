@@ -288,6 +288,9 @@ pub trait ZwlrOutputModeV1Handler: Any {
         width: i32,
         height: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_size(
             width,
             height,
@@ -311,6 +314,9 @@ pub trait ZwlrOutputModeV1Handler: Any {
         _slf: &Rc<ZwlrOutputModeV1>,
         refresh: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_refresh(
             refresh,
         );
@@ -327,6 +333,9 @@ pub trait ZwlrOutputModeV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrOutputModeV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_preferred(
         );
         if let Err(e) = res {
@@ -344,6 +353,9 @@ pub trait ZwlrOutputModeV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrOutputModeV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {

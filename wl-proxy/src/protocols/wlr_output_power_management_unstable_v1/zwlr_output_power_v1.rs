@@ -272,6 +272,9 @@ pub trait ZwlrOutputPowerV1Handler: Any {
         _slf: &Rc<ZwlrOutputPowerV1>,
         mode: ZwlrOutputPowerV1Mode,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_mode(
             mode,
         );
@@ -296,6 +299,9 @@ pub trait ZwlrOutputPowerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrOutputPowerV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_failed(
         );
         if let Err(e) = res {

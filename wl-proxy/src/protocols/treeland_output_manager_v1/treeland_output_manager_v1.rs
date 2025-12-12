@@ -264,6 +264,9 @@ pub trait TreelandOutputManagerV1Handler: Any {
         _slf: &Rc<TreelandOutputManagerV1>,
         output_name: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_primary_output(
             output_name,
         );

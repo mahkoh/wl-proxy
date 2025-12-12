@@ -247,6 +247,9 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
         &mut self,
         _slf: &Rc<TreelandWindowOverlapChecker>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_enter(
         );
         if let Err(e) = res {
@@ -263,6 +266,9 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
         &mut self,
         _slf: &Rc<TreelandWindowOverlapChecker>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_leave(
         );
         if let Err(e) = res {

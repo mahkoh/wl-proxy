@@ -350,6 +350,9 @@ pub trait ZwpTabletPadDialV2Handler: Any {
         _slf: &Rc<ZwpTabletPadDialV2>,
         value120: i32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_delta(
             value120,
         );
@@ -381,6 +384,9 @@ pub trait ZwpTabletPadDialV2Handler: Any {
         _slf: &Rc<ZwpTabletPadDialV2>,
         time: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_frame(
             time,
         );

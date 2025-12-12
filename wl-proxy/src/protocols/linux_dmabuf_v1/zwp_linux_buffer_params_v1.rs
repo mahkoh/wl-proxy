@@ -668,6 +668,9 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
         _slf: &Rc<ZwpLinuxBufferParamsV1>,
         buffer: &Rc<WlBuffer>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_created(
             buffer,
         );
@@ -689,6 +692,9 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpLinuxBufferParamsV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_failed(
         );
         if let Err(e) = res {

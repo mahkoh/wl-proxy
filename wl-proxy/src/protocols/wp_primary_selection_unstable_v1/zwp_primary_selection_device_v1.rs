@@ -303,6 +303,9 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
         _slf: &Rc<ZwpPrimarySelectionDeviceV1>,
         offer: &Rc<ZwpPrimarySelectionOfferV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_data_offer(
             offer,
         );
@@ -335,6 +338,14 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
         _slf: &Rc<ZwpPrimarySelectionDeviceV1>,
         id: Option<&Rc<ZwpPrimarySelectionOfferV1>>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
+        if let Some(id) = id {
+            if id.core().zombie.get() {
+                return;
+            }
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {

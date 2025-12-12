@@ -621,6 +621,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         _slf: &Rc<ExtWorkspaceHandleV1>,
         id: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_id(
             id,
         );
@@ -646,6 +649,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         _slf: &Rc<ExtWorkspaceHandleV1>,
         name: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_name(
             name,
         );
@@ -684,6 +690,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         _slf: &Rc<ExtWorkspaceHandleV1>,
         coordinates: &[u8],
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_coordinates(
             coordinates,
         );
@@ -710,6 +719,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         _slf: &Rc<ExtWorkspaceHandleV1>,
         state: ExtWorkspaceHandleV1State,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_state(
             state,
         );
@@ -743,6 +755,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         _slf: &Rc<ExtWorkspaceHandleV1>,
         capabilities: ExtWorkspaceHandleV1WorkspaceCapabilities,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_capabilities(
             capabilities,
         );
@@ -767,6 +782,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtWorkspaceHandleV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_removed(
         );
         if let Err(e) = res {

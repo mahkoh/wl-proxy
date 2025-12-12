@@ -209,6 +209,9 @@ pub trait ZwlrForeignToplevelManagerV1Handler: Any {
         _slf: &Rc<ZwlrForeignToplevelManagerV1>,
         toplevel: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_toplevel(
             toplevel,
         );
@@ -247,6 +250,9 @@ pub trait ZwlrForeignToplevelManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelManagerV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {

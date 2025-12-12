@@ -577,6 +577,9 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         metadata: &str,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_metadata(
             metadata,
         );

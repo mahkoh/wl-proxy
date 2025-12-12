@@ -436,6 +436,9 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
         mod_low: u32,
         num_objects: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_frame(
             width,
             height,
@@ -480,6 +483,9 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
         stride: u32,
         plane_index: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_object(
             index,
             fd,
@@ -521,6 +527,9 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
         tv_sec_lo: u32,
         tv_nsec: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_ready(
             tv_sec_hi,
             tv_sec_lo,
@@ -552,6 +561,9 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
         _slf: &Rc<ZwlrExportDmabufFrameV1>,
         reason: ZwlrExportDmabufFrameV1CancelReason,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_cancel(
             reason,
         );

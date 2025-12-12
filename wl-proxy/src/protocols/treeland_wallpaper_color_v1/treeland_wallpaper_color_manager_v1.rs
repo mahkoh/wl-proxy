@@ -299,6 +299,9 @@ pub trait TreelandWallpaperColorManagerV1Handler: Any {
         output: &str,
         isdark: u32,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_output_color(
             output,
             isdark,

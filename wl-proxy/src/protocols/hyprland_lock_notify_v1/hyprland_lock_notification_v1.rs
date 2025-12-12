@@ -202,6 +202,9 @@ pub trait HyprlandLockNotificationV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandLockNotificationV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_locked(
         );
         if let Err(e) = res {
@@ -221,6 +224,9 @@ pub trait HyprlandLockNotificationV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandLockNotificationV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_unlocked(
         );
         if let Err(e) = res {

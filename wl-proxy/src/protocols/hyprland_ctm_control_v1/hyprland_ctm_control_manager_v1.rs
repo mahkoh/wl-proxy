@@ -378,6 +378,9 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandCtmControlManagerV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_blocked(
         );
         if let Err(e) = res {

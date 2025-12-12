@@ -278,6 +278,9 @@ pub trait ZwpPrimarySelectionSourceV1Handler: Any {
         mime_type: &str,
         fd: &Rc<OwnedFd>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_send(
             mime_type,
             fd,
@@ -296,6 +299,9 @@ pub trait ZwpPrimarySelectionSourceV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpPrimarySelectionSourceV1>,
     ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
         let res = _slf.send_cancelled(
         );
         if let Err(e) = res {
