@@ -425,9 +425,6 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         _slf: &Rc<WpDrmLeaseDeviceV1>,
         fd: &Rc<OwnedFd>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_drm_fd(
             fd,
         );
@@ -458,9 +455,6 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         _slf: &Rc<WpDrmLeaseDeviceV1>,
         id: &Rc<WpDrmLeaseConnectorV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_connector(
             id,
         );
@@ -482,9 +476,6 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         &mut self,
         _slf: &Rc<WpDrmLeaseDeviceV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -504,9 +495,6 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         &mut self,
         _slf: &Rc<WpDrmLeaseDeviceV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_released(
         );
         if let Err(e) = res {
@@ -654,12 +642,12 @@ impl ObjectPrivate for WpDrmLeaseDeviceV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wp_drm_lease_device_v1#{}.released()\n", msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_server_destroy();
                 if let Some(handler) = handler {
                     (**handler).released(&self);
                 } else {
                     DefaultHandler.released(&self);
                 }
-                self.core.handle_server_destroy();
             }
             n => {
                 let _ = msg;

@@ -1494,12 +1494,6 @@ pub trait WlSurfaceHandler: Any {
         _slf: &Rc<WlSurface>,
         output: &Rc<WlOutput>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
-        if output.core().zombie.get() {
-            return;
-        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1539,12 +1533,6 @@ pub trait WlSurfaceHandler: Any {
         _slf: &Rc<WlSurface>,
         output: &Rc<WlOutput>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
-        if output.core().zombie.get() {
-            return;
-        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1777,9 +1765,6 @@ pub trait WlSurfaceHandler: Any {
         _slf: &Rc<WlSurface>,
         factor: i32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_preferred_buffer_scale(
             factor,
         );
@@ -1809,9 +1794,6 @@ pub trait WlSurfaceHandler: Any {
         _slf: &Rc<WlSurface>,
         transform: WlOutputTransform,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_preferred_buffer_transform(
             transform,
         );
@@ -1845,12 +1827,12 @@ impl ObjectPrivate for WlSurface {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_surface#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             1 => {
                 let [

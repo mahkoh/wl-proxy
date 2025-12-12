@@ -366,9 +366,9 @@ impl State {
     pub(crate) fn handle_delete_id(&self, id: u32) {
         let proxy = self.server.objects.borrow_mut().remove(&id).unwrap();
         let core = proxy.core();
-        core.zombie.set(false);
         core.server_obj_id.take();
         self.server.idl.release(id);
+        let _ = core.delete_id();
     }
 
     pub(crate) fn perform_writes(&self, _: &HandlerLock<'_>) -> Result<(), StateError> {
@@ -383,7 +383,7 @@ impl State {
                     if let Some(client) = &ewc.client {
                         if !is_closed {
                             log::warn!(
-                                "could not write to client#{}: {}",
+                                "Could not write to client#{}: {}",
                                 client.endpoint.id,
                                 Report::new(e),
                             );
@@ -485,6 +485,7 @@ impl State {
             let res = ewc.endpoint.read_messages(lock, ewc.client.as_ref());
             if let Err(e) = res {
                 if let Some(client) = &ewc.client {
+                    log::error!("Could not handle client message: {}", Report::new(e));
                     self.add_client_to_kill(client);
                 } else {
                     return Err(StateErrorKind::DispatchEvents(e).into());

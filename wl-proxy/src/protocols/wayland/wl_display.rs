@@ -366,12 +366,6 @@ pub trait WlDisplayHandler: Any {
         code: u32,
         message: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
-        if object_id.core().zombie.get() {
-            return;
-        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = object_id.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -406,9 +400,6 @@ pub trait WlDisplayHandler: Any {
         _slf: &Rc<WlDisplay>,
         id: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_delete_id(
             id,
         );

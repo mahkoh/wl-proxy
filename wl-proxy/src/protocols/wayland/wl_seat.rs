@@ -418,9 +418,6 @@ pub trait WlSeatHandler: Any {
         _slf: &Rc<WlSeat>,
         capabilities: WlSeatCapability,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_capabilities(
             capabilities,
         );
@@ -541,9 +538,6 @@ pub trait WlSeatHandler: Any {
         _slf: &Rc<WlSeat>,
         name: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_name(
             name,
         );
@@ -662,12 +656,12 @@ impl ObjectPrivate for WlSeat {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_seat#{}.release()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
                     DefaultHandler.release(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

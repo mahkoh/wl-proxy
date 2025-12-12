@@ -390,9 +390,6 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtForeignToplevelHandleV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_closed(
         );
         if let Err(e) = res {
@@ -417,9 +414,6 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtForeignToplevelHandleV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -443,9 +437,6 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<ExtForeignToplevelHandleV1>,
         title: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_title(
             title,
         );
@@ -470,9 +461,6 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<ExtForeignToplevelHandleV1>,
         app_id: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_app_id(
             app_id,
         );
@@ -513,9 +501,6 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<ExtForeignToplevelHandleV1>,
         identifier: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_identifier(
             identifier,
         );
@@ -549,12 +534,12 @@ impl ObjectPrivate for ExtForeignToplevelHandleV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> ext_foreign_toplevel_handle_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

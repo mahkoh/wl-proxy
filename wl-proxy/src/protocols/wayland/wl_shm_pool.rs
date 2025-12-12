@@ -387,12 +387,12 @@ impl ObjectPrivate for WlShmPool {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shm_pool#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             2 => {
                 let [

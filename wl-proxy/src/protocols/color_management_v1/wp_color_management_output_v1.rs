@@ -240,9 +240,6 @@ pub trait WpColorManagementOutputV1Handler: Any {
         &mut self,
         _slf: &Rc<WpColorManagementOutputV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_image_description_changed(
         );
         if let Err(e) = res {
@@ -326,12 +323,12 @@ impl ObjectPrivate for WpColorManagementOutputV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_color_management_output_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             1 => {
                 let [

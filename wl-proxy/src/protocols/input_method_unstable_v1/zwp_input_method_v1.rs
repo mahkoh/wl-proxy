@@ -170,9 +170,6 @@ pub trait ZwpInputMethodV1Handler: Any {
         _slf: &Rc<ZwpInputMethodV1>,
         id: &Rc<ZwpInputMethodContextV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_activate(
             id,
         );
@@ -199,12 +196,6 @@ pub trait ZwpInputMethodV1Handler: Any {
         _slf: &Rc<ZwpInputMethodV1>,
         context: &Rc<ZwpInputMethodContextV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
-        if context.core().zombie.get() {
-            return;
-        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = context.core().client_id.get() {
                 if client_id != client_id_2 {

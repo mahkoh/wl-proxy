@@ -1510,9 +1510,6 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         cursor: u32,
         anchor: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_surrounding_text(
             text,
             cursor,
@@ -1528,9 +1525,6 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpInputMethodContextV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_reset(
         );
         if let Err(e) = res {
@@ -1549,9 +1543,6 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         hint: u32,
         purpose: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_content_type(
             hint,
             purpose,
@@ -1572,9 +1563,6 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         button: u32,
         index: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_invoke_action(
             button,
             index,
@@ -1593,9 +1581,6 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         _slf: &Rc<ZwpInputMethodContextV1>,
         serial: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_commit_state(
             serial,
         );
@@ -1613,9 +1598,6 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         _slf: &Rc<ZwpInputMethodContextV1>,
         language: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_preferred_language(
             language,
         );
@@ -1649,12 +1631,12 @@ impl ObjectPrivate for ZwpInputMethodContextV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_input_method_context_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             1 => {
                 let mut offset = 2;

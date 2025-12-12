@@ -452,33 +452,6 @@ fn format_interface_message_handler(w: &mut impl Write, interface: &Interface) -
             }
         }
         wl!(r#"    ) {{"#)?;
-        if !msg.is_request {
-            wl!(r#"        if _slf.core.zombie.get() {{"#)?;
-            wl!(r#"            return;"#)?;
-            wl!(r#"        }}"#)?;
-            for arg in &msg.args {
-                if arg.ty == ArgType::Object {
-                    let mut prefix = "";
-                    if arg.allow_null {
-                        wl!(
-                            r#"        if let Some({}) = {} {{"#,
-                            escape_name(&arg.name),
-                            escape_name(&arg.name),
-                        )?;
-                        prefix = "    ";
-                    }
-                    wl!(
-                        r#"        {prefix}if {}.core().zombie.get() {{"#,
-                        escape_name(&arg.name)
-                    )?;
-                    wl!(r#"        {prefix}    return;"#)?;
-                    wl!(r#"        {prefix}}}"#)?;
-                    if arg.allow_null {
-                        wl!(r#"        }}"#)?;
-                    }
-                }
-            }
-        }
         if !msg.is_request && msg.args.iter().any(|a| matches!(a.ty, ArgType::Object)) {
             wl!(r#"        if let Some(client_id) = _slf.core.client_id.get() {{"#)?;
             for arg in &msg.args {
@@ -1419,11 +1392,6 @@ fn format_object_message_handler_body<W: Write>(
                     wl!(r#");"#)?;
                 };
             }
-            wl!(r#"{p}        if let Some(handler) = handler {{"#)?;
-            format_call!("(**handler)");
-            wl!(r#"{p}        }} else {{"#)?;
-            format_call!("DefaultHandler");
-            wl!(r#"{p}        }}"#)?;
             if msg.ty == Some(MessageType::Destructor) {
                 if msg.is_request {
                     wl!(r#"{p}        self.core.handle_client_destroy();"#)?;
@@ -1434,6 +1402,11 @@ fn format_object_message_handler_body<W: Write>(
             if interface.is_wl_fixes && msg.name == "destroy_registry" {
                 wl!(r#"{p}        arg0.core().handle_client_destroy();"#)?;
             }
+            wl!(r#"{p}        if let Some(handler) = handler {{"#)?;
+            format_call!("(**handler)");
+            wl!(r#"{p}        }} else {{"#)?;
+            format_call!("DefaultHandler");
+            wl!(r#"{p}        }}"#)?;
         }
         wl!(r#"{p}    }}"#)?;
     }

@@ -194,9 +194,6 @@ pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_mode_successful(
         );
         if let Err(e) = res {
@@ -217,9 +214,6 @@ pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_mode_failed(
         );
         if let Err(e) = res {
@@ -240,9 +234,6 @@ pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_present_cancelled(
         );
         if let Err(e) = res {
@@ -291,12 +282,12 @@ impl ObjectPrivate for ZwpFullscreenShellModeFeedbackV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_fullscreen_shell_mode_feedback_v1#{}.mode_successful()\n", msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_server_destroy();
                 if let Some(handler) = handler {
                     (**handler).mode_successful(&self);
                 } else {
                     DefaultHandler.mode_successful(&self);
                 }
-                self.core.handle_server_destroy();
             }
             1 => {
                 if msg.len() != 2 {
@@ -308,12 +299,12 @@ impl ObjectPrivate for ZwpFullscreenShellModeFeedbackV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_fullscreen_shell_mode_feedback_v1#{}.mode_failed()\n", msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_server_destroy();
                 if let Some(handler) = handler {
                     (**handler).mode_failed(&self);
                 } else {
                     DefaultHandler.mode_failed(&self);
                 }
-                self.core.handle_server_destroy();
             }
             2 => {
                 if msg.len() != 2 {
@@ -325,12 +316,12 @@ impl ObjectPrivate for ZwpFullscreenShellModeFeedbackV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_fullscreen_shell_mode_feedback_v1#{}.present_cancelled()\n", msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_server_destroy();
                 if let Some(handler) = handler {
                     (**handler).present_cancelled(&self);
                 } else {
                     DefaultHandler.present_cancelled(&self);
                 }
-                self.core.handle_server_destroy();
             }
             n => {
                 let _ = msg;

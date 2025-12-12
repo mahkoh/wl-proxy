@@ -691,9 +691,6 @@ pub trait ZwpTabletPadV2Handler: Any {
         _slf: &Rc<ZwpTabletPadV2>,
         pad_group: &Rc<ZwpTabletPadGroupV2>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_group(
             pad_group,
         );
@@ -724,9 +721,6 @@ pub trait ZwpTabletPadV2Handler: Any {
         _slf: &Rc<ZwpTabletPadV2>,
         path: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_path(
             path,
         );
@@ -753,9 +747,6 @@ pub trait ZwpTabletPadV2Handler: Any {
         _slf: &Rc<ZwpTabletPadV2>,
         buttons: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_buttons(
             buttons,
         );
@@ -774,9 +765,6 @@ pub trait ZwpTabletPadV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpTabletPadV2>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -801,9 +789,6 @@ pub trait ZwpTabletPadV2Handler: Any {
         button: u32,
         state: ZwpTabletPadV2ButtonState,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_button(
             time,
             button,
@@ -834,15 +819,6 @@ pub trait ZwpTabletPadV2Handler: Any {
         tablet: &Rc<ZwpTabletV2>,
         surface: &Rc<WlSurface>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
-        if tablet.core().zombie.get() {
-            return;
-        }
-        if surface.core().zombie.get() {
-            return;
-        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = tablet.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -884,12 +860,6 @@ pub trait ZwpTabletPadV2Handler: Any {
         serial: u32,
         surface: &Rc<WlSurface>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
-        if surface.core().zombie.get() {
-            return;
-        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -919,9 +889,6 @@ pub trait ZwpTabletPadV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpTabletPadV2>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_removed(
         );
         if let Err(e) = res {
@@ -1001,12 +968,12 @@ impl ObjectPrivate for ZwpTabletPadV2 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_tablet_pad_v2#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

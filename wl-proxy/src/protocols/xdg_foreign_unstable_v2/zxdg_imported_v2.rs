@@ -238,9 +238,6 @@ pub trait ZxdgImportedV2Handler: Any {
         &mut self,
         _slf: &Rc<ZxdgImportedV2>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_destroyed(
         );
         if let Err(e) = res {
@@ -273,12 +270,12 @@ impl ObjectPrivate for ZxdgImportedV2 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zxdg_imported_v2#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             1 => {
                 let [

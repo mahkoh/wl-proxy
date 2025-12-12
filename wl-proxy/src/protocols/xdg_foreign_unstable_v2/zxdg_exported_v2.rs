@@ -173,9 +173,6 @@ pub trait ZxdgExportedV2Handler: Any {
         _slf: &Rc<ZxdgExportedV2>,
         handle: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_handle(
             handle,
         );
@@ -209,12 +206,12 @@ impl ObjectPrivate for ZxdgExportedV2 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zxdg_exported_v2#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

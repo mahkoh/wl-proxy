@@ -564,9 +564,6 @@ pub trait XdgPopupHandler: Any {
         width: i32,
         height: i32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_configure(
             x,
             y,
@@ -588,9 +585,6 @@ pub trait XdgPopupHandler: Any {
         &mut self,
         _slf: &Rc<XdgPopup>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_popup_done(
         );
         if let Err(e) = res {
@@ -674,9 +668,6 @@ pub trait XdgPopupHandler: Any {
         _slf: &Rc<XdgPopup>,
         token: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_repositioned(
             token,
         );
@@ -710,12 +701,12 @@ impl ObjectPrivate for XdgPopup {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_popup#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             1 => {
                 let [

@@ -355,9 +355,6 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
         fd: &Rc<OwnedFd>,
         size: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_keymap(
             format,
             fd,
@@ -389,9 +386,6 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
         key: u32,
         state: WlKeyboardKeyState,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_key(
             serial,
             time,
@@ -425,9 +419,6 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
         mods_locked: u32,
         group: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_modifiers(
             serial,
             mods_depressed,
@@ -479,9 +470,6 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
         rate: i32,
         delay: i32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_repeat_info(
             rate,
             delay,
@@ -516,12 +504,12 @@ impl ObjectPrivate for ZwpInputMethodKeyboardGrabV2 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_input_method_keyboard_grab_v2#{}.release()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
                     DefaultHandler.release(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

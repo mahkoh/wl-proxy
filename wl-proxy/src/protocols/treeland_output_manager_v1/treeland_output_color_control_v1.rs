@@ -423,9 +423,6 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         _slf: &Rc<TreelandOutputColorControlV1>,
         success: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_result(
             success,
         );
@@ -453,9 +450,6 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         _slf: &Rc<TreelandOutputColorControlV1>,
         temperature: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_color_temperature(
             temperature,
         );
@@ -480,9 +474,6 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         _slf: &Rc<TreelandOutputColorControlV1>,
         brightness: Fixed,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_brightness(
             brightness,
         );
@@ -582,12 +573,12 @@ impl ObjectPrivate for TreelandOutputColorControlV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_output_color_control_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

@@ -216,12 +216,12 @@ impl ObjectPrivate for ZxdgImporterV2 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zxdg_importer_v2#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             1 => {
                 let mut offset = 2;

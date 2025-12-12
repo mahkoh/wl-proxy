@@ -67,8 +67,8 @@ pub trait ObjectUtils: Object {
         self.core().version()
     }
 
-    fn is_zombie(&self) -> bool {
-        self.core().is_zombie()
+    fn delete_id(&self) -> Result<(), ObjectError> {
+        self.core().delete_id()
     }
 
     fn get_handler_ref<T>(&self) -> Result<Ref<'_, T>, HandlerAccessError>
@@ -120,7 +120,7 @@ pub struct ObjectCore {
     id: u64,
     pub(crate) interface: ObjectInterface,
     pub(crate) version: u32,
-    pub(crate) zombie: Cell<bool>,
+    pub(crate) awaiting_delete_id: Cell<bool>,
     pub(crate) server_obj_id: Cell<Option<u32>>,
     pub(crate) client_obj_id: Cell<Option<u32>>,
     pub(crate) client_id: Cell<Option<u64>>,
@@ -168,7 +168,7 @@ impl ObjectCore {
             id: proxy_id,
             interface,
             version,
-            zombie: Default::default(),
+            awaiting_delete_id: Default::default(),
             server_obj_id: Default::default(),
             client_obj_id: Default::default(),
             client_id: Default::default(),
@@ -278,26 +278,42 @@ impl ObjectCore {
     }
 
     pub(crate) fn handle_client_destroy(&self) {
-        let id = self.client_obj_id.take().unwrap();
-        self.client_id.take();
-        let client = self.client.take().unwrap();
-        let proxy = client.endpoint.objects.borrow_mut().remove(&id);
-        drop(proxy);
-        if let Some(id) = id.checked_sub(MIN_SERVER_ID) {
-            client.endpoint.idl.release(id);
+        let id = self.client_obj_id.get().unwrap();
+        if let Some(idl) = id.checked_sub(MIN_SERVER_ID) {
+            self.client_obj_id.take();
+            self.client_id.take();
+            let client = self.client.take().unwrap();
+            let proxy = client.endpoint.objects.borrow_mut().remove(&id);
+            drop(proxy);
+            client.endpoint.idl.release(idl);
         } else {
-            let _ = client.display.send_delete_id(id);
+            self.awaiting_delete_id.set(true);
         }
     }
 
     pub(crate) fn handle_server_destroy(&self) {
         let id = self.server_obj_id.get().unwrap();
         if id < MIN_SERVER_ID {
-            self.zombie.set(true);
             return;
         }
         self.server_obj_id.take();
         let _proxy = self.state.server.objects.borrow_mut().remove(&id);
+    }
+
+    pub fn delete_id(&self) -> Result<(), ObjectError> {
+        if !self.awaiting_delete_id.replace(false) {
+            return Err(ObjectError::NotAwaitingDeleteId);
+        }
+        let Some(id) = self.client_obj_id.take() else {
+            return Ok(());
+        };
+        self.client_id.take();
+        let Some(client) = self.client.take() else {
+            return Ok(());
+        };
+        let proxy = client.endpoint.objects.borrow_mut().remove(&id);
+        drop(proxy);
+        client.display.send_delete_id(id)
     }
 
     pub fn create_child<P>(&self) -> Rc<P>
@@ -317,10 +333,6 @@ impl ObjectCore {
 
     pub fn version(&self) -> u32 {
         self.version
-    }
-
-    pub fn is_zombie(&self) -> bool {
-        self.zombie.get()
     }
 }
 
@@ -376,6 +388,8 @@ pub enum ObjectError {
     ServerError(ObjectInterface, u32, u32, #[source] StringError),
     #[error("the message handler is already borrowed")]
     HandlerBorrowed,
+    #[error("the client is not waiting for a delete_id message")]
+    NotAwaitingDeleteId,
 }
 
 #[derive(Debug, Error)]

@@ -1336,12 +1336,12 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
                     .map_err(|e| ObjectError::SetClientId(arg0_id, "image_description", e))?;
                 let arg0 = &arg0;
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).create(&self, arg0);
                 } else {
                     DefaultHandler.create(&self, arg0);
                 }
-                self.core.handle_client_destroy();
             }
             1 => {
                 let [

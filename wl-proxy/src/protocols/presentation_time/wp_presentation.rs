@@ -337,9 +337,6 @@ pub trait WpPresentationHandler: Any {
         _slf: &Rc<WpPresentation>,
         clk_id: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_clock_id(
             clk_id,
         );
@@ -373,12 +370,12 @@ impl ObjectPrivate for WpPresentation {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_presentation#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             1 => {
                 let [

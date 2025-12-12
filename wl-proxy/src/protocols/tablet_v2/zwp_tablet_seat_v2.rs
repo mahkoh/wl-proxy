@@ -279,9 +279,6 @@ pub trait ZwpTabletSeatV2Handler: Any {
         _slf: &Rc<ZwpTabletSeatV2>,
         id: &Rc<ZwpTabletV2>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_tablet_added(
             id,
         );
@@ -306,9 +303,6 @@ pub trait ZwpTabletSeatV2Handler: Any {
         _slf: &Rc<ZwpTabletSeatV2>,
         id: &Rc<ZwpTabletToolV2>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_tool_added(
             id,
         );
@@ -339,9 +333,6 @@ pub trait ZwpTabletSeatV2Handler: Any {
         _slf: &Rc<ZwpTabletSeatV2>,
         id: &Rc<ZwpTabletPadV2>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_pad_added(
             id,
         );
@@ -375,12 +366,12 @@ impl ObjectPrivate for ZwpTabletSeatV2 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_tablet_seat_v2#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

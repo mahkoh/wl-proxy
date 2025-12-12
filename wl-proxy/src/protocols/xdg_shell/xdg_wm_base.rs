@@ -448,9 +448,6 @@ pub trait XdgWmBaseHandler: Any {
         _slf: &Rc<XdgWmBase>,
         serial: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_ping(
             serial,
         );
@@ -484,12 +481,12 @@ impl ObjectPrivate for XdgWmBase {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_wm_base#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             1 => {
                 let [

@@ -401,9 +401,6 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_enter(
         );
         if let Err(e) = res {
@@ -421,9 +418,6 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_leave(
         );
         if let Err(e) = res {
@@ -452,9 +446,6 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         x: i32,
         y: i32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_position(
             x,
             y,
@@ -488,9 +479,6 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         x: i32,
         y: i32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_hotspot(
             x,
             y,
@@ -525,12 +513,12 @@ impl ObjectPrivate for ExtImageCopyCaptureCursorSessionV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> ext_image_copy_capture_cursor_session_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             1 => {
                 let [

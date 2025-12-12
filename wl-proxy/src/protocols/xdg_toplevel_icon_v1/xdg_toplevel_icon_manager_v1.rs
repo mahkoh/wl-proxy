@@ -418,9 +418,6 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
         _slf: &Rc<XdgToplevelIconManagerV1>,
         size: i32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_icon_size(
             size,
         );
@@ -437,9 +434,6 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<XdgToplevelIconManagerV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -472,12 +466,12 @@ impl ObjectPrivate for XdgToplevelIconManagerV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> xdg_toplevel_icon_manager_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             1 => {
                 let [

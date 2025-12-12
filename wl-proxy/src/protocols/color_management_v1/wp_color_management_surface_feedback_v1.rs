@@ -365,9 +365,6 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
         _slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
         identity: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_preferred_changed(
             identity,
         );
@@ -485,9 +482,6 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
         identity_hi: u32,
         identity_lo: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_preferred_changed2(
             identity_hi,
             identity_lo,
@@ -522,12 +516,12 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_color_management_surface_feedback_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             1 => {
                 let [

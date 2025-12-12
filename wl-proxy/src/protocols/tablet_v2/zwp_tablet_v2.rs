@@ -433,9 +433,6 @@ pub trait ZwpTabletV2Handler: Any {
         _slf: &Rc<ZwpTabletV2>,
         name: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_name(
             name,
         );
@@ -470,9 +467,6 @@ pub trait ZwpTabletV2Handler: Any {
         vid: u32,
         pid: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_id(
             vid,
             pid,
@@ -508,9 +502,6 @@ pub trait ZwpTabletV2Handler: Any {
         _slf: &Rc<ZwpTabletV2>,
         path: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_path(
             path,
         );
@@ -530,9 +521,6 @@ pub trait ZwpTabletV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpTabletV2>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -552,9 +540,6 @@ pub trait ZwpTabletV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpTabletV2>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_removed(
         );
         if let Err(e) = res {
@@ -582,9 +567,6 @@ pub trait ZwpTabletV2Handler: Any {
         _slf: &Rc<ZwpTabletV2>,
         bustype: ZwpTabletV2Bustype,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_bustype(
             bustype,
         );
@@ -618,12 +600,12 @@ impl ObjectPrivate for ZwpTabletV2 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_tablet_v2#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

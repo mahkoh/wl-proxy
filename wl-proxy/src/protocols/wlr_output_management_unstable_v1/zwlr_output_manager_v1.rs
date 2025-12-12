@@ -335,9 +335,6 @@ pub trait ZwlrOutputManagerV1Handler: Any {
         _slf: &Rc<ZwlrOutputManagerV1>,
         head: &Rc<ZwlrOutputHeadV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_head(
             head,
         );
@@ -369,9 +366,6 @@ pub trait ZwlrOutputManagerV1Handler: Any {
         _slf: &Rc<ZwlrOutputManagerV1>,
         serial: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_done(
             serial,
         );
@@ -435,9 +429,6 @@ pub trait ZwlrOutputManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrOutputManagerV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {
@@ -568,12 +559,12 @@ impl ObjectPrivate for ZwlrOutputManagerV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_output_manager_v1#{}.finished()\n", msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_server_destroy();
                 if let Some(handler) = handler {
                     (**handler).finished(&self);
                 } else {
                     DefaultHandler.finished(&self);
                 }
-                self.core.handle_server_destroy();
             }
             n => {
                 let _ = msg;

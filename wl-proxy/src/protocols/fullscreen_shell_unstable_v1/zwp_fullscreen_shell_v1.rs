@@ -420,9 +420,6 @@ pub trait ZwpFullscreenShellV1Handler: Any {
         _slf: &Rc<ZwpFullscreenShellV1>,
         capability: ZwpFullscreenShellV1Capability,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_capability(
             capability,
         );
@@ -579,12 +576,12 @@ impl ObjectPrivate for ZwpFullscreenShellV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_fullscreen_shell_v1#{}.release()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
                     DefaultHandler.release(&self);
                 }
-                self.core.handle_client_destroy();
             }
             1 => {
                 let [

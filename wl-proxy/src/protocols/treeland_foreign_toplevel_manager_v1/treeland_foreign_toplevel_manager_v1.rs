@@ -265,9 +265,6 @@ pub trait TreelandForeignToplevelManagerV1Handler: Any {
         _slf: &Rc<TreelandForeignToplevelManagerV1>,
         toplevel: &Rc<TreelandForeignToplevelHandleV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_toplevel(
             toplevel,
         );
@@ -306,9 +303,6 @@ pub trait TreelandForeignToplevelManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandForeignToplevelManagerV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {
@@ -453,12 +447,12 @@ impl ObjectPrivate for TreelandForeignToplevelManagerV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> treeland_foreign_toplevel_manager_v1#{}.finished()\n", msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_server_destroy();
                 if let Some(handler) = handler {
                     (**handler).finished(&self);
                 } else {
                     DefaultHandler.finished(&self);
                 }
-                self.core.handle_server_destroy();
             }
             n => {
                 let _ = msg;

@@ -499,9 +499,6 @@ pub trait ZwlrDataControlDeviceV1Handler: Any {
         _slf: &Rc<ZwlrDataControlDeviceV1>,
         id: &Rc<ZwlrDataControlOfferV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_data_offer(
             id,
         );
@@ -537,14 +534,6 @@ pub trait ZwlrDataControlDeviceV1Handler: Any {
         _slf: &Rc<ZwlrDataControlDeviceV1>,
         id: Option<&Rc<ZwlrDataControlOfferV1>>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
-        if let Some(id) = id {
-            if id.core().zombie.get() {
-                return;
-            }
-        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {
@@ -571,9 +560,6 @@ pub trait ZwlrDataControlDeviceV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrDataControlDeviceV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {
@@ -609,14 +595,6 @@ pub trait ZwlrDataControlDeviceV1Handler: Any {
         _slf: &Rc<ZwlrDataControlDeviceV1>,
         id: Option<&Rc<ZwlrDataControlOfferV1>>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
-        if let Some(id) = id {
-            if id.core().zombie.get() {
-                return;
-            }
-        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {
@@ -725,12 +703,12 @@ impl ObjectPrivate for ZwlrDataControlDeviceV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_data_control_device_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             2 => {
                 let [

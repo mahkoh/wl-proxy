@@ -324,9 +324,6 @@ pub trait TreelandVirtualOutputManagerV1Handler: Any {
         _slf: &Rc<TreelandVirtualOutputManagerV1>,
         names: &[u8],
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_virtual_output_list(
             names,
         );

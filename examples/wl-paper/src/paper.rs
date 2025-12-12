@@ -290,6 +290,8 @@ impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
         if self.has_server {
             let _ = slf.send_destroy();
             self.has_server = false;
+        } else {
+            let _ = slf.delete_id();
         }
     }
 
@@ -414,6 +416,7 @@ impl XdgToplevelHandler for XdgToplevelHandlerImpl {
         slf.unset_handler();
         self.zwlr_layer_surface_v1.unset_handler();
         let _ = self.zwlr_layer_surface_v1.send_destroy();
+        let _ = slf.delete_id();
     }
 
     fn set_parent(&mut self, _slf: &Rc<XdgToplevel>, _parent: Option<&Rc<XdgToplevel>>) {
@@ -544,8 +547,8 @@ impl XdgPopupHandler for XdgPopupHandlerImpl {
 struct ZxdgDecorationManagerV1HandlerImpl;
 
 impl ZxdgDecorationManagerV1Handler for ZxdgDecorationManagerV1HandlerImpl {
-    fn destroy(&mut self, _slf: &Rc<ZxdgDecorationManagerV1>) {
-        // nothing
+    fn destroy(&mut self, slf: &Rc<ZxdgDecorationManagerV1>) {
+        let _ = slf.delete_id();
     }
 
     fn get_toplevel_decoration(
@@ -562,8 +565,8 @@ impl ZxdgDecorationManagerV1Handler for ZxdgDecorationManagerV1HandlerImpl {
 struct ZxdgToplevelDecorationV1HandlerImpl;
 
 impl ZxdgToplevelDecorationV1Handler for ZxdgToplevelDecorationV1HandlerImpl {
-    fn destroy(&mut self, _slf: &Rc<ZxdgToplevelDecorationV1>) {
-        // nothing
+    fn destroy(&mut self, slf: &Rc<ZxdgToplevelDecorationV1>) {
+        let _ = slf.delete_id();
     }
 
     fn set_mode(
@@ -596,8 +599,8 @@ impl OrgKdeKwinServerDecorationManagerHandler for OrgKdeKwinServerDecorationMana
 struct OrgKdeKwinServerDecorationHandlerImpl;
 
 impl OrgKdeKwinServerDecorationHandler for OrgKdeKwinServerDecorationHandlerImpl {
-    fn release(&mut self, _slf: &Rc<OrgKdeKwinServerDecoration>) {
-        // nothing
+    fn release(&mut self, slf: &Rc<OrgKdeKwinServerDecoration>) {
+        let _ = slf.delete_id();
     }
 
     fn request_mode(&mut self, slf: &Rc<OrgKdeKwinServerDecoration>, mode: u32) {

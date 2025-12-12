@@ -865,9 +865,6 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         name: &str,
         repeat: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_activated(
             name,
             repeat,
@@ -886,9 +883,6 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         &mut self,
         _slf: &Rc<TreelandShortcutManagerV2>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_commit_success(
         );
         if let Err(e) = res {
@@ -914,9 +908,6 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         name: &str,
         error: TreelandShortcutManagerV2BindError,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_commit_failure(
             name,
             error,
@@ -951,12 +942,12 @@ impl ObjectPrivate for TreelandShortcutManagerV2 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_shortcut_manager_v2#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             1 => {
                 if msg.len() != 2 {

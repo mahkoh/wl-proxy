@@ -200,9 +200,6 @@ pub trait ZwpLinuxBufferReleaseV1Handler: Any {
         _slf: &Rc<ZwpLinuxBufferReleaseV1>,
         fence: &Rc<OwnedFd>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_fenced_release(
             fence,
         );
@@ -229,9 +226,6 @@ pub trait ZwpLinuxBufferReleaseV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpLinuxBufferReleaseV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_immediate_release(
         );
         if let Err(e) = res {
@@ -284,12 +278,12 @@ impl ObjectPrivate for ZwpLinuxBufferReleaseV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_linux_buffer_release_v1#{}.fenced_release(fence: {})\n", msg[0], arg0.as_raw_fd());
                     self.core.state.log(args);
                 }
+                self.core.handle_server_destroy();
                 if let Some(handler) = handler {
                     (**handler).fenced_release(&self, arg0);
                 } else {
                     DefaultHandler.fenced_release(&self, arg0);
                 }
-                self.core.handle_server_destroy();
             }
             1 => {
                 if msg.len() != 2 {
@@ -301,12 +295,12 @@ impl ObjectPrivate for ZwpLinuxBufferReleaseV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_linux_buffer_release_v1#{}.immediate_release()\n", msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_server_destroy();
                 if let Some(handler) = handler {
                     (**handler).immediate_release(&self);
                 } else {
                     DefaultHandler.immediate_release(&self);
                 }
-                self.core.handle_server_destroy();
             }
             n => {
                 let _ = msg;

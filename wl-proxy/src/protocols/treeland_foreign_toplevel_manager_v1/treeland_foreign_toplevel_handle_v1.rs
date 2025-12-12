@@ -999,9 +999,6 @@ pub trait TreelandForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<TreelandForeignToplevelHandleV1>,
         pid: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_pid(
             pid,
         );
@@ -1023,9 +1020,6 @@ pub trait TreelandForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<TreelandForeignToplevelHandleV1>,
         title: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_title(
             title,
         );
@@ -1047,9 +1041,6 @@ pub trait TreelandForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<TreelandForeignToplevelHandleV1>,
         app_id: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_app_id(
             app_id,
         );
@@ -1076,9 +1067,6 @@ pub trait TreelandForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<TreelandForeignToplevelHandleV1>,
         identifier: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_identifier(
             identifier,
         );
@@ -1104,12 +1092,6 @@ pub trait TreelandForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<TreelandForeignToplevelHandleV1>,
         output: &Rc<WlOutput>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
-        if output.core().zombie.get() {
-            return;
-        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1143,12 +1125,6 @@ pub trait TreelandForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<TreelandForeignToplevelHandleV1>,
         output: &Rc<WlOutput>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
-        if output.core().zombie.get() {
-            return;
-        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1268,9 +1244,6 @@ pub trait TreelandForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<TreelandForeignToplevelHandleV1>,
         state: &[u8],
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_state(
             state,
         );
@@ -1291,9 +1264,6 @@ pub trait TreelandForeignToplevelHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandForeignToplevelHandleV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -1378,9 +1348,6 @@ pub trait TreelandForeignToplevelHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandForeignToplevelHandleV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_closed(
         );
         if let Err(e) = res {
@@ -1472,14 +1439,6 @@ pub trait TreelandForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<TreelandForeignToplevelHandleV1>,
         parent: Option<&Rc<TreelandForeignToplevelHandleV1>>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
-        if let Some(parent) = parent {
-            if parent.core().zombie.get() {
-                return;
-            }
-        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(parent) = parent {
                 if let Some(client_id_2) = parent.core().client_id.get() {
@@ -1664,12 +1623,12 @@ impl ObjectPrivate for TreelandForeignToplevelHandleV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_foreign_toplevel_handle_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             8 => {
                 let [

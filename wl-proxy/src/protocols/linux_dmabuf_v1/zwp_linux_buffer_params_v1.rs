@@ -668,9 +668,6 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
         _slf: &Rc<ZwpLinuxBufferParamsV1>,
         buffer: &Rc<WlBuffer>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_created(
             buffer,
         );
@@ -692,9 +689,6 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpLinuxBufferParamsV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_failed(
         );
         if let Err(e) = res {
@@ -783,12 +777,12 @@ impl ObjectPrivate for ZwpLinuxBufferParamsV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_linux_buffer_params_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             1 => {
                 let [

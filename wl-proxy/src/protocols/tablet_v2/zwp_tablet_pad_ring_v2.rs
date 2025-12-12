@@ -452,9 +452,6 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         _slf: &Rc<ZwpTabletPadRingV2>,
         source: ZwpTabletPadRingV2Source,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_source(
             source,
         );
@@ -479,9 +476,6 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         _slf: &Rc<ZwpTabletPadRingV2>,
         degrees: Fixed,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_angle(
             degrees,
         );
@@ -507,9 +501,6 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpTabletPadRingV2>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_stop(
         );
         if let Err(e) = res {
@@ -542,9 +533,6 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         _slf: &Rc<ZwpTabletPadRingV2>,
         time: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_frame(
             time,
         );
@@ -621,12 +609,12 @@ impl ObjectPrivate for ZwpTabletPadRingV2 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_tablet_pad_ring_v2#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

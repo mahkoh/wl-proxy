@@ -594,9 +594,6 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         _slf: &Rc<HyprlandInputCaptureV1>,
         fd: &Rc<OwnedFd>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_eis_fd(
             fd,
         );
@@ -613,9 +610,6 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandInputCaptureV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_disabled(
         );
         if let Err(e) = res {
@@ -642,9 +636,6 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         y: Fixed,
         barrier_id: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_activated(
             activation_id,
             x,
@@ -669,9 +660,6 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         _slf: &Rc<HyprlandInputCaptureV1>,
         activation_id: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_deactivated(
             activation_id,
         );

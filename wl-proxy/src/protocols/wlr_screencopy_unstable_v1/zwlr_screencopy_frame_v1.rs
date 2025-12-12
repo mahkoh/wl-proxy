@@ -613,9 +613,6 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         height: u32,
         stride: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_buffer(
             format,
             width,
@@ -671,9 +668,6 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         _slf: &Rc<ZwlrScreencopyFrameV1>,
         flags: ZwlrScreencopyFrameV1Flags,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_flags(
             flags,
         );
@@ -709,9 +703,6 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         tv_sec_lo: u32,
         tv_nsec: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_ready(
             tv_sec_hi,
             tv_sec_lo,
@@ -732,9 +723,6 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrScreencopyFrameV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_failed(
         );
         if let Err(e) = res {
@@ -809,9 +797,6 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         width: u32,
         height: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_damage(
             x,
             y,
@@ -842,9 +827,6 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         width: u32,
         height: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_linux_dmabuf(
             format,
             width,
@@ -866,9 +848,6 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrScreencopyFrameV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_buffer_done(
         );
         if let Err(e) = res {
@@ -928,12 +907,12 @@ impl ObjectPrivate for ZwlrScreencopyFrameV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_screencopy_frame_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             2 => {
                 let [

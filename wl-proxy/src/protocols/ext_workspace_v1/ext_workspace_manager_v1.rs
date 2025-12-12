@@ -360,9 +360,6 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         _slf: &Rc<ExtWorkspaceManagerV1>,
         workspace_group: &Rc<ExtWorkspaceGroupHandleV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_workspace_group(
             workspace_group,
         );
@@ -390,9 +387,6 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         _slf: &Rc<ExtWorkspaceManagerV1>,
         workspace: &Rc<ExtWorkspaceHandleV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_workspace(
             workspace,
         );
@@ -441,9 +435,6 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtWorkspaceManagerV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -461,9 +452,6 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtWorkspaceManagerV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {
@@ -628,12 +616,12 @@ impl ObjectPrivate for ExtWorkspaceManagerV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> ext_workspace_manager_v1#{}.finished()\n", msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_server_destroy();
                 if let Some(handler) = handler {
                     (**handler).finished(&self);
                 } else {
                     DefaultHandler.finished(&self);
                 }
-                self.core.handle_server_destroy();
             }
             n => {
                 let _ = msg;

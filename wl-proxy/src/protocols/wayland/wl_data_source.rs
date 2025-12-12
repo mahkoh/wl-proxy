@@ -565,9 +565,6 @@ pub trait WlDataSourceHandler: Any {
         _slf: &Rc<WlDataSource>,
         mime_type: Option<&str>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_target(
             mime_type,
         );
@@ -593,9 +590,6 @@ pub trait WlDataSourceHandler: Any {
         mime_type: &str,
         fd: &Rc<OwnedFd>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_send(
             mime_type,
             fd,
@@ -632,9 +626,6 @@ pub trait WlDataSourceHandler: Any {
         &mut self,
         _slf: &Rc<WlDataSource>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_cancelled(
         );
         if let Err(e) = res {
@@ -691,9 +682,6 @@ pub trait WlDataSourceHandler: Any {
         &mut self,
         _slf: &Rc<WlDataSource>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_dnd_drop_performed(
         );
         if let Err(e) = res {
@@ -714,9 +702,6 @@ pub trait WlDataSourceHandler: Any {
         &mut self,
         _slf: &Rc<WlDataSource>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_dnd_finished(
         );
         if let Err(e) = res {
@@ -761,9 +746,6 @@ pub trait WlDataSourceHandler: Any {
         _slf: &Rc<WlDataSource>,
         dnd_action: WlDataDeviceManagerDndAction,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_action(
             dnd_action,
         );
@@ -836,12 +818,12 @@ impl ObjectPrivate for WlDataSource {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_data_source#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             2 => {
                 let [

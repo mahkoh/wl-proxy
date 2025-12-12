@@ -118,9 +118,6 @@ pub trait WlCallbackHandler: Any {
         _slf: &Rc<WlCallback>,
         callback_data: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_done(
             callback_data,
         );
@@ -172,12 +169,12 @@ impl ObjectPrivate for WlCallback {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_callback#{}.done(callback_data: {})\n", msg[0], arg0);
                     self.core.state.log(args);
                 }
+                self.core.handle_server_destroy();
                 if let Some(handler) = handler {
                     (**handler).done(&self, arg0);
                 } else {
                     DefaultHandler.done(&self, arg0);
                 }
-                self.core.handle_server_destroy();
             }
             n => {
                 let _ = msg;

@@ -859,9 +859,6 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         radius: i32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_round_corner_radius(
             radius,
         );
@@ -883,9 +880,6 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         theme_name: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_icon_theme(
             theme_name,
         );
@@ -907,9 +901,6 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         active_color: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_active_color(
             active_color,
         );
@@ -931,9 +922,6 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         opacity: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_window_opacity(
             opacity,
         );
@@ -955,9 +943,6 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         r#type: TreelandPersonalizationAppearanceContextV1ThemeType,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_window_theme_type(
             r#type,
         );
@@ -979,9 +964,6 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         height: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_window_titlebar_height(
             height,
         );
@@ -1494,12 +1476,12 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_appearance_context_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

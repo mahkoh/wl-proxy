@@ -222,9 +222,6 @@ pub trait HyprlandGlobalShortcutV1Handler: Any {
         tv_sec_lo: u32,
         tv_nsec: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_pressed(
             tv_sec_hi,
             tv_sec_lo,
@@ -254,9 +251,6 @@ pub trait HyprlandGlobalShortcutV1Handler: Any {
         tv_sec_lo: u32,
         tv_nsec: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_released(
             tv_sec_hi,
             tv_sec_lo,
@@ -307,12 +301,12 @@ impl ObjectPrivate for HyprlandGlobalShortcutV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> hyprland_global_shortcut_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

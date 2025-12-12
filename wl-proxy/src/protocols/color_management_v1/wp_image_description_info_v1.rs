@@ -734,9 +734,6 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         &mut self,
         _slf: &Rc<WpImageDescriptionInfoV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -766,9 +763,6 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         icc: &Rc<OwnedFd>,
         icc_size: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_icc_file(
             icc,
             icc_size,
@@ -809,9 +803,6 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         w_x: i32,
         w_y: i32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_primaries(
             r_x,
             r_y,
@@ -841,9 +832,6 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         _slf: &Rc<WpImageDescriptionInfoV1>,
         primaries: WpColorManagerV1Primaries,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_primaries_named(
             primaries,
         );
@@ -871,9 +859,6 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         _slf: &Rc<WpImageDescriptionInfoV1>,
         eexp: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_tf_power(
             eexp,
         );
@@ -896,9 +881,6 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         _slf: &Rc<WpImageDescriptionInfoV1>,
         tf: WpColorManagerV1TransferFunction,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_tf_named(
             tf,
         );
@@ -931,9 +913,6 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         max_lum: u32,
         reference_lum: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_luminances(
             min_lum,
             max_lum,
@@ -981,9 +960,6 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         w_x: i32,
         w_y: i32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_target_primaries(
             r_x,
             r_y,
@@ -1025,9 +1001,6 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         min_lum: u32,
         max_lum: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_target_luminance(
             min_lum,
             max_lum,
@@ -1054,9 +1027,6 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         _slf: &Rc<WpImageDescriptionInfoV1>,
         max_cll: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_target_max_cll(
             max_cll,
         );
@@ -1082,9 +1052,6 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         _slf: &Rc<WpImageDescriptionInfoV1>,
         max_fall: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_target_max_fall(
             max_fall,
         );
@@ -1134,12 +1101,12 @@ impl ObjectPrivate for WpImageDescriptionInfoV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wp_image_description_info_v1#{}.done()\n", msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_server_destroy();
                 if let Some(handler) = handler {
                     (**handler).done(&self);
                 } else {
                     DefaultHandler.done(&self);
                 }
-                self.core.handle_server_destroy();
             }
             1 => {
                 let [

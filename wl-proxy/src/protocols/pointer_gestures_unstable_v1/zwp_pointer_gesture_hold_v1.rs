@@ -266,12 +266,6 @@ pub trait ZwpPointerGestureHoldV1Handler: Any {
         surface: &Rc<WlSurface>,
         fingers: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
-        if surface.core().zombie.get() {
-            return;
-        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -315,9 +309,6 @@ pub trait ZwpPointerGestureHoldV1Handler: Any {
         time: u32,
         cancelled: i32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_end(
             serial,
             time,
@@ -353,12 +344,12 @@ impl ObjectPrivate for ZwpPointerGestureHoldV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_pointer_gesture_hold_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

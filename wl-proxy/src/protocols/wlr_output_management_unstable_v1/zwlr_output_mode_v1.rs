@@ -288,9 +288,6 @@ pub trait ZwlrOutputModeV1Handler: Any {
         width: i32,
         height: i32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_size(
             width,
             height,
@@ -314,9 +311,6 @@ pub trait ZwlrOutputModeV1Handler: Any {
         _slf: &Rc<ZwlrOutputModeV1>,
         refresh: i32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_refresh(
             refresh,
         );
@@ -333,9 +327,6 @@ pub trait ZwlrOutputModeV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrOutputModeV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_preferred(
         );
         if let Err(e) = res {
@@ -353,9 +344,6 @@ pub trait ZwlrOutputModeV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrOutputModeV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {
@@ -404,12 +392,12 @@ impl ObjectPrivate for ZwlrOutputModeV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_output_mode_v1#{}.release()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
                     DefaultHandler.release(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

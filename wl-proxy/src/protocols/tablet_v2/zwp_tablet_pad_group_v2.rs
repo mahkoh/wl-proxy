@@ -540,9 +540,6 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         _slf: &Rc<ZwpTabletPadGroupV2>,
         buttons: &[u8],
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_buttons(
             buttons,
         );
@@ -568,9 +565,6 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         _slf: &Rc<ZwpTabletPadGroupV2>,
         ring: &Rc<ZwpTabletPadRingV2>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_ring(
             ring,
         );
@@ -596,9 +590,6 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         _slf: &Rc<ZwpTabletPadGroupV2>,
         strip: &Rc<ZwpTabletPadStripV2>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_strip(
             strip,
         );
@@ -631,9 +622,6 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         _slf: &Rc<ZwpTabletPadGroupV2>,
         modes: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_modes(
             modes,
         );
@@ -653,9 +641,6 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpTabletPadGroupV2>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -706,9 +691,6 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         serial: u32,
         mode: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_mode_switch(
             time,
             serial,
@@ -736,9 +718,6 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         _slf: &Rc<ZwpTabletPadGroupV2>,
         dial: &Rc<ZwpTabletPadDialV2>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_dial(
             dial,
         );
@@ -772,12 +751,12 @@ impl ObjectPrivate for ZwpTabletPadGroupV2 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_tablet_pad_group_v2#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

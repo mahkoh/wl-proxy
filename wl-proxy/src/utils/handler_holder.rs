@@ -5,6 +5,7 @@ use std::{
 };
 
 pub(crate) struct HandlerHolder<T: ?Sized> {
+    // TODO: make private
     pub(crate) handler: RefCell<Option<Box<T>>>,
     new: Cell<Option<Option<Box<T>>>>,
 }

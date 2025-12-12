@@ -255,9 +255,6 @@ pub trait WlShmHandler: Any {
         _slf: &Rc<WlShm>,
         format: WlShmFormat,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_format(
             format,
         );
@@ -338,12 +335,12 @@ impl ObjectPrivate for WlShm {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shm#{}.release()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
                     DefaultHandler.release(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

@@ -353,9 +353,6 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         _slf: &Rc<WpDrmLeaseConnectorV1>,
         name: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_name(
             name,
         );
@@ -380,9 +377,6 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         _slf: &Rc<WpDrmLeaseConnectorV1>,
         description: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_description(
             description,
         );
@@ -407,9 +401,6 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         _slf: &Rc<WpDrmLeaseConnectorV1>,
         connector_id: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_connector_id(
             connector_id,
         );
@@ -428,9 +419,6 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         &mut self,
         _slf: &Rc<WpDrmLeaseConnectorV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -456,9 +444,6 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         &mut self,
         _slf: &Rc<WpDrmLeaseConnectorV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_withdrawn(
         );
         if let Err(e) = res {
@@ -510,12 +495,12 @@ impl ObjectPrivate for WpDrmLeaseConnectorV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_drm_lease_connector_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

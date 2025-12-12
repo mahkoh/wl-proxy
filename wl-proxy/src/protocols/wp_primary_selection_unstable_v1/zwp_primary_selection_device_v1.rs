@@ -303,9 +303,6 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
         _slf: &Rc<ZwpPrimarySelectionDeviceV1>,
         offer: &Rc<ZwpPrimarySelectionOfferV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_data_offer(
             offer,
         );
@@ -338,14 +335,6 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
         _slf: &Rc<ZwpPrimarySelectionDeviceV1>,
         id: Option<&Rc<ZwpPrimarySelectionOfferV1>>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
-        if let Some(id) = id {
-            if id.core().zombie.get() {
-                return;
-            }
-        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {
@@ -436,12 +425,12 @@ impl ObjectPrivate for ZwpPrimarySelectionDeviceV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_primary_selection_device_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

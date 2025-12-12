@@ -436,9 +436,6 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
         mod_low: u32,
         num_objects: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_frame(
             width,
             height,
@@ -483,9 +480,6 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
         stride: u32,
         plane_index: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_object(
             index,
             fd,
@@ -527,9 +521,6 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
         tv_sec_lo: u32,
         tv_nsec: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_ready(
             tv_sec_hi,
             tv_sec_lo,
@@ -561,9 +552,6 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
         _slf: &Rc<ZwlrExportDmabufFrameV1>,
         reason: ZwlrExportDmabufFrameV1CancelReason,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_cancel(
             reason,
         );
@@ -616,12 +604,12 @@ impl ObjectPrivate for ZwlrExportDmabufFrameV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_export_dmabuf_frame_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

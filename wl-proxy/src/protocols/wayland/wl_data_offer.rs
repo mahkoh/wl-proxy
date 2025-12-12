@@ -631,9 +631,6 @@ pub trait WlDataOfferHandler: Any {
         _slf: &Rc<WlDataOffer>,
         mime_type: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_offer(
             mime_type,
         );
@@ -740,9 +737,6 @@ pub trait WlDataOfferHandler: Any {
         _slf: &Rc<WlDataOffer>,
         source_actions: WlDataDeviceManagerDndAction,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_source_actions(
             source_actions,
         );
@@ -798,9 +792,6 @@ pub trait WlDataOfferHandler: Any {
         _slf: &Rc<WlDataOffer>,
         dnd_action: WlDataDeviceManagerDndAction,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_action(
             dnd_action,
         );
@@ -920,12 +911,12 @@ impl ObjectPrivate for WlDataOffer {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_data_offer#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             3 => {
                 if msg.len() != 2 {

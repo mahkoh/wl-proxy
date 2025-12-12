@@ -1033,9 +1033,6 @@ pub trait WpColorManagerV1Handler: Any {
         _slf: &Rc<WpColorManagerV1>,
         render_intent: WpColorManagerV1RenderIntent,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_supported_intent(
             render_intent,
         );
@@ -1061,9 +1058,6 @@ pub trait WpColorManagerV1Handler: Any {
         _slf: &Rc<WpColorManagerV1>,
         feature: WpColorManagerV1Feature,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_supported_feature(
             feature,
         );
@@ -1090,9 +1084,6 @@ pub trait WpColorManagerV1Handler: Any {
         _slf: &Rc<WpColorManagerV1>,
         tf: WpColorManagerV1TransferFunction,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_supported_tf_named(
             tf,
         );
@@ -1119,9 +1110,6 @@ pub trait WpColorManagerV1Handler: Any {
         _slf: &Rc<WpColorManagerV1>,
         primaries: WpColorManagerV1Primaries,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_supported_primaries_named(
             primaries,
         );
@@ -1139,9 +1127,6 @@ pub trait WpColorManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<WpColorManagerV1>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -1204,12 +1189,12 @@ impl ObjectPrivate for WpColorManagerV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_color_manager_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             1 => {
                 let [

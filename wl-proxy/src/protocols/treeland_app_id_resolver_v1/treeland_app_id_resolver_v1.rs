@@ -205,9 +205,6 @@ pub trait TreelandAppIdResolverV1Handler: Any {
         request_id: u32,
         pidfd: &Rc<OwnedFd>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_identify_request(
             request_id,
             pidfd,
@@ -349,12 +346,12 @@ impl ObjectPrivate for TreelandAppIdResolverV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_app_id_resolver_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

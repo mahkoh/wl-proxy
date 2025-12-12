@@ -481,9 +481,6 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         font_name: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_font(
             font_name,
         );
@@ -505,9 +502,6 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         font_name: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_monospace_font(
             font_name,
         );
@@ -529,9 +523,6 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         font_size: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_font_size(
             font_size,
         );
@@ -832,12 +823,12 @@ impl ObjectPrivate for TreelandPersonalizationFontContextV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_font_context_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

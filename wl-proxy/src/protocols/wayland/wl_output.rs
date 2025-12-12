@@ -572,9 +572,6 @@ pub trait WlOutputHandler: Any {
         model: &str,
         transform: WlOutputTransform,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_geometry(
             x,
             y,
@@ -641,9 +638,6 @@ pub trait WlOutputHandler: Any {
         height: i32,
         refresh: i32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_mode(
             flags,
             width,
@@ -667,9 +661,6 @@ pub trait WlOutputHandler: Any {
         &mut self,
         _slf: &Rc<WlOutput>,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -707,9 +698,6 @@ pub trait WlOutputHandler: Any {
         _slf: &Rc<WlOutput>,
         factor: i32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_scale(
             factor,
         );
@@ -774,9 +762,6 @@ pub trait WlOutputHandler: Any {
         _slf: &Rc<WlOutput>,
         name: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_name(
             name,
         );
@@ -811,9 +796,6 @@ pub trait WlOutputHandler: Any {
         _slf: &Rc<WlOutput>,
         description: &str,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_description(
             description,
         );
@@ -847,12 +829,12 @@ impl ObjectPrivate for WlOutput {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_output#{}.release()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).release(&self);
                 } else {
                     DefaultHandler.release(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;

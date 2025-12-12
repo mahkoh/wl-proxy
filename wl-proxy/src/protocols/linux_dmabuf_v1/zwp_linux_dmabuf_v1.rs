@@ -515,9 +515,6 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
         _slf: &Rc<ZwpLinuxDmabufV1>,
         format: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_format(
             format,
         );
@@ -565,9 +562,6 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
         modifier_hi: u32,
         modifier_lo: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_modifier(
             format,
             modifier_hi,
@@ -659,12 +653,12 @@ impl ObjectPrivate for ZwpLinuxDmabufV1 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_linux_dmabuf_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             1 => {
                 let [

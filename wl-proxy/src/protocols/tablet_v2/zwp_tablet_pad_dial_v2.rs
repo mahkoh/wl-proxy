@@ -350,9 +350,6 @@ pub trait ZwpTabletPadDialV2Handler: Any {
         _slf: &Rc<ZwpTabletPadDialV2>,
         value120: i32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_delta(
             value120,
         );
@@ -384,9 +381,6 @@ pub trait ZwpTabletPadDialV2Handler: Any {
         _slf: &Rc<ZwpTabletPadDialV2>,
         time: u32,
     ) {
-        if _slf.core.zombie.get() {
-            return;
-        }
         let res = _slf.send_frame(
             time,
         );
@@ -463,12 +457,12 @@ impl ObjectPrivate for ZwpTabletPadDialV2 {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_tablet_pad_dial_v2#{}.destroy()\n", client.endpoint.id, msg[0]);
                     self.core.state.log(args);
                 }
+                self.core.handle_client_destroy();
                 if let Some(handler) = handler {
                     (**handler).destroy(&self);
                 } else {
                     DefaultHandler.destroy(&self);
                 }
-                self.core.handle_client_destroy();
             }
             n => {
                 let _ = client;
