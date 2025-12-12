@@ -29,7 +29,8 @@ impl WpPresentationFeedbackHandler for DefaultHandler { }
 
 impl WpPresentationFeedback {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "wp_presentation_feedback";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpPresentationFeedback;
+    pub const INTERFACE_NAME: &str = "wp_presentation_feedback";
 }
 
 impl WpPresentationFeedback {

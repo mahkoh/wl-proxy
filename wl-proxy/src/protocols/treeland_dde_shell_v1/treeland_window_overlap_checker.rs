@@ -25,7 +25,8 @@ impl TreelandWindowOverlapCheckerHandler for DefaultHandler { }
 
 impl TreelandWindowOverlapChecker {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_window_overlap_checker";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandWindowOverlapChecker;
+    pub const INTERFACE_NAME: &str = "treeland_window_overlap_checker";
 }
 
 impl TreelandWindowOverlapChecker {

@@ -20,7 +20,8 @@ impl WlDisplayHandler for DefaultHandler { }
 
 impl WlDisplay {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wl_display";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlDisplay;
+    pub const INTERFACE_NAME: &str = "wl_display";
 }
 
 impl WlDisplay {

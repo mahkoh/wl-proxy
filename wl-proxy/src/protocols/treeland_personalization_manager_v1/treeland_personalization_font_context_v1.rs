@@ -24,7 +24,8 @@ impl TreelandPersonalizationFontContextV1Handler for DefaultHandler { }
 
 impl TreelandPersonalizationFontContextV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_personalization_font_context_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandPersonalizationFontContextV1;
+    pub const INTERFACE_NAME: &str = "treeland_personalization_font_context_v1";
 }
 
 impl TreelandPersonalizationFontContextV1 {

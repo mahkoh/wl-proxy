@@ -33,7 +33,8 @@ impl ExtSessionLockSurfaceV1Handler for DefaultHandler { }
 
 impl ExtSessionLockSurfaceV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "ext_session_lock_surface_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtSessionLockSurfaceV1;
+    pub const INTERFACE_NAME: &str = "ext_session_lock_surface_v1";
 }
 
 impl ExtSessionLockSurfaceV1 {

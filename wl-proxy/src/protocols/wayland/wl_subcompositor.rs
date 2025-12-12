@@ -37,7 +37,8 @@ impl WlSubcompositorHandler for DefaultHandler { }
 
 impl WlSubcompositor {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wl_subcompositor";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlSubcompositor;
+    pub const INTERFACE_NAME: &str = "wl_subcompositor";
 }
 
 impl WlSubcompositor {

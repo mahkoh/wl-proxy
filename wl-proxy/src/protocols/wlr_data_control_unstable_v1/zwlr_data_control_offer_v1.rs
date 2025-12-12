@@ -22,7 +22,8 @@ impl ZwlrDataControlOfferV1Handler for DefaultHandler { }
 
 impl ZwlrDataControlOfferV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwlr_data_control_offer_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrDataControlOfferV1;
+    pub const INTERFACE_NAME: &str = "zwlr_data_control_offer_v1";
 }
 
 impl ZwlrDataControlOfferV1 {

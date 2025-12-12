@@ -28,7 +28,8 @@ impl TreelandDdeShellSurfaceV1Handler for DefaultHandler { }
 
 impl TreelandDdeShellSurfaceV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_dde_shell_surface_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandDdeShellSurfaceV1;
+    pub const INTERFACE_NAME: &str = "treeland_dde_shell_surface_v1";
 }
 
 impl TreelandDdeShellSurfaceV1 {

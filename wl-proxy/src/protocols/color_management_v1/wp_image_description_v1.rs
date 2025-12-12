@@ -39,7 +39,8 @@ impl WpImageDescriptionV1Handler for DefaultHandler { }
 
 impl WpImageDescriptionV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_image_description_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpImageDescriptionV1;
+    pub const INTERFACE_NAME: &str = "wp_image_description_v1";
 }
 
 impl WpImageDescriptionV1 {

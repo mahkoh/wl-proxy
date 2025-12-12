@@ -25,7 +25,8 @@ impl WpColorManagerV1Handler for DefaultHandler { }
 
 impl WpColorManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_color_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpColorManagerV1;
+    pub const INTERFACE_NAME: &str = "wp_color_manager_v1";
 }
 
 impl WpColorManagerV1 {

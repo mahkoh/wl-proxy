@@ -40,7 +40,8 @@ impl ZxdgDecorationManagerV1Handler for DefaultHandler { }
 
 impl ZxdgDecorationManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zxdg_decoration_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZxdgDecorationManagerV1;
+    pub const INTERFACE_NAME: &str = "zxdg_decoration_manager_v1";
 }
 
 impl ZxdgDecorationManagerV1 {

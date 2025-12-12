@@ -20,7 +20,8 @@ impl ExtForeignToplevelImageCaptureSourceManagerV1Handler for DefaultHandler { }
 
 impl ExtForeignToplevelImageCaptureSourceManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "ext_foreign_toplevel_image_capture_source_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtForeignToplevelImageCaptureSourceManagerV1;
+    pub const INTERFACE_NAME: &str = "ext_foreign_toplevel_image_capture_source_manager_v1";
 }
 
 impl ExtForeignToplevelImageCaptureSourceManagerV1 {

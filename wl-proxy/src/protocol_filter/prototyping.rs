@@ -1,7 +1,9 @@
-#![allow(non_upper_case_globals)]
+#![allow(non_upper_case_globals, unused)]
 
-use linearize::{StaticCopyMap, Linearize};
-use crate::protocols::ProxyInterface;
+use {
+    crate::protocols::ProxyInterface,
+    linearize::{Linearize, StaticCopyMap},
+};
 
 const ext_background_effect_manager_v1: u32 = 1;
 const ext_background_effect_surface_v1: u32 = 1;

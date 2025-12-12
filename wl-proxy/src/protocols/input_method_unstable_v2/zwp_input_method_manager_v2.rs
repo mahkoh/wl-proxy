@@ -23,7 +23,8 @@ impl ZwpInputMethodManagerV2Handler for DefaultHandler { }
 
 impl ZwpInputMethodManagerV2 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwp_input_method_manager_v2";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpInputMethodManagerV2;
+    pub const INTERFACE_NAME: &str = "zwp_input_method_manager_v2";
 }
 
 impl ZwpInputMethodManagerV2 {

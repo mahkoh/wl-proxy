@@ -19,7 +19,8 @@ impl ExtSessionLockManagerV1Handler for DefaultHandler { }
 
 impl ExtSessionLockManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "ext_session_lock_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtSessionLockManagerV1;
+    pub const INTERFACE_NAME: &str = "ext_session_lock_manager_v1";
 }
 
 impl ExtSessionLockManagerV1 {

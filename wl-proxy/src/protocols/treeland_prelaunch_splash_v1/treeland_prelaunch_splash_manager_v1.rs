@@ -25,7 +25,8 @@ impl TreelandPrelaunchSplashManagerV1Handler for DefaultHandler { }
 
 impl TreelandPrelaunchSplashManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_prelaunch_splash_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandPrelaunchSplashManagerV1;
+    pub const INTERFACE_NAME: &str = "treeland_prelaunch_splash_manager_v1";
 }
 
 impl TreelandPrelaunchSplashManagerV1 {

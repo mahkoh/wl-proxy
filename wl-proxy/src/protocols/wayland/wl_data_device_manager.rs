@@ -28,7 +28,8 @@ impl WlDataDeviceManagerHandler for DefaultHandler { }
 
 impl WlDataDeviceManager {
     pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: &str = "wl_data_device_manager";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlDataDeviceManager;
+    pub const INTERFACE_NAME: &str = "wl_data_device_manager";
 }
 
 impl WlDataDeviceManager {

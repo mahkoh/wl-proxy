@@ -24,7 +24,8 @@ impl TreelandPersonalizationManagerV1Handler for DefaultHandler { }
 
 impl TreelandPersonalizationManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_personalization_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandPersonalizationManagerV1;
+    pub const INTERFACE_NAME: &str = "treeland_personalization_manager_v1";
 }
 
 impl TreelandPersonalizationManagerV1 {

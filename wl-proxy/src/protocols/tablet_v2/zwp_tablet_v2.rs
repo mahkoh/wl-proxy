@@ -26,7 +26,8 @@ impl ZwpTabletV2Handler for DefaultHandler { }
 
 impl ZwpTabletV2 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "zwp_tablet_v2";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpTabletV2;
+    pub const INTERFACE_NAME: &str = "zwp_tablet_v2";
 }
 
 impl ZwpTabletV2 {

@@ -22,7 +22,8 @@ impl WpDrmLeaseRequestV1Handler for DefaultHandler { }
 
 impl WpDrmLeaseRequestV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_drm_lease_request_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpDrmLeaseRequestV1;
+    pub const INTERFACE_NAME: &str = "wp_drm_lease_request_v1";
 }
 
 impl WpDrmLeaseRequestV1 {

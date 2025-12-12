@@ -21,7 +21,8 @@ impl WlCompositorHandler for DefaultHandler { }
 
 impl WlCompositor {
     pub const XML_VERSION: u32 = 6;
-    pub const INTERFACE: &str = "wl_compositor";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlCompositor;
+    pub const INTERFACE_NAME: &str = "wl_compositor";
 }
 
 impl WlCompositor {

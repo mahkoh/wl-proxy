@@ -21,7 +21,8 @@ impl TreelandAppIdResolverV1Handler for DefaultHandler { }
 
 impl TreelandAppIdResolverV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_app_id_resolver_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandAppIdResolverV1;
+    pub const INTERFACE_NAME: &str = "treeland_app_id_resolver_v1";
 }
 
 impl TreelandAppIdResolverV1 {

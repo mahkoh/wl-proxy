@@ -19,7 +19,8 @@ impl ZxdgOutputManagerV1Handler for DefaultHandler { }
 
 impl ZxdgOutputManagerV1 {
     pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: &str = "zxdg_output_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZxdgOutputManagerV1;
+    pub const INTERFACE_NAME: &str = "zxdg_output_manager_v1";
 }
 
 impl ZxdgOutputManagerV1 {

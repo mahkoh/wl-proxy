@@ -19,7 +19,8 @@ impl ExtOutputImageCaptureSourceManagerV1Handler for DefaultHandler { }
 
 impl ExtOutputImageCaptureSourceManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "ext_output_image_capture_source_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtOutputImageCaptureSourceManagerV1;
+    pub const INTERFACE_NAME: &str = "ext_output_image_capture_source_manager_v1";
 }
 
 impl ExtOutputImageCaptureSourceManagerV1 {

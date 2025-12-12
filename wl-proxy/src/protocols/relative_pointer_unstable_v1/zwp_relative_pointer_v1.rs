@@ -22,7 +22,8 @@ impl ZwpRelativePointerV1Handler for DefaultHandler { }
 
 impl ZwpRelativePointerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwp_relative_pointer_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpRelativePointerV1;
+    pub const INTERFACE_NAME: &str = "zwp_relative_pointer_v1";
 }
 
 impl ZwpRelativePointerV1 {

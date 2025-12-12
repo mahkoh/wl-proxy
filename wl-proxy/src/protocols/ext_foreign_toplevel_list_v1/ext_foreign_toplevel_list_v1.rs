@@ -34,7 +34,8 @@ impl ExtForeignToplevelListV1Handler for DefaultHandler { }
 
 impl ExtForeignToplevelListV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "ext_foreign_toplevel_list_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtForeignToplevelListV1;
+    pub const INTERFACE_NAME: &str = "ext_foreign_toplevel_list_v1";
 }
 
 impl ExtForeignToplevelListV1 {

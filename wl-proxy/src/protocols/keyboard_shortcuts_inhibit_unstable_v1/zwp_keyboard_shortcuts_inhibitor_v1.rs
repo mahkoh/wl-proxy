@@ -51,7 +51,8 @@ impl ZwpKeyboardShortcutsInhibitorV1Handler for DefaultHandler { }
 
 impl ZwpKeyboardShortcutsInhibitorV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwp_keyboard_shortcuts_inhibitor_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpKeyboardShortcutsInhibitorV1;
+    pub const INTERFACE_NAME: &str = "zwp_keyboard_shortcuts_inhibitor_v1";
 }
 
 impl ZwpKeyboardShortcutsInhibitorV1 {

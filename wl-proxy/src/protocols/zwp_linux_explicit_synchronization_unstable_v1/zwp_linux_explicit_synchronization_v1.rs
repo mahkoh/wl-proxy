@@ -36,7 +36,8 @@ impl ZwpLinuxExplicitSynchronizationV1Handler for DefaultHandler { }
 
 impl ZwpLinuxExplicitSynchronizationV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "zwp_linux_explicit_synchronization_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpLinuxExplicitSynchronizationV1;
+    pub const INTERFACE_NAME: &str = "zwp_linux_explicit_synchronization_v1";
 }
 
 impl ZwpLinuxExplicitSynchronizationV1 {

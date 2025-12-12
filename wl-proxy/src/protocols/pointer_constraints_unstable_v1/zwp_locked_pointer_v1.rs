@@ -41,7 +41,8 @@ impl ZwpLockedPointerV1Handler for DefaultHandler { }
 
 impl ZwpLockedPointerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwp_locked_pointer_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpLockedPointerV1;
+    pub const INTERFACE_NAME: &str = "zwp_locked_pointer_v1";
 }
 
 impl ZwpLockedPointerV1 {

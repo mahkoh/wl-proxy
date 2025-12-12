@@ -15,7 +15,8 @@ impl TreelandWallpaperColorManagerV1Handler for DefaultHandler { }
 
 impl TreelandWallpaperColorManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_wallpaper_color_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandWallpaperColorManagerV1;
+    pub const INTERFACE_NAME: &str = "treeland_wallpaper_color_manager_v1";
 }
 
 impl TreelandWallpaperColorManagerV1 {

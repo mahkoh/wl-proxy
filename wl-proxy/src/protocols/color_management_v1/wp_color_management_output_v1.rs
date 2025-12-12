@@ -25,7 +25,8 @@ impl WpColorManagementOutputV1Handler for DefaultHandler { }
 
 impl WpColorManagementOutputV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_color_management_output_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpColorManagementOutputV1;
+    pub const INTERFACE_NAME: &str = "wp_color_management_output_v1";
 }
 
 impl WpColorManagementOutputV1 {

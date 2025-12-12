@@ -32,7 +32,8 @@ impl ZwlrExportDmabufFrameV1Handler for DefaultHandler { }
 
 impl ZwlrExportDmabufFrameV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwlr_export_dmabuf_frame_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrExportDmabufFrameV1;
+    pub const INTERFACE_NAME: &str = "zwlr_export_dmabuf_frame_v1";
 }
 
 impl ZwlrExportDmabufFrameV1 {

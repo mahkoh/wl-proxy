@@ -19,7 +19,8 @@ impl ExtTransientSeatManagerV1Handler for DefaultHandler { }
 
 impl ExtTransientSeatManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "ext_transient_seat_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtTransientSeatManagerV1;
+    pub const INTERFACE_NAME: &str = "ext_transient_seat_manager_v1";
 }
 
 impl ExtTransientSeatManagerV1 {

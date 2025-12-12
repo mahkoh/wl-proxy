@@ -22,7 +22,8 @@ impl ExtDataControlSourceV1Handler for DefaultHandler { }
 
 impl ExtDataControlSourceV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "ext_data_control_source_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtDataControlSourceV1;
+    pub const INTERFACE_NAME: &str = "ext_data_control_source_v1";
 }
 
 impl ExtDataControlSourceV1 {

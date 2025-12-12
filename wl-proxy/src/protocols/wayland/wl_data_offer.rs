@@ -24,7 +24,8 @@ impl WlDataOfferHandler for DefaultHandler { }
 
 impl WlDataOffer {
     pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: &str = "wl_data_offer";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlDataOffer;
+    pub const INTERFACE_NAME: &str = "wl_data_offer";
 }
 
 impl WlDataOffer {

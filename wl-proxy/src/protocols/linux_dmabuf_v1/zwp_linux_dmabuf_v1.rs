@@ -80,7 +80,8 @@ impl ZwpLinuxDmabufV1Handler for DefaultHandler { }
 
 impl ZwpLinuxDmabufV1 {
     pub const XML_VERSION: u32 = 5;
-    pub const INTERFACE: &str = "zwp_linux_dmabuf_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpLinuxDmabufV1;
+    pub const INTERFACE_NAME: &str = "zwp_linux_dmabuf_v1";
 }
 
 impl ZwpLinuxDmabufV1 {

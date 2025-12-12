@@ -16,7 +16,6 @@ run-on-drop = "1.0.0"
 linearize = { version = "0.1.5", features = ["derive"] }
 
 [features]
-default = ["suite-wayland-protocols", "suite-wlr-protocols"]
 
 # --generated start--
 all-protocols = [

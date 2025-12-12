@@ -48,7 +48,8 @@ impl ZwpLinuxSurfaceSynchronizationV1Handler for DefaultHandler { }
 
 impl ZwpLinuxSurfaceSynchronizationV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "zwp_linux_surface_synchronization_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpLinuxSurfaceSynchronizationV1;
+    pub const INTERFACE_NAME: &str = "zwp_linux_surface_synchronization_v1";
 }
 
 impl ZwpLinuxSurfaceSynchronizationV1 {

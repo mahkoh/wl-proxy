@@ -27,7 +27,8 @@ impl WlShmHandler for DefaultHandler { }
 
 impl WlShm {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "wl_shm";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlShm;
+    pub const INTERFACE_NAME: &str = "wl_shm";
 }
 
 impl WlShm {

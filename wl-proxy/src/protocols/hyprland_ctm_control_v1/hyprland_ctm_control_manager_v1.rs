@@ -22,7 +22,8 @@ impl HyprlandCtmControlManagerV1Handler for DefaultHandler { }
 
 impl HyprlandCtmControlManagerV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "hyprland_ctm_control_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::HyprlandCtmControlManagerV1;
+    pub const INTERFACE_NAME: &str = "hyprland_ctm_control_manager_v1";
 }
 
 impl HyprlandCtmControlManagerV1 {

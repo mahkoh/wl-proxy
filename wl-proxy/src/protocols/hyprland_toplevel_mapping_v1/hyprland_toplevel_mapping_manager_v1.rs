@@ -20,7 +20,8 @@ impl HyprlandToplevelMappingManagerV1Handler for DefaultHandler { }
 
 impl HyprlandToplevelMappingManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "hyprland_toplevel_mapping_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::HyprlandToplevelMappingManagerV1;
+    pub const INTERFACE_NAME: &str = "hyprland_toplevel_mapping_manager_v1";
 }
 
 impl HyprlandToplevelMappingManagerV1 {

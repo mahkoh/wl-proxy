@@ -20,7 +20,8 @@ impl WlFixesHandler for DefaultHandler { }
 
 impl WlFixes {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wl_fixes";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlFixes;
+    pub const INTERFACE_NAME: &str = "wl_fixes";
 }
 
 impl WlFixes {

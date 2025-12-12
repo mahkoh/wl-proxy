@@ -59,7 +59,8 @@ impl WpImageDescriptionCreatorParamsV1Handler for DefaultHandler { }
 
 impl WpImageDescriptionCreatorParamsV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_image_description_creator_params_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpImageDescriptionCreatorParamsV1;
+    pub const INTERFACE_NAME: &str = "wp_image_description_creator_params_v1";
 }
 
 impl WpImageDescriptionCreatorParamsV1 {

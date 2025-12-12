@@ -28,7 +28,8 @@ impl ZwlrGammaControlV1Handler for DefaultHandler { }
 
 impl ZwlrGammaControlV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwlr_gamma_control_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrGammaControlV1;
+    pub const INTERFACE_NAME: &str = "zwlr_gamma_control_v1";
 }
 
 impl ZwlrGammaControlV1 {

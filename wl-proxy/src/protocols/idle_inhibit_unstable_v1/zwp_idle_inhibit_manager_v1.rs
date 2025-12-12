@@ -30,7 +30,8 @@ impl ZwpIdleInhibitManagerV1Handler for DefaultHandler { }
 
 impl ZwpIdleInhibitManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwp_idle_inhibit_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpIdleInhibitManagerV1;
+    pub const INTERFACE_NAME: &str = "zwp_idle_inhibit_manager_v1";
 }
 
 impl ZwpIdleInhibitManagerV1 {

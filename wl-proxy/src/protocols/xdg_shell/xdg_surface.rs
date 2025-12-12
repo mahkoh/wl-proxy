@@ -66,7 +66,8 @@ impl XdgSurfaceHandler for DefaultHandler { }
 
 impl XdgSurface {
     pub const XML_VERSION: u32 = 7;
-    pub const INTERFACE: &str = "xdg_surface";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgSurface;
+    pub const INTERFACE_NAME: &str = "xdg_surface";
 }
 
 impl XdgSurface {

@@ -70,7 +70,8 @@ impl WlSubsurfaceHandler for DefaultHandler { }
 
 impl WlSubsurface {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wl_subsurface";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlSubsurface;
+    pub const INTERFACE_NAME: &str = "wl_subsurface";
 }
 
 impl WlSubsurface {

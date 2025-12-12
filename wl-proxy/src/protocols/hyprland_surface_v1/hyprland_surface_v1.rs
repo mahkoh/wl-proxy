@@ -22,7 +22,8 @@ impl HyprlandSurfaceV1Handler for DefaultHandler { }
 
 impl HyprlandSurfaceV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "hyprland_surface_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::HyprlandSurfaceV1;
+    pub const INTERFACE_NAME: &str = "hyprland_surface_v1";
 }
 
 impl HyprlandSurfaceV1 {

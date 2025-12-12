@@ -20,7 +20,8 @@ impl TreelandOutputManagerV1Handler for DefaultHandler { }
 
 impl TreelandOutputManagerV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "treeland_output_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandOutputManagerV1;
+    pub const INTERFACE_NAME: &str = "treeland_output_manager_v1";
 }
 
 impl TreelandOutputManagerV1 {

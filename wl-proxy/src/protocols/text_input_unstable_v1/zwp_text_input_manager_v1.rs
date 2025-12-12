@@ -19,7 +19,8 @@ impl ZwpTextInputManagerV1Handler for DefaultHandler { }
 
 impl ZwpTextInputManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwp_text_input_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpTextInputManagerV1;
+    pub const INTERFACE_NAME: &str = "zwp_text_input_manager_v1";
 }
 
 impl ZwpTextInputManagerV1 {

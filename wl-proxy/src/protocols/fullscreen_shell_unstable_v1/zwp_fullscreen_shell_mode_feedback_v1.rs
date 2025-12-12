@@ -15,7 +15,8 @@ impl ZwpFullscreenShellModeFeedbackV1Handler for DefaultHandler { }
 
 impl ZwpFullscreenShellModeFeedbackV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwp_fullscreen_shell_mode_feedback_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpFullscreenShellModeFeedbackV1;
+    pub const INTERFACE_NAME: &str = "zwp_fullscreen_shell_mode_feedback_v1";
 }
 
 impl ZwpFullscreenShellModeFeedbackV1 {

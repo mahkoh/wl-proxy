@@ -29,7 +29,8 @@ impl WpFifoManagerV1Handler for DefaultHandler { }
 
 impl WpFifoManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_fifo_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpFifoManagerV1;
+    pub const INTERFACE_NAME: &str = "wp_fifo_manager_v1";
 }
 
 impl WpFifoManagerV1 {

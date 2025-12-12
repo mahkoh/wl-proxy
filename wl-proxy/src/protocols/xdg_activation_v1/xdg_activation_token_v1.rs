@@ -26,7 +26,8 @@ impl XdgActivationTokenV1Handler for DefaultHandler { }
 
 impl XdgActivationTokenV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "xdg_activation_token_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgActivationTokenV1;
+    pub const INTERFACE_NAME: &str = "xdg_activation_token_v1";
 }
 
 impl XdgActivationTokenV1 {

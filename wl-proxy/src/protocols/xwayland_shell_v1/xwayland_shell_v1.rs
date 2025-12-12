@@ -33,7 +33,8 @@ impl XwaylandShellV1Handler for DefaultHandler { }
 
 impl XwaylandShellV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "xwayland_shell_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::XwaylandShellV1;
+    pub const INTERFACE_NAME: &str = "xwayland_shell_v1";
 }
 
 impl XwaylandShellV1 {

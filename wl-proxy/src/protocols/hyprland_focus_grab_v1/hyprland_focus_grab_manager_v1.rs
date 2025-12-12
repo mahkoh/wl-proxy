@@ -19,7 +19,8 @@ impl HyprlandFocusGrabManagerV1Handler for DefaultHandler { }
 
 impl HyprlandFocusGrabManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "hyprland_focus_grab_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::HyprlandFocusGrabManagerV1;
+    pub const INTERFACE_NAME: &str = "hyprland_focus_grab_manager_v1";
 }
 
 impl HyprlandFocusGrabManagerV1 {

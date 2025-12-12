@@ -20,7 +20,8 @@ impl ExtForeignToplevelHandleV1Handler for DefaultHandler { }
 
 impl ExtForeignToplevelHandleV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "ext_foreign_toplevel_handle_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtForeignToplevelHandleV1;
+    pub const INTERFACE_NAME: &str = "ext_foreign_toplevel_handle_v1";
 }
 
 impl ExtForeignToplevelHandleV1 {

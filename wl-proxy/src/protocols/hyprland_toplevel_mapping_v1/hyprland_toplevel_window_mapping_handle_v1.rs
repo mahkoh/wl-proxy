@@ -23,7 +23,8 @@ impl HyprlandToplevelWindowMappingHandleV1Handler for DefaultHandler { }
 
 impl HyprlandToplevelWindowMappingHandleV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "hyprland_toplevel_window_mapping_handle_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::HyprlandToplevelWindowMappingHandleV1;
+    pub const INTERFACE_NAME: &str = "hyprland_toplevel_window_mapping_handle_v1";
 }
 
 impl HyprlandToplevelWindowMappingHandleV1 {

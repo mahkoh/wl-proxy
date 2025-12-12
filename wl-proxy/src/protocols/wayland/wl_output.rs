@@ -24,7 +24,8 @@ impl WlOutputHandler for DefaultHandler { }
 
 impl WlOutput {
     pub const XML_VERSION: u32 = 4;
-    pub const INTERFACE: &str = "wl_output";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlOutput;
+    pub const INTERFACE_NAME: &str = "wl_output";
 }
 
 impl WlOutput {

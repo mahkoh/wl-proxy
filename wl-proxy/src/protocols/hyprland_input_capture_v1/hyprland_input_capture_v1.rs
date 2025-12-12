@@ -21,7 +21,8 @@ impl HyprlandInputCaptureV1Handler for DefaultHandler { }
 
 impl HyprlandInputCaptureV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "hyprland_input_capture_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::HyprlandInputCaptureV1;
+    pub const INTERFACE_NAME: &str = "hyprland_input_capture_v1";
 }
 
 impl HyprlandInputCaptureV1 {

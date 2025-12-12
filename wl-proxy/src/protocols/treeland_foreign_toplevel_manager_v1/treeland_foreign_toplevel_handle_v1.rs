@@ -25,7 +25,8 @@ impl TreelandForeignToplevelHandleV1Handler for DefaultHandler { }
 
 impl TreelandForeignToplevelHandleV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_foreign_toplevel_handle_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandForeignToplevelHandleV1;
+    pub const INTERFACE_NAME: &str = "treeland_foreign_toplevel_handle_v1";
 }
 
 impl TreelandForeignToplevelHandleV1 {

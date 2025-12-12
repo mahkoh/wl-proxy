@@ -19,7 +19,8 @@ impl ZwpXwaylandKeyboardGrabV1Handler for DefaultHandler { }
 
 impl ZwpXwaylandKeyboardGrabV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwp_xwayland_keyboard_grab_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpXwaylandKeyboardGrabV1;
+    pub const INTERFACE_NAME: &str = "zwp_xwayland_keyboard_grab_v1";
 }
 
 impl ZwpXwaylandKeyboardGrabV1 {

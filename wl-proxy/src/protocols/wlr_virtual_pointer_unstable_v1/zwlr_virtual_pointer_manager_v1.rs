@@ -19,7 +19,8 @@ impl ZwlrVirtualPointerManagerV1Handler for DefaultHandler { }
 
 impl ZwlrVirtualPointerManagerV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "zwlr_virtual_pointer_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrVirtualPointerManagerV1;
+    pub const INTERFACE_NAME: &str = "zwlr_virtual_pointer_manager_v1";
 }
 
 impl ZwlrVirtualPointerManagerV1 {

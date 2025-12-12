@@ -24,7 +24,8 @@ impl TreelandShortcutContextV1Handler for DefaultHandler { }
 
 impl TreelandShortcutContextV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_shortcut_context_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandShortcutContextV1;
+    pub const INTERFACE_NAME: &str = "treeland_shortcut_context_v1";
 }
 
 impl TreelandShortcutContextV1 {

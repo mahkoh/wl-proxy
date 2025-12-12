@@ -15,7 +15,8 @@ impl WlDrmHandler for DefaultHandler { }
 
 impl WlDrm {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "wl_drm";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlDrm;
+    pub const INTERFACE_NAME: &str = "wl_drm";
 }
 
 impl WlDrm {

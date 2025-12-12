@@ -23,7 +23,8 @@ impl WpColorManagementSurfaceFeedbackV1Handler for DefaultHandler { }
 
 impl WpColorManagementSurfaceFeedbackV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_color_management_surface_feedback_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpColorManagementSurfaceFeedbackV1;
+    pub const INTERFACE_NAME: &str = "wp_color_management_surface_feedback_v1";
 }
 
 impl WpColorManagementSurfaceFeedbackV1 {

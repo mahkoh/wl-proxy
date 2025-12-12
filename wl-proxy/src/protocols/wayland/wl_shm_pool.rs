@@ -25,7 +25,8 @@ impl WlShmPoolHandler for DefaultHandler { }
 
 impl WlShmPool {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "wl_shm_pool";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlShmPool;
+    pub const INTERFACE_NAME: &str = "wl_shm_pool";
 }
 
 impl WlShmPool {

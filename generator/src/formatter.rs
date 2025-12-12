@@ -123,7 +123,14 @@ fn format_interface_types(w: &mut impl Write, interface: &Interface) -> io::Resu
     wl!()?;
     wl!(r#"impl {PREFIX}{camel} {{"#)?;
     wl!(r#"    pub const XML_VERSION: u32 = {};"#, interface.version)?;
-    wl!(r#"    pub const INTERFACE: &str = "{}";"#, interface.name)?;
+    wl!(
+        r#"    pub const INTERFACE: ProxyInterface = ProxyInterface::{};"#,
+        camel
+    )?;
+    wl!(
+        r#"    pub const INTERFACE_NAME: &str = "{}";"#,
+        interface.name
+    )?;
     wl!(r#"}}"#)?;
     Ok(())
 }
@@ -440,6 +447,33 @@ fn format_interface_message_handler(w: &mut impl Write, interface: &Interface) -
             )?;
         }
         wl!(r#"    ) {{"#)?;
+        if !msg.is_request {
+            wl!(r#"        if _slf.core.is_zombie.get() {{"#)?;
+            wl!(r#"            return;"#)?;
+            wl!(r#"        }}"#)?;
+            for arg in &msg.args {
+                if arg.ty == ArgType::Object {
+                    let mut prefix = "";
+                    if arg.allow_null {
+                        wl!(
+                            r#"            if let Some({}) = {} {{"#,
+                            escape_name(&arg.name),
+                            escape_name(&arg.name),
+                        )?;
+                        prefix = "    ";
+                    }
+                    wl!(
+                        r#"            {prefix}if {}.core().is_zombie.get() {{"#,
+                        escape_name(&arg.name)
+                    )?;
+                    wl!(r#"            {prefix}    return;"#)?;
+                    wl!(r#"            {prefix}}}"#)?;
+                    if arg.allow_null {
+                        wl!(r#"            }}"#)?;
+                    }
+                }
+            }
+        }
         if !msg.is_request && msg.args.iter().any(|a| matches!(a.ty, ArgType::Object)) {
             wl!(r#"        if let Some(client_id) = _slf.core.client_id.get() {{"#)?;
             for arg in &msg.args {
@@ -573,35 +607,36 @@ pub fn format_mod_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<()> {
     wl!(
         "    pub(super) fn create_proxy_for_interface(state: &Rc<State>, interface: &str, version: u32) -> Result<Rc<dyn Proxy>, ObjectError> {{"
     )?;
-    wl!("        proxy_interface(interface)")?;
+    wl!("        ProxyInterface::from_str(interface)")?;
     wl!("            .ok_or(ObjectError::UnsupportedInterface(interface.to_string()))")?;
     wl!("            .and_then(|i| i.create_proxy(state, version))")?;
     wl!("    }}")?;
     wl!()?;
-    wl!("    pub(super) fn proxy_interface(interface: &str) -> Option<ProxyInterface> {{")?;
+    wl!("    impl ProxyInterface {{")?;
+    wl!("        #[expect(clippy::should_implement_trait)]")?;
+    wl!("        pub fn from_str(interface: &str) -> Option<ProxyInterface> {{")?;
     wl!(
-        "        static INTERFACES: phf::Map<&'static str, Option<ProxyInterface>> = phf::phf_map! {{"
+        "            static INTERFACES: phf::Map<&'static str, Option<ProxyInterface>> = phf::phf_map! {{"
     )?;
     for (protocol, interface) in interfaces() {
         let snake = &interface.name;
         let camel = format_camel(snake);
         if protocol.is_wayland {
-            wl!(r#"            "{snake}" => Some(ProxyInterface::{camel}),"#)?;
+            wl!(r#"                "{snake}" => Some(ProxyInterface::{camel}),"#)?;
         } else {
             let proto = &protocol.name;
-            wl!(r#"            "{snake}" => {{"#)?;
+            wl!(r#"                "{snake}" => {{"#)?;
             wl!(
-                r#"                #[cfg(feature = "protocol-{proto}")] {{ Some(ProxyInterface::{camel}) }}"#
+                r#"                    #[cfg(feature = "protocol-{proto}")] {{ Some(ProxyInterface::{camel}) }}"#
             )?;
-            wl!(r#"                #[cfg(not(feature = "protocol-{proto}"))] {{ None }}"#)?;
-            wl!(r#"            }},"#)?;
+            wl!(r#"                    #[cfg(not(feature = "protocol-{proto}"))] {{ None }}"#)?;
+            wl!(r#"                }},"#)?;
         }
     }
-    wl!("        }};")?;
-    wl!("        INTERFACES.get(interface).copied().flatten()")?;
-    wl!("    }}")?;
+    wl!("            }};")?;
+    wl!("            INTERFACES.get(interface).copied().flatten()")?;
+    wl!("        }}")?;
     wl!()?;
-    wl!("    impl ProxyInterface {{")?;
     wl!(
         "        fn create_proxy(self, state: &Rc<State>, version: u32) -> Result<Rc<dyn Proxy>, ObjectError> {{"
     )?;
@@ -632,7 +667,7 @@ pub fn format_mod_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<()> {
     wl!("}}")?;
     wl!()?;
     wl!("impl ProxyInterface {{")?;
-    wl!("    pub fn name(self) -> &'static str {{")?;
+    wl!("    pub const fn name(self) -> &'static str {{")?;
     wl!("        match self {{")?;
     for (protocol, interface) in interfaces() {
         let snake = &interface.name;
@@ -643,7 +678,7 @@ pub fn format_mod_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<()> {
     wl!("        }}")?;
     wl!("    }}")?;
     wl!()?;
-    wl!("    pub fn xml_version(self) -> u32 {{")?;
+    wl!("    pub const fn xml_version(self) -> u32 {{")?;
     wl!("        match self {{")?;
     for (protocol, interface) in interfaces() {
         let version = interface.version;
@@ -663,7 +698,7 @@ pub fn format_baseline_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<(
     let interfaces = || protocols().flat_map(|p| p.interfaces.iter().map(move |i| (p, i)));
     let mut interfaces: Vec<_> = interfaces().collect();
     interfaces.sort_by_key(|(_, i)| &i.name);
-    wl!("#![allow(non_upper_case_globals)]")?;
+    wl!("#![allow(non_upper_case_globals, unused)]")?;
     wl!()?;
     wl!("use linearize::{{StaticCopyMap, Linearize}};")?;
     wl!("use crate::protocols::ProxyInterface;")?;
@@ -671,9 +706,7 @@ pub fn format_baseline_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<(
     for (_, interface) in &interfaces {
         let version = interface.version;
         let snake = &interface.name;
-        wl!(
-            r#"const {snake}: u32 = {version};"#
-        )?;
+        wl!(r#"const {snake}: u32 = {version};"#)?;
     }
     wl!()?;
     wl!("#[rustfmt::skip]")?;
@@ -1242,7 +1275,7 @@ fn format_proxy_message_handler_body<W: Write>(
         }
         format_wayland_debug(w, interface, msg, false)?;
         if interface.is_wl_registry && msg.name == "global" {
-            wl!(r#"{p}        let arg2 = match proxy_interface(arg1) {{"#)?;
+            wl!(r#"{p}        let arg2 = match ProxyInterface::from_str(arg1) {{"#)?;
             wl!(r#"{p}            Some(i) => i.xml_version().min(arg2),"#)?;
             wl!(r#"{p}            _ => return Ok(()),"#)?;
             wl!(r#"{p}        }};"#)?;

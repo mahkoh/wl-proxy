@@ -37,7 +37,8 @@ impl XdgPositionerHandler for DefaultHandler { }
 
 impl XdgPositioner {
     pub const XML_VERSION: u32 = 7;
-    pub const INTERFACE: &str = "xdg_positioner";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgPositioner;
+    pub const INTERFACE_NAME: &str = "xdg_positioner";
 }
 
 impl XdgPositioner {

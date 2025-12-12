@@ -34,7 +34,8 @@ impl ZwpPointerGesturesV1Handler for DefaultHandler { }
 
 impl ZwpPointerGesturesV1 {
     pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: &str = "zwp_pointer_gestures_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpPointerGesturesV1;
+    pub const INTERFACE_NAME: &str = "zwp_pointer_gestures_v1";
 }
 
 impl ZwpPointerGesturesV1 {

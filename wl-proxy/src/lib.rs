@@ -1,3 +1,9 @@
+#![expect(
+    clippy::single_char_add_str,
+    clippy::manual_is_multiple_of,
+    clippy::manual_div_ceil
+)]
+
 pub mod acceptor;
 pub mod client;
 pub mod endpoint;

@@ -20,7 +20,8 @@ impl HyprlandToplevelExportManagerV1Handler for DefaultHandler { }
 
 impl HyprlandToplevelExportManagerV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "hyprland_toplevel_export_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::HyprlandToplevelExportManagerV1;
+    pub const INTERFACE_NAME: &str = "hyprland_toplevel_export_manager_v1";
 }
 
 impl HyprlandToplevelExportManagerV1 {

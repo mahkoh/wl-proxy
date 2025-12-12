@@ -30,7 +30,8 @@ impl WlKeyboardHandler for DefaultHandler { }
 
 impl WlKeyboard {
     pub const XML_VERSION: u32 = 10;
-    pub const INTERFACE: &str = "wl_keyboard";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlKeyboard;
+    pub const INTERFACE_NAME: &str = "wl_keyboard";
 }
 
 impl WlKeyboard {

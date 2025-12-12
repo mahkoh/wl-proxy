@@ -40,7 +40,8 @@ impl ZwpTabletPadV2Handler for DefaultHandler { }
 
 impl ZwpTabletPadV2 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "zwp_tablet_pad_v2";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpTabletPadV2;
+    pub const INTERFACE_NAME: &str = "zwp_tablet_pad_v2";
 }
 
 impl ZwpTabletPadV2 {

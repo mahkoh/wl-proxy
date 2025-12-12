@@ -22,7 +22,8 @@ impl ZwpPrimarySelectionDeviceManagerV1Handler for DefaultHandler { }
 
 impl ZwpPrimarySelectionDeviceManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwp_primary_selection_device_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpPrimarySelectionDeviceManagerV1;
+    pub const INTERFACE_NAME: &str = "zwp_primary_selection_device_manager_v1";
 }
 
 impl ZwpPrimarySelectionDeviceManagerV1 {

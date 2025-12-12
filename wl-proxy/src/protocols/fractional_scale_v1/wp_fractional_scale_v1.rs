@@ -20,7 +20,8 @@ impl WpFractionalScaleV1Handler for DefaultHandler { }
 
 impl WpFractionalScaleV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_fractional_scale_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpFractionalScaleV1;
+    pub const INTERFACE_NAME: &str = "wp_fractional_scale_v1";
 }
 
 impl WpFractionalScaleV1 {

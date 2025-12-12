@@ -21,7 +21,8 @@ impl ZwlrDataControlDeviceV1Handler for DefaultHandler { }
 
 impl ZwlrDataControlDeviceV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "zwlr_data_control_device_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrDataControlDeviceV1;
+    pub const INTERFACE_NAME: &str = "zwlr_data_control_device_v1";
 }
 
 impl ZwlrDataControlDeviceV1 {

@@ -30,7 +30,8 @@ impl WpPointerWarpV1Handler for DefaultHandler { }
 
 impl WpPointerWarpV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_pointer_warp_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpPointerWarpV1;
+    pub const INTERFACE_NAME: &str = "wp_pointer_warp_v1";
 }
 
 impl WpPointerWarpV1 {

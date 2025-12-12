@@ -33,7 +33,8 @@ impl HyprlandFocusGrabV1Handler for DefaultHandler { }
 
 impl HyprlandFocusGrabV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "hyprland_focus_grab_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::HyprlandFocusGrabV1;
+    pub const INTERFACE_NAME: &str = "hyprland_focus_grab_v1";
 }
 
 impl HyprlandFocusGrabV1 {

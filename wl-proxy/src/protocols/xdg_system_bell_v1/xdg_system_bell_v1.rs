@@ -24,7 +24,8 @@ impl XdgSystemBellV1Handler for DefaultHandler { }
 
 impl XdgSystemBellV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "xdg_system_bell_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgSystemBellV1;
+    pub const INTERFACE_NAME: &str = "xdg_system_bell_v1";
 }
 
 impl XdgSystemBellV1 {

@@ -20,7 +20,8 @@ impl TreelandDdmHandler for DefaultHandler { }
 
 impl TreelandDdm {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_ddm";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandDdm;
+    pub const INTERFACE_NAME: &str = "treeland_ddm";
 }
 
 impl TreelandDdm {

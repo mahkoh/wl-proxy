@@ -22,7 +22,8 @@ impl WlDataSourceHandler for DefaultHandler { }
 
 impl WlDataSource {
     pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: &str = "wl_data_source";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlDataSource;
+    pub const INTERFACE_NAME: &str = "wl_data_source";
 }
 
 impl WlDataSource {

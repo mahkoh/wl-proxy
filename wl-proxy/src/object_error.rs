@@ -29,7 +29,7 @@ pub enum ObjectError {
     ReceiverNoClient,
     #[error("the argument {0} is not associated with client {1}")]
     ArgNoClientId(&'static str, u64),
-    #[error("the argument {0} is not associated with a server object")]
+    #[error("the argument {0} has no server id")]
     ArgNoServerId(&'static str),
     #[error("the size of the message is {0} instead of {0}")]
     WrongMessageSize(u32, u32),

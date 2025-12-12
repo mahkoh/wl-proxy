@@ -26,7 +26,8 @@ impl WlTouchHandler for DefaultHandler { }
 
 impl WlTouch {
     pub const XML_VERSION: u32 = 10;
-    pub const INTERFACE: &str = "wl_touch";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlTouch;
+    pub const INTERFACE_NAME: &str = "wl_touch";
 }
 
 impl WlTouch {

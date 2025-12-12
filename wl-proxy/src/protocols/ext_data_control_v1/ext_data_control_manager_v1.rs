@@ -20,7 +20,8 @@ impl ExtDataControlManagerV1Handler for DefaultHandler { }
 
 impl ExtDataControlManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "ext_data_control_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtDataControlManagerV1;
+    pub const INTERFACE_NAME: &str = "ext_data_control_manager_v1";
 }
 
 impl ExtDataControlManagerV1 {

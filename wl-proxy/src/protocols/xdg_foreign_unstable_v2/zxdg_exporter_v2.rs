@@ -20,7 +20,8 @@ impl ZxdgExporterV2Handler for DefaultHandler { }
 
 impl ZxdgExporterV2 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zxdg_exporter_v2";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZxdgExporterV2;
+    pub const INTERFACE_NAME: &str = "zxdg_exporter_v2";
 }
 
 impl ZxdgExporterV2 {

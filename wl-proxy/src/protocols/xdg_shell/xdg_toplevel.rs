@@ -39,7 +39,8 @@ impl XdgToplevelHandler for DefaultHandler { }
 
 impl XdgToplevel {
     pub const XML_VERSION: u32 = 7;
-    pub const INTERFACE: &str = "xdg_toplevel";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgToplevel;
+    pub const INTERFACE_NAME: &str = "xdg_toplevel";
 }
 
 impl XdgToplevel {

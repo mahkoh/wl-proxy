@@ -29,7 +29,8 @@ impl ExtBackgroundEffectManagerV1Handler for DefaultHandler { }
 
 impl ExtBackgroundEffectManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "ext_background_effect_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtBackgroundEffectManagerV1;
+    pub const INTERFACE_NAME: &str = "ext_background_effect_manager_v1";
 }
 
 impl ExtBackgroundEffectManagerV1 {

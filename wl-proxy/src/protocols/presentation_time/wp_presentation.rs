@@ -37,7 +37,8 @@ impl WpPresentationHandler for DefaultHandler { }
 
 impl WpPresentation {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "wp_presentation";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpPresentation;
+    pub const INTERFACE_NAME: &str = "wp_presentation";
 }
 
 impl WpPresentation {

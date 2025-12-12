@@ -24,7 +24,8 @@ impl TreelandDockPreviewContextV1Handler for DefaultHandler { }
 
 impl TreelandDockPreviewContextV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_dock_preview_context_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandDockPreviewContextV1;
+    pub const INTERFACE_NAME: &str = "treeland_dock_preview_context_v1";
 }
 
 impl TreelandDockPreviewContextV1 {

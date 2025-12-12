@@ -1,4 +1,5 @@
 use {
+    isnt::std_1::primitive::IsntSliceExt,
     smallvec::SmallVec,
     std::{
         collections::VecDeque,
@@ -148,7 +149,7 @@ fn read_from_socket(
         }
     };
     buffer.valid_bytes += init.len();
-    while control.len() > 0 {
+    while control.is_not_empty() {
         let (_, hdr, data) = uapi::cmsg_read(&mut control).unwrap();
         if hdr.cmsg_level != c::SOL_SOCKET || hdr.cmsg_type != c::SCM_RIGHTS {
             continue;

@@ -25,7 +25,8 @@ impl WpContentTypeManagerV1Handler for DefaultHandler { }
 
 impl WpContentTypeManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_content_type_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpContentTypeManagerV1;
+    pub const INTERFACE_NAME: &str = "wp_content_type_manager_v1";
 }
 
 impl WpContentTypeManagerV1 {

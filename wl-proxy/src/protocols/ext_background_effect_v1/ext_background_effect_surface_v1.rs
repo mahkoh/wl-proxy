@@ -23,7 +23,8 @@ impl ExtBackgroundEffectSurfaceV1Handler for DefaultHandler { }
 
 impl ExtBackgroundEffectSurfaceV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "ext_background_effect_surface_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtBackgroundEffectSurfaceV1;
+    pub const INTERFACE_NAME: &str = "ext_background_effect_surface_v1";
 }
 
 impl ExtBackgroundEffectSurfaceV1 {

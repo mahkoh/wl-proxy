@@ -34,7 +34,8 @@ impl ExtImageCopyCaptureSessionV1Handler for DefaultHandler { }
 
 impl ExtImageCopyCaptureSessionV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "ext_image_copy_capture_session_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtImageCopyCaptureSessionV1;
+    pub const INTERFACE_NAME: &str = "ext_image_copy_capture_session_v1";
 }
 
 impl ExtImageCopyCaptureSessionV1 {

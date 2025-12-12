@@ -34,7 +34,8 @@ impl ZwpConfinedPointerV1Handler for DefaultHandler { }
 
 impl ZwpConfinedPointerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwp_confined_pointer_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpConfinedPointerV1;
+    pub const INTERFACE_NAME: &str = "zwp_confined_pointer_v1";
 }
 
 impl ZwpConfinedPointerV1 {

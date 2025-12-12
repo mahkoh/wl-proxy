@@ -33,7 +33,8 @@ impl ZwlrLayerSurfaceV1Handler for DefaultHandler { }
 
 impl ZwlrLayerSurfaceV1 {
     pub const XML_VERSION: u32 = 5;
-    pub const INTERFACE: &str = "zwlr_layer_surface_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrLayerSurfaceV1;
+    pub const INTERFACE_NAME: &str = "zwlr_layer_surface_v1";
 }
 
 impl ZwlrLayerSurfaceV1 {

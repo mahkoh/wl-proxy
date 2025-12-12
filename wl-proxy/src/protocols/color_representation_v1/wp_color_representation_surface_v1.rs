@@ -28,7 +28,8 @@ impl WpColorRepresentationSurfaceV1Handler for DefaultHandler { }
 
 impl WpColorRepresentationSurfaceV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_color_representation_surface_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpColorRepresentationSurfaceV1;
+    pub const INTERFACE_NAME: &str = "wp_color_representation_surface_v1";
 }
 
 impl WpColorRepresentationSurfaceV1 {

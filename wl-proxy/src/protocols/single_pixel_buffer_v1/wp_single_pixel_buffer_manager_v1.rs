@@ -20,7 +20,8 @@ impl WpSinglePixelBufferManagerV1Handler for DefaultHandler { }
 
 impl WpSinglePixelBufferManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_single_pixel_buffer_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpSinglePixelBufferManagerV1;
+    pub const INTERFACE_NAME: &str = "wp_single_pixel_buffer_manager_v1";
 }
 
 impl WpSinglePixelBufferManagerV1 {

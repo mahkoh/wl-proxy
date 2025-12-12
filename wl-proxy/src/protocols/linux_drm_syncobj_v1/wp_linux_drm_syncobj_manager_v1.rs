@@ -22,7 +22,8 @@ impl WpLinuxDrmSyncobjManagerV1Handler for DefaultHandler { }
 
 impl WpLinuxDrmSyncobjManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_linux_drm_syncobj_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpLinuxDrmSyncobjManagerV1;
+    pub const INTERFACE_NAME: &str = "wp_linux_drm_syncobj_manager_v1";
 }
 
 impl WpLinuxDrmSyncobjManagerV1 {

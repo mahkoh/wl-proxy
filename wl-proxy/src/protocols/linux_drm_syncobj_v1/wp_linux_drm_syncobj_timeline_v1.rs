@@ -20,7 +20,8 @@ impl WpLinuxDrmSyncobjTimelineV1Handler for DefaultHandler { }
 
 impl WpLinuxDrmSyncobjTimelineV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_linux_drm_syncobj_timeline_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpLinuxDrmSyncobjTimelineV1;
+    pub const INTERFACE_NAME: &str = "wp_linux_drm_syncobj_timeline_v1";
 }
 
 impl WpLinuxDrmSyncobjTimelineV1 {

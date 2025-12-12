@@ -34,7 +34,8 @@ impl ZwpLinuxBufferParamsV1Handler for DefaultHandler { }
 
 impl ZwpLinuxBufferParamsV1 {
     pub const XML_VERSION: u32 = 5;
-    pub const INTERFACE: &str = "zwp_linux_buffer_params_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpLinuxBufferParamsV1;
+    pub const INTERFACE_NAME: &str = "zwp_linux_buffer_params_v1";
 }
 
 impl ZwpLinuxBufferParamsV1 {

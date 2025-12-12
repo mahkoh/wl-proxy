@@ -35,7 +35,8 @@ impl JayTrayItemV1Handler for DefaultHandler { }
 
 impl JayTrayItemV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "jay_tray_item_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::JayTrayItemV1;
+    pub const INTERFACE_NAME: &str = "jay_tray_item_v1";
 }
 
 impl JayTrayItemV1 {

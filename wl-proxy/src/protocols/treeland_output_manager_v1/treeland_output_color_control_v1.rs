@@ -19,7 +19,8 @@ impl TreelandOutputColorControlV1Handler for DefaultHandler { }
 
 impl TreelandOutputColorControlV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_output_color_control_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandOutputColorControlV1;
+    pub const INTERFACE_NAME: &str = "treeland_output_color_control_v1";
 }
 
 impl TreelandOutputColorControlV1 {

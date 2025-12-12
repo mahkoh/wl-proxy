@@ -29,7 +29,8 @@ impl WlShellSurfaceHandler for DefaultHandler { }
 
 impl WlShellSurface {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wl_shell_surface";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlShellSurface;
+    pub const INTERFACE_NAME: &str = "wl_shell_surface";
 }
 
 impl WlShellSurface {

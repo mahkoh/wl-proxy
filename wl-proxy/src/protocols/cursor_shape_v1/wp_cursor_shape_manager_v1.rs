@@ -26,7 +26,8 @@ impl WpCursorShapeManagerV1Handler for DefaultHandler { }
 
 impl WpCursorShapeManagerV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "wp_cursor_shape_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpCursorShapeManagerV1;
+    pub const INTERFACE_NAME: &str = "wp_cursor_shape_manager_v1";
 }
 
 impl WpCursorShapeManagerV1 {

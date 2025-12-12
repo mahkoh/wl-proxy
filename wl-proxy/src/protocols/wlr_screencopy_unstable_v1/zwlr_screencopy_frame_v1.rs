@@ -34,7 +34,8 @@ impl ZwlrScreencopyFrameV1Handler for DefaultHandler { }
 
 impl ZwlrScreencopyFrameV1 {
     pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: &str = "zwlr_screencopy_frame_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrScreencopyFrameV1;
+    pub const INTERFACE_NAME: &str = "zwlr_screencopy_frame_v1";
 }
 
 impl ZwlrScreencopyFrameV1 {

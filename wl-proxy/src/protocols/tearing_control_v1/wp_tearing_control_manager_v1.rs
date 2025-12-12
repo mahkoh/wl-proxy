@@ -33,7 +33,8 @@ impl WpTearingControlManagerV1Handler for DefaultHandler { }
 
 impl WpTearingControlManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_tearing_control_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpTearingControlManagerV1;
+    pub const INTERFACE_NAME: &str = "wp_tearing_control_manager_v1";
 }
 
 impl WpTearingControlManagerV1 {

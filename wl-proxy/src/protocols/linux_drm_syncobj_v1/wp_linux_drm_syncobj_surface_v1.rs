@@ -43,7 +43,8 @@ impl WpLinuxDrmSyncobjSurfaceV1Handler for DefaultHandler { }
 
 impl WpLinuxDrmSyncobjSurfaceV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_linux_drm_syncobj_surface_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpLinuxDrmSyncobjSurfaceV1;
+    pub const INTERFACE_NAME: &str = "wp_linux_drm_syncobj_surface_v1";
 }
 
 impl WpLinuxDrmSyncobjSurfaceV1 {

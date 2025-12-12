@@ -361,6 +361,7 @@ impl State {
     pub(crate) fn handle_delete_id(&self, id: u32) {
         let proxy = self.server.objects.borrow_mut().remove(&id).unwrap();
         let core = proxy.core();
+        core.zombie.set(false);
         core.server_obj_id.take();
         self.server.idl.release(id);
     }
@@ -642,7 +643,7 @@ impl State {
                 self.epoll.as_raw_fd(),
                 c::EPOLL_CTL_MOD,
                 socket.as_raw_fd(),
-                Some(&event),
+                Some(event),
             )
             .map_err(|e| StateError::UpdateEpoll(io::Error::from_raw_os_error(e.0)))
         };

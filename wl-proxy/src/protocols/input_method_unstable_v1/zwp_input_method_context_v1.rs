@@ -41,7 +41,8 @@ impl ZwpInputMethodContextV1Handler for DefaultHandler { }
 
 impl ZwpInputMethodContextV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwp_input_method_context_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpInputMethodContextV1;
+    pub const INTERFACE_NAME: &str = "zwp_input_method_context_v1";
 }
 
 impl ZwpInputMethodContextV1 {

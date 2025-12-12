@@ -40,7 +40,8 @@ impl ExtIdleNotificationV1Handler for DefaultHandler { }
 
 impl ExtIdleNotificationV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "ext_idle_notification_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtIdleNotificationV1;
+    pub const INTERFACE_NAME: &str = "ext_idle_notification_v1";
 }
 
 impl ExtIdleNotificationV1 {

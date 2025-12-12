@@ -19,7 +19,8 @@ impl TreelandDdeActiveV1Handler for DefaultHandler { }
 
 impl TreelandDdeActiveV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_dde_active_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandDdeActiveV1;
+    pub const INTERFACE_NAME: &str = "treeland_dde_active_v1";
 }
 
 impl TreelandDdeActiveV1 {

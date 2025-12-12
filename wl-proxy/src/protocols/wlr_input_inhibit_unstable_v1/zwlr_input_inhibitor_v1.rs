@@ -27,7 +27,8 @@ impl ZwlrInputInhibitorV1Handler for DefaultHandler { }
 
 impl ZwlrInputInhibitorV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwlr_input_inhibitor_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrInputInhibitorV1;
+    pub const INTERFACE_NAME: &str = "zwlr_input_inhibitor_v1";
 }
 
 impl ZwlrInputInhibitorV1 {

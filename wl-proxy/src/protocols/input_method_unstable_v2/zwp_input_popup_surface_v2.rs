@@ -26,7 +26,8 @@ impl ZwpInputPopupSurfaceV2Handler for DefaultHandler { }
 
 impl ZwpInputPopupSurfaceV2 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwp_input_popup_surface_v2";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpInputPopupSurfaceV2;
+    pub const INTERFACE_NAME: &str = "zwp_input_popup_surface_v2";
 }
 
 impl ZwpInputPopupSurfaceV2 {

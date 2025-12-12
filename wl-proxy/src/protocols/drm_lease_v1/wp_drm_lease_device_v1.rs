@@ -48,7 +48,8 @@ impl WpDrmLeaseDeviceV1Handler for DefaultHandler { }
 
 impl WpDrmLeaseDeviceV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_drm_lease_device_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpDrmLeaseDeviceV1;
+    pub const INTERFACE_NAME: &str = "wp_drm_lease_device_v1";
 }
 
 impl WpDrmLeaseDeviceV1 {

@@ -28,7 +28,8 @@ impl ZwlrOutputConfigurationV1Handler for DefaultHandler { }
 
 impl ZwlrOutputConfigurationV1 {
     pub const XML_VERSION: u32 = 4;
-    pub const INTERFACE: &str = "zwlr_output_configuration_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrOutputConfigurationV1;
+    pub const INTERFACE_NAME: &str = "zwlr_output_configuration_v1";
 }
 
 impl ZwlrOutputConfigurationV1 {

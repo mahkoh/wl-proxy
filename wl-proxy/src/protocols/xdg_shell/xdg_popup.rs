@@ -42,7 +42,8 @@ impl XdgPopupHandler for DefaultHandler { }
 
 impl XdgPopup {
     pub const XML_VERSION: u32 = 7;
-    pub const INTERFACE: &str = "xdg_popup";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgPopup;
+    pub const INTERFACE_NAME: &str = "xdg_popup";
 }
 
 impl XdgPopup {

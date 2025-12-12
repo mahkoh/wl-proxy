@@ -38,7 +38,8 @@ impl WlRegistryHandler for DefaultHandler { }
 
 impl WlRegistry {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wl_registry";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlRegistry;
+    pub const INTERFACE_NAME: &str = "wl_registry";
 }
 
 impl WlRegistry {
@@ -461,7 +462,7 @@ impl ProxyPrivate for WlRegistry {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_registry#{}.global(name: {}, interface: {:?}, version: {})\n", msg[0], arg0, arg1, arg2);
                     self.core.state.log(args);
                 }
-                let arg2 = match proxy_interface(arg1) {
+                let arg2 = match ProxyInterface::from_str(arg1) {
                     Some(i) => i.xml_version().min(arg2),
                     _ => return Ok(()),
                 };

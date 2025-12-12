@@ -6,7 +6,7 @@ use std::{
 };
 
 type Seg = usize;
-const SEG_SIZE: usize = size_of::<Seg>() * 8;
+const SEG_SIZE: usize = Seg::BITS as usize;
 
 pub(crate) struct FreeList<T, const N: usize> {
     levels: UnsafeCell<[Vec<Seg>; N]>,

@@ -22,7 +22,8 @@ impl WlSeatHandler for DefaultHandler { }
 
 impl WlSeat {
     pub const XML_VERSION: u32 = 10;
-    pub const INTERFACE: &str = "wl_seat";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlSeat;
+    pub const INTERFACE_NAME: &str = "wl_seat";
 }
 
 impl WlSeat {

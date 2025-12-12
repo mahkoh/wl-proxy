@@ -43,7 +43,8 @@ impl ZwpLinuxDmabufFeedbackV1Handler for DefaultHandler { }
 
 impl ZwpLinuxDmabufFeedbackV1 {
     pub const XML_VERSION: u32 = 5;
-    pub const INTERFACE: &str = "zwp_linux_dmabuf_feedback_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpLinuxDmabufFeedbackV1;
+    pub const INTERFACE_NAME: &str = "zwp_linux_dmabuf_feedback_v1";
 }
 
 impl ZwpLinuxDmabufFeedbackV1 {

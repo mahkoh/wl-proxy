@@ -25,7 +25,8 @@ impl OrgKdeKwinServerDecorationManagerHandler for DefaultHandler { }
 
 impl OrgKdeKwinServerDecorationManager {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "org_kde_kwin_server_decoration_manager";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::OrgKdeKwinServerDecorationManager;
+    pub const INTERFACE_NAME: &str = "org_kde_kwin_server_decoration_manager";
 }
 
 impl OrgKdeKwinServerDecorationManager {

@@ -21,7 +21,8 @@ impl ExtDataControlDeviceV1Handler for DefaultHandler { }
 
 impl ExtDataControlDeviceV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "ext_data_control_device_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtDataControlDeviceV1;
+    pub const INTERFACE_NAME: &str = "ext_data_control_device_v1";
 }
 
 impl ExtDataControlDeviceV1 {

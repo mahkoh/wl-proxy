@@ -19,7 +19,8 @@ impl TreelandVirtualOutputV1Handler for DefaultHandler { }
 
 impl TreelandVirtualOutputV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_virtual_output_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandVirtualOutputV1;
+    pub const INTERFACE_NAME: &str = "treeland_virtual_output_v1";
 }
 
 impl TreelandVirtualOutputV1 {

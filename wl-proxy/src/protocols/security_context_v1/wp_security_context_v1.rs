@@ -28,7 +28,8 @@ impl WpSecurityContextV1Handler for DefaultHandler { }
 
 impl WpSecurityContextV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_security_context_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpSecurityContextV1;
+    pub const INTERFACE_NAME: &str = "wp_security_context_v1";
 }
 
 impl WpSecurityContextV1 {

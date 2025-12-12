@@ -33,7 +33,8 @@ impl WlBufferHandler for DefaultHandler { }
 
 impl WlBuffer {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wl_buffer";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlBuffer;
+    pub const INTERFACE_NAME: &str = "wl_buffer";
 }
 
 impl WlBuffer {

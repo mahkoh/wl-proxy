@@ -24,7 +24,8 @@ impl WpViewporterHandler for DefaultHandler { }
 
 impl WpViewporter {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_viewporter";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpViewporter;
+    pub const INTERFACE_NAME: &str = "wp_viewporter";
 }
 
 impl WpViewporter {

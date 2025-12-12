@@ -29,7 +29,8 @@ impl XdgToplevelTagManagerV1Handler for DefaultHandler { }
 
 impl XdgToplevelTagManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "xdg_toplevel_tag_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgToplevelTagManagerV1;
+    pub const INTERFACE_NAME: &str = "xdg_toplevel_tag_manager_v1";
 }
 
 impl XdgToplevelTagManagerV1 {

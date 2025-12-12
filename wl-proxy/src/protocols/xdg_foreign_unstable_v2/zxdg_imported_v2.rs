@@ -21,7 +21,8 @@ impl ZxdgImportedV2Handler for DefaultHandler { }
 
 impl ZxdgImportedV2 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zxdg_imported_v2";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZxdgImportedV2;
+    pub const INTERFACE_NAME: &str = "zxdg_imported_v2";
 }
 
 impl ZxdgImportedV2 {

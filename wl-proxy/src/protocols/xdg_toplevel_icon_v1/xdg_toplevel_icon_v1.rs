@@ -26,7 +26,8 @@ impl XdgToplevelIconV1Handler for DefaultHandler { }
 
 impl XdgToplevelIconV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "xdg_toplevel_icon_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgToplevelIconV1;
+    pub const INTERFACE_NAME: &str = "xdg_toplevel_icon_v1";
 }
 
 impl XdgToplevelIconV1 {

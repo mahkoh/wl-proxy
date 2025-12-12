@@ -24,7 +24,8 @@ impl TreelandPersonalizationWallpaperContextV1Handler for DefaultHandler { }
 
 impl TreelandPersonalizationWallpaperContextV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_personalization_wallpaper_context_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandPersonalizationWallpaperContextV1;
+    pub const INTERFACE_NAME: &str = "treeland_personalization_wallpaper_context_v1";
 }
 
 impl TreelandPersonalizationWallpaperContextV1 {

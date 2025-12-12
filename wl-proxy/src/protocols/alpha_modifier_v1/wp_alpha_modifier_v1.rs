@@ -26,7 +26,8 @@ impl WpAlphaModifierV1Handler for DefaultHandler { }
 
 impl WpAlphaModifierV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_alpha_modifier_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpAlphaModifierV1;
+    pub const INTERFACE_NAME: &str = "wp_alpha_modifier_v1";
 }
 
 impl WpAlphaModifierV1 {

@@ -31,7 +31,8 @@ impl HyprlandLockNotificationV1Handler for DefaultHandler { }
 
 impl HyprlandLockNotificationV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "hyprland_lock_notification_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::HyprlandLockNotificationV1;
+    pub const INTERFACE_NAME: &str = "hyprland_lock_notification_v1";
 }
 
 impl HyprlandLockNotificationV1 {

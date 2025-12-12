@@ -20,7 +20,8 @@ impl ZwpVirtualKeyboardManagerV1Handler for DefaultHandler { }
 
 impl ZwpVirtualKeyboardManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwp_virtual_keyboard_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpVirtualKeyboardManagerV1;
+    pub const INTERFACE_NAME: &str = "zwp_virtual_keyboard_manager_v1";
 }
 
 impl ZwpVirtualKeyboardManagerV1 {

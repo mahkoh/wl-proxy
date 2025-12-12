@@ -25,7 +25,8 @@ impl ZwlrLayerShellV1Handler for DefaultHandler { }
 
 impl ZwlrLayerShellV1 {
     pub const XML_VERSION: u32 = 5;
-    pub const INTERFACE: &str = "zwlr_layer_shell_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrLayerShellV1;
+    pub const INTERFACE_NAME: &str = "zwlr_layer_shell_v1";
 }
 
 impl ZwlrLayerShellV1 {

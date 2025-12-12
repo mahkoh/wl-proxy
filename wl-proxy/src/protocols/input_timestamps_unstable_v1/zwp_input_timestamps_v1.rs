@@ -21,7 +21,8 @@ impl ZwpInputTimestampsV1Handler for DefaultHandler { }
 
 impl ZwpInputTimestampsV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwp_input_timestamps_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpInputTimestampsV1;
+    pub const INTERFACE_NAME: &str = "zwp_input_timestamps_v1";
 }
 
 impl ZwpInputTimestampsV1 {

@@ -23,7 +23,8 @@ impl ZwpPrimarySelectionOfferV1Handler for DefaultHandler { }
 
 impl ZwpPrimarySelectionOfferV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwp_primary_selection_offer_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpPrimarySelectionOfferV1;
+    pub const INTERFACE_NAME: &str = "zwp_primary_selection_offer_v1";
 }
 
 impl ZwpPrimarySelectionOfferV1 {

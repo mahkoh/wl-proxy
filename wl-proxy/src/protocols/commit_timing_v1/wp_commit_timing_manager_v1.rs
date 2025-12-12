@@ -39,7 +39,8 @@ impl WpCommitTimingManagerV1Handler for DefaultHandler { }
 
 impl WpCommitTimingManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_commit_timing_manager_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpCommitTimingManagerV1;
+    pub const INTERFACE_NAME: &str = "wp_commit_timing_manager_v1";
 }
 
 impl WpCommitTimingManagerV1 {

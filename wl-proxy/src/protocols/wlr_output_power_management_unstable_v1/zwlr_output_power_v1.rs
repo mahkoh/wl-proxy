@@ -20,7 +20,8 @@ impl ZwlrOutputPowerV1Handler for DefaultHandler { }
 
 impl ZwlrOutputPowerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "zwlr_output_power_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrOutputPowerV1;
+    pub const INTERFACE_NAME: &str = "zwlr_output_power_v1";
 }
 
 impl ZwlrOutputPowerV1 {

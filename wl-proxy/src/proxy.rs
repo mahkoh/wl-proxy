@@ -4,7 +4,6 @@ use {
         any::Any,
         cell::{Cell, Ref, RefCell, RefMut},
         collections::{VecDeque, hash_map::Entry},
-        mem,
         os::fd::OwnedFd,
         rc::{Rc, Weak},
     },
@@ -68,6 +67,10 @@ pub trait ProxyUtils: Proxy {
         self.core().version()
     }
 
+    fn is_zombie(&self) -> bool {
+        self.core().is_zombie()
+    }
+
     fn get_handler_ref<T>(&self) -> Result<Ref<'_, T>, HandlerAccessError>
     where
         T: 'static,
@@ -77,7 +80,7 @@ pub trait ProxyUtils: Proxy {
             .downcast_ref::<T>()
             .ok_or(HandlerAccessError::InvalidType)?;
         Ok(Ref::map(handler, |h| unsafe {
-            mem::transmute(h as *const dyn Any as *const u8)
+            &*(h as *const dyn Any as *const T)
         }))
     }
 
@@ -90,18 +93,34 @@ pub trait ProxyUtils: Proxy {
             .downcast_mut::<T>()
             .ok_or(HandlerAccessError::InvalidType)?;
         Ok(RefMut::map(handler, |h| unsafe {
-            mem::transmute(h as *mut dyn Any as *mut u8)
+            &mut *(h as *mut dyn Any as *mut T)
         }))
     }
 }
 
 impl<T> ProxyUtils for T where T: Proxy + ?Sized {}
 
+pub trait ProxyRcUtils {
+    fn downcast<T>(self) -> Option<Rc<T>>
+    where
+        T: 'static;
+}
+
+impl ProxyRcUtils for Rc<dyn Proxy> {
+    fn downcast<T>(self) -> Option<Rc<T>>
+    where
+        T: 'static,
+    {
+        (self as Rc<dyn Any>).downcast().ok()
+    }
+}
+
 pub struct ProxyCore {
     pub(crate) state: Rc<State>,
     proxy_id: u64,
     pub(crate) interface: ProxyInterface,
     pub(crate) version: u32,
+    pub(crate) zombie: Cell<bool>,
     pub(crate) server_obj_id: Cell<Option<u32>>,
     pub(crate) client_obj_id: Cell<Option<u32>>,
     pub(crate) client_id: Cell<Option<u64>>,
@@ -273,6 +292,7 @@ impl ProxyCore {
     pub(crate) fn handle_server_destroy(&self) {
         let id = self.server_obj_id.get().unwrap();
         if id < MIN_SERVER_ID {
+            self.zombie.set(true);
             return;
         }
         self.server_obj_id.take();
@@ -296,6 +316,10 @@ impl ProxyCore {
 
     pub fn version(&self) -> u32 {
         self.version
+    }
+
+    pub fn is_zombie(&self) -> bool {
+        self.zombie.get()
     }
 }
 

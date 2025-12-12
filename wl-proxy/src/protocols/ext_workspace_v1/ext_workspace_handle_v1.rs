@@ -34,7 +34,8 @@ impl ExtWorkspaceHandleV1Handler for DefaultHandler { }
 
 impl ExtWorkspaceHandleV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "ext_workspace_handle_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtWorkspaceHandleV1;
+    pub const INTERFACE_NAME: &str = "ext_workspace_handle_v1";
 }
 
 impl ExtWorkspaceHandleV1 {

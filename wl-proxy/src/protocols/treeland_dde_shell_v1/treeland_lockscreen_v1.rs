@@ -19,7 +19,8 @@ impl TreelandLockscreenV1Handler for DefaultHandler { }
 
 impl TreelandLockscreenV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_lockscreen_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandLockscreenV1;
+    pub const INTERFACE_NAME: &str = "treeland_lockscreen_v1";
 }
 
 impl TreelandLockscreenV1 {

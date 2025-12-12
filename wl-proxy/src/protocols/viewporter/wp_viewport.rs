@@ -72,7 +72,8 @@ impl WpViewportHandler for DefaultHandler { }
 
 impl WpViewport {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wp_viewport";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpViewport;
+    pub const INTERFACE_NAME: &str = "wp_viewport";
 }
 
 impl WpViewport {

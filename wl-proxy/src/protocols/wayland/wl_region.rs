@@ -22,7 +22,8 @@ impl WlRegionHandler for DefaultHandler { }
 
 impl WlRegion {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wl_region";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlRegion;
+    pub const INTERFACE_NAME: &str = "wl_region";
 }
 
 impl WlRegion {

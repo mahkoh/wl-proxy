@@ -26,7 +26,8 @@ impl WlPointerHandler for DefaultHandler { }
 
 impl WlPointer {
     pub const XML_VERSION: u32 = 10;
-    pub const INTERFACE: &str = "wl_pointer";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlPointer;
+    pub const INTERFACE_NAME: &str = "wl_pointer";
 }
 
 impl WlPointer {

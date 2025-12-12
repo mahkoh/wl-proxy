@@ -37,7 +37,8 @@ impl TreelandScreensaverHandler for DefaultHandler { }
 
 impl TreelandScreensaver {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_screensaver";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandScreensaver;
+    pub const INTERFACE_NAME: &str = "treeland_screensaver";
 }
 
 impl TreelandScreensaver {

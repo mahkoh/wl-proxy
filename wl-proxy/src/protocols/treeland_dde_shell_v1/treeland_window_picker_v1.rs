@@ -19,7 +19,8 @@ impl TreelandWindowPickerV1Handler for DefaultHandler { }
 
 impl TreelandWindowPickerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "treeland_window_picker_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandWindowPickerV1;
+    pub const INTERFACE_NAME: &str = "treeland_window_picker_v1";
 }
 
 impl TreelandWindowPickerV1 {

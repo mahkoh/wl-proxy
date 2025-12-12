@@ -19,7 +19,8 @@ impl HyprlandGlobalShortcutV1Handler for DefaultHandler { }
 
 impl HyprlandGlobalShortcutV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "hyprland_global_shortcut_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::HyprlandGlobalShortcutV1;
+    pub const INTERFACE_NAME: &str = "hyprland_global_shortcut_v1";
 }
 
 impl HyprlandGlobalShortcutV1 {

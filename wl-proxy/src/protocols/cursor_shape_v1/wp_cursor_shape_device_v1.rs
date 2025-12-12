@@ -19,7 +19,8 @@ impl WpCursorShapeDeviceV1Handler for DefaultHandler { }
 
 impl WpCursorShapeDeviceV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: &str = "wp_cursor_shape_device_v1";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WpCursorShapeDeviceV1;
+    pub const INTERFACE_NAME: &str = "wp_cursor_shape_device_v1";
 }
 
 impl WpCursorShapeDeviceV1 {

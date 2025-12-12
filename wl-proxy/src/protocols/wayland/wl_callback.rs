@@ -23,7 +23,8 @@ impl WlCallbackHandler for DefaultHandler { }
 
 impl WlCallback {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: &str = "wl_callback";
+    pub const INTERFACE: ProxyInterface = ProxyInterface::WlCallback;
+    pub const INTERFACE_NAME: &str = "wl_callback";
 }
 
 impl WlCallback {
