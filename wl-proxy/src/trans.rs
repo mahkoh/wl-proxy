@@ -139,15 +139,16 @@ fn read_from_socket(
         name: sockaddr_none_mut(),
         flags: 0,
     };
-    let (init, _, mut control) = match uapi::recvmsg(fd, &mut header, c::MSG_CMSG_CLOEXEC) {
-        Ok(r) => r,
-        Err(e) if e.0 == c::EAGAIN => return Ok(()),
-        Err(e) => {
-            return Err(TransError::ReadFromSocket(io::Error::from_raw_os_error(
-                e.0,
-            )));
-        }
-    };
+    let (init, _, mut control) =
+        match uapi::recvmsg(fd, &mut header, c::MSG_CMSG_CLOEXEC | c::MSG_DONTWAIT) {
+            Ok(r) => r,
+            Err(e) if e.0 == c::EAGAIN => return Ok(()),
+            Err(e) => {
+                return Err(TransError::ReadFromSocket(io::Error::from_raw_os_error(
+                    e.0,
+                )));
+            }
+        };
     buffer.valid_bytes += init.len();
     while control.is_not_empty() {
         let (_, hdr, data) = uapi::cmsg_read(&mut control).unwrap();
@@ -217,7 +218,7 @@ fn write_to_socket(socket: RawFd, buffer: &mut OutputBuffer) -> Result<FlushResu
         control,
         name: sockaddr_none_ref(),
     };
-    match uapi::sendmsg(socket, &msghdr, c::MSG_NOSIGNAL) {
+    match uapi::sendmsg(socket, &msghdr, c::MSG_NOSIGNAL | c::MSG_DONTWAIT) {
         Ok(n) => {
             if let Some(fdo) = fd_offset {
                 buffer.fds.drain(..fdo.num_fds);

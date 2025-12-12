@@ -5,6 +5,7 @@ use {
     },
     std::{
         io,
+        os::unix::ffi::OsStrExt,
         path::{Path, PathBuf},
     },
     thiserror::Error,
@@ -55,7 +56,7 @@ pub(crate) fn collect() -> Result<Vec<Suite>, CollectorError> {
                 Ok(f) => f,
                 Err(e) => return Err(CollectorError::ReadDir(dir, e)),
             };
-            if !file.file_name().as_encoded_bytes().ends_with(b".xml") {
+            if !file.file_name().as_bytes().ends_with(b".xml") {
                 continue;
             }
             let file = file.path();

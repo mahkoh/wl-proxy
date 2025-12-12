@@ -16,7 +16,6 @@ use {
         rc::Rc,
     },
     thiserror::Error,
-    uapi::c,
 };
 
 pub(crate) struct Endpoint {
@@ -26,8 +25,8 @@ pub(crate) struct Endpoint {
     pub(crate) flush_queued: Cell<bool>,
     pub(crate) objects: RefCell<HashMap<u32, Rc<dyn Object>>>,
     pub(crate) idl: FreeList<u32, 3>,
-    pub(crate) current_interest: Cell<c::c_int>,
-    pub(crate) desired_interest: Cell<c::c_int>,
+    pub(crate) current_interest: Cell<u32>,
+    pub(crate) desired_interest: Cell<u32>,
     pub(crate) interest_update_queued: Cell<bool>,
     incoming: RefCell<InputState>,
 }
@@ -88,10 +87,10 @@ impl Error for MessageError {
 }
 
 impl Endpoint {
-    pub(crate) fn new(id: u64, socket: OwnedFd) -> Rc<Self> {
+    pub(crate) fn new(id: u64, socket: &Rc<OwnedFd>) -> Rc<Self> {
         Rc::new(Endpoint {
             id,
-            socket: Rc::new(socket),
+            socket: socket.clone(),
             outgoing: Default::default(),
             flush_queued: Default::default(),
             objects: Default::default(),

@@ -1,8 +1,8 @@
 use {
-    crate::utils::xrd::xrd,
+    crate::utils::env::{WAYLAND_DISPLAY, XDG_RUNTIME_DIR},
     error_reporter::Report,
     std::{
-        env::set_var,
+        env::{set_var, var},
         io,
         os::fd::{AsFd, AsRawFd, BorrowedFd, OwnedFd},
         rc::Rc,
@@ -43,11 +43,11 @@ pub struct AcceptorError(#[from] AcceptorErrorType);
 
 #[derive(Debug, Error)]
 enum AcceptorErrorType {
-    #[error("XDG_RUNTIME_DIR is not set")]
+    #[error("{} is not set", XDG_RUNTIME_DIR)]
     XrdNotSet,
     #[error("could not create a socket")]
     CreateSocket(#[source] io::Error),
-    #[error("XDG_RUNTIME_DIR ({0:?}) is too long to form a unix socket address")]
+    #[error("{} ({:?}) is too long to form a unix socket address", XDG_RUNTIME_DIR, .0)]
     XrdTooLong(String),
     #[error("could not open the lock file")]
     OpenLockFile(#[source] io::Error),
@@ -100,8 +100,8 @@ impl Acceptor {
         max_tries: u32,
         non_blocking: bool,
     ) -> Result<Rc<Self>, AcceptorError> {
-        let xrd = match xrd() {
-            Some(d) => d,
+        let xrd = match var(XDG_RUNTIME_DIR) {
+            Ok(d) => d,
             _ => return Err(AcceptorErrorType::XrdNotSet.into()),
         };
         let mut ty = c::SOCK_STREAM | c::SOCK_CLOEXEC;
@@ -116,7 +116,7 @@ impl Acceptor {
                 log::debug!("Cannot use the wayland-{} socket: {}", i, Report::new(e));
                 continue;
             }
-            if let Err(e) = uapi::listen(socket.as_raw_fd(), 4096) {
+            if let Err(e) = uapi::listen(socket.as_raw_fd(), 1024) {
                 return Err(AcceptorErrorType::ListenFailed(e.into()).into());
             }
             return Ok(Rc::new(Acceptor {
@@ -187,7 +187,7 @@ impl Acceptor {
     /// ```
     pub unsafe fn setenv(&self) {
         unsafe {
-            set_var("WAYLAND_DISPLAY", &self.display);
+            set_var(WAYLAND_DISPLAY, &self.display);
         }
     }
 
@@ -215,7 +215,7 @@ impl Acceptor {
             let res = uapi::accept4(
                 self.socket.as_raw_fd(),
                 sockaddr_none_mut(),
-                c::SOCK_NONBLOCK | c::SOCK_CLOEXEC,
+                c::SOCK_CLOEXEC,
             );
             match res {
                 Ok((s, _)) => return Ok(Some(s.into())),

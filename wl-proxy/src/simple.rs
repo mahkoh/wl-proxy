@@ -4,6 +4,7 @@ use {
         client::ClientHandler,
         protocols::wayland::wl_display::WlDisplayHandler,
         state::{Destructor, StateBuilder},
+        utils::env::WAYLAND_DISPLAY,
     },
     error_reporter::Report,
     std::{
@@ -69,7 +70,7 @@ impl SimpleServer {
                                 return;
                             }
                         };
-                        let client = match state.add_client(socket) {
+                        let client = match state.add_client(&Rc::new(socket)) {
                             Ok(c) => c,
                             Err(e) => {
                                 log::error!("could not add client to state: {}", Report::new(e));
@@ -114,7 +115,7 @@ pub trait SimpleCommandExt {
 
 impl SimpleCommandExt for Command {
     fn with_wayland_display(&mut self, display: &str) -> &mut Command {
-        self.env("WAYLAND_DISPLAY", display)
+        self.env(WAYLAND_DISPLAY, display)
     }
 
     fn spawn_and_forward_exit_code(&mut self) -> Result<(), io::Error> {

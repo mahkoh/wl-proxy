@@ -4,9 +4,15 @@ use {
         client::Client,
         endpoint::{Endpoint, EndpointError},
         object::{Object, ObjectPrivate},
+        poll::{self, PollError, PollEvent, Poller},
         protocols::wayland::wl_display::WlDisplay,
         trans::{FlushResult, TransError},
-        utils::{handler_holder::HandlerHolder, stack::Stack, stash::Stash, xrd::xrd},
+        utils::{
+            env::{WAYLAND_DISPLAY, WAYLAND_SOCKET, XDG_RUNTIME_DIR},
+            handler_holder::HandlerHolder,
+            stack::Stack,
+            stash::Stash,
+        },
     },
     error_reporter::Report,
     isnt::std_1::primitive::IsntStrExt,
@@ -14,11 +20,15 @@ use {
     std::{
         cell::{Cell, RefCell},
         collections::HashMap,
-        env::var,
+        env::{remove_var, var, var_os},
         fmt,
         io::{self, BufWriter, Write, pipe},
-        os::fd::{AsRawFd, OwnedFd},
+        os::{
+            fd::{FromRawFd, OwnedFd},
+            unix::ffi::OsStrExt,
+        },
         rc::{Rc, Weak},
+        str::FromStr,
         sync::{
             Arc,
             atomic::{
@@ -30,8 +40,8 @@ use {
     },
     thiserror::Error,
     uapi::{
-        Errno, Fd,
-        c::{self, EPOLL_CTL_ADD, sockaddr_un},
+        Fd,
+        c::{self, sockaddr_un},
     },
 };
 
@@ -53,14 +63,6 @@ enum StateErrorKind {
     WriteToServer(#[source] EndpointError),
     #[error("could not dispatch server events")]
     DispatchEvents(#[source] EndpointError),
-    #[error("could not create epoll fd")]
-    CreateEpoll(#[source] io::Error),
-    #[error("could not read epoll events")]
-    ReadEpoll(#[source] io::Error),
-    #[error("could not register socket with epoll")]
-    AddEpoll(#[source] io::Error),
-    #[error("could not update epoll interests")]
-    UpdateEpoll(#[source] io::Error),
     #[error("could not create a socket pair")]
     Socketpair(#[source] io::Error),
     #[error(transparent)]
@@ -69,9 +71,9 @@ enum StateErrorKind {
     AcceptConnection(AcceptorError),
     #[error("could not create a pipe")]
     CreatePipe(#[source] io::Error),
-    #[error("could not read WAYLAND_DISPLAY environment variable")]
+    #[error("could not read {} environment variable", WAYLAND_DISPLAY)]
     WaylandDisplay,
-    #[error("XDG_RUNTIME_DIR is not set")]
+    #[error("{} is not set", XDG_RUNTIME_DIR)]
     XrdNotSet,
     #[error("the socket path is too long")]
     SocketPathTooLong,
@@ -79,6 +81,14 @@ enum StateErrorKind {
     CreateSocket(#[source] io::Error),
     #[error("could not connect to {0}")]
     Connect(String, #[source] io::Error),
+    #[error("{} does not contain a valid number", WAYLAND_SOCKET)]
+    WaylandSocketNotNumber,
+    #[error("F_GETFD failed on {}", WAYLAND_SOCKET)]
+    WaylandSocketGetFd(#[source] io::Error),
+    #[error("F_SETFD failed on {}", WAYLAND_SOCKET)]
+    WaylandSocketSetFd(#[source] io::Error),
+    #[error(transparent)]
+    PollError(PollError),
 }
 
 pub(crate) enum Pollable {
@@ -94,7 +104,7 @@ pub(crate) struct EndpointWithClient {
 }
 
 pub struct State {
-    epoll: uapi::OwnedFd,
+    poller: Poller,
     next_pollable_id: Cell<u64>,
     pub(crate) server: Rc<Endpoint>,
     pub(crate) destroyed: Cell<bool>,
@@ -122,7 +132,7 @@ pub struct State {
 }
 
 pub struct StateBuilder {
-    server_fd: Option<OwnedFd>,
+    server_fd: Option<Rc<OwnedFd>>,
     log: bool,
     log_prefix: String,
 }
@@ -141,15 +151,29 @@ impl StateBuilder {
     pub fn build(self) -> Result<Rc<State>, StateError> {
         let server_fd = match self.server_fd {
             Some(fd) => fd,
-            _ => {
-                let mut name = var("WAYLAND_DISPLAY")
+            _ => 'fd: {
+                if let Some(wayland_socket) = var_os(WAYLAND_SOCKET) {
+                    let fd = str::from_utf8(wayland_socket.as_bytes())
+                        .ok()
+                        .and_then(|s| i32::from_str(s).ok())
+                        .ok_or(StateErrorKind::WaylandSocketNotNumber)?;
+                    let flags = uapi::fcntl_getfd(fd)
+                        .map_err(|e| StateErrorKind::WaylandSocketGetFd(e.into()))?;
+                    uapi::fcntl_setfd(fd, flags | c::FD_CLOEXEC)
+                        .map_err(|e| StateErrorKind::WaylandSocketSetFd(e.into()))?;
+                    unsafe {
+                        remove_var(WAYLAND_SOCKET);
+                    }
+                    break 'fd unsafe { Rc::new(OwnedFd::from_raw_fd(fd)) };
+                }
+                let mut name = var(WAYLAND_DISPLAY)
                     .ok()
                     .ok_or(StateErrorKind::WaylandDisplay)?;
                 if name.is_empty() {
                     return Err(StateErrorKind::WaylandDisplay.into());
                 }
                 if !name.starts_with("/") {
-                    let Some(xrd) = xrd() else {
+                    let Ok(xrd) = var(XDG_RUNTIME_DIR) else {
                         return Err(StateErrorKind::XrdNotSet.into());
                     };
                     name = format!("{xrd}/{name}");
@@ -164,19 +188,15 @@ impl StateBuilder {
                 let sun_path = uapi::as_bytes_mut(&mut addr.sun_path[..]);
                 sun_path[..name.len()].copy_from_slice(name.as_bytes());
                 sun_path[name.len()] = 0;
-                let socket = uapi::socket(
-                    c::AF_UNIX,
-                    c::SOCK_STREAM | c::SOCK_NONBLOCK | c::SOCK_CLOEXEC,
-                    0,
-                )
-                .map_err(|e| StateErrorKind::CreateSocket(e.into()))?;
+                let socket = uapi::socket(c::AF_UNIX, c::SOCK_STREAM | c::SOCK_CLOEXEC, 0)
+                    .map_err(|e| StateErrorKind::CreateSocket(e.into()))?;
                 uapi::connect(socket.raw(), &addr)
                     .map_err(|e| StateErrorKind::Connect(name.to_string(), e.into()))?;
-                socket.into()
+                Rc::new(socket.into())
             }
         };
         const SERVER_ENDPOINT_ID: u64 = 0;
-        let server = Endpoint::new(SERVER_ENDPOINT_ID, server_fd);
+        let server = Endpoint::new(SERVER_ENDPOINT_ID, &server_fd);
         server.idl.acquire();
         server.idl.acquire();
         let mut endpoints = HashMap::new();
@@ -187,8 +207,7 @@ impl StateBuilder {
                 client: None,
             }),
         );
-        let epoll = uapi::epoll_create1(c::EPOLL_CLOEXEC)
-            .map_err(|e| StateErrorKind::CreateEpoll(e.into()))?;
+        let poller = Poller::new().map_err(StateErrorKind::PollError)?;
         let mut log_prefix = String::new();
         if let Ok(prefix) = var("WL_PROXY_PREFIX") {
             log_prefix = prefix;
@@ -203,7 +222,7 @@ impl StateBuilder {
             log_prefix = format!("{{{}}} ", log_prefix);
         }
         let state = Rc::new(State {
-            epoll,
+            poller,
             next_pollable_id: Cell::new(SERVER_ENDPOINT_ID + 1),
             server,
             destroyed: Default::default(),
@@ -229,8 +248,11 @@ impl StateBuilder {
             global_lock_held: Default::default(),
             proxy_stash: Default::default(),
         });
-        state.change_interest(&state.server, |i| i | c::EPOLLIN);
-        state.register_socket(0, &state.server.socket)?;
+        state.change_interest(&state.server, |i| i | poll::READABLE);
+        state
+            .poller
+            .register(0, &state.server.socket)
+            .map_err(StateErrorKind::PollError)?;
         let display = WlDisplay::new(&state, 1);
         display
             .core()
@@ -239,8 +261,8 @@ impl StateBuilder {
         Ok(state)
     }
 
-    pub fn with_server_fd(mut self, fd: OwnedFd) -> Self {
-        self.server_fd = Some(fd);
+    pub fn with_server_fd(mut self, fd: &Rc<OwnedFd>) -> Self {
+        self.server_fd = Some(fd.clone());
         self
     }
 
@@ -398,10 +420,10 @@ impl State {
             match res {
                 FlushResult::Done => {
                     ewc.endpoint.flush_queued.set(false);
-                    self.change_interest(&ewc.endpoint, |i| i & !c::EPOLLOUT);
+                    self.change_interest(&ewc.endpoint, |i| i & !poll::WRITABLE);
                 }
                 FlushResult::Blocked => {
-                    self.change_interest(&ewc.endpoint, |i| i | c::EPOLLOUT);
+                    self.change_interest(&ewc.endpoint, |i| i | poll::WRITABLE);
                 }
             }
         }
@@ -428,50 +450,11 @@ impl State {
                 let Some(socket) = socket else {
                     break;
                 };
-                self.create_client(Some(lock), socket)?;
+                self.create_client(Some(lock), &Rc::new(socket))?;
             }
         }
         self.has_acceptable_acceptors.set(false);
         Ok(())
-    }
-
-    pub(crate) fn create_client(
-        self: &Rc<Self>,
-        lock: Option<&HandlerLock<'_>>,
-        socket: OwnedFd,
-    ) -> Result<Rc<Client>, StateError> {
-        self.check_destroyed()?;
-        let id = self.create_pollable_id();
-        self.register_socket(id, &socket)?;
-        let endpoint = Endpoint::new(id, socket);
-        self.change_interest(&endpoint, |i| i | c::EPOLLIN);
-        let display = WlDisplay::new(self, 1);
-        display.core().server_obj_id.set(Some(1));
-        let client = Rc::new(Client {
-            state: self.clone(),
-            endpoint: endpoint.clone(),
-            display,
-            destroyed: Cell::new(false),
-            handler: Default::default(),
-        });
-        client
-            .display
-            .core()
-            .set_client_id(&client, 1, client.display.clone())
-            .unwrap();
-        self.pollables.borrow_mut().insert(
-            id,
-            Pollable::Endpoint(EndpointWithClient {
-                endpoint,
-                client: Some(client.clone()),
-            }),
-        );
-        if lock.is_some()
-            && let Some(handler) = &mut *self.handler.borrow_mut()
-        {
-            handler.new_client(&client);
-        }
-        Ok(client)
     }
 
     pub(crate) fn read_messages(&self, lock: &HandlerLock<'_>) -> Result<(), StateError> {
@@ -488,17 +471,13 @@ impl State {
                     return Err(StateErrorKind::DispatchEvents(e).into());
                 }
             }
-            self.change_interest(&ewc.endpoint, |i| i | c::EPOLLIN);
+            self.change_interest(&ewc.endpoint, |i| i | poll::READABLE);
         }
         self.has_readable_endpoints.set(false);
         Ok(())
     }
 
-    pub(crate) fn change_interest(
-        &self,
-        endpoint: &Rc<Endpoint>,
-        f: impl FnOnce(c::c_int) -> c::c_int,
-    ) {
+    pub(crate) fn change_interest(&self, endpoint: &Rc<Endpoint>, f: impl FnOnce(u32) -> u32) {
         if self.destroyed.get() {
             return;
         }
@@ -535,16 +514,16 @@ impl State {
         mut timeout: c::c_int,
     ) -> Result<(), StateError> {
         self.check_destroyed()?;
-        let mut events = [c::epoll_event { events: 0, u64: 0 }; 16];
+        let mut events = [PollEvent::default(); poll::MAX_EVENTS];
         let pollables = &mut *self.pollables.borrow_mut();
         loop {
-            let res = uapi::epoll_wait(self.epoll.as_raw_fd(), &mut events, timeout);
-            let n = match res {
-                Ok(0) => return Ok(()),
-                Ok(n) => n,
-                Err(Errno(c::EINTR)) => continue,
-                Err(e) => return Err(StateErrorKind::ReadEpoll(e.into()).into()),
-            };
+            let n = self
+                .poller
+                .read_events(timeout, &mut events)
+                .map_err(StateErrorKind::PollError)?;
+            if n == 0 {
+                return Ok(());
+            }
             timeout = 0;
             for event in &events[0..n] {
                 let id = event.u64;
@@ -553,8 +532,8 @@ impl State {
                 };
                 match pollable {
                     Pollable::Endpoint(ewc) => {
-                        let events = event.events as c::c_int;
-                        if events & (c::EPOLLHUP | c::EPOLLERR) != 0 {
+                        let events = event.events;
+                        if events & poll::ERROR != 0 {
                             if let Some(client) = &ewc.client {
                                 self.add_client_to_kill(client);
                             } else {
@@ -564,11 +543,11 @@ impl State {
                         }
                         ewc.endpoint.current_interest.set(0);
                         self.change_interest(&ewc.endpoint, |i| i & !events);
-                        if events & c::EPOLLIN != 0 {
+                        if events & poll::READABLE != 0 {
                             self.readable_endpoints.push(ewc.clone());
                             self.has_readable_endpoints.set(true);
                         }
-                        if events & c::EPOLLOUT != 0 {
+                        if events & poll::WRITABLE != 0 {
                             self.flushable_endpoints.push(ewc.clone());
                             self.has_flushable_endpoints.set(true);
                         }
@@ -614,15 +593,6 @@ impl State {
     }
 
     pub(crate) fn update_interests(&self) -> Result<(), StateError> {
-        let epoll_ctl = |socket: &OwnedFd, event: &c::epoll_event| {
-            uapi::epoll_ctl(
-                self.epoll.as_raw_fd(),
-                c::EPOLL_CTL_MOD,
-                socket.as_raw_fd(),
-                Some(event),
-            )
-            .map_err(|e| StateErrorKind::UpdateEpoll(io::Error::from_raw_os_error(e.0)))
-        };
         if self.has_interest_update_endpoints.get() {
             while let Some(endpoint) = self.interest_update_endpoints.pop() {
                 endpoint.interest_update_queued.set(false);
@@ -630,37 +600,21 @@ impl State {
                 if desired == endpoint.current_interest.get() {
                     continue;
                 }
-                let event = c::epoll_event {
-                    events: (desired | c::EPOLLONESHOT) as _,
-                    u64: endpoint.id,
-                };
-                epoll_ctl(&endpoint.socket, &event)?;
+                self.poller
+                    .update_interests(&endpoint.socket, endpoint.id, desired)
+                    .map_err(StateErrorKind::PollError)?;
                 endpoint.current_interest.set(desired);
             }
             self.has_interest_update_endpoints.set(false);
         }
         if self.has_interest_update_acceptors.get() {
             while let Some(acceptor) = self.interest_update_acceptors.pop() {
-                let event = c::epoll_event {
-                    events: (c::EPOLLIN | c::EPOLLONESHOT) as _,
-                    u64: acceptor.id,
-                };
-                epoll_ctl(&acceptor.socket, &event)?;
+                self.poller
+                    .update_interests(&acceptor.socket, acceptor.id, poll::READABLE)
+                    .map_err(StateErrorKind::PollError)?;
             }
             self.has_interest_update_acceptors.set(false);
         }
-        Ok(())
-    }
-
-    fn register_socket(&self, id: u64, socket: &OwnedFd) -> Result<(), StateError> {
-        let event = c::epoll_event { events: 0, u64: id };
-        uapi::epoll_ctl(
-            self.epoll.as_raw_fd(),
-            c::EPOLL_CTL_ADD,
-            socket.as_raw_fd(),
-            Some(&event),
-        )
-        .map_err(|e| StateErrorKind::AddEpoll(e.into()))?;
         Ok(())
     }
 
@@ -688,7 +642,13 @@ impl State {
 
 /// These functions can be used to manage sockets associated with this state.
 impl State {
-    /// Creates a new connection to this
+    /// Creates a new connection to this proxy.
+    ///
+    /// The returned file descriptor is the client end of the connection and can be used
+    /// with a function such as `wl_display_connect_to_fd` or with the `WAYLAND_SOCKET`
+    /// environment variable.
+    ///
+    /// The [`StateHandler::new_client`] callback will not be invoked.
     pub fn connect(self: &Rc<Self>) -> Result<(Rc<Client>, OwnedFd), StateError> {
         let (server_fd, client_fd) = uapi::socketpair(
             c::AF_UNIX,
@@ -696,26 +656,85 @@ impl State {
             0,
         )
         .map_err(|e| StateErrorKind::Socketpair(e.into()))?;
-        let client = self.create_client(None, server_fd.into())?;
+        let client = self.create_client(None, &Rc::new(server_fd.into()))?;
         Ok((client, client_fd.into()))
     }
 
-    pub fn add_client(self: &Rc<Self>, socket: OwnedFd) -> Result<Rc<Client>, StateError> {
+    /// Creates a new connection to this proxy from an existing socket.
+    ///
+    /// The file descriptor should be the server end of the connection. It can be created
+    /// with a function such as `socketpair` or by accepting a connection from a
+    /// file-system socket.
+    ///
+    /// The [`StateHandler::new_client`] callback will not be invoked.
+    pub fn add_client(self: &Rc<Self>, socket: &Rc<OwnedFd>) -> Result<Rc<Client>, StateError> {
         self.create_client(None, socket)
     }
 
+    /// Creates a new file-system acceptor and starts listening for connections.
+    ///
+    /// See [`Acceptor::new`] for the meaning of the `max_tries` parameter.
+    ///
+    /// Calling [`State::dispatch`] will automatically accept connections from this
+    /// acceptor. The [`StateHandler::new_client`] callback will be invoked when this
+    /// happens.
     pub fn create_acceptor(&self, max_tries: u32) -> Result<Rc<Acceptor>, StateError> {
         self.check_destroyed()?;
         let id = self.create_pollable_id();
         let acceptor =
             Acceptor::create(id, max_tries, true).map_err(StateErrorKind::CreateAcceptor)?;
-        self.register_socket(id, &acceptor.socket)?;
+        self.poller
+            .register(id, &acceptor.socket)
+            .map_err(StateErrorKind::PollError)?;
+        self.update_interests()?;
         self.interest_update_acceptors.push(acceptor.clone());
         self.has_interest_update_acceptors.set(true);
         self.pollables
             .borrow_mut()
             .insert(id, Pollable::Acceptor(acceptor.clone()));
         Ok(acceptor)
+    }
+
+    fn create_client(
+        self: &Rc<Self>,
+        lock: Option<&HandlerLock<'_>>,
+        socket: &Rc<OwnedFd>,
+    ) -> Result<Rc<Client>, StateError> {
+        self.check_destroyed()?;
+        let id = self.create_pollable_id();
+        self.poller
+            .register(id, &socket)
+            .map_err(StateErrorKind::PollError)?;
+        let endpoint = Endpoint::new(id, socket);
+        self.change_interest(&endpoint, |i| i | poll::READABLE);
+        self.update_interests()?;
+        let display = WlDisplay::new(self, 1);
+        display.core().server_obj_id.set(Some(1));
+        let client = Rc::new(Client {
+            state: self.clone(),
+            endpoint: endpoint.clone(),
+            display,
+            destroyed: Cell::new(false),
+            handler: Default::default(),
+        });
+        client
+            .display
+            .core()
+            .set_client_id(&client, 1, client.display.clone())
+            .unwrap();
+        self.pollables.borrow_mut().insert(
+            id,
+            Pollable::Endpoint(EndpointWithClient {
+                endpoint,
+                client: Some(client.clone()),
+            }),
+        );
+        if lock.is_some()
+            && let Some(handler) = &mut *self.handler.borrow_mut()
+        {
+            handler.new_client(&client);
+        }
+        Ok(client)
     }
 }
 
@@ -815,7 +834,7 @@ impl State {
         self.interest_update_endpoints.take();
         self.interest_update_acceptors.take();
         self.all_proxies.borrow_mut().clear();
-        // Ensure that the epoll fd stays permanently readable.
+        // Ensure that the poll fd stays permanently readable.
         let _ = self.create_remote_destructor();
     }
 
@@ -844,22 +863,15 @@ impl State {
     /// destroy states running in a different thread.
     pub fn create_remote_destructor(&self) -> Result<RemoteDestructor, StateError> {
         let (r, w) = pipe().map_err(StateErrorKind::CreatePipe)?;
+        let r: OwnedFd = r.into();
         let id = self.create_pollable_id();
-        let event = c::epoll_event {
-            events: c::EPOLLONESHOT as _,
-            u64: id,
-        };
-        uapi::epoll_ctl(
-            self.epoll.as_raw_fd(),
-            EPOLL_CTL_ADD,
-            r.as_raw_fd(),
-            Some(&event),
-        )
-        .map_err(|e| StateErrorKind::UpdateEpoll(e.into()))?;
+        self.poller
+            .register(id, &r)
+            .map_err(StateErrorKind::PollError)?;
         let destroy = Arc::new(AtomicBool::new(false));
         self.pollables
             .borrow_mut()
-            .insert(id, Pollable::Destructor(r.into(), destroy.clone()));
+            .insert(id, Pollable::Destructor(r, destroy.clone()));
         Ok(RemoteDestructor {
             destroy,
             _fd: w.into(),
