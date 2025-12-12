@@ -2,8 +2,7 @@ mod prototyping;
 
 use {
     crate::{
-        object::Object,
-        object_error::ObjectError,
+        object::{Object, ObjectError},
         protocols::{ObjectInterface, wayland::wl_registry::WlRegistry},
     },
     linearize::StaticCopyMap,

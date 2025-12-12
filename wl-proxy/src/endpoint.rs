@@ -1,8 +1,7 @@
 use {
     crate::{
         client::Client,
-        object::Object,
-        object_error::ObjectError,
+        object::{Object, ObjectError},
         protocols::ObjectInterface,
         state::HandlerLock,
         trans::{self, FlushResult, InputBuffer, OutputSwapchain, TransError},
