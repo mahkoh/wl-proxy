@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwlr_screencopy_manager_v1 proxy.
+/// A zwlr_screencopy_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwlrScreencopyManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwlrScreencopyManagerV1Handler>,
 }
 
@@ -20,7 +20,7 @@ impl ZwlrScreencopyManagerV1Handler for DefaultHandler { }
 
 impl ZwlrScreencopyManagerV1 {
     pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrScreencopyManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrScreencopyManagerV1;
     pub const INTERFACE_NAME: &str = "zwlr_screencopy_manager_v1";
 }
 
@@ -334,10 +334,10 @@ pub trait ZwlrScreencopyManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwlrScreencopyManagerV1 {
+impl ObjectPrivate for ZwlrScreencopyManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrScreencopyManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrScreencopyManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -373,7 +373,7 @@ impl ProxyPrivate for ZwlrScreencopyManagerV1 {
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = client.endpoint.lookup(arg2_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                 };
                 let arg0 = &arg0;
                 let arg2 = &arg2;
@@ -416,7 +416,7 @@ impl ProxyPrivate for ZwlrScreencopyManagerV1 {
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = client.endpoint.lookup(arg2_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                 };
                 let arg0 = &arg0;
                 let arg2 = &arg2;
@@ -485,8 +485,8 @@ impl ProxyPrivate for ZwlrScreencopyManagerV1 {
     }
 }
 
-impl Proxy for ZwlrScreencopyManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwlrScreencopyManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

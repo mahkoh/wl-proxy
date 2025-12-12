@@ -20,11 +20,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_confined_pointer_v1 proxy.
+/// A zwp_confined_pointer_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpConfinedPointerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpConfinedPointerV1Handler>,
 }
 
@@ -34,7 +34,7 @@ impl ZwpConfinedPointerV1Handler for DefaultHandler { }
 
 impl ZwpConfinedPointerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpConfinedPointerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpConfinedPointerV1;
     pub const INTERFACE_NAME: &str = "zwp_confined_pointer_v1";
 }
 
@@ -341,10 +341,10 @@ pub trait ZwpConfinedPointerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpConfinedPointerV1 {
+impl ObjectPrivate for ZwpConfinedPointerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpConfinedPointerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpConfinedPointerV1, version),
             handler: Default::default(),
         })
     }
@@ -393,7 +393,7 @@ impl ProxyPrivate for ZwpConfinedPointerV1 {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlRegion>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("region", o.core().interface, ProxyInterface::WlRegion));
+                        return Err(ObjectError::WrongObjectType("region", o.core().interface, ObjectInterface::WlRegion));
                     };
                     Some(arg0)
                 };
@@ -482,8 +482,8 @@ impl ProxyPrivate for ZwpConfinedPointerV1 {
     }
 }
 
-impl Proxy for ZwpConfinedPointerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpConfinedPointerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

@@ -29,11 +29,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_linux_drm_syncobj_surface_v1 proxy.
+/// A wp_linux_drm_syncobj_surface_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpLinuxDrmSyncobjSurfaceV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpLinuxDrmSyncobjSurfaceV1Handler>,
 }
 
@@ -43,7 +43,7 @@ impl WpLinuxDrmSyncobjSurfaceV1Handler for DefaultHandler { }
 
 impl WpLinuxDrmSyncobjSurfaceV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpLinuxDrmSyncobjSurfaceV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpLinuxDrmSyncobjSurfaceV1;
     pub const INTERFACE_NAME: &str = "wp_linux_drm_syncobj_surface_v1";
 }
 
@@ -441,10 +441,10 @@ pub trait WpLinuxDrmSyncobjSurfaceV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for WpLinuxDrmSyncobjSurfaceV1 {
+impl ObjectPrivate for WpLinuxDrmSyncobjSurfaceV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpLinuxDrmSyncobjSurfaceV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpLinuxDrmSyncobjSurfaceV1, version),
             handler: Default::default(),
         })
     }
@@ -492,7 +492,7 @@ impl ProxyPrivate for WpLinuxDrmSyncobjSurfaceV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WpLinuxDrmSyncobjTimelineV1>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("timeline", o.core().interface, ProxyInterface::WpLinuxDrmSyncobjTimelineV1));
+                    return Err(ObjectError::WrongObjectType("timeline", o.core().interface, ObjectInterface::WpLinuxDrmSyncobjTimelineV1));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -521,7 +521,7 @@ impl ProxyPrivate for WpLinuxDrmSyncobjSurfaceV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WpLinuxDrmSyncobjTimelineV1>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("timeline", o.core().interface, ProxyInterface::WpLinuxDrmSyncobjTimelineV1));
+                    return Err(ObjectError::WrongObjectType("timeline", o.core().interface, ObjectInterface::WpLinuxDrmSyncobjTimelineV1));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -572,8 +572,8 @@ impl ProxyPrivate for WpLinuxDrmSyncobjSurfaceV1 {
     }
 }
 
-impl Proxy for WpLinuxDrmSyncobjSurfaceV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpLinuxDrmSyncobjSurfaceV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

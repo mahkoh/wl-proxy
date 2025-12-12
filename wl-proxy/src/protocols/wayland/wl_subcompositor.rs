@@ -23,11 +23,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_subcompositor proxy.
+/// A wl_subcompositor object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlSubcompositor {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlSubcompositorHandler>,
 }
 
@@ -37,7 +37,7 @@ impl WlSubcompositorHandler for DefaultHandler { }
 
 impl WlSubcompositor {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlSubcompositor;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlSubcompositor;
     pub const INTERFACE_NAME: &str = "wl_subcompositor";
 }
 
@@ -259,10 +259,10 @@ pub trait WlSubcompositorHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlSubcompositor {
+impl ObjectPrivate for WlSubcompositor {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlSubcompositor, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlSubcompositor, version),
             handler: Default::default(),
         })
     }
@@ -314,7 +314,7 @@ impl ProxyPrivate for WlSubcompositor {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg2_id = arg2;
                 let Some(arg2) = client.endpoint.lookup(arg2_id) else {
@@ -322,7 +322,7 @@ impl ProxyPrivate for WlSubcompositor {
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg2_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("parent", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("parent", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -374,8 +374,8 @@ impl ProxyPrivate for WlSubcompositor {
     }
 }
 
-impl Proxy for WlSubcompositor {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlSubcompositor {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

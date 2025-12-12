@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A hyprland_lock_notifier_v1 proxy.
+/// A hyprland_lock_notifier_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct HyprlandLockNotifierV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn HyprlandLockNotifierV1Handler>,
 }
 
@@ -20,7 +20,7 @@ impl HyprlandLockNotifierV1Handler for DefaultHandler { }
 
 impl HyprlandLockNotifierV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::HyprlandLockNotifierV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::HyprlandLockNotifierV1;
     pub const INTERFACE_NAME: &str = "hyprland_lock_notifier_v1";
 }
 
@@ -177,10 +177,10 @@ pub trait HyprlandLockNotifierV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for HyprlandLockNotifierV1 {
+impl ObjectPrivate for HyprlandLockNotifierV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::HyprlandLockNotifierV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::HyprlandLockNotifierV1, version),
             handler: Default::default(),
         })
     }
@@ -272,8 +272,8 @@ impl ProxyPrivate for HyprlandLockNotifierV1 {
     }
 }
 
-impl Proxy for HyprlandLockNotifierV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for HyprlandLockNotifierV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

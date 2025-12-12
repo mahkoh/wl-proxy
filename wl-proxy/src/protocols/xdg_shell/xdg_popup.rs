@@ -28,11 +28,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A xdg_popup proxy.
+/// A xdg_popup object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct XdgPopup {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn XdgPopupHandler>,
 }
 
@@ -42,7 +42,7 @@ impl XdgPopupHandler for DefaultHandler { }
 
 impl XdgPopup {
     pub const XML_VERSION: u32 = 7;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgPopup;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgPopup;
     pub const INTERFACE_NAME: &str = "xdg_popup";
 }
 
@@ -686,10 +686,10 @@ pub trait XdgPopupHandler: Any {
     }
 }
 
-impl ProxyPrivate for XdgPopup {
+impl ObjectPrivate for XdgPopup {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgPopup, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::XdgPopup, version),
             handler: Default::default(),
         })
     }
@@ -736,7 +736,7 @@ impl ProxyPrivate for XdgPopup {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -764,7 +764,7 @@ impl ProxyPrivate for XdgPopup {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<XdgPositioner>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("positioner", o.core().interface, ProxyInterface::XdgPositioner));
+                    return Err(ObjectError::WrongObjectType("positioner", o.core().interface, ObjectInterface::XdgPositioner));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -880,8 +880,8 @@ impl ProxyPrivate for XdgPopup {
     }
 }
 
-impl Proxy for XdgPopup {
-    fn core(&self) -> &ProxyCore {
+impl Object for XdgPopup {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

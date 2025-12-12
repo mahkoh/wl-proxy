@@ -15,11 +15,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_presentation_feedback proxy.
+/// A wp_presentation_feedback object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpPresentationFeedback {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpPresentationFeedbackHandler>,
 }
 
@@ -29,7 +29,7 @@ impl WpPresentationFeedbackHandler for DefaultHandler { }
 
 impl WpPresentationFeedback {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpPresentationFeedback;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpPresentationFeedback;
     pub const INTERFACE_NAME: &str = "wp_presentation_feedback";
 }
 
@@ -431,10 +431,10 @@ pub trait WpPresentationFeedbackHandler: Any {
     }
 }
 
-impl ProxyPrivate for WpPresentationFeedback {
+impl ObjectPrivate for WpPresentationFeedback {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpPresentationFeedback, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpPresentationFeedback, version),
             handler: Default::default(),
         })
     }
@@ -479,7 +479,7 @@ impl ProxyPrivate for WpPresentationFeedback {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = self.core.state.server.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -557,8 +557,8 @@ impl ProxyPrivate for WpPresentationFeedback {
     }
 }
 
-impl Proxy for WpPresentationFeedback {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpPresentationFeedback {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

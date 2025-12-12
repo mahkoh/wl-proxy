@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_display proxy.
+/// A wl_display object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlDisplay {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlDisplayHandler>,
 }
 
@@ -20,7 +20,7 @@ impl WlDisplayHandler for DefaultHandler { }
 
 impl WlDisplay {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlDisplay;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlDisplay;
     pub const INTERFACE_NAME: &str = "wl_display";
 }
 
@@ -179,7 +179,7 @@ impl WlDisplay {
     #[inline]
     pub fn send_error(
         &self,
-        object_id: Rc<dyn Proxy>,
+        object_id: Rc<dyn Object>,
         code: u32,
         message: &str,
     ) -> Result<(), ObjectError> {
@@ -362,7 +362,7 @@ pub trait WlDisplayHandler: Any {
     fn error(
         &mut self,
         _slf: &Rc<WlDisplay>,
-        object_id: Rc<dyn Proxy>,
+        object_id: Rc<dyn Object>,
         code: u32,
         message: &str,
     ) {
@@ -418,10 +418,10 @@ pub trait WlDisplayHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlDisplay {
+impl ObjectPrivate for WlDisplay {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlDisplay, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlDisplay, version),
             handler: Default::default(),
         })
     }
@@ -585,8 +585,8 @@ impl ProxyPrivate for WlDisplay {
     }
 }
 
-impl Proxy for WlDisplay {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlDisplay {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

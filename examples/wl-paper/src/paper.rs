@@ -7,9 +7,10 @@ use {
         sync::Arc,
     },
     wl_proxy::{
-        protocol_filter::ProtocolFilter,
+        global_filter::GlobalFilter,
+        object::{Object, ObjectRcUtils, ObjectUtils},
         protocols::{
-            ProxyInterface,
+            ObjectInterface,
             org_kde_kwin_server_decoration_v1::{
                 org_kde_kwin_server_decoration::{
                     OrgKdeKwinServerDecoration, OrgKdeKwinServerDecorationHandler,
@@ -54,7 +55,6 @@ use {
                 xdg_wm_base::{XdgWmBase, XdgWmBaseHandler},
             },
         },
-        proxy::{Proxy, ProxyRcUtils, ProxyUtils},
         simple::{SimpleCommandExt, SimpleServer},
     },
 };
@@ -109,11 +109,11 @@ impl WlDisplayHandler for DisplayHandler {
             });
             let _ = slf.send_sync(&sync);
         }
-        let mut filter = ProtocolFilter::baseline_i_am_prototyping();
-        let _ = filter.add_global(registry, ProxyInterface::ZxdgDecorationManagerV1, 1);
-        let _ = filter.add_global(
+        let mut filter = GlobalFilter::baseline_i_am_prototyping();
+        let _ = filter.add_synthetic_global(registry, ObjectInterface::ZxdgDecorationManagerV1, 1);
+        let _ = filter.add_synthetic_global(
             registry,
-            ProxyInterface::OrgKdeKwinServerDecorationManager,
+            ObjectInterface::OrgKdeKwinServerDecorationManager,
             1,
         );
         let _ = slf.send_get_registry(registry);
@@ -131,8 +131,14 @@ struct FirstRegistryHandler {
 }
 
 impl WlRegistryHandler for FirstRegistryHandler {
-    fn global(&mut self, slf: &Rc<WlRegistry>, name: u32, interface: &str, version: u32) {
-        match ProxyInterface::from_str(interface).unwrap() {
+    fn global(
+        &mut self,
+        slf: &Rc<WlRegistry>,
+        name: u32,
+        interface: ObjectInterface,
+        version: u32,
+    ) {
+        match interface {
             ZwlrLayerShellV1::INTERFACE => {
                 let proxy = slf.state().create_proxy::<ZwlrLayerShellV1>(version.min(5));
                 let _ = slf.send_bind(name, proxy.clone());
@@ -175,11 +181,11 @@ impl WlCallbackHandler for FirstSyncHandler {
 struct WlRegistryHandlerImpl {
     config: Arc<Config>,
     layer_shell: Rc<LayerShell>,
-    filter: ProtocolFilter,
+    filter: GlobalFilter,
 }
 
 impl WlRegistryHandler for WlRegistryHandlerImpl {
-    fn bind(&mut self, slf: &Rc<WlRegistry>, name: u32, id: Rc<dyn Proxy>) {
+    fn bind(&mut self, slf: &Rc<WlRegistry>, name: u32, id: Rc<dyn Object>) {
         match id.interface() {
             XdgWmBase::INTERFACE => {
                 let id = id.clone().downcast::<XdgWmBase>().unwrap();
@@ -203,28 +209,35 @@ impl WlRegistryHandler for WlRegistryHandlerImpl {
             }
             _ => {}
         }
-        let _ = self.filter.handle_bind(slf, name, &id);
+        let _ = self.filter.handle_client_bind(slf, name, &id);
     }
 
-    fn global(&mut self, slf: &Rc<WlRegistry>, name: u32, interface: &str, version: u32) {
-        let interface = ProxyInterface::from_str(interface).unwrap();
+    fn global(
+        &mut self,
+        slf: &Rc<WlRegistry>,
+        name: u32,
+        interface: ObjectInterface,
+        version: u32,
+    ) {
         match interface {
-            ProxyInterface::ZxdgDecorationManagerV1
-            | ProxyInterface::OrgKdeKwinServerDecorationManager
-            | ProxyInterface::XdgWmDialogV1
-            | ProxyInterface::XdgToplevelDragManagerV1
-            | ProxyInterface::XdgToplevelIconManagerV1
-            | ProxyInterface::XdgToplevelTagManagerV1 => {
-                self.filter.ignore_global(name);
+            ObjectInterface::ZxdgDecorationManagerV1
+            | ObjectInterface::OrgKdeKwinServerDecorationManager
+            | ObjectInterface::XdgWmDialogV1
+            | ObjectInterface::XdgToplevelDragManagerV1
+            | ObjectInterface::XdgToplevelIconManagerV1
+            | ObjectInterface::XdgToplevelTagManagerV1 => {
+                self.filter.ignore_server_global(name);
             }
             _ => {
-                let _ = self.filter.handle_global(slf, name, interface, version);
+                let _ = self
+                    .filter
+                    .handle_server_global(slf, name, interface, version);
             }
         }
     }
 
     fn global_remove(&mut self, slf: &Rc<WlRegistry>, name: u32) {
-        let _ = self.filter.handle_global_remove(slf, name);
+        let _ = self.filter.handle_server_global_remove(slf, name);
     }
 }
 

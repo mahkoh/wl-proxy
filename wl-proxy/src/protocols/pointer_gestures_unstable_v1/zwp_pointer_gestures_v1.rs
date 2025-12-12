@@ -20,11 +20,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_pointer_gestures_v1 proxy.
+/// A zwp_pointer_gestures_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpPointerGesturesV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpPointerGesturesV1Handler>,
 }
 
@@ -34,7 +34,7 @@ impl ZwpPointerGesturesV1Handler for DefaultHandler { }
 
 impl ZwpPointerGesturesV1 {
     pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpPointerGesturesV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpPointerGesturesV1;
     pub const INTERFACE_NAME: &str = "zwp_pointer_gestures_v1";
 }
 
@@ -385,10 +385,10 @@ pub trait ZwpPointerGesturesV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpPointerGesturesV1 {
+impl ObjectPrivate for ZwpPointerGesturesV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpPointerGesturesV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpPointerGesturesV1, version),
             handler: Default::default(),
         })
     }
@@ -422,7 +422,7 @@ impl ProxyPrivate for ZwpPointerGesturesV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlPointer>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ProxyInterface::WlPointer));
+                    return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ObjectInterface::WlPointer));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -455,7 +455,7 @@ impl ProxyPrivate for ZwpPointerGesturesV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlPointer>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ProxyInterface::WlPointer));
+                    return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ObjectInterface::WlPointer));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -505,7 +505,7 @@ impl ProxyPrivate for ZwpPointerGesturesV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlPointer>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ProxyInterface::WlPointer));
+                    return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ObjectInterface::WlPointer));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -558,8 +558,8 @@ impl ProxyPrivate for ZwpPointerGesturesV1 {
     }
 }
 
-impl Proxy for ZwpPointerGesturesV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpPointerGesturesV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

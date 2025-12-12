@@ -9,11 +9,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_color_management_surface_feedback_v1 proxy.
+/// A wp_color_management_surface_feedback_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpColorManagementSurfaceFeedbackV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpColorManagementSurfaceFeedbackV1Handler>,
 }
 
@@ -23,7 +23,7 @@ impl WpColorManagementSurfaceFeedbackV1Handler for DefaultHandler { }
 
 impl WpColorManagementSurfaceFeedbackV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpColorManagementSurfaceFeedbackV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpColorManagementSurfaceFeedbackV1;
     pub const INTERFACE_NAME: &str = "wp_color_management_surface_feedback_v1";
 }
 
@@ -498,10 +498,10 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for WpColorManagementSurfaceFeedbackV1 {
+impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpColorManagementSurfaceFeedbackV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpColorManagementSurfaceFeedbackV1, version),
             handler: Default::default(),
         })
     }
@@ -659,8 +659,8 @@ impl ProxyPrivate for WpColorManagementSurfaceFeedbackV1 {
     }
 }
 
-impl Proxy for WpColorManagementSurfaceFeedbackV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpColorManagementSurfaceFeedbackV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

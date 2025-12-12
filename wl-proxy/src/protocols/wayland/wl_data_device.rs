@@ -9,11 +9,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_data_device proxy.
+/// A wl_data_device object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlDataDevice {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlDataDeviceHandler>,
 }
 
@@ -23,7 +23,7 @@ impl WlDataDeviceHandler for DefaultHandler { }
 
 impl WlDataDevice {
     pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlDataDevice;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlDataDevice;
     pub const INTERFACE_NAME: &str = "wl_data_device";
 }
 
@@ -950,10 +950,10 @@ pub trait WlDataDeviceHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlDataDevice {
+impl ObjectPrivate for WlDataDevice {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlDataDevice, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlDataDevice, version),
             handler: Default::default(),
         })
     }
@@ -988,7 +988,7 @@ impl ProxyPrivate for WlDataDevice {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlDataSource>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("source", o.core().interface, ProxyInterface::WlDataSource));
+                        return Err(ObjectError::WrongObjectType("source", o.core().interface, ObjectInterface::WlDataSource));
                     };
                     Some(arg0)
                 };
@@ -998,7 +998,7 @@ impl ProxyPrivate for WlDataDevice {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("origin", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("origin", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg2 = if arg2 == 0 {
                     None
@@ -1009,7 +1009,7 @@ impl ProxyPrivate for WlDataDevice {
                     };
                     let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlSurface>() else {
                         let o = client.endpoint.lookup(arg2_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("icon", o.core().interface, ProxyInterface::WlSurface));
+                        return Err(ObjectError::WrongObjectType("icon", o.core().interface, ObjectInterface::WlSurface));
                     };
                     Some(arg2)
                 };
@@ -1044,7 +1044,7 @@ impl ProxyPrivate for WlDataDevice {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlDataSource>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("source", o.core().interface, ProxyInterface::WlDataSource));
+                        return Err(ObjectError::WrongObjectType("source", o.core().interface, ObjectInterface::WlDataSource));
                     };
                     Some(arg0)
                 };
@@ -1136,7 +1136,7 @@ impl ProxyPrivate for WlDataDevice {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = self.core.state.server.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg4 = if arg4 == 0 {
                     None
@@ -1147,7 +1147,7 @@ impl ProxyPrivate for WlDataDevice {
                     };
                     let Ok(arg4) = (arg4 as Rc<dyn Any>).downcast::<WlDataOffer>() else {
                         let o = self.core.state.server.lookup(arg4_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("id", o.core().interface, ProxyInterface::WlDataOffer));
+                        return Err(ObjectError::WrongObjectType("id", o.core().interface, ObjectInterface::WlDataOffer));
                     };
                     Some(arg4)
                 };
@@ -1234,7 +1234,7 @@ impl ProxyPrivate for WlDataDevice {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlDataOffer>() else {
                         let o = self.core.state.server.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("id", o.core().interface, ProxyInterface::WlDataOffer));
+                        return Err(ObjectError::WrongObjectType("id", o.core().interface, ObjectInterface::WlDataOffer));
                     };
                     Some(arg0)
                 };
@@ -1279,8 +1279,8 @@ impl ProxyPrivate for WlDataDevice {
     }
 }
 
-impl Proxy for WlDataDevice {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlDataDevice {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

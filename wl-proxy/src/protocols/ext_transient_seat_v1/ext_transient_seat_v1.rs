@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A ext_transient_seat_v1 proxy.
+/// A ext_transient_seat_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ExtTransientSeatV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ExtTransientSeatV1Handler>,
 }
 
@@ -20,7 +20,7 @@ impl ExtTransientSeatV1Handler for DefaultHandler { }
 
 impl ExtTransientSeatV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtTransientSeatV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtTransientSeatV1;
     pub const INTERFACE_NAME: &str = "ext_transient_seat_v1";
 }
 
@@ -251,10 +251,10 @@ pub trait ExtTransientSeatV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ExtTransientSeatV1 {
+impl ObjectPrivate for ExtTransientSeatV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtTransientSeatV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtTransientSeatV1, version),
             handler: Default::default(),
         })
     }
@@ -361,8 +361,8 @@ impl ProxyPrivate for ExtTransientSeatV1 {
     }
 }
 
-impl Proxy for ExtTransientSeatV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ExtTransientSeatV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

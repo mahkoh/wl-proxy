@@ -17,11 +17,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwlr_output_head_v1 proxy.
+/// A zwlr_output_head_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwlrOutputHeadV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwlrOutputHeadV1Handler>,
 }
 
@@ -31,7 +31,7 @@ impl ZwlrOutputHeadV1Handler for DefaultHandler { }
 
 impl ZwlrOutputHeadV1 {
     pub const XML_VERSION: u32 = 4;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrOutputHeadV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrOutputHeadV1;
     pub const INTERFACE_NAME: &str = "zwlr_output_head_v1";
 }
 
@@ -1335,10 +1335,10 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwlrOutputHeadV1 {
+impl ObjectPrivate for ZwlrOutputHeadV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrOutputHeadV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrOutputHeadV1, version),
             handler: Default::default(),
         })
     }
@@ -1542,7 +1542,7 @@ impl ProxyPrivate for ZwlrOutputHeadV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ZwlrOutputModeV1>() else {
                     let o = self.core.state.server.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("mode", o.core().interface, ProxyInterface::ZwlrOutputModeV1));
+                    return Err(ObjectError::WrongObjectType("mode", o.core().interface, ObjectInterface::ZwlrOutputModeV1));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1802,8 +1802,8 @@ impl ProxyPrivate for ZwlrOutputHeadV1 {
     }
 }
 
-impl Proxy for ZwlrOutputHeadV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwlrOutputHeadV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

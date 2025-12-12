@@ -7,11 +7,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A hyprland_input_capture_v1 proxy.
+/// A hyprland_input_capture_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct HyprlandInputCaptureV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn HyprlandInputCaptureV1Handler>,
 }
 
@@ -21,7 +21,7 @@ impl HyprlandInputCaptureV1Handler for DefaultHandler { }
 
 impl HyprlandInputCaptureV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::HyprlandInputCaptureV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::HyprlandInputCaptureV1;
     pub const INTERFACE_NAME: &str = "hyprland_input_capture_v1";
 }
 
@@ -681,10 +681,10 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for HyprlandInputCaptureV1 {
+impl ObjectPrivate for HyprlandInputCaptureV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::HyprlandInputCaptureV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::HyprlandInputCaptureV1, version),
             handler: Default::default(),
         })
     }
@@ -916,8 +916,8 @@ impl ProxyPrivate for HyprlandInputCaptureV1 {
     }
 }
 
-impl Proxy for HyprlandInputCaptureV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for HyprlandInputCaptureV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

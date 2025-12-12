@@ -11,11 +11,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwlr_layer_shell_v1 proxy.
+/// A zwlr_layer_shell_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwlrLayerShellV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwlrLayerShellV1Handler>,
 }
 
@@ -25,7 +25,7 @@ impl ZwlrLayerShellV1Handler for DefaultHandler { }
 
 impl ZwlrLayerShellV1 {
     pub const XML_VERSION: u32 = 5;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrLayerShellV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrLayerShellV1;
     pub const INTERFACE_NAME: &str = "zwlr_layer_shell_v1";
 }
 
@@ -270,10 +270,10 @@ pub trait ZwlrLayerShellV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwlrLayerShellV1 {
+impl ObjectPrivate for ZwlrLayerShellV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrLayerShellV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrLayerShellV1, version),
             handler: Default::default(),
         })
     }
@@ -344,7 +344,7 @@ impl ProxyPrivate for ZwlrLayerShellV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg2 = if arg2 == 0 {
                     None
@@ -355,7 +355,7 @@ impl ProxyPrivate for ZwlrLayerShellV1 {
                     };
                     let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlOutput>() else {
                         let o = client.endpoint.lookup(arg2_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                     };
                     Some(arg2)
                 };
@@ -426,8 +426,8 @@ impl ProxyPrivate for ZwlrLayerShellV1 {
     }
 }
 
-impl Proxy for ZwlrLayerShellV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwlrLayerShellV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

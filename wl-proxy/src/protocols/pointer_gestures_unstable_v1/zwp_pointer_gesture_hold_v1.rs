@@ -21,11 +21,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_pointer_gesture_hold_v1 proxy.
+/// A zwp_pointer_gesture_hold_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpPointerGestureHoldV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpPointerGestureHoldV1Handler>,
 }
 
@@ -35,7 +35,7 @@ impl ZwpPointerGestureHoldV1Handler for DefaultHandler { }
 
 impl ZwpPointerGestureHoldV1 {
     pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpPointerGestureHoldV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpPointerGestureHoldV1;
     pub const INTERFACE_NAME: &str = "zwp_pointer_gesture_hold_v1";
 }
 
@@ -329,10 +329,10 @@ pub trait ZwpPointerGestureHoldV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpPointerGestureHoldV1 {
+impl ObjectPrivate for ZwpPointerGestureHoldV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpPointerGestureHoldV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpPointerGestureHoldV1, version),
             handler: Default::default(),
         })
     }
@@ -398,7 +398,7 @@ impl ProxyPrivate for ZwpPointerGestureHoldV1 {
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = self.core.state.server.lookup(arg2_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg2 = &arg2;
                 if let Some(handler) = handler {
@@ -456,8 +456,8 @@ impl ProxyPrivate for ZwpPointerGestureHoldV1 {
     }
 }
 
-impl Proxy for ZwpPointerGestureHoldV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpPointerGestureHoldV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

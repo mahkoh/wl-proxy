@@ -37,11 +37,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_keyboard_shortcuts_inhibitor_v1 proxy.
+/// A zwp_keyboard_shortcuts_inhibitor_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpKeyboardShortcutsInhibitorV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpKeyboardShortcutsInhibitorV1Handler>,
 }
 
@@ -51,7 +51,7 @@ impl ZwpKeyboardShortcutsInhibitorV1Handler for DefaultHandler { }
 
 impl ZwpKeyboardShortcutsInhibitorV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpKeyboardShortcutsInhibitorV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpKeyboardShortcutsInhibitorV1;
     pub const INTERFACE_NAME: &str = "zwp_keyboard_shortcuts_inhibitor_v1";
 }
 
@@ -263,10 +263,10 @@ pub trait ZwpKeyboardShortcutsInhibitorV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpKeyboardShortcutsInhibitorV1 {
+impl ObjectPrivate for ZwpKeyboardShortcutsInhibitorV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpKeyboardShortcutsInhibitorV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpKeyboardShortcutsInhibitorV1, version),
             handler: Default::default(),
         })
     }
@@ -371,8 +371,8 @@ impl ProxyPrivate for ZwpKeyboardShortcutsInhibitorV1 {
     }
 }
 
-impl Proxy for ZwpKeyboardShortcutsInhibitorV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpKeyboardShortcutsInhibitorV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

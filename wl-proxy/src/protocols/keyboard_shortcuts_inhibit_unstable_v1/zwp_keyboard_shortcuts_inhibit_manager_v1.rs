@@ -5,11 +5,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_keyboard_shortcuts_inhibit_manager_v1 proxy.
+/// A zwp_keyboard_shortcuts_inhibit_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpKeyboardShortcutsInhibitManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpKeyboardShortcutsInhibitManagerV1Handler>,
 }
 
@@ -19,7 +19,7 @@ impl ZwpKeyboardShortcutsInhibitManagerV1Handler for DefaultHandler { }
 
 impl ZwpKeyboardShortcutsInhibitManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpKeyboardShortcutsInhibitManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpKeyboardShortcutsInhibitManagerV1;
     pub const INTERFACE_NAME: &str = "zwp_keyboard_shortcuts_inhibit_manager_v1";
 }
 
@@ -209,10 +209,10 @@ pub trait ZwpKeyboardShortcutsInhibitManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpKeyboardShortcutsInhibitManagerV1 {
+impl ObjectPrivate for ZwpKeyboardShortcutsInhibitManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpKeyboardShortcutsInhibitManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpKeyboardShortcutsInhibitManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -264,7 +264,7 @@ impl ProxyPrivate for ZwpKeyboardShortcutsInhibitManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg2_id = arg2;
                 let Some(arg2) = client.endpoint.lookup(arg2_id) else {
@@ -272,7 +272,7 @@ impl ProxyPrivate for ZwpKeyboardShortcutsInhibitManagerV1 {
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg2_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -324,8 +324,8 @@ impl ProxyPrivate for ZwpKeyboardShortcutsInhibitManagerV1 {
     }
 }
 
-impl Proxy for ZwpKeyboardShortcutsInhibitManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpKeyboardShortcutsInhibitManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

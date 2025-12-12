@@ -992,912 +992,912 @@ mod all_types {
 
     use crate::protocol_helpers::prelude::*;
 
-    pub(super) fn create_proxy_for_interface(state: &Rc<State>, interface: &str, version: u32) -> Result<Rc<dyn Proxy>, ObjectError> {
-        ProxyInterface::from_str(interface)
+    pub(super) fn create_object_for_interface(state: &Rc<State>, interface: &str, version: u32) -> Result<Rc<dyn Object>, ObjectError> {
+        ObjectInterface::from_str(interface)
             .ok_or(ObjectError::UnsupportedInterface(interface.to_string()))
-            .and_then(|i| i.create_proxy(state, version))
+            .and_then(|i| i.create_object(state, version))
     }
 
-    impl ProxyInterface {
+    impl ObjectInterface {
         #[expect(clippy::should_implement_trait)]
-        pub fn from_str(interface: &str) -> Option<ProxyInterface> {
-            static INTERFACES: phf::Map<&'static str, Option<ProxyInterface>> = phf::phf_map! {
+        pub fn from_str(interface: &str) -> Option<ObjectInterface> {
+            static INTERFACES: phf::Map<&'static str, Option<ObjectInterface>> = phf::phf_map! {
                 "hyprland_ctm_control_manager_v1" => {
-                    #[cfg(feature = "protocol-hyprland_ctm_control_v1")] { Some(ProxyInterface::HyprlandCtmControlManagerV1) }
+                    #[cfg(feature = "protocol-hyprland_ctm_control_v1")] { Some(ObjectInterface::HyprlandCtmControlManagerV1) }
                     #[cfg(not(feature = "protocol-hyprland_ctm_control_v1"))] { None }
                 },
                 "hyprland_focus_grab_manager_v1" => {
-                    #[cfg(feature = "protocol-hyprland_focus_grab_v1")] { Some(ProxyInterface::HyprlandFocusGrabManagerV1) }
+                    #[cfg(feature = "protocol-hyprland_focus_grab_v1")] { Some(ObjectInterface::HyprlandFocusGrabManagerV1) }
                     #[cfg(not(feature = "protocol-hyprland_focus_grab_v1"))] { None }
                 },
                 "hyprland_focus_grab_v1" => {
-                    #[cfg(feature = "protocol-hyprland_focus_grab_v1")] { Some(ProxyInterface::HyprlandFocusGrabV1) }
+                    #[cfg(feature = "protocol-hyprland_focus_grab_v1")] { Some(ObjectInterface::HyprlandFocusGrabV1) }
                     #[cfg(not(feature = "protocol-hyprland_focus_grab_v1"))] { None }
                 },
                 "hyprland_global_shortcut_v1" => {
-                    #[cfg(feature = "protocol-hyprland_global_shortcuts_v1")] { Some(ProxyInterface::HyprlandGlobalShortcutV1) }
+                    #[cfg(feature = "protocol-hyprland_global_shortcuts_v1")] { Some(ObjectInterface::HyprlandGlobalShortcutV1) }
                     #[cfg(not(feature = "protocol-hyprland_global_shortcuts_v1"))] { None }
                 },
                 "hyprland_global_shortcuts_manager_v1" => {
-                    #[cfg(feature = "protocol-hyprland_global_shortcuts_v1")] { Some(ProxyInterface::HyprlandGlobalShortcutsManagerV1) }
+                    #[cfg(feature = "protocol-hyprland_global_shortcuts_v1")] { Some(ObjectInterface::HyprlandGlobalShortcutsManagerV1) }
                     #[cfg(not(feature = "protocol-hyprland_global_shortcuts_v1"))] { None }
                 },
                 "hyprland_input_capture_manager_v1" => {
-                    #[cfg(feature = "protocol-hyprland_input_capture_v1")] { Some(ProxyInterface::HyprlandInputCaptureManagerV1) }
+                    #[cfg(feature = "protocol-hyprland_input_capture_v1")] { Some(ObjectInterface::HyprlandInputCaptureManagerV1) }
                     #[cfg(not(feature = "protocol-hyprland_input_capture_v1"))] { None }
                 },
                 "hyprland_input_capture_v1" => {
-                    #[cfg(feature = "protocol-hyprland_input_capture_v1")] { Some(ProxyInterface::HyprlandInputCaptureV1) }
+                    #[cfg(feature = "protocol-hyprland_input_capture_v1")] { Some(ObjectInterface::HyprlandInputCaptureV1) }
                     #[cfg(not(feature = "protocol-hyprland_input_capture_v1"))] { None }
                 },
                 "hyprland_lock_notification_v1" => {
-                    #[cfg(feature = "protocol-hyprland_lock_notify_v1")] { Some(ProxyInterface::HyprlandLockNotificationV1) }
+                    #[cfg(feature = "protocol-hyprland_lock_notify_v1")] { Some(ObjectInterface::HyprlandLockNotificationV1) }
                     #[cfg(not(feature = "protocol-hyprland_lock_notify_v1"))] { None }
                 },
                 "hyprland_lock_notifier_v1" => {
-                    #[cfg(feature = "protocol-hyprland_lock_notify_v1")] { Some(ProxyInterface::HyprlandLockNotifierV1) }
+                    #[cfg(feature = "protocol-hyprland_lock_notify_v1")] { Some(ObjectInterface::HyprlandLockNotifierV1) }
                     #[cfg(not(feature = "protocol-hyprland_lock_notify_v1"))] { None }
                 },
                 "hyprland_surface_manager_v1" => {
-                    #[cfg(feature = "protocol-hyprland_surface_v1")] { Some(ProxyInterface::HyprlandSurfaceManagerV1) }
+                    #[cfg(feature = "protocol-hyprland_surface_v1")] { Some(ObjectInterface::HyprlandSurfaceManagerV1) }
                     #[cfg(not(feature = "protocol-hyprland_surface_v1"))] { None }
                 },
                 "hyprland_surface_v1" => {
-                    #[cfg(feature = "protocol-hyprland_surface_v1")] { Some(ProxyInterface::HyprlandSurfaceV1) }
+                    #[cfg(feature = "protocol-hyprland_surface_v1")] { Some(ObjectInterface::HyprlandSurfaceV1) }
                     #[cfg(not(feature = "protocol-hyprland_surface_v1"))] { None }
                 },
                 "hyprland_toplevel_export_frame_v1" => {
-                    #[cfg(feature = "protocol-hyprland_toplevel_export_v1")] { Some(ProxyInterface::HyprlandToplevelExportFrameV1) }
+                    #[cfg(feature = "protocol-hyprland_toplevel_export_v1")] { Some(ObjectInterface::HyprlandToplevelExportFrameV1) }
                     #[cfg(not(feature = "protocol-hyprland_toplevel_export_v1"))] { None }
                 },
                 "hyprland_toplevel_export_manager_v1" => {
-                    #[cfg(feature = "protocol-hyprland_toplevel_export_v1")] { Some(ProxyInterface::HyprlandToplevelExportManagerV1) }
+                    #[cfg(feature = "protocol-hyprland_toplevel_export_v1")] { Some(ObjectInterface::HyprlandToplevelExportManagerV1) }
                     #[cfg(not(feature = "protocol-hyprland_toplevel_export_v1"))] { None }
                 },
                 "hyprland_toplevel_mapping_manager_v1" => {
-                    #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")] { Some(ProxyInterface::HyprlandToplevelMappingManagerV1) }
+                    #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")] { Some(ObjectInterface::HyprlandToplevelMappingManagerV1) }
                     #[cfg(not(feature = "protocol-hyprland_toplevel_mapping_v1"))] { None }
                 },
                 "hyprland_toplevel_window_mapping_handle_v1" => {
-                    #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")] { Some(ProxyInterface::HyprlandToplevelWindowMappingHandleV1) }
+                    #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")] { Some(ObjectInterface::HyprlandToplevelWindowMappingHandleV1) }
                     #[cfg(not(feature = "protocol-hyprland_toplevel_mapping_v1"))] { None }
                 },
                 "jay_tray_item_v1" => {
-                    #[cfg(feature = "protocol-jay_tray_v1")] { Some(ProxyInterface::JayTrayItemV1) }
+                    #[cfg(feature = "protocol-jay_tray_v1")] { Some(ObjectInterface::JayTrayItemV1) }
                     #[cfg(not(feature = "protocol-jay_tray_v1"))] { None }
                 },
                 "jay_tray_v1" => {
-                    #[cfg(feature = "protocol-jay_tray_v1")] { Some(ProxyInterface::JayTrayV1) }
+                    #[cfg(feature = "protocol-jay_tray_v1")] { Some(ObjectInterface::JayTrayV1) }
                     #[cfg(not(feature = "protocol-jay_tray_v1"))] { None }
                 },
                 "wl_drm" => {
-                    #[cfg(feature = "protocol-drm")] { Some(ProxyInterface::WlDrm) }
+                    #[cfg(feature = "protocol-drm")] { Some(ObjectInterface::WlDrm) }
                     #[cfg(not(feature = "protocol-drm"))] { None }
                 },
                 "zwp_input_method_keyboard_grab_v2" => {
-                    #[cfg(feature = "protocol-input_method_unstable_v2")] { Some(ProxyInterface::ZwpInputMethodKeyboardGrabV2) }
+                    #[cfg(feature = "protocol-input_method_unstable_v2")] { Some(ObjectInterface::ZwpInputMethodKeyboardGrabV2) }
                     #[cfg(not(feature = "protocol-input_method_unstable_v2"))] { None }
                 },
                 "zwp_input_method_manager_v2" => {
-                    #[cfg(feature = "protocol-input_method_unstable_v2")] { Some(ProxyInterface::ZwpInputMethodManagerV2) }
+                    #[cfg(feature = "protocol-input_method_unstable_v2")] { Some(ObjectInterface::ZwpInputMethodManagerV2) }
                     #[cfg(not(feature = "protocol-input_method_unstable_v2"))] { None }
                 },
                 "zwp_input_method_v2" => {
-                    #[cfg(feature = "protocol-input_method_unstable_v2")] { Some(ProxyInterface::ZwpInputMethodV2) }
+                    #[cfg(feature = "protocol-input_method_unstable_v2")] { Some(ObjectInterface::ZwpInputMethodV2) }
                     #[cfg(not(feature = "protocol-input_method_unstable_v2"))] { None }
                 },
                 "zwp_input_popup_surface_v2" => {
-                    #[cfg(feature = "protocol-input_method_unstable_v2")] { Some(ProxyInterface::ZwpInputPopupSurfaceV2) }
+                    #[cfg(feature = "protocol-input_method_unstable_v2")] { Some(ObjectInterface::ZwpInputPopupSurfaceV2) }
                     #[cfg(not(feature = "protocol-input_method_unstable_v2"))] { None }
                 },
                 "org_kde_kwin_server_decoration" => {
-                    #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")] { Some(ProxyInterface::OrgKdeKwinServerDecoration) }
+                    #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")] { Some(ObjectInterface::OrgKdeKwinServerDecoration) }
                     #[cfg(not(feature = "protocol-org_kde_kwin_server_decoration_v1"))] { None }
                 },
                 "org_kde_kwin_server_decoration_manager" => {
-                    #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")] { Some(ProxyInterface::OrgKdeKwinServerDecorationManager) }
+                    #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")] { Some(ObjectInterface::OrgKdeKwinServerDecorationManager) }
                     #[cfg(not(feature = "protocol-org_kde_kwin_server_decoration_v1"))] { None }
                 },
                 "zwp_virtual_keyboard_manager_v1" => {
-                    #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")] { Some(ProxyInterface::ZwpVirtualKeyboardManagerV1) }
+                    #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")] { Some(ObjectInterface::ZwpVirtualKeyboardManagerV1) }
                     #[cfg(not(feature = "protocol-virtual_keyboard_unstable_v1"))] { None }
                 },
                 "zwp_virtual_keyboard_v1" => {
-                    #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")] { Some(ProxyInterface::ZwpVirtualKeyboardV1) }
+                    #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")] { Some(ObjectInterface::ZwpVirtualKeyboardV1) }
                     #[cfg(not(feature = "protocol-virtual_keyboard_unstable_v1"))] { None }
                 },
                 "treeland_app_id_resolver_manager_v1" => {
-                    #[cfg(feature = "protocol-treeland_app_id_resolver_v1")] { Some(ProxyInterface::TreelandAppIdResolverManagerV1) }
+                    #[cfg(feature = "protocol-treeland_app_id_resolver_v1")] { Some(ObjectInterface::TreelandAppIdResolverManagerV1) }
                     #[cfg(not(feature = "protocol-treeland_app_id_resolver_v1"))] { None }
                 },
                 "treeland_app_id_resolver_v1" => {
-                    #[cfg(feature = "protocol-treeland_app_id_resolver_v1")] { Some(ProxyInterface::TreelandAppIdResolverV1) }
+                    #[cfg(feature = "protocol-treeland_app_id_resolver_v1")] { Some(ObjectInterface::TreelandAppIdResolverV1) }
                     #[cfg(not(feature = "protocol-treeland_app_id_resolver_v1"))] { None }
                 },
                 "treeland_dde_active_v1" => {
-                    #[cfg(feature = "protocol-treeland_dde_shell_v1")] { Some(ProxyInterface::TreelandDdeActiveV1) }
+                    #[cfg(feature = "protocol-treeland_dde_shell_v1")] { Some(ObjectInterface::TreelandDdeActiveV1) }
                     #[cfg(not(feature = "protocol-treeland_dde_shell_v1"))] { None }
                 },
                 "treeland_dde_shell_manager_v1" => {
-                    #[cfg(feature = "protocol-treeland_dde_shell_v1")] { Some(ProxyInterface::TreelandDdeShellManagerV1) }
+                    #[cfg(feature = "protocol-treeland_dde_shell_v1")] { Some(ObjectInterface::TreelandDdeShellManagerV1) }
                     #[cfg(not(feature = "protocol-treeland_dde_shell_v1"))] { None }
                 },
                 "treeland_dde_shell_surface_v1" => {
-                    #[cfg(feature = "protocol-treeland_dde_shell_v1")] { Some(ProxyInterface::TreelandDdeShellSurfaceV1) }
+                    #[cfg(feature = "protocol-treeland_dde_shell_v1")] { Some(ObjectInterface::TreelandDdeShellSurfaceV1) }
                     #[cfg(not(feature = "protocol-treeland_dde_shell_v1"))] { None }
                 },
                 "treeland_lockscreen_v1" => {
-                    #[cfg(feature = "protocol-treeland_dde_shell_v1")] { Some(ProxyInterface::TreelandLockscreenV1) }
+                    #[cfg(feature = "protocol-treeland_dde_shell_v1")] { Some(ObjectInterface::TreelandLockscreenV1) }
                     #[cfg(not(feature = "protocol-treeland_dde_shell_v1"))] { None }
                 },
                 "treeland_multitaskview_v1" => {
-                    #[cfg(feature = "protocol-treeland_dde_shell_v1")] { Some(ProxyInterface::TreelandMultitaskviewV1) }
+                    #[cfg(feature = "protocol-treeland_dde_shell_v1")] { Some(ObjectInterface::TreelandMultitaskviewV1) }
                     #[cfg(not(feature = "protocol-treeland_dde_shell_v1"))] { None }
                 },
                 "treeland_window_overlap_checker" => {
-                    #[cfg(feature = "protocol-treeland_dde_shell_v1")] { Some(ProxyInterface::TreelandWindowOverlapChecker) }
+                    #[cfg(feature = "protocol-treeland_dde_shell_v1")] { Some(ObjectInterface::TreelandWindowOverlapChecker) }
                     #[cfg(not(feature = "protocol-treeland_dde_shell_v1"))] { None }
                 },
                 "treeland_window_picker_v1" => {
-                    #[cfg(feature = "protocol-treeland_dde_shell_v1")] { Some(ProxyInterface::TreelandWindowPickerV1) }
+                    #[cfg(feature = "protocol-treeland_dde_shell_v1")] { Some(ObjectInterface::TreelandWindowPickerV1) }
                     #[cfg(not(feature = "protocol-treeland_dde_shell_v1"))] { None }
                 },
                 "treeland_ddm" => {
-                    #[cfg(feature = "protocol-treeland_ddm")] { Some(ProxyInterface::TreelandDdm) }
+                    #[cfg(feature = "protocol-treeland_ddm")] { Some(ObjectInterface::TreelandDdm) }
                     #[cfg(not(feature = "protocol-treeland_ddm"))] { None }
                 },
                 "treeland_dock_preview_context_v1" => {
-                    #[cfg(feature = "protocol-treeland_foreign_toplevel_manager_v1")] { Some(ProxyInterface::TreelandDockPreviewContextV1) }
+                    #[cfg(feature = "protocol-treeland_foreign_toplevel_manager_v1")] { Some(ObjectInterface::TreelandDockPreviewContextV1) }
                     #[cfg(not(feature = "protocol-treeland_foreign_toplevel_manager_v1"))] { None }
                 },
                 "treeland_foreign_toplevel_handle_v1" => {
-                    #[cfg(feature = "protocol-treeland_foreign_toplevel_manager_v1")] { Some(ProxyInterface::TreelandForeignToplevelHandleV1) }
+                    #[cfg(feature = "protocol-treeland_foreign_toplevel_manager_v1")] { Some(ObjectInterface::TreelandForeignToplevelHandleV1) }
                     #[cfg(not(feature = "protocol-treeland_foreign_toplevel_manager_v1"))] { None }
                 },
                 "treeland_foreign_toplevel_manager_v1" => {
-                    #[cfg(feature = "protocol-treeland_foreign_toplevel_manager_v1")] { Some(ProxyInterface::TreelandForeignToplevelManagerV1) }
+                    #[cfg(feature = "protocol-treeland_foreign_toplevel_manager_v1")] { Some(ObjectInterface::TreelandForeignToplevelManagerV1) }
                     #[cfg(not(feature = "protocol-treeland_foreign_toplevel_manager_v1"))] { None }
                 },
                 "treeland_output_color_control_v1" => {
-                    #[cfg(feature = "protocol-treeland_output_manager_v1")] { Some(ProxyInterface::TreelandOutputColorControlV1) }
+                    #[cfg(feature = "protocol-treeland_output_manager_v1")] { Some(ObjectInterface::TreelandOutputColorControlV1) }
                     #[cfg(not(feature = "protocol-treeland_output_manager_v1"))] { None }
                 },
                 "treeland_output_manager_v1" => {
-                    #[cfg(feature = "protocol-treeland_output_manager_v1")] { Some(ProxyInterface::TreelandOutputManagerV1) }
+                    #[cfg(feature = "protocol-treeland_output_manager_v1")] { Some(ObjectInterface::TreelandOutputManagerV1) }
                     #[cfg(not(feature = "protocol-treeland_output_manager_v1"))] { None }
                 },
                 "treeland_personalization_appearance_context_v1" => {
-                    #[cfg(feature = "protocol-treeland_personalization_manager_v1")] { Some(ProxyInterface::TreelandPersonalizationAppearanceContextV1) }
+                    #[cfg(feature = "protocol-treeland_personalization_manager_v1")] { Some(ObjectInterface::TreelandPersonalizationAppearanceContextV1) }
                     #[cfg(not(feature = "protocol-treeland_personalization_manager_v1"))] { None }
                 },
                 "treeland_personalization_cursor_context_v1" => {
-                    #[cfg(feature = "protocol-treeland_personalization_manager_v1")] { Some(ProxyInterface::TreelandPersonalizationCursorContextV1) }
+                    #[cfg(feature = "protocol-treeland_personalization_manager_v1")] { Some(ObjectInterface::TreelandPersonalizationCursorContextV1) }
                     #[cfg(not(feature = "protocol-treeland_personalization_manager_v1"))] { None }
                 },
                 "treeland_personalization_font_context_v1" => {
-                    #[cfg(feature = "protocol-treeland_personalization_manager_v1")] { Some(ProxyInterface::TreelandPersonalizationFontContextV1) }
+                    #[cfg(feature = "protocol-treeland_personalization_manager_v1")] { Some(ObjectInterface::TreelandPersonalizationFontContextV1) }
                     #[cfg(not(feature = "protocol-treeland_personalization_manager_v1"))] { None }
                 },
                 "treeland_personalization_manager_v1" => {
-                    #[cfg(feature = "protocol-treeland_personalization_manager_v1")] { Some(ProxyInterface::TreelandPersonalizationManagerV1) }
+                    #[cfg(feature = "protocol-treeland_personalization_manager_v1")] { Some(ObjectInterface::TreelandPersonalizationManagerV1) }
                     #[cfg(not(feature = "protocol-treeland_personalization_manager_v1"))] { None }
                 },
                 "treeland_personalization_wallpaper_context_v1" => {
-                    #[cfg(feature = "protocol-treeland_personalization_manager_v1")] { Some(ProxyInterface::TreelandPersonalizationWallpaperContextV1) }
+                    #[cfg(feature = "protocol-treeland_personalization_manager_v1")] { Some(ObjectInterface::TreelandPersonalizationWallpaperContextV1) }
                     #[cfg(not(feature = "protocol-treeland_personalization_manager_v1"))] { None }
                 },
                 "treeland_personalization_window_context_v1" => {
-                    #[cfg(feature = "protocol-treeland_personalization_manager_v1")] { Some(ProxyInterface::TreelandPersonalizationWindowContextV1) }
+                    #[cfg(feature = "protocol-treeland_personalization_manager_v1")] { Some(ObjectInterface::TreelandPersonalizationWindowContextV1) }
                     #[cfg(not(feature = "protocol-treeland_personalization_manager_v1"))] { None }
                 },
                 "treeland_prelaunch_splash_manager_v1" => {
-                    #[cfg(feature = "protocol-treeland_prelaunch_splash_v1")] { Some(ProxyInterface::TreelandPrelaunchSplashManagerV1) }
+                    #[cfg(feature = "protocol-treeland_prelaunch_splash_v1")] { Some(ObjectInterface::TreelandPrelaunchSplashManagerV1) }
                     #[cfg(not(feature = "protocol-treeland_prelaunch_splash_v1"))] { None }
                 },
                 "treeland_screensaver" => {
-                    #[cfg(feature = "protocol-treeland_screensaver")] { Some(ProxyInterface::TreelandScreensaver) }
+                    #[cfg(feature = "protocol-treeland_screensaver")] { Some(ObjectInterface::TreelandScreensaver) }
                     #[cfg(not(feature = "protocol-treeland_screensaver"))] { None }
                 },
                 "treeland_shortcut_context_v1" => {
-                    #[cfg(feature = "protocol-treeland_shortcut_manager_v1")] { Some(ProxyInterface::TreelandShortcutContextV1) }
+                    #[cfg(feature = "protocol-treeland_shortcut_manager_v1")] { Some(ObjectInterface::TreelandShortcutContextV1) }
                     #[cfg(not(feature = "protocol-treeland_shortcut_manager_v1"))] { None }
                 },
                 "treeland_shortcut_manager_v1" => {
-                    #[cfg(feature = "protocol-treeland_shortcut_manager_v1")] { Some(ProxyInterface::TreelandShortcutManagerV1) }
+                    #[cfg(feature = "protocol-treeland_shortcut_manager_v1")] { Some(ObjectInterface::TreelandShortcutManagerV1) }
                     #[cfg(not(feature = "protocol-treeland_shortcut_manager_v1"))] { None }
                 },
                 "treeland_shortcut_manager_v2" => {
-                    #[cfg(feature = "protocol-treeland_shortcut_manager_v2")] { Some(ProxyInterface::TreelandShortcutManagerV2) }
+                    #[cfg(feature = "protocol-treeland_shortcut_manager_v2")] { Some(ObjectInterface::TreelandShortcutManagerV2) }
                     #[cfg(not(feature = "protocol-treeland_shortcut_manager_v2"))] { None }
                 },
                 "treeland_virtual_output_manager_v1" => {
-                    #[cfg(feature = "protocol-treeland_virtual_output_manager_v1")] { Some(ProxyInterface::TreelandVirtualOutputManagerV1) }
+                    #[cfg(feature = "protocol-treeland_virtual_output_manager_v1")] { Some(ObjectInterface::TreelandVirtualOutputManagerV1) }
                     #[cfg(not(feature = "protocol-treeland_virtual_output_manager_v1"))] { None }
                 },
                 "treeland_virtual_output_v1" => {
-                    #[cfg(feature = "protocol-treeland_virtual_output_manager_v1")] { Some(ProxyInterface::TreelandVirtualOutputV1) }
+                    #[cfg(feature = "protocol-treeland_virtual_output_manager_v1")] { Some(ObjectInterface::TreelandVirtualOutputV1) }
                     #[cfg(not(feature = "protocol-treeland_virtual_output_manager_v1"))] { None }
                 },
                 "treeland_wallpaper_color_manager_v1" => {
-                    #[cfg(feature = "protocol-treeland_wallpaper_color_v1")] { Some(ProxyInterface::TreelandWallpaperColorManagerV1) }
+                    #[cfg(feature = "protocol-treeland_wallpaper_color_v1")] { Some(ObjectInterface::TreelandWallpaperColorManagerV1) }
                     #[cfg(not(feature = "protocol-treeland_wallpaper_color_v1"))] { None }
                 },
                 "treeland_window_management_v1" => {
-                    #[cfg(feature = "protocol-treeland_window_management_v1")] { Some(ProxyInterface::TreelandWindowManagementV1) }
+                    #[cfg(feature = "protocol-treeland_window_management_v1")] { Some(ObjectInterface::TreelandWindowManagementV1) }
                     #[cfg(not(feature = "protocol-treeland_window_management_v1"))] { None }
                 },
-                "wl_buffer" => Some(ProxyInterface::WlBuffer),
-                "wl_callback" => Some(ProxyInterface::WlCallback),
-                "wl_compositor" => Some(ProxyInterface::WlCompositor),
-                "wl_data_device" => Some(ProxyInterface::WlDataDevice),
-                "wl_data_device_manager" => Some(ProxyInterface::WlDataDeviceManager),
-                "wl_data_offer" => Some(ProxyInterface::WlDataOffer),
-                "wl_data_source" => Some(ProxyInterface::WlDataSource),
-                "wl_display" => Some(ProxyInterface::WlDisplay),
-                "wl_fixes" => Some(ProxyInterface::WlFixes),
-                "wl_keyboard" => Some(ProxyInterface::WlKeyboard),
-                "wl_output" => Some(ProxyInterface::WlOutput),
-                "wl_pointer" => Some(ProxyInterface::WlPointer),
-                "wl_region" => Some(ProxyInterface::WlRegion),
-                "wl_registry" => Some(ProxyInterface::WlRegistry),
-                "wl_seat" => Some(ProxyInterface::WlSeat),
-                "wl_shell" => Some(ProxyInterface::WlShell),
-                "wl_shell_surface" => Some(ProxyInterface::WlShellSurface),
-                "wl_shm" => Some(ProxyInterface::WlShm),
-                "wl_shm_pool" => Some(ProxyInterface::WlShmPool),
-                "wl_subcompositor" => Some(ProxyInterface::WlSubcompositor),
-                "wl_subsurface" => Some(ProxyInterface::WlSubsurface),
-                "wl_surface" => Some(ProxyInterface::WlSurface),
-                "wl_touch" => Some(ProxyInterface::WlTouch),
+                "wl_buffer" => Some(ObjectInterface::WlBuffer),
+                "wl_callback" => Some(ObjectInterface::WlCallback),
+                "wl_compositor" => Some(ObjectInterface::WlCompositor),
+                "wl_data_device" => Some(ObjectInterface::WlDataDevice),
+                "wl_data_device_manager" => Some(ObjectInterface::WlDataDeviceManager),
+                "wl_data_offer" => Some(ObjectInterface::WlDataOffer),
+                "wl_data_source" => Some(ObjectInterface::WlDataSource),
+                "wl_display" => Some(ObjectInterface::WlDisplay),
+                "wl_fixes" => Some(ObjectInterface::WlFixes),
+                "wl_keyboard" => Some(ObjectInterface::WlKeyboard),
+                "wl_output" => Some(ObjectInterface::WlOutput),
+                "wl_pointer" => Some(ObjectInterface::WlPointer),
+                "wl_region" => Some(ObjectInterface::WlRegion),
+                "wl_registry" => Some(ObjectInterface::WlRegistry),
+                "wl_seat" => Some(ObjectInterface::WlSeat),
+                "wl_shell" => Some(ObjectInterface::WlShell),
+                "wl_shell_surface" => Some(ObjectInterface::WlShellSurface),
+                "wl_shm" => Some(ObjectInterface::WlShm),
+                "wl_shm_pool" => Some(ObjectInterface::WlShmPool),
+                "wl_subcompositor" => Some(ObjectInterface::WlSubcompositor),
+                "wl_subsurface" => Some(ObjectInterface::WlSubsurface),
+                "wl_surface" => Some(ObjectInterface::WlSurface),
+                "wl_touch" => Some(ObjectInterface::WlTouch),
                 "wp_alpha_modifier_surface_v1" => {
-                    #[cfg(feature = "protocol-alpha_modifier_v1")] { Some(ProxyInterface::WpAlphaModifierSurfaceV1) }
+                    #[cfg(feature = "protocol-alpha_modifier_v1")] { Some(ObjectInterface::WpAlphaModifierSurfaceV1) }
                     #[cfg(not(feature = "protocol-alpha_modifier_v1"))] { None }
                 },
                 "wp_alpha_modifier_v1" => {
-                    #[cfg(feature = "protocol-alpha_modifier_v1")] { Some(ProxyInterface::WpAlphaModifierV1) }
+                    #[cfg(feature = "protocol-alpha_modifier_v1")] { Some(ObjectInterface::WpAlphaModifierV1) }
                     #[cfg(not(feature = "protocol-alpha_modifier_v1"))] { None }
                 },
                 "wp_color_management_output_v1" => {
-                    #[cfg(feature = "protocol-color_management_v1")] { Some(ProxyInterface::WpColorManagementOutputV1) }
+                    #[cfg(feature = "protocol-color_management_v1")] { Some(ObjectInterface::WpColorManagementOutputV1) }
                     #[cfg(not(feature = "protocol-color_management_v1"))] { None }
                 },
                 "wp_color_management_surface_feedback_v1" => {
-                    #[cfg(feature = "protocol-color_management_v1")] { Some(ProxyInterface::WpColorManagementSurfaceFeedbackV1) }
+                    #[cfg(feature = "protocol-color_management_v1")] { Some(ObjectInterface::WpColorManagementSurfaceFeedbackV1) }
                     #[cfg(not(feature = "protocol-color_management_v1"))] { None }
                 },
                 "wp_color_management_surface_v1" => {
-                    #[cfg(feature = "protocol-color_management_v1")] { Some(ProxyInterface::WpColorManagementSurfaceV1) }
+                    #[cfg(feature = "protocol-color_management_v1")] { Some(ObjectInterface::WpColorManagementSurfaceV1) }
                     #[cfg(not(feature = "protocol-color_management_v1"))] { None }
                 },
                 "wp_color_manager_v1" => {
-                    #[cfg(feature = "protocol-color_management_v1")] { Some(ProxyInterface::WpColorManagerV1) }
+                    #[cfg(feature = "protocol-color_management_v1")] { Some(ObjectInterface::WpColorManagerV1) }
                     #[cfg(not(feature = "protocol-color_management_v1"))] { None }
                 },
                 "wp_image_description_creator_icc_v1" => {
-                    #[cfg(feature = "protocol-color_management_v1")] { Some(ProxyInterface::WpImageDescriptionCreatorIccV1) }
+                    #[cfg(feature = "protocol-color_management_v1")] { Some(ObjectInterface::WpImageDescriptionCreatorIccV1) }
                     #[cfg(not(feature = "protocol-color_management_v1"))] { None }
                 },
                 "wp_image_description_creator_params_v1" => {
-                    #[cfg(feature = "protocol-color_management_v1")] { Some(ProxyInterface::WpImageDescriptionCreatorParamsV1) }
+                    #[cfg(feature = "protocol-color_management_v1")] { Some(ObjectInterface::WpImageDescriptionCreatorParamsV1) }
                     #[cfg(not(feature = "protocol-color_management_v1"))] { None }
                 },
                 "wp_image_description_info_v1" => {
-                    #[cfg(feature = "protocol-color_management_v1")] { Some(ProxyInterface::WpImageDescriptionInfoV1) }
+                    #[cfg(feature = "protocol-color_management_v1")] { Some(ObjectInterface::WpImageDescriptionInfoV1) }
                     #[cfg(not(feature = "protocol-color_management_v1"))] { None }
                 },
                 "wp_image_description_reference_v1" => {
-                    #[cfg(feature = "protocol-color_management_v1")] { Some(ProxyInterface::WpImageDescriptionReferenceV1) }
+                    #[cfg(feature = "protocol-color_management_v1")] { Some(ObjectInterface::WpImageDescriptionReferenceV1) }
                     #[cfg(not(feature = "protocol-color_management_v1"))] { None }
                 },
                 "wp_image_description_v1" => {
-                    #[cfg(feature = "protocol-color_management_v1")] { Some(ProxyInterface::WpImageDescriptionV1) }
+                    #[cfg(feature = "protocol-color_management_v1")] { Some(ObjectInterface::WpImageDescriptionV1) }
                     #[cfg(not(feature = "protocol-color_management_v1"))] { None }
                 },
                 "wp_color_representation_manager_v1" => {
-                    #[cfg(feature = "protocol-color_representation_v1")] { Some(ProxyInterface::WpColorRepresentationManagerV1) }
+                    #[cfg(feature = "protocol-color_representation_v1")] { Some(ObjectInterface::WpColorRepresentationManagerV1) }
                     #[cfg(not(feature = "protocol-color_representation_v1"))] { None }
                 },
                 "wp_color_representation_surface_v1" => {
-                    #[cfg(feature = "protocol-color_representation_v1")] { Some(ProxyInterface::WpColorRepresentationSurfaceV1) }
+                    #[cfg(feature = "protocol-color_representation_v1")] { Some(ObjectInterface::WpColorRepresentationSurfaceV1) }
                     #[cfg(not(feature = "protocol-color_representation_v1"))] { None }
                 },
                 "wp_commit_timer_v1" => {
-                    #[cfg(feature = "protocol-commit_timing_v1")] { Some(ProxyInterface::WpCommitTimerV1) }
+                    #[cfg(feature = "protocol-commit_timing_v1")] { Some(ObjectInterface::WpCommitTimerV1) }
                     #[cfg(not(feature = "protocol-commit_timing_v1"))] { None }
                 },
                 "wp_commit_timing_manager_v1" => {
-                    #[cfg(feature = "protocol-commit_timing_v1")] { Some(ProxyInterface::WpCommitTimingManagerV1) }
+                    #[cfg(feature = "protocol-commit_timing_v1")] { Some(ObjectInterface::WpCommitTimingManagerV1) }
                     #[cfg(not(feature = "protocol-commit_timing_v1"))] { None }
                 },
                 "wp_content_type_manager_v1" => {
-                    #[cfg(feature = "protocol-content_type_v1")] { Some(ProxyInterface::WpContentTypeManagerV1) }
+                    #[cfg(feature = "protocol-content_type_v1")] { Some(ObjectInterface::WpContentTypeManagerV1) }
                     #[cfg(not(feature = "protocol-content_type_v1"))] { None }
                 },
                 "wp_content_type_v1" => {
-                    #[cfg(feature = "protocol-content_type_v1")] { Some(ProxyInterface::WpContentTypeV1) }
+                    #[cfg(feature = "protocol-content_type_v1")] { Some(ObjectInterface::WpContentTypeV1) }
                     #[cfg(not(feature = "protocol-content_type_v1"))] { None }
                 },
                 "wp_cursor_shape_device_v1" => {
-                    #[cfg(feature = "protocol-cursor_shape_v1")] { Some(ProxyInterface::WpCursorShapeDeviceV1) }
+                    #[cfg(feature = "protocol-cursor_shape_v1")] { Some(ObjectInterface::WpCursorShapeDeviceV1) }
                     #[cfg(not(feature = "protocol-cursor_shape_v1"))] { None }
                 },
                 "wp_cursor_shape_manager_v1" => {
-                    #[cfg(feature = "protocol-cursor_shape_v1")] { Some(ProxyInterface::WpCursorShapeManagerV1) }
+                    #[cfg(feature = "protocol-cursor_shape_v1")] { Some(ObjectInterface::WpCursorShapeManagerV1) }
                     #[cfg(not(feature = "protocol-cursor_shape_v1"))] { None }
                 },
                 "wp_drm_lease_connector_v1" => {
-                    #[cfg(feature = "protocol-drm_lease_v1")] { Some(ProxyInterface::WpDrmLeaseConnectorV1) }
+                    #[cfg(feature = "protocol-drm_lease_v1")] { Some(ObjectInterface::WpDrmLeaseConnectorV1) }
                     #[cfg(not(feature = "protocol-drm_lease_v1"))] { None }
                 },
                 "wp_drm_lease_device_v1" => {
-                    #[cfg(feature = "protocol-drm_lease_v1")] { Some(ProxyInterface::WpDrmLeaseDeviceV1) }
+                    #[cfg(feature = "protocol-drm_lease_v1")] { Some(ObjectInterface::WpDrmLeaseDeviceV1) }
                     #[cfg(not(feature = "protocol-drm_lease_v1"))] { None }
                 },
                 "wp_drm_lease_request_v1" => {
-                    #[cfg(feature = "protocol-drm_lease_v1")] { Some(ProxyInterface::WpDrmLeaseRequestV1) }
+                    #[cfg(feature = "protocol-drm_lease_v1")] { Some(ObjectInterface::WpDrmLeaseRequestV1) }
                     #[cfg(not(feature = "protocol-drm_lease_v1"))] { None }
                 },
                 "wp_drm_lease_v1" => {
-                    #[cfg(feature = "protocol-drm_lease_v1")] { Some(ProxyInterface::WpDrmLeaseV1) }
+                    #[cfg(feature = "protocol-drm_lease_v1")] { Some(ObjectInterface::WpDrmLeaseV1) }
                     #[cfg(not(feature = "protocol-drm_lease_v1"))] { None }
                 },
                 "ext_background_effect_manager_v1" => {
-                    #[cfg(feature = "protocol-ext_background_effect_v1")] { Some(ProxyInterface::ExtBackgroundEffectManagerV1) }
+                    #[cfg(feature = "protocol-ext_background_effect_v1")] { Some(ObjectInterface::ExtBackgroundEffectManagerV1) }
                     #[cfg(not(feature = "protocol-ext_background_effect_v1"))] { None }
                 },
                 "ext_background_effect_surface_v1" => {
-                    #[cfg(feature = "protocol-ext_background_effect_v1")] { Some(ProxyInterface::ExtBackgroundEffectSurfaceV1) }
+                    #[cfg(feature = "protocol-ext_background_effect_v1")] { Some(ObjectInterface::ExtBackgroundEffectSurfaceV1) }
                     #[cfg(not(feature = "protocol-ext_background_effect_v1"))] { None }
                 },
                 "ext_data_control_device_v1" => {
-                    #[cfg(feature = "protocol-ext_data_control_v1")] { Some(ProxyInterface::ExtDataControlDeviceV1) }
+                    #[cfg(feature = "protocol-ext_data_control_v1")] { Some(ObjectInterface::ExtDataControlDeviceV1) }
                     #[cfg(not(feature = "protocol-ext_data_control_v1"))] { None }
                 },
                 "ext_data_control_manager_v1" => {
-                    #[cfg(feature = "protocol-ext_data_control_v1")] { Some(ProxyInterface::ExtDataControlManagerV1) }
+                    #[cfg(feature = "protocol-ext_data_control_v1")] { Some(ObjectInterface::ExtDataControlManagerV1) }
                     #[cfg(not(feature = "protocol-ext_data_control_v1"))] { None }
                 },
                 "ext_data_control_offer_v1" => {
-                    #[cfg(feature = "protocol-ext_data_control_v1")] { Some(ProxyInterface::ExtDataControlOfferV1) }
+                    #[cfg(feature = "protocol-ext_data_control_v1")] { Some(ObjectInterface::ExtDataControlOfferV1) }
                     #[cfg(not(feature = "protocol-ext_data_control_v1"))] { None }
                 },
                 "ext_data_control_source_v1" => {
-                    #[cfg(feature = "protocol-ext_data_control_v1")] { Some(ProxyInterface::ExtDataControlSourceV1) }
+                    #[cfg(feature = "protocol-ext_data_control_v1")] { Some(ObjectInterface::ExtDataControlSourceV1) }
                     #[cfg(not(feature = "protocol-ext_data_control_v1"))] { None }
                 },
                 "ext_foreign_toplevel_handle_v1" => {
-                    #[cfg(feature = "protocol-ext_foreign_toplevel_list_v1")] { Some(ProxyInterface::ExtForeignToplevelHandleV1) }
+                    #[cfg(feature = "protocol-ext_foreign_toplevel_list_v1")] { Some(ObjectInterface::ExtForeignToplevelHandleV1) }
                     #[cfg(not(feature = "protocol-ext_foreign_toplevel_list_v1"))] { None }
                 },
                 "ext_foreign_toplevel_list_v1" => {
-                    #[cfg(feature = "protocol-ext_foreign_toplevel_list_v1")] { Some(ProxyInterface::ExtForeignToplevelListV1) }
+                    #[cfg(feature = "protocol-ext_foreign_toplevel_list_v1")] { Some(ObjectInterface::ExtForeignToplevelListV1) }
                     #[cfg(not(feature = "protocol-ext_foreign_toplevel_list_v1"))] { None }
                 },
                 "ext_idle_notification_v1" => {
-                    #[cfg(feature = "protocol-ext_idle_notify_v1")] { Some(ProxyInterface::ExtIdleNotificationV1) }
+                    #[cfg(feature = "protocol-ext_idle_notify_v1")] { Some(ObjectInterface::ExtIdleNotificationV1) }
                     #[cfg(not(feature = "protocol-ext_idle_notify_v1"))] { None }
                 },
                 "ext_idle_notifier_v1" => {
-                    #[cfg(feature = "protocol-ext_idle_notify_v1")] { Some(ProxyInterface::ExtIdleNotifierV1) }
+                    #[cfg(feature = "protocol-ext_idle_notify_v1")] { Some(ObjectInterface::ExtIdleNotifierV1) }
                     #[cfg(not(feature = "protocol-ext_idle_notify_v1"))] { None }
                 },
                 "ext_foreign_toplevel_image_capture_source_manager_v1" => {
-                    #[cfg(feature = "protocol-ext_image_capture_source_v1")] { Some(ProxyInterface::ExtForeignToplevelImageCaptureSourceManagerV1) }
+                    #[cfg(feature = "protocol-ext_image_capture_source_v1")] { Some(ObjectInterface::ExtForeignToplevelImageCaptureSourceManagerV1) }
                     #[cfg(not(feature = "protocol-ext_image_capture_source_v1"))] { None }
                 },
                 "ext_image_capture_source_v1" => {
-                    #[cfg(feature = "protocol-ext_image_capture_source_v1")] { Some(ProxyInterface::ExtImageCaptureSourceV1) }
+                    #[cfg(feature = "protocol-ext_image_capture_source_v1")] { Some(ObjectInterface::ExtImageCaptureSourceV1) }
                     #[cfg(not(feature = "protocol-ext_image_capture_source_v1"))] { None }
                 },
                 "ext_output_image_capture_source_manager_v1" => {
-                    #[cfg(feature = "protocol-ext_image_capture_source_v1")] { Some(ProxyInterface::ExtOutputImageCaptureSourceManagerV1) }
+                    #[cfg(feature = "protocol-ext_image_capture_source_v1")] { Some(ObjectInterface::ExtOutputImageCaptureSourceManagerV1) }
                     #[cfg(not(feature = "protocol-ext_image_capture_source_v1"))] { None }
                 },
                 "ext_image_copy_capture_cursor_session_v1" => {
-                    #[cfg(feature = "protocol-ext_image_copy_capture_v1")] { Some(ProxyInterface::ExtImageCopyCaptureCursorSessionV1) }
+                    #[cfg(feature = "protocol-ext_image_copy_capture_v1")] { Some(ObjectInterface::ExtImageCopyCaptureCursorSessionV1) }
                     #[cfg(not(feature = "protocol-ext_image_copy_capture_v1"))] { None }
                 },
                 "ext_image_copy_capture_frame_v1" => {
-                    #[cfg(feature = "protocol-ext_image_copy_capture_v1")] { Some(ProxyInterface::ExtImageCopyCaptureFrameV1) }
+                    #[cfg(feature = "protocol-ext_image_copy_capture_v1")] { Some(ObjectInterface::ExtImageCopyCaptureFrameV1) }
                     #[cfg(not(feature = "protocol-ext_image_copy_capture_v1"))] { None }
                 },
                 "ext_image_copy_capture_manager_v1" => {
-                    #[cfg(feature = "protocol-ext_image_copy_capture_v1")] { Some(ProxyInterface::ExtImageCopyCaptureManagerV1) }
+                    #[cfg(feature = "protocol-ext_image_copy_capture_v1")] { Some(ObjectInterface::ExtImageCopyCaptureManagerV1) }
                     #[cfg(not(feature = "protocol-ext_image_copy_capture_v1"))] { None }
                 },
                 "ext_image_copy_capture_session_v1" => {
-                    #[cfg(feature = "protocol-ext_image_copy_capture_v1")] { Some(ProxyInterface::ExtImageCopyCaptureSessionV1) }
+                    #[cfg(feature = "protocol-ext_image_copy_capture_v1")] { Some(ObjectInterface::ExtImageCopyCaptureSessionV1) }
                     #[cfg(not(feature = "protocol-ext_image_copy_capture_v1"))] { None }
                 },
                 "ext_session_lock_manager_v1" => {
-                    #[cfg(feature = "protocol-ext_session_lock_v1")] { Some(ProxyInterface::ExtSessionLockManagerV1) }
+                    #[cfg(feature = "protocol-ext_session_lock_v1")] { Some(ObjectInterface::ExtSessionLockManagerV1) }
                     #[cfg(not(feature = "protocol-ext_session_lock_v1"))] { None }
                 },
                 "ext_session_lock_surface_v1" => {
-                    #[cfg(feature = "protocol-ext_session_lock_v1")] { Some(ProxyInterface::ExtSessionLockSurfaceV1) }
+                    #[cfg(feature = "protocol-ext_session_lock_v1")] { Some(ObjectInterface::ExtSessionLockSurfaceV1) }
                     #[cfg(not(feature = "protocol-ext_session_lock_v1"))] { None }
                 },
                 "ext_session_lock_v1" => {
-                    #[cfg(feature = "protocol-ext_session_lock_v1")] { Some(ProxyInterface::ExtSessionLockV1) }
+                    #[cfg(feature = "protocol-ext_session_lock_v1")] { Some(ObjectInterface::ExtSessionLockV1) }
                     #[cfg(not(feature = "protocol-ext_session_lock_v1"))] { None }
                 },
                 "ext_transient_seat_manager_v1" => {
-                    #[cfg(feature = "protocol-ext_transient_seat_v1")] { Some(ProxyInterface::ExtTransientSeatManagerV1) }
+                    #[cfg(feature = "protocol-ext_transient_seat_v1")] { Some(ObjectInterface::ExtTransientSeatManagerV1) }
                     #[cfg(not(feature = "protocol-ext_transient_seat_v1"))] { None }
                 },
                 "ext_transient_seat_v1" => {
-                    #[cfg(feature = "protocol-ext_transient_seat_v1")] { Some(ProxyInterface::ExtTransientSeatV1) }
+                    #[cfg(feature = "protocol-ext_transient_seat_v1")] { Some(ObjectInterface::ExtTransientSeatV1) }
                     #[cfg(not(feature = "protocol-ext_transient_seat_v1"))] { None }
                 },
                 "ext_workspace_group_handle_v1" => {
-                    #[cfg(feature = "protocol-ext_workspace_v1")] { Some(ProxyInterface::ExtWorkspaceGroupHandleV1) }
+                    #[cfg(feature = "protocol-ext_workspace_v1")] { Some(ObjectInterface::ExtWorkspaceGroupHandleV1) }
                     #[cfg(not(feature = "protocol-ext_workspace_v1"))] { None }
                 },
                 "ext_workspace_handle_v1" => {
-                    #[cfg(feature = "protocol-ext_workspace_v1")] { Some(ProxyInterface::ExtWorkspaceHandleV1) }
+                    #[cfg(feature = "protocol-ext_workspace_v1")] { Some(ObjectInterface::ExtWorkspaceHandleV1) }
                     #[cfg(not(feature = "protocol-ext_workspace_v1"))] { None }
                 },
                 "ext_workspace_manager_v1" => {
-                    #[cfg(feature = "protocol-ext_workspace_v1")] { Some(ProxyInterface::ExtWorkspaceManagerV1) }
+                    #[cfg(feature = "protocol-ext_workspace_v1")] { Some(ObjectInterface::ExtWorkspaceManagerV1) }
                     #[cfg(not(feature = "protocol-ext_workspace_v1"))] { None }
                 },
                 "wp_fifo_manager_v1" => {
-                    #[cfg(feature = "protocol-fifo_v1")] { Some(ProxyInterface::WpFifoManagerV1) }
+                    #[cfg(feature = "protocol-fifo_v1")] { Some(ObjectInterface::WpFifoManagerV1) }
                     #[cfg(not(feature = "protocol-fifo_v1"))] { None }
                 },
                 "wp_fifo_v1" => {
-                    #[cfg(feature = "protocol-fifo_v1")] { Some(ProxyInterface::WpFifoV1) }
+                    #[cfg(feature = "protocol-fifo_v1")] { Some(ObjectInterface::WpFifoV1) }
                     #[cfg(not(feature = "protocol-fifo_v1"))] { None }
                 },
                 "wp_fractional_scale_manager_v1" => {
-                    #[cfg(feature = "protocol-fractional_scale_v1")] { Some(ProxyInterface::WpFractionalScaleManagerV1) }
+                    #[cfg(feature = "protocol-fractional_scale_v1")] { Some(ObjectInterface::WpFractionalScaleManagerV1) }
                     #[cfg(not(feature = "protocol-fractional_scale_v1"))] { None }
                 },
                 "wp_fractional_scale_v1" => {
-                    #[cfg(feature = "protocol-fractional_scale_v1")] { Some(ProxyInterface::WpFractionalScaleV1) }
+                    #[cfg(feature = "protocol-fractional_scale_v1")] { Some(ObjectInterface::WpFractionalScaleV1) }
                     #[cfg(not(feature = "protocol-fractional_scale_v1"))] { None }
                 },
                 "zwp_fullscreen_shell_mode_feedback_v1" => {
-                    #[cfg(feature = "protocol-fullscreen_shell_unstable_v1")] { Some(ProxyInterface::ZwpFullscreenShellModeFeedbackV1) }
+                    #[cfg(feature = "protocol-fullscreen_shell_unstable_v1")] { Some(ObjectInterface::ZwpFullscreenShellModeFeedbackV1) }
                     #[cfg(not(feature = "protocol-fullscreen_shell_unstable_v1"))] { None }
                 },
                 "zwp_fullscreen_shell_v1" => {
-                    #[cfg(feature = "protocol-fullscreen_shell_unstable_v1")] { Some(ProxyInterface::ZwpFullscreenShellV1) }
+                    #[cfg(feature = "protocol-fullscreen_shell_unstable_v1")] { Some(ObjectInterface::ZwpFullscreenShellV1) }
                     #[cfg(not(feature = "protocol-fullscreen_shell_unstable_v1"))] { None }
                 },
                 "zwp_idle_inhibit_manager_v1" => {
-                    #[cfg(feature = "protocol-idle_inhibit_unstable_v1")] { Some(ProxyInterface::ZwpIdleInhibitManagerV1) }
+                    #[cfg(feature = "protocol-idle_inhibit_unstable_v1")] { Some(ObjectInterface::ZwpIdleInhibitManagerV1) }
                     #[cfg(not(feature = "protocol-idle_inhibit_unstable_v1"))] { None }
                 },
                 "zwp_idle_inhibitor_v1" => {
-                    #[cfg(feature = "protocol-idle_inhibit_unstable_v1")] { Some(ProxyInterface::ZwpIdleInhibitorV1) }
+                    #[cfg(feature = "protocol-idle_inhibit_unstable_v1")] { Some(ObjectInterface::ZwpIdleInhibitorV1) }
                     #[cfg(not(feature = "protocol-idle_inhibit_unstable_v1"))] { None }
                 },
                 "zwp_input_method_context_v1" => {
-                    #[cfg(feature = "protocol-input_method_unstable_v1")] { Some(ProxyInterface::ZwpInputMethodContextV1) }
+                    #[cfg(feature = "protocol-input_method_unstable_v1")] { Some(ObjectInterface::ZwpInputMethodContextV1) }
                     #[cfg(not(feature = "protocol-input_method_unstable_v1"))] { None }
                 },
                 "zwp_input_method_v1" => {
-                    #[cfg(feature = "protocol-input_method_unstable_v1")] { Some(ProxyInterface::ZwpInputMethodV1) }
+                    #[cfg(feature = "protocol-input_method_unstable_v1")] { Some(ObjectInterface::ZwpInputMethodV1) }
                     #[cfg(not(feature = "protocol-input_method_unstable_v1"))] { None }
                 },
                 "zwp_input_panel_surface_v1" => {
-                    #[cfg(feature = "protocol-input_method_unstable_v1")] { Some(ProxyInterface::ZwpInputPanelSurfaceV1) }
+                    #[cfg(feature = "protocol-input_method_unstable_v1")] { Some(ObjectInterface::ZwpInputPanelSurfaceV1) }
                     #[cfg(not(feature = "protocol-input_method_unstable_v1"))] { None }
                 },
                 "zwp_input_panel_v1" => {
-                    #[cfg(feature = "protocol-input_method_unstable_v1")] { Some(ProxyInterface::ZwpInputPanelV1) }
+                    #[cfg(feature = "protocol-input_method_unstable_v1")] { Some(ObjectInterface::ZwpInputPanelV1) }
                     #[cfg(not(feature = "protocol-input_method_unstable_v1"))] { None }
                 },
                 "zwp_input_timestamps_manager_v1" => {
-                    #[cfg(feature = "protocol-input_timestamps_unstable_v1")] { Some(ProxyInterface::ZwpInputTimestampsManagerV1) }
+                    #[cfg(feature = "protocol-input_timestamps_unstable_v1")] { Some(ObjectInterface::ZwpInputTimestampsManagerV1) }
                     #[cfg(not(feature = "protocol-input_timestamps_unstable_v1"))] { None }
                 },
                 "zwp_input_timestamps_v1" => {
-                    #[cfg(feature = "protocol-input_timestamps_unstable_v1")] { Some(ProxyInterface::ZwpInputTimestampsV1) }
+                    #[cfg(feature = "protocol-input_timestamps_unstable_v1")] { Some(ObjectInterface::ZwpInputTimestampsV1) }
                     #[cfg(not(feature = "protocol-input_timestamps_unstable_v1"))] { None }
                 },
                 "zwp_keyboard_shortcuts_inhibit_manager_v1" => {
-                    #[cfg(feature = "protocol-keyboard_shortcuts_inhibit_unstable_v1")] { Some(ProxyInterface::ZwpKeyboardShortcutsInhibitManagerV1) }
+                    #[cfg(feature = "protocol-keyboard_shortcuts_inhibit_unstable_v1")] { Some(ObjectInterface::ZwpKeyboardShortcutsInhibitManagerV1) }
                     #[cfg(not(feature = "protocol-keyboard_shortcuts_inhibit_unstable_v1"))] { None }
                 },
                 "zwp_keyboard_shortcuts_inhibitor_v1" => {
-                    #[cfg(feature = "protocol-keyboard_shortcuts_inhibit_unstable_v1")] { Some(ProxyInterface::ZwpKeyboardShortcutsInhibitorV1) }
+                    #[cfg(feature = "protocol-keyboard_shortcuts_inhibit_unstable_v1")] { Some(ObjectInterface::ZwpKeyboardShortcutsInhibitorV1) }
                     #[cfg(not(feature = "protocol-keyboard_shortcuts_inhibit_unstable_v1"))] { None }
                 },
                 "zwp_linux_buffer_params_v1" => {
-                    #[cfg(feature = "protocol-linux_dmabuf_v1")] { Some(ProxyInterface::ZwpLinuxBufferParamsV1) }
+                    #[cfg(feature = "protocol-linux_dmabuf_v1")] { Some(ObjectInterface::ZwpLinuxBufferParamsV1) }
                     #[cfg(not(feature = "protocol-linux_dmabuf_v1"))] { None }
                 },
                 "zwp_linux_dmabuf_feedback_v1" => {
-                    #[cfg(feature = "protocol-linux_dmabuf_v1")] { Some(ProxyInterface::ZwpLinuxDmabufFeedbackV1) }
+                    #[cfg(feature = "protocol-linux_dmabuf_v1")] { Some(ObjectInterface::ZwpLinuxDmabufFeedbackV1) }
                     #[cfg(not(feature = "protocol-linux_dmabuf_v1"))] { None }
                 },
                 "zwp_linux_dmabuf_v1" => {
-                    #[cfg(feature = "protocol-linux_dmabuf_v1")] { Some(ProxyInterface::ZwpLinuxDmabufV1) }
+                    #[cfg(feature = "protocol-linux_dmabuf_v1")] { Some(ObjectInterface::ZwpLinuxDmabufV1) }
                     #[cfg(not(feature = "protocol-linux_dmabuf_v1"))] { None }
                 },
                 "wp_linux_drm_syncobj_manager_v1" => {
-                    #[cfg(feature = "protocol-linux_drm_syncobj_v1")] { Some(ProxyInterface::WpLinuxDrmSyncobjManagerV1) }
+                    #[cfg(feature = "protocol-linux_drm_syncobj_v1")] { Some(ObjectInterface::WpLinuxDrmSyncobjManagerV1) }
                     #[cfg(not(feature = "protocol-linux_drm_syncobj_v1"))] { None }
                 },
                 "wp_linux_drm_syncobj_surface_v1" => {
-                    #[cfg(feature = "protocol-linux_drm_syncobj_v1")] { Some(ProxyInterface::WpLinuxDrmSyncobjSurfaceV1) }
+                    #[cfg(feature = "protocol-linux_drm_syncobj_v1")] { Some(ObjectInterface::WpLinuxDrmSyncobjSurfaceV1) }
                     #[cfg(not(feature = "protocol-linux_drm_syncobj_v1"))] { None }
                 },
                 "wp_linux_drm_syncobj_timeline_v1" => {
-                    #[cfg(feature = "protocol-linux_drm_syncobj_v1")] { Some(ProxyInterface::WpLinuxDrmSyncobjTimelineV1) }
+                    #[cfg(feature = "protocol-linux_drm_syncobj_v1")] { Some(ObjectInterface::WpLinuxDrmSyncobjTimelineV1) }
                     #[cfg(not(feature = "protocol-linux_drm_syncobj_v1"))] { None }
                 },
                 "zwp_confined_pointer_v1" => {
-                    #[cfg(feature = "protocol-pointer_constraints_unstable_v1")] { Some(ProxyInterface::ZwpConfinedPointerV1) }
+                    #[cfg(feature = "protocol-pointer_constraints_unstable_v1")] { Some(ObjectInterface::ZwpConfinedPointerV1) }
                     #[cfg(not(feature = "protocol-pointer_constraints_unstable_v1"))] { None }
                 },
                 "zwp_locked_pointer_v1" => {
-                    #[cfg(feature = "protocol-pointer_constraints_unstable_v1")] { Some(ProxyInterface::ZwpLockedPointerV1) }
+                    #[cfg(feature = "protocol-pointer_constraints_unstable_v1")] { Some(ObjectInterface::ZwpLockedPointerV1) }
                     #[cfg(not(feature = "protocol-pointer_constraints_unstable_v1"))] { None }
                 },
                 "zwp_pointer_constraints_v1" => {
-                    #[cfg(feature = "protocol-pointer_constraints_unstable_v1")] { Some(ProxyInterface::ZwpPointerConstraintsV1) }
+                    #[cfg(feature = "protocol-pointer_constraints_unstable_v1")] { Some(ObjectInterface::ZwpPointerConstraintsV1) }
                     #[cfg(not(feature = "protocol-pointer_constraints_unstable_v1"))] { None }
                 },
                 "zwp_pointer_gesture_hold_v1" => {
-                    #[cfg(feature = "protocol-pointer_gestures_unstable_v1")] { Some(ProxyInterface::ZwpPointerGestureHoldV1) }
+                    #[cfg(feature = "protocol-pointer_gestures_unstable_v1")] { Some(ObjectInterface::ZwpPointerGestureHoldV1) }
                     #[cfg(not(feature = "protocol-pointer_gestures_unstable_v1"))] { None }
                 },
                 "zwp_pointer_gesture_pinch_v1" => {
-                    #[cfg(feature = "protocol-pointer_gestures_unstable_v1")] { Some(ProxyInterface::ZwpPointerGesturePinchV1) }
+                    #[cfg(feature = "protocol-pointer_gestures_unstable_v1")] { Some(ObjectInterface::ZwpPointerGesturePinchV1) }
                     #[cfg(not(feature = "protocol-pointer_gestures_unstable_v1"))] { None }
                 },
                 "zwp_pointer_gesture_swipe_v1" => {
-                    #[cfg(feature = "protocol-pointer_gestures_unstable_v1")] { Some(ProxyInterface::ZwpPointerGestureSwipeV1) }
+                    #[cfg(feature = "protocol-pointer_gestures_unstable_v1")] { Some(ObjectInterface::ZwpPointerGestureSwipeV1) }
                     #[cfg(not(feature = "protocol-pointer_gestures_unstable_v1"))] { None }
                 },
                 "zwp_pointer_gestures_v1" => {
-                    #[cfg(feature = "protocol-pointer_gestures_unstable_v1")] { Some(ProxyInterface::ZwpPointerGesturesV1) }
+                    #[cfg(feature = "protocol-pointer_gestures_unstable_v1")] { Some(ObjectInterface::ZwpPointerGesturesV1) }
                     #[cfg(not(feature = "protocol-pointer_gestures_unstable_v1"))] { None }
                 },
                 "wp_pointer_warp_v1" => {
-                    #[cfg(feature = "protocol-pointer_warp_v1")] { Some(ProxyInterface::WpPointerWarpV1) }
+                    #[cfg(feature = "protocol-pointer_warp_v1")] { Some(ObjectInterface::WpPointerWarpV1) }
                     #[cfg(not(feature = "protocol-pointer_warp_v1"))] { None }
                 },
                 "wp_presentation" => {
-                    #[cfg(feature = "protocol-presentation_time")] { Some(ProxyInterface::WpPresentation) }
+                    #[cfg(feature = "protocol-presentation_time")] { Some(ObjectInterface::WpPresentation) }
                     #[cfg(not(feature = "protocol-presentation_time"))] { None }
                 },
                 "wp_presentation_feedback" => {
-                    #[cfg(feature = "protocol-presentation_time")] { Some(ProxyInterface::WpPresentationFeedback) }
+                    #[cfg(feature = "protocol-presentation_time")] { Some(ObjectInterface::WpPresentationFeedback) }
                     #[cfg(not(feature = "protocol-presentation_time"))] { None }
                 },
                 "zwp_relative_pointer_manager_v1" => {
-                    #[cfg(feature = "protocol-relative_pointer_unstable_v1")] { Some(ProxyInterface::ZwpRelativePointerManagerV1) }
+                    #[cfg(feature = "protocol-relative_pointer_unstable_v1")] { Some(ObjectInterface::ZwpRelativePointerManagerV1) }
                     #[cfg(not(feature = "protocol-relative_pointer_unstable_v1"))] { None }
                 },
                 "zwp_relative_pointer_v1" => {
-                    #[cfg(feature = "protocol-relative_pointer_unstable_v1")] { Some(ProxyInterface::ZwpRelativePointerV1) }
+                    #[cfg(feature = "protocol-relative_pointer_unstable_v1")] { Some(ObjectInterface::ZwpRelativePointerV1) }
                     #[cfg(not(feature = "protocol-relative_pointer_unstable_v1"))] { None }
                 },
                 "wp_security_context_manager_v1" => {
-                    #[cfg(feature = "protocol-security_context_v1")] { Some(ProxyInterface::WpSecurityContextManagerV1) }
+                    #[cfg(feature = "protocol-security_context_v1")] { Some(ObjectInterface::WpSecurityContextManagerV1) }
                     #[cfg(not(feature = "protocol-security_context_v1"))] { None }
                 },
                 "wp_security_context_v1" => {
-                    #[cfg(feature = "protocol-security_context_v1")] { Some(ProxyInterface::WpSecurityContextV1) }
+                    #[cfg(feature = "protocol-security_context_v1")] { Some(ObjectInterface::WpSecurityContextV1) }
                     #[cfg(not(feature = "protocol-security_context_v1"))] { None }
                 },
                 "wp_single_pixel_buffer_manager_v1" => {
-                    #[cfg(feature = "protocol-single_pixel_buffer_v1")] { Some(ProxyInterface::WpSinglePixelBufferManagerV1) }
+                    #[cfg(feature = "protocol-single_pixel_buffer_v1")] { Some(ObjectInterface::WpSinglePixelBufferManagerV1) }
                     #[cfg(not(feature = "protocol-single_pixel_buffer_v1"))] { None }
                 },
                 "zwp_tablet_manager_v2" => {
-                    #[cfg(feature = "protocol-tablet_v2")] { Some(ProxyInterface::ZwpTabletManagerV2) }
+                    #[cfg(feature = "protocol-tablet_v2")] { Some(ObjectInterface::ZwpTabletManagerV2) }
                     #[cfg(not(feature = "protocol-tablet_v2"))] { None }
                 },
                 "zwp_tablet_pad_dial_v2" => {
-                    #[cfg(feature = "protocol-tablet_v2")] { Some(ProxyInterface::ZwpTabletPadDialV2) }
+                    #[cfg(feature = "protocol-tablet_v2")] { Some(ObjectInterface::ZwpTabletPadDialV2) }
                     #[cfg(not(feature = "protocol-tablet_v2"))] { None }
                 },
                 "zwp_tablet_pad_group_v2" => {
-                    #[cfg(feature = "protocol-tablet_v2")] { Some(ProxyInterface::ZwpTabletPadGroupV2) }
+                    #[cfg(feature = "protocol-tablet_v2")] { Some(ObjectInterface::ZwpTabletPadGroupV2) }
                     #[cfg(not(feature = "protocol-tablet_v2"))] { None }
                 },
                 "zwp_tablet_pad_ring_v2" => {
-                    #[cfg(feature = "protocol-tablet_v2")] { Some(ProxyInterface::ZwpTabletPadRingV2) }
+                    #[cfg(feature = "protocol-tablet_v2")] { Some(ObjectInterface::ZwpTabletPadRingV2) }
                     #[cfg(not(feature = "protocol-tablet_v2"))] { None }
                 },
                 "zwp_tablet_pad_strip_v2" => {
-                    #[cfg(feature = "protocol-tablet_v2")] { Some(ProxyInterface::ZwpTabletPadStripV2) }
+                    #[cfg(feature = "protocol-tablet_v2")] { Some(ObjectInterface::ZwpTabletPadStripV2) }
                     #[cfg(not(feature = "protocol-tablet_v2"))] { None }
                 },
                 "zwp_tablet_pad_v2" => {
-                    #[cfg(feature = "protocol-tablet_v2")] { Some(ProxyInterface::ZwpTabletPadV2) }
+                    #[cfg(feature = "protocol-tablet_v2")] { Some(ObjectInterface::ZwpTabletPadV2) }
                     #[cfg(not(feature = "protocol-tablet_v2"))] { None }
                 },
                 "zwp_tablet_seat_v2" => {
-                    #[cfg(feature = "protocol-tablet_v2")] { Some(ProxyInterface::ZwpTabletSeatV2) }
+                    #[cfg(feature = "protocol-tablet_v2")] { Some(ObjectInterface::ZwpTabletSeatV2) }
                     #[cfg(not(feature = "protocol-tablet_v2"))] { None }
                 },
                 "zwp_tablet_tool_v2" => {
-                    #[cfg(feature = "protocol-tablet_v2")] { Some(ProxyInterface::ZwpTabletToolV2) }
+                    #[cfg(feature = "protocol-tablet_v2")] { Some(ObjectInterface::ZwpTabletToolV2) }
                     #[cfg(not(feature = "protocol-tablet_v2"))] { None }
                 },
                 "zwp_tablet_v2" => {
-                    #[cfg(feature = "protocol-tablet_v2")] { Some(ProxyInterface::ZwpTabletV2) }
+                    #[cfg(feature = "protocol-tablet_v2")] { Some(ObjectInterface::ZwpTabletV2) }
                     #[cfg(not(feature = "protocol-tablet_v2"))] { None }
                 },
                 "wp_tearing_control_manager_v1" => {
-                    #[cfg(feature = "protocol-tearing_control_v1")] { Some(ProxyInterface::WpTearingControlManagerV1) }
+                    #[cfg(feature = "protocol-tearing_control_v1")] { Some(ObjectInterface::WpTearingControlManagerV1) }
                     #[cfg(not(feature = "protocol-tearing_control_v1"))] { None }
                 },
                 "wp_tearing_control_v1" => {
-                    #[cfg(feature = "protocol-tearing_control_v1")] { Some(ProxyInterface::WpTearingControlV1) }
+                    #[cfg(feature = "protocol-tearing_control_v1")] { Some(ObjectInterface::WpTearingControlV1) }
                     #[cfg(not(feature = "protocol-tearing_control_v1"))] { None }
                 },
                 "zwp_text_input_manager_v1" => {
-                    #[cfg(feature = "protocol-text_input_unstable_v1")] { Some(ProxyInterface::ZwpTextInputManagerV1) }
+                    #[cfg(feature = "protocol-text_input_unstable_v1")] { Some(ObjectInterface::ZwpTextInputManagerV1) }
                     #[cfg(not(feature = "protocol-text_input_unstable_v1"))] { None }
                 },
                 "zwp_text_input_v1" => {
-                    #[cfg(feature = "protocol-text_input_unstable_v1")] { Some(ProxyInterface::ZwpTextInputV1) }
+                    #[cfg(feature = "protocol-text_input_unstable_v1")] { Some(ObjectInterface::ZwpTextInputV1) }
                     #[cfg(not(feature = "protocol-text_input_unstable_v1"))] { None }
                 },
                 "zwp_text_input_manager_v3" => {
-                    #[cfg(feature = "protocol-text_input_unstable_v3")] { Some(ProxyInterface::ZwpTextInputManagerV3) }
+                    #[cfg(feature = "protocol-text_input_unstable_v3")] { Some(ObjectInterface::ZwpTextInputManagerV3) }
                     #[cfg(not(feature = "protocol-text_input_unstable_v3"))] { None }
                 },
                 "zwp_text_input_v3" => {
-                    #[cfg(feature = "protocol-text_input_unstable_v3")] { Some(ProxyInterface::ZwpTextInputV3) }
+                    #[cfg(feature = "protocol-text_input_unstable_v3")] { Some(ObjectInterface::ZwpTextInputV3) }
                     #[cfg(not(feature = "protocol-text_input_unstable_v3"))] { None }
                 },
                 "wp_viewport" => {
-                    #[cfg(feature = "protocol-viewporter")] { Some(ProxyInterface::WpViewport) }
+                    #[cfg(feature = "protocol-viewporter")] { Some(ObjectInterface::WpViewport) }
                     #[cfg(not(feature = "protocol-viewporter"))] { None }
                 },
                 "wp_viewporter" => {
-                    #[cfg(feature = "protocol-viewporter")] { Some(ProxyInterface::WpViewporter) }
+                    #[cfg(feature = "protocol-viewporter")] { Some(ObjectInterface::WpViewporter) }
                     #[cfg(not(feature = "protocol-viewporter"))] { None }
                 },
                 "zwp_primary_selection_device_manager_v1" => {
-                    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")] { Some(ProxyInterface::ZwpPrimarySelectionDeviceManagerV1) }
+                    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")] { Some(ObjectInterface::ZwpPrimarySelectionDeviceManagerV1) }
                     #[cfg(not(feature = "protocol-wp_primary_selection_unstable_v1"))] { None }
                 },
                 "zwp_primary_selection_device_v1" => {
-                    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")] { Some(ProxyInterface::ZwpPrimarySelectionDeviceV1) }
+                    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")] { Some(ObjectInterface::ZwpPrimarySelectionDeviceV1) }
                     #[cfg(not(feature = "protocol-wp_primary_selection_unstable_v1"))] { None }
                 },
                 "zwp_primary_selection_offer_v1" => {
-                    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")] { Some(ProxyInterface::ZwpPrimarySelectionOfferV1) }
+                    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")] { Some(ObjectInterface::ZwpPrimarySelectionOfferV1) }
                     #[cfg(not(feature = "protocol-wp_primary_selection_unstable_v1"))] { None }
                 },
                 "zwp_primary_selection_source_v1" => {
-                    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")] { Some(ProxyInterface::ZwpPrimarySelectionSourceV1) }
+                    #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")] { Some(ObjectInterface::ZwpPrimarySelectionSourceV1) }
                     #[cfg(not(feature = "protocol-wp_primary_selection_unstable_v1"))] { None }
                 },
                 "xdg_activation_token_v1" => {
-                    #[cfg(feature = "protocol-xdg_activation_v1")] { Some(ProxyInterface::XdgActivationTokenV1) }
+                    #[cfg(feature = "protocol-xdg_activation_v1")] { Some(ObjectInterface::XdgActivationTokenV1) }
                     #[cfg(not(feature = "protocol-xdg_activation_v1"))] { None }
                 },
                 "xdg_activation_v1" => {
-                    #[cfg(feature = "protocol-xdg_activation_v1")] { Some(ProxyInterface::XdgActivationV1) }
+                    #[cfg(feature = "protocol-xdg_activation_v1")] { Some(ObjectInterface::XdgActivationV1) }
                     #[cfg(not(feature = "protocol-xdg_activation_v1"))] { None }
                 },
                 "zxdg_decoration_manager_v1" => {
-                    #[cfg(feature = "protocol-xdg_decoration_unstable_v1")] { Some(ProxyInterface::ZxdgDecorationManagerV1) }
+                    #[cfg(feature = "protocol-xdg_decoration_unstable_v1")] { Some(ObjectInterface::ZxdgDecorationManagerV1) }
                     #[cfg(not(feature = "protocol-xdg_decoration_unstable_v1"))] { None }
                 },
                 "zxdg_toplevel_decoration_v1" => {
-                    #[cfg(feature = "protocol-xdg_decoration_unstable_v1")] { Some(ProxyInterface::ZxdgToplevelDecorationV1) }
+                    #[cfg(feature = "protocol-xdg_decoration_unstable_v1")] { Some(ObjectInterface::ZxdgToplevelDecorationV1) }
                     #[cfg(not(feature = "protocol-xdg_decoration_unstable_v1"))] { None }
                 },
                 "xdg_dialog_v1" => {
-                    #[cfg(feature = "protocol-xdg_dialog_v1")] { Some(ProxyInterface::XdgDialogV1) }
+                    #[cfg(feature = "protocol-xdg_dialog_v1")] { Some(ObjectInterface::XdgDialogV1) }
                     #[cfg(not(feature = "protocol-xdg_dialog_v1"))] { None }
                 },
                 "xdg_wm_dialog_v1" => {
-                    #[cfg(feature = "protocol-xdg_dialog_v1")] { Some(ProxyInterface::XdgWmDialogV1) }
+                    #[cfg(feature = "protocol-xdg_dialog_v1")] { Some(ObjectInterface::XdgWmDialogV1) }
                     #[cfg(not(feature = "protocol-xdg_dialog_v1"))] { None }
                 },
                 "zxdg_exported_v2" => {
-                    #[cfg(feature = "protocol-xdg_foreign_unstable_v2")] { Some(ProxyInterface::ZxdgExportedV2) }
+                    #[cfg(feature = "protocol-xdg_foreign_unstable_v2")] { Some(ObjectInterface::ZxdgExportedV2) }
                     #[cfg(not(feature = "protocol-xdg_foreign_unstable_v2"))] { None }
                 },
                 "zxdg_exporter_v2" => {
-                    #[cfg(feature = "protocol-xdg_foreign_unstable_v2")] { Some(ProxyInterface::ZxdgExporterV2) }
+                    #[cfg(feature = "protocol-xdg_foreign_unstable_v2")] { Some(ObjectInterface::ZxdgExporterV2) }
                     #[cfg(not(feature = "protocol-xdg_foreign_unstable_v2"))] { None }
                 },
                 "zxdg_imported_v2" => {
-                    #[cfg(feature = "protocol-xdg_foreign_unstable_v2")] { Some(ProxyInterface::ZxdgImportedV2) }
+                    #[cfg(feature = "protocol-xdg_foreign_unstable_v2")] { Some(ObjectInterface::ZxdgImportedV2) }
                     #[cfg(not(feature = "protocol-xdg_foreign_unstable_v2"))] { None }
                 },
                 "zxdg_importer_v2" => {
-                    #[cfg(feature = "protocol-xdg_foreign_unstable_v2")] { Some(ProxyInterface::ZxdgImporterV2) }
+                    #[cfg(feature = "protocol-xdg_foreign_unstable_v2")] { Some(ObjectInterface::ZxdgImporterV2) }
                     #[cfg(not(feature = "protocol-xdg_foreign_unstable_v2"))] { None }
                 },
                 "zxdg_output_manager_v1" => {
-                    #[cfg(feature = "protocol-xdg_output_unstable_v1")] { Some(ProxyInterface::ZxdgOutputManagerV1) }
+                    #[cfg(feature = "protocol-xdg_output_unstable_v1")] { Some(ObjectInterface::ZxdgOutputManagerV1) }
                     #[cfg(not(feature = "protocol-xdg_output_unstable_v1"))] { None }
                 },
                 "zxdg_output_v1" => {
-                    #[cfg(feature = "protocol-xdg_output_unstable_v1")] { Some(ProxyInterface::ZxdgOutputV1) }
+                    #[cfg(feature = "protocol-xdg_output_unstable_v1")] { Some(ObjectInterface::ZxdgOutputV1) }
                     #[cfg(not(feature = "protocol-xdg_output_unstable_v1"))] { None }
                 },
                 "xdg_popup" => {
-                    #[cfg(feature = "protocol-xdg_shell")] { Some(ProxyInterface::XdgPopup) }
+                    #[cfg(feature = "protocol-xdg_shell")] { Some(ObjectInterface::XdgPopup) }
                     #[cfg(not(feature = "protocol-xdg_shell"))] { None }
                 },
                 "xdg_positioner" => {
-                    #[cfg(feature = "protocol-xdg_shell")] { Some(ProxyInterface::XdgPositioner) }
+                    #[cfg(feature = "protocol-xdg_shell")] { Some(ObjectInterface::XdgPositioner) }
                     #[cfg(not(feature = "protocol-xdg_shell"))] { None }
                 },
                 "xdg_surface" => {
-                    #[cfg(feature = "protocol-xdg_shell")] { Some(ProxyInterface::XdgSurface) }
+                    #[cfg(feature = "protocol-xdg_shell")] { Some(ObjectInterface::XdgSurface) }
                     #[cfg(not(feature = "protocol-xdg_shell"))] { None }
                 },
                 "xdg_toplevel" => {
-                    #[cfg(feature = "protocol-xdg_shell")] { Some(ProxyInterface::XdgToplevel) }
+                    #[cfg(feature = "protocol-xdg_shell")] { Some(ObjectInterface::XdgToplevel) }
                     #[cfg(not(feature = "protocol-xdg_shell"))] { None }
                 },
                 "xdg_wm_base" => {
-                    #[cfg(feature = "protocol-xdg_shell")] { Some(ProxyInterface::XdgWmBase) }
+                    #[cfg(feature = "protocol-xdg_shell")] { Some(ObjectInterface::XdgWmBase) }
                     #[cfg(not(feature = "protocol-xdg_shell"))] { None }
                 },
                 "xdg_system_bell_v1" => {
-                    #[cfg(feature = "protocol-xdg_system_bell_v1")] { Some(ProxyInterface::XdgSystemBellV1) }
+                    #[cfg(feature = "protocol-xdg_system_bell_v1")] { Some(ObjectInterface::XdgSystemBellV1) }
                     #[cfg(not(feature = "protocol-xdg_system_bell_v1"))] { None }
                 },
                 "xdg_toplevel_drag_manager_v1" => {
-                    #[cfg(feature = "protocol-xdg_toplevel_drag_v1")] { Some(ProxyInterface::XdgToplevelDragManagerV1) }
+                    #[cfg(feature = "protocol-xdg_toplevel_drag_v1")] { Some(ObjectInterface::XdgToplevelDragManagerV1) }
                     #[cfg(not(feature = "protocol-xdg_toplevel_drag_v1"))] { None }
                 },
                 "xdg_toplevel_drag_v1" => {
-                    #[cfg(feature = "protocol-xdg_toplevel_drag_v1")] { Some(ProxyInterface::XdgToplevelDragV1) }
+                    #[cfg(feature = "protocol-xdg_toplevel_drag_v1")] { Some(ObjectInterface::XdgToplevelDragV1) }
                     #[cfg(not(feature = "protocol-xdg_toplevel_drag_v1"))] { None }
                 },
                 "xdg_toplevel_icon_manager_v1" => {
-                    #[cfg(feature = "protocol-xdg_toplevel_icon_v1")] { Some(ProxyInterface::XdgToplevelIconManagerV1) }
+                    #[cfg(feature = "protocol-xdg_toplevel_icon_v1")] { Some(ObjectInterface::XdgToplevelIconManagerV1) }
                     #[cfg(not(feature = "protocol-xdg_toplevel_icon_v1"))] { None }
                 },
                 "xdg_toplevel_icon_v1" => {
-                    #[cfg(feature = "protocol-xdg_toplevel_icon_v1")] { Some(ProxyInterface::XdgToplevelIconV1) }
+                    #[cfg(feature = "protocol-xdg_toplevel_icon_v1")] { Some(ObjectInterface::XdgToplevelIconV1) }
                     #[cfg(not(feature = "protocol-xdg_toplevel_icon_v1"))] { None }
                 },
                 "xdg_toplevel_tag_manager_v1" => {
-                    #[cfg(feature = "protocol-xdg_toplevel_tag_v1")] { Some(ProxyInterface::XdgToplevelTagManagerV1) }
+                    #[cfg(feature = "protocol-xdg_toplevel_tag_v1")] { Some(ObjectInterface::XdgToplevelTagManagerV1) }
                     #[cfg(not(feature = "protocol-xdg_toplevel_tag_v1"))] { None }
                 },
                 "zwp_xwayland_keyboard_grab_manager_v1" => {
-                    #[cfg(feature = "protocol-xwayland_keyboard_grab_unstable_v1")] { Some(ProxyInterface::ZwpXwaylandKeyboardGrabManagerV1) }
+                    #[cfg(feature = "protocol-xwayland_keyboard_grab_unstable_v1")] { Some(ObjectInterface::ZwpXwaylandKeyboardGrabManagerV1) }
                     #[cfg(not(feature = "protocol-xwayland_keyboard_grab_unstable_v1"))] { None }
                 },
                 "zwp_xwayland_keyboard_grab_v1" => {
-                    #[cfg(feature = "protocol-xwayland_keyboard_grab_unstable_v1")] { Some(ProxyInterface::ZwpXwaylandKeyboardGrabV1) }
+                    #[cfg(feature = "protocol-xwayland_keyboard_grab_unstable_v1")] { Some(ObjectInterface::ZwpXwaylandKeyboardGrabV1) }
                     #[cfg(not(feature = "protocol-xwayland_keyboard_grab_unstable_v1"))] { None }
                 },
                 "xwayland_shell_v1" => {
-                    #[cfg(feature = "protocol-xwayland_shell_v1")] { Some(ProxyInterface::XwaylandShellV1) }
+                    #[cfg(feature = "protocol-xwayland_shell_v1")] { Some(ObjectInterface::XwaylandShellV1) }
                     #[cfg(not(feature = "protocol-xwayland_shell_v1"))] { None }
                 },
                 "xwayland_surface_v1" => {
-                    #[cfg(feature = "protocol-xwayland_shell_v1")] { Some(ProxyInterface::XwaylandSurfaceV1) }
+                    #[cfg(feature = "protocol-xwayland_shell_v1")] { Some(ObjectInterface::XwaylandSurfaceV1) }
                     #[cfg(not(feature = "protocol-xwayland_shell_v1"))] { None }
                 },
                 "zwp_linux_buffer_release_v1" => {
-                    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")] { Some(ProxyInterface::ZwpLinuxBufferReleaseV1) }
+                    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")] { Some(ObjectInterface::ZwpLinuxBufferReleaseV1) }
                     #[cfg(not(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1"))] { None }
                 },
                 "zwp_linux_explicit_synchronization_v1" => {
-                    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")] { Some(ProxyInterface::ZwpLinuxExplicitSynchronizationV1) }
+                    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")] { Some(ObjectInterface::ZwpLinuxExplicitSynchronizationV1) }
                     #[cfg(not(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1"))] { None }
                 },
                 "zwp_linux_surface_synchronization_v1" => {
-                    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")] { Some(ProxyInterface::ZwpLinuxSurfaceSynchronizationV1) }
+                    #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")] { Some(ObjectInterface::ZwpLinuxSurfaceSynchronizationV1) }
                     #[cfg(not(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1"))] { None }
                 },
                 "zwlr_data_control_device_v1" => {
-                    #[cfg(feature = "protocol-wlr_data_control_unstable_v1")] { Some(ProxyInterface::ZwlrDataControlDeviceV1) }
+                    #[cfg(feature = "protocol-wlr_data_control_unstable_v1")] { Some(ObjectInterface::ZwlrDataControlDeviceV1) }
                     #[cfg(not(feature = "protocol-wlr_data_control_unstable_v1"))] { None }
                 },
                 "zwlr_data_control_manager_v1" => {
-                    #[cfg(feature = "protocol-wlr_data_control_unstable_v1")] { Some(ProxyInterface::ZwlrDataControlManagerV1) }
+                    #[cfg(feature = "protocol-wlr_data_control_unstable_v1")] { Some(ObjectInterface::ZwlrDataControlManagerV1) }
                     #[cfg(not(feature = "protocol-wlr_data_control_unstable_v1"))] { None }
                 },
                 "zwlr_data_control_offer_v1" => {
-                    #[cfg(feature = "protocol-wlr_data_control_unstable_v1")] { Some(ProxyInterface::ZwlrDataControlOfferV1) }
+                    #[cfg(feature = "protocol-wlr_data_control_unstable_v1")] { Some(ObjectInterface::ZwlrDataControlOfferV1) }
                     #[cfg(not(feature = "protocol-wlr_data_control_unstable_v1"))] { None }
                 },
                 "zwlr_data_control_source_v1" => {
-                    #[cfg(feature = "protocol-wlr_data_control_unstable_v1")] { Some(ProxyInterface::ZwlrDataControlSourceV1) }
+                    #[cfg(feature = "protocol-wlr_data_control_unstable_v1")] { Some(ObjectInterface::ZwlrDataControlSourceV1) }
                     #[cfg(not(feature = "protocol-wlr_data_control_unstable_v1"))] { None }
                 },
                 "zwlr_export_dmabuf_frame_v1" => {
-                    #[cfg(feature = "protocol-wlr_export_dmabuf_unstable_v1")] { Some(ProxyInterface::ZwlrExportDmabufFrameV1) }
+                    #[cfg(feature = "protocol-wlr_export_dmabuf_unstable_v1")] { Some(ObjectInterface::ZwlrExportDmabufFrameV1) }
                     #[cfg(not(feature = "protocol-wlr_export_dmabuf_unstable_v1"))] { None }
                 },
                 "zwlr_export_dmabuf_manager_v1" => {
-                    #[cfg(feature = "protocol-wlr_export_dmabuf_unstable_v1")] { Some(ProxyInterface::ZwlrExportDmabufManagerV1) }
+                    #[cfg(feature = "protocol-wlr_export_dmabuf_unstable_v1")] { Some(ObjectInterface::ZwlrExportDmabufManagerV1) }
                     #[cfg(not(feature = "protocol-wlr_export_dmabuf_unstable_v1"))] { None }
                 },
                 "zwlr_foreign_toplevel_handle_v1" => {
-                    #[cfg(feature = "protocol-wlr_foreign_toplevel_management_unstable_v1")] { Some(ProxyInterface::ZwlrForeignToplevelHandleV1) }
+                    #[cfg(feature = "protocol-wlr_foreign_toplevel_management_unstable_v1")] { Some(ObjectInterface::ZwlrForeignToplevelHandleV1) }
                     #[cfg(not(feature = "protocol-wlr_foreign_toplevel_management_unstable_v1"))] { None }
                 },
                 "zwlr_foreign_toplevel_manager_v1" => {
-                    #[cfg(feature = "protocol-wlr_foreign_toplevel_management_unstable_v1")] { Some(ProxyInterface::ZwlrForeignToplevelManagerV1) }
+                    #[cfg(feature = "protocol-wlr_foreign_toplevel_management_unstable_v1")] { Some(ObjectInterface::ZwlrForeignToplevelManagerV1) }
                     #[cfg(not(feature = "protocol-wlr_foreign_toplevel_management_unstable_v1"))] { None }
                 },
                 "zwlr_gamma_control_manager_v1" => {
-                    #[cfg(feature = "protocol-wlr_gamma_control_unstable_v1")] { Some(ProxyInterface::ZwlrGammaControlManagerV1) }
+                    #[cfg(feature = "protocol-wlr_gamma_control_unstable_v1")] { Some(ObjectInterface::ZwlrGammaControlManagerV1) }
                     #[cfg(not(feature = "protocol-wlr_gamma_control_unstable_v1"))] { None }
                 },
                 "zwlr_gamma_control_v1" => {
-                    #[cfg(feature = "protocol-wlr_gamma_control_unstable_v1")] { Some(ProxyInterface::ZwlrGammaControlV1) }
+                    #[cfg(feature = "protocol-wlr_gamma_control_unstable_v1")] { Some(ObjectInterface::ZwlrGammaControlV1) }
                     #[cfg(not(feature = "protocol-wlr_gamma_control_unstable_v1"))] { None }
                 },
                 "zwlr_input_inhibit_manager_v1" => {
-                    #[cfg(feature = "protocol-wlr_input_inhibit_unstable_v1")] { Some(ProxyInterface::ZwlrInputInhibitManagerV1) }
+                    #[cfg(feature = "protocol-wlr_input_inhibit_unstable_v1")] { Some(ObjectInterface::ZwlrInputInhibitManagerV1) }
                     #[cfg(not(feature = "protocol-wlr_input_inhibit_unstable_v1"))] { None }
                 },
                 "zwlr_input_inhibitor_v1" => {
-                    #[cfg(feature = "protocol-wlr_input_inhibit_unstable_v1")] { Some(ProxyInterface::ZwlrInputInhibitorV1) }
+                    #[cfg(feature = "protocol-wlr_input_inhibit_unstable_v1")] { Some(ObjectInterface::ZwlrInputInhibitorV1) }
                     #[cfg(not(feature = "protocol-wlr_input_inhibit_unstable_v1"))] { None }
                 },
                 "zwlr_layer_shell_v1" => {
-                    #[cfg(feature = "protocol-wlr_layer_shell_unstable_v1")] { Some(ProxyInterface::ZwlrLayerShellV1) }
+                    #[cfg(feature = "protocol-wlr_layer_shell_unstable_v1")] { Some(ObjectInterface::ZwlrLayerShellV1) }
                     #[cfg(not(feature = "protocol-wlr_layer_shell_unstable_v1"))] { None }
                 },
                 "zwlr_layer_surface_v1" => {
-                    #[cfg(feature = "protocol-wlr_layer_shell_unstable_v1")] { Some(ProxyInterface::ZwlrLayerSurfaceV1) }
+                    #[cfg(feature = "protocol-wlr_layer_shell_unstable_v1")] { Some(ObjectInterface::ZwlrLayerSurfaceV1) }
                     #[cfg(not(feature = "protocol-wlr_layer_shell_unstable_v1"))] { None }
                 },
                 "zwlr_output_configuration_head_v1" => {
-                    #[cfg(feature = "protocol-wlr_output_management_unstable_v1")] { Some(ProxyInterface::ZwlrOutputConfigurationHeadV1) }
+                    #[cfg(feature = "protocol-wlr_output_management_unstable_v1")] { Some(ObjectInterface::ZwlrOutputConfigurationHeadV1) }
                     #[cfg(not(feature = "protocol-wlr_output_management_unstable_v1"))] { None }
                 },
                 "zwlr_output_configuration_v1" => {
-                    #[cfg(feature = "protocol-wlr_output_management_unstable_v1")] { Some(ProxyInterface::ZwlrOutputConfigurationV1) }
+                    #[cfg(feature = "protocol-wlr_output_management_unstable_v1")] { Some(ObjectInterface::ZwlrOutputConfigurationV1) }
                     #[cfg(not(feature = "protocol-wlr_output_management_unstable_v1"))] { None }
                 },
                 "zwlr_output_head_v1" => {
-                    #[cfg(feature = "protocol-wlr_output_management_unstable_v1")] { Some(ProxyInterface::ZwlrOutputHeadV1) }
+                    #[cfg(feature = "protocol-wlr_output_management_unstable_v1")] { Some(ObjectInterface::ZwlrOutputHeadV1) }
                     #[cfg(not(feature = "protocol-wlr_output_management_unstable_v1"))] { None }
                 },
                 "zwlr_output_manager_v1" => {
-                    #[cfg(feature = "protocol-wlr_output_management_unstable_v1")] { Some(ProxyInterface::ZwlrOutputManagerV1) }
+                    #[cfg(feature = "protocol-wlr_output_management_unstable_v1")] { Some(ObjectInterface::ZwlrOutputManagerV1) }
                     #[cfg(not(feature = "protocol-wlr_output_management_unstable_v1"))] { None }
                 },
                 "zwlr_output_mode_v1" => {
-                    #[cfg(feature = "protocol-wlr_output_management_unstable_v1")] { Some(ProxyInterface::ZwlrOutputModeV1) }
+                    #[cfg(feature = "protocol-wlr_output_management_unstable_v1")] { Some(ObjectInterface::ZwlrOutputModeV1) }
                     #[cfg(not(feature = "protocol-wlr_output_management_unstable_v1"))] { None }
                 },
                 "zwlr_output_power_manager_v1" => {
-                    #[cfg(feature = "protocol-wlr_output_power_management_unstable_v1")] { Some(ProxyInterface::ZwlrOutputPowerManagerV1) }
+                    #[cfg(feature = "protocol-wlr_output_power_management_unstable_v1")] { Some(ObjectInterface::ZwlrOutputPowerManagerV1) }
                     #[cfg(not(feature = "protocol-wlr_output_power_management_unstable_v1"))] { None }
                 },
                 "zwlr_output_power_v1" => {
-                    #[cfg(feature = "protocol-wlr_output_power_management_unstable_v1")] { Some(ProxyInterface::ZwlrOutputPowerV1) }
+                    #[cfg(feature = "protocol-wlr_output_power_management_unstable_v1")] { Some(ObjectInterface::ZwlrOutputPowerV1) }
                     #[cfg(not(feature = "protocol-wlr_output_power_management_unstable_v1"))] { None }
                 },
                 "zwlr_screencopy_frame_v1" => {
-                    #[cfg(feature = "protocol-wlr_screencopy_unstable_v1")] { Some(ProxyInterface::ZwlrScreencopyFrameV1) }
+                    #[cfg(feature = "protocol-wlr_screencopy_unstable_v1")] { Some(ObjectInterface::ZwlrScreencopyFrameV1) }
                     #[cfg(not(feature = "protocol-wlr_screencopy_unstable_v1"))] { None }
                 },
                 "zwlr_screencopy_manager_v1" => {
-                    #[cfg(feature = "protocol-wlr_screencopy_unstable_v1")] { Some(ProxyInterface::ZwlrScreencopyManagerV1) }
+                    #[cfg(feature = "protocol-wlr_screencopy_unstable_v1")] { Some(ObjectInterface::ZwlrScreencopyManagerV1) }
                     #[cfg(not(feature = "protocol-wlr_screencopy_unstable_v1"))] { None }
                 },
                 "zwlr_virtual_pointer_manager_v1" => {
-                    #[cfg(feature = "protocol-wlr_virtual_pointer_unstable_v1")] { Some(ProxyInterface::ZwlrVirtualPointerManagerV1) }
+                    #[cfg(feature = "protocol-wlr_virtual_pointer_unstable_v1")] { Some(ObjectInterface::ZwlrVirtualPointerManagerV1) }
                     #[cfg(not(feature = "protocol-wlr_virtual_pointer_unstable_v1"))] { None }
                 },
                 "zwlr_virtual_pointer_v1" => {
-                    #[cfg(feature = "protocol-wlr_virtual_pointer_unstable_v1")] { Some(ProxyInterface::ZwlrVirtualPointerV1) }
+                    #[cfg(feature = "protocol-wlr_virtual_pointer_unstable_v1")] { Some(ObjectInterface::ZwlrVirtualPointerV1) }
                     #[cfg(not(feature = "protocol-wlr_virtual_pointer_unstable_v1"))] { None }
                 },
             };
             INTERFACES.get(interface).copied().flatten()
         }
 
-        fn create_proxy(self, state: &Rc<State>, version: u32) -> Result<Rc<dyn Proxy>, ObjectError> {
+        fn create_object(self, state: &Rc<State>, version: u32) -> Result<Rc<dyn Object>, ObjectError> {
             match self {
                 #[cfg(feature = "protocol-hyprland_ctm_control_v1")]
                 Self::HyprlandCtmControlManagerV1 => {
@@ -3563,467 +3563,707 @@ mod all_types {
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, linearize::Linearize)]
 #[linearize(const)]
-pub enum ProxyInterface {
+pub enum ObjectInterface {
+    /// hyprland_ctm_control_manager_v1
     #[cfg(feature = "protocol-hyprland_ctm_control_v1")]
     HyprlandCtmControlManagerV1,
+    /// hyprland_focus_grab_manager_v1
     #[cfg(feature = "protocol-hyprland_focus_grab_v1")]
     HyprlandFocusGrabManagerV1,
+    /// hyprland_focus_grab_v1
     #[cfg(feature = "protocol-hyprland_focus_grab_v1")]
     HyprlandFocusGrabV1,
+    /// hyprland_global_shortcut_v1
     #[cfg(feature = "protocol-hyprland_global_shortcuts_v1")]
     HyprlandGlobalShortcutV1,
+    /// hyprland_global_shortcuts_manager_v1
     #[cfg(feature = "protocol-hyprland_global_shortcuts_v1")]
     HyprlandGlobalShortcutsManagerV1,
+    /// hyprland_input_capture_manager_v1
     #[cfg(feature = "protocol-hyprland_input_capture_v1")]
     HyprlandInputCaptureManagerV1,
+    /// hyprland_input_capture_v1
     #[cfg(feature = "protocol-hyprland_input_capture_v1")]
     HyprlandInputCaptureV1,
+    /// hyprland_lock_notification_v1
     #[cfg(feature = "protocol-hyprland_lock_notify_v1")]
     HyprlandLockNotificationV1,
+    /// hyprland_lock_notifier_v1
     #[cfg(feature = "protocol-hyprland_lock_notify_v1")]
     HyprlandLockNotifierV1,
+    /// hyprland_surface_manager_v1
     #[cfg(feature = "protocol-hyprland_surface_v1")]
     HyprlandSurfaceManagerV1,
+    /// hyprland_surface_v1
     #[cfg(feature = "protocol-hyprland_surface_v1")]
     HyprlandSurfaceV1,
+    /// hyprland_toplevel_export_frame_v1
     #[cfg(feature = "protocol-hyprland_toplevel_export_v1")]
     HyprlandToplevelExportFrameV1,
+    /// hyprland_toplevel_export_manager_v1
     #[cfg(feature = "protocol-hyprland_toplevel_export_v1")]
     HyprlandToplevelExportManagerV1,
+    /// hyprland_toplevel_mapping_manager_v1
     #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
     HyprlandToplevelMappingManagerV1,
+    /// hyprland_toplevel_window_mapping_handle_v1
     #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
     HyprlandToplevelWindowMappingHandleV1,
+    /// jay_tray_item_v1
     #[cfg(feature = "protocol-jay_tray_v1")]
     JayTrayItemV1,
+    /// jay_tray_v1
     #[cfg(feature = "protocol-jay_tray_v1")]
     JayTrayV1,
+    /// wl_drm
     #[cfg(feature = "protocol-drm")]
     WlDrm,
+    /// zwp_input_method_keyboard_grab_v2
     #[cfg(feature = "protocol-input_method_unstable_v2")]
     ZwpInputMethodKeyboardGrabV2,
+    /// zwp_input_method_manager_v2
     #[cfg(feature = "protocol-input_method_unstable_v2")]
     ZwpInputMethodManagerV2,
+    /// zwp_input_method_v2
     #[cfg(feature = "protocol-input_method_unstable_v2")]
     ZwpInputMethodV2,
+    /// zwp_input_popup_surface_v2
     #[cfg(feature = "protocol-input_method_unstable_v2")]
     ZwpInputPopupSurfaceV2,
+    /// org_kde_kwin_server_decoration
     #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
     OrgKdeKwinServerDecoration,
+    /// org_kde_kwin_server_decoration_manager
     #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
     OrgKdeKwinServerDecorationManager,
+    /// zwp_virtual_keyboard_manager_v1
     #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
     ZwpVirtualKeyboardManagerV1,
+    /// zwp_virtual_keyboard_v1
     #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
     ZwpVirtualKeyboardV1,
+    /// treeland_app_id_resolver_manager_v1
     #[cfg(feature = "protocol-treeland_app_id_resolver_v1")]
     TreelandAppIdResolverManagerV1,
+    /// treeland_app_id_resolver_v1
     #[cfg(feature = "protocol-treeland_app_id_resolver_v1")]
     TreelandAppIdResolverV1,
+    /// treeland_dde_active_v1
     #[cfg(feature = "protocol-treeland_dde_shell_v1")]
     TreelandDdeActiveV1,
+    /// treeland_dde_shell_manager_v1
     #[cfg(feature = "protocol-treeland_dde_shell_v1")]
     TreelandDdeShellManagerV1,
+    /// treeland_dde_shell_surface_v1
     #[cfg(feature = "protocol-treeland_dde_shell_v1")]
     TreelandDdeShellSurfaceV1,
+    /// treeland_lockscreen_v1
     #[cfg(feature = "protocol-treeland_dde_shell_v1")]
     TreelandLockscreenV1,
+    /// treeland_multitaskview_v1
     #[cfg(feature = "protocol-treeland_dde_shell_v1")]
     TreelandMultitaskviewV1,
+    /// treeland_window_overlap_checker
     #[cfg(feature = "protocol-treeland_dde_shell_v1")]
     TreelandWindowOverlapChecker,
+    /// treeland_window_picker_v1
     #[cfg(feature = "protocol-treeland_dde_shell_v1")]
     TreelandWindowPickerV1,
+    /// treeland_ddm
     #[cfg(feature = "protocol-treeland_ddm")]
     TreelandDdm,
+    /// treeland_dock_preview_context_v1
     #[cfg(feature = "protocol-treeland_foreign_toplevel_manager_v1")]
     TreelandDockPreviewContextV1,
+    /// treeland_foreign_toplevel_handle_v1
     #[cfg(feature = "protocol-treeland_foreign_toplevel_manager_v1")]
     TreelandForeignToplevelHandleV1,
+    /// treeland_foreign_toplevel_manager_v1
     #[cfg(feature = "protocol-treeland_foreign_toplevel_manager_v1")]
     TreelandForeignToplevelManagerV1,
+    /// treeland_output_color_control_v1
     #[cfg(feature = "protocol-treeland_output_manager_v1")]
     TreelandOutputColorControlV1,
+    /// treeland_output_manager_v1
     #[cfg(feature = "protocol-treeland_output_manager_v1")]
     TreelandOutputManagerV1,
+    /// treeland_personalization_appearance_context_v1
     #[cfg(feature = "protocol-treeland_personalization_manager_v1")]
     TreelandPersonalizationAppearanceContextV1,
+    /// treeland_personalization_cursor_context_v1
     #[cfg(feature = "protocol-treeland_personalization_manager_v1")]
     TreelandPersonalizationCursorContextV1,
+    /// treeland_personalization_font_context_v1
     #[cfg(feature = "protocol-treeland_personalization_manager_v1")]
     TreelandPersonalizationFontContextV1,
+    /// treeland_personalization_manager_v1
     #[cfg(feature = "protocol-treeland_personalization_manager_v1")]
     TreelandPersonalizationManagerV1,
+    /// treeland_personalization_wallpaper_context_v1
     #[cfg(feature = "protocol-treeland_personalization_manager_v1")]
     TreelandPersonalizationWallpaperContextV1,
+    /// treeland_personalization_window_context_v1
     #[cfg(feature = "protocol-treeland_personalization_manager_v1")]
     TreelandPersonalizationWindowContextV1,
+    /// treeland_prelaunch_splash_manager_v1
     #[cfg(feature = "protocol-treeland_prelaunch_splash_v1")]
     TreelandPrelaunchSplashManagerV1,
+    /// treeland_screensaver
     #[cfg(feature = "protocol-treeland_screensaver")]
     TreelandScreensaver,
+    /// treeland_shortcut_context_v1
     #[cfg(feature = "protocol-treeland_shortcut_manager_v1")]
     TreelandShortcutContextV1,
+    /// treeland_shortcut_manager_v1
     #[cfg(feature = "protocol-treeland_shortcut_manager_v1")]
     TreelandShortcutManagerV1,
+    /// treeland_shortcut_manager_v2
     #[cfg(feature = "protocol-treeland_shortcut_manager_v2")]
     TreelandShortcutManagerV2,
+    /// treeland_virtual_output_manager_v1
     #[cfg(feature = "protocol-treeland_virtual_output_manager_v1")]
     TreelandVirtualOutputManagerV1,
+    /// treeland_virtual_output_v1
     #[cfg(feature = "protocol-treeland_virtual_output_manager_v1")]
     TreelandVirtualOutputV1,
+    /// treeland_wallpaper_color_manager_v1
     #[cfg(feature = "protocol-treeland_wallpaper_color_v1")]
     TreelandWallpaperColorManagerV1,
+    /// treeland_window_management_v1
     #[cfg(feature = "protocol-treeland_window_management_v1")]
     TreelandWindowManagementV1,
+    /// wl_buffer
     WlBuffer,
+    /// wl_callback
     WlCallback,
+    /// wl_compositor
     WlCompositor,
+    /// wl_data_device
     WlDataDevice,
+    /// wl_data_device_manager
     WlDataDeviceManager,
+    /// wl_data_offer
     WlDataOffer,
+    /// wl_data_source
     WlDataSource,
+    /// wl_display
     WlDisplay,
+    /// wl_fixes
     WlFixes,
+    /// wl_keyboard
     WlKeyboard,
+    /// wl_output
     WlOutput,
+    /// wl_pointer
     WlPointer,
+    /// wl_region
     WlRegion,
+    /// wl_registry
     WlRegistry,
+    /// wl_seat
     WlSeat,
+    /// wl_shell
     WlShell,
+    /// wl_shell_surface
     WlShellSurface,
+    /// wl_shm
     WlShm,
+    /// wl_shm_pool
     WlShmPool,
+    /// wl_subcompositor
     WlSubcompositor,
+    /// wl_subsurface
     WlSubsurface,
+    /// wl_surface
     WlSurface,
+    /// wl_touch
     WlTouch,
+    /// wp_alpha_modifier_surface_v1
     #[cfg(feature = "protocol-alpha_modifier_v1")]
     WpAlphaModifierSurfaceV1,
+    /// wp_alpha_modifier_v1
     #[cfg(feature = "protocol-alpha_modifier_v1")]
     WpAlphaModifierV1,
+    /// wp_color_management_output_v1
     #[cfg(feature = "protocol-color_management_v1")]
     WpColorManagementOutputV1,
+    /// wp_color_management_surface_feedback_v1
     #[cfg(feature = "protocol-color_management_v1")]
     WpColorManagementSurfaceFeedbackV1,
+    /// wp_color_management_surface_v1
     #[cfg(feature = "protocol-color_management_v1")]
     WpColorManagementSurfaceV1,
+    /// wp_color_manager_v1
     #[cfg(feature = "protocol-color_management_v1")]
     WpColorManagerV1,
+    /// wp_image_description_creator_icc_v1
     #[cfg(feature = "protocol-color_management_v1")]
     WpImageDescriptionCreatorIccV1,
+    /// wp_image_description_creator_params_v1
     #[cfg(feature = "protocol-color_management_v1")]
     WpImageDescriptionCreatorParamsV1,
+    /// wp_image_description_info_v1
     #[cfg(feature = "protocol-color_management_v1")]
     WpImageDescriptionInfoV1,
+    /// wp_image_description_reference_v1
     #[cfg(feature = "protocol-color_management_v1")]
     WpImageDescriptionReferenceV1,
+    /// wp_image_description_v1
     #[cfg(feature = "protocol-color_management_v1")]
     WpImageDescriptionV1,
+    /// wp_color_representation_manager_v1
     #[cfg(feature = "protocol-color_representation_v1")]
     WpColorRepresentationManagerV1,
+    /// wp_color_representation_surface_v1
     #[cfg(feature = "protocol-color_representation_v1")]
     WpColorRepresentationSurfaceV1,
+    /// wp_commit_timer_v1
     #[cfg(feature = "protocol-commit_timing_v1")]
     WpCommitTimerV1,
+    /// wp_commit_timing_manager_v1
     #[cfg(feature = "protocol-commit_timing_v1")]
     WpCommitTimingManagerV1,
+    /// wp_content_type_manager_v1
     #[cfg(feature = "protocol-content_type_v1")]
     WpContentTypeManagerV1,
+    /// wp_content_type_v1
     #[cfg(feature = "protocol-content_type_v1")]
     WpContentTypeV1,
+    /// wp_cursor_shape_device_v1
     #[cfg(feature = "protocol-cursor_shape_v1")]
     WpCursorShapeDeviceV1,
+    /// wp_cursor_shape_manager_v1
     #[cfg(feature = "protocol-cursor_shape_v1")]
     WpCursorShapeManagerV1,
+    /// wp_drm_lease_connector_v1
     #[cfg(feature = "protocol-drm_lease_v1")]
     WpDrmLeaseConnectorV1,
+    /// wp_drm_lease_device_v1
     #[cfg(feature = "protocol-drm_lease_v1")]
     WpDrmLeaseDeviceV1,
+    /// wp_drm_lease_request_v1
     #[cfg(feature = "protocol-drm_lease_v1")]
     WpDrmLeaseRequestV1,
+    /// wp_drm_lease_v1
     #[cfg(feature = "protocol-drm_lease_v1")]
     WpDrmLeaseV1,
+    /// ext_background_effect_manager_v1
     #[cfg(feature = "protocol-ext_background_effect_v1")]
     ExtBackgroundEffectManagerV1,
+    /// ext_background_effect_surface_v1
     #[cfg(feature = "protocol-ext_background_effect_v1")]
     ExtBackgroundEffectSurfaceV1,
+    /// ext_data_control_device_v1
     #[cfg(feature = "protocol-ext_data_control_v1")]
     ExtDataControlDeviceV1,
+    /// ext_data_control_manager_v1
     #[cfg(feature = "protocol-ext_data_control_v1")]
     ExtDataControlManagerV1,
+    /// ext_data_control_offer_v1
     #[cfg(feature = "protocol-ext_data_control_v1")]
     ExtDataControlOfferV1,
+    /// ext_data_control_source_v1
     #[cfg(feature = "protocol-ext_data_control_v1")]
     ExtDataControlSourceV1,
+    /// ext_foreign_toplevel_handle_v1
     #[cfg(feature = "protocol-ext_foreign_toplevel_list_v1")]
     ExtForeignToplevelHandleV1,
+    /// ext_foreign_toplevel_list_v1
     #[cfg(feature = "protocol-ext_foreign_toplevel_list_v1")]
     ExtForeignToplevelListV1,
+    /// ext_idle_notification_v1
     #[cfg(feature = "protocol-ext_idle_notify_v1")]
     ExtIdleNotificationV1,
+    /// ext_idle_notifier_v1
     #[cfg(feature = "protocol-ext_idle_notify_v1")]
     ExtIdleNotifierV1,
+    /// ext_foreign_toplevel_image_capture_source_manager_v1
     #[cfg(feature = "protocol-ext_image_capture_source_v1")]
     ExtForeignToplevelImageCaptureSourceManagerV1,
+    /// ext_image_capture_source_v1
     #[cfg(feature = "protocol-ext_image_capture_source_v1")]
     ExtImageCaptureSourceV1,
+    /// ext_output_image_capture_source_manager_v1
     #[cfg(feature = "protocol-ext_image_capture_source_v1")]
     ExtOutputImageCaptureSourceManagerV1,
+    /// ext_image_copy_capture_cursor_session_v1
     #[cfg(feature = "protocol-ext_image_copy_capture_v1")]
     ExtImageCopyCaptureCursorSessionV1,
+    /// ext_image_copy_capture_frame_v1
     #[cfg(feature = "protocol-ext_image_copy_capture_v1")]
     ExtImageCopyCaptureFrameV1,
+    /// ext_image_copy_capture_manager_v1
     #[cfg(feature = "protocol-ext_image_copy_capture_v1")]
     ExtImageCopyCaptureManagerV1,
+    /// ext_image_copy_capture_session_v1
     #[cfg(feature = "protocol-ext_image_copy_capture_v1")]
     ExtImageCopyCaptureSessionV1,
+    /// ext_session_lock_manager_v1
     #[cfg(feature = "protocol-ext_session_lock_v1")]
     ExtSessionLockManagerV1,
+    /// ext_session_lock_surface_v1
     #[cfg(feature = "protocol-ext_session_lock_v1")]
     ExtSessionLockSurfaceV1,
+    /// ext_session_lock_v1
     #[cfg(feature = "protocol-ext_session_lock_v1")]
     ExtSessionLockV1,
+    /// ext_transient_seat_manager_v1
     #[cfg(feature = "protocol-ext_transient_seat_v1")]
     ExtTransientSeatManagerV1,
+    /// ext_transient_seat_v1
     #[cfg(feature = "protocol-ext_transient_seat_v1")]
     ExtTransientSeatV1,
+    /// ext_workspace_group_handle_v1
     #[cfg(feature = "protocol-ext_workspace_v1")]
     ExtWorkspaceGroupHandleV1,
+    /// ext_workspace_handle_v1
     #[cfg(feature = "protocol-ext_workspace_v1")]
     ExtWorkspaceHandleV1,
+    /// ext_workspace_manager_v1
     #[cfg(feature = "protocol-ext_workspace_v1")]
     ExtWorkspaceManagerV1,
+    /// wp_fifo_manager_v1
     #[cfg(feature = "protocol-fifo_v1")]
     WpFifoManagerV1,
+    /// wp_fifo_v1
     #[cfg(feature = "protocol-fifo_v1")]
     WpFifoV1,
+    /// wp_fractional_scale_manager_v1
     #[cfg(feature = "protocol-fractional_scale_v1")]
     WpFractionalScaleManagerV1,
+    /// wp_fractional_scale_v1
     #[cfg(feature = "protocol-fractional_scale_v1")]
     WpFractionalScaleV1,
+    /// zwp_fullscreen_shell_mode_feedback_v1
     #[cfg(feature = "protocol-fullscreen_shell_unstable_v1")]
     ZwpFullscreenShellModeFeedbackV1,
+    /// zwp_fullscreen_shell_v1
     #[cfg(feature = "protocol-fullscreen_shell_unstable_v1")]
     ZwpFullscreenShellV1,
+    /// zwp_idle_inhibit_manager_v1
     #[cfg(feature = "protocol-idle_inhibit_unstable_v1")]
     ZwpIdleInhibitManagerV1,
+    /// zwp_idle_inhibitor_v1
     #[cfg(feature = "protocol-idle_inhibit_unstable_v1")]
     ZwpIdleInhibitorV1,
+    /// zwp_input_method_context_v1
     #[cfg(feature = "protocol-input_method_unstable_v1")]
     ZwpInputMethodContextV1,
+    /// zwp_input_method_v1
     #[cfg(feature = "protocol-input_method_unstable_v1")]
     ZwpInputMethodV1,
+    /// zwp_input_panel_surface_v1
     #[cfg(feature = "protocol-input_method_unstable_v1")]
     ZwpInputPanelSurfaceV1,
+    /// zwp_input_panel_v1
     #[cfg(feature = "protocol-input_method_unstable_v1")]
     ZwpInputPanelV1,
+    /// zwp_input_timestamps_manager_v1
     #[cfg(feature = "protocol-input_timestamps_unstable_v1")]
     ZwpInputTimestampsManagerV1,
+    /// zwp_input_timestamps_v1
     #[cfg(feature = "protocol-input_timestamps_unstable_v1")]
     ZwpInputTimestampsV1,
+    /// zwp_keyboard_shortcuts_inhibit_manager_v1
     #[cfg(feature = "protocol-keyboard_shortcuts_inhibit_unstable_v1")]
     ZwpKeyboardShortcutsInhibitManagerV1,
+    /// zwp_keyboard_shortcuts_inhibitor_v1
     #[cfg(feature = "protocol-keyboard_shortcuts_inhibit_unstable_v1")]
     ZwpKeyboardShortcutsInhibitorV1,
+    /// zwp_linux_buffer_params_v1
     #[cfg(feature = "protocol-linux_dmabuf_v1")]
     ZwpLinuxBufferParamsV1,
+    /// zwp_linux_dmabuf_feedback_v1
     #[cfg(feature = "protocol-linux_dmabuf_v1")]
     ZwpLinuxDmabufFeedbackV1,
+    /// zwp_linux_dmabuf_v1
     #[cfg(feature = "protocol-linux_dmabuf_v1")]
     ZwpLinuxDmabufV1,
+    /// wp_linux_drm_syncobj_manager_v1
     #[cfg(feature = "protocol-linux_drm_syncobj_v1")]
     WpLinuxDrmSyncobjManagerV1,
+    /// wp_linux_drm_syncobj_surface_v1
     #[cfg(feature = "protocol-linux_drm_syncobj_v1")]
     WpLinuxDrmSyncobjSurfaceV1,
+    /// wp_linux_drm_syncobj_timeline_v1
     #[cfg(feature = "protocol-linux_drm_syncobj_v1")]
     WpLinuxDrmSyncobjTimelineV1,
+    /// zwp_confined_pointer_v1
     #[cfg(feature = "protocol-pointer_constraints_unstable_v1")]
     ZwpConfinedPointerV1,
+    /// zwp_locked_pointer_v1
     #[cfg(feature = "protocol-pointer_constraints_unstable_v1")]
     ZwpLockedPointerV1,
+    /// zwp_pointer_constraints_v1
     #[cfg(feature = "protocol-pointer_constraints_unstable_v1")]
     ZwpPointerConstraintsV1,
+    /// zwp_pointer_gesture_hold_v1
     #[cfg(feature = "protocol-pointer_gestures_unstable_v1")]
     ZwpPointerGestureHoldV1,
+    /// zwp_pointer_gesture_pinch_v1
     #[cfg(feature = "protocol-pointer_gestures_unstable_v1")]
     ZwpPointerGesturePinchV1,
+    /// zwp_pointer_gesture_swipe_v1
     #[cfg(feature = "protocol-pointer_gestures_unstable_v1")]
     ZwpPointerGestureSwipeV1,
+    /// zwp_pointer_gestures_v1
     #[cfg(feature = "protocol-pointer_gestures_unstable_v1")]
     ZwpPointerGesturesV1,
+    /// wp_pointer_warp_v1
     #[cfg(feature = "protocol-pointer_warp_v1")]
     WpPointerWarpV1,
+    /// wp_presentation
     #[cfg(feature = "protocol-presentation_time")]
     WpPresentation,
+    /// wp_presentation_feedback
     #[cfg(feature = "protocol-presentation_time")]
     WpPresentationFeedback,
+    /// zwp_relative_pointer_manager_v1
     #[cfg(feature = "protocol-relative_pointer_unstable_v1")]
     ZwpRelativePointerManagerV1,
+    /// zwp_relative_pointer_v1
     #[cfg(feature = "protocol-relative_pointer_unstable_v1")]
     ZwpRelativePointerV1,
+    /// wp_security_context_manager_v1
     #[cfg(feature = "protocol-security_context_v1")]
     WpSecurityContextManagerV1,
+    /// wp_security_context_v1
     #[cfg(feature = "protocol-security_context_v1")]
     WpSecurityContextV1,
+    /// wp_single_pixel_buffer_manager_v1
     #[cfg(feature = "protocol-single_pixel_buffer_v1")]
     WpSinglePixelBufferManagerV1,
+    /// zwp_tablet_manager_v2
     #[cfg(feature = "protocol-tablet_v2")]
     ZwpTabletManagerV2,
+    /// zwp_tablet_pad_dial_v2
     #[cfg(feature = "protocol-tablet_v2")]
     ZwpTabletPadDialV2,
+    /// zwp_tablet_pad_group_v2
     #[cfg(feature = "protocol-tablet_v2")]
     ZwpTabletPadGroupV2,
+    /// zwp_tablet_pad_ring_v2
     #[cfg(feature = "protocol-tablet_v2")]
     ZwpTabletPadRingV2,
+    /// zwp_tablet_pad_strip_v2
     #[cfg(feature = "protocol-tablet_v2")]
     ZwpTabletPadStripV2,
+    /// zwp_tablet_pad_v2
     #[cfg(feature = "protocol-tablet_v2")]
     ZwpTabletPadV2,
+    /// zwp_tablet_seat_v2
     #[cfg(feature = "protocol-tablet_v2")]
     ZwpTabletSeatV2,
+    /// zwp_tablet_tool_v2
     #[cfg(feature = "protocol-tablet_v2")]
     ZwpTabletToolV2,
+    /// zwp_tablet_v2
     #[cfg(feature = "protocol-tablet_v2")]
     ZwpTabletV2,
+    /// wp_tearing_control_manager_v1
     #[cfg(feature = "protocol-tearing_control_v1")]
     WpTearingControlManagerV1,
+    /// wp_tearing_control_v1
     #[cfg(feature = "protocol-tearing_control_v1")]
     WpTearingControlV1,
+    /// zwp_text_input_manager_v1
     #[cfg(feature = "protocol-text_input_unstable_v1")]
     ZwpTextInputManagerV1,
+    /// zwp_text_input_v1
     #[cfg(feature = "protocol-text_input_unstable_v1")]
     ZwpTextInputV1,
+    /// zwp_text_input_manager_v3
     #[cfg(feature = "protocol-text_input_unstable_v3")]
     ZwpTextInputManagerV3,
+    /// zwp_text_input_v3
     #[cfg(feature = "protocol-text_input_unstable_v3")]
     ZwpTextInputV3,
+    /// wp_viewport
     #[cfg(feature = "protocol-viewporter")]
     WpViewport,
+    /// wp_viewporter
     #[cfg(feature = "protocol-viewporter")]
     WpViewporter,
+    /// zwp_primary_selection_device_manager_v1
     #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
     ZwpPrimarySelectionDeviceManagerV1,
+    /// zwp_primary_selection_device_v1
     #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
     ZwpPrimarySelectionDeviceV1,
+    /// zwp_primary_selection_offer_v1
     #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
     ZwpPrimarySelectionOfferV1,
+    /// zwp_primary_selection_source_v1
     #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
     ZwpPrimarySelectionSourceV1,
+    /// xdg_activation_token_v1
     #[cfg(feature = "protocol-xdg_activation_v1")]
     XdgActivationTokenV1,
+    /// xdg_activation_v1
     #[cfg(feature = "protocol-xdg_activation_v1")]
     XdgActivationV1,
+    /// zxdg_decoration_manager_v1
     #[cfg(feature = "protocol-xdg_decoration_unstable_v1")]
     ZxdgDecorationManagerV1,
+    /// zxdg_toplevel_decoration_v1
     #[cfg(feature = "protocol-xdg_decoration_unstable_v1")]
     ZxdgToplevelDecorationV1,
+    /// xdg_dialog_v1
     #[cfg(feature = "protocol-xdg_dialog_v1")]
     XdgDialogV1,
+    /// xdg_wm_dialog_v1
     #[cfg(feature = "protocol-xdg_dialog_v1")]
     XdgWmDialogV1,
+    /// zxdg_exported_v2
     #[cfg(feature = "protocol-xdg_foreign_unstable_v2")]
     ZxdgExportedV2,
+    /// zxdg_exporter_v2
     #[cfg(feature = "protocol-xdg_foreign_unstable_v2")]
     ZxdgExporterV2,
+    /// zxdg_imported_v2
     #[cfg(feature = "protocol-xdg_foreign_unstable_v2")]
     ZxdgImportedV2,
+    /// zxdg_importer_v2
     #[cfg(feature = "protocol-xdg_foreign_unstable_v2")]
     ZxdgImporterV2,
+    /// zxdg_output_manager_v1
     #[cfg(feature = "protocol-xdg_output_unstable_v1")]
     ZxdgOutputManagerV1,
+    /// zxdg_output_v1
     #[cfg(feature = "protocol-xdg_output_unstable_v1")]
     ZxdgOutputV1,
+    /// xdg_popup
     #[cfg(feature = "protocol-xdg_shell")]
     XdgPopup,
+    /// xdg_positioner
     #[cfg(feature = "protocol-xdg_shell")]
     XdgPositioner,
+    /// xdg_surface
     #[cfg(feature = "protocol-xdg_shell")]
     XdgSurface,
+    /// xdg_toplevel
     #[cfg(feature = "protocol-xdg_shell")]
     XdgToplevel,
+    /// xdg_wm_base
     #[cfg(feature = "protocol-xdg_shell")]
     XdgWmBase,
+    /// xdg_system_bell_v1
     #[cfg(feature = "protocol-xdg_system_bell_v1")]
     XdgSystemBellV1,
+    /// xdg_toplevel_drag_manager_v1
     #[cfg(feature = "protocol-xdg_toplevel_drag_v1")]
     XdgToplevelDragManagerV1,
+    /// xdg_toplevel_drag_v1
     #[cfg(feature = "protocol-xdg_toplevel_drag_v1")]
     XdgToplevelDragV1,
+    /// xdg_toplevel_icon_manager_v1
     #[cfg(feature = "protocol-xdg_toplevel_icon_v1")]
     XdgToplevelIconManagerV1,
+    /// xdg_toplevel_icon_v1
     #[cfg(feature = "protocol-xdg_toplevel_icon_v1")]
     XdgToplevelIconV1,
+    /// xdg_toplevel_tag_manager_v1
     #[cfg(feature = "protocol-xdg_toplevel_tag_v1")]
     XdgToplevelTagManagerV1,
+    /// zwp_xwayland_keyboard_grab_manager_v1
     #[cfg(feature = "protocol-xwayland_keyboard_grab_unstable_v1")]
     ZwpXwaylandKeyboardGrabManagerV1,
+    /// zwp_xwayland_keyboard_grab_v1
     #[cfg(feature = "protocol-xwayland_keyboard_grab_unstable_v1")]
     ZwpXwaylandKeyboardGrabV1,
+    /// xwayland_shell_v1
     #[cfg(feature = "protocol-xwayland_shell_v1")]
     XwaylandShellV1,
+    /// xwayland_surface_v1
     #[cfg(feature = "protocol-xwayland_shell_v1")]
     XwaylandSurfaceV1,
+    /// zwp_linux_buffer_release_v1
     #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
     ZwpLinuxBufferReleaseV1,
+    /// zwp_linux_explicit_synchronization_v1
     #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
     ZwpLinuxExplicitSynchronizationV1,
+    /// zwp_linux_surface_synchronization_v1
     #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
     ZwpLinuxSurfaceSynchronizationV1,
+    /// zwlr_data_control_device_v1
     #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
     ZwlrDataControlDeviceV1,
+    /// zwlr_data_control_manager_v1
     #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
     ZwlrDataControlManagerV1,
+    /// zwlr_data_control_offer_v1
     #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
     ZwlrDataControlOfferV1,
+    /// zwlr_data_control_source_v1
     #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
     ZwlrDataControlSourceV1,
+    /// zwlr_export_dmabuf_frame_v1
     #[cfg(feature = "protocol-wlr_export_dmabuf_unstable_v1")]
     ZwlrExportDmabufFrameV1,
+    /// zwlr_export_dmabuf_manager_v1
     #[cfg(feature = "protocol-wlr_export_dmabuf_unstable_v1")]
     ZwlrExportDmabufManagerV1,
+    /// zwlr_foreign_toplevel_handle_v1
     #[cfg(feature = "protocol-wlr_foreign_toplevel_management_unstable_v1")]
     ZwlrForeignToplevelHandleV1,
+    /// zwlr_foreign_toplevel_manager_v1
     #[cfg(feature = "protocol-wlr_foreign_toplevel_management_unstable_v1")]
     ZwlrForeignToplevelManagerV1,
+    /// zwlr_gamma_control_manager_v1
     #[cfg(feature = "protocol-wlr_gamma_control_unstable_v1")]
     ZwlrGammaControlManagerV1,
+    /// zwlr_gamma_control_v1
     #[cfg(feature = "protocol-wlr_gamma_control_unstable_v1")]
     ZwlrGammaControlV1,
+    /// zwlr_input_inhibit_manager_v1
     #[cfg(feature = "protocol-wlr_input_inhibit_unstable_v1")]
     ZwlrInputInhibitManagerV1,
+    /// zwlr_input_inhibitor_v1
     #[cfg(feature = "protocol-wlr_input_inhibit_unstable_v1")]
     ZwlrInputInhibitorV1,
+    /// zwlr_layer_shell_v1
     #[cfg(feature = "protocol-wlr_layer_shell_unstable_v1")]
     ZwlrLayerShellV1,
+    /// zwlr_layer_surface_v1
     #[cfg(feature = "protocol-wlr_layer_shell_unstable_v1")]
     ZwlrLayerSurfaceV1,
+    /// zwlr_output_configuration_head_v1
     #[cfg(feature = "protocol-wlr_output_management_unstable_v1")]
     ZwlrOutputConfigurationHeadV1,
+    /// zwlr_output_configuration_v1
     #[cfg(feature = "protocol-wlr_output_management_unstable_v1")]
     ZwlrOutputConfigurationV1,
+    /// zwlr_output_head_v1
     #[cfg(feature = "protocol-wlr_output_management_unstable_v1")]
     ZwlrOutputHeadV1,
+    /// zwlr_output_manager_v1
     #[cfg(feature = "protocol-wlr_output_management_unstable_v1")]
     ZwlrOutputManagerV1,
+    /// zwlr_output_mode_v1
     #[cfg(feature = "protocol-wlr_output_management_unstable_v1")]
     ZwlrOutputModeV1,
+    /// zwlr_output_power_manager_v1
     #[cfg(feature = "protocol-wlr_output_power_management_unstable_v1")]
     ZwlrOutputPowerManagerV1,
+    /// zwlr_output_power_v1
     #[cfg(feature = "protocol-wlr_output_power_management_unstable_v1")]
     ZwlrOutputPowerV1,
+    /// zwlr_screencopy_frame_v1
     #[cfg(feature = "protocol-wlr_screencopy_unstable_v1")]
     ZwlrScreencopyFrameV1,
+    /// zwlr_screencopy_manager_v1
     #[cfg(feature = "protocol-wlr_screencopy_unstable_v1")]
     ZwlrScreencopyManagerV1,
+    /// zwlr_virtual_pointer_manager_v1
     #[cfg(feature = "protocol-wlr_virtual_pointer_unstable_v1")]
     ZwlrVirtualPointerManagerV1,
+    /// zwlr_virtual_pointer_v1
     #[cfg(feature = "protocol-wlr_virtual_pointer_unstable_v1")]
     ZwlrVirtualPointerV1,
 }
 
-impl ProxyInterface {
+impl ObjectInterface {
     pub const fn name(self) -> &'static str {
         match self {
             #[cfg(feature = "protocol-hyprland_ctm_control_v1")]

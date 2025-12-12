@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_relative_pointer_manager_v1 proxy.
+/// A zwp_relative_pointer_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpRelativePointerManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpRelativePointerManagerV1Handler>,
 }
 
@@ -20,7 +20,7 @@ impl ZwpRelativePointerManagerV1Handler for DefaultHandler { }
 
 impl ZwpRelativePointerManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpRelativePointerManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpRelativePointerManagerV1;
     pub const INTERFACE_NAME: &str = "zwp_relative_pointer_manager_v1";
 }
 
@@ -193,10 +193,10 @@ pub trait ZwpRelativePointerManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpRelativePointerManagerV1 {
+impl ObjectPrivate for ZwpRelativePointerManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpRelativePointerManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpRelativePointerManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -247,7 +247,7 @@ impl ProxyPrivate for ZwpRelativePointerManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlPointer>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ProxyInterface::WlPointer));
+                    return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ObjectInterface::WlPointer));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -298,8 +298,8 @@ impl ProxyPrivate for ZwpRelativePointerManagerV1 {
     }
 }
 
-impl Proxy for ZwpRelativePointerManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpRelativePointerManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

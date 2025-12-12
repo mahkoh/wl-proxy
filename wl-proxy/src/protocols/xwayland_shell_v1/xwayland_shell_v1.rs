@@ -19,11 +19,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A xwayland_shell_v1 proxy.
+/// A xwayland_shell_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct XwaylandShellV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn XwaylandShellV1Handler>,
 }
 
@@ -33,7 +33,7 @@ impl XwaylandShellV1Handler for DefaultHandler { }
 
 impl XwaylandShellV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::XwaylandShellV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::XwaylandShellV1;
     pub const INTERFACE_NAME: &str = "xwayland_shell_v1";
 }
 
@@ -222,10 +222,10 @@ pub trait XwaylandShellV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for XwaylandShellV1 {
+impl ObjectPrivate for XwaylandShellV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XwaylandShellV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::XwaylandShellV1, version),
             handler: Default::default(),
         })
     }
@@ -276,7 +276,7 @@ impl ProxyPrivate for XwaylandShellV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -327,8 +327,8 @@ impl ProxyPrivate for XwaylandShellV1 {
     }
 }
 
-impl Proxy for XwaylandShellV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for XwaylandShellV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

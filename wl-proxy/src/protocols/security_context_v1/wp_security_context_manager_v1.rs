@@ -22,11 +22,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_security_context_manager_v1 proxy.
+/// A wp_security_context_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpSecurityContextManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpSecurityContextManagerV1Handler>,
 }
 
@@ -36,7 +36,7 @@ impl WpSecurityContextManagerV1Handler for DefaultHandler { }
 
 impl WpSecurityContextManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpSecurityContextManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpSecurityContextManagerV1;
     pub const INTERFACE_NAME: &str = "wp_security_context_manager_v1";
 }
 
@@ -235,10 +235,10 @@ pub trait WpSecurityContextManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for WpSecurityContextManagerV1 {
+impl ObjectPrivate for WpSecurityContextManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpSecurityContextManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpSecurityContextManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -338,8 +338,8 @@ impl ProxyPrivate for WpSecurityContextManagerV1 {
     }
 }
 
-impl Proxy for WpSecurityContextManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpSecurityContextManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

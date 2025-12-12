@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_fifo_v1 proxy.
+/// A wp_fifo_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpFifoV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpFifoV1Handler>,
 }
 
@@ -20,7 +20,7 @@ impl WpFifoV1Handler for DefaultHandler { }
 
 impl WpFifoV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpFifoV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpFifoV1;
     pub const INTERFACE_NAME: &str = "wp_fifo_v1";
 }
 
@@ -272,10 +272,10 @@ pub trait WpFifoV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for WpFifoV1 {
+impl ObjectPrivate for WpFifoV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpFifoV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpFifoV1, version),
             handler: Default::default(),
         })
     }
@@ -377,8 +377,8 @@ impl ProxyPrivate for WpFifoV1 {
     }
 }
 
-impl Proxy for WpFifoV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpFifoV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

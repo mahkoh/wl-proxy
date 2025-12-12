@@ -11,11 +11,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A treeland_window_overlap_checker proxy.
+/// A treeland_window_overlap_checker object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct TreelandWindowOverlapChecker {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn TreelandWindowOverlapCheckerHandler>,
 }
 
@@ -25,7 +25,7 @@ impl TreelandWindowOverlapCheckerHandler for DefaultHandler { }
 
 impl TreelandWindowOverlapChecker {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandWindowOverlapChecker;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandWindowOverlapChecker;
     pub const INTERFACE_NAME: &str = "treeland_window_overlap_checker";
 }
 
@@ -333,10 +333,10 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
     }
 }
 
-impl ProxyPrivate for TreelandWindowOverlapChecker {
+impl ObjectPrivate for TreelandWindowOverlapChecker {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::TreelandWindowOverlapChecker, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandWindowOverlapChecker, version),
             handler: Default::default(),
         })
     }
@@ -371,7 +371,7 @@ impl ProxyPrivate for TreelandWindowOverlapChecker {
                 };
                 let Ok(arg3) = (arg3 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = client.endpoint.lookup(arg3_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                 };
                 let arg3 = &arg3;
                 if let Some(handler) = handler {
@@ -475,8 +475,8 @@ impl ProxyPrivate for TreelandWindowOverlapChecker {
     }
 }
 
-impl Proxy for TreelandWindowOverlapChecker {
-    fn core(&self) -> &ProxyCore {
+impl Object for TreelandWindowOverlapChecker {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

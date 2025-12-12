@@ -37,11 +37,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_fullscreen_shell_v1 proxy.
+/// A zwp_fullscreen_shell_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpFullscreenShellV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpFullscreenShellV1Handler>,
 }
 
@@ -51,7 +51,7 @@ impl ZwpFullscreenShellV1Handler for DefaultHandler { }
 
 impl ZwpFullscreenShellV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpFullscreenShellV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpFullscreenShellV1;
     pub const INTERFACE_NAME: &str = "zwp_fullscreen_shell_v1";
 }
 
@@ -555,10 +555,10 @@ pub trait ZwpFullscreenShellV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpFullscreenShellV1 {
+impl ObjectPrivate for ZwpFullscreenShellV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpFullscreenShellV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpFullscreenShellV1, version),
             handler: Default::default(),
         })
     }
@@ -610,7 +610,7 @@ impl ProxyPrivate for ZwpFullscreenShellV1 {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                        return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                     };
                     Some(arg0)
                 };
@@ -623,7 +623,7 @@ impl ProxyPrivate for ZwpFullscreenShellV1 {
                     };
                     let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlOutput>() else {
                         let o = client.endpoint.lookup(arg2_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                     };
                     Some(arg2)
                 };
@@ -657,7 +657,7 @@ impl ProxyPrivate for ZwpFullscreenShellV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
@@ -665,7 +665,7 @@ impl ProxyPrivate for ZwpFullscreenShellV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                 };
                 let arg3_id = arg3;
                 let arg3 = ZwpFullscreenShellModeFeedbackV1::new(&self.core.state, self.core.version);
@@ -745,8 +745,8 @@ impl ProxyPrivate for ZwpFullscreenShellV1 {
     }
 }
 
-impl Proxy for ZwpFullscreenShellV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpFullscreenShellV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

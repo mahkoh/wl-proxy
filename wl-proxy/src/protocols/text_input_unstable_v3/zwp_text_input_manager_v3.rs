@@ -5,11 +5,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_text_input_manager_v3 proxy.
+/// A zwp_text_input_manager_v3 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpTextInputManagerV3 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpTextInputManagerV3Handler>,
 }
 
@@ -19,7 +19,7 @@ impl ZwpTextInputManagerV3Handler for DefaultHandler { }
 
 impl ZwpTextInputManagerV3 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpTextInputManagerV3;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpTextInputManagerV3;
     pub const INTERFACE_NAME: &str = "zwp_text_input_manager_v3";
 }
 
@@ -188,10 +188,10 @@ pub trait ZwpTextInputManagerV3Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpTextInputManagerV3 {
+impl ObjectPrivate for ZwpTextInputManagerV3 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpTextInputManagerV3, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpTextInputManagerV3, version),
             handler: Default::default(),
         })
     }
@@ -242,7 +242,7 @@ impl ProxyPrivate for ZwpTextInputManagerV3 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -293,8 +293,8 @@ impl ProxyPrivate for ZwpTextInputManagerV3 {
     }
 }
 
-impl Proxy for ZwpTextInputManagerV3 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpTextInputManagerV3 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

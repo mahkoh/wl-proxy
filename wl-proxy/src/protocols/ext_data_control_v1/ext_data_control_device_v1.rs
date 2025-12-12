@@ -7,11 +7,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A ext_data_control_device_v1 proxy.
+/// A ext_data_control_device_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ExtDataControlDeviceV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ExtDataControlDeviceV1Handler>,
 }
 
@@ -21,7 +21,7 @@ impl ExtDataControlDeviceV1Handler for DefaultHandler { }
 
 impl ExtDataControlDeviceV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtDataControlDeviceV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtDataControlDeviceV1;
     pub const INTERFACE_NAME: &str = "ext_data_control_device_v1";
 }
 
@@ -675,10 +675,10 @@ pub trait ExtDataControlDeviceV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ExtDataControlDeviceV1 {
+impl ObjectPrivate for ExtDataControlDeviceV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtDataControlDeviceV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtDataControlDeviceV1, version),
             handler: Default::default(),
         })
     }
@@ -710,7 +710,7 @@ impl ProxyPrivate for ExtDataControlDeviceV1 {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ExtDataControlSourceV1>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("source", o.core().interface, ProxyInterface::ExtDataControlSourceV1));
+                        return Err(ObjectError::WrongObjectType("source", o.core().interface, ObjectInterface::ExtDataControlSourceV1));
                     };
                     Some(arg0)
                 };
@@ -759,7 +759,7 @@ impl ProxyPrivate for ExtDataControlDeviceV1 {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ExtDataControlSourceV1>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("source", o.core().interface, ProxyInterface::ExtDataControlSourceV1));
+                        return Err(ObjectError::WrongObjectType("source", o.core().interface, ObjectInterface::ExtDataControlSourceV1));
                     };
                     Some(arg0)
                 };
@@ -831,7 +831,7 @@ impl ProxyPrivate for ExtDataControlDeviceV1 {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ExtDataControlOfferV1>() else {
                         let o = self.core.state.server.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("id", o.core().interface, ProxyInterface::ExtDataControlOfferV1));
+                        return Err(ObjectError::WrongObjectType("id", o.core().interface, ObjectInterface::ExtDataControlOfferV1));
                     };
                     Some(arg0)
                 };
@@ -879,7 +879,7 @@ impl ProxyPrivate for ExtDataControlDeviceV1 {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ExtDataControlOfferV1>() else {
                         let o = self.core.state.server.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("id", o.core().interface, ProxyInterface::ExtDataControlOfferV1));
+                        return Err(ObjectError::WrongObjectType("id", o.core().interface, ObjectInterface::ExtDataControlOfferV1));
                     };
                     Some(arg0)
                 };
@@ -922,8 +922,8 @@ impl ProxyPrivate for ExtDataControlDeviceV1 {
     }
 }
 
-impl Proxy for ExtDataControlDeviceV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ExtDataControlDeviceV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

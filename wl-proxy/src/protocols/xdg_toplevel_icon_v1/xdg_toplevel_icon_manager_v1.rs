@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A xdg_toplevel_icon_manager_v1 proxy.
+/// A xdg_toplevel_icon_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct XdgToplevelIconManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn XdgToplevelIconManagerV1Handler>,
 }
 
@@ -20,7 +20,7 @@ impl XdgToplevelIconManagerV1Handler for DefaultHandler { }
 
 impl XdgToplevelIconManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgToplevelIconManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgToplevelIconManagerV1;
     pub const INTERFACE_NAME: &str = "xdg_toplevel_icon_manager_v1";
 }
 
@@ -448,10 +448,10 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for XdgToplevelIconManagerV1 {
+impl ObjectPrivate for XdgToplevelIconManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgToplevelIconManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::XdgToplevelIconManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -521,7 +521,7 @@ impl ProxyPrivate for XdgToplevelIconManagerV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<XdgToplevel>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("toplevel", o.core().interface, ProxyInterface::XdgToplevel));
+                    return Err(ObjectError::WrongObjectType("toplevel", o.core().interface, ObjectInterface::XdgToplevel));
                 };
                 let arg1 = if arg1 == 0 {
                     None
@@ -532,7 +532,7 @@ impl ProxyPrivate for XdgToplevelIconManagerV1 {
                     };
                     let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<XdgToplevelIconV1>() else {
                         let o = client.endpoint.lookup(arg1_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("icon", o.core().interface, ProxyInterface::XdgToplevelIconV1));
+                        return Err(ObjectError::WrongObjectType("icon", o.core().interface, ObjectInterface::XdgToplevelIconV1));
                     };
                     Some(arg1)
                 };
@@ -626,8 +626,8 @@ impl ProxyPrivate for XdgToplevelIconManagerV1 {
     }
 }
 
-impl Proxy for XdgToplevelIconManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for XdgToplevelIconManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

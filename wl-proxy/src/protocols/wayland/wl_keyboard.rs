@@ -16,11 +16,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_keyboard proxy.
+/// A wl_keyboard object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlKeyboard {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlKeyboardHandler>,
 }
 
@@ -30,7 +30,7 @@ impl WlKeyboardHandler for DefaultHandler { }
 
 impl WlKeyboard {
     pub const XML_VERSION: u32 = 10;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlKeyboard;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlKeyboard;
     pub const INTERFACE_NAME: &str = "wl_keyboard";
 }
 
@@ -816,10 +816,10 @@ pub trait WlKeyboardHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlKeyboard {
+impl ObjectPrivate for WlKeyboard {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlKeyboard, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlKeyboard, version),
             handler: Default::default(),
         })
     }
@@ -927,7 +927,7 @@ impl ProxyPrivate for WlKeyboard {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = self.core.state.server.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
@@ -955,7 +955,7 @@ impl ProxyPrivate for WlKeyboard {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = self.core.state.server.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg1 = &arg1;
                 if let Some(handler) = handler {
@@ -1061,8 +1061,8 @@ impl ProxyPrivate for WlKeyboard {
     }
 }
 
-impl Proxy for WlKeyboard {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlKeyboard {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

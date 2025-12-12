@@ -23,11 +23,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_presentation proxy.
+/// A wp_presentation object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpPresentation {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpPresentationHandler>,
 }
 
@@ -37,7 +37,7 @@ impl WpPresentationHandler for DefaultHandler { }
 
 impl WpPresentation {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpPresentation;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpPresentation;
     pub const INTERFACE_NAME: &str = "wp_presentation";
 }
 
@@ -349,10 +349,10 @@ pub trait WpPresentationHandler: Any {
     }
 }
 
-impl ProxyPrivate for WpPresentation {
+impl ObjectPrivate for WpPresentation {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpPresentation, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpPresentation, version),
             handler: Default::default(),
         })
     }
@@ -399,7 +399,7 @@ impl ProxyPrivate for WpPresentation {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg1_id = arg1;
                 let arg1 = WpPresentationFeedback::new(&self.core.state, self.core.version);
@@ -476,8 +476,8 @@ impl ProxyPrivate for WpPresentation {
     }
 }
 
-impl Proxy for WpPresentation {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpPresentation {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

@@ -7,11 +7,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_primary_selection_source_v1 proxy.
+/// A zwp_primary_selection_source_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpPrimarySelectionSourceV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpPrimarySelectionSourceV1Handler>,
 }
 
@@ -21,7 +21,7 @@ impl ZwpPrimarySelectionSourceV1Handler for DefaultHandler { }
 
 impl ZwpPrimarySelectionSourceV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpPrimarySelectionSourceV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpPrimarySelectionSourceV1;
     pub const INTERFACE_NAME: &str = "zwp_primary_selection_source_v1";
 }
 
@@ -310,10 +310,10 @@ pub trait ZwpPrimarySelectionSourceV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpPrimarySelectionSourceV1 {
+impl ObjectPrivate for ZwpPrimarySelectionSourceV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpPrimarySelectionSourceV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpPrimarySelectionSourceV1, version),
             handler: Default::default(),
         })
     }
@@ -485,8 +485,8 @@ impl ProxyPrivate for ZwpPrimarySelectionSourceV1 {
     }
 }
 
-impl Proxy for ZwpPrimarySelectionSourceV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpPrimarySelectionSourceV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

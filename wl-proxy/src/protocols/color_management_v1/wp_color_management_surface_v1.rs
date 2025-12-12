@@ -9,11 +9,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_color_management_surface_v1 proxy.
+/// A wp_color_management_surface_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpColorManagementSurfaceV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpColorManagementSurfaceV1Handler>,
 }
 
@@ -23,7 +23,7 @@ impl WpColorManagementSurfaceV1Handler for DefaultHandler { }
 
 impl WpColorManagementSurfaceV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpColorManagementSurfaceV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpColorManagementSurfaceV1;
     pub const INTERFACE_NAME: &str = "wp_color_management_surface_v1";
 }
 
@@ -324,10 +324,10 @@ pub trait WpColorManagementSurfaceV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for WpColorManagementSurfaceV1 {
+impl ObjectPrivate for WpColorManagementSurfaceV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpColorManagementSurfaceV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpColorManagementSurfaceV1, version),
             handler: Default::default(),
         })
     }
@@ -375,7 +375,7 @@ impl ProxyPrivate for WpColorManagementSurfaceV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WpImageDescriptionV1>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("image_description", o.core().interface, ProxyInterface::WpImageDescriptionV1));
+                    return Err(ObjectError::WrongObjectType("image_description", o.core().interface, ObjectInterface::WpImageDescriptionV1));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -442,8 +442,8 @@ impl ProxyPrivate for WpColorManagementSurfaceV1 {
     }
 }
 
-impl Proxy for WpColorManagementSurfaceV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpColorManagementSurfaceV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

@@ -52,11 +52,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A xdg_surface proxy.
+/// A xdg_surface object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct XdgSurface {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn XdgSurfaceHandler>,
 }
 
@@ -66,7 +66,7 @@ impl XdgSurfaceHandler for DefaultHandler { }
 
 impl XdgSurface {
     pub const XML_VERSION: u32 = 7;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgSurface;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgSurface;
     pub const INTERFACE_NAME: &str = "xdg_surface";
 }
 
@@ -741,10 +741,10 @@ pub trait XdgSurfaceHandler: Any {
     }
 }
 
-impl ProxyPrivate for XdgSurface {
+impl ObjectPrivate for XdgSurface {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgSurface, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::XdgSurface, version),
             handler: Default::default(),
         })
     }
@@ -822,7 +822,7 @@ impl ProxyPrivate for XdgSurface {
                     };
                     let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<XdgSurface>() else {
                         let o = client.endpoint.lookup(arg1_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("parent", o.core().interface, ProxyInterface::XdgSurface));
+                        return Err(ObjectError::WrongObjectType("parent", o.core().interface, ObjectInterface::XdgSurface));
                     };
                     Some(arg1)
                 };
@@ -832,7 +832,7 @@ impl ProxyPrivate for XdgSurface {
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<XdgPositioner>() else {
                     let o = client.endpoint.lookup(arg2_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("positioner", o.core().interface, ProxyInterface::XdgPositioner));
+                    return Err(ObjectError::WrongObjectType("positioner", o.core().interface, ObjectInterface::XdgPositioner));
                 };
                 let arg0 = &arg0;
                 let arg1 = arg1.as_ref();
@@ -952,8 +952,8 @@ impl ProxyPrivate for XdgSurface {
     }
 }
 
-impl Proxy for XdgSurface {
-    fn core(&self) -> &ProxyCore {
+impl Object for XdgSurface {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

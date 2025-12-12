@@ -5,11 +5,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwlr_virtual_pointer_manager_v1 proxy.
+/// A zwlr_virtual_pointer_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwlrVirtualPointerManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwlrVirtualPointerManagerV1Handler>,
 }
 
@@ -19,7 +19,7 @@ impl ZwlrVirtualPointerManagerV1Handler for DefaultHandler { }
 
 impl ZwlrVirtualPointerManagerV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrVirtualPointerManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrVirtualPointerManagerV1;
     pub const INTERFACE_NAME: &str = "zwlr_virtual_pointer_manager_v1";
 }
 
@@ -301,10 +301,10 @@ pub trait ZwlrVirtualPointerManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwlrVirtualPointerManagerV1 {
+impl ObjectPrivate for ZwlrVirtualPointerManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrVirtualPointerManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrVirtualPointerManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -337,7 +337,7 @@ impl ProxyPrivate for ZwlrVirtualPointerManagerV1 {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSeat>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                        return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                     };
                     Some(arg0)
                 };
@@ -393,7 +393,7 @@ impl ProxyPrivate for ZwlrVirtualPointerManagerV1 {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSeat>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                        return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                     };
                     Some(arg0)
                 };
@@ -406,7 +406,7 @@ impl ProxyPrivate for ZwlrVirtualPointerManagerV1 {
                     };
                     let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlOutput>() else {
                         let o = client.endpoint.lookup(arg1_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                     };
                     Some(arg1)
                 };
@@ -465,8 +465,8 @@ impl ProxyPrivate for ZwlrVirtualPointerManagerV1 {
     }
 }
 
-impl Proxy for ZwlrVirtualPointerManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwlrVirtualPointerManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

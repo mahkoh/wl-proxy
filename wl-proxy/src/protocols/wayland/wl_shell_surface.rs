@@ -15,11 +15,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_shell_surface proxy.
+/// A wl_shell_surface object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlShellSurface {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlShellSurfaceHandler>,
 }
 
@@ -29,7 +29,7 @@ impl WlShellSurfaceHandler for DefaultHandler { }
 
 impl WlShellSurface {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlShellSurface;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlShellSurface;
     pub const INTERFACE_NAME: &str = "wl_shell_surface";
 }
 
@@ -1307,10 +1307,10 @@ pub trait WlShellSurfaceHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlShellSurface {
+impl ObjectPrivate for WlShellSurface {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlShellSurface, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlShellSurface, version),
             handler: Default::default(),
         })
     }
@@ -1358,7 +1358,7 @@ impl ProxyPrivate for WlShellSurface {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1388,7 +1388,7 @@ impl ProxyPrivate for WlShellSurface {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1437,7 +1437,7 @@ impl ProxyPrivate for WlShellSurface {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("parent", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("parent", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1470,7 +1470,7 @@ impl ProxyPrivate for WlShellSurface {
                     };
                     let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlOutput>() else {
                         let o = client.endpoint.lookup(arg2_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                     };
                     Some(arg2)
                 };
@@ -1507,7 +1507,7 @@ impl ProxyPrivate for WlShellSurface {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg2_id = arg2;
                 let Some(arg2) = client.endpoint.lookup(arg2_id) else {
@@ -1515,7 +1515,7 @@ impl ProxyPrivate for WlShellSurface {
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg2_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("parent", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("parent", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 let arg2 = &arg2;
@@ -1546,7 +1546,7 @@ impl ProxyPrivate for WlShellSurface {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlOutput>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                     };
                     Some(arg0)
                 };
@@ -1747,8 +1747,8 @@ impl ProxyPrivate for WlShellSurface {
     }
 }
 
-impl Proxy for WlShellSurface {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlShellSurface {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

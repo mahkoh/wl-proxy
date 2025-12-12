@@ -59,7 +59,7 @@ pub fn format_interface_file(w: &mut impl Write, interface: &Interface) -> io::R
     wl!()?;
     format_interface_message_handler(w, interface)?;
     wl!()?;
-    format_proxy_impl(w, interface)?;
+    format_object_impl(w, interface)?;
     wl!()?;
     format_interface_enums(w, interface)?;
     Ok(())
@@ -107,11 +107,11 @@ fn format_interface_types(w: &mut impl Write, interface: &Interface) -> io::Resu
     define_w!(w);
     let snake = &interface.name;
     let camel = format_camel(snake).to_string();
-    wl!(r#"/// A {snake} proxy."#)?;
+    wl!(r#"/// A {snake} object."#)?;
     wl!(r#"///"#)?;
     wl!(r#"/// See the documentation of [the module][self] for the interface description."#)?;
     wl!(r#"pub struct {PREFIX}{camel} {{"#)?;
-    wl!(r#"    core: ProxyCore,"#)?;
+    wl!(r#"    core: ObjectCore,"#)?;
     wl!(r#"    handler: HandlerHolder<dyn {PREFIX}{camel}Handler>,"#)?;
     wl!(r#"}}"#)?;
     if interface.messages.is_not_empty() {
@@ -124,7 +124,7 @@ fn format_interface_types(w: &mut impl Write, interface: &Interface) -> io::Resu
     wl!(r#"impl {PREFIX}{camel} {{"#)?;
     wl!(r#"    pub const XML_VERSION: u32 = {};"#, interface.version)?;
     wl!(
-        r#"    pub const INTERFACE: ProxyInterface = ProxyInterface::{};"#,
+        r#"    pub const INTERFACE: ObjectInterface = ObjectInterface::{};"#,
         camel
     )?;
     wl!(
@@ -162,38 +162,42 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
     let snake = &interface.name;
     let name = format_camel(snake).to_string();
     wl!(r#"impl {PREFIX}{name} {{"#)?;
-    for (idx, message) in interface.messages.iter().enumerate() {
+    for (idx, msg) in interface.messages.iter().enumerate() {
         if idx > 0 {
             wl!()?;
         }
-        format_message_since(w, message)?;
+        format_message_since(w, msg)?;
         wl!()?;
-        format_message_doc(w, true, message)?;
+        format_message_doc(w, true, msg)?;
         wl!(r#"    #[inline]"#)?;
-        w!(r#"    pub fn send_{}"#, &message.name)?;
+        w!(r#"    pub fn send_{}"#, &msg.name)?;
         wl!(r#"("#)?;
         wl!(r#"        &self,"#)?;
-        let num_args = message.args.len();
-        for arg in &message.args {
-            wl!(
-                r#"        {}: {},"#,
-                escape_name(&arg.name),
-                arg_type(interface, arg),
-            )?;
+        let num_args = msg.args.len();
+        for (idx, arg) in msg.args.iter().enumerate() {
+            let name = escape_name(&arg.name);
+            if interface.is_wl_registry && msg.name == "global" && idx == 1 {
+                wl!(r#"        {name}: ObjectInterface,"#)?;
+            } else {
+                wl!(r#"        {name}: {},"#, arg_type(interface, arg))?;
+            }
         }
         w!(r#"    ) -> Result<(), ObjectError>"#)?;
         wl!(r#" {{"#)?;
+        if interface.is_wl_registry && msg.name == "global" {
+            wl!(r#"        let {0} = {0}.name();"#, msg.args[1].name)?;
+        }
         if num_args > 0 {
             wl!(r#"        let ("#)?;
-            for (idx, _) in message.args.iter().enumerate() {
+            for (idx, _) in msg.args.iter().enumerate() {
                 wl!(r#"            arg{idx},"#)?;
             }
             wl!(r#"        ) = ("#)?;
-            for arg in &message.args {
+            for arg in &msg.args {
                 wl!(r#"            {},"#, escape_name(&arg.name))?;
             }
             wl!(r#"        );"#)?;
-            for (idx, arg) in message.args.iter().enumerate() {
+            for (idx, arg) in msg.args.iter().enumerate() {
                 if matches!(arg.ty, ArgType::NewId | ArgType::Object) {
                     let mut suffix = "";
                     if arg.ty == ArgType::NewId {
@@ -209,7 +213,7 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
             }
         }
         wl!(r#"        let core = self.core();"#)?;
-        if message.is_request {
+        if msg.is_request {
             wl!(r#"        let Some(id) = core.server_obj_id.get() else {{"#)?;
             wl!(r#"            return Err(ObjectError::ReceiverNoServerId);"#)?;
             wl!(r#"        }};"#)?;
@@ -220,8 +224,8 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
             wl!(r#"        }};"#)?;
             wl!(r#"        let id = core.client_obj_id.get().unwrap_or(0);"#)?;
         }
-        if !message.is_request {
-            for (idx, arg) in message.args.iter().enumerate() {
+        if !msg.is_request {
+            for (idx, arg) in msg.args.iter().enumerate() {
                 if arg.ty == ArgType::Object {
                     let mut prefix = "";
                     if arg.allow_null {
@@ -242,8 +246,8 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
                 }
             }
         }
-        if message.is_request {
-            for (idx, arg) in message.args.iter().enumerate() {
+        if msg.is_request {
+            for (idx, arg) in msg.args.iter().enumerate() {
                 if arg.ty == ArgType::Object {
                     let mut prefix = "";
                     w!(r#"        let arg{idx}_id = "#)?;
@@ -266,9 +270,9 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
                 }
             }
         }
-        for (idx, arg) in message.args.iter().enumerate() {
+        for (idx, arg) in msg.args.iter().enumerate() {
             if arg.ty == ArgType::NewId {
-                if message.is_request {
+                if msg.is_request {
                     wl!(r#"        arg{idx}.generate_server_id(arg{idx}_obj.clone())"#)?;
                     wl!(
                         r#"            .map_err(|e| ObjectError::GenerateServerId("{}", e))?;"#,
@@ -283,13 +287,13 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
                 }
             }
         }
-        for (idx, arg) in message.args.iter().enumerate() {
-            if (arg.ty == ArgType::Object && !message.is_request) || arg.ty == ArgType::NewId {
+        for (idx, arg) in msg.args.iter().enumerate() {
+            if (arg.ty == ArgType::Object && !msg.is_request) || arg.ty == ArgType::NewId {
                 w!(r#"        let arg{idx}_id = "#)?;
                 if arg.allow_null {
                     w!("arg{idx}.and_then(|arg{idx}| ").unwrap();
                 }
-                if message.is_request {
+                if msg.is_request {
                     w!("arg{idx}.server_obj_id.get()").unwrap();
                 } else {
                     w!("arg{idx}.client_obj_id.get()").unwrap();
@@ -300,14 +304,14 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
                 wl!(".unwrap_or(0);").unwrap();
             }
         }
-        format_wayland_debug(w, interface, message, true)?;
-        if message.is_request {
+        format_wayland_debug(w, interface, msg, true)?;
+        if msg.is_request {
             wl!(r#"        let endpoint = &self.core.state.server;"#)?;
         } else {
             wl!(r#"        let endpoint = &client.endpoint;"#)?;
         }
         wl!(r#"        if !endpoint.flush_queued.replace(true) {{"#)?;
-        if message.is_request {
+        if msg.is_request {
             wl!(r#"            self.core.state.add_flushable_endpoint(endpoint, None);"#)?;
         } else {
             wl!(r#"            self.core.state.add_flushable_endpoint(endpoint, Some(client));"#)?;
@@ -318,7 +322,7 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
         wl!(r#"        let mut fmt = outgoing.formatter();"#)?;
         let mut words = vec![];
         words.push("id".to_string());
-        words.push(format!("{}", message.message_id));
+        words.push(format!("{}", msg.message_id));
         macro_rules! flush_words {
             () => {{
                 if words.len() > 0 {
@@ -330,7 +334,7 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
                 }
             }};
         }
-        for (idx, arg) in message.args.iter().enumerate() {
+        for (idx, arg) in msg.args.iter().enumerate() {
             match arg.ty {
                 ArgType::NewId => {
                     if arg.interface.is_none() {
@@ -369,8 +373,8 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
             }
         }
         flush_words!();
-        if message.ty == Some(MessageType::Destructor) {
-            if message.is_request {
+        if msg.ty == Some(MessageType::Destructor) {
+            if msg.is_request {
                 wl!(r#"        self.core.handle_server_destroy();"#)?;
             } else {
                 wl!(r#"        drop(fmt);"#)?;
@@ -379,7 +383,7 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
                 wl!(r#"        self.core.handle_client_destroy();"#)?;
             }
         }
-        if interface.is_wl_fixes && message.name == "destroy_registry" {
+        if interface.is_wl_fixes && msg.name == "destroy_registry" {
             wl!(r#"        arg0.handle_server_destroy();"#)?;
         }
         wl!(r#"        Ok(())"#)?;
@@ -439,12 +443,13 @@ fn format_interface_message_handler(w: &mut impl Write, interface: &Interface) -
         wl!(r#"    fn {}("#, escape_name(&msg.name))?;
         wl!(r#"        &mut self,"#)?;
         wl!(r#"        _slf: &Rc<{PREFIX}{camel}>,"#)?;
-        for arg in &msg.args {
-            wl!(
-                r#"        {}: {},"#,
-                escape_name(&arg.name),
-                arg_type(interface, arg)
-            )?;
+        for (idx, arg) in msg.args.iter().enumerate() {
+            let name = escape_name(&arg.name);
+            if interface.is_wl_registry && msg.name == "global" && idx == 1 {
+                wl!(r#"        {name}: ObjectInterface,"#)?;
+            } else {
+                wl!(r#"        {name}: {},"#, arg_type(interface, arg))?;
+            }
         }
         wl!(r#"    ) {{"#)?;
         if !msg.is_request {
@@ -535,7 +540,7 @@ fn arg_type<'a>(interface: &'a Interface, arg: &'a Arg) -> impl Display + use<'a
         }
         let s = match &arg.ty {
             ArgType::NewId => match &arg.interface {
-                None => "Rc<dyn Proxy>",
+                None => "Rc<dyn Object>",
                 Some(s) => return write!(f, "&Rc<{PREFIX}{}>", format_camel(s)),
             },
             ArgType::Int => "i32",
@@ -544,13 +549,13 @@ fn arg_type<'a>(interface: &'a Interface, arg: &'a Arg) -> impl Display + use<'a
             ArgType::String if arg.allow_null => "Option<&str>",
             ArgType::String => "&str",
             ArgType::Object if arg.allow_null => match &arg.interface {
-                None => "Option<Rc<dyn Proxy>>",
+                None => "Option<Rc<dyn Object>>",
                 Some(s) => {
                     return write!(f, "Option<&Rc<{PREFIX}{}>>", format_camel(s));
                 }
             },
             ArgType::Object => match &arg.interface {
-                None => "Rc<dyn Proxy>",
+                None => "Rc<dyn Object>",
                 Some(s) => {
                     return write!(f, "&Rc<{PREFIX}{}>", format_camel(s));
                 }
@@ -605,29 +610,29 @@ pub fn format_mod_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<()> {
     wl!("    use crate::protocol_helpers::prelude::*;")?;
     wl!()?;
     wl!(
-        "    pub(super) fn create_proxy_for_interface(state: &Rc<State>, interface: &str, version: u32) -> Result<Rc<dyn Proxy>, ObjectError> {{"
+        "    pub(super) fn create_object_for_interface(state: &Rc<State>, interface: &str, version: u32) -> Result<Rc<dyn Object>, ObjectError> {{"
     )?;
-    wl!("        ProxyInterface::from_str(interface)")?;
+    wl!("        ObjectInterface::from_str(interface)")?;
     wl!("            .ok_or(ObjectError::UnsupportedInterface(interface.to_string()))")?;
-    wl!("            .and_then(|i| i.create_proxy(state, version))")?;
+    wl!("            .and_then(|i| i.create_object(state, version))")?;
     wl!("    }}")?;
     wl!()?;
-    wl!("    impl ProxyInterface {{")?;
+    wl!("    impl ObjectInterface {{")?;
     wl!("        #[expect(clippy::should_implement_trait)]")?;
-    wl!("        pub fn from_str(interface: &str) -> Option<ProxyInterface> {{")?;
+    wl!("        pub fn from_str(interface: &str) -> Option<ObjectInterface> {{")?;
     wl!(
-        "            static INTERFACES: phf::Map<&'static str, Option<ProxyInterface>> = phf::phf_map! {{"
+        "            static INTERFACES: phf::Map<&'static str, Option<ObjectInterface>> = phf::phf_map! {{"
     )?;
     for (protocol, interface) in interfaces() {
         let snake = &interface.name;
         let camel = format_camel(snake);
         if protocol.is_wayland {
-            wl!(r#"                "{snake}" => Some(ProxyInterface::{camel}),"#)?;
+            wl!(r#"                "{snake}" => Some(ObjectInterface::{camel}),"#)?;
         } else {
             let proto = &protocol.name;
             wl!(r#"                "{snake}" => {{"#)?;
             wl!(
-                r#"                    #[cfg(feature = "protocol-{proto}")] {{ Some(ProxyInterface::{camel}) }}"#
+                r#"                    #[cfg(feature = "protocol-{proto}")] {{ Some(ObjectInterface::{camel}) }}"#
             )?;
             wl!(r#"                    #[cfg(not(feature = "protocol-{proto}"))] {{ None }}"#)?;
             wl!(r#"                }},"#)?;
@@ -638,7 +643,7 @@ pub fn format_mod_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<()> {
     wl!("        }}")?;
     wl!()?;
     wl!(
-        "        fn create_proxy(self, state: &Rc<State>, version: u32) -> Result<Rc<dyn Proxy>, ObjectError> {{"
+        "        fn create_object(self, state: &Rc<State>, version: u32) -> Result<Rc<dyn Object>, ObjectError> {{"
     )?;
     wl!("            match self {{")?;
     for (protocol, interface) in interfaces() {
@@ -658,15 +663,17 @@ pub fn format_mod_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<()> {
     wl!()?;
     wl!("#[derive(Copy, Clone, Debug, Eq, PartialEq, linearize::Linearize)]")?;
     wl!("#[linearize(const)]")?;
-    wl!("pub enum ProxyInterface {{")?;
+    wl!("pub enum ObjectInterface {{")?;
     for (protocol, interface) in interfaces() {
-        let camel = format_camel(&interface.name);
+        let snake = &interface.name;
+        let camel = format_camel(snake);
+        wl!(r#"    /// {snake}"#)?;
         write_cfg!(protocol, "    ");
         wl!(r#"    {camel},"#)?;
     }
     wl!("}}")?;
     wl!()?;
-    wl!("impl ProxyInterface {{")?;
+    wl!("impl ObjectInterface {{")?;
     wl!("    pub const fn name(self) -> &'static str {{")?;
     wl!("        match self {{")?;
     for (protocol, interface) in interfaces() {
@@ -701,7 +708,7 @@ pub fn format_baseline_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<(
     wl!("#![allow(non_upper_case_globals, unused)]")?;
     wl!()?;
     wl!("use linearize::{{StaticCopyMap, Linearize}};")?;
-    wl!("use crate::protocols::ProxyInterface;")?;
+    wl!("use crate::protocols::ObjectInterface;")?;
     wl!()?;
     for (_, interface) in &interfaces {
         let version = interface.version;
@@ -710,9 +717,9 @@ pub fn format_baseline_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<(
     }
     wl!()?;
     wl!("#[rustfmt::skip]")?;
-    wl!("pub(super) const BASELINE: &StaticCopyMap<ProxyInterface, u32> = {{")?;
-    wl!("    static BASELINE: [u32; ProxyInterface::LENGTH] = {{")?;
-    wl!("        let mut baseline = [0; ProxyInterface::LENGTH];")?;
+    wl!("pub(super) const BASELINE: &StaticCopyMap<ObjectInterface, u32> = {{")?;
+    wl!("    static BASELINE: [u32; ObjectInterface::LENGTH] = {{")?;
+    wl!("        let mut baseline = [0; ObjectInterface::LENGTH];")?;
     for (protocol, interface) in &interfaces {
         let snake = &interface.name;
         let camel = format_camel(snake);
@@ -720,7 +727,7 @@ pub fn format_baseline_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<(
             wl!(r#"        #[cfg(feature = "protocol-{}")]"#, protocol.name)?;
         }
         wl!(
-            r#"        {{ baseline[ProxyInterface::{camel}.__linearize_d66aa8fa_6974_4651_b2b7_75291a9e7105()] = {snake}; }}"#
+            r#"        {{ baseline[ObjectInterface::{camel}.__linearize_d66aa8fa_6974_4651_b2b7_75291a9e7105()] = {snake}; }}"#
         )?;
     }
     wl!("        baseline")?;
@@ -876,15 +883,15 @@ fn format_description(
     Ok(())
 }
 
-fn format_proxy_impl(w: &mut impl Write, interface: &Interface) -> io::Result<()> {
+fn format_object_impl(w: &mut impl Write, interface: &Interface) -> io::Result<()> {
     define_w!(w);
     let snake = &interface.name;
     let camel = format_camel(snake).to_string();
-    wl!(r#"impl ProxyPrivate for {PREFIX}{camel} {{"#)?;
+    wl!(r#"impl ObjectPrivate for {PREFIX}{camel} {{"#)?;
     wl!(r#"    fn new(state: &Rc<State>, version: u32) -> Rc<Self> {{"#)?;
     wl!(r#"        Rc::<Self>::new_cyclic(|slf| Self {{"#)?;
     wl!(
-        r#"            core: ProxyCore::new(state, slf.clone(), ProxyInterface::{camel}, version),"#
+        r#"            core: ObjectCore::new(state, slf.clone(), ObjectInterface::{camel}, version),"#
     )?;
     wl!(r#"            handler: Default::default(),"#)?;
     wl!(r#"        }})"#)?;
@@ -893,26 +900,26 @@ fn format_proxy_impl(w: &mut impl Write, interface: &Interface) -> io::Result<()
     wl!(
         r#"    fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {{"#
     )?;
-    format_proxy_message_handler_body(w, interface, true)?;
+    format_object_message_handler_body(w, interface, true)?;
     wl!(r#"    }}"#)?;
     wl!()?;
     wl!(
         r#"    fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {{"#
     )?;
-    format_proxy_message_handler_body(w, interface, false)?;
+    format_object_message_handler_body(w, interface, false)?;
     wl!(r#"    }}"#)?;
     wl!()?;
     wl!(r#"    fn get_request_name(&self, id: u32) -> Option<&'static str> {{"#)?;
-    format_proxy_message_name(w, interface, true)?;
+    format_object_message_name(w, interface, true)?;
     wl!(r#"    }}"#)?;
     wl!()?;
     wl!(r#"    fn get_event_name(&self, id: u32) -> Option<&'static str> {{"#)?;
-    format_proxy_message_name(w, interface, false)?;
+    format_object_message_name(w, interface, false)?;
     wl!(r#"    }}"#)?;
     wl!(r#"}}"#)?;
     wl!()?;
-    wl!(r#"impl Proxy for {PREFIX}{camel} {{"#)?;
-    wl!(r#"    fn core(&self) -> &ProxyCore {{"#)?;
+    wl!(r#"impl Object for {PREFIX}{camel} {{"#)?;
+    wl!(r#"    fn core(&self) -> &ObjectCore {{"#)?;
     wl!(r#"        &self.core"#)?;
     wl!(r#"    }}"#)?;
     wl!()?;
@@ -921,19 +928,19 @@ fn format_proxy_impl(w: &mut impl Write, interface: &Interface) -> io::Result<()
     wl!(r#"    }}"#)?;
     wl!()?;
     wl!(r#"    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {{"#)?;
-    format_proxy_get_handler(w, false)?;
+    format_object_get_handler(w, false)?;
     wl!(r#"    }}"#)?;
     wl!()?;
     wl!(
         r#"    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {{"#
     )?;
-    format_proxy_get_handler(w, true)?;
+    format_object_get_handler(w, true)?;
     wl!(r#"    }}"#)?;
     wl!(r#"}}"#)?;
     Ok(())
 }
 
-fn format_proxy_get_handler(w: &mut impl Write, mutable: bool) -> io::Result<()> {
+fn format_object_get_handler(w: &mut impl Write, mutable: bool) -> io::Result<()> {
     define_w!(w);
     let p = "        ";
     let mut suffix = "";
@@ -956,7 +963,7 @@ fn format_proxy_get_handler(w: &mut impl Write, mutable: bool) -> io::Result<()>
     Ok(())
 }
 
-fn format_proxy_message_name(
+fn format_object_message_name(
     w: &mut impl Write,
     interface: &Interface,
     requests: bool,
@@ -1084,7 +1091,7 @@ fn format_wayland_debug(
     Ok(())
 }
 
-fn format_proxy_message_handler_body<W: Write>(
+fn format_object_message_handler_body<W: Write>(
     w: &mut W,
     interface: &Interface,
     requests: bool,
@@ -1275,10 +1282,10 @@ fn format_proxy_message_handler_body<W: Write>(
         }
         format_wayland_debug(w, interface, msg, false)?;
         if interface.is_wl_registry && msg.name == "global" {
-            wl!(r#"{p}        let arg2 = match ProxyInterface::from_str(arg1) {{"#)?;
-            wl!(r#"{p}            Some(i) => i.xml_version().min(arg2),"#)?;
-            wl!(r#"{p}            _ => return Ok(()),"#)?;
+            wl!(r#"{p}        let Some(arg1) = ObjectInterface::from_str(arg1) else {{"#)?;
+            wl!(r#"{p}            return Ok(());"#)?;
             wl!(r#"{p}        }};"#)?;
+            wl!(r#"{p}        let arg2 = arg1.xml_version().min(arg2);"#)?;
         }
         for (idx, arg) in msg.args.iter().enumerate() {
             match arg.ty {
@@ -1293,7 +1300,7 @@ fn format_proxy_message_handler_body<W: Write>(
                         }
                         _ => {
                             wl!(
-                                r#"{p}        let arg{idx} = create_proxy_for_interface(&self.core.state, arg{idx}_interface, arg{idx}_version)?;"#
+                                r#"{p}        let arg{idx} = create_object_for_interface(&self.core.state, arg{idx}_interface, arg{idx}_version)?;"#
                             )?;
                         }
                     }
@@ -1355,7 +1362,7 @@ fn format_proxy_message_handler_body<W: Write>(
                             )?;
                         }
                         wl!(
-                            r#"{p}        {prefix}    return Err(ObjectError::WrongObjectType("{}", o.core().interface, ProxyInterface::{camel}));"#,
+                            r#"{p}        {prefix}    return Err(ObjectError::WrongObjectType("{}", o.core().interface, ObjectInterface::{camel}));"#,
                             arg.name
                         )?;
                         wl!(r#"{p}        {prefix}}};"#)?;

@@ -11,11 +11,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_drm_lease_connector_v1 proxy.
+/// A wp_drm_lease_connector_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpDrmLeaseConnectorV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpDrmLeaseConnectorV1Handler>,
 }
 
@@ -25,7 +25,7 @@ impl WpDrmLeaseConnectorV1Handler for DefaultHandler { }
 
 impl WpDrmLeaseConnectorV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpDrmLeaseConnectorV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpDrmLeaseConnectorV1;
     pub const INTERFACE_NAME: &str = "wp_drm_lease_connector_v1";
 }
 
@@ -486,10 +486,10 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for WpDrmLeaseConnectorV1 {
+impl ObjectPrivate for WpDrmLeaseConnectorV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpDrmLeaseConnectorV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpDrmLeaseConnectorV1, version),
             handler: Default::default(),
         })
     }
@@ -693,8 +693,8 @@ impl ProxyPrivate for WpDrmLeaseConnectorV1 {
     }
 }
 
-impl Proxy for WpDrmLeaseConnectorV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpDrmLeaseConnectorV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

@@ -19,11 +19,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwlr_layer_surface_v1 proxy.
+/// A zwlr_layer_surface_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwlrLayerSurfaceV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwlrLayerSurfaceV1Handler>,
 }
 
@@ -33,7 +33,7 @@ impl ZwlrLayerSurfaceV1Handler for DefaultHandler { }
 
 impl ZwlrLayerSurfaceV1 {
     pub const XML_VERSION: u32 = 5;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrLayerSurfaceV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrLayerSurfaceV1;
     pub const INTERFACE_NAME: &str = "zwlr_layer_surface_v1";
 }
 
@@ -1120,10 +1120,10 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwlrLayerSurfaceV1 {
+impl ObjectPrivate for ZwlrLayerSurfaceV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrLayerSurfaceV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrLayerSurfaceV1, version),
             handler: Default::default(),
         })
     }
@@ -1253,7 +1253,7 @@ impl ProxyPrivate for ZwlrLayerSurfaceV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<XdgPopup>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("popup", o.core().interface, ProxyInterface::XdgPopup));
+                    return Err(ObjectError::WrongObjectType("popup", o.core().interface, ObjectInterface::XdgPopup));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1425,8 +1425,8 @@ impl ProxyPrivate for ZwlrLayerSurfaceV1 {
     }
 }
 
-impl Proxy for ZwlrLayerSurfaceV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwlrLayerSurfaceV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

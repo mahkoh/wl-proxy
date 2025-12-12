@@ -5,11 +5,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_xwayland_keyboard_grab_v1 proxy.
+/// A zwp_xwayland_keyboard_grab_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpXwaylandKeyboardGrabV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpXwaylandKeyboardGrabV1Handler>,
 }
 
@@ -19,7 +19,7 @@ impl ZwpXwaylandKeyboardGrabV1Handler for DefaultHandler { }
 
 impl ZwpXwaylandKeyboardGrabV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpXwaylandKeyboardGrabV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpXwaylandKeyboardGrabV1;
     pub const INTERFACE_NAME: &str = "zwp_xwayland_keyboard_grab_v1";
 }
 
@@ -103,10 +103,10 @@ pub trait ZwpXwaylandKeyboardGrabV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpXwaylandKeyboardGrabV1 {
+impl ObjectPrivate for ZwpXwaylandKeyboardGrabV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpXwaylandKeyboardGrabV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpXwaylandKeyboardGrabV1, version),
             handler: Default::default(),
         })
     }
@@ -174,8 +174,8 @@ impl ProxyPrivate for ZwpXwaylandKeyboardGrabV1 {
     }
 }
 
-impl Proxy for ZwpXwaylandKeyboardGrabV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpXwaylandKeyboardGrabV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

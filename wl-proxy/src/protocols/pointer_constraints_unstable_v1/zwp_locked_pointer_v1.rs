@@ -27,11 +27,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_locked_pointer_v1 proxy.
+/// A zwp_locked_pointer_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpLockedPointerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpLockedPointerV1Handler>,
 }
 
@@ -41,7 +41,7 @@ impl ZwpLockedPointerV1Handler for DefaultHandler { }
 
 impl ZwpLockedPointerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpLockedPointerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpLockedPointerV1;
     pub const INTERFACE_NAME: &str = "zwp_locked_pointer_v1";
 }
 
@@ -420,10 +420,10 @@ pub trait ZwpLockedPointerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpLockedPointerV1 {
+impl ObjectPrivate for ZwpLockedPointerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpLockedPointerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpLockedPointerV1, version),
             handler: Default::default(),
         })
     }
@@ -493,7 +493,7 @@ impl ProxyPrivate for ZwpLockedPointerV1 {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlRegion>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("region", o.core().interface, ProxyInterface::WlRegion));
+                        return Err(ObjectError::WrongObjectType("region", o.core().interface, ObjectInterface::WlRegion));
                     };
                     Some(arg0)
                 };
@@ -583,8 +583,8 @@ impl ProxyPrivate for ZwpLockedPointerV1 {
     }
 }
 
-impl Proxy for ZwpLockedPointerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpLockedPointerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

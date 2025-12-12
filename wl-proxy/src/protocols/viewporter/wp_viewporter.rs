@@ -10,11 +10,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_viewporter proxy.
+/// A wp_viewporter object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpViewporter {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpViewporterHandler>,
 }
 
@@ -24,7 +24,7 @@ impl WpViewporterHandler for DefaultHandler { }
 
 impl WpViewporter {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpViewporter;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpViewporter;
     pub const INTERFACE_NAME: &str = "wp_viewporter";
 }
 
@@ -203,10 +203,10 @@ pub trait WpViewporterHandler: Any {
     }
 }
 
-impl ProxyPrivate for WpViewporter {
+impl ObjectPrivate for WpViewporter {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpViewporter, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpViewporter, version),
             handler: Default::default(),
         })
     }
@@ -257,7 +257,7 @@ impl ProxyPrivate for WpViewporter {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -308,8 +308,8 @@ impl ProxyPrivate for WpViewporter {
     }
 }
 
-impl Proxy for WpViewporter {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpViewporter {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

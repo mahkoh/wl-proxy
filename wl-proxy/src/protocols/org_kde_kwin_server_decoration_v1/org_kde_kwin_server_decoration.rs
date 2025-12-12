@@ -1,11 +1,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A org_kde_kwin_server_decoration proxy.
+/// A org_kde_kwin_server_decoration object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct OrgKdeKwinServerDecoration {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn OrgKdeKwinServerDecorationHandler>,
 }
 
@@ -15,7 +15,7 @@ impl OrgKdeKwinServerDecorationHandler for DefaultHandler { }
 
 impl OrgKdeKwinServerDecoration {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::OrgKdeKwinServerDecoration;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::OrgKdeKwinServerDecoration;
     pub const INTERFACE_NAME: &str = "org_kde_kwin_server_decoration";
 }
 
@@ -250,10 +250,10 @@ pub trait OrgKdeKwinServerDecorationHandler: Any {
     }
 }
 
-impl ProxyPrivate for OrgKdeKwinServerDecoration {
+impl ObjectPrivate for OrgKdeKwinServerDecoration {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::OrgKdeKwinServerDecoration, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::OrgKdeKwinServerDecoration, version),
             handler: Default::default(),
         })
     }
@@ -362,8 +362,8 @@ impl ProxyPrivate for OrgKdeKwinServerDecoration {
     }
 }
 
-impl Proxy for OrgKdeKwinServerDecoration {
-    fn core(&self) -> &ProxyCore {
+impl Object for OrgKdeKwinServerDecoration {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

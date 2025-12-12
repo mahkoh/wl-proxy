@@ -5,11 +5,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A hyprland_global_shortcuts_manager_v1 proxy.
+/// A hyprland_global_shortcuts_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct HyprlandGlobalShortcutsManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn HyprlandGlobalShortcutsManagerV1Handler>,
 }
 
@@ -19,7 +19,7 @@ impl HyprlandGlobalShortcutsManagerV1Handler for DefaultHandler { }
 
 impl HyprlandGlobalShortcutsManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::HyprlandGlobalShortcutsManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::HyprlandGlobalShortcutsManagerV1;
     pub const INTERFACE_NAME: &str = "hyprland_global_shortcuts_manager_v1";
 }
 
@@ -218,10 +218,10 @@ pub trait HyprlandGlobalShortcutsManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for HyprlandGlobalShortcutsManagerV1 {
+impl ObjectPrivate for HyprlandGlobalShortcutsManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::HyprlandGlobalShortcutsManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::HyprlandGlobalShortcutsManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -404,8 +404,8 @@ impl ProxyPrivate for HyprlandGlobalShortcutsManagerV1 {
     }
 }
 
-impl Proxy for HyprlandGlobalShortcutsManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for HyprlandGlobalShortcutsManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

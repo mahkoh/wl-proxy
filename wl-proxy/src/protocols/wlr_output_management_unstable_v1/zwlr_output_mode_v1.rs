@@ -12,11 +12,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwlr_output_mode_v1 proxy.
+/// A zwlr_output_mode_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwlrOutputModeV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwlrOutputModeV1Handler>,
 }
 
@@ -26,7 +26,7 @@ impl ZwlrOutputModeV1Handler for DefaultHandler { }
 
 impl ZwlrOutputModeV1 {
     pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrOutputModeV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrOutputModeV1;
     pub const INTERFACE_NAME: &str = "zwlr_output_mode_v1";
 }
 
@@ -380,10 +380,10 @@ pub trait ZwlrOutputModeV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwlrOutputModeV1 {
+impl ObjectPrivate for ZwlrOutputModeV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrOutputModeV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrOutputModeV1, version),
             handler: Default::default(),
         })
     }
@@ -530,8 +530,8 @@ impl ProxyPrivate for ZwlrOutputModeV1 {
     }
 }
 
-impl Proxy for ZwlrOutputModeV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwlrOutputModeV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

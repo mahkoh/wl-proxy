@@ -10,11 +10,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zxdg_toplevel_decoration_v1 proxy.
+/// A zxdg_toplevel_decoration_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZxdgToplevelDecorationV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZxdgToplevelDecorationV1Handler>,
 }
 
@@ -24,7 +24,7 @@ impl ZxdgToplevelDecorationV1Handler for DefaultHandler { }
 
 impl ZxdgToplevelDecorationV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZxdgToplevelDecorationV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZxdgToplevelDecorationV1;
     pub const INTERFACE_NAME: &str = "zxdg_toplevel_decoration_v1";
 }
 
@@ -352,10 +352,10 @@ pub trait ZxdgToplevelDecorationV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZxdgToplevelDecorationV1 {
+impl ObjectPrivate for ZxdgToplevelDecorationV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZxdgToplevelDecorationV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZxdgToplevelDecorationV1, version),
             handler: Default::default(),
         })
     }
@@ -483,8 +483,8 @@ impl ProxyPrivate for ZxdgToplevelDecorationV1 {
     }
 }
 
-impl Proxy for ZxdgToplevelDecorationV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZxdgToplevelDecorationV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

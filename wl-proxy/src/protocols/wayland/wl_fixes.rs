@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_fixes proxy.
+/// A wl_fixes object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlFixes {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlFixesHandler>,
 }
 
@@ -20,7 +20,7 @@ impl WlFixesHandler for DefaultHandler { }
 
 impl WlFixes {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlFixes;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlFixes;
     pub const INTERFACE_NAME: &str = "wl_fixes";
 }
 
@@ -189,10 +189,10 @@ pub trait WlFixesHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlFixes {
+impl ObjectPrivate for WlFixes {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlFixes, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlFixes, version),
             handler: Default::default(),
         })
     }
@@ -238,7 +238,7 @@ impl ProxyPrivate for WlFixes {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlRegistry>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("registry", o.core().interface, ProxyInterface::WlRegistry));
+                    return Err(ObjectError::WrongObjectType("registry", o.core().interface, ObjectInterface::WlRegistry));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -289,8 +289,8 @@ impl ProxyPrivate for WlFixes {
     }
 }
 
-impl Proxy for WlFixes {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlFixes {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

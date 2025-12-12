@@ -8,11 +8,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_seat proxy.
+/// A wl_seat object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlSeat {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlSeatHandler>,
 }
 
@@ -22,7 +22,7 @@ impl WlSeatHandler for DefaultHandler { }
 
 impl WlSeat {
     pub const XML_VERSION: u32 = 10;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlSeat;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlSeat;
     pub const INTERFACE_NAME: &str = "wl_seat";
 }
 
@@ -569,10 +569,10 @@ pub trait WlSeatHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlSeat {
+impl ObjectPrivate for WlSeat {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlSeat, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlSeat, version),
             handler: Default::default(),
         })
     }
@@ -775,8 +775,8 @@ impl ProxyPrivate for WlSeat {
     }
 }
 
-impl Proxy for WlSeat {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlSeat {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

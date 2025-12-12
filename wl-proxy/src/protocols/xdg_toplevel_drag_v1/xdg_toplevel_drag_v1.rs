@@ -3,11 +3,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A xdg_toplevel_drag_v1 proxy.
+/// A xdg_toplevel_drag_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct XdgToplevelDragV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn XdgToplevelDragV1Handler>,
 }
 
@@ -17,7 +17,7 @@ impl XdgToplevelDragV1Handler for DefaultHandler { }
 
 impl XdgToplevelDragV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgToplevelDragV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgToplevelDragV1;
     pub const INTERFACE_NAME: &str = "xdg_toplevel_drag_v1";
 }
 
@@ -223,10 +223,10 @@ pub trait XdgToplevelDragV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for XdgToplevelDragV1 {
+impl ObjectPrivate for XdgToplevelDragV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgToplevelDragV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::XdgToplevelDragV1, version),
             handler: Default::default(),
         })
     }
@@ -276,7 +276,7 @@ impl ProxyPrivate for XdgToplevelDragV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<XdgToplevel>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("toplevel", o.core().interface, ProxyInterface::XdgToplevel));
+                    return Err(ObjectError::WrongObjectType("toplevel", o.core().interface, ObjectInterface::XdgToplevel));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -326,8 +326,8 @@ impl ProxyPrivate for XdgToplevelDragV1 {
     }
 }
 
-impl Proxy for XdgToplevelDragV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for XdgToplevelDragV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

@@ -66,11 +66,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_linux_dmabuf_v1 proxy.
+/// A zwp_linux_dmabuf_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpLinuxDmabufV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpLinuxDmabufV1Handler>,
 }
 
@@ -80,7 +80,7 @@ impl ZwpLinuxDmabufV1Handler for DefaultHandler { }
 
 impl ZwpLinuxDmabufV1 {
     pub const XML_VERSION: u32 = 5;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpLinuxDmabufV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpLinuxDmabufV1;
     pub const INTERFACE_NAME: &str = "zwp_linux_dmabuf_v1";
 }
 
@@ -635,10 +635,10 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpLinuxDmabufV1 {
+impl ObjectPrivate for ZwpLinuxDmabufV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpLinuxDmabufV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpLinuxDmabufV1, version),
             handler: Default::default(),
         })
     }
@@ -735,7 +735,7 @@ impl ProxyPrivate for ZwpLinuxDmabufV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -831,8 +831,8 @@ impl ProxyPrivate for ZwpLinuxDmabufV1 {
     }
 }
 
-impl Proxy for ZwpLinuxDmabufV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpLinuxDmabufV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

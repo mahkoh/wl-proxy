@@ -1,5 +1,5 @@
 use {
-    crate::{client::Client, object_error::ObjectError, protocols::ProxyInterface, state::State},
+    crate::{client::Client, object_error::ObjectError, protocols::ObjectInterface, state::State},
     std::{
         any::Any,
         cell::{Cell, Ref, RefCell, RefMut},
@@ -20,7 +20,7 @@ pub enum HandlerAccessError {
     InvalidType,
 }
 
-pub(crate) trait ProxyPrivate: Any {
+pub(crate) trait ObjectPrivate: Any {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self>
     where
         Self: Sized;
@@ -40,26 +40,26 @@ pub(crate) trait ProxyPrivate: Any {
 }
 
 #[expect(private_bounds)]
-pub trait Proxy: ProxyPrivate {
-    fn core(&self) -> &ProxyCore;
+pub trait Object: ObjectPrivate {
+    fn core(&self) -> &ObjectCore;
     fn unset_handler(&self);
     fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError>;
     fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError>;
 }
 
-pub trait ProxyUtils: Proxy {
+pub trait ObjectUtils: Object {
     fn state(&self) -> &Rc<State> {
         self.core().state()
     }
 
     fn create_child<P>(&self) -> Rc<P>
     where
-        P: Proxy,
+        P: Object,
     {
         self.core().create_child()
     }
 
-    fn interface(&self) -> ProxyInterface {
+    fn interface(&self) -> ObjectInterface {
         self.core().interface()
     }
 
@@ -98,15 +98,15 @@ pub trait ProxyUtils: Proxy {
     }
 }
 
-impl<T> ProxyUtils for T where T: Proxy + ?Sized {}
+impl<T> ObjectUtils for T where T: Object + ?Sized {}
 
-pub trait ProxyRcUtils {
+pub trait ObjectRcUtils {
     fn downcast<T>(self) -> Option<Rc<T>>
     where
         T: 'static;
 }
 
-impl ProxyRcUtils for Rc<dyn Proxy> {
+impl ObjectRcUtils for Rc<dyn Object> {
     fn downcast<T>(self) -> Option<Rc<T>>
     where
         T: 'static,
@@ -115,10 +115,10 @@ impl ProxyRcUtils for Rc<dyn Proxy> {
     }
 }
 
-pub struct ProxyCore {
+pub struct ObjectCore {
     pub(crate) state: Rc<State>,
-    proxy_id: u64,
-    pub(crate) interface: ProxyInterface,
+    id: u64,
+    pub(crate) interface: ObjectInterface,
     pub(crate) version: u32,
     pub(crate) zombie: Cell<bool>,
     pub(crate) server_obj_id: Cell<Option<u32>>,
@@ -153,11 +153,11 @@ pub enum IdError {
 
 const MIN_SERVER_ID: u32 = 0xff000000;
 
-impl ProxyCore {
+impl ObjectCore {
     pub(crate) fn new(
         state: &Rc<State>,
-        slf: Weak<dyn Proxy>,
-        interface: ProxyInterface,
+        slf: Weak<dyn Object>,
+        interface: ObjectInterface,
         version: u32,
     ) -> Self {
         let proxy_id = state.next_proxy_id.get();
@@ -165,7 +165,7 @@ impl ProxyCore {
         state.all_proxies.borrow_mut().insert(proxy_id, slf);
         Self {
             state: state.clone(),
-            proxy_id,
+            id: proxy_id,
             interface,
             version,
             zombie: Default::default(),
@@ -183,7 +183,7 @@ impl ProxyCore {
         Ok(())
     }
 
-    pub(crate) fn generate_server_id(&self, slf: Rc<dyn Proxy>) -> Result<(), IdError> {
+    pub(crate) fn generate_server_id(&self, slf: Rc<dyn Object>) -> Result<(), IdError> {
         self.check_server_destroyed()?;
         if let Some(id) = self.server_obj_id.get() {
             return Err(IdError::HasServerId(id));
@@ -198,7 +198,7 @@ impl ProxyCore {
         Ok(())
     }
 
-    pub(crate) fn set_server_id(&self, id: u32, slf: Rc<dyn Proxy>) -> Result<(), IdError> {
+    pub(crate) fn set_server_id(&self, id: u32, slf: Rc<dyn Object>) -> Result<(), IdError> {
         if id < MIN_SERVER_ID {
             return Err(IdError::NotServerId(id));
         }
@@ -208,7 +208,7 @@ impl ProxyCore {
     pub(crate) fn set_server_id_unchecked(
         &self,
         id: u32,
-        slf: Rc<dyn Proxy>,
+        slf: Rc<dyn Object>,
     ) -> Result<(), IdError> {
         self.check_server_destroyed()?;
         if let Some(id) = self.server_obj_id.get() {
@@ -233,7 +233,7 @@ impl ProxyCore {
     pub(crate) fn generate_client_id(
         &self,
         client: &Rc<Client>,
-        slf: Rc<dyn Proxy>,
+        slf: Rc<dyn Object>,
     ) -> Result<(), IdError> {
         self.check_client_destroyed(client)?;
         if let Some(id) = self.client_obj_id.get() {
@@ -253,7 +253,7 @@ impl ProxyCore {
         &self,
         client: &Rc<Client>,
         id: u32,
-        slf: Rc<dyn Proxy>,
+        slf: Rc<dyn Object>,
     ) -> Result<(), IdError> {
         self.check_client_destroyed(client)?;
         if id >= MIN_SERVER_ID {
@@ -302,7 +302,7 @@ impl ProxyCore {
 
     pub fn create_child<P>(&self) -> Rc<P>
     where
-        P: Proxy,
+        P: Object,
     {
         self.state.create_proxy::<P>(self.version)
     }
@@ -311,7 +311,7 @@ impl ProxyCore {
         &self.state
     }
 
-    pub fn interface(&self) -> ProxyInterface {
+    pub fn interface(&self) -> ObjectInterface {
         self.interface
     }
 
@@ -324,8 +324,8 @@ impl ProxyCore {
     }
 }
 
-impl Drop for ProxyCore {
+impl Drop for ObjectCore {
     fn drop(&mut self) {
-        self.state.all_proxies.borrow_mut().remove(&self.proxy_id);
+        self.state.all_proxies.borrow_mut().remove(&self.id);
     }
 }

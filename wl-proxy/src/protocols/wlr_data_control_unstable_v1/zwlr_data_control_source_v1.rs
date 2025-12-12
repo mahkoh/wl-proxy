@@ -8,11 +8,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwlr_data_control_source_v1 proxy.
+/// A zwlr_data_control_source_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwlrDataControlSourceV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwlrDataControlSourceV1Handler>,
 }
 
@@ -22,7 +22,7 @@ impl ZwlrDataControlSourceV1Handler for DefaultHandler { }
 
 impl ZwlrDataControlSourceV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrDataControlSourceV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrDataControlSourceV1;
     pub const INTERFACE_NAME: &str = "zwlr_data_control_source_v1";
 }
 
@@ -319,10 +319,10 @@ pub trait ZwlrDataControlSourceV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwlrDataControlSourceV1 {
+impl ObjectPrivate for ZwlrDataControlSourceV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrDataControlSourceV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrDataControlSourceV1, version),
             handler: Default::default(),
         })
     }
@@ -494,8 +494,8 @@ impl ProxyPrivate for ZwlrDataControlSourceV1 {
     }
 }
 
-impl Proxy for ZwlrDataControlSourceV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwlrDataControlSourceV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

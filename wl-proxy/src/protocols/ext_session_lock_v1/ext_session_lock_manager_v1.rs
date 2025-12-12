@@ -5,11 +5,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A ext_session_lock_manager_v1 proxy.
+/// A ext_session_lock_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ExtSessionLockManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ExtSessionLockManagerV1Handler>,
 }
 
@@ -19,7 +19,7 @@ impl ExtSessionLockManagerV1Handler for DefaultHandler { }
 
 impl ExtSessionLockManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtSessionLockManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtSessionLockManagerV1;
     pub const INTERFACE_NAME: &str = "ext_session_lock_manager_v1";
 }
 
@@ -178,10 +178,10 @@ pub trait ExtSessionLockManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ExtSessionLockManagerV1 {
+impl ObjectPrivate for ExtSessionLockManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtSessionLockManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtSessionLockManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -273,8 +273,8 @@ impl ProxyPrivate for ExtSessionLockManagerV1 {
     }
 }
 
-impl Proxy for ExtSessionLockManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ExtSessionLockManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

@@ -25,11 +25,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A xdg_toplevel proxy.
+/// A xdg_toplevel object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct XdgToplevel {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn XdgToplevelHandler>,
 }
 
@@ -39,7 +39,7 @@ impl XdgToplevelHandler for DefaultHandler { }
 
 impl XdgToplevel {
     pub const XML_VERSION: u32 = 7;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgToplevel;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgToplevel;
     pub const INTERFACE_NAME: &str = "xdg_toplevel";
 }
 
@@ -1930,10 +1930,10 @@ pub trait XdgToplevelHandler: Any {
     }
 }
 
-impl ProxyPrivate for XdgToplevel {
+impl ObjectPrivate for XdgToplevel {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgToplevel, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::XdgToplevel, version),
             handler: Default::default(),
         })
     }
@@ -1982,7 +1982,7 @@ impl ProxyPrivate for XdgToplevel {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<XdgToplevel>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("parent", o.core().interface, ProxyInterface::XdgToplevel));
+                        return Err(ObjectError::WrongObjectType("parent", o.core().interface, ObjectInterface::XdgToplevel));
                     };
                     Some(arg0)
                 };
@@ -2094,7 +2094,7 @@ impl ProxyPrivate for XdgToplevel {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -2122,7 +2122,7 @@ impl ProxyPrivate for XdgToplevel {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -2152,7 +2152,7 @@ impl ProxyPrivate for XdgToplevel {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -2256,7 +2256,7 @@ impl ProxyPrivate for XdgToplevel {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlOutput>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                     };
                     Some(arg0)
                 };
@@ -2468,8 +2468,8 @@ impl ProxyPrivate for XdgToplevel {
     }
 }
 
-impl Proxy for XdgToplevel {
-    fn core(&self) -> &ProxyCore {
+impl Object for XdgToplevel {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

@@ -12,11 +12,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_touch proxy.
+/// A wl_touch object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlTouch {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlTouchHandler>,
 }
 
@@ -26,7 +26,7 @@ impl WlTouchHandler for DefaultHandler { }
 
 impl WlTouch {
     pub const XML_VERSION: u32 = 10;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlTouch;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlTouch;
     pub const INTERFACE_NAME: &str = "wl_touch";
 }
 
@@ -819,10 +819,10 @@ pub trait WlTouchHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlTouch {
+impl ObjectPrivate for WlTouch {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlTouch, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlTouch, version),
             handler: Default::default(),
         })
     }
@@ -893,7 +893,7 @@ impl ProxyPrivate for WlTouch {
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = self.core.state.server.lookup(arg2_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg2 = &arg2;
                 if let Some(handler) = handler {
@@ -1056,8 +1056,8 @@ impl ProxyPrivate for WlTouch {
     }
 }
 
-impl Proxy for WlTouch {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlTouch {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

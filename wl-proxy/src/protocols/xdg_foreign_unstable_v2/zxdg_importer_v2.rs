@@ -7,11 +7,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zxdg_importer_v2 proxy.
+/// A zxdg_importer_v2 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZxdgImporterV2 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZxdgImporterV2Handler>,
 }
 
@@ -21,7 +21,7 @@ impl ZxdgImporterV2Handler for DefaultHandler { }
 
 impl ZxdgImporterV2 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZxdgImporterV2;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZxdgImporterV2;
     pub const INTERFACE_NAME: &str = "zxdg_importer_v2";
 }
 
@@ -192,10 +192,10 @@ pub trait ZxdgImporterV2Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZxdgImporterV2 {
+impl ObjectPrivate for ZxdgImporterV2 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZxdgImporterV2, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZxdgImporterV2, version),
             handler: Default::default(),
         })
     }
@@ -312,8 +312,8 @@ impl ProxyPrivate for ZxdgImporterV2 {
     }
 }
 
-impl Proxy for ZxdgImporterV2 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZxdgImporterV2 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

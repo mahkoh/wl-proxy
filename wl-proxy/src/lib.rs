@@ -12,8 +12,8 @@ pub mod object_error;
 mod protocol_helpers;
 #[rustfmt::skip]
 pub mod protocols;
-pub mod protocol_filter;
-pub mod proxy;
+pub mod global_filter;
+pub mod object;
 pub mod simple;
 pub mod state;
 mod trans;

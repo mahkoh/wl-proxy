@@ -10,11 +10,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_image_description_reference_v1 proxy.
+/// A wp_image_description_reference_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpImageDescriptionReferenceV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpImageDescriptionReferenceV1Handler>,
 }
 
@@ -24,7 +24,7 @@ impl WpImageDescriptionReferenceV1Handler for DefaultHandler { }
 
 impl WpImageDescriptionReferenceV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpImageDescriptionReferenceV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpImageDescriptionReferenceV1;
     pub const INTERFACE_NAME: &str = "wp_image_description_reference_v1";
 }
 
@@ -108,10 +108,10 @@ pub trait WpImageDescriptionReferenceV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for WpImageDescriptionReferenceV1 {
+impl ObjectPrivate for WpImageDescriptionReferenceV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpImageDescriptionReferenceV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpImageDescriptionReferenceV1, version),
             handler: Default::default(),
         })
     }
@@ -179,8 +179,8 @@ impl ProxyPrivate for WpImageDescriptionReferenceV1 {
     }
 }
 
-impl Proxy for WpImageDescriptionReferenceV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpImageDescriptionReferenceV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

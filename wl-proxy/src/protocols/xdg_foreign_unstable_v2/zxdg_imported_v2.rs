@@ -7,11 +7,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zxdg_imported_v2 proxy.
+/// A zxdg_imported_v2 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZxdgImportedV2 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZxdgImportedV2Handler>,
 }
 
@@ -21,7 +21,7 @@ impl ZxdgImportedV2Handler for DefaultHandler { }
 
 impl ZxdgImportedV2 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZxdgImportedV2;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZxdgImportedV2;
     pub const INTERFACE_NAME: &str = "zxdg_imported_v2";
 }
 
@@ -249,10 +249,10 @@ pub trait ZxdgImportedV2Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZxdgImportedV2 {
+impl ObjectPrivate for ZxdgImportedV2 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZxdgImportedV2, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZxdgImportedV2, version),
             handler: Default::default(),
         })
     }
@@ -298,7 +298,7 @@ impl ProxyPrivate for ZxdgImportedV2 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -368,8 +368,8 @@ impl ProxyPrivate for ZxdgImportedV2 {
     }
 }
 
-impl Proxy for ZxdgImportedV2 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZxdgImportedV2 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

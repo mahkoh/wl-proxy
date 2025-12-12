@@ -24,11 +24,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_tablet_tool_v2 proxy.
+/// A zwp_tablet_tool_v2 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpTabletToolV2 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpTabletToolV2Handler>,
 }
 
@@ -38,7 +38,7 @@ impl ZwpTabletToolV2Handler for DefaultHandler { }
 
 impl ZwpTabletToolV2 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpTabletToolV2;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpTabletToolV2;
     pub const INTERFACE_NAME: &str = "zwp_tablet_tool_v2";
 }
 
@@ -1921,10 +1921,10 @@ pub trait ZwpTabletToolV2Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpTabletToolV2 {
+impl ObjectPrivate for ZwpTabletToolV2 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpTabletToolV2, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpTabletToolV2, version),
             handler: Default::default(),
         })
     }
@@ -1961,7 +1961,7 @@ impl ProxyPrivate for ZwpTabletToolV2 {
                     };
                     let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                         let o = client.endpoint.lookup(arg1_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                        return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                     };
                     Some(arg1)
                 };
@@ -2134,7 +2134,7 @@ impl ProxyPrivate for ZwpTabletToolV2 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<ZwpTabletV2>() else {
                     let o = self.core.state.server.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("tablet", o.core().interface, ProxyInterface::ZwpTabletV2));
+                    return Err(ObjectError::WrongObjectType("tablet", o.core().interface, ObjectInterface::ZwpTabletV2));
                 };
                 let arg2_id = arg2;
                 let Some(arg2) = self.core.state.server.lookup(arg2_id) else {
@@ -2142,7 +2142,7 @@ impl ProxyPrivate for ZwpTabletToolV2 {
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = self.core.state.server.lookup(arg2_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg1 = &arg1;
                 let arg2 = &arg2;
@@ -2424,8 +2424,8 @@ impl ProxyPrivate for ZwpTabletToolV2 {
     }
 }
 
-impl Proxy for ZwpTabletToolV2 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpTabletToolV2 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

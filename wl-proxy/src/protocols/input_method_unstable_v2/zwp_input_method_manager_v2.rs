@@ -9,11 +9,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_input_method_manager_v2 proxy.
+/// A zwp_input_method_manager_v2 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpInputMethodManagerV2 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpInputMethodManagerV2Handler>,
 }
 
@@ -23,7 +23,7 @@ impl ZwpInputMethodManagerV2Handler for DefaultHandler { }
 
 impl ZwpInputMethodManagerV2 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpInputMethodManagerV2;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpInputMethodManagerV2;
     pub const INTERFACE_NAME: &str = "zwp_input_method_manager_v2";
 }
 
@@ -198,10 +198,10 @@ pub trait ZwpInputMethodManagerV2Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpInputMethodManagerV2 {
+impl ObjectPrivate for ZwpInputMethodManagerV2 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpInputMethodManagerV2, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpInputMethodManagerV2, version),
             handler: Default::default(),
         })
     }
@@ -231,7 +231,7 @@ impl ProxyPrivate for ZwpInputMethodManagerV2 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg1_id = arg1;
                 let arg1 = ZwpInputMethodV2::new(&self.core.state, self.core.version);
@@ -303,8 +303,8 @@ impl ProxyPrivate for ZwpInputMethodManagerV2 {
     }
 }
 
-impl Proxy for ZwpInputMethodManagerV2 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpInputMethodManagerV2 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

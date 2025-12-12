@@ -13,11 +13,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_shm proxy.
+/// A wl_shm object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlShm {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlShmHandler>,
 }
 
@@ -27,7 +27,7 @@ impl WlShmHandler for DefaultHandler { }
 
 impl WlShm {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlShm;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlShm;
     pub const INTERFACE_NAME: &str = "wl_shm";
 }
 
@@ -285,10 +285,10 @@ pub trait WlShmHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlShm {
+impl ObjectPrivate for WlShm {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlShm, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlShm, version),
             handler: Default::default(),
         })
     }
@@ -409,8 +409,8 @@ impl ProxyPrivate for WlShm {
     }
 }
 
-impl Proxy for WlShm {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlShm {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

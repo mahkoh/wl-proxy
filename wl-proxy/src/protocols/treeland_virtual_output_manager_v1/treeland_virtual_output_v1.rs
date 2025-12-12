@@ -5,11 +5,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A treeland_virtual_output_v1 proxy.
+/// A treeland_virtual_output_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct TreelandVirtualOutputV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn TreelandVirtualOutputV1Handler>,
 }
 
@@ -19,7 +19,7 @@ impl TreelandVirtualOutputV1Handler for DefaultHandler { }
 
 impl TreelandVirtualOutputV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandVirtualOutputV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandVirtualOutputV1;
     pub const INTERFACE_NAME: &str = "treeland_virtual_output_v1";
 }
 
@@ -279,10 +279,10 @@ pub trait TreelandVirtualOutputV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for TreelandVirtualOutputV1 {
+impl ObjectPrivate for TreelandVirtualOutputV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::TreelandVirtualOutputV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandVirtualOutputV1, version),
             handler: Default::default(),
         })
     }
@@ -451,8 +451,8 @@ impl ProxyPrivate for TreelandVirtualOutputV1 {
     }
 }
 
-impl Proxy for TreelandVirtualOutputV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for TreelandVirtualOutputV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

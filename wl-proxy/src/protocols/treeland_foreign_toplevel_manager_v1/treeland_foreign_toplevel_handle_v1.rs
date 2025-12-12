@@ -11,11 +11,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A treeland_foreign_toplevel_handle_v1 proxy.
+/// A treeland_foreign_toplevel_handle_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct TreelandForeignToplevelHandleV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn TreelandForeignToplevelHandleV1Handler>,
 }
 
@@ -25,7 +25,7 @@ impl TreelandForeignToplevelHandleV1Handler for DefaultHandler { }
 
 impl TreelandForeignToplevelHandleV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandForeignToplevelHandleV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandForeignToplevelHandleV1;
     pub const INTERFACE_NAME: &str = "treeland_foreign_toplevel_handle_v1";
 }
 
@@ -1498,10 +1498,10 @@ pub trait TreelandForeignToplevelHandleV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for TreelandForeignToplevelHandleV1 {
+impl ObjectPrivate for TreelandForeignToplevelHandleV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::TreelandForeignToplevelHandleV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandForeignToplevelHandleV1, version),
             handler: Default::default(),
         })
     }
@@ -1594,7 +1594,7 @@ impl ProxyPrivate for TreelandForeignToplevelHandleV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1645,7 +1645,7 @@ impl ProxyPrivate for TreelandForeignToplevelHandleV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1692,7 +1692,7 @@ impl ProxyPrivate for TreelandForeignToplevelHandleV1 {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlOutput>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                     };
                     Some(arg0)
                 };
@@ -1868,7 +1868,7 @@ impl ProxyPrivate for TreelandForeignToplevelHandleV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = self.core.state.server.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1895,7 +1895,7 @@ impl ProxyPrivate for TreelandForeignToplevelHandleV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = self.core.state.server.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1988,7 +1988,7 @@ impl ProxyPrivate for TreelandForeignToplevelHandleV1 {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<TreelandForeignToplevelHandleV1>() else {
                         let o = self.core.state.server.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("parent", o.core().interface, ProxyInterface::TreelandForeignToplevelHandleV1));
+                        return Err(ObjectError::WrongObjectType("parent", o.core().interface, ObjectInterface::TreelandForeignToplevelHandleV1));
                     };
                     Some(arg0)
                 };
@@ -2044,8 +2044,8 @@ impl ProxyPrivate for TreelandForeignToplevelHandleV1 {
     }
 }
 
-impl Proxy for TreelandForeignToplevelHandleV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for TreelandForeignToplevelHandleV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

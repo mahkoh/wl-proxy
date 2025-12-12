@@ -10,11 +10,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_output proxy.
+/// A wl_output object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlOutput {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlOutputHandler>,
 }
 
@@ -24,7 +24,7 @@ impl WlOutputHandler for DefaultHandler { }
 
 impl WlOutput {
     pub const XML_VERSION: u32 = 4;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlOutput;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlOutput;
     pub const INTERFACE_NAME: &str = "wl_output";
 }
 
@@ -823,10 +823,10 @@ pub trait WlOutputHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlOutput {
+impl ObjectPrivate for WlOutput {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlOutput, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlOutput, version),
             handler: Default::default(),
         })
     }
@@ -1132,8 +1132,8 @@ impl ProxyPrivate for WlOutput {
     }
 }
 
-impl Proxy for WlOutput {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlOutput {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

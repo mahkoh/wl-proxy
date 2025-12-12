@@ -21,11 +21,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A jay_tray_item_v1 proxy.
+/// A jay_tray_item_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct JayTrayItemV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn JayTrayItemV1Handler>,
 }
 
@@ -35,7 +35,7 @@ impl JayTrayItemV1Handler for DefaultHandler { }
 
 impl JayTrayItemV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::JayTrayItemV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::JayTrayItemV1;
     pub const INTERFACE_NAME: &str = "jay_tray_item_v1";
 }
 
@@ -686,10 +686,10 @@ pub trait JayTrayItemV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for JayTrayItemV1 {
+impl ObjectPrivate for JayTrayItemV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::JayTrayItemV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::JayTrayItemV1, version),
             handler: Default::default(),
         })
     }
@@ -757,7 +757,7 @@ impl ProxyPrivate for JayTrayItemV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<XdgPopup>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("popup", o.core().interface, ProxyInterface::XdgPopup));
+                    return Err(ObjectError::WrongObjectType("popup", o.core().interface, ObjectInterface::XdgPopup));
                 };
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
@@ -765,7 +765,7 @@ impl ProxyPrivate for JayTrayItemV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -901,8 +901,8 @@ impl ProxyPrivate for JayTrayItemV1 {
     }
 }
 
-impl Proxy for JayTrayItemV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for JayTrayItemV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

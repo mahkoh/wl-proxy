@@ -12,11 +12,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_input_popup_surface_v2 proxy.
+/// A zwp_input_popup_surface_v2 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpInputPopupSurfaceV2 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpInputPopupSurfaceV2Handler>,
 }
 
@@ -26,7 +26,7 @@ impl ZwpInputPopupSurfaceV2Handler for DefaultHandler { }
 
 impl ZwpInputPopupSurfaceV2 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpInputPopupSurfaceV2;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpInputPopupSurfaceV2;
     pub const INTERFACE_NAME: &str = "zwp_input_popup_surface_v2";
 }
 
@@ -205,10 +205,10 @@ pub trait ZwpInputPopupSurfaceV2Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpInputPopupSurfaceV2 {
+impl ObjectPrivate for ZwpInputPopupSurfaceV2 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpInputPopupSurfaceV2, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpInputPopupSurfaceV2, version),
             handler: Default::default(),
         })
     }
@@ -305,8 +305,8 @@ impl ProxyPrivate for ZwpInputPopupSurfaceV2 {
     }
 }
 
-impl Proxy for ZwpInputPopupSurfaceV2 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpInputPopupSurfaceV2 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

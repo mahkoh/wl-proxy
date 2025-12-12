@@ -26,11 +26,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A ext_idle_notification_v1 proxy.
+/// A ext_idle_notification_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ExtIdleNotificationV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ExtIdleNotificationV1Handler>,
 }
 
@@ -40,7 +40,7 @@ impl ExtIdleNotificationV1Handler for DefaultHandler { }
 
 impl ExtIdleNotificationV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtIdleNotificationV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtIdleNotificationV1;
     pub const INTERFACE_NAME: &str = "ext_idle_notification_v1";
 }
 
@@ -244,10 +244,10 @@ pub trait ExtIdleNotificationV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ExtIdleNotificationV1 {
+impl ObjectPrivate for ExtIdleNotificationV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtIdleNotificationV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtIdleNotificationV1, version),
             handler: Default::default(),
         })
     }
@@ -352,8 +352,8 @@ impl ProxyPrivate for ExtIdleNotificationV1 {
     }
 }
 
-impl Proxy for ExtIdleNotificationV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ExtIdleNotificationV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

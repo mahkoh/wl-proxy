@@ -13,11 +13,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_shell proxy.
+/// A wl_shell object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlShell {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlShellHandler>,
 }
 
@@ -27,7 +27,7 @@ impl WlShellHandler for DefaultHandler { }
 
 impl WlShell {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlShell;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlShell;
     pub const INTERFACE_NAME: &str = "wl_shell";
 }
 
@@ -154,10 +154,10 @@ pub trait WlShellHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlShell {
+impl ObjectPrivate for WlShell {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlShell, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlShell, version),
             handler: Default::default(),
         })
     }
@@ -191,7 +191,7 @@ impl ProxyPrivate for WlShell {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -241,8 +241,8 @@ impl ProxyPrivate for WlShell {
     }
 }
 
-impl Proxy for WlShell {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlShell {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

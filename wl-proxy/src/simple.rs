@@ -3,7 +3,7 @@ use {
         acceptor::{Acceptor, AcceptorError},
         client::ClientHandler,
         protocols::wayland::wl_display::WlDisplayHandler,
-        state::{Destructor, StateBuilder, StateError},
+        state::{Destructor, StateBuilder},
     },
     error_reporter::Report,
     std::{
@@ -82,12 +82,9 @@ impl SimpleServer {
                         });
                         let handler = display_handler();
                         client.display.set_handler(handler);
-                        loop {
+                        while state.is_not_destroyed() {
                             if let Err(e) = state.dispatch_blocking() {
-                                if !matches!(e, StateError::Destroyed) {
-                                    log::error!("could not dispatch state: {}", e);
-                                }
-                                return;
+                                log::error!("could not dispatch state: {}", e);
                             }
                         }
                     });

@@ -9,11 +9,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A hyprland_toplevel_window_mapping_handle_v1 proxy.
+/// A hyprland_toplevel_window_mapping_handle_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct HyprlandToplevelWindowMappingHandleV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn HyprlandToplevelWindowMappingHandleV1Handler>,
 }
 
@@ -23,7 +23,7 @@ impl HyprlandToplevelWindowMappingHandleV1Handler for DefaultHandler { }
 
 impl HyprlandToplevelWindowMappingHandleV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::HyprlandToplevelWindowMappingHandleV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::HyprlandToplevelWindowMappingHandleV1;
     pub const INTERFACE_NAME: &str = "hyprland_toplevel_window_mapping_handle_v1";
 }
 
@@ -242,10 +242,10 @@ pub trait HyprlandToplevelWindowMappingHandleV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for HyprlandToplevelWindowMappingHandleV1 {
+impl ObjectPrivate for HyprlandToplevelWindowMappingHandleV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::HyprlandToplevelWindowMappingHandleV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::HyprlandToplevelWindowMappingHandleV1, version),
             handler: Default::default(),
         })
     }
@@ -353,8 +353,8 @@ impl ProxyPrivate for HyprlandToplevelWindowMappingHandleV1 {
     }
 }
 
-impl Proxy for HyprlandToplevelWindowMappingHandleV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for HyprlandToplevelWindowMappingHandleV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

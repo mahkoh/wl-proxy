@@ -10,11 +10,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A xdg_system_bell_v1 proxy.
+/// A xdg_system_bell_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct XdgSystemBellV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn XdgSystemBellV1Handler>,
 }
 
@@ -24,7 +24,7 @@ impl XdgSystemBellV1Handler for DefaultHandler { }
 
 impl XdgSystemBellV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgSystemBellV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgSystemBellV1;
     pub const INTERFACE_NAME: &str = "xdg_system_bell_v1";
 }
 
@@ -199,10 +199,10 @@ pub trait XdgSystemBellV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for XdgSystemBellV1 {
+impl ObjectPrivate for XdgSystemBellV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgSystemBellV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::XdgSystemBellV1, version),
             handler: Default::default(),
         })
     }
@@ -251,7 +251,7 @@ impl ProxyPrivate for XdgSystemBellV1 {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                        return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                     };
                     Some(arg0)
                 };
@@ -303,8 +303,8 @@ impl ProxyPrivate for XdgSystemBellV1 {
     }
 }
 
-impl Proxy for XdgSystemBellV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for XdgSystemBellV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

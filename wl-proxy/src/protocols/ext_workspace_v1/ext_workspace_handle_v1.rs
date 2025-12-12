@@ -20,11 +20,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A ext_workspace_handle_v1 proxy.
+/// A ext_workspace_handle_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ExtWorkspaceHandleV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ExtWorkspaceHandleV1Handler>,
 }
 
@@ -34,7 +34,7 @@ impl ExtWorkspaceHandleV1Handler for DefaultHandler { }
 
 impl ExtWorkspaceHandleV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtWorkspaceHandleV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtWorkspaceHandleV1;
     pub const INTERFACE_NAME: &str = "ext_workspace_handle_v1";
 }
 
@@ -892,10 +892,10 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ExtWorkspaceHandleV1 {
+impl ObjectPrivate for ExtWorkspaceHandleV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtWorkspaceHandleV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtWorkspaceHandleV1, version),
             handler: Default::default(),
         })
     }
@@ -973,7 +973,7 @@ impl ProxyPrivate for ExtWorkspaceHandleV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ExtWorkspaceGroupHandleV1>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("workspace_group", o.core().interface, ProxyInterface::ExtWorkspaceGroupHandleV1));
+                    return Err(ObjectError::WrongObjectType("workspace_group", o.core().interface, ObjectInterface::ExtWorkspaceGroupHandleV1));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1214,8 +1214,8 @@ impl ProxyPrivate for ExtWorkspaceHandleV1 {
     }
 }
 
-impl Proxy for ExtWorkspaceHandleV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ExtWorkspaceHandleV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

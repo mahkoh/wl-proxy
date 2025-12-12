@@ -14,11 +14,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_color_representation_surface_v1 proxy.
+/// A wp_color_representation_surface_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpColorRepresentationSurfaceV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpColorRepresentationSurfaceV1Handler>,
 }
 
@@ -28,7 +28,7 @@ impl WpColorRepresentationSurfaceV1Handler for DefaultHandler { }
 
 impl WpColorRepresentationSurfaceV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpColorRepresentationSurfaceV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpColorRepresentationSurfaceV1;
     pub const INTERFACE_NAME: &str = "wp_color_representation_surface_v1";
 }
 
@@ -430,10 +430,10 @@ pub trait WpColorRepresentationSurfaceV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for WpColorRepresentationSurfaceV1 {
+impl ObjectPrivate for WpColorRepresentationSurfaceV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpColorRepresentationSurfaceV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpColorRepresentationSurfaceV1, version),
             handler: Default::default(),
         })
     }
@@ -563,8 +563,8 @@ impl ProxyPrivate for WpColorRepresentationSurfaceV1 {
     }
 }
 
-impl Proxy for WpColorRepresentationSurfaceV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpColorRepresentationSurfaceV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

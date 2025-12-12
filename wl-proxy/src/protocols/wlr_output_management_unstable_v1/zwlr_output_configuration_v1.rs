@@ -14,11 +14,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwlr_output_configuration_v1 proxy.
+/// A zwlr_output_configuration_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwlrOutputConfigurationV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwlrOutputConfigurationV1Handler>,
 }
 
@@ -28,7 +28,7 @@ impl ZwlrOutputConfigurationV1Handler for DefaultHandler { }
 
 impl ZwlrOutputConfigurationV1 {
     pub const XML_VERSION: u32 = 4;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrOutputConfigurationV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrOutputConfigurationV1;
     pub const INTERFACE_NAME: &str = "zwlr_output_configuration_v1";
 }
 
@@ -611,10 +611,10 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwlrOutputConfigurationV1 {
+impl ObjectPrivate for ZwlrOutputConfigurationV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrOutputConfigurationV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrOutputConfigurationV1, version),
             handler: Default::default(),
         })
     }
@@ -648,7 +648,7 @@ impl ProxyPrivate for ZwlrOutputConfigurationV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<ZwlrOutputHeadV1>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("head", o.core().interface, ProxyInterface::ZwlrOutputHeadV1));
+                    return Err(ObjectError::WrongObjectType("head", o.core().interface, ObjectInterface::ZwlrOutputHeadV1));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -676,7 +676,7 @@ impl ProxyPrivate for ZwlrOutputConfigurationV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ZwlrOutputHeadV1>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("head", o.core().interface, ProxyInterface::ZwlrOutputHeadV1));
+                    return Err(ObjectError::WrongObjectType("head", o.core().interface, ObjectInterface::ZwlrOutputHeadV1));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -832,8 +832,8 @@ impl ProxyPrivate for ZwlrOutputConfigurationV1 {
     }
 }
 
-impl Proxy for ZwlrOutputConfigurationV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwlrOutputConfigurationV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

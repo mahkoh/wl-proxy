@@ -13,11 +13,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A xdg_dialog_v1 proxy.
+/// A xdg_dialog_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct XdgDialogV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn XdgDialogV1Handler>,
 }
 
@@ -27,7 +27,7 @@ impl XdgDialogV1Handler for DefaultHandler { }
 
 impl XdgDialogV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgDialogV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgDialogV1;
     pub const INTERFACE_NAME: &str = "xdg_dialog_v1";
 }
 
@@ -233,10 +233,10 @@ pub trait XdgDialogV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for XdgDialogV1 {
+impl ObjectPrivate for XdgDialogV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgDialogV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::XdgDialogV1, version),
             handler: Default::default(),
         })
     }
@@ -338,8 +338,8 @@ impl ProxyPrivate for XdgDialogV1 {
     }
 }
 
-impl Proxy for XdgDialogV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for XdgDialogV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

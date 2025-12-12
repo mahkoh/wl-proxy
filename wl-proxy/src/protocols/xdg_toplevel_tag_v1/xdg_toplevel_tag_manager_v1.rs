@@ -15,11 +15,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A xdg_toplevel_tag_manager_v1 proxy.
+/// A xdg_toplevel_tag_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct XdgToplevelTagManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn XdgToplevelTagManagerV1Handler>,
 }
 
@@ -29,7 +29,7 @@ impl XdgToplevelTagManagerV1Handler for DefaultHandler { }
 
 impl XdgToplevelTagManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgToplevelTagManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgToplevelTagManagerV1;
     pub const INTERFACE_NAME: &str = "xdg_toplevel_tag_manager_v1";
 }
 
@@ -317,10 +317,10 @@ pub trait XdgToplevelTagManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for XdgToplevelTagManagerV1 {
+impl ObjectPrivate for XdgToplevelTagManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgToplevelTagManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::XdgToplevelTagManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -391,7 +391,7 @@ impl ProxyPrivate for XdgToplevelTagManagerV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<XdgToplevel>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("toplevel", o.core().interface, ProxyInterface::XdgToplevel));
+                    return Err(ObjectError::WrongObjectType("toplevel", o.core().interface, ObjectInterface::XdgToplevel));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -443,7 +443,7 @@ impl ProxyPrivate for XdgToplevelTagManagerV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<XdgToplevel>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("toplevel", o.core().interface, ProxyInterface::XdgToplevel));
+                    return Err(ObjectError::WrongObjectType("toplevel", o.core().interface, ObjectInterface::XdgToplevel));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -494,8 +494,8 @@ impl ProxyPrivate for XdgToplevelTagManagerV1 {
     }
 }
 
-impl Proxy for XdgToplevelTagManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for XdgToplevelTagManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

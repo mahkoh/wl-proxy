@@ -8,11 +8,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A ext_idle_notifier_v1 proxy.
+/// A ext_idle_notifier_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ExtIdleNotifierV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ExtIdleNotifierV1Handler>,
 }
 
@@ -22,7 +22,7 @@ impl ExtIdleNotifierV1Handler for DefaultHandler { }
 
 impl ExtIdleNotifierV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtIdleNotifierV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtIdleNotifierV1;
     pub const INTERFACE_NAME: &str = "ext_idle_notifier_v1";
 }
 
@@ -328,10 +328,10 @@ pub trait ExtIdleNotifierV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ExtIdleNotifierV1 {
+impl ObjectPrivate for ExtIdleNotifierV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtIdleNotifierV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtIdleNotifierV1, version),
             handler: Default::default(),
         })
     }
@@ -383,7 +383,7 @@ impl ProxyPrivate for ExtIdleNotifierV1 {
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg2_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg0 = &arg0;
                 let arg2 = &arg2;
@@ -417,7 +417,7 @@ impl ProxyPrivate for ExtIdleNotifierV1 {
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg2_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg0 = &arg0;
                 let arg2 = &arg2;
@@ -469,8 +469,8 @@ impl ProxyPrivate for ExtIdleNotifierV1 {
     }
 }
 
-impl Proxy for ExtIdleNotifierV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ExtIdleNotifierV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

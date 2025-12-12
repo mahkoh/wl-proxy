@@ -11,11 +11,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_color_manager_v1 proxy.
+/// A wp_color_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpColorManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpColorManagerV1Handler>,
 }
 
@@ -25,7 +25,7 @@ impl WpColorManagerV1Handler for DefaultHandler { }
 
 impl WpColorManagerV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpColorManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpColorManagerV1;
     pub const INTERFACE_NAME: &str = "wp_color_manager_v1";
 }
 
@@ -1180,10 +1180,10 @@ pub trait WpColorManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for WpColorManagerV1 {
+impl ObjectPrivate for WpColorManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpColorManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpColorManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -1234,7 +1234,7 @@ impl ProxyPrivate for WpColorManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -1267,7 +1267,7 @@ impl ProxyPrivate for WpColorManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -1300,7 +1300,7 @@ impl ProxyPrivate for WpColorManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -1402,7 +1402,7 @@ impl ProxyPrivate for WpColorManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WpImageDescriptionReferenceV1>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("reference", o.core().interface, ProxyInterface::WpImageDescriptionReferenceV1));
+                    return Err(ObjectError::WrongObjectType("reference", o.core().interface, ObjectInterface::WpImageDescriptionReferenceV1));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -1559,8 +1559,8 @@ impl ProxyPrivate for WpColorManagerV1 {
     }
 }
 
-impl Proxy for WpColorManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpColorManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

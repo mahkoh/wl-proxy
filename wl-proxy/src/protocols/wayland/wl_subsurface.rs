@@ -56,11 +56,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_subsurface proxy.
+/// A wl_subsurface object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlSubsurface {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlSubsurfaceHandler>,
 }
 
@@ -70,7 +70,7 @@ impl WlSubsurfaceHandler for DefaultHandler { }
 
 impl WlSubsurface {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlSubsurface;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlSubsurface;
     pub const INTERFACE_NAME: &str = "wl_subsurface";
 }
 
@@ -590,10 +590,10 @@ pub trait WlSubsurfaceHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlSubsurface {
+impl ObjectPrivate for WlSubsurface {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlSubsurface, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlSubsurface, version),
             handler: Default::default(),
         })
     }
@@ -660,7 +660,7 @@ impl ProxyPrivate for WlSubsurface {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("sibling", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("sibling", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -687,7 +687,7 @@ impl ProxyPrivate for WlSubsurface {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("sibling", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("sibling", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -773,8 +773,8 @@ impl ProxyPrivate for WlSubsurface {
     }
 }
 
-impl Proxy for WlSubsurface {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlSubsurface {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

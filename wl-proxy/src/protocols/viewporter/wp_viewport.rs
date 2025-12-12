@@ -58,11 +58,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_viewport proxy.
+/// A wp_viewport object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpViewport {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpViewportHandler>,
 }
 
@@ -72,7 +72,7 @@ impl WpViewportHandler for DefaultHandler { }
 
 impl WpViewport {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpViewport;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpViewport;
     pub const INTERFACE_NAME: &str = "wp_viewport";
 }
 
@@ -356,10 +356,10 @@ pub trait WpViewportHandler: Any {
     }
 }
 
-impl ProxyPrivate for WpViewport {
+impl ObjectPrivate for WpViewport {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpViewport, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpViewport, version),
             handler: Default::default(),
         })
     }
@@ -475,8 +475,8 @@ impl ProxyPrivate for WpViewport {
     }
 }
 
-impl Proxy for WpViewport {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpViewport {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

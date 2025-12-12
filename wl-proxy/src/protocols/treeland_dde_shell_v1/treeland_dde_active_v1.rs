@@ -5,11 +5,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A treeland_dde_active_v1 proxy.
+/// A treeland_dde_active_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct TreelandDdeActiveV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn TreelandDdeActiveV1Handler>,
 }
 
@@ -19,7 +19,7 @@ impl TreelandDdeActiveV1Handler for DefaultHandler { }
 
 impl TreelandDdeActiveV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandDdeActiveV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandDdeActiveV1;
     pub const INTERFACE_NAME: &str = "treeland_dde_active_v1";
 }
 
@@ -331,10 +331,10 @@ pub trait TreelandDdeActiveV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for TreelandDdeActiveV1 {
+impl ObjectPrivate for TreelandDdeActiveV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::TreelandDdeActiveV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandDdeActiveV1, version),
             handler: Default::default(),
         })
     }
@@ -479,8 +479,8 @@ impl ProxyPrivate for TreelandDdeActiveV1 {
     }
 }
 
-impl Proxy for TreelandDdeActiveV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for TreelandDdeActiveV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

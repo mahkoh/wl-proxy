@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A ext_foreign_toplevel_image_capture_source_manager_v1 proxy.
+/// A ext_foreign_toplevel_image_capture_source_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ExtForeignToplevelImageCaptureSourceManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ExtForeignToplevelImageCaptureSourceManagerV1Handler>,
 }
 
@@ -20,7 +20,7 @@ impl ExtForeignToplevelImageCaptureSourceManagerV1Handler for DefaultHandler { }
 
 impl ExtForeignToplevelImageCaptureSourceManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtForeignToplevelImageCaptureSourceManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtForeignToplevelImageCaptureSourceManagerV1;
     pub const INTERFACE_NAME: &str = "ext_foreign_toplevel_image_capture_source_manager_v1";
 }
 
@@ -195,10 +195,10 @@ pub trait ExtForeignToplevelImageCaptureSourceManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ExtForeignToplevelImageCaptureSourceManagerV1 {
+impl ObjectPrivate for ExtForeignToplevelImageCaptureSourceManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtForeignToplevelImageCaptureSourceManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtForeignToplevelImageCaptureSourceManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -232,7 +232,7 @@ impl ProxyPrivate for ExtForeignToplevelImageCaptureSourceManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<ExtForeignToplevelHandleV1>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("toplevel_handle", o.core().interface, ProxyInterface::ExtForeignToplevelHandleV1));
+                    return Err(ObjectError::WrongObjectType("toplevel_handle", o.core().interface, ObjectInterface::ExtForeignToplevelHandleV1));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -300,8 +300,8 @@ impl ProxyPrivate for ExtForeignToplevelImageCaptureSourceManagerV1 {
     }
 }
 
-impl Proxy for ExtForeignToplevelImageCaptureSourceManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ExtForeignToplevelImageCaptureSourceManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

@@ -11,11 +11,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_shm_pool proxy.
+/// A wl_shm_pool object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlShmPool {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlShmPoolHandler>,
 }
 
@@ -25,7 +25,7 @@ impl WlShmPoolHandler for DefaultHandler { }
 
 impl WlShmPool {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlShmPool;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlShmPool;
     pub const INTERFACE_NAME: &str = "wl_shm_pool";
 }
 
@@ -330,10 +330,10 @@ pub trait WlShmPoolHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlShmPool {
+impl ObjectPrivate for WlShmPool {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlShmPool, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlShmPool, version),
             handler: Default::default(),
         })
     }
@@ -455,8 +455,8 @@ impl ProxyPrivate for WlShmPool {
     }
 }
 
-impl Proxy for WlShmPool {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlShmPool {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

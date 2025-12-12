@@ -10,11 +10,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A treeland_dock_preview_context_v1 proxy.
+/// A treeland_dock_preview_context_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct TreelandDockPreviewContextV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn TreelandDockPreviewContextV1Handler>,
 }
 
@@ -24,7 +24,7 @@ impl TreelandDockPreviewContextV1Handler for DefaultHandler { }
 
 impl TreelandDockPreviewContextV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandDockPreviewContextV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandDockPreviewContextV1;
     pub const INTERFACE_NAME: &str = "treeland_dock_preview_context_v1";
 }
 
@@ -441,10 +441,10 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for TreelandDockPreviewContextV1 {
+impl ObjectPrivate for TreelandDockPreviewContextV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::TreelandDockPreviewContextV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandDockPreviewContextV1, version),
             handler: Default::default(),
         })
     }
@@ -666,8 +666,8 @@ impl ProxyPrivate for TreelandDockPreviewContextV1 {
     }
 }
 
-impl Proxy for TreelandDockPreviewContextV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for TreelandDockPreviewContextV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

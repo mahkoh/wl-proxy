@@ -23,11 +23,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A treeland_screensaver proxy.
+/// A treeland_screensaver object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct TreelandScreensaver {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn TreelandScreensaverHandler>,
 }
 
@@ -37,7 +37,7 @@ impl TreelandScreensaverHandler for DefaultHandler { }
 
 impl TreelandScreensaver {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandScreensaver;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandScreensaver;
     pub const INTERFACE_NAME: &str = "treeland_screensaver";
 }
 
@@ -192,10 +192,10 @@ pub trait TreelandScreensaverHandler: Any {
     }
 }
 
-impl ProxyPrivate for TreelandScreensaver {
+impl ObjectPrivate for TreelandScreensaver {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::TreelandScreensaver, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandScreensaver, version),
             handler: Default::default(),
         })
     }
@@ -324,8 +324,8 @@ impl ProxyPrivate for TreelandScreensaver {
     }
 }
 
-impl Proxy for TreelandScreensaver {
-    fn core(&self) -> &ProxyCore {
+impl Object for TreelandScreensaver {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

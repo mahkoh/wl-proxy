@@ -17,11 +17,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_pointer_constraints_v1 proxy.
+/// A zwp_pointer_constraints_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpPointerConstraintsV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpPointerConstraintsV1Handler>,
 }
 
@@ -31,7 +31,7 @@ impl ZwpPointerConstraintsV1Handler for DefaultHandler { }
 
 impl ZwpPointerConstraintsV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpPointerConstraintsV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpPointerConstraintsV1;
     pub const INTERFACE_NAME: &str = "zwp_pointer_constraints_v1";
 }
 
@@ -461,10 +461,10 @@ pub trait ZwpPointerConstraintsV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpPointerConstraintsV1 {
+impl ObjectPrivate for ZwpPointerConstraintsV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpPointerConstraintsV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpPointerConstraintsV1, version),
             handler: Default::default(),
         })
     }
@@ -519,7 +519,7 @@ impl ProxyPrivate for ZwpPointerConstraintsV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg2_id = arg2;
                 let Some(arg2) = client.endpoint.lookup(arg2_id) else {
@@ -527,7 +527,7 @@ impl ProxyPrivate for ZwpPointerConstraintsV1 {
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlPointer>() else {
                     let o = client.endpoint.lookup(arg2_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ProxyInterface::WlPointer));
+                    return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ObjectInterface::WlPointer));
                 };
                 let arg3 = if arg3 == 0 {
                     None
@@ -538,7 +538,7 @@ impl ProxyPrivate for ZwpPointerConstraintsV1 {
                     };
                     let Ok(arg3) = (arg3 as Rc<dyn Any>).downcast::<WlRegion>() else {
                         let o = client.endpoint.lookup(arg3_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("region", o.core().interface, ProxyInterface::WlRegion));
+                        return Err(ObjectError::WrongObjectType("region", o.core().interface, ObjectInterface::WlRegion));
                     };
                     Some(arg3)
                 };
@@ -579,7 +579,7 @@ impl ProxyPrivate for ZwpPointerConstraintsV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg2_id = arg2;
                 let Some(arg2) = client.endpoint.lookup(arg2_id) else {
@@ -587,7 +587,7 @@ impl ProxyPrivate for ZwpPointerConstraintsV1 {
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlPointer>() else {
                     let o = client.endpoint.lookup(arg2_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ProxyInterface::WlPointer));
+                    return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ObjectInterface::WlPointer));
                 };
                 let arg3 = if arg3 == 0 {
                     None
@@ -598,7 +598,7 @@ impl ProxyPrivate for ZwpPointerConstraintsV1 {
                     };
                     let Ok(arg3) = (arg3 as Rc<dyn Any>).downcast::<WlRegion>() else {
                         let o = client.endpoint.lookup(arg3_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("region", o.core().interface, ProxyInterface::WlRegion));
+                        return Err(ObjectError::WrongObjectType("region", o.core().interface, ObjectInterface::WlRegion));
                     };
                     Some(arg3)
                 };
@@ -654,8 +654,8 @@ impl ProxyPrivate for ZwpPointerConstraintsV1 {
     }
 }
 
-impl Proxy for ZwpPointerConstraintsV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpPointerConstraintsV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

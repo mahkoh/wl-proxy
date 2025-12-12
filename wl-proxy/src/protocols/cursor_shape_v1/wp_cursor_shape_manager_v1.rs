@@ -12,11 +12,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_cursor_shape_manager_v1 proxy.
+/// A wp_cursor_shape_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpCursorShapeManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpCursorShapeManagerV1Handler>,
 }
 
@@ -26,7 +26,7 @@ impl WpCursorShapeManagerV1Handler for DefaultHandler { }
 
 impl WpCursorShapeManagerV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpCursorShapeManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpCursorShapeManagerV1;
     pub const INTERFACE_NAME: &str = "wp_cursor_shape_manager_v1";
 }
 
@@ -294,10 +294,10 @@ pub trait WpCursorShapeManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for WpCursorShapeManagerV1 {
+impl ObjectPrivate for WpCursorShapeManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpCursorShapeManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpCursorShapeManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -348,7 +348,7 @@ impl ProxyPrivate for WpCursorShapeManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlPointer>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ProxyInterface::WlPointer));
+                    return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ObjectInterface::WlPointer));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -381,7 +381,7 @@ impl ProxyPrivate for WpCursorShapeManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<ZwpTabletToolV2>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("tablet_tool", o.core().interface, ProxyInterface::ZwpTabletToolV2));
+                    return Err(ObjectError::WrongObjectType("tablet_tool", o.core().interface, ObjectInterface::ZwpTabletToolV2));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -433,8 +433,8 @@ impl ProxyPrivate for WpCursorShapeManagerV1 {
     }
 }
 
-impl Proxy for WpCursorShapeManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpCursorShapeManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

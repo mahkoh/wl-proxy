@@ -9,11 +9,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_callback proxy.
+/// A wl_callback object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlCallback {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlCallbackHandler>,
 }
 
@@ -23,7 +23,7 @@ impl WlCallbackHandler for DefaultHandler { }
 
 impl WlCallback {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlCallback;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlCallback;
     pub const INTERFACE_NAME: &str = "wl_callback";
 }
 
@@ -130,10 +130,10 @@ pub trait WlCallbackHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlCallback {
+impl ObjectPrivate for WlCallback {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlCallback, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlCallback, version),
             handler: Default::default(),
         })
     }
@@ -203,8 +203,8 @@ impl ProxyPrivate for WlCallback {
     }
 }
 
-impl Proxy for WlCallback {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlCallback {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

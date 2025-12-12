@@ -8,11 +8,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_region proxy.
+/// A wl_region object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlRegion {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlRegionHandler>,
 }
 
@@ -22,7 +22,7 @@ impl WlRegionHandler for DefaultHandler { }
 
 impl WlRegion {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlRegion;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlRegion;
     pub const INTERFACE_NAME: &str = "wl_region";
 }
 
@@ -284,10 +284,10 @@ pub trait WlRegionHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlRegion {
+impl ObjectPrivate for WlRegion {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlRegion, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlRegion, version),
             handler: Default::default(),
         })
     }
@@ -407,8 +407,8 @@ impl ProxyPrivate for WlRegion {
     }
 }
 
-impl Proxy for WlRegion {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlRegion {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

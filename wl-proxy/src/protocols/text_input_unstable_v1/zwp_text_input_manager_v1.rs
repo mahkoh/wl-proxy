@@ -5,11 +5,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_text_input_manager_v1 proxy.
+/// A zwp_text_input_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpTextInputManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpTextInputManagerV1Handler>,
 }
 
@@ -19,7 +19,7 @@ impl ZwpTextInputManagerV1Handler for DefaultHandler { }
 
 impl ZwpTextInputManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpTextInputManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpTextInputManagerV1;
     pub const INTERFACE_NAME: &str = "zwp_text_input_manager_v1";
 }
 
@@ -118,10 +118,10 @@ pub trait ZwpTextInputManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpTextInputManagerV1 {
+impl ObjectPrivate for ZwpTextInputManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpTextInputManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpTextInputManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -195,8 +195,8 @@ impl ProxyPrivate for ZwpTextInputManagerV1 {
     }
 }
 
-impl Proxy for ZwpTextInputManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpTextInputManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

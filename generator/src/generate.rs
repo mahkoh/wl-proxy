@@ -63,7 +63,7 @@ pub fn main() -> Result<(), GeneratorError> {
         format_mod_file(f, &suits)
     })?;
 
-    format_file(&src_dir.join("protocol_filter/prototyping.rs"), |f| {
+    format_file(&src_dir.join("global_filter/prototyping.rs"), |f| {
         format_baseline_file(f, &suits)
     })?;
 

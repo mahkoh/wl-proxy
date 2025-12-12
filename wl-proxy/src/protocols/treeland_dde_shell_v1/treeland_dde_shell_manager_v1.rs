@@ -10,11 +10,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A treeland_dde_shell_manager_v1 proxy.
+/// A treeland_dde_shell_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct TreelandDdeShellManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn TreelandDdeShellManagerV1Handler>,
 }
 
@@ -24,7 +24,7 @@ impl TreelandDdeShellManagerV1Handler for DefaultHandler { }
 
 impl TreelandDdeShellManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandDdeShellManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandDdeShellManagerV1;
     pub const INTERFACE_NAME: &str = "treeland_dde_shell_manager_v1";
 }
 
@@ -499,10 +499,10 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for TreelandDdeShellManagerV1 {
+impl ObjectPrivate for TreelandDdeShellManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::TreelandDdeShellManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandDdeShellManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -559,7 +559,7 @@ impl ProxyPrivate for TreelandDdeShellManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -592,7 +592,7 @@ impl ProxyPrivate for TreelandDdeShellManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -716,8 +716,8 @@ impl ProxyPrivate for TreelandDdeShellManagerV1 {
     }
 }
 
-impl Proxy for TreelandDdeShellManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for TreelandDdeShellManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

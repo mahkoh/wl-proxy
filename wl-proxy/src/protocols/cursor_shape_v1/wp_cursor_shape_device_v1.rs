@@ -5,11 +5,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_cursor_shape_device_v1 proxy.
+/// A wp_cursor_shape_device_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpCursorShapeDeviceV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpCursorShapeDeviceV1Handler>,
 }
 
@@ -19,7 +19,7 @@ impl WpCursorShapeDeviceV1Handler for DefaultHandler { }
 
 impl WpCursorShapeDeviceV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpCursorShapeDeviceV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpCursorShapeDeviceV1;
     pub const INTERFACE_NAME: &str = "wp_cursor_shape_device_v1";
 }
 
@@ -213,10 +213,10 @@ pub trait WpCursorShapeDeviceV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for WpCursorShapeDeviceV1 {
+impl ObjectPrivate for WpCursorShapeDeviceV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpCursorShapeDeviceV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpCursorShapeDeviceV1, version),
             handler: Default::default(),
         })
     }
@@ -305,8 +305,8 @@ impl ProxyPrivate for WpCursorShapeDeviceV1 {
     }
 }
 
-impl Proxy for WpCursorShapeDeviceV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpCursorShapeDeviceV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

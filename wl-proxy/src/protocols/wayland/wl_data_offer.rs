@@ -10,11 +10,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_data_offer proxy.
+/// A wl_data_offer object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlDataOffer {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlDataOfferHandler>,
 }
 
@@ -24,7 +24,7 @@ impl WlDataOfferHandler for DefaultHandler { }
 
 impl WlDataOffer {
     pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlDataOffer;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlDataOffer;
     pub const INTERFACE_NAME: &str = "wl_data_offer";
 }
 
@@ -810,10 +810,10 @@ pub trait WlDataOfferHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlDataOffer {
+impl ObjectPrivate for WlDataOffer {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlDataOffer, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlDataOffer, version),
             handler: Default::default(),
         })
     }
@@ -1091,8 +1091,8 @@ impl ProxyPrivate for WlDataOffer {
     }
 }
 
-impl Proxy for WlDataOffer {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlDataOffer {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

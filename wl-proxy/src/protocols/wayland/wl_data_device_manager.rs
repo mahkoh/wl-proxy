@@ -14,11 +14,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_data_device_manager proxy.
+/// A wl_data_device_manager object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlDataDeviceManager {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlDataDeviceManagerHandler>,
 }
 
@@ -28,7 +28,7 @@ impl WlDataDeviceManagerHandler for DefaultHandler { }
 
 impl WlDataDeviceManager {
     pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlDataDeviceManager;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlDataDeviceManager;
     pub const INTERFACE_NAME: &str = "wl_data_device_manager";
 }
 
@@ -214,10 +214,10 @@ pub trait WlDataDeviceManagerHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlDataDeviceManager {
+impl ObjectPrivate for WlDataDeviceManager {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlDataDeviceManager, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlDataDeviceManager, version),
             handler: Default::default(),
         })
     }
@@ -274,7 +274,7 @@ impl ProxyPrivate for WlDataDeviceManager {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -325,8 +325,8 @@ impl ProxyPrivate for WlDataDeviceManager {
     }
 }
 
-impl Proxy for WlDataDeviceManager {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlDataDeviceManager {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

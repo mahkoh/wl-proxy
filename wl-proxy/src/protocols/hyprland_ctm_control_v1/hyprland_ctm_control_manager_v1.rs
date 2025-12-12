@@ -8,11 +8,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A hyprland_ctm_control_manager_v1 proxy.
+/// A hyprland_ctm_control_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct HyprlandCtmControlManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn HyprlandCtmControlManagerV1Handler>,
 }
 
@@ -22,7 +22,7 @@ impl HyprlandCtmControlManagerV1Handler for DefaultHandler { }
 
 impl HyprlandCtmControlManagerV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::HyprlandCtmControlManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::HyprlandCtmControlManagerV1;
     pub const INTERFACE_NAME: &str = "hyprland_ctm_control_manager_v1";
 }
 
@@ -389,10 +389,10 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for HyprlandCtmControlManagerV1 {
+impl ObjectPrivate for HyprlandCtmControlManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::HyprlandCtmControlManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::HyprlandCtmControlManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -439,7 +439,7 @@ impl ProxyPrivate for HyprlandCtmControlManagerV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -543,8 +543,8 @@ impl ProxyPrivate for HyprlandCtmControlManagerV1 {
     }
 }
 
-impl Proxy for HyprlandCtmControlManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for HyprlandCtmControlManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

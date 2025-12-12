@@ -14,11 +14,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A ext_image_copy_capture_frame_v1 proxy.
+/// A ext_image_copy_capture_frame_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ExtImageCopyCaptureFrameV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ExtImageCopyCaptureFrameV1Handler>,
 }
 
@@ -28,7 +28,7 @@ impl ExtImageCopyCaptureFrameV1Handler for DefaultHandler { }
 
 impl ExtImageCopyCaptureFrameV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtImageCopyCaptureFrameV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtImageCopyCaptureFrameV1;
     pub const INTERFACE_NAME: &str = "ext_image_copy_capture_frame_v1";
 }
 
@@ -819,10 +819,10 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ExtImageCopyCaptureFrameV1 {
+impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtImageCopyCaptureFrameV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtImageCopyCaptureFrameV1, version),
             handler: Default::default(),
         })
     }
@@ -868,7 +868,7 @@ impl ProxyPrivate for ExtImageCopyCaptureFrameV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlBuffer>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("buffer", o.core().interface, ProxyInterface::WlBuffer));
+                    return Err(ObjectError::WrongObjectType("buffer", o.core().interface, ObjectInterface::WlBuffer));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1068,8 +1068,8 @@ impl ProxyPrivate for ExtImageCopyCaptureFrameV1 {
     }
 }
 
-impl Proxy for ExtImageCopyCaptureFrameV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ExtImageCopyCaptureFrameV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

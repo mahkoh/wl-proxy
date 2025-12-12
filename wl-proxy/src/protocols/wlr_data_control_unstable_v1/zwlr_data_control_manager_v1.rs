@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwlr_data_control_manager_v1 proxy.
+/// A zwlr_data_control_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwlrDataControlManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwlrDataControlManagerV1Handler>,
 }
 
@@ -20,7 +20,7 @@ impl ZwlrDataControlManagerV1Handler for DefaultHandler { }
 
 impl ZwlrDataControlManagerV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrDataControlManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrDataControlManagerV1;
     pub const INTERFACE_NAME: &str = "zwlr_data_control_manager_v1";
 }
 
@@ -258,10 +258,10 @@ pub trait ZwlrDataControlManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwlrDataControlManagerV1 {
+impl ObjectPrivate for ZwlrDataControlManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrDataControlManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrDataControlManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -318,7 +318,7 @@ impl ProxyPrivate for ZwlrDataControlManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -387,8 +387,8 @@ impl ProxyPrivate for ZwlrDataControlManagerV1 {
     }
 }
 
-impl Proxy for ZwlrDataControlManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwlrDataControlManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

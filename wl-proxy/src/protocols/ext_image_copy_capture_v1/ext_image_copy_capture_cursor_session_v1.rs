@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A ext_image_copy_capture_cursor_session_v1 proxy.
+/// A ext_image_copy_capture_cursor_session_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ExtImageCopyCaptureCursorSessionV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ExtImageCopyCaptureCursorSessionV1Handler>,
 }
 
@@ -20,7 +20,7 @@ impl ExtImageCopyCaptureCursorSessionV1Handler for DefaultHandler { }
 
 impl ExtImageCopyCaptureCursorSessionV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtImageCopyCaptureCursorSessionV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtImageCopyCaptureCursorSessionV1;
     pub const INTERFACE_NAME: &str = "ext_image_copy_capture_cursor_session_v1";
 }
 
@@ -501,10 +501,10 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ExtImageCopyCaptureCursorSessionV1 {
+impl ObjectPrivate for ExtImageCopyCaptureCursorSessionV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtImageCopyCaptureCursorSessionV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtImageCopyCaptureCursorSessionV1, version),
             handler: Default::default(),
         })
     }
@@ -677,8 +677,8 @@ impl ProxyPrivate for ExtImageCopyCaptureCursorSessionV1 {
     }
 }
 
-impl Proxy for ExtImageCopyCaptureCursorSessionV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ExtImageCopyCaptureCursorSessionV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

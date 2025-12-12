@@ -8,11 +8,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_primary_selection_device_manager_v1 proxy.
+/// A zwp_primary_selection_device_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpPrimarySelectionDeviceManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpPrimarySelectionDeviceManagerV1Handler>,
 }
 
@@ -22,7 +22,7 @@ impl ZwpPrimarySelectionDeviceManagerV1Handler for DefaultHandler { }
 
 impl ZwpPrimarySelectionDeviceManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpPrimarySelectionDeviceManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpPrimarySelectionDeviceManagerV1;
     pub const INTERFACE_NAME: &str = "zwp_primary_selection_device_manager_v1";
 }
 
@@ -258,10 +258,10 @@ pub trait ZwpPrimarySelectionDeviceManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpPrimarySelectionDeviceManagerV1 {
+impl ObjectPrivate for ZwpPrimarySelectionDeviceManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpPrimarySelectionDeviceManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpPrimarySelectionDeviceManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -318,7 +318,7 @@ impl ProxyPrivate for ZwpPrimarySelectionDeviceManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -387,8 +387,8 @@ impl ProxyPrivate for ZwpPrimarySelectionDeviceManagerV1 {
     }
 }
 
-impl Proxy for ZwpPrimarySelectionDeviceManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpPrimarySelectionDeviceManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

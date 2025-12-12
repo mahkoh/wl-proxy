@@ -11,11 +11,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A ext_image_capture_source_v1 proxy.
+/// A ext_image_capture_source_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ExtImageCaptureSourceV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ExtImageCaptureSourceV1Handler>,
 }
 
@@ -25,7 +25,7 @@ impl ExtImageCaptureSourceV1Handler for DefaultHandler { }
 
 impl ExtImageCaptureSourceV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtImageCaptureSourceV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtImageCaptureSourceV1;
     pub const INTERFACE_NAME: &str = "ext_image_capture_source_v1";
 }
 
@@ -109,10 +109,10 @@ pub trait ExtImageCaptureSourceV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ExtImageCaptureSourceV1 {
+impl ObjectPrivate for ExtImageCaptureSourceV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtImageCaptureSourceV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtImageCaptureSourceV1, version),
             handler: Default::default(),
         })
     }
@@ -180,8 +180,8 @@ impl ProxyPrivate for ExtImageCaptureSourceV1 {
     }
 }
 
-impl Proxy for ExtImageCaptureSourceV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ExtImageCaptureSourceV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

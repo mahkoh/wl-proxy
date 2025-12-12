@@ -10,11 +10,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A treeland_personalization_appearance_context_v1 proxy.
+/// A treeland_personalization_appearance_context_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct TreelandPersonalizationAppearanceContextV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn TreelandPersonalizationAppearanceContextV1Handler>,
 }
 
@@ -24,7 +24,7 @@ impl TreelandPersonalizationAppearanceContextV1Handler for DefaultHandler { }
 
 impl TreelandPersonalizationAppearanceContextV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandPersonalizationAppearanceContextV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandPersonalizationAppearanceContextV1;
     pub const INTERFACE_NAME: &str = "treeland_personalization_appearance_context_v1";
 }
 
@@ -1222,10 +1222,10 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for TreelandPersonalizationAppearanceContextV1 {
+impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::TreelandPersonalizationAppearanceContextV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandPersonalizationAppearanceContextV1, version),
             handler: Default::default(),
         })
     }
@@ -1714,8 +1714,8 @@ impl ProxyPrivate for TreelandPersonalizationAppearanceContextV1 {
     }
 }
 
-impl Proxy for TreelandPersonalizationAppearanceContextV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for TreelandPersonalizationAppearanceContextV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

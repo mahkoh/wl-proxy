@@ -16,11 +16,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_idle_inhibitor_v1 proxy.
+/// A zwp_idle_inhibitor_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpIdleInhibitorV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpIdleInhibitorV1Handler>,
 }
 
@@ -30,7 +30,7 @@ impl ZwpIdleInhibitorV1Handler for DefaultHandler { }
 
 impl ZwpIdleInhibitorV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpIdleInhibitorV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpIdleInhibitorV1;
     pub const INTERFACE_NAME: &str = "zwp_idle_inhibitor_v1";
 }
 
@@ -112,10 +112,10 @@ pub trait ZwpIdleInhibitorV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpIdleInhibitorV1 {
+impl ObjectPrivate for ZwpIdleInhibitorV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpIdleInhibitorV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpIdleInhibitorV1, version),
             handler: Default::default(),
         })
     }
@@ -183,8 +183,8 @@ impl ProxyPrivate for ZwpIdleInhibitorV1 {
     }
 }
 
-impl Proxy for ZwpIdleInhibitorV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpIdleInhibitorV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

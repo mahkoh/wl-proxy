@@ -5,11 +5,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A treeland_output_color_control_v1 proxy.
+/// A treeland_output_color_control_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct TreelandOutputColorControlV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn TreelandOutputColorControlV1Handler>,
 }
 
@@ -19,7 +19,7 @@ impl TreelandOutputColorControlV1Handler for DefaultHandler { }
 
 impl TreelandOutputColorControlV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandOutputColorControlV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandOutputColorControlV1;
     pub const INTERFACE_NAME: &str = "treeland_output_color_control_v1";
 }
 
@@ -505,10 +505,10 @@ pub trait TreelandOutputColorControlV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for TreelandOutputColorControlV1 {
+impl ObjectPrivate for TreelandOutputColorControlV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::TreelandOutputColorControlV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandOutputColorControlV1, version),
             handler: Default::default(),
         })
     }
@@ -693,8 +693,8 @@ impl ProxyPrivate for TreelandOutputColorControlV1 {
     }
 }
 
-impl Proxy for TreelandOutputColorControlV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for TreelandOutputColorControlV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

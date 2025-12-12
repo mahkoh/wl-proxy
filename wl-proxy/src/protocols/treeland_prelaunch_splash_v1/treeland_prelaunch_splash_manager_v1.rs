@@ -11,11 +11,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A treeland_prelaunch_splash_manager_v1 proxy.
+/// A treeland_prelaunch_splash_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct TreelandPrelaunchSplashManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn TreelandPrelaunchSplashManagerV1Handler>,
 }
 
@@ -25,7 +25,7 @@ impl TreelandPrelaunchSplashManagerV1Handler for DefaultHandler { }
 
 impl TreelandPrelaunchSplashManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandPrelaunchSplashManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandPrelaunchSplashManagerV1;
     pub const INTERFACE_NAME: &str = "treeland_prelaunch_splash_manager_v1";
 }
 
@@ -222,10 +222,10 @@ pub trait TreelandPrelaunchSplashManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for TreelandPrelaunchSplashManagerV1 {
+impl ObjectPrivate for TreelandPrelaunchSplashManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::TreelandPrelaunchSplashManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandPrelaunchSplashManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -321,7 +321,7 @@ impl ProxyPrivate for TreelandPrelaunchSplashManagerV1 {
                     };
                     let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlBuffer>() else {
                         let o = client.endpoint.lookup(arg2_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("icon_buffer", o.core().interface, ProxyInterface::WlBuffer));
+                        return Err(ObjectError::WrongObjectType("icon_buffer", o.core().interface, ObjectInterface::WlBuffer));
                     };
                     Some(arg2)
                 };
@@ -373,8 +373,8 @@ impl ProxyPrivate for TreelandPrelaunchSplashManagerV1 {
     }
 }
 
-impl Proxy for TreelandPrelaunchSplashManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for TreelandPrelaunchSplashManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

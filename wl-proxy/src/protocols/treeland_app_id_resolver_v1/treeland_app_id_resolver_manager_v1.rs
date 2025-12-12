@@ -7,11 +7,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A treeland_app_id_resolver_manager_v1 proxy.
+/// A treeland_app_id_resolver_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct TreelandAppIdResolverManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn TreelandAppIdResolverManagerV1Handler>,
 }
 
@@ -21,7 +21,7 @@ impl TreelandAppIdResolverManagerV1Handler for DefaultHandler { }
 
 impl TreelandAppIdResolverManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandAppIdResolverManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandAppIdResolverManagerV1;
     pub const INTERFACE_NAME: &str = "treeland_app_id_resolver_manager_v1";
 }
 
@@ -176,10 +176,10 @@ pub trait TreelandAppIdResolverManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for TreelandAppIdResolverManagerV1 {
+impl ObjectPrivate for TreelandAppIdResolverManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::TreelandAppIdResolverManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandAppIdResolverManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -271,8 +271,8 @@ impl ProxyPrivate for TreelandAppIdResolverManagerV1 {
     }
 }
 
-impl Proxy for TreelandAppIdResolverManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for TreelandAppIdResolverManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

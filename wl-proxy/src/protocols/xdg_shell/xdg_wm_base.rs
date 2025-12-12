@@ -9,11 +9,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A xdg_wm_base proxy.
+/// A xdg_wm_base object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct XdgWmBase {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn XdgWmBaseHandler>,
 }
 
@@ -23,7 +23,7 @@ impl XdgWmBaseHandler for DefaultHandler { }
 
 impl XdgWmBase {
     pub const XML_VERSION: u32 = 7;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgWmBase;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgWmBase;
     pub const INTERFACE_NAME: &str = "xdg_wm_base";
 }
 
@@ -460,10 +460,10 @@ pub trait XdgWmBaseHandler: Any {
     }
 }
 
-impl ProxyPrivate for XdgWmBase {
+impl ObjectPrivate for XdgWmBase {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgWmBase, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::XdgWmBase, version),
             handler: Default::default(),
         })
     }
@@ -537,7 +537,7 @@ impl ProxyPrivate for XdgWmBase {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -630,8 +630,8 @@ impl ProxyPrivate for XdgWmBase {
     }
 }
 
-impl Proxy for XdgWmBase {
-    fn core(&self) -> &ProxyCore {
+impl Object for XdgWmBase {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

@@ -7,11 +7,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_input_timestamps_v1 proxy.
+/// A zwp_input_timestamps_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpInputTimestampsV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpInputTimestampsV1Handler>,
 }
 
@@ -21,7 +21,7 @@ impl ZwpInputTimestampsV1Handler for DefaultHandler { }
 
 impl ZwpInputTimestampsV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpInputTimestampsV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpInputTimestampsV1;
     pub const INTERFACE_NAME: &str = "zwp_input_timestamps_v1";
 }
 
@@ -220,10 +220,10 @@ pub trait ZwpInputTimestampsV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpInputTimestampsV1 {
+impl ObjectPrivate for ZwpInputTimestampsV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpInputTimestampsV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpInputTimestampsV1, version),
             handler: Default::default(),
         })
     }
@@ -315,8 +315,8 @@ impl ProxyPrivate for ZwpInputTimestampsV1 {
     }
 }
 
-impl Proxy for ZwpInputTimestampsV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpInputTimestampsV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

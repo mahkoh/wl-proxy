@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_linux_drm_syncobj_timeline_v1 proxy.
+/// A wp_linux_drm_syncobj_timeline_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpLinuxDrmSyncobjTimelineV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpLinuxDrmSyncobjTimelineV1Handler>,
 }
 
@@ -20,7 +20,7 @@ impl WpLinuxDrmSyncobjTimelineV1Handler for DefaultHandler { }
 
 impl WpLinuxDrmSyncobjTimelineV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpLinuxDrmSyncobjTimelineV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpLinuxDrmSyncobjTimelineV1;
     pub const INTERFACE_NAME: &str = "wp_linux_drm_syncobj_timeline_v1";
 }
 
@@ -106,10 +106,10 @@ pub trait WpLinuxDrmSyncobjTimelineV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for WpLinuxDrmSyncobjTimelineV1 {
+impl ObjectPrivate for WpLinuxDrmSyncobjTimelineV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpLinuxDrmSyncobjTimelineV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpLinuxDrmSyncobjTimelineV1, version),
             handler: Default::default(),
         })
     }
@@ -177,8 +177,8 @@ impl ProxyPrivate for WpLinuxDrmSyncobjTimelineV1 {
     }
 }
 
-impl Proxy for WpLinuxDrmSyncobjTimelineV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpLinuxDrmSyncobjTimelineV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

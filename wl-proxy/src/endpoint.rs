@@ -1,9 +1,9 @@
 use {
     crate::{
         client::Client,
+        object::Object,
         object_error::ObjectError,
-        protocols::ProxyInterface,
-        proxy::Proxy,
+        protocols::ObjectInterface,
         state::HandlerLock,
         trans::{self, FlushResult, InputBuffer, OutputSwapchain, TransError},
         utils::free_list::FreeList,
@@ -25,7 +25,7 @@ pub(crate) struct Endpoint {
     pub(crate) socket: Rc<OwnedFd>,
     pub(crate) outgoing: RefCell<OutputSwapchain>,
     pub(crate) flush_queued: Cell<bool>,
-    pub(crate) objects: RefCell<HashMap<u32, Rc<dyn Proxy>>>,
+    pub(crate) objects: RefCell<HashMap<u32, Rc<dyn Object>>>,
     pub(crate) idl: FreeList<u32, 3>,
     pub(crate) current_interest: Cell<c::c_int>,
     pub(crate) desired_interest: Cell<c::c_int>,
@@ -54,7 +54,7 @@ pub enum EndpointError {
 #[derive(Debug)]
 pub struct MessageError {
     object: u32,
-    interface: Option<ProxyInterface>,
+    interface: Option<ObjectInterface>,
     message_id: u32,
     message_name: Option<&'static str>,
     source: ObjectError,
@@ -104,7 +104,7 @@ impl Endpoint {
         })
     }
 
-    pub(crate) fn lookup(&self, id: u32) -> Option<Rc<dyn Proxy>> {
+    pub(crate) fn lookup(&self, id: u32) -> Option<Rc<dyn Object>> {
         self.objects.borrow().get(&id).cloned()
     }
 

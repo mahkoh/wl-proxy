@@ -21,11 +21,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_linux_buffer_release_v1 proxy.
+/// A zwp_linux_buffer_release_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpLinuxBufferReleaseV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpLinuxBufferReleaseV1Handler>,
 }
 
@@ -35,7 +35,7 @@ impl ZwpLinuxBufferReleaseV1Handler for DefaultHandler { }
 
 impl ZwpLinuxBufferReleaseV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpLinuxBufferReleaseV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpLinuxBufferReleaseV1;
     pub const INTERFACE_NAME: &str = "zwp_linux_buffer_release_v1";
 }
 
@@ -240,10 +240,10 @@ pub trait ZwpLinuxBufferReleaseV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpLinuxBufferReleaseV1 {
+impl ObjectPrivate for ZwpLinuxBufferReleaseV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpLinuxBufferReleaseV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpLinuxBufferReleaseV1, version),
             handler: Default::default(),
         })
     }
@@ -333,8 +333,8 @@ impl ProxyPrivate for ZwpLinuxBufferReleaseV1 {
     }
 }
 
-impl Proxy for ZwpLinuxBufferReleaseV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpLinuxBufferReleaseV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

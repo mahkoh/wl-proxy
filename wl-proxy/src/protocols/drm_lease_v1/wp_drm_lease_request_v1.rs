@@ -8,11 +8,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_drm_lease_request_v1 proxy.
+/// A wp_drm_lease_request_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpDrmLeaseRequestV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpDrmLeaseRequestV1Handler>,
 }
 
@@ -22,7 +22,7 @@ impl WpDrmLeaseRequestV1Handler for DefaultHandler { }
 
 impl WpDrmLeaseRequestV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpDrmLeaseRequestV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpDrmLeaseRequestV1;
     pub const INTERFACE_NAME: &str = "wp_drm_lease_request_v1";
 }
 
@@ -226,10 +226,10 @@ pub trait WpDrmLeaseRequestV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for WpDrmLeaseRequestV1 {
+impl ObjectPrivate for WpDrmLeaseRequestV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpDrmLeaseRequestV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpDrmLeaseRequestV1, version),
             handler: Default::default(),
         })
     }
@@ -258,7 +258,7 @@ impl ProxyPrivate for WpDrmLeaseRequestV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WpDrmLeaseConnectorV1>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("connector", o.core().interface, ProxyInterface::WpDrmLeaseConnectorV1));
+                    return Err(ObjectError::WrongObjectType("connector", o.core().interface, ObjectInterface::WpDrmLeaseConnectorV1));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -332,8 +332,8 @@ impl ProxyPrivate for WpDrmLeaseRequestV1 {
     }
 }
 
-impl Proxy for WpDrmLeaseRequestV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpDrmLeaseRequestV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

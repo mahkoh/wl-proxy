@@ -6,9 +6,9 @@ pub(crate) mod prelude {
         crate::{
             client::Client,
             fixed::Fixed,
+            object::{HandlerAccessError, Object, ObjectCore, ObjectPrivate},
             object_error::{ObjectError, StringError},
-            protocols::ProxyInterface,
-            proxy::{HandlerAccessError, Proxy, ProxyCore, ProxyPrivate},
+            protocols::ObjectInterface,
             state::State,
             utils::handler_holder::HandlerHolder,
         },

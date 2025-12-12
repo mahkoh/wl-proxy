@@ -7,11 +7,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_compositor proxy.
+/// A wl_compositor object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlCompositor {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlCompositorHandler>,
 }
 
@@ -21,7 +21,7 @@ impl WlCompositorHandler for DefaultHandler { }
 
 impl WlCompositor {
     pub const XML_VERSION: u32 = 6;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlCompositor;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlCompositor;
     pub const INTERFACE_NAME: &str = "wl_compositor";
 }
 
@@ -187,10 +187,10 @@ pub trait WlCompositorHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlCompositor {
+impl ObjectPrivate for WlCompositor {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlCompositor, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlCompositor, version),
             handler: Default::default(),
         })
     }
@@ -288,8 +288,8 @@ impl ProxyPrivate for WlCompositor {
     }
 }
 
-impl Proxy for WlCompositor {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlCompositor {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

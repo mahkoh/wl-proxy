@@ -23,11 +23,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A xdg_positioner proxy.
+/// A xdg_positioner object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct XdgPositioner {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn XdgPositionerHandler>,
 }
 
@@ -37,7 +37,7 @@ impl XdgPositionerHandler for DefaultHandler { }
 
 impl XdgPositioner {
     pub const XML_VERSION: u32 = 7;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::XdgPositioner;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgPositioner;
     pub const INTERFACE_NAME: &str = "xdg_positioner";
 }
 
@@ -862,10 +862,10 @@ pub trait XdgPositionerHandler: Any {
     }
 }
 
-impl ProxyPrivate for XdgPositioner {
+impl ObjectPrivate for XdgPositioner {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::XdgPositioner, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::XdgPositioner, version),
             handler: Default::default(),
         })
     }
@@ -1121,8 +1121,8 @@ impl ProxyPrivate for XdgPositioner {
     }
 }
 
-impl Proxy for XdgPositioner {
-    fn core(&self) -> &ProxyCore {
+impl Object for XdgPositioner {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

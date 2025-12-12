@@ -5,11 +5,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A ext_output_image_capture_source_manager_v1 proxy.
+/// A ext_output_image_capture_source_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ExtOutputImageCaptureSourceManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ExtOutputImageCaptureSourceManagerV1Handler>,
 }
 
@@ -19,7 +19,7 @@ impl ExtOutputImageCaptureSourceManagerV1Handler for DefaultHandler { }
 
 impl ExtOutputImageCaptureSourceManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtOutputImageCaptureSourceManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtOutputImageCaptureSourceManagerV1;
     pub const INTERFACE_NAME: &str = "ext_output_image_capture_source_manager_v1";
 }
 
@@ -198,10 +198,10 @@ pub trait ExtOutputImageCaptureSourceManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ExtOutputImageCaptureSourceManagerV1 {
+impl ObjectPrivate for ExtOutputImageCaptureSourceManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtOutputImageCaptureSourceManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtOutputImageCaptureSourceManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -235,7 +235,7 @@ impl ProxyPrivate for ExtOutputImageCaptureSourceManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -303,8 +303,8 @@ impl ProxyPrivate for ExtOutputImageCaptureSourceManagerV1 {
     }
 }
 
-impl Proxy for ExtOutputImageCaptureSourceManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ExtOutputImageCaptureSourceManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

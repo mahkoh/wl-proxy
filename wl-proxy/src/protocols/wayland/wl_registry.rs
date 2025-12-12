@@ -24,11 +24,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_registry proxy.
+/// A wl_registry object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlRegistry {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlRegistryHandler>,
 }
 
@@ -38,7 +38,7 @@ impl WlRegistryHandler for DefaultHandler { }
 
 impl WlRegistry {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlRegistry;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlRegistry;
     pub const INTERFACE_NAME: &str = "wl_registry";
 }
 
@@ -82,7 +82,7 @@ impl WlRegistry {
     pub fn send_bind(
         &self,
         name: u32,
-        id: Rc<dyn Proxy>,
+        id: Rc<dyn Object>,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
@@ -146,9 +146,10 @@ impl WlRegistry {
     pub fn send_global(
         &self,
         name: u32,
-        interface: &str,
+        interface: ObjectInterface,
         version: u32,
     ) -> Result<(), ObjectError> {
+        let interface = interface.name();
         let (
             arg0,
             arg1,
@@ -262,7 +263,7 @@ pub trait WlRegistryHandler: Any {
         &mut self,
         _slf: &Rc<WlRegistry>,
         name: u32,
-        id: Rc<dyn Proxy>,
+        id: Rc<dyn Object>,
     ) {
         let res = _slf.send_bind(
             name,
@@ -291,7 +292,7 @@ pub trait WlRegistryHandler: Any {
         &mut self,
         _slf: &Rc<WlRegistry>,
         name: u32,
-        interface: &str,
+        interface: ObjectInterface,
         version: u32,
     ) {
         if _slf.core.zombie.get() {
@@ -341,10 +342,10 @@ pub trait WlRegistryHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlRegistry {
+impl ObjectPrivate for WlRegistry {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlRegistry, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlRegistry, version),
             handler: Default::default(),
         })
     }
@@ -401,7 +402,7 @@ impl ProxyPrivate for WlRegistry {
                     self.core.state.log(args);
                 }
                 let arg1_id = arg1;
-                let arg1 = create_proxy_for_interface(&self.core.state, arg1_interface, arg1_version)?;
+                let arg1 = create_object_for_interface(&self.core.state, arg1_interface, arg1_version)?;
                 arg1.core().set_client_id(client, arg1_id, arg1.clone())
                     .map_err(|e| ObjectError::SetClientId(arg1_id, "id", e))?;
                 if let Some(handler) = handler {
@@ -468,10 +469,10 @@ impl ProxyPrivate for WlRegistry {
                     let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_registry#{}.global(name: {}, interface: {:?}, version: {})\n", msg[0], arg0, arg1, arg2);
                     self.core.state.log(args);
                 }
-                let arg2 = match ProxyInterface::from_str(arg1) {
-                    Some(i) => i.xml_version().min(arg2),
-                    _ => return Ok(()),
+                let Some(arg1) = ObjectInterface::from_str(arg1) else {
+                    return Ok(());
                 };
+                let arg2 = arg1.xml_version().min(arg2);
                 if let Some(handler) = handler {
                     (**handler).global(&self, arg0, arg1, arg2);
                 } else {
@@ -524,8 +525,8 @@ impl ProxyPrivate for WlRegistry {
     }
 }
 
-impl Proxy for WlRegistry {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlRegistry {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

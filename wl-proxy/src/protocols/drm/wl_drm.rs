@@ -1,11 +1,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_drm proxy.
+/// A wl_drm object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlDrm {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlDrmHandler>,
 }
 
@@ -15,7 +15,7 @@ impl WlDrmHandler for DefaultHandler { }
 
 impl WlDrm {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlDrm;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlDrm;
     pub const INTERFACE_NAME: &str = "wl_drm";
 }
 
@@ -731,10 +731,10 @@ pub trait WlDrmHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlDrm {
+impl ObjectPrivate for WlDrm {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlDrm, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlDrm, version),
             handler: Default::default(),
         })
     }
@@ -1019,8 +1019,8 @@ impl ProxyPrivate for WlDrm {
     }
 }
 
-impl Proxy for WlDrm {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlDrm {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

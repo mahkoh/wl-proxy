@@ -8,11 +8,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_tablet_pad_dial_v2 proxy.
+/// A zwp_tablet_pad_dial_v2 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpTabletPadDialV2 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpTabletPadDialV2Handler>,
 }
 
@@ -22,7 +22,7 @@ impl ZwpTabletPadDialV2Handler for DefaultHandler { }
 
 impl ZwpTabletPadDialV2 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpTabletPadDialV2;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpTabletPadDialV2;
     pub const INTERFACE_NAME: &str = "zwp_tablet_pad_dial_v2";
 }
 
@@ -396,10 +396,10 @@ pub trait ZwpTabletPadDialV2Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpTabletPadDialV2 {
+impl ObjectPrivate for ZwpTabletPadDialV2 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpTabletPadDialV2, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpTabletPadDialV2, version),
             handler: Default::default(),
         })
     }
@@ -553,8 +553,8 @@ impl ProxyPrivate for ZwpTabletPadDialV2 {
     }
 }
 
-impl Proxy for ZwpTabletPadDialV2 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpTabletPadDialV2 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zxdg_exporter_v2 proxy.
+/// A zxdg_exporter_v2 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZxdgExporterV2 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZxdgExporterV2Handler>,
 }
 
@@ -20,7 +20,7 @@ impl ZxdgExporterV2Handler for DefaultHandler { }
 
 impl ZxdgExporterV2 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZxdgExporterV2;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZxdgExporterV2;
     pub const INTERFACE_NAME: &str = "zxdg_exporter_v2";
 }
 
@@ -207,10 +207,10 @@ pub trait ZxdgExporterV2Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZxdgExporterV2 {
+impl ObjectPrivate for ZxdgExporterV2 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZxdgExporterV2, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZxdgExporterV2, version),
             handler: Default::default(),
         })
     }
@@ -261,7 +261,7 @@ impl ProxyPrivate for ZxdgExporterV2 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -312,8 +312,8 @@ impl ProxyPrivate for ZxdgExporterV2 {
     }
 }
 
-impl Proxy for ZxdgExporterV2 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZxdgExporterV2 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

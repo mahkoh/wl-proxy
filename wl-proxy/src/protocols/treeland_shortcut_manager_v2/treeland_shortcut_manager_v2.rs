@@ -17,11 +17,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A treeland_shortcut_manager_v2 proxy.
+/// A treeland_shortcut_manager_v2 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct TreelandShortcutManagerV2 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn TreelandShortcutManagerV2Handler>,
 }
 
@@ -31,7 +31,7 @@ impl TreelandShortcutManagerV2Handler for DefaultHandler { }
 
 impl TreelandShortcutManagerV2 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandShortcutManagerV2;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandShortcutManagerV2;
     pub const INTERFACE_NAME: &str = "treeland_shortcut_manager_v2";
 }
 
@@ -927,10 +927,10 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     }
 }
 
-impl ProxyPrivate for TreelandShortcutManagerV2 {
+impl ObjectPrivate for TreelandShortcutManagerV2 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::TreelandShortcutManagerV2, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandShortcutManagerV2, version),
             handler: Default::default(),
         })
     }
@@ -1356,8 +1356,8 @@ impl ProxyPrivate for TreelandShortcutManagerV2 {
     }
 }
 
-impl Proxy for TreelandShortcutManagerV2 {
-    fn core(&self) -> &ProxyCore {
+impl Object for TreelandShortcutManagerV2 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

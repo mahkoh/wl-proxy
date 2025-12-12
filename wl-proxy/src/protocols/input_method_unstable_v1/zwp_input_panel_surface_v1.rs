@@ -1,11 +1,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_input_panel_surface_v1 proxy.
+/// A zwp_input_panel_surface_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpInputPanelSurfaceV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpInputPanelSurfaceV1Handler>,
 }
 
@@ -15,7 +15,7 @@ impl ZwpInputPanelSurfaceV1Handler for DefaultHandler { }
 
 impl ZwpInputPanelSurfaceV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpInputPanelSurfaceV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpInputPanelSurfaceV1;
     pub const INTERFACE_NAME: &str = "zwp_input_panel_surface_v1";
 }
 
@@ -188,10 +188,10 @@ pub trait ZwpInputPanelSurfaceV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpInputPanelSurfaceV1 {
+impl ObjectPrivate for ZwpInputPanelSurfaceV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpInputPanelSurfaceV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpInputPanelSurfaceV1, version),
             handler: Default::default(),
         })
     }
@@ -221,7 +221,7 @@ impl ProxyPrivate for ZwpInputPanelSurfaceV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -287,8 +287,8 @@ impl ProxyPrivate for ZwpInputPanelSurfaceV1 {
     }
 }
 
-impl Proxy for ZwpInputPanelSurfaceV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpInputPanelSurfaceV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

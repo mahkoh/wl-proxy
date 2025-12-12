@@ -5,11 +5,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A hyprland_focus_grab_manager_v1 proxy.
+/// A hyprland_focus_grab_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct HyprlandFocusGrabManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn HyprlandFocusGrabManagerV1Handler>,
 }
 
@@ -19,7 +19,7 @@ impl HyprlandFocusGrabManagerV1Handler for DefaultHandler { }
 
 impl HyprlandFocusGrabManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::HyprlandFocusGrabManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::HyprlandFocusGrabManagerV1;
     pub const INTERFACE_NAME: &str = "hyprland_focus_grab_manager_v1";
 }
 
@@ -170,10 +170,10 @@ pub trait HyprlandFocusGrabManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for HyprlandFocusGrabManagerV1 {
+impl ObjectPrivate for HyprlandFocusGrabManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::HyprlandFocusGrabManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::HyprlandFocusGrabManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -265,8 +265,8 @@ impl ProxyPrivate for HyprlandFocusGrabManagerV1 {
     }
 }
 
-impl Proxy for HyprlandFocusGrabManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for HyprlandFocusGrabManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

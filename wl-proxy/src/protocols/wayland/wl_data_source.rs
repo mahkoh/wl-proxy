@@ -8,11 +8,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_data_source proxy.
+/// A wl_data_source object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlDataSource {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlDataSourceHandler>,
 }
 
@@ -22,7 +22,7 @@ impl WlDataSourceHandler for DefaultHandler { }
 
 impl WlDataSource {
     pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlDataSource;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlDataSource;
     pub const INTERFACE_NAME: &str = "wl_data_source";
 }
 
@@ -773,10 +773,10 @@ pub trait WlDataSourceHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlDataSource {
+impl ObjectPrivate for WlDataSource {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlDataSource, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlDataSource, version),
             handler: Default::default(),
         })
     }
@@ -1062,8 +1062,8 @@ impl ProxyPrivate for WlDataSource {
     }
 }
 
-impl Proxy for WlDataSource {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlDataSource {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

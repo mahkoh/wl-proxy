@@ -46,11 +46,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_surface proxy.
+/// A wl_surface object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlSurface {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlSurfaceHandler>,
 }
 
@@ -60,7 +60,7 @@ impl WlSurfaceHandler for DefaultHandler { }
 
 impl WlSurface {
     pub const XML_VERSION: u32 = 6;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlSurface;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlSurface;
     pub const INTERFACE_NAME: &str = "wl_surface";
 }
 
@@ -1821,10 +1821,10 @@ pub trait WlSurfaceHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlSurface {
+impl ObjectPrivate for WlSurface {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlSurface, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlSurface, version),
             handler: Default::default(),
         })
     }
@@ -1877,7 +1877,7 @@ impl ProxyPrivate for WlSurface {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlBuffer>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("buffer", o.core().interface, ProxyInterface::WlBuffer));
+                        return Err(ObjectError::WrongObjectType("buffer", o.core().interface, ObjectInterface::WlBuffer));
                     };
                     Some(arg0)
                 };
@@ -1957,7 +1957,7 @@ impl ProxyPrivate for WlSurface {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlRegion>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("region", o.core().interface, ProxyInterface::WlRegion));
+                        return Err(ObjectError::WrongObjectType("region", o.core().interface, ObjectInterface::WlRegion));
                     };
                     Some(arg0)
                 };
@@ -1989,7 +1989,7 @@ impl ProxyPrivate for WlSurface {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlRegion>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("region", o.core().interface, ProxyInterface::WlRegion));
+                        return Err(ObjectError::WrongObjectType("region", o.core().interface, ObjectInterface::WlRegion));
                     };
                     Some(arg0)
                 };
@@ -2135,7 +2135,7 @@ impl ProxyPrivate for WlSurface {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = self.core.state.server.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -2162,7 +2162,7 @@ impl ProxyPrivate for WlSurface {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = self.core.state.server.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -2249,8 +2249,8 @@ impl ProxyPrivate for WlSurface {
     }
 }
 
-impl Proxy for WlSurface {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlSurface {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

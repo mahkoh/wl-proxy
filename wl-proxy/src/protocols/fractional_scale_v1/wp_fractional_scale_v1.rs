@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_fractional_scale_v1 proxy.
+/// A wp_fractional_scale_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpFractionalScaleV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpFractionalScaleV1Handler>,
 }
 
@@ -20,7 +20,7 @@ impl WpFractionalScaleV1Handler for DefaultHandler { }
 
 impl WpFractionalScaleV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpFractionalScaleV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpFractionalScaleV1;
     pub const INTERFACE_NAME: &str = "wp_fractional_scale_v1";
 }
 
@@ -181,10 +181,10 @@ pub trait WpFractionalScaleV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for WpFractionalScaleV1 {
+impl ObjectPrivate for WpFractionalScaleV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpFractionalScaleV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpFractionalScaleV1, version),
             handler: Default::default(),
         })
     }
@@ -274,8 +274,8 @@ impl ProxyPrivate for WpFractionalScaleV1 {
     }
 }
 
-impl Proxy for WpFractionalScaleV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpFractionalScaleV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

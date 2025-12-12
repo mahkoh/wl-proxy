@@ -19,11 +19,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wl_buffer proxy.
+/// A wl_buffer object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WlBuffer {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WlBufferHandler>,
 }
 
@@ -33,7 +33,7 @@ impl WlBufferHandler for DefaultHandler { }
 
 impl WlBuffer {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WlBuffer;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WlBuffer;
     pub const INTERFACE_NAME: &str = "wl_buffer";
 }
 
@@ -201,10 +201,10 @@ pub trait WlBufferHandler: Any {
     }
 }
 
-impl ProxyPrivate for WlBuffer {
+impl ObjectPrivate for WlBuffer {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WlBuffer, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WlBuffer, version),
             handler: Default::default(),
         })
     }
@@ -292,8 +292,8 @@ impl ProxyPrivate for WlBuffer {
     }
 }
 
-impl Proxy for WlBuffer {
-    fn core(&self) -> &ProxyCore {
+impl Object for WlBuffer {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

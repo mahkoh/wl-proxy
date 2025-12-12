@@ -1,5 +1,5 @@
 use {
-    crate::{protocols::ProxyInterface, proxy::IdError},
+    crate::{object::IdError, protocols::ObjectInterface},
     thiserror::Error,
 };
 
@@ -18,9 +18,9 @@ pub enum ObjectError {
     #[error("server has no object with id {0}")]
     NoServerObject(u32),
     #[error("argument {} has type {} but should have type {}", .0, .1.name(), .2.name())]
-    WrongObjectType(&'static str, ProxyInterface, ProxyInterface),
+    WrongObjectType(&'static str, ObjectInterface, ObjectInterface),
     #[error("the requested version {} for interface {} is larger than the max version {}", .1, .0.name(), .0.xml_version())]
-    MaxVersion(ProxyInterface, u32),
+    MaxVersion(ObjectInterface, u32),
     #[error("the interface {0} is not supported")]
     UnsupportedInterface(String),
     #[error("the receiver has no server id")]
@@ -46,7 +46,7 @@ pub enum ObjectError {
     #[error("argument {0} is not valid UTF-8")]
     NonUtf8(&'static str),
     #[error("server sent error {} on proxy {}#{}", .2, .0.name(), .1)]
-    ServerError(ProxyInterface, u32, u32, #[source] StringError),
+    ServerError(ObjectInterface, u32, u32, #[source] StringError),
     #[error("the message handler is already borrowed")]
     HandlerBorrowed,
 }

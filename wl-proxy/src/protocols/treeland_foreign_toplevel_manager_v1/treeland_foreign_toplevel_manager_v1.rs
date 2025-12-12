@@ -10,11 +10,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A treeland_foreign_toplevel_manager_v1 proxy.
+/// A treeland_foreign_toplevel_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct TreelandForeignToplevelManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn TreelandForeignToplevelManagerV1Handler>,
 }
 
@@ -24,7 +24,7 @@ impl TreelandForeignToplevelManagerV1Handler for DefaultHandler { }
 
 impl TreelandForeignToplevelManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandForeignToplevelManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandForeignToplevelManagerV1;
     pub const INTERFACE_NAME: &str = "treeland_foreign_toplevel_manager_v1";
 }
 
@@ -340,10 +340,10 @@ pub trait TreelandForeignToplevelManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for TreelandForeignToplevelManagerV1 {
+impl ObjectPrivate for TreelandForeignToplevelManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::TreelandForeignToplevelManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandForeignToplevelManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -389,7 +389,7 @@ impl ProxyPrivate for TreelandForeignToplevelManagerV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("relative_surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("relative_surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg1_id = arg1;
                 let arg1 = TreelandDockPreviewContextV1::new(&self.core.state, self.core.version);
@@ -489,8 +489,8 @@ impl ProxyPrivate for TreelandForeignToplevelManagerV1 {
     }
 }
 
-impl Proxy for TreelandForeignToplevelManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for TreelandForeignToplevelManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

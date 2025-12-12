@@ -20,11 +20,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_linux_buffer_params_v1 proxy.
+/// A zwp_linux_buffer_params_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpLinuxBufferParamsV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpLinuxBufferParamsV1Handler>,
 }
 
@@ -34,7 +34,7 @@ impl ZwpLinuxBufferParamsV1Handler for DefaultHandler { }
 
 impl ZwpLinuxBufferParamsV1 {
     pub const XML_VERSION: u32 = 5;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpLinuxBufferParamsV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpLinuxBufferParamsV1;
     pub const INTERFACE_NAME: &str = "zwp_linux_buffer_params_v1";
 }
 
@@ -759,10 +759,10 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpLinuxBufferParamsV1 {
+impl ObjectPrivate for ZwpLinuxBufferParamsV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpLinuxBufferParamsV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpLinuxBufferParamsV1, version),
             handler: Default::default(),
         })
     }
@@ -957,8 +957,8 @@ impl ProxyPrivate for ZwpLinuxBufferParamsV1 {
     }
 }
 
-impl Proxy for ZwpLinuxBufferParamsV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpLinuxBufferParamsV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

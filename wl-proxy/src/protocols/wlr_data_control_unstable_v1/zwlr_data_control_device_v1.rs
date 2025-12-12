@@ -7,11 +7,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwlr_data_control_device_v1 proxy.
+/// A zwlr_data_control_device_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwlrDataControlDeviceV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwlrDataControlDeviceV1Handler>,
 }
 
@@ -21,7 +21,7 @@ impl ZwlrDataControlDeviceV1Handler for DefaultHandler { }
 
 impl ZwlrDataControlDeviceV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrDataControlDeviceV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrDataControlDeviceV1;
     pub const INTERFACE_NAME: &str = "zwlr_data_control_device_v1";
 }
 
@@ -669,10 +669,10 @@ pub trait ZwlrDataControlDeviceV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwlrDataControlDeviceV1 {
+impl ObjectPrivate for ZwlrDataControlDeviceV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrDataControlDeviceV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrDataControlDeviceV1, version),
             handler: Default::default(),
         })
     }
@@ -704,7 +704,7 @@ impl ProxyPrivate for ZwlrDataControlDeviceV1 {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ZwlrDataControlSourceV1>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("source", o.core().interface, ProxyInterface::ZwlrDataControlSourceV1));
+                        return Err(ObjectError::WrongObjectType("source", o.core().interface, ObjectInterface::ZwlrDataControlSourceV1));
                     };
                     Some(arg0)
                 };
@@ -753,7 +753,7 @@ impl ProxyPrivate for ZwlrDataControlDeviceV1 {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ZwlrDataControlSourceV1>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("source", o.core().interface, ProxyInterface::ZwlrDataControlSourceV1));
+                        return Err(ObjectError::WrongObjectType("source", o.core().interface, ObjectInterface::ZwlrDataControlSourceV1));
                     };
                     Some(arg0)
                 };
@@ -825,7 +825,7 @@ impl ProxyPrivate for ZwlrDataControlDeviceV1 {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ZwlrDataControlOfferV1>() else {
                         let o = self.core.state.server.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("id", o.core().interface, ProxyInterface::ZwlrDataControlOfferV1));
+                        return Err(ObjectError::WrongObjectType("id", o.core().interface, ObjectInterface::ZwlrDataControlOfferV1));
                     };
                     Some(arg0)
                 };
@@ -873,7 +873,7 @@ impl ProxyPrivate for ZwlrDataControlDeviceV1 {
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ZwlrDataControlOfferV1>() else {
                         let o = self.core.state.server.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("id", o.core().interface, ProxyInterface::ZwlrDataControlOfferV1));
+                        return Err(ObjectError::WrongObjectType("id", o.core().interface, ObjectInterface::ZwlrDataControlOfferV1));
                     };
                     Some(arg0)
                 };
@@ -916,8 +916,8 @@ impl ProxyPrivate for ZwlrDataControlDeviceV1 {
     }
 }
 
-impl Proxy for ZwlrDataControlDeviceV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwlrDataControlDeviceV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

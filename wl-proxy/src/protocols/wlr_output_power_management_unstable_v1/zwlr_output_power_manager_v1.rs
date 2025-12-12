@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwlr_output_power_manager_v1 proxy.
+/// A zwlr_output_power_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwlrOutputPowerManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwlrOutputPowerManagerV1Handler>,
 }
 
@@ -20,7 +20,7 @@ impl ZwlrOutputPowerManagerV1Handler for DefaultHandler { }
 
 impl ZwlrOutputPowerManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrOutputPowerManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrOutputPowerManagerV1;
     pub const INTERFACE_NAME: &str = "zwlr_output_power_manager_v1";
 }
 
@@ -193,10 +193,10 @@ pub trait ZwlrOutputPowerManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwlrOutputPowerManagerV1 {
+impl ObjectPrivate for ZwlrOutputPowerManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrOutputPowerManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrOutputPowerManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -230,7 +230,7 @@ impl ProxyPrivate for ZwlrOutputPowerManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ProxyInterface::WlOutput));
+                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -298,8 +298,8 @@ impl ProxyPrivate for ZwlrOutputPowerManagerV1 {
     }
 }
 
-impl Proxy for ZwlrOutputPowerManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwlrOutputPowerManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

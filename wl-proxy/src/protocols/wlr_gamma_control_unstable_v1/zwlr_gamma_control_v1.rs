@@ -14,11 +14,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwlr_gamma_control_v1 proxy.
+/// A zwlr_gamma_control_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwlrGammaControlV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwlrGammaControlV1Handler>,
 }
 
@@ -28,7 +28,7 @@ impl ZwlrGammaControlV1Handler for DefaultHandler { }
 
 impl ZwlrGammaControlV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrGammaControlV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrGammaControlV1;
     pub const INTERFACE_NAME: &str = "zwlr_gamma_control_v1";
 }
 
@@ -333,10 +333,10 @@ pub trait ZwlrGammaControlV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwlrGammaControlV1 {
+impl ObjectPrivate for ZwlrGammaControlV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrGammaControlV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrGammaControlV1, version),
             handler: Default::default(),
         })
     }
@@ -464,8 +464,8 @@ impl ProxyPrivate for ZwlrGammaControlV1 {
     }
 }
 
-impl Proxy for ZwlrGammaControlV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwlrGammaControlV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

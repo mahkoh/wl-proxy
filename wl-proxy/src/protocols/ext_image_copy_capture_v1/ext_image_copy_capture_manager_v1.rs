@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A ext_image_copy_capture_manager_v1 proxy.
+/// A ext_image_copy_capture_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ExtImageCopyCaptureManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ExtImageCopyCaptureManagerV1Handler>,
 }
 
@@ -20,7 +20,7 @@ impl ExtImageCopyCaptureManagerV1Handler for DefaultHandler { }
 
 impl ExtImageCopyCaptureManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ExtImageCopyCaptureManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtImageCopyCaptureManagerV1;
     pub const INTERFACE_NAME: &str = "ext_image_copy_capture_manager_v1";
 }
 
@@ -317,10 +317,10 @@ pub trait ExtImageCopyCaptureManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ExtImageCopyCaptureManagerV1 {
+impl ObjectPrivate for ExtImageCopyCaptureManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ExtImageCopyCaptureManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ExtImageCopyCaptureManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -356,7 +356,7 @@ impl ProxyPrivate for ExtImageCopyCaptureManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<ExtImageCaptureSourceV1>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("source", o.core().interface, ProxyInterface::ExtImageCaptureSourceV1));
+                    return Err(ObjectError::WrongObjectType("source", o.core().interface, ObjectInterface::ExtImageCaptureSourceV1));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -390,7 +390,7 @@ impl ProxyPrivate for ExtImageCopyCaptureManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<ExtImageCaptureSourceV1>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("source", o.core().interface, ProxyInterface::ExtImageCaptureSourceV1));
+                    return Err(ObjectError::WrongObjectType("source", o.core().interface, ObjectInterface::ExtImageCaptureSourceV1));
                 };
                 let arg2_id = arg2;
                 let Some(arg2) = client.endpoint.lookup(arg2_id) else {
@@ -398,7 +398,7 @@ impl ProxyPrivate for ExtImageCopyCaptureManagerV1 {
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlPointer>() else {
                     let o = client.endpoint.lookup(arg2_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ProxyInterface::WlPointer));
+                    return Err(ObjectError::WrongObjectType("pointer", o.core().interface, ObjectInterface::WlPointer));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -468,8 +468,8 @@ impl ProxyPrivate for ExtImageCopyCaptureManagerV1 {
     }
 }
 
-impl Proxy for ExtImageCopyCaptureManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ExtImageCopyCaptureManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

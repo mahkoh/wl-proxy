@@ -11,11 +11,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_content_type_manager_v1 proxy.
+/// A wp_content_type_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpContentTypeManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpContentTypeManagerV1Handler>,
 }
 
@@ -25,7 +25,7 @@ impl WpContentTypeManagerV1Handler for DefaultHandler { }
 
 impl WpContentTypeManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpContentTypeManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpContentTypeManagerV1;
     pub const INTERFACE_NAME: &str = "wp_content_type_manager_v1";
 }
 
@@ -202,10 +202,10 @@ pub trait WpContentTypeManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for WpContentTypeManagerV1 {
+impl ObjectPrivate for WpContentTypeManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpContentTypeManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpContentTypeManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -256,7 +256,7 @@ impl ProxyPrivate for WpContentTypeManagerV1 {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -307,8 +307,8 @@ impl ProxyPrivate for WpContentTypeManagerV1 {
     }
 }
 
-impl Proxy for WpContentTypeManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpContentTypeManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

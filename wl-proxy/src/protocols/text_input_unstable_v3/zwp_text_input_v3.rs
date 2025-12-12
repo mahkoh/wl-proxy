@@ -30,11 +30,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_text_input_v3 proxy.
+/// A zwp_text_input_v3 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpTextInputV3 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpTextInputV3Handler>,
 }
 
@@ -44,7 +44,7 @@ impl ZwpTextInputV3Handler for DefaultHandler { }
 
 impl ZwpTextInputV3 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpTextInputV3;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpTextInputV3;
     pub const INTERFACE_NAME: &str = "zwp_text_input_v3";
 }
 
@@ -1489,10 +1489,10 @@ pub trait ZwpTextInputV3Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpTextInputV3 {
+impl ObjectPrivate for ZwpTextInputV3 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpTextInputV3, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpTextInputV3, version),
             handler: Default::default(),
         })
     }
@@ -1717,7 +1717,7 @@ impl ProxyPrivate for ZwpTextInputV3 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = self.core.state.server.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1744,7 +1744,7 @@ impl ProxyPrivate for ZwpTextInputV3 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = self.core.state.server.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1917,8 +1917,8 @@ impl ProxyPrivate for ZwpTextInputV3 {
     }
 }
 
-impl Proxy for ZwpTextInputV3 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpTextInputV3 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

@@ -11,11 +11,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A wp_content_type_v1 proxy.
+/// A wp_content_type_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct WpContentTypeV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn WpContentTypeV1Handler>,
 }
 
@@ -25,7 +25,7 @@ impl WpContentTypeV1Handler for DefaultHandler { }
 
 impl WpContentTypeV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::WpContentTypeV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::WpContentTypeV1;
     pub const INTERFACE_NAME: &str = "wp_content_type_v1";
 }
 
@@ -191,10 +191,10 @@ pub trait WpContentTypeV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for WpContentTypeV1 {
+impl ObjectPrivate for WpContentTypeV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::WpContentTypeV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::WpContentTypeV1, version),
             handler: Default::default(),
         })
     }
@@ -282,8 +282,8 @@ impl ProxyPrivate for WpContentTypeV1 {
     }
 }
 
-impl Proxy for WpContentTypeV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for WpContentTypeV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

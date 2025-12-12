@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A hyprland_toplevel_export_manager_v1 proxy.
+/// A hyprland_toplevel_export_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct HyprlandToplevelExportManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn HyprlandToplevelExportManagerV1Handler>,
 }
 
@@ -20,7 +20,7 @@ impl HyprlandToplevelExportManagerV1Handler for DefaultHandler { }
 
 impl HyprlandToplevelExportManagerV1 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::HyprlandToplevelExportManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::HyprlandToplevelExportManagerV1;
     pub const INTERFACE_NAME: &str = "hyprland_toplevel_export_manager_v1";
 }
 
@@ -304,10 +304,10 @@ pub trait HyprlandToplevelExportManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for HyprlandToplevelExportManagerV1 {
+impl ObjectPrivate for HyprlandToplevelExportManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::HyprlandToplevelExportManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::HyprlandToplevelExportManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -386,7 +386,7 @@ impl ProxyPrivate for HyprlandToplevelExportManagerV1 {
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<ZwlrForeignToplevelHandleV1>() else {
                     let o = client.endpoint.lookup(arg2_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("handle", o.core().interface, ProxyInterface::ZwlrForeignToplevelHandleV1));
+                    return Err(ObjectError::WrongObjectType("handle", o.core().interface, ObjectInterface::ZwlrForeignToplevelHandleV1));
                 };
                 let arg0 = &arg0;
                 let arg2 = &arg2;
@@ -438,8 +438,8 @@ impl ProxyPrivate for HyprlandToplevelExportManagerV1 {
     }
 }
 
-impl Proxy for HyprlandToplevelExportManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for HyprlandToplevelExportManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

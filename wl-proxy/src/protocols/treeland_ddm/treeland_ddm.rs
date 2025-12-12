@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A treeland_ddm proxy.
+/// A treeland_ddm object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct TreelandDdm {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn TreelandDdmHandler>,
 }
 
@@ -20,7 +20,7 @@ impl TreelandDdmHandler for DefaultHandler { }
 
 impl TreelandDdm {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandDdm;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandDdm;
     pub const INTERFACE_NAME: &str = "treeland_ddm";
 }
 
@@ -535,10 +535,10 @@ pub trait TreelandDdmHandler: Any {
     }
 }
 
-impl ProxyPrivate for TreelandDdm {
+impl ObjectPrivate for TreelandDdm {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::TreelandDdm, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandDdm, version),
             handler: Default::default(),
         })
     }
@@ -763,8 +763,8 @@ impl ProxyPrivate for TreelandDdm {
     }
 }
 
-impl Proxy for TreelandDdm {
-    fn core(&self) -> &ProxyCore {
+impl Object for TreelandDdm {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

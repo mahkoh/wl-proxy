@@ -14,11 +14,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A treeland_dde_shell_surface_v1 proxy.
+/// A treeland_dde_shell_surface_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct TreelandDdeShellSurfaceV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn TreelandDdeShellSurfaceV1Handler>,
 }
 
@@ -28,7 +28,7 @@ impl TreelandDdeShellSurfaceV1Handler for DefaultHandler { }
 
 impl TreelandDdeShellSurfaceV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandDdeShellSurfaceV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandDdeShellSurfaceV1;
     pub const INTERFACE_NAME: &str = "treeland_dde_shell_surface_v1";
 }
 
@@ -610,10 +610,10 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for TreelandDdeShellSurfaceV1 {
+impl ObjectPrivate for TreelandDdeShellSurfaceV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::TreelandDdeShellSurfaceV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandDdeShellSurfaceV1, version),
             handler: Default::default(),
         })
     }
@@ -818,8 +818,8 @@ impl ProxyPrivate for TreelandDdeShellSurfaceV1 {
     }
 }
 
-impl Proxy for TreelandDdeShellSurfaceV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for TreelandDdeShellSurfaceV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

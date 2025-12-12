@@ -6,11 +6,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_virtual_keyboard_manager_v1 proxy.
+/// A zwp_virtual_keyboard_manager_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpVirtualKeyboardManagerV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpVirtualKeyboardManagerV1Handler>,
 }
 
@@ -20,7 +20,7 @@ impl ZwpVirtualKeyboardManagerV1Handler for DefaultHandler { }
 
 impl ZwpVirtualKeyboardManagerV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpVirtualKeyboardManagerV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpVirtualKeyboardManagerV1;
     pub const INTERFACE_NAME: &str = "zwp_virtual_keyboard_manager_v1";
 }
 
@@ -147,10 +147,10 @@ pub trait ZwpVirtualKeyboardManagerV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpVirtualKeyboardManagerV1 {
+impl ObjectPrivate for ZwpVirtualKeyboardManagerV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpVirtualKeyboardManagerV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpVirtualKeyboardManagerV1, version),
             handler: Default::default(),
         })
     }
@@ -180,7 +180,7 @@ impl ProxyPrivate for ZwpVirtualKeyboardManagerV1 {
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ProxyInterface::WlSeat));
+                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
                 };
                 let arg1_id = arg1;
                 let arg1 = ZwpVirtualKeyboardV1::new(&self.core.state, self.core.version);
@@ -234,8 +234,8 @@ impl ProxyPrivate for ZwpVirtualKeyboardManagerV1 {
     }
 }
 
-impl Proxy for ZwpVirtualKeyboardManagerV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpVirtualKeyboardManagerV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

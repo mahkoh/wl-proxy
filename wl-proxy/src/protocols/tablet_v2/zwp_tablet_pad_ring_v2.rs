@@ -9,11 +9,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwp_tablet_pad_ring_v2 proxy.
+/// A zwp_tablet_pad_ring_v2 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwpTabletPadRingV2 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwpTabletPadRingV2Handler>,
 }
 
@@ -23,7 +23,7 @@ impl ZwpTabletPadRingV2Handler for DefaultHandler { }
 
 impl ZwpTabletPadRingV2 {
     pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwpTabletPadRingV2;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpTabletPadRingV2;
     pub const INTERFACE_NAME: &str = "zwp_tablet_pad_ring_v2";
 }
 
@@ -554,10 +554,10 @@ pub trait ZwpTabletPadRingV2Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwpTabletPadRingV2 {
+impl ObjectPrivate for ZwpTabletPadRingV2 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwpTabletPadRingV2, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwpTabletPadRingV2, version),
             handler: Default::default(),
         })
     }
@@ -748,8 +748,8 @@ impl ProxyPrivate for ZwpTabletPadRingV2 {
     }
 }
 
-impl Proxy for ZwpTabletPadRingV2 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwpTabletPadRingV2 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

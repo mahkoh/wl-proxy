@@ -3,8 +3,8 @@ use {
         acceptor::{Acceptor, AcceptorError},
         client::Client,
         endpoint::{Endpoint, EndpointError},
+        object::{Object, ObjectPrivate},
         protocols::wayland::wl_display::WlDisplay,
-        proxy::{Proxy, ProxyPrivate},
         trans::{FlushResult, TransError},
         utils::{handler_holder::HandlerHolder, stack::Stack, stash::Stash, xrd::xrd},
     },
@@ -15,7 +15,6 @@ use {
         cell::{Cell, RefCell},
         collections::HashMap,
         env::var,
-        error::Error,
         fmt,
         io::{self, BufWriter, Write, pipe},
         os::fd::{AsRawFd, OwnedFd},
@@ -34,7 +33,11 @@ use {
 };
 
 #[derive(Debug, Error)]
-pub enum StateError {
+#[error(transparent)]
+pub struct StateError(#[from] StateErrorKind);
+
+#[derive(Debug, Error)]
+enum StateErrorKind {
     #[error("the state has already been destroyed")]
     Destroyed,
     #[error("the state has been destroyed by a remote destructor")]
@@ -73,12 +76,6 @@ pub enum StateError {
     CreateSocket(#[source] io::Error),
     #[error("could not connect to {0}")]
     Connect(String, #[source] io::Error),
-    #[error("could not spawn a thread")]
-    SpawnThread(#[source] io::Error),
-    #[error("spawned thread panicked")]
-    SpawnThreadPanic,
-    #[error("could not initialize the spawned state")]
-    InitThreadState(#[source] Box<dyn Error + Send + Sync>),
 }
 
 pub(crate) enum Pollable {
@@ -112,13 +109,13 @@ pub struct State {
     has_interest_update_endpoints: Cell<bool>,
     interest_update_acceptors: Stack<Rc<Acceptor>>,
     has_interest_update_acceptors: Cell<bool>,
-    pub(crate) all_proxies: RefCell<HashMap<u64, Weak<dyn Proxy>>>,
+    pub(crate) all_proxies: RefCell<HashMap<u64, Weak<dyn Object>>>,
     pub(crate) next_proxy_id: Cell<u64>,
     pub(crate) log: bool,
     pub(crate) log_prefix: String,
     log_writer: RefCell<BufWriter<Fd>>,
     global_lock_held: Cell<bool>,
-    pub(crate) proxy_stash: Stash<Rc<dyn Proxy>>,
+    pub(crate) proxy_stash: Stash<Rc<dyn Object>>,
 }
 
 pub struct StateBuilder {
@@ -144,13 +141,13 @@ impl StateBuilder {
             _ => {
                 let mut name = var("WAYLAND_DISPLAY")
                     .ok()
-                    .ok_or(StateError::WaylandDisplay)?;
+                    .ok_or(StateErrorKind::WaylandDisplay)?;
                 if name.is_empty() {
-                    return Err(StateError::WaylandDisplay);
+                    return Err(StateErrorKind::WaylandDisplay.into());
                 }
                 if !name.starts_with("/") {
                     let Some(xrd) = xrd() else {
-                        return Err(StateError::XrdNotSet);
+                        return Err(StateErrorKind::XrdNotSet.into());
                     };
                     name = format!("{xrd}/{name}");
                 }
@@ -159,7 +156,7 @@ impl StateBuilder {
                     sun_path: [0; 108],
                 };
                 if name.len() > addr.sun_path.len() - 1 {
-                    return Err(StateError::SocketPathTooLong);
+                    return Err(StateErrorKind::SocketPathTooLong.into());
                 }
                 let sun_path = uapi::as_bytes_mut(&mut addr.sun_path[..]);
                 sun_path[..name.len()].copy_from_slice(name.as_bytes());
@@ -169,9 +166,9 @@ impl StateBuilder {
                     c::SOCK_STREAM | c::SOCK_NONBLOCK | c::SOCK_CLOEXEC,
                     0,
                 )
-                .map_err(|e| StateError::CreateSocket(e.into()))?;
+                .map_err(|e| StateErrorKind::CreateSocket(e.into()))?;
                 uapi::connect(socket.raw(), &addr)
-                    .map_err(|e| StateError::Connect(name.to_string(), e.into()))?;
+                    .map_err(|e| StateErrorKind::Connect(name.to_string(), e.into()))?;
                 socket.into()
             }
         };
@@ -187,8 +184,8 @@ impl StateBuilder {
                 client: None,
             }),
         );
-        let epoll =
-            uapi::epoll_create1(c::EPOLL_CLOEXEC).map_err(|e| StateError::CreateEpoll(e.into()))?;
+        let epoll = uapi::epoll_create1(c::EPOLL_CLOEXEC)
+            .map_err(|e| StateErrorKind::CreateEpoll(e.into()))?;
         let mut log_prefix = String::new();
         if let Ok(prefix) = var("WL_PROXY_PREFIX") {
             log_prefix = prefix;
@@ -311,11 +308,19 @@ impl State {
         StateBuilder::default().build()
     }
 
-    fn acquire_handler_lock(&self) -> Result<HandlerLock<'_>, StateError> {
+    fn acquire_handler_lock(&self) -> Result<HandlerLock<'_>, StateErrorKind> {
         if self.global_lock_held.replace(true) {
-            return Err(StateError::RecursiveCall);
+            return Err(StateErrorKind::RecursiveCall);
         }
         Ok(HandlerLock { state: self })
+    }
+
+    pub fn is_not_destroyed(&self) -> bool {
+        !self.is_destroyed()
+    }
+
+    pub fn is_destroyed(&self) -> bool {
+        self.destroyed.get()
     }
 
     pub fn dispatch_blocking(self: &Rc<Self>) -> Result<(), StateError> {
@@ -386,9 +391,9 @@ impl State {
                         self.add_client_to_kill(client);
                     } else {
                         if is_closed {
-                            return Err(StateError::ServerHangup);
+                            return Err(StateErrorKind::ServerHangup.into());
                         }
-                        return Err(StateError::WriteToServer(e));
+                        return Err(StateErrorKind::WriteToServer(e).into());
                     }
                     continue;
                 }
@@ -420,7 +425,9 @@ impl State {
             self.has_interest_update_acceptors.set(true);
             const MAX_ACCEPT_PER_ITERATION: usize = 10;
             for _ in 0..MAX_ACCEPT_PER_ITERATION {
-                let socket = acceptor.accept().map_err(StateError::AcceptConnection)?;
+                let socket = acceptor
+                    .accept()
+                    .map_err(StateErrorKind::AcceptConnection)?;
                 let Some(socket) = socket else {
                     break;
                 };
@@ -480,7 +487,7 @@ impl State {
                 if let Some(client) = &ewc.client {
                     self.add_client_to_kill(client);
                 } else {
-                    return Err(StateError::DispatchEvents(e));
+                    return Err(StateErrorKind::DispatchEvents(e).into());
                 }
             }
             self.change_interest(&ewc.endpoint, |i| i | c::EPOLLIN);
@@ -532,7 +539,7 @@ impl State {
     }
 
     pub fn create_remote_destructor(&self) -> Result<RemoteDestructor, StateError> {
-        let (r, w) = pipe().map_err(StateError::CreatePipe)?;
+        let (r, w) = pipe().map_err(StateErrorKind::CreatePipe)?;
         let id = self.create_pollable_id();
         let event = c::epoll_event { events: 0, u64: id };
         uapi::epoll_ctl(
@@ -541,7 +548,7 @@ impl State {
             r.as_raw_fd(),
             Some(&event),
         )
-        .map_err(|e| StateError::UpdateEpoll(e.into()))?;
+        .map_err(|e| StateErrorKind::UpdateEpoll(e.into()))?;
         let destroy = Arc::new(AtomicBool::new(false));
         self.pollables
             .borrow_mut()
@@ -567,7 +574,7 @@ impl State {
                 Ok(0) => return Ok(()),
                 Ok(n) => n,
                 Err(Errno(c::EINTR)) => continue,
-                Err(e) => return Err(StateError::ReadEpoll(e.into())),
+                Err(e) => return Err(StateErrorKind::ReadEpoll(e.into()).into()),
             };
             timeout = 0;
             for event in &events[0..n] {
@@ -582,7 +589,7 @@ impl State {
                             if let Some(client) = &ewc.client {
                                 self.add_client_to_kill(client);
                             } else {
-                                return Err(StateError::ServerHangup);
+                                return Err(StateErrorKind::ServerHangup.into());
                             }
                             continue;
                         }
@@ -605,7 +612,7 @@ impl State {
                         let destroy = destroy.load(Relaxed);
                         pollables.remove(&id);
                         if destroy {
-                            return Err(StateError::RemoteDestroyed);
+                            return Err(StateErrorKind::RemoteDestroyed.into());
                         }
                     }
                 }
@@ -645,7 +652,7 @@ impl State {
                 socket.as_raw_fd(),
                 Some(event),
             )
-            .map_err(|e| StateError::UpdateEpoll(io::Error::from_raw_os_error(e.0)))
+            .map_err(|e| StateErrorKind::UpdateEpoll(io::Error::from_raw_os_error(e.0)))
         };
         if self.has_interest_update_endpoints.get() {
             while let Some(endpoint) = self.interest_update_endpoints.pop() {
@@ -684,7 +691,8 @@ impl State {
             socket.as_raw_fd(),
             Some(&event),
         )
-        .map_err(|e| StateError::AddEpoll(e.into()))
+        .map_err(|e| StateErrorKind::AddEpoll(e.into()))?;
+        Ok(())
     }
 
     pub fn connect(self: &Rc<Self>) -> Result<(Rc<Client>, OwnedFd), StateError> {
@@ -693,7 +701,7 @@ impl State {
             c::SOCK_STREAM | c::SOCK_NONBLOCK | c::SOCK_CLOEXEC,
             0,
         )
-        .map_err(|e| StateError::Socketpair(e.into()))?;
+        .map_err(|e| StateErrorKind::Socketpair(e.into()))?;
         let client = self.create_client(None, server_fd.into())?;
         Ok((client, client_fd.into()))
     }
@@ -705,7 +713,8 @@ impl State {
     pub fn create_acceptor(&self, max_tries: u32) -> Result<Rc<Acceptor>, StateError> {
         self.check_destroyed()?;
         let id = self.create_pollable_id();
-        let acceptor = Acceptor::create(id, max_tries, true).map_err(StateError::CreateAcceptor)?;
+        let acceptor =
+            Acceptor::create(id, max_tries, true).map_err(StateErrorKind::CreateAcceptor)?;
         self.register_socket(id, &acceptor.socket)?;
         self.interest_update_acceptors.push(acceptor.clone());
         self.has_interest_update_acceptors.set(true);
@@ -717,7 +726,7 @@ impl State {
 
     fn check_destroyed(&self) -> Result<(), StateError> {
         if self.destroyed.get() {
-            return Err(StateError::Destroyed);
+            return Err(StateErrorKind::Destroyed.into());
         }
         Ok(())
     }
@@ -735,7 +744,7 @@ impl State {
 
     pub fn create_proxy<P>(self: &Rc<Self>, version: u32) -> Rc<P>
     where
-        P: Proxy + Sized,
+        P: Object + Sized,
     {
         P::new(self, version)
     }

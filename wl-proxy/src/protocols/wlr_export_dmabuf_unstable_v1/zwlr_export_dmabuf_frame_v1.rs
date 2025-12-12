@@ -18,11 +18,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zwlr_export_dmabuf_frame_v1 proxy.
+/// A zwlr_export_dmabuf_frame_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZwlrExportDmabufFrameV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZwlrExportDmabufFrameV1Handler>,
 }
 
@@ -32,7 +32,7 @@ impl ZwlrExportDmabufFrameV1Handler for DefaultHandler { }
 
 impl ZwlrExportDmabufFrameV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZwlrExportDmabufFrameV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrExportDmabufFrameV1;
     pub const INTERFACE_NAME: &str = "zwlr_export_dmabuf_frame_v1";
 }
 
@@ -592,10 +592,10 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZwlrExportDmabufFrameV1 {
+impl ObjectPrivate for ZwlrExportDmabufFrameV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZwlrExportDmabufFrameV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZwlrExportDmabufFrameV1, version),
             handler: Default::default(),
         })
     }
@@ -763,8 +763,8 @@ impl ProxyPrivate for ZwlrExportDmabufFrameV1 {
     }
 }
 
-impl Proxy for ZwlrExportDmabufFrameV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZwlrExportDmabufFrameV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

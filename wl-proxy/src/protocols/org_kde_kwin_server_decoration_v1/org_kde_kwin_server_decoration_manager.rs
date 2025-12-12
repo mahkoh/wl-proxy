@@ -11,11 +11,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A org_kde_kwin_server_decoration_manager proxy.
+/// A org_kde_kwin_server_decoration_manager object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct OrgKdeKwinServerDecorationManager {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn OrgKdeKwinServerDecorationManagerHandler>,
 }
 
@@ -25,7 +25,7 @@ impl OrgKdeKwinServerDecorationManagerHandler for DefaultHandler { }
 
 impl OrgKdeKwinServerDecorationManager {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::OrgKdeKwinServerDecorationManager;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::OrgKdeKwinServerDecorationManager;
     pub const INTERFACE_NAME: &str = "org_kde_kwin_server_decoration_manager";
 }
 
@@ -243,10 +243,10 @@ pub trait OrgKdeKwinServerDecorationManagerHandler: Any {
     }
 }
 
-impl ProxyPrivate for OrgKdeKwinServerDecorationManager {
+impl ObjectPrivate for OrgKdeKwinServerDecorationManager {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::OrgKdeKwinServerDecorationManager, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::OrgKdeKwinServerDecorationManager, version),
             handler: Default::default(),
         })
     }
@@ -280,7 +280,7 @@ impl ProxyPrivate for OrgKdeKwinServerDecorationManager {
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ProxyInterface::WlSurface));
+                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -352,8 +352,8 @@ impl ProxyPrivate for OrgKdeKwinServerDecorationManager {
     }
 }
 
-impl Proxy for OrgKdeKwinServerDecorationManager {
-    fn core(&self) -> &ProxyCore {
+impl Object for OrgKdeKwinServerDecorationManager {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

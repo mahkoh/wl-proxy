@@ -13,11 +13,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A zxdg_output_v1 proxy.
+/// A zxdg_output_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct ZxdgOutputV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn ZxdgOutputV1Handler>,
 }
 
@@ -27,7 +27,7 @@ impl ZxdgOutputV1Handler for DefaultHandler { }
 
 impl ZxdgOutputV1 {
     pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::ZxdgOutputV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::ZxdgOutputV1;
     pub const INTERFACE_NAME: &str = "zxdg_output_v1";
 }
 
@@ -626,10 +626,10 @@ pub trait ZxdgOutputV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for ZxdgOutputV1 {
+impl ObjectPrivate for ZxdgOutputV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::ZxdgOutputV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::ZxdgOutputV1, version),
             handler: Default::default(),
         })
     }
@@ -841,8 +841,8 @@ impl ProxyPrivate for ZxdgOutputV1 {
     }
 }
 
-impl Proxy for ZxdgOutputV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for ZxdgOutputV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 

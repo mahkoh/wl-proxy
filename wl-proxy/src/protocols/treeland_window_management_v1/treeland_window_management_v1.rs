@@ -10,11 +10,11 @@
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
 
-/// A treeland_window_management_v1 proxy.
+/// A treeland_window_management_v1 object.
 ///
 /// See the documentation of [the module][self] for the interface description.
 pub struct TreelandWindowManagementV1 {
-    core: ProxyCore,
+    core: ObjectCore,
     handler: HandlerHolder<dyn TreelandWindowManagementV1Handler>,
 }
 
@@ -24,7 +24,7 @@ impl TreelandWindowManagementV1Handler for DefaultHandler { }
 
 impl TreelandWindowManagementV1 {
     pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ProxyInterface = ProxyInterface::TreelandWindowManagementV1;
+    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandWindowManagementV1;
     pub const INTERFACE_NAME: &str = "treeland_window_management_v1";
 }
 
@@ -247,10 +247,10 @@ pub trait TreelandWindowManagementV1Handler: Any {
     }
 }
 
-impl ProxyPrivate for TreelandWindowManagementV1 {
+impl ObjectPrivate for TreelandWindowManagementV1 {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self> {
         Rc::<Self>::new_cyclic(|slf| Self {
-            core: ProxyCore::new(state, slf.clone(), ProxyInterface::TreelandWindowManagementV1, version),
+            core: ObjectCore::new(state, slf.clone(), ObjectInterface::TreelandWindowManagementV1, version),
             handler: Default::default(),
         })
     }
@@ -359,8 +359,8 @@ impl ProxyPrivate for TreelandWindowManagementV1 {
     }
 }
 
-impl Proxy for TreelandWindowManagementV1 {
-    fn core(&self) -> &ProxyCore {
+impl Object for TreelandWindowManagementV1 {
+    fn core(&self) -> &ObjectCore {
         &self.core
     }
 
