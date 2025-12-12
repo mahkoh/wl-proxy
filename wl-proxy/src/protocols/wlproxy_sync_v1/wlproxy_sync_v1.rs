@@ -83,51 +83,41 @@ impl WlproxySyncV1 {
         Ok(())
     }
 
-    /// Since when the sync message is available.
-    pub const MSG__SYNC__SINCE: u32 = 1;
+    /// Since when the sync_with_proxy message is available.
+    pub const MSG__SYNC_WITH_PROXY__SINCE: u32 = 1;
 
-    /// synchronize between the client and the proxy
+    /// synchronize from the client to the proxy
     ///
     /// This request can be used to synchronize messages between the client
-    /// and the proxy. The callback will be invoked immediately. The callback
-    /// data is unused.
+    /// and the proxy.
     ///
     /// The id_hi and id_lo arguments form an opaque 64-bit number.
     ///
     /// # Arguments
     ///
-    /// - `callback`: the callback
     /// - `id_hi`: upper 32 bits of the id
     /// - `id_lo`: lower 32 bits of the id
     #[inline]
-    pub fn send_sync(
+    pub fn send_sync_with_proxy(
         &self,
-        callback: &Rc<WlCallback>,
         id_hi: u32,
         id_lo: u32,
     ) -> Result<(), ObjectError> {
         let (
             arg0,
             arg1,
-            arg2,
         ) = (
-            callback,
             id_hi,
             id_lo,
         );
-        let arg0_obj = arg0;
-        let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
             return Err(ObjectError::ReceiverNoServerId);
         };
-        arg0.generate_server_id(arg0_obj.clone())
-            .map_err(|e| ObjectError::GenerateServerId("callback", e))?;
-        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             let (millis, micros) = time_since_epoch();
             let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wlproxy_sync_v1#{}.sync(callback: wl_callback#{}, id_hi: {}, id_lo: {})\n", id, arg0_id, arg1, arg2);
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wlproxy_sync_v1#{}.sync_with_proxy(id_hi: {}, id_lo: {})\n", id, arg0, arg1);
             self.core.state.log(args);
         }
         let endpoint = &self.core.state.server;
@@ -140,9 +130,63 @@ impl WlproxySyncV1 {
         fmt.words([
             id,
             1,
-            arg0_id,
+            arg0,
             arg1,
-            arg2,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the sync_with_client message is available.
+    pub const MSG__SYNC_WITH_CLIENT__SINCE: u32 = 1;
+
+    /// synchronize from the proxy to the client
+    ///
+    /// This event can be used to synchronize messages between the client
+    /// and the proxy.
+    ///
+    /// The id_hi and id_lo arguments form an opaque 64-bit number.
+    ///
+    /// # Arguments
+    ///
+    /// - `id_hi`: upper 32 bits of the id
+    /// - `id_lo`: lower 32 bits of the id
+    #[inline]
+    pub fn send_sync_with_client(
+        &self,
+        id_hi: u32,
+        id_lo: u32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            id_hi,
+            id_lo,
+        );
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError::ReceiverNoClient);
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wlproxy_sync_v1#{}.sync_with_client(id_hi: {}, id_lo: {})\n", client.endpoint.id, id, arg0, arg1);
+            self.core.state.log(args);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            0,
+            arg0,
+            arg1,
         ]);
         Ok(())
     }
@@ -168,34 +212,57 @@ pub trait WlproxySyncV1Handler: Any {
         }
     }
 
-    /// synchronize between the client and the proxy
+    /// synchronize from the client to the proxy
     ///
     /// This request can be used to synchronize messages between the client
-    /// and the proxy. The callback will be invoked immediately. The callback
-    /// data is unused.
+    /// and the proxy.
     ///
     /// The id_hi and id_lo arguments form an opaque 64-bit number.
     ///
     /// # Arguments
     ///
-    /// - `callback`: the callback
     /// - `id_hi`: upper 32 bits of the id
     /// - `id_lo`: lower 32 bits of the id
     #[inline]
-    fn handle_sync(
+    fn handle_sync_with_proxy(
         &mut self,
         _slf: &Rc<WlproxySyncV1>,
-        callback: &Rc<WlCallback>,
         id_hi: u32,
         id_lo: u32,
     ) {
-        let res = _slf.send_sync(
-            callback,
+        let res = _slf.send_sync_with_proxy(
             id_hi,
             id_lo,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wlproxy_sync_v1.sync message: {}", Report::new(e));
+            log::warn!("Could not forward a wlproxy_sync_v1.sync_with_proxy message: {}", Report::new(e));
+        }
+    }
+
+    /// synchronize from the proxy to the client
+    ///
+    /// This event can be used to synchronize messages between the client
+    /// and the proxy.
+    ///
+    /// The id_hi and id_lo arguments form an opaque 64-bit number.
+    ///
+    /// # Arguments
+    ///
+    /// - `id_hi`: upper 32 bits of the id
+    /// - `id_lo`: lower 32 bits of the id
+    #[inline]
+    fn handle_sync_with_client(
+        &mut self,
+        _slf: &Rc<WlproxySyncV1>,
+        id_hi: u32,
+        id_lo: u32,
+    ) {
+        let res = _slf.send_sync_with_client(
+            id_hi,
+            id_lo,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wlproxy_sync_v1.sync_with_client message: {}", Report::new(e));
         }
     }
 }
@@ -247,25 +314,19 @@ impl ObjectPrivate for WlproxySyncV1 {
                 let [
                     arg0,
                     arg1,
-                    arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 if self.core.state.log {
                     let (millis, micros) = time_since_epoch();
                     let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wlproxy_sync_v1#{}.sync(callback: wl_callback#{}, id_hi: {}, id_lo: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wlproxy_sync_v1#{}.sync_with_proxy(id_hi: {}, id_lo: {})\n", client.endpoint.id, msg[0], arg0, arg1);
                     self.core.state.log(args);
                 }
-                let arg0_id = arg0;
-                let arg0 = WlCallback::new(&self.core.state, self.core.version);
-                arg0.core().set_client_id(client, arg0_id, arg0.clone())
-                    .map_err(|e| ObjectError::SetClientId(arg0_id, "callback", e))?;
-                let arg0 = &arg0;
                 if let Some(handler) = handler {
-                    (**handler).handle_sync(&self, arg0, arg1, arg2);
+                    (**handler).handle_sync_with_proxy(&self, arg0, arg1);
                 } else {
-                    DefaultHandler.handle_sync(&self, arg0, arg1, arg2);
+                    DefaultHandler.handle_sync_with_proxy(&self, arg0, arg1);
                 }
             }
             n => {
@@ -285,6 +346,25 @@ impl ObjectPrivate for WlproxySyncV1 {
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
+            0 => {
+                let [
+                    arg0,
+                    arg1,
+                ] = msg[2..] else {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
+                };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wlproxy_sync_v1#{}.sync_with_client(id_hi: {}, id_lo: {})\n", msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_sync_with_client(&self, arg0, arg1);
+                } else {
+                    DefaultHandler.handle_sync_with_client(&self, arg0, arg1);
+                }
+            }
             n => {
                 let _ = msg;
                 let _ = fds;
@@ -292,20 +372,24 @@ impl ObjectPrivate for WlproxySyncV1 {
                 return Err(ObjectError::UnknownMessageId(n));
             }
         }
+        Ok(())
     }
 
     fn get_request_name(&self, id: u32) -> Option<&'static str> {
         let name = match id {
             0 => "destroy",
-            1 => "sync",
+            1 => "sync_with_proxy",
             _ => return None,
         };
         Some(name)
     }
 
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
-        let _ = id;
-        None
+        let name = match id {
+            0 => "sync_with_client",
+            _ => return None,
+        };
+        Some(name)
     }
 }
 

@@ -35,17 +35,26 @@
       <description summary="destroy this object" />
     </request>
 
-    <request name="sync">
-      <description summary="synchronize between the client and the proxy">
+    <request name="sync_with_proxy">
+      <description summary="synchronize from the client to the proxy">
         This request can be used to synchronize messages between the client
-        and the proxy. The callback will be invoked immediately. The callback
-        data is unused.
+        and the proxy.
 
         The id_hi and id_lo arguments form an opaque 64-bit number.
       </description>
-      <arg name="callback" type="new_id" interface="wl_callback" summary="the callback"/>
       <arg name="id_hi" type="uint" summary="upper 32 bits of the id"/>
       <arg name="id_lo" type="uint" summary="lower 32 bits of the id"/>
     </request>
+
+    <event name="sync_with_client">
+      <description summary="synchronize from the proxy to the client">
+        This event can be used to synchronize messages between the client
+        and the proxy.
+
+        The id_hi and id_lo arguments form an opaque 64-bit number.
+      </description>
+      <arg name="id_hi" type="uint" summary="upper 32 bits of the id"/>
+      <arg name="id_lo" type="uint" summary="lower 32 bits of the id"/>
+    </event>
   </interface>
 </protocol>
