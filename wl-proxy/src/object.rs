@@ -1,8 +1,13 @@
 use {
-    crate::{client::Client, protocols::ObjectInterface, state::State},
+    crate::{
+        client::Client,
+        protocols::ObjectInterface,
+        state::State,
+        utils::handler_holder::{HandlerMut, HandlerRef},
+    },
     std::{
         any::Any,
-        cell::{Cell, Ref, RefCell, RefMut},
+        cell::{Cell, RefCell},
         collections::{VecDeque, hash_map::Entry},
         os::fd::OwnedFd,
         rc::{Rc, Weak},
@@ -44,8 +49,8 @@ pub(crate) trait ObjectPrivate: Any {
 pub trait Object: ObjectPrivate {
     fn core(&self) -> &ObjectCore;
     fn unset_handler(&self);
-    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError>;
-    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError>;
+    fn get_handler_any_ref(&self) -> Result<HandlerRef<'_, dyn Any>, HandlerAccessError>;
+    fn get_handler_any_mut(&self) -> Result<HandlerMut<'_, dyn Any>, HandlerAccessError>;
 }
 
 pub trait ObjectUtils: Object {
@@ -72,7 +77,7 @@ pub trait ObjectUtils: Object {
         self.core().delete_id()
     }
 
-    fn get_handler_ref<T>(&self) -> Result<Ref<'_, T>, HandlerAccessError>
+    fn get_handler_ref<T>(&self) -> Result<HandlerRef<'_, T>, HandlerAccessError>
     where
         T: 'static,
     {
@@ -80,12 +85,12 @@ pub trait ObjectUtils: Object {
         handler
             .downcast_ref::<T>()
             .ok_or(HandlerAccessError::InvalidType)?;
-        Ok(Ref::map(handler, |h| unsafe {
+        Ok(HandlerRef::map(handler, |h| unsafe {
             &*(h as *const dyn Any as *const T)
         }))
     }
 
-    fn get_handler_mut<T>(&self) -> Result<RefMut<'_, T>, HandlerAccessError>
+    fn get_handler_mut<T>(&self) -> Result<HandlerMut<'_, T>, HandlerAccessError>
     where
         T: 'static,
     {
@@ -93,7 +98,7 @@ pub trait ObjectUtils: Object {
         handler
             .downcast_mut::<T>()
             .ok_or(HandlerAccessError::InvalidType)?;
-        Ok(RefMut::map(handler, |h| unsafe {
+        Ok(HandlerMut::map(handler, |h| unsafe {
             &mut *(h as *mut dyn Any as *mut T)
         }))
     }
@@ -321,7 +326,7 @@ impl ObjectCore {
     where
         P: Object,
     {
-        self.state.create_proxy::<P>(self.version)
+        self.state.create_object::<P>(self.version)
     }
 
     pub fn state(&self) -> &Rc<State> {

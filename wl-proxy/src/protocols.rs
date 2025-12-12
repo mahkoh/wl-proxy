@@ -173,6 +173,8 @@ pub mod wlr_output_power_management_unstable_v1;
 pub mod wlr_screencopy_unstable_v1;
 #[cfg(feature = "protocol-wlr_virtual_pointer_unstable_v1")]
 pub mod wlr_virtual_pointer_unstable_v1;
+#[cfg(feature = "protocol-wlproxy_sync_v1")]
+pub mod wlproxy_sync_v1;
 
 #[allow(unused_imports)]
 mod all_types {
@@ -989,6 +991,8 @@ mod all_types {
     pub(super) use super::wlr_virtual_pointer_unstable_v1::zwlr_virtual_pointer_v1::ZwlrVirtualPointerV1;
     #[cfg(feature = "protocol-wlr_virtual_pointer_unstable_v1")]
     pub(super) use super::wlr_virtual_pointer_unstable_v1::zwlr_virtual_pointer_v1::ZwlrVirtualPointerV1Error;
+    #[cfg(feature = "protocol-wlproxy_sync_v1")]
+    pub(super) use super::wlproxy_sync_v1::wlproxy_sync_v1::WlproxySyncV1;
 
     use crate::protocol_helpers::prelude::*;
 
@@ -1892,6 +1896,10 @@ mod all_types {
                 "zwlr_virtual_pointer_v1" => {
                     #[cfg(feature = "protocol-wlr_virtual_pointer_unstable_v1")] { Some(ObjectInterface::ZwlrVirtualPointerV1) }
                     #[cfg(not(feature = "protocol-wlr_virtual_pointer_unstable_v1"))] { None }
+                },
+                "wlproxy_sync_v1" => {
+                    #[cfg(feature = "protocol-wlproxy_sync_v1")] { Some(ObjectInterface::WlproxySyncV1) }
+                    #[cfg(not(feature = "protocol-wlproxy_sync_v1"))] { None }
                 },
             };
             INTERFACES.get(interface).copied().flatten()
@@ -3556,6 +3564,13 @@ mod all_types {
                     }
                     Ok(ZwlrVirtualPointerV1::new(state, version))
                 }
+                #[cfg(feature = "protocol-wlproxy_sync_v1")]
+                Self::WlproxySyncV1 => {
+                    if version > WlproxySyncV1::XML_VERSION {
+                        return Err(ObjectError::MaxVersion(self, version));
+                    }
+                    Ok(WlproxySyncV1::new(state, version))
+                }
             }
         }
     }
@@ -4261,6 +4276,9 @@ pub enum ObjectInterface {
     /// zwlr_virtual_pointer_v1
     #[cfg(feature = "protocol-wlr_virtual_pointer_unstable_v1")]
     ZwlrVirtualPointerV1,
+    /// wlproxy_sync_v1
+    #[cfg(feature = "protocol-wlproxy_sync_v1")]
+    WlproxySyncV1,
 }
 
 impl ObjectInterface {
@@ -4723,6 +4741,8 @@ impl ObjectInterface {
             Self::ZwlrVirtualPointerManagerV1 => "zwlr_virtual_pointer_manager_v1",
             #[cfg(feature = "protocol-wlr_virtual_pointer_unstable_v1")]
             Self::ZwlrVirtualPointerV1 => "zwlr_virtual_pointer_v1",
+            #[cfg(feature = "protocol-wlproxy_sync_v1")]
+            Self::WlproxySyncV1 => "wlproxy_sync_v1",
         }
     }
 
@@ -5185,6 +5205,8 @@ impl ObjectInterface {
             Self::ZwlrVirtualPointerManagerV1 => 2,
             #[cfg(feature = "protocol-wlr_virtual_pointer_unstable_v1")]
             Self::ZwlrVirtualPointerV1 => 2,
+            #[cfg(feature = "protocol-wlproxy_sync_v1")]
+            Self::WlproxySyncV1 => 1,
         }
     }
 }

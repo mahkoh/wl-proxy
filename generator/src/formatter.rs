@@ -873,7 +873,7 @@ fn format_object_impl(w: &mut impl Write, interface: &Interface) -> io::Result<(
     wl!(r#"    }}"#)?;
     wl!()?;
     wl!(r#"    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {{"#)?;
-    wl!(r#"        let Some(mut handler) = self.handler.try_borrow() else {{"#)?;
+    wl!(r#"        let Some(mut handler) = self.handler.try_borrow_mut() else {{"#)?;
     wl!(r#"            return Err((ObjectError::HandlerBorrowed, self));"#)?;
     wl!(r#"        }};"#)?;
     wl!(r#"        if let Some(handler) = &mut *handler {{"#)?;
@@ -914,12 +914,14 @@ fn format_object_impl(w: &mut impl Write, interface: &Interface) -> io::Result<(
     wl!(r#"        self.handler.set(None);"#)?;
     wl!(r#"    }}"#)?;
     wl!()?;
-    wl!(r#"    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {{"#)?;
+    wl!(
+        r#"    fn get_handler_any_ref(&self) -> Result<HandlerRef<'_, dyn Any>, HandlerAccessError> {{"#
+    )?;
     format_object_get_handler(w, false)?;
     wl!(r#"    }}"#)?;
     wl!()?;
     wl!(
-        r#"    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {{"#
+        r#"    fn get_handler_any_mut(&self) -> Result<HandlerMut<'_, dyn Any>, HandlerAccessError> {{"#
     )?;
     format_object_get_handler(w, true)?;
     wl!(r#"    }}"#)?;
@@ -935,17 +937,19 @@ fn format_object_get_handler(w: &mut impl Write, mutable: bool) -> io::Result<()
         suffix = "_mut";
     }
     wl!(
-        r#"{p}let borrowed = self.handler.handler.try_borrow{suffix}().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;"#
+        r#"{p}let borrowed = self.handler.try_borrow{suffix}().ok_or(HandlerAccessError::AlreadyBorrowed)?;"#
     )?;
     wl!(r#"{p}if borrowed.is_none() {{"#)?;
     wl!(r#"{p}    return Err(HandlerAccessError::NoHandler);"#)?;
     wl!(r#"{p}}}"#)?;
     if mutable {
         wl!(
-            r#"{p}Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))"#
+            r#"{p}Ok(HandlerMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))"#
         )?;
     } else {
-        wl!(r#"{p}Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))"#)?;
+        wl!(
+            r#"{p}Ok(HandlerRef::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))"#
+        )?;
     }
     Ok(())
 }
@@ -1085,7 +1089,7 @@ fn format_object_message_handler_body<W: Write>(
 ) -> io::Result<()> {
     define_w!(w);
     let p = "        ";
-    wl!(r#"{p}let Some(mut handler) = self.handler.try_borrow() else {{"#)?;
+    wl!(r#"{p}let Some(mut handler) = self.handler.try_borrow_mut() else {{"#)?;
     wl!(r#"{p}    return Err(ObjectError::HandlerBorrowed);"#)?;
     wl!(r#"{p}}};"#)?;
     wl!(r#"{p}let handler = &mut *handler;"#)?;

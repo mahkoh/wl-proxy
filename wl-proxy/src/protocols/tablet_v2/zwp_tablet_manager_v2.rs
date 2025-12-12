@@ -208,7 +208,7 @@ impl ObjectPrivate for ZwpTabletManagerV2 {
     }
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
-        let Some(mut handler) = self.handler.try_borrow() else {
+        let Some(mut handler) = self.handler.try_borrow_mut() else {
             return Err((ObjectError::HandlerBorrowed, self));
         };
         if let Some(handler) = &mut *handler {
@@ -220,7 +220,7 @@ impl ObjectPrivate for ZwpTabletManagerV2 {
     }
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let Some(mut handler) = self.handler.try_borrow() else {
+        let Some(mut handler) = self.handler.try_borrow_mut() else {
             return Err(ObjectError::HandlerBorrowed);
         };
         let handler = &mut *handler;
@@ -287,7 +287,7 @@ impl ObjectPrivate for ZwpTabletManagerV2 {
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
-        let Some(mut handler) = self.handler.try_borrow() else {
+        let Some(mut handler) = self.handler.try_borrow_mut() else {
             return Err(ObjectError::HandlerBorrowed);
         };
         let handler = &mut *handler;
@@ -325,20 +325,20 @@ impl Object for ZwpTabletManagerV2 {
         self.handler.set(None);
     }
 
-    fn get_handler_any_ref(&self) -> Result<Ref<'_, dyn Any>, HandlerAccessError> {
-        let borrowed = self.handler.handler.try_borrow().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+    fn get_handler_any_ref(&self) -> Result<HandlerRef<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.try_borrow().ok_or(HandlerAccessError::AlreadyBorrowed)?;
         if borrowed.is_none() {
             return Err(HandlerAccessError::NoHandler);
         }
-        Ok(Ref::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
+        Ok(HandlerRef::map(borrowed, |handler| &**handler.as_ref().unwrap() as &dyn Any))
     }
 
-    fn get_handler_any_mut(&self) -> Result<RefMut<'_, dyn Any>, HandlerAccessError> {
-        let borrowed = self.handler.handler.try_borrow_mut().map_err(|_| HandlerAccessError::AlreadyBorrowed)?;
+    fn get_handler_any_mut(&self) -> Result<HandlerMut<'_, dyn Any>, HandlerAccessError> {
+        let borrowed = self.handler.try_borrow_mut().ok_or(HandlerAccessError::AlreadyBorrowed)?;
         if borrowed.is_none() {
             return Err(HandlerAccessError::NoHandler);
         }
-        Ok(RefMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
+        Ok(HandlerMut::map(borrowed, |handler| &mut **handler.as_mut().unwrap() as &mut dyn Any))
     }
 }
 

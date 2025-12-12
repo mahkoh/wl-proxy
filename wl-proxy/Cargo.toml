@@ -25,6 +25,7 @@ all-protocols = [
     "suite-treeland-protocols",
     "suite-wayland-protocols",
     "suite-wlr-protocols",
+    "suite-wlproxy",
 ]
 
 suite-hyprland-protocols = [
@@ -126,6 +127,9 @@ suite-wlr-protocols = [
     "protocol-wlr_screencopy_unstable_v1",
     "protocol-wlr_virtual_pointer_unstable_v1",
 ]
+suite-wlproxy = [
+    "protocol-wlproxy_sync_v1",
+]
 
 protocol-hyprland_ctm_control_v1 = []
 protocol-hyprland_focus_grab_v1 = []
@@ -214,4 +218,5 @@ protocol-wlr_output_management_unstable_v1 = []
 protocol-wlr_output_power_management_unstable_v1 = []
 protocol-wlr_screencopy_unstable_v1 = []
 protocol-wlr_virtual_pointer_unstable_v1 = []
+protocol-wlproxy_sync_v1 = []
 # --generated end--

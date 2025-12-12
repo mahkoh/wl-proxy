@@ -140,12 +140,14 @@ impl WlRegistryHandler for FirstRegistryHandler {
     ) {
         match interface {
             ZwlrLayerShellV1::INTERFACE => {
-                let proxy = slf.state().create_proxy::<ZwlrLayerShellV1>(version.min(5));
+                let proxy = slf
+                    .state()
+                    .create_object::<ZwlrLayerShellV1>(version.min(5));
                 let _ = slf.send_bind(name, proxy.clone());
                 *self.layer_shell.layer_shell.borrow_mut() = Some(proxy);
             }
             WlFixes::INTERFACE => {
-                let proxy = slf.state().create_proxy::<WlFixes>(1);
+                let proxy = slf.state().create_object::<WlFixes>(1);
                 let _ = slf.send_bind(name, proxy.clone());
                 self.wl_fixes = Some(proxy);
             }

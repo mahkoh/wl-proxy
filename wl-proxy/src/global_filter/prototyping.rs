@@ -1,9 +1,7 @@
 #![allow(non_upper_case_globals, unused)]
 
-use {
-    crate::protocols::ObjectInterface,
-    linearize::{Linearize, StaticCopyMap},
-};
+use linearize::{StaticCopyMap, Linearize};
+use crate::protocols::ObjectInterface;
 
 const ext_background_effect_manager_v1: u32 = 1;
 const ext_background_effect_surface_v1: u32 = 1;
@@ -103,6 +101,7 @@ const wl_subcompositor: u32 = 1;
 const wl_subsurface: u32 = 1;
 const wl_surface: u32 = 6;
 const wl_touch: u32 = 10;
+const wlproxy_sync_v1: u32 = 1;
 const wp_alpha_modifier_surface_v1: u32 = 1;
 const wp_alpha_modifier_v1: u32 = 1;
 const wp_color_management_output_v1: u32 = 2;
@@ -423,6 +422,8 @@ pub(super) const BASELINE: &StaticCopyMap<ObjectInterface, u32> = {
         { baseline[ObjectInterface::WlSubsurface.__linearize_d66aa8fa_6974_4651_b2b7_75291a9e7105()] = wl_subsurface; }
         { baseline[ObjectInterface::WlSurface.__linearize_d66aa8fa_6974_4651_b2b7_75291a9e7105()] = wl_surface; }
         { baseline[ObjectInterface::WlTouch.__linearize_d66aa8fa_6974_4651_b2b7_75291a9e7105()] = wl_touch; }
+        #[cfg(feature = "protocol-wlproxy_sync_v1")]
+        { baseline[ObjectInterface::WlproxySyncV1.__linearize_d66aa8fa_6974_4651_b2b7_75291a9e7105()] = wlproxy_sync_v1; }
         #[cfg(feature = "protocol-alpha_modifier_v1")]
         { baseline[ObjectInterface::WpAlphaModifierSurfaceV1.__linearize_d66aa8fa_6974_4651_b2b7_75291a9e7105()] = wp_alpha_modifier_surface_v1; }
         #[cfg(feature = "protocol-alpha_modifier_v1")]

@@ -21,7 +21,10 @@ use {
         rc::{Rc, Weak},
         sync::{
             Arc,
-            atomic::{AtomicBool, Ordering::Relaxed},
+            atomic::{
+                AtomicBool,
+                Ordering::{Acquire, Release},
+            },
         },
         time::Duration,
     },
@@ -289,7 +292,7 @@ impl Drop for RemoteDestructor {
         if self.forget {
             return;
         }
-        self.destroy.store(true, Relaxed);
+        self.destroy.store(true, Release);
     }
 }
 
@@ -304,23 +307,11 @@ impl Drop for HandlerLock<'_> {
 }
 
 impl State {
-    pub fn new() -> Result<Rc<Self>, StateError> {
-        StateBuilder::default().build()
-    }
-
     fn acquire_handler_lock(&self) -> Result<HandlerLock<'_>, StateErrorKind> {
         if self.global_lock_held.replace(true) {
             return Err(StateErrorKind::RecursiveCall);
         }
         Ok(HandlerLock { state: self })
-    }
-
-    pub fn is_not_destroyed(&self) -> bool {
-        !self.is_destroyed()
-    }
-
-    pub fn is_destroyed(&self) -> bool {
-        self.destroyed.get()
     }
 
     pub fn dispatch_blocking(self: &Rc<Self>) -> Result<(), StateError> {
@@ -476,7 +467,7 @@ impl State {
             }),
         );
         if lock.is_some()
-            && let Some(handler) = &mut *self.handler.borrow()
+            && let Some(handler) = &mut *self.handler.borrow_mut()
         {
             handler.new_client(&client);
         }
@@ -538,35 +529,6 @@ impl State {
         self.has_flushable_endpoints.set(true);
     }
 
-    pub fn create_destructor(self: &Rc<Self>) -> Destructor {
-        Destructor {
-            state: self.clone(),
-            forget: false,
-        }
-    }
-
-    pub fn create_remote_destructor(&self) -> Result<RemoteDestructor, StateError> {
-        let (r, w) = pipe().map_err(StateErrorKind::CreatePipe)?;
-        let id = self.create_pollable_id();
-        let event = c::epoll_event { events: 0, u64: id };
-        uapi::epoll_ctl(
-            self.epoll.as_raw_fd(),
-            EPOLL_CTL_ADD,
-            r.as_raw_fd(),
-            Some(&event),
-        )
-        .map_err(|e| StateErrorKind::UpdateEpoll(e.into()))?;
-        let destroy = Arc::new(AtomicBool::new(false));
-        self.pollables
-            .borrow_mut()
-            .insert(id, Pollable::Destructor(r.into(), destroy.clone()));
-        Ok(RemoteDestructor {
-            destroy,
-            _fd: w.into(),
-            forget: false,
-        })
-    }
-
     pub(crate) fn wait_for_work(
         &self,
         _: &HandlerLock<'_>,
@@ -616,7 +578,7 @@ impl State {
                         self.has_acceptable_acceptors.set(true);
                     }
                     Pollable::Destructor(_, destroy) => {
-                        let destroy = destroy.load(Relaxed);
+                        let destroy = destroy.load(Acquire);
                         pollables.remove(&id);
                         if destroy {
                             return Err(StateErrorKind::RemoteDestroyed.into());
@@ -637,7 +599,7 @@ impl State {
             return;
         }
         while let Some(client) = self.clients_to_kill.pop() {
-            if let Some(handler) = client.handler.borrow().take() {
+            if let Some(handler) = client.handler.borrow_mut().take() {
                 handler.disconnected();
             }
             client.kill();
@@ -702,6 +664,31 @@ impl State {
         Ok(())
     }
 
+    fn check_destroyed(&self) -> Result<(), StateError> {
+        if self.destroyed.get() {
+            return Err(StateErrorKind::Destroyed.into());
+        }
+        Ok(())
+    }
+
+    pub fn create_object<P>(self: &Rc<Self>, version: u32) -> Rc<P>
+    where
+        P: Object + Sized,
+    {
+        P::new(self, version)
+    }
+
+    #[cold]
+    pub(crate) fn log(&self, args: fmt::Arguments<'_>) {
+        let writer = &mut *self.log_writer.borrow_mut();
+        let _ = writer.write_fmt(args);
+        let _ = writer.flush();
+    }
+}
+
+/// These functions can be used to manage sockets associated with this state.
+impl State {
+    /// Creates a new connection to this
     pub fn connect(self: &Rc<Self>) -> Result<(Rc<Client>, OwnedFd), StateError> {
         let (server_fd, client_fd) = uapi::socketpair(
             c::AF_UNIX,
@@ -730,32 +717,72 @@ impl State {
             .insert(id, Pollable::Acceptor(acceptor.clone()));
         Ok(acceptor)
     }
+}
 
-    fn check_destroyed(&self) -> Result<(), StateError> {
-        if self.destroyed.get() {
-            return Err(StateErrorKind::Destroyed.into());
-        }
-        Ok(())
+/// These functions can be used to manipulate the [`StateHandler`] of this state.
+///
+/// These functions can be called at any time, even from within a handler callback. In
+/// that case, the handler is replaced as soon as the callback returns.
+impl State {
+    /// Unsets the handler.
+    pub fn unset_handler(&self) {
+        self.handler.set(None);
     }
 
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl StateHandler) {
         self.set_boxed_handler(Box::new(handler))
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn StateHandler>) {
         if self.destroyed.get() {
             return;
         }
         self.handler.set(Some(handler));
     }
+}
 
-    pub fn create_proxy<P>(self: &Rc<Self>, version: u32) -> Rc<P>
-    where
-        P: Object + Sized,
-    {
-        P::new(self, version)
+/// These functions can be used to check the state status and to destroy the state.
+impl State {
+    /// Returns whether this state is not destroyed.
+    ///
+    /// This is the same as `!self.is_destroyed()`.
+    pub fn is_not_destroyed(&self) -> bool {
+        !self.is_destroyed()
     }
 
+    /// Returns whether the state is destroyed.
+    ///
+    /// If the state is destroyed, most functions that can return an error will return an
+    /// error saying that the state is already destroyed.
+    ///
+    /// This function or [`Self::is_not_destroyed`] should be used before dispatching the
+    /// state.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use std::rc::Rc;
+    /// # use error_reporter::Report;
+    /// # use wl_proxy::state::State;
+    /// #
+    /// # fn f(state: &Rc<State>) {
+    /// while state.is_not_destroyed() {
+    ///     if let Err(e) = state.dispatch_blocking() {
+    ///         log::error!("Could not dispatch the state: {}", Report::new(e));
+    ///     }
+    /// }
+    /// # }
+    /// ```
+    pub fn is_destroyed(&self) -> bool {
+        self.destroyed.get()
+    }
+
+    /// Destroys this state.
+    ///
+    /// This function unsets all handlers and destroys all clients. You should drop the
+    /// state after calling this function.
     pub fn destroy(&self) {
         if self.destroyed.replace(true) {
             return;
@@ -788,16 +815,60 @@ impl State {
         self.interest_update_endpoints.take();
         self.interest_update_acceptors.take();
         self.all_proxies.borrow_mut().clear();
+        // Ensure that the epoll fd stays permanently readable.
+        let _ = self.create_remote_destructor();
     }
 
-    #[cold]
-    pub(crate) fn log(&self, args: fmt::Arguments<'_>) {
-        let writer = &mut *self.log_writer.borrow_mut();
-        let _ = writer.write_fmt(args);
-        let _ = writer.flush();
+    /// Creates a RAII destructor for this state.
+    ///
+    /// Dropping the destructor will automatically call [`State::destroy`] unless you
+    /// first call [`Destructor::forget`].
+    ///
+    /// State objects contain reference cycles that must be cleared manually to release
+    /// the associated resources. Dropping the [`State`] is usually not sufficient to do
+    /// this. Instead, [`State::destroy`] must be called manually. This function can be
+    /// used to accomplish this in an application that otherwise relies on RAII semantics.
+    ///
+    /// Ensure that the destructor is itself not part of a reference cycle.
+    pub fn create_destructor(self: &Rc<Self>) -> Destructor {
+        Destructor {
+            state: self.clone(),
+            forget: false,
+        }
+    }
+
+    /// Creates a `Sync+Send` RAII destructor for this state.
+    ///
+    /// This function is similar to [`State::create_destructor`] but the returned
+    /// destructor implements `Sync+Send`. This destructor can therefore be used to
+    /// destroy states running in a different thread.
+    pub fn create_remote_destructor(&self) -> Result<RemoteDestructor, StateError> {
+        let (r, w) = pipe().map_err(StateErrorKind::CreatePipe)?;
+        let id = self.create_pollable_id();
+        let event = c::epoll_event {
+            events: c::EPOLLONESHOT as _,
+            u64: id,
+        };
+        uapi::epoll_ctl(
+            self.epoll.as_raw_fd(),
+            EPOLL_CTL_ADD,
+            r.as_raw_fd(),
+            Some(&event),
+        )
+        .map_err(|e| StateErrorKind::UpdateEpoll(e.into()))?;
+        let destroy = Arc::new(AtomicBool::new(false));
+        self.pollables
+            .borrow_mut()
+            .insert(id, Pollable::Destructor(r.into(), destroy.clone()));
+        Ok(RemoteDestructor {
+            destroy,
+            _fd: w.into(),
+            forget: false,
+        })
     }
 }
 
+/// A handler for events created by a state.
 pub trait StateHandler: 'static {
     fn new_client(&mut self, client: &Rc<Client>);
 }
