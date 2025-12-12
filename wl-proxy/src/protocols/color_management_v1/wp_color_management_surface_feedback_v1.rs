@@ -22,7 +22,7 @@ struct DefaultHandler;
 impl WpColorManagementSurfaceFeedbackV1Handler for DefaultHandler { }
 
 impl WpColorManagementSurfaceFeedbackV1 {
-    pub const XML_VERSION: u32 = 1;
+    pub const XML_VERSION: u32 = 2;
     pub const INTERFACE: ProxyInterface = ProxyInterface::WpColorManagementSurfaceFeedbackV1;
     pub const INTERFACE_NAME: &str = "wp_color_management_surface_feedback_v1";
 }
@@ -89,28 +89,17 @@ impl WpColorManagementSurfaceFeedbackV1 {
     /// Since when the preferred_changed message is available.
     pub const MSG__PREFERRED_CHANGED__SINCE: u32 = 1;
 
-    /// the preferred image description changed
+    /// Since when the preferred_changed message is deprecated.
+    pub const MSG__PREFERRED_CHANGED__DEPRECATED_SINCE: u32 = 2;
+
+    /// the preferred image description changed (32-bit)
     ///
-    /// The preferred image description is the one which likely has the most
-    /// performance and/or quality benefits for the compositor if used by the
-    /// client for its wl_surface contents. This event is sent whenever the
-    /// compositor changes the wl_surface's preferred image description.
-    ///
-    /// This event sends the identity of the new preferred state as the argument,
-    /// so clients who are aware of the image description already can reuse it.
-    /// Otherwise, if the client client wants to know what the preferred image
-    /// description is, it shall use the get_preferred request.
-    ///
-    /// The preferred image description is not automatically used for anything.
-    /// It is only a hint, and clients may set any valid image description with
-    /// set_image_description, but there might be performance and color accuracy
-    /// improvements by providing the wl_surface contents in the preferred
-    /// image description. Therefore clients that can, should render according
-    /// to the preferred image description
+    /// Starting from interface version 2, 'preferred_changed2' is sent instead
+    /// of this event. See the 'preferred_changed2' event for the definition.
     ///
     /// # Arguments
     ///
-    /// - `identity`: image description id number
+    /// - `identity`: the 32-bit image description id number
     #[inline]
     pub fn send_preferred_changed(
         &self,
@@ -276,24 +265,9 @@ impl WpColorManagementSurfaceFeedbackV1 {
         ]);
         Ok(())
     }
-}
 
-/// A message handler for [WpColorManagementSurfaceFeedbackV1] proxies.
-pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
-    /// destroy the color management interface for a surface
-    ///
-    /// Destroy the wp_color_management_surface_feedback_v1 object.
-    #[inline]
-    fn destroy(
-        &mut self,
-        _slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
-    ) {
-        let res = _slf.send_destroy(
-        );
-        if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_management_surface_feedback_v1.destroy message: {}", Report::new(e));
-        }
-    }
+    /// Since when the preferred_changed2 message is available.
+    pub const MSG__PREFERRED_CHANGED2__SINCE: u32 = 2;
 
     /// the preferred image description changed
     ///
@@ -316,7 +290,75 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `identity`: image description id number
+    /// - `identity_hi`: high 32 bits of the 64-bit image description id number
+    /// - `identity_lo`: low 32 bits of the 64-bit image description id number
+    #[inline]
+    pub fn send_preferred_changed2(
+        &self,
+        identity_hi: u32,
+        identity_lo: u32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            identity_hi,
+            identity_lo,
+        );
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError::ReceiverNoClient);
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wp_color_management_surface_feedback_v1#{}.preferred_changed2(identity_hi: {}, identity_lo: {})\n", client.endpoint.id, id, arg0, arg1);
+            self.core.state.log(args);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            1,
+            arg0,
+            arg1,
+        ]);
+        Ok(())
+    }
+}
+
+/// A message handler for [WpColorManagementSurfaceFeedbackV1] proxies.
+pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
+    /// destroy the color management interface for a surface
+    ///
+    /// Destroy the wp_color_management_surface_feedback_v1 object.
+    #[inline]
+    fn destroy(
+        &mut self,
+        _slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
+    ) {
+        let res = _slf.send_destroy(
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wp_color_management_surface_feedback_v1.destroy message: {}", Report::new(e));
+        }
+    }
+
+    /// the preferred image description changed (32-bit)
+    ///
+    /// Starting from interface version 2, 'preferred_changed2' is sent instead
+    /// of this event. See the 'preferred_changed2' event for the definition.
+    ///
+    /// # Arguments
+    ///
+    /// - `identity`: the 32-bit image description id number
     #[inline]
     fn preferred_changed(
         &mut self,
@@ -410,6 +452,48 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
         );
         if let Err(e) = res {
             log::warn!("Could not forward a wp_color_management_surface_feedback_v1.get_preferred_parametric message: {}", Report::new(e));
+        }
+    }
+
+    /// the preferred image description changed
+    ///
+    /// The preferred image description is the one which likely has the most
+    /// performance and/or quality benefits for the compositor if used by the
+    /// client for its wl_surface contents. This event is sent whenever the
+    /// compositor changes the wl_surface's preferred image description.
+    ///
+    /// This event sends the identity of the new preferred state as the argument,
+    /// so clients who are aware of the image description already can reuse it.
+    /// Otherwise, if the client client wants to know what the preferred image
+    /// description is, it shall use the get_preferred request.
+    ///
+    /// The preferred image description is not automatically used for anything.
+    /// It is only a hint, and clients may set any valid image description with
+    /// set_image_description, but there might be performance and color accuracy
+    /// improvements by providing the wl_surface contents in the preferred
+    /// image description. Therefore clients that can, should render according
+    /// to the preferred image description
+    ///
+    /// # Arguments
+    ///
+    /// - `identity_hi`: high 32 bits of the 64-bit image description id number
+    /// - `identity_lo`: low 32 bits of the 64-bit image description id number
+    #[inline]
+    fn preferred_changed2(
+        &mut self,
+        _slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
+        identity_hi: u32,
+        identity_lo: u32,
+    ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
+        let res = _slf.send_preferred_changed2(
+            identity_hi,
+            identity_lo,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wp_color_management_surface_feedback_v1.preferred_changed2 message: {}", Report::new(e));
         }
     }
 }
@@ -526,6 +610,25 @@ impl ProxyPrivate for WpColorManagementSurfaceFeedbackV1 {
                     DefaultHandler.preferred_changed(&self, arg0);
                 }
             }
+            1 => {
+                let [
+                    arg0,
+                    arg1,
+                ] = msg[2..] else {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
+                };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wp_color_management_surface_feedback_v1#{}.preferred_changed2(identity_hi: {}, identity_lo: {})\n", msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
+                if let Some(handler) = handler {
+                    (**handler).preferred_changed2(&self, arg0, arg1);
+                } else {
+                    DefaultHandler.preferred_changed2(&self, arg0, arg1);
+                }
+            }
             n => {
                 let _ = msg;
                 let _ = fds;
@@ -549,6 +652,7 @@ impl ProxyPrivate for WpColorManagementSurfaceFeedbackV1 {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let name = match id {
             0 => "preferred_changed",
+            1 => "preferred_changed2",
             _ => return None,
         };
         Some(name)

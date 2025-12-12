@@ -24,7 +24,7 @@ struct DefaultHandler;
 impl WpColorManagerV1Handler for DefaultHandler { }
 
 impl WpColorManagerV1 {
-    pub const XML_VERSION: u32 = 1;
+    pub const XML_VERSION: u32 = 2;
     pub const INTERFACE: ProxyInterface = ProxyInterface::WpColorManagerV1;
     pub const INTERFACE_NAME: &str = "wp_color_manager_v1";
 }
@@ -485,6 +485,9 @@ impl WpColorManagerV1 {
     /// When this object is created, it shall immediately send this event once
     /// for each rendering intent the compositor supports.
     ///
+    /// A compositor must not advertise intents that are deprecated in the
+    /// bound version of the interface.
+    ///
     /// # Arguments
     ///
     /// - `render_intent`: rendering intent
@@ -532,6 +535,9 @@ impl WpColorManagerV1 {
     ///
     /// When this object is created, it shall immediately send this event once
     /// for each compositor supported feature listed in the enumeration.
+    ///
+    /// A compositor must not advertise features that are deprecated in the
+    /// bound version of the interface.
     ///
     /// # Arguments
     ///
@@ -582,6 +588,9 @@ impl WpColorManagerV1 {
     /// for each named transfer function the compositor supports with the
     /// parametric image description creator.
     ///
+    /// A compositor must not advertise transfer functions that are deprecated
+    /// in the bound version of the interface.
+    ///
     /// # Arguments
     ///
     /// - `tf`: Named transfer function
@@ -630,6 +639,9 @@ impl WpColorManagerV1 {
     /// When this object is created, it shall immediately send this event once
     /// for each named set of primaries the compositor supports with the
     /// parametric image description creator.
+    ///
+    /// A compositor must not advertise names that are deprecated in the
+    /// bound version of the interface.
     ///
     /// # Arguments
     ///
@@ -704,6 +716,69 @@ impl WpColorManagerV1 {
         fmt.words([
             id,
             4,
+        ]);
+        Ok(())
+    }
+
+    /// Since when the get_image_description message is available.
+    pub const MSG__GET_IMAGE_DESCRIPTION__SINCE: u32 = 2;
+
+    /// create an image description from a reference
+    ///
+    /// This request retrieves the image description backing a reference.
+    ///
+    /// The get_information request can be used if and only if the request that
+    /// creates the reference allows it.
+    ///
+    /// # Arguments
+    ///
+    /// - `image_description`:
+    /// - `reference`:
+    #[inline]
+    pub fn send_get_image_description(
+        &self,
+        image_description: &Rc<WpImageDescriptionV1>,
+        reference: &Rc<WpImageDescriptionReferenceV1>,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            image_description,
+            reference,
+        );
+        let arg0_obj = arg0;
+        let arg0 = arg0_obj.core();
+        let arg1 = arg1.core();
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError::ReceiverNoServerId);
+        };
+        let arg1_id = match arg1.server_obj_id.get() {
+            None => return Err(ObjectError::ArgNoServerId("reference")),
+            Some(id) => id,
+        };
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError::GenerateServerId("image_description", e))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_color_manager_v1#{}.get_image_description(image_description: wp_image_description_v1#{}, reference: wp_image_description_reference_v1#{})\n", id, arg0_id, arg1_id);
+            self.core.state.log(args);
+        }
+        let endpoint = &self.core.state.server;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            7,
+            arg0_id,
+            arg1_id,
         ]);
         Ok(())
     }
@@ -946,6 +1021,9 @@ pub trait WpColorManagerV1Handler: Any {
     /// When this object is created, it shall immediately send this event once
     /// for each rendering intent the compositor supports.
     ///
+    /// A compositor must not advertise intents that are deprecated in the
+    /// bound version of the interface.
+    ///
     /// # Arguments
     ///
     /// - `render_intent`: rendering intent
@@ -970,6 +1048,9 @@ pub trait WpColorManagerV1Handler: Any {
     ///
     /// When this object is created, it shall immediately send this event once
     /// for each compositor supported feature listed in the enumeration.
+    ///
+    /// A compositor must not advertise features that are deprecated in the
+    /// bound version of the interface.
     ///
     /// # Arguments
     ///
@@ -997,6 +1078,9 @@ pub trait WpColorManagerV1Handler: Any {
     /// for each named transfer function the compositor supports with the
     /// parametric image description creator.
     ///
+    /// A compositor must not advertise transfer functions that are deprecated
+    /// in the bound version of the interface.
+    ///
     /// # Arguments
     ///
     /// - `tf`: Named transfer function
@@ -1022,6 +1106,9 @@ pub trait WpColorManagerV1Handler: Any {
     /// When this object is created, it shall immediately send this event once
     /// for each named set of primaries the compositor supports with the
     /// parametric image description creator.
+    ///
+    /// A compositor must not advertise names that are deprecated in the
+    /// bound version of the interface.
     ///
     /// # Arguments
     ///
@@ -1059,6 +1146,36 @@ pub trait WpColorManagerV1Handler: Any {
         );
         if let Err(e) = res {
             log::warn!("Could not forward a wp_color_manager_v1.done message: {}", Report::new(e));
+        }
+    }
+
+    /// create an image description from a reference
+    ///
+    /// This request retrieves the image description backing a reference.
+    ///
+    /// The get_information request can be used if and only if the request that
+    /// creates the reference allows it.
+    ///
+    /// # Arguments
+    ///
+    /// - `image_description`:
+    /// - `reference`:
+    ///
+    /// All borrowed proxies passed to this function are guaranteed to be
+    /// immutable and non-null.
+    #[inline]
+    fn get_image_description(
+        &mut self,
+        _slf: &Rc<WpColorManagerV1>,
+        image_description: &Rc<WpImageDescriptionV1>,
+        reference: &Rc<WpImageDescriptionReferenceV1>,
+    ) {
+        let res = _slf.send_get_image_description(
+            image_description,
+            reference,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wp_color_manager_v1.get_image_description message: {}", Report::new(e));
         }
     }
 }
@@ -1262,6 +1379,39 @@ impl ProxyPrivate for WpColorManagerV1 {
                     DefaultHandler.create_windows_scrgb(&self, arg0);
                 }
             }
+            7 => {
+                let [
+                    arg0,
+                    arg1,
+                ] = msg[2..] else {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
+                };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_color_manager_v1#{}.get_image_description(image_description: wp_image_description_v1#{}, reference: wp_image_description_reference_v1#{})\n", client.endpoint.id, msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
+                let arg0_id = arg0;
+                let arg0 = WpImageDescriptionV1::new(&self.core.state, self.core.version);
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError::SetClientId(arg0_id, "image_description", e))?;
+                let arg1_id = arg1;
+                let Some(arg1) = client.endpoint.lookup(arg1_id) else {
+                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
+                };
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WpImageDescriptionReferenceV1>() else {
+                    let o = client.endpoint.lookup(arg1_id).unwrap();
+                    return Err(ObjectError::WrongObjectType("reference", o.core().interface, ProxyInterface::WpImageDescriptionReferenceV1));
+                };
+                let arg0 = &arg0;
+                let arg1 = &arg1;
+                if let Some(handler) = handler {
+                    (**handler).get_image_description(&self, arg0, arg1);
+                } else {
+                    DefaultHandler.get_image_description(&self, arg0, arg1);
+                }
+            }
             n => {
                 let _ = client;
                 let _ = msg;
@@ -1390,6 +1540,7 @@ impl ProxyPrivate for WpColorManagerV1 {
             4 => "create_icc_creator",
             5 => "create_parametric_creator",
             6 => "create_windows_scrgb",
+            7 => "get_image_description",
             _ => return None,
         };
         Some(name)
@@ -1450,6 +1601,8 @@ impl WpColorManagerV1 {
     pub const ENM__RENDER_INTENT_ABSOLUTE__SINCE: u32 = 1;
     /// Since when the render_intent.relative_bpc enum variant is available.
     pub const ENM__RENDER_INTENT_RELATIVE_BPC__SINCE: u32 = 1;
+    /// Since when the render_intent.absolute_no_adaptation enum variant is available.
+    pub const ENM__RENDER_INTENT_ABSOLUTE_NO_ADAPTATION__SINCE: u32 = 2;
 
     /// Since when the feature.icc_v2_v4 enum variant is available.
     pub const ENM__FEATURE_ICC_V2_V4__SINCE: u32 = 1;
@@ -1507,14 +1660,22 @@ impl WpColorManagerV1 {
     pub const ENM__TRANSFER_FUNCTION_XVYCC__SINCE: u32 = 1;
     /// Since when the transfer_function.srgb enum variant is available.
     pub const ENM__TRANSFER_FUNCTION_SRGB__SINCE: u32 = 1;
+
+    /// Since when the transfer_function.srgb enum variant is deprecated.
+    pub const ENM__TRANSFER_FUNCTION_SRGB__DEPRECATED_SINCE: u32 = 2;
     /// Since when the transfer_function.ext_srgb enum variant is available.
     pub const ENM__TRANSFER_FUNCTION_EXT_SRGB__SINCE: u32 = 1;
+
+    /// Since when the transfer_function.ext_srgb enum variant is deprecated.
+    pub const ENM__TRANSFER_FUNCTION_EXT_SRGB__DEPRECATED_SINCE: u32 = 2;
     /// Since when the transfer_function.st2084_pq enum variant is available.
     pub const ENM__TRANSFER_FUNCTION_ST2084_PQ__SINCE: u32 = 1;
     /// Since when the transfer_function.st428 enum variant is available.
     pub const ENM__TRANSFER_FUNCTION_ST428__SINCE: u32 = 1;
     /// Since when the transfer_function.hlg enum variant is available.
     pub const ENM__TRANSFER_FUNCTION_HLG__SINCE: u32 = 1;
+    /// Since when the transfer_function.compound_power_2_4 enum variant is available.
+    pub const ENM__TRANSFER_FUNCTION_COMPOUND_POWER_2_4__SINCE: u32 = 2;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -1567,6 +1728,14 @@ impl WpColorManagerV1RenderIntent {
 
     /// media-relative colorimetric + black point compensation
     pub const RELATIVE_BPC: Self = Self(4);
+
+    /// ICC-absolute colorimetric without adaptation
+    ///
+    /// This rendering intent is a modified absolute rendering intent that
+    /// assumes the viewer is not adapted to the display white point, so no
+    /// chromatic adaptation between surface and display is done.
+    /// This can be useful for color proofing applications.
+    pub const ABSOLUTE_NO_ADAPTATION: Self = Self(5);
 }
 
 impl Debug for WpColorManagerV1RenderIntent {
@@ -1577,6 +1746,7 @@ impl Debug for WpColorManagerV1RenderIntent {
             Self::SATURATION => "SATURATION",
             Self::ABSOLUTE => "ABSOLUTE",
             Self::RELATIVE_BPC => "RELATIVE_BPC",
+            Self::ABSOLUTE_NO_ADAPTATION => "ABSOLUTE_NO_ADAPTATION",
             _ => return Debug::fmt(&self.0, f),
         };
         f.write_str(name)
@@ -1783,8 +1953,7 @@ impl WpColorManagerV1TransferFunction {
     /// - United States Federal Communications Commission (2003) Title 47 Code
     ///   of Federal Regulations 73.682 (a) (20)
     /// - Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM
-    ///
-    /// Note: an sRGB display (IEC 61966-2-1) uses this transfer function.
+    /// - IEC 61966-2-1 (reference display)
     pub const GAMMA22: Self = Self(2);
 
     /// Assumed display gamma 2.8 transfer function
@@ -1821,17 +1990,17 @@ impl WpColorManagerV1TransferFunction {
     /// - IEC 61966-2-4
     pub const XVYCC: Self = Self(8);
 
-    /// sRGB piece-wise transfer function
+    /// Deprecated (ambiguous sRGB transfer function)
     ///
     /// Transfer characteristics as defined by
     /// - IEC 61966-2-1 sRGB
     ///
-    /// Note: This is not appropriate for describing sRGB material.
-    /// sRGB material is intended to be viewed on an sRGB display, and
-    /// that is described by gamma22.
+    /// As a rule of thumb, use gamma22 for video, motion picture and
+    /// computer graphics, or compound_power_2_4 for ICC calibrated print
+    /// workflows.
     pub const SRGB: Self = Self(9);
 
-    /// Extended sRGB piece-wise transfer function
+    /// Deprecated (Extended sRGB piece-wise transfer function)
     ///
     /// Transfer characteristics as defined by
     /// - IEC 61966-2-1 sYCC
@@ -1881,6 +2050,12 @@ impl WpColorManagerV1TransferFunction {
     /// it is suggested by Report ITU-R BT.2408-7 and is not part of
     /// ARIB STD-B67 or BT.2100.
     pub const HLG: Self = Self(13);
+
+    /// IEC 61966-2-1 encoding function
+    ///
+    /// Encoding characteristics as defined by IEC 61966-2-1, for displays
+    /// that invert the encoding function.
+    pub const COMPOUND_POWER_2_4: Self = Self(14);
 }
 
 impl Debug for WpColorManagerV1TransferFunction {
@@ -1899,6 +2074,7 @@ impl Debug for WpColorManagerV1TransferFunction {
             Self::ST2084_PQ => "ST2084_PQ",
             Self::ST428 => "ST428",
             Self::HLG => "HLG",
+            Self::COMPOUND_POWER_2_4 => "COMPOUND_POWER_2_4",
             _ => return Debug::fmt(&self.0, f),
         };
         f.write_str(name)

@@ -22,7 +22,7 @@ struct DefaultHandler;
 impl WpColorManagementSurfaceV1Handler for DefaultHandler { }
 
 impl WpColorManagementSurfaceV1 {
-    pub const XML_VERSION: u32 = 1;
+    pub const XML_VERSION: u32 = 2;
     pub const INTERFACE: ProxyInterface = ProxyInterface::WpColorManagementSurfaceV1;
     pub const INTERFACE_NAME: &str = "wp_color_management_surface_v1";
 }

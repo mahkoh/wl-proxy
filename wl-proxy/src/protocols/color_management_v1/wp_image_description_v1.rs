@@ -38,7 +38,7 @@ struct DefaultHandler;
 impl WpImageDescriptionV1Handler for DefaultHandler { }
 
 impl WpImageDescriptionV1 {
-    pub const XML_VERSION: u32 = 1;
+    pub const XML_VERSION: u32 = 2;
     pub const INTERFACE: ProxyInterface = ProxyInterface::WpImageDescriptionV1;
     pub const INTERFACE_NAME: &str = "wp_image_description_v1";
 }
@@ -170,39 +170,25 @@ impl WpImageDescriptionV1 {
     /// Since when the ready message is available.
     pub const MSG__READY__SINCE: u32 = 1;
 
-    /// indication that the object is ready to be used
+    /// Since when the ready message is deprecated.
+    pub const MSG__READY__DEPRECATED_SINCE: u32 = 2;
+
+    /// the object is ready to be used (32-bit)
     ///
-    /// Once this event has been sent, the wp_image_description_v1 object is
-    /// deemed "ready". Ready objects can be used to send requests and can be
-    /// used through other interfaces.
+    /// Starting from interface version 2, the 'ready2' event is sent instead
+    /// of this event.
     ///
-    /// Every ready wp_image_description_v1 protocol object refers to an
-    /// underlying image description record in the compositor. Multiple protocol
-    /// objects may end up referring to the same record. Clients may identify
-    /// these "copies" by comparing their id numbers: if the numbers from two
-    /// protocol objects are identical, the protocol objects refer to the same
-    /// image description record. Two different image description records
-    /// cannot have the same id number simultaneously. The id number does not
-    /// change during the lifetime of the image description record.
+    /// For the definition of this event, see the 'ready2' event. The
+    /// difference to this event is as follows.
     ///
     /// The id number is valid only as long as the protocol object is alive. If
     /// all protocol objects referring to the same image description record are
     /// destroyed, the id number may be recycled for a different image
     /// description record.
     ///
-    /// Image description id number is not a protocol object id. Zero is
-    /// reserved as an invalid id number. It shall not be possible for a client
-    /// to refer to an image description by its id number in protocol. The id
-    /// numbers might not be portable between Wayland connections. A compositor
-    /// shall not send an invalid id number.
-    ///
-    /// This identity allows clients to de-duplicate image description records
-    /// and avoid get_information request if they already have the image
-    /// description information.
-    ///
     /// # Arguments
     ///
-    /// - `identity`: image description id number
+    /// - `identity`: the 32-bit image description id number
     #[inline]
     pub fn send_ready(
         &self,
@@ -291,6 +277,81 @@ impl WpImageDescriptionV1 {
         ]);
         Ok(())
     }
+
+    /// Since when the ready2 message is available.
+    pub const MSG__READY2__SINCE: u32 = 2;
+
+    /// the object is ready to be used
+    ///
+    /// Once this event has been sent, the wp_image_description_v1 object is
+    /// deemed "ready". Ready objects can be used to send requests and can be
+    /// used through other interfaces.
+    ///
+    /// Every ready wp_image_description_v1 protocol object refers to an
+    /// underlying image description record in the compositor. Multiple protocol
+    /// objects may end up referring to the same record. Clients may identify
+    /// these "copies" by comparing their id numbers: if the numbers from two
+    /// protocol objects are identical, the protocol objects refer to the same
+    /// image description record. Two different image description records
+    /// cannot have the same id number simultaneously. The id number does not
+    /// change during the lifetime of the image description record.
+    ///
+    /// Image description id number is not a protocol object id. Zero is
+    /// reserved as an invalid id number. It shall not be possible for a client
+    /// to refer to an image description by its id number in protocol. The id
+    /// numbers might not be portable between Wayland connections. A compositor
+    /// shall not send an invalid id number.
+    ///
+    /// Compositors must not recycle image description id numbers.
+    ///
+    /// This identity allows clients to de-duplicate image description records
+    /// and avoid get_information request if they already have the image
+    /// description information.
+    ///
+    /// # Arguments
+    ///
+    /// - `identity_hi`: high 32 bits of the 64-bit image description id number
+    /// - `identity_lo`: low 32 bits of the 64-bit image description id number
+    #[inline]
+    pub fn send_ready2(
+        &self,
+        identity_hi: u32,
+        identity_lo: u32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            identity_hi,
+            identity_lo,
+        );
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError::ReceiverNoClient);
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        if self.core.state.log {
+            let (millis, micros) = time_since_epoch();
+            let prefix = &self.core.state.log_prefix;
+            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wp_image_description_v1#{}.ready2(identity_hi: {}, identity_lo: {})\n", client.endpoint.id, id, arg0, arg1);
+            self.core.state.log(args);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            2,
+            arg0,
+            arg1,
+        ]);
+        Ok(())
+    }
 }
 
 /// A message handler for [WpImageDescriptionV1] proxies.
@@ -350,39 +411,22 @@ pub trait WpImageDescriptionV1Handler: Any {
         }
     }
 
-    /// indication that the object is ready to be used
+    /// the object is ready to be used (32-bit)
     ///
-    /// Once this event has been sent, the wp_image_description_v1 object is
-    /// deemed "ready". Ready objects can be used to send requests and can be
-    /// used through other interfaces.
+    /// Starting from interface version 2, the 'ready2' event is sent instead
+    /// of this event.
     ///
-    /// Every ready wp_image_description_v1 protocol object refers to an
-    /// underlying image description record in the compositor. Multiple protocol
-    /// objects may end up referring to the same record. Clients may identify
-    /// these "copies" by comparing their id numbers: if the numbers from two
-    /// protocol objects are identical, the protocol objects refer to the same
-    /// image description record. Two different image description records
-    /// cannot have the same id number simultaneously. The id number does not
-    /// change during the lifetime of the image description record.
+    /// For the definition of this event, see the 'ready2' event. The
+    /// difference to this event is as follows.
     ///
     /// The id number is valid only as long as the protocol object is alive. If
     /// all protocol objects referring to the same image description record are
     /// destroyed, the id number may be recycled for a different image
     /// description record.
     ///
-    /// Image description id number is not a protocol object id. Zero is
-    /// reserved as an invalid id number. It shall not be possible for a client
-    /// to refer to an image description by its id number in protocol. The id
-    /// numbers might not be portable between Wayland connections. A compositor
-    /// shall not send an invalid id number.
-    ///
-    /// This identity allows clients to de-duplicate image description records
-    /// and avoid get_information request if they already have the image
-    /// description information.
-    ///
     /// # Arguments
     ///
-    /// - `identity`: image description id number
+    /// - `identity`: the 32-bit image description id number
     #[inline]
     fn ready(
         &mut self,
@@ -424,6 +468,56 @@ pub trait WpImageDescriptionV1Handler: Any {
         );
         if let Err(e) = res {
             log::warn!("Could not forward a wp_image_description_v1.get_information message: {}", Report::new(e));
+        }
+    }
+
+    /// the object is ready to be used
+    ///
+    /// Once this event has been sent, the wp_image_description_v1 object is
+    /// deemed "ready". Ready objects can be used to send requests and can be
+    /// used through other interfaces.
+    ///
+    /// Every ready wp_image_description_v1 protocol object refers to an
+    /// underlying image description record in the compositor. Multiple protocol
+    /// objects may end up referring to the same record. Clients may identify
+    /// these "copies" by comparing their id numbers: if the numbers from two
+    /// protocol objects are identical, the protocol objects refer to the same
+    /// image description record. Two different image description records
+    /// cannot have the same id number simultaneously. The id number does not
+    /// change during the lifetime of the image description record.
+    ///
+    /// Image description id number is not a protocol object id. Zero is
+    /// reserved as an invalid id number. It shall not be possible for a client
+    /// to refer to an image description by its id number in protocol. The id
+    /// numbers might not be portable between Wayland connections. A compositor
+    /// shall not send an invalid id number.
+    ///
+    /// Compositors must not recycle image description id numbers.
+    ///
+    /// This identity allows clients to de-duplicate image description records
+    /// and avoid get_information request if they already have the image
+    /// description information.
+    ///
+    /// # Arguments
+    ///
+    /// - `identity_hi`: high 32 bits of the 64-bit image description id number
+    /// - `identity_lo`: low 32 bits of the 64-bit image description id number
+    #[inline]
+    fn ready2(
+        &mut self,
+        _slf: &Rc<WpImageDescriptionV1>,
+        identity_hi: u32,
+        identity_lo: u32,
+    ) {
+        if _slf.core.zombie.get() {
+            return;
+        }
+        let res = _slf.send_ready2(
+            identity_hi,
+            identity_lo,
+        );
+        if let Err(e) = res {
+            log::warn!("Could not forward a wp_image_description_v1.ready2 message: {}", Report::new(e));
         }
     }
 }
@@ -561,6 +655,25 @@ impl ProxyPrivate for WpImageDescriptionV1 {
                     DefaultHandler.ready(&self, arg0);
                 }
             }
+            2 => {
+                let [
+                    arg0,
+                    arg1,
+                ] = msg[2..] else {
+                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
+                };
+                if self.core.state.log {
+                    let (millis, micros) = time_since_epoch();
+                    let prefix = &self.core.state.log_prefix;
+                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wp_image_description_v1#{}.ready2(identity_hi: {}, identity_lo: {})\n", msg[0], arg0, arg1);
+                    self.core.state.log(args);
+                }
+                if let Some(handler) = handler {
+                    (**handler).ready2(&self, arg0, arg1);
+                } else {
+                    DefaultHandler.ready2(&self, arg0, arg1);
+                }
+            }
             n => {
                 let _ = msg;
                 let _ = fds;
@@ -584,6 +697,7 @@ impl ProxyPrivate for WpImageDescriptionV1 {
         let name = match id {
             0 => "failed",
             1 => "ready",
+            2 => "ready2",
             _ => return None,
         };
         Some(name)

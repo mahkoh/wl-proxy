@@ -69,4 +69,5 @@ pub mod wp_color_manager_v1;
 pub mod wp_image_description_creator_icc_v1;
 pub mod wp_image_description_creator_params_v1;
 pub mod wp_image_description_info_v1;
+pub mod wp_image_description_reference_v1;
 pub mod wp_image_description_v1;

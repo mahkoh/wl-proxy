@@ -458,6 +458,8 @@ mod all_types {
     #[cfg(feature = "protocol-color_management_v1")]
     pub(super) use super::color_management_v1::wp_image_description_info_v1::WpImageDescriptionInfoV1;
     #[cfg(feature = "protocol-color_management_v1")]
+    pub(super) use super::color_management_v1::wp_image_description_reference_v1::WpImageDescriptionReferenceV1;
+    #[cfg(feature = "protocol-color_management_v1")]
     pub(super) use super::color_management_v1::wp_image_description_v1::WpImageDescriptionV1;
     #[cfg(feature = "protocol-color_management_v1")]
     pub(super) use super::color_management_v1::wp_image_description_v1::WpImageDescriptionV1Error;
@@ -1281,6 +1283,10 @@ mod all_types {
                 },
                 "wp_image_description_info_v1" => {
                     #[cfg(feature = "protocol-color_management_v1")] { Some(ProxyInterface::WpImageDescriptionInfoV1) }
+                    #[cfg(not(feature = "protocol-color_management_v1"))] { None }
+                },
+                "wp_image_description_reference_v1" => {
+                    #[cfg(feature = "protocol-color_management_v1")] { Some(ProxyInterface::WpImageDescriptionReferenceV1) }
                     #[cfg(not(feature = "protocol-color_management_v1"))] { None }
                 },
                 "wp_image_description_v1" => {
@@ -2485,6 +2491,13 @@ mod all_types {
                         return Err(ObjectError::MaxVersion(self, version));
                     }
                     Ok(WpImageDescriptionInfoV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-color_management_v1")]
+                Self::WpImageDescriptionReferenceV1 => {
+                    if version > WpImageDescriptionReferenceV1::XML_VERSION {
+                        return Err(ObjectError::MaxVersion(self, version));
+                    }
+                    Ok(WpImageDescriptionReferenceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-color_management_v1")]
                 Self::WpImageDescriptionV1 => {
@@ -3705,6 +3718,8 @@ pub enum ProxyInterface {
     #[cfg(feature = "protocol-color_management_v1")]
     WpImageDescriptionInfoV1,
     #[cfg(feature = "protocol-color_management_v1")]
+    WpImageDescriptionReferenceV1,
+    #[cfg(feature = "protocol-color_management_v1")]
     WpImageDescriptionV1,
     #[cfg(feature = "protocol-color_representation_v1")]
     WpColorRepresentationManagerV1,
@@ -4165,6 +4180,8 @@ impl ProxyInterface {
             #[cfg(feature = "protocol-color_management_v1")]
             Self::WpImageDescriptionInfoV1 => "wp_image_description_info_v1",
             #[cfg(feature = "protocol-color_management_v1")]
+            Self::WpImageDescriptionReferenceV1 => "wp_image_description_reference_v1",
+            #[cfg(feature = "protocol-color_management_v1")]
             Self::WpImageDescriptionV1 => "wp_image_description_v1",
             #[cfg(feature = "protocol-color_representation_v1")]
             Self::WpColorRepresentationManagerV1 => "wp_color_representation_manager_v1",
@@ -4611,21 +4628,23 @@ impl ProxyInterface {
             #[cfg(feature = "protocol-alpha_modifier_v1")]
             Self::WpAlphaModifierV1 => 1,
             #[cfg(feature = "protocol-color_management_v1")]
-            Self::WpColorManagementOutputV1 => 1,
+            Self::WpColorManagementOutputV1 => 2,
             #[cfg(feature = "protocol-color_management_v1")]
-            Self::WpColorManagementSurfaceFeedbackV1 => 1,
+            Self::WpColorManagementSurfaceFeedbackV1 => 2,
             #[cfg(feature = "protocol-color_management_v1")]
-            Self::WpColorManagementSurfaceV1 => 1,
+            Self::WpColorManagementSurfaceV1 => 2,
             #[cfg(feature = "protocol-color_management_v1")]
-            Self::WpColorManagerV1 => 1,
+            Self::WpColorManagerV1 => 2,
             #[cfg(feature = "protocol-color_management_v1")]
-            Self::WpImageDescriptionCreatorIccV1 => 1,
+            Self::WpImageDescriptionCreatorIccV1 => 2,
             #[cfg(feature = "protocol-color_management_v1")]
-            Self::WpImageDescriptionCreatorParamsV1 => 1,
+            Self::WpImageDescriptionCreatorParamsV1 => 2,
             #[cfg(feature = "protocol-color_management_v1")]
-            Self::WpImageDescriptionInfoV1 => 1,
+            Self::WpImageDescriptionInfoV1 => 2,
             #[cfg(feature = "protocol-color_management_v1")]
-            Self::WpImageDescriptionV1 => 1,
+            Self::WpImageDescriptionReferenceV1 => 1,
+            #[cfg(feature = "protocol-color_management_v1")]
+            Self::WpImageDescriptionV1 => 2,
             #[cfg(feature = "protocol-color_representation_v1")]
             Self::WpColorRepresentationManagerV1 => 1,
             #[cfg(feature = "protocol-color_representation_v1")]

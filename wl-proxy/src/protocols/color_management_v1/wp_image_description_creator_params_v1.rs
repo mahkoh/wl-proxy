@@ -58,7 +58,7 @@ struct DefaultHandler;
 impl WpImageDescriptionCreatorParamsV1Handler for DefaultHandler { }
 
 impl WpImageDescriptionCreatorParamsV1 {
-    pub const XML_VERSION: u32 = 1;
+    pub const XML_VERSION: u32 = 2;
     pub const INTERFACE: ProxyInterface = ProxyInterface::WpImageDescriptionCreatorParamsV1;
     pub const INTERFACE_NAME: &str = "wp_image_description_creator_params_v1";
 }
@@ -99,14 +99,16 @@ impl WpImageDescriptionCreatorParamsV1 {
     /// complete, the protocol error incomplete_set is raised. For the
     /// definition of a complete set, see the description of this interface.
     ///
-    /// The protocol error invalid_luminance is raised if any of the following
-    /// requirements is not met:
+    /// When both max_cll and max_fall are set, max_fall must be less or equal
+    /// to max_cll otherwise the invalid_luminance protocol error is raised.
+    ///
+    /// In version 1, these following conditions also result in the
+    /// invalid_luminance protocol error. Version 2 and later do not have this
+    /// requirement.
     /// - When max_cll is set, it must be greater than min L and less or equal
     ///   to max L of the mastering luminance range.
     /// - When max_fall is set, it must be greater than min L and less or equal
     ///   to max L of the mastering luminance range.
-    /// - When both max_cll and max_fall are set, max_fall must be less or equal
-    ///   to max_cll.
     ///
     /// If the particular combination of the parameter set is not supported
     /// by the compositor, the resulting image description object shall
@@ -842,14 +844,16 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     /// complete, the protocol error incomplete_set is raised. For the
     /// definition of a complete set, see the description of this interface.
     ///
-    /// The protocol error invalid_luminance is raised if any of the following
-    /// requirements is not met:
+    /// When both max_cll and max_fall are set, max_fall must be less or equal
+    /// to max_cll otherwise the invalid_luminance protocol error is raised.
+    ///
+    /// In version 1, these following conditions also result in the
+    /// invalid_luminance protocol error. Version 2 and later do not have this
+    /// requirement.
     /// - When max_cll is set, it must be greater than min L and less or equal
     ///   to max L of the mastering luminance range.
     /// - When max_fall is set, it must be greater than min L and less or equal
     ///   to max L of the mastering luminance range.
-    /// - When both max_cll and max_fall are set, max_fall must be less or equal
-    ///   to max_cll.
     ///
     /// If the particular combination of the parameter set is not supported
     /// by the compositor, the resulting image description object shall

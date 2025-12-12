@@ -39,7 +39,7 @@ struct DefaultHandler;
 impl WpImageDescriptionInfoV1Handler for DefaultHandler { }
 
 impl WpImageDescriptionInfoV1 {
-    pub const XML_VERSION: u32 = 1;
+    pub const XML_VERSION: u32 = 2;
     pub const INTERFACE: ProxyInterface = ProxyInterface::WpImageDescriptionInfoV1;
     pub const INTERFACE_NAME: &str = "wp_image_description_info_v1";
 }
