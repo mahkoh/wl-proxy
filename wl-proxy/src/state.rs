@@ -4,7 +4,7 @@ mod destructor;
 use {
     crate::{
         acceptor::{Acceptor, AcceptorError},
-        baselines::Baseline,
+        baseline::Baseline,
         client::Client,
         endpoint::{Endpoint, EndpointError},
         object::{Object, ObjectPrivate},
@@ -41,6 +41,7 @@ pub use {
     destructor::{Destructor, RemoteDestructor},
 };
 
+/// An error emitted by a [`State`].
 #[derive(Debug, Error)]
 #[error(transparent)]
 pub struct StateError(#[from] StateErrorKind);
@@ -89,18 +90,6 @@ enum StateErrorKind {
     PollError(PollError),
 }
 
-pub(crate) enum Pollable {
-    Endpoint(EndpointWithClient),
-    Acceptor(Rc<Acceptor>),
-    Destructor(OwnedFd, Arc<AtomicBool>),
-}
-
-#[derive(Clone)]
-pub(crate) struct EndpointWithClient {
-    endpoint: Rc<Endpoint>,
-    client: Option<Rc<Client>>,
-}
-
 /// The proxy state.
 ///
 /// This type represents a connection to a server and any number of clients connected to
@@ -112,7 +101,7 @@ pub(crate) struct EndpointWithClient {
 ///
 /// ```
 /// # use std::rc::Rc;
-/// # use wl_proxy::baselines::Baseline;
+/// # use wl_proxy::baseline::Baseline;
 /// # use wl_proxy::client::{Client, ClientHandler};
 /// # use wl_proxy::protocols::wayland::wl_display::{WlDisplay, WlDisplayHandler};
 /// # use wl_proxy::protocols::wayland::wl_registry::WlRegistry;
@@ -182,7 +171,7 @@ pub struct State {
     pub(crate) proxy_stash: Stash<Rc<dyn Object>>,
 }
 
-/// A handler for events emitted by a state.
+/// A handler for events emitted by a [`State`].
 pub trait StateHandler: 'static {
     /// A new client has connected.
     ///
@@ -191,14 +180,20 @@ pub trait StateHandler: 'static {
     fn new_client(&mut self, client: &Rc<Client>);
 }
 
-pub(crate) struct HandlerLock<'a> {
-    state: &'a State,
+enum Pollable {
+    Endpoint(EndpointWithClient),
+    Acceptor(Rc<Acceptor>),
+    Destructor(OwnedFd, Arc<AtomicBool>),
 }
 
-impl Drop for HandlerLock<'_> {
-    fn drop(&mut self) {
-        self.state.global_lock_held.set(false);
-    }
+#[derive(Clone)]
+struct EndpointWithClient {
+    endpoint: Rc<Endpoint>,
+    client: Option<Rc<Client>>,
+}
+
+pub(crate) struct HandlerLock<'a> {
+    state: &'a State,
 }
 
 impl State {
@@ -833,5 +828,11 @@ impl StateError {
     /// This can be used to determine the severity of emitted log messages.
     pub fn is_destroyed(&self) -> bool {
         matches!(self.0, StateErrorKind::Destroyed)
+    }
+}
+
+impl Drop for HandlerLock<'_> {
+    fn drop(&mut self) {
+        self.state.global_lock_held.set(false);
     }
 }

@@ -1,7 +1,7 @@
 use {
     crate::{
         acceptor::{Acceptor, AcceptorError},
-        baselines::Baseline,
+        baseline::Baseline,
         client::ClientHandler,
         protocols::wayland::wl_display::WlDisplayHandler,
         state::{Destructor, StateBuilder},

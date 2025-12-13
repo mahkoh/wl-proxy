@@ -7,7 +7,7 @@ use {
         sync::Arc,
     },
     wl_proxy::{
-        baselines::Baseline,
+        baseline::Baseline,
         global_mapper::GlobalMapper,
         object::{Object, ObjectRcUtils, ObjectUtils},
         protocols::{

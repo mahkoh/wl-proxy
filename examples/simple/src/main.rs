@@ -1,7 +1,7 @@
 use {
     std::rc::Rc,
     wl_proxy::{
-        baselines::Baseline,
+        baseline::Baseline,
         client::{Client, ClientHandler},
         protocols::wayland::{
             wl_display::{WlDisplay, WlDisplayHandler},

@@ -1,6 +1,6 @@
 use {
     crate::{
-        baselines::Baseline,
+        baseline::Baseline,
         endpoint::Endpoint,
         object::{Object, ObjectPrivate},
         poll::{self, Poller},

@@ -8,7 +8,7 @@ use {
         sync::Arc,
     },
     wl_proxy::{
-        baselines::Baseline,
+        baseline::Baseline,
         protocols::{
             ObjectInterface,
             wayland::{

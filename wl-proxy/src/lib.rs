@@ -11,7 +11,7 @@ pub mod fixed;
 mod protocol_helpers;
 #[rustfmt::skip]
 pub mod protocols;
-pub mod baselines;
+pub mod baseline;
 pub mod global_mapper;
 pub mod object;
 mod poll;
