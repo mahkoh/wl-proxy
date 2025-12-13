@@ -1,11 +1,8 @@
-mod prototyping;
-
 use {
     crate::{
         object::{Object, ObjectError},
         protocols::{ObjectInterface, wayland::wl_registry::WlRegistry},
     },
-    linearize::StaticCopyMap,
     std::{collections::HashMap, rc::Rc},
 };
 
@@ -13,24 +10,13 @@ use {
 ///
 /// This type allows filtering globals sent by the server and advertising synthetic
 /// globals that are handled by the proxy.
-///
-/// Unless your application is very simple, you likely want to use this type even if you
-/// don't
-pub struct GlobalFilter {
-    baseline: &'static StaticCopyMap<ObjectInterface, u32>,
+#[derive(Default)]
+pub struct GlobalMapper {
     server_to_client: HashMap<u32, Option<u32>>,
     client_to_server: Vec<Option<u32>>,
 }
 
-impl GlobalFilter {
-    fn from_baseline(baseline: &'static StaticCopyMap<ObjectInterface, u32>) -> Self {
-        Self {
-            baseline,
-            server_to_client: Default::default(),
-            client_to_server: Default::default(),
-        }
-    }
-
+impl GlobalMapper {
     pub fn add_synthetic_global(
         &mut self,
         registry: &WlRegistry,
@@ -58,15 +44,10 @@ impl GlobalFilter {
         interface: ObjectInterface,
         version: u32,
     ) -> Result<(), ObjectError> {
-        let max_version = self.baseline[interface];
-        if max_version == 0 {
-            self.ignore_server_global(server_name);
-            return Ok(());
-        }
         let client_name = self.client_to_server.len() as u32;
         self.client_to_server.push(Some(server_name));
         self.server_to_client.insert(server_name, Some(client_name));
-        registry.send_global(client_name, interface, version.min(max_version))
+        registry.send_global(client_name, interface, version)
     }
 
     pub fn ignore_server_global(&mut self, name: u32) {
@@ -106,11 +87,5 @@ impl GlobalFilter {
             return Ok(());
         };
         registry.send_bind(*server_name, proxy.clone())
-    }
-}
-
-impl GlobalFilter {
-    pub fn baseline_i_am_prototyping() -> Self {
-        Self::from_baseline(prototyping::BASELINE)
     }
 }

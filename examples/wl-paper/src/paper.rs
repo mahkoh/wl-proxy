@@ -7,7 +7,8 @@ use {
         sync::Arc,
     },
     wl_proxy::{
-        global_filter::GlobalFilter,
+        baselines::Baseline,
+        global_mapper::GlobalMapper,
         object::{Object, ObjectRcUtils, ObjectUtils},
         protocols::{
             ObjectInterface,
@@ -61,7 +62,7 @@ use {
 
 pub fn main(config: Config, program: &[String]) -> Result<(), PaperError> {
     let config = Arc::new(config);
-    let server = SimpleServer::new().map_err(PaperError::CreateServer)?;
+    let server = SimpleServer::new(Baseline::V1_UNSTABLE).map_err(PaperError::CreateServer)?;
     Command::new(&program[0])
         .args(&program[1..])
         .with_wayland_display(server.display())
@@ -109,7 +110,7 @@ impl WlDisplayHandler for DisplayHandler {
             });
             let _ = slf.send_sync(&sync);
         }
-        let mut filter = GlobalFilter::baseline_i_am_prototyping();
+        let mut filter = GlobalMapper::default();
         let _ = filter.add_synthetic_global(registry, ObjectInterface::ZxdgDecorationManagerV1, 1);
         let _ = filter.add_synthetic_global(
             registry,
@@ -183,7 +184,7 @@ impl WlCallbackHandler for FirstSyncHandler {
 struct WlRegistryHandlerImpl {
     config: Arc<Config>,
     layer_shell: Rc<LayerShell>,
-    filter: GlobalFilter,
+    filter: GlobalMapper,
 }
 
 impl WlRegistryHandler for WlRegistryHandlerImpl {

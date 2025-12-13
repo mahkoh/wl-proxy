@@ -8,6 +8,7 @@ use {
         sync::Arc,
     },
     wl_proxy::{
+        baselines::Baseline,
         protocols::{
             ObjectInterface,
             wayland::{
@@ -20,7 +21,7 @@ use {
 };
 
 pub fn main(filter: HashMap<String, Option<u32>>, program: Vec<String>) -> Result<(), VeilError> {
-    let server = SimpleServer::new().map_err(VeilError::CreateServer)?;
+    let server = SimpleServer::new(Baseline::ALL_OF_THEM).map_err(VeilError::CreateServer)?;
     Command::new(&program[0])
         .args(&program[1..])
         .with_wayland_display(server.display())

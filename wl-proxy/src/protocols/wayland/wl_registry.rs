@@ -483,7 +483,11 @@ impl ObjectPrivate for WlRegistry {
                 let Some(arg1) = ObjectInterface::from_str(arg1) else {
                     return Ok(());
                 };
-                let arg2 = arg1.xml_version().min(arg2);
+                let max_version = self.core.state.baseline.1[arg1];
+                if max_version == 0 {
+                    return Ok(());
+                }
+                let arg2 = max_version.min(arg2);
                 if let Some(handler) = handler {
                     (**handler).handle_global(&self, arg0, arg1, arg2);
                 } else {

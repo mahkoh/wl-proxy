@@ -692,7 +692,7 @@ pub fn format_baseline_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<(
     }
     wl!()?;
     wl!("#[rustfmt::skip]")?;
-    wl!("pub(super) const BASELINE: &StaticCopyMap<ObjectInterface, u32> = {{")?;
+    wl!("pub(in super::super) const BASELINE: &StaticCopyMap<ObjectInterface, u32> = {{")?;
     wl!("    static BASELINE: [u32; ObjectInterface::LENGTH] = {{")?;
     wl!("        let mut baseline = [0; ObjectInterface::LENGTH];")?;
     for (protocol, interface) in &interfaces {
@@ -1276,7 +1276,11 @@ fn format_object_message_handler_body<W: Write>(
             wl!(r#"{p}        let Some(arg1) = ObjectInterface::from_str(arg1) else {{"#)?;
             wl!(r#"{p}            return Ok(());"#)?;
             wl!(r#"{p}        }};"#)?;
-            wl!(r#"{p}        let arg2 = arg1.xml_version().min(arg2);"#)?;
+            wl!(r#"{p}        let max_version = self.core.state.baseline.1[arg1];"#)?;
+            wl!(r#"{p}        if max_version == 0 {{"#)?;
+            wl!(r#"{p}            return Ok(());"#)?;
+            wl!(r#"{p}        }}"#)?;
+            wl!(r#"{p}        let arg2 = max_version.min(arg2);"#)?;
         }
         for (idx, arg) in msg.args.iter().enumerate() {
             match arg.ty {

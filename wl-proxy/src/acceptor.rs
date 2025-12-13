@@ -182,7 +182,9 @@ impl Acceptor {
     /// # use wl_proxy::acceptor::Acceptor;
     /// # fn f() {
     /// let acceptor = Acceptor::new(1000, false).unwrap();
-    /// acceptor.setenv();
+    /// unsafe {
+    ///     acceptor.setenv();
+    /// }
     /// # }
     /// ```
     pub unsafe fn setenv(&self) {

@@ -1,7 +1,9 @@
 use {
+    error_reporter::Report,
     std::{
         io,
         os::fd::{AsRawFd, OwnedFd},
+        rc::Rc,
     },
     thiserror::Error,
     uapi::{Errno, c},
@@ -35,15 +37,21 @@ pub(crate) struct PollEvent {
     pub events: u32,
 }
 
-pub struct Poller {
-    epoll: uapi::OwnedFd,
+pub(crate) struct Poller {
+    epoll: Rc<OwnedFd>,
 }
 
 impl Poller {
-    pub fn new() -> Result<Self, PollError> {
+    pub(crate) fn new() -> Result<Self, PollError> {
         let epoll =
             uapi::epoll_create1(c::EPOLL_CLOEXEC).map_err(|e| PollError::CreateEpoll(e.into()))?;
-        Ok(Self { epoll })
+        Ok(Self {
+            epoll: Rc::new(epoll.into()),
+        })
+    }
+
+    pub(crate) fn fd(&self) -> &Rc<OwnedFd> {
+        &self.epoll
     }
 
     pub(crate) fn read_events(
@@ -81,6 +89,21 @@ impl Poller {
             Some(&event),
         )
         .map_err(|e| PollError::AddEpoll(e.into()))
+    }
+
+    pub(crate) fn unregister(&self, fd: &OwnedFd) {
+        let res = uapi::epoll_ctl(
+            self.epoll.as_raw_fd(),
+            c::EPOLL_CTL_DEL,
+            fd.as_raw_fd(),
+            None,
+        );
+        if let Err(e) = res {
+            log::warn!(
+                "Could not remove a file descriptor from epoll: {}",
+                Report::new(io::Error::from(e)),
+            );
+        }
     }
 
     pub(crate) fn update_interests(

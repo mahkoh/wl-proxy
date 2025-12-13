@@ -1,6 +1,7 @@
 use {
     crate::{
         acceptor::{Acceptor, AcceptorError},
+        baselines::Baseline,
         client::ClientHandler,
         protocols::wayland::wl_display::WlDisplayHandler,
         state::{Destructor, StateBuilder},
@@ -20,6 +21,7 @@ use {
 };
 
 pub struct SimpleServer {
+    baseline: Baseline,
     acceptor: Rc<Acceptor>,
 }
 
@@ -34,8 +36,9 @@ pub enum SimpleServerError {
 }
 
 impl SimpleServer {
-    pub fn new() -> Result<SimpleServer, SimpleServerError> {
+    pub fn new(baseline: Baseline) -> Result<SimpleServer, SimpleServerError> {
         Ok(Self {
+            baseline,
             acceptor: Acceptor::new(1000, false).map_err(SimpleServerError::CreateAcceptor)?,
         })
     }
@@ -62,7 +65,9 @@ impl SimpleServer {
                 let res = thread::Builder::new()
                     .name(name.clone())
                     .spawn_scoped(s, move || {
-                        let state = StateBuilder::default().with_log_prefix(&name).build();
+                        let state = StateBuilder::new(self.baseline)
+                            .with_log_prefix(&name)
+                            .build();
                         let state = match state {
                             Ok(s) => s,
                             Err(e) => {

@@ -1,6 +1,10 @@
+mod builder;
+mod destructor;
+
 use {
     crate::{
         acceptor::{Acceptor, AcceptorError},
+        baselines::Baseline,
         client::Client,
         endpoint::{Endpoint, EndpointError},
         object::{Object, ObjectPrivate},
@@ -15,34 +19,26 @@ use {
         },
     },
     error_reporter::Report,
-    isnt::std_1::primitive::IsntStrExt,
     run_on_drop::on_drop,
     std::{
         cell::{Cell, RefCell},
         collections::HashMap,
-        env::{remove_var, var, var_os},
         fmt,
         io::{self, BufWriter, Write, pipe},
-        os::{
-            fd::{FromRawFd, OwnedFd},
-            unix::ffi::OsStrExt,
-        },
+        os::fd::OwnedFd,
         rc::{Rc, Weak},
-        str::FromStr,
         sync::{
             Arc,
-            atomic::{
-                AtomicBool,
-                Ordering::{Acquire, Release},
-            },
+            atomic::{AtomicBool, Ordering::Acquire},
         },
         time::Duration,
     },
     thiserror::Error,
-    uapi::{
-        Fd,
-        c::{self, sockaddr_un},
-    },
+    uapi::{Fd, c},
+};
+pub use {
+    builder::StateBuilder,
+    destructor::{Destructor, RemoteDestructor},
 };
 
 #[derive(Debug, Error)]
@@ -73,6 +69,8 @@ enum StateErrorKind {
     CreatePipe(#[source] io::Error),
     #[error("could not read {} environment variable", WAYLAND_DISPLAY)]
     WaylandDisplay,
+    #[error("the display name is empty")]
+    WaylandDisplayEmpty,
     #[error("{} is not set", XDG_RUNTIME_DIR)]
     XrdNotSet,
     #[error("the socket path is too long")]
@@ -94,7 +92,7 @@ enum StateErrorKind {
 pub(crate) enum Pollable {
     Endpoint(EndpointWithClient),
     Acceptor(Rc<Acceptor>),
-    Destructor(#[expect(dead_code)] OwnedFd, Arc<AtomicBool>),
+    Destructor(OwnedFd, Arc<AtomicBool>),
 }
 
 #[derive(Clone)]
@@ -103,13 +101,66 @@ pub(crate) struct EndpointWithClient {
     client: Option<Rc<Client>>,
 }
 
+/// The proxy state.
+///
+/// This type represents a connection to a server and any number of clients connected to
+/// this proxy.
+///
+/// This type can be constructed by using a [`StateBuilder`].
+///
+/// # Example
+///
+/// ```
+/// # use std::rc::Rc;
+/// # use wl_proxy::baselines::Baseline;
+/// # use wl_proxy::client::{Client, ClientHandler};
+/// # use wl_proxy::protocols::wayland::wl_display::{WlDisplay, WlDisplayHandler};
+/// # use wl_proxy::protocols::wayland::wl_registry::WlRegistry;
+/// # use wl_proxy::state::{StateBuilder, StateHandler};
+/// # fn f() {
+/// let state = StateBuilder::new(Baseline::ALL_OF_THEM).build().unwrap();
+/// let acceptor = state.create_acceptor(1000).unwrap();
+/// eprintln!("{}", acceptor.display());
+/// loop {
+///     state.dispatch_blocking().unwrap();
+/// }
+///
+/// struct StateHandlerImpl;
+///
+/// impl StateHandler for StateHandlerImpl {
+///     fn new_client(&mut self, client: &Rc<Client>) {
+///         eprintln!("client connected");
+///         client.set_handler(ClientHandlerImpl);
+///         client.display().set_handler(DisplayHandler);
+///     }
+/// }
+///
+/// struct ClientHandlerImpl;
+///
+/// impl ClientHandler for ClientHandlerImpl {
+///     fn disconnected(self: Box<Self>) {
+///         eprintln!("client disconnected");
+///     }
+/// }
+///
+/// struct DisplayHandler;
+///
+/// impl WlDisplayHandler for DisplayHandler {
+///     fn handle_get_registry(&mut self, slf: &Rc<WlDisplay>, registry: &Rc<WlRegistry>) {
+///         eprintln!("get_registry called");
+///         let _ = slf.send_get_registry(registry);
+///     }
+/// }
+/// # }
+/// ```
 pub struct State {
+    pub(crate) baseline: Baseline,
     poller: Poller,
     next_pollable_id: Cell<u64>,
     pub(crate) server: Rc<Endpoint>,
     pub(crate) destroyed: Cell<bool>,
     handler: HandlerHolder<dyn StateHandler>,
-    pub(crate) pollables: RefCell<HashMap<u64, Pollable>>,
+    pollables: RefCell<HashMap<u64, Pollable>>,
     acceptable_acceptors: Stack<Rc<Acceptor>>,
     has_acceptable_acceptors: Cell<bool>,
     clients_to_kill: Stack<Rc<Client>>,
@@ -131,191 +182,13 @@ pub struct State {
     pub(crate) proxy_stash: Stash<Rc<dyn Object>>,
 }
 
-pub struct StateBuilder {
-    server_fd: Option<Rc<OwnedFd>>,
-    log: bool,
-    log_prefix: String,
-}
-
-impl Default for StateBuilder {
-    fn default() -> Self {
-        Self {
-            server_fd: None,
-            log: var("WL_PROXY_DEBUG").as_deref() == Ok("1"),
-            log_prefix: "".to_string(),
-        }
-    }
-}
-
-impl StateBuilder {
-    pub fn build(self) -> Result<Rc<State>, StateError> {
-        let server_fd = match self.server_fd {
-            Some(fd) => fd,
-            _ => 'fd: {
-                if let Some(wayland_socket) = var_os(WAYLAND_SOCKET) {
-                    let fd = str::from_utf8(wayland_socket.as_bytes())
-                        .ok()
-                        .and_then(|s| i32::from_str(s).ok())
-                        .ok_or(StateErrorKind::WaylandSocketNotNumber)?;
-                    let flags = uapi::fcntl_getfd(fd)
-                        .map_err(|e| StateErrorKind::WaylandSocketGetFd(e.into()))?;
-                    uapi::fcntl_setfd(fd, flags | c::FD_CLOEXEC)
-                        .map_err(|e| StateErrorKind::WaylandSocketSetFd(e.into()))?;
-                    unsafe {
-                        remove_var(WAYLAND_SOCKET);
-                    }
-                    break 'fd unsafe { Rc::new(OwnedFd::from_raw_fd(fd)) };
-                }
-                let mut name = var(WAYLAND_DISPLAY)
-                    .ok()
-                    .ok_or(StateErrorKind::WaylandDisplay)?;
-                if name.is_empty() {
-                    return Err(StateErrorKind::WaylandDisplay.into());
-                }
-                if !name.starts_with("/") {
-                    let Ok(xrd) = var(XDG_RUNTIME_DIR) else {
-                        return Err(StateErrorKind::XrdNotSet.into());
-                    };
-                    name = format!("{xrd}/{name}");
-                }
-                let mut addr = sockaddr_un {
-                    sun_family: c::AF_UNIX as _,
-                    sun_path: [0; 108],
-                };
-                if name.len() > addr.sun_path.len() - 1 {
-                    return Err(StateErrorKind::SocketPathTooLong.into());
-                }
-                let sun_path = uapi::as_bytes_mut(&mut addr.sun_path[..]);
-                sun_path[..name.len()].copy_from_slice(name.as_bytes());
-                sun_path[name.len()] = 0;
-                let socket = uapi::socket(c::AF_UNIX, c::SOCK_STREAM | c::SOCK_CLOEXEC, 0)
-                    .map_err(|e| StateErrorKind::CreateSocket(e.into()))?;
-                uapi::connect(socket.raw(), &addr)
-                    .map_err(|e| StateErrorKind::Connect(name.to_string(), e.into()))?;
-                Rc::new(socket.into())
-            }
-        };
-        const SERVER_ENDPOINT_ID: u64 = 0;
-        let server = Endpoint::new(SERVER_ENDPOINT_ID, &server_fd);
-        server.idl.acquire();
-        server.idl.acquire();
-        let mut endpoints = HashMap::new();
-        endpoints.insert(
-            SERVER_ENDPOINT_ID,
-            Pollable::Endpoint(EndpointWithClient {
-                endpoint: server.clone(),
-                client: None,
-            }),
-        );
-        let poller = Poller::new().map_err(StateErrorKind::PollError)?;
-        let mut log_prefix = String::new();
-        if let Ok(prefix) = var("WL_PROXY_PREFIX") {
-            log_prefix = prefix;
-        }
-        if self.log_prefix.is_not_empty() {
-            if log_prefix.is_not_empty() {
-                log_prefix.push_str(" ");
-            }
-            log_prefix.push_str(&self.log_prefix);
-        }
-        if log_prefix.is_not_empty() {
-            log_prefix = format!("{{{}}} ", log_prefix);
-        }
-        let state = Rc::new(State {
-            poller,
-            next_pollable_id: Cell::new(SERVER_ENDPOINT_ID + 1),
-            server,
-            destroyed: Default::default(),
-            handler: Default::default(),
-            pollables: RefCell::new(endpoints),
-            acceptable_acceptors: Default::default(),
-            has_acceptable_acceptors: Default::default(),
-            clients_to_kill: Default::default(),
-            has_clients_to_kill: Default::default(),
-            readable_endpoints: Default::default(),
-            has_readable_endpoints: Default::default(),
-            flushable_endpoints: Default::default(),
-            has_flushable_endpoints: Default::default(),
-            interest_update_endpoints: Default::default(),
-            has_interest_update_endpoints: Default::default(),
-            interest_update_acceptors: Default::default(),
-            has_interest_update_acceptors: Default::default(),
-            all_proxies: Default::default(),
-            next_proxy_id: Default::default(),
-            log: self.log,
-            log_prefix,
-            log_writer: RefCell::new(BufWriter::with_capacity(1024, Fd::new(c::STDERR_FILENO))),
-            global_lock_held: Default::default(),
-            proxy_stash: Default::default(),
-        });
-        state.change_interest(&state.server, |i| i | poll::READABLE);
-        state
-            .poller
-            .register(0, &state.server.socket)
-            .map_err(StateErrorKind::PollError)?;
-        let display = WlDisplay::new(&state, 1);
-        display
-            .core()
-            .set_server_id_unchecked(1, display.clone())
-            .unwrap();
-        Ok(state)
-    }
-
-    pub fn with_server_fd(mut self, fd: &Rc<OwnedFd>) -> Self {
-        self.server_fd = Some(fd.clone());
-        self
-    }
-
-    pub fn with_logging(mut self, log: bool) -> Self {
-        self.log = log;
-        self
-    }
-
-    pub fn with_log_prefix(mut self, prefix: &str) -> Self {
-        self.log_prefix = prefix.to_string();
-        self
-    }
-}
-
-pub struct Destructor {
-    state: Rc<State>,
-    forget: bool,
-}
-
-impl Destructor {
-    pub fn forget(mut self) {
-        self.forget = true;
-    }
-}
-
-impl Drop for Destructor {
-    fn drop(&mut self) {
-        if self.forget {
-            return;
-        }
-        self.state.destroy();
-    }
-}
-
-pub struct RemoteDestructor {
-    destroy: Arc<AtomicBool>,
-    _fd: OwnedFd,
-    forget: bool,
-}
-
-impl RemoteDestructor {
-    pub fn forget(mut self) {
-        self.forget = true;
-    }
-}
-
-impl Drop for RemoteDestructor {
-    fn drop(&mut self) {
-        if self.forget {
-            return;
-        }
-        self.destroy.store(true, Release);
-    }
+/// A handler for events emitted by a state.
+pub trait StateHandler: 'static {
+    /// A new client has connected.
+    ///
+    /// This event is not emitted if the connection is created explicitly via
+    /// [`State::connect`] or [`State::add_client`].
+    fn new_client(&mut self, client: &Rc<Client>);
 }
 
 pub(crate) struct HandlerLock<'a> {
@@ -329,44 +202,16 @@ impl Drop for HandlerLock<'_> {
 }
 
 impl State {
+    pub(crate) fn remove_endpoint(&self, endpoint: &Endpoint) {
+        self.pollables.borrow_mut().remove(&endpoint.id);
+        self.poller.unregister(&endpoint.socket);
+    }
+
     fn acquire_handler_lock(&self) -> Result<HandlerLock<'_>, StateErrorKind> {
         if self.global_lock_held.replace(true) {
             return Err(StateErrorKind::RecursiveCall);
         }
         Ok(HandlerLock { state: self })
-    }
-
-    pub fn dispatch_blocking(self: &Rc<Self>) -> Result<(), StateError> {
-        self.dispatch(None)
-    }
-
-    pub fn dispatch_available(self: &Rc<Self>) -> Result<(), StateError> {
-        self.dispatch(Some(Duration::from_secs(0)))
-    }
-
-    pub fn dispatch(self: &Rc<Self>, timeout: Option<Duration>) -> Result<(), StateError> {
-        let lock = self.acquire_handler_lock()?;
-        let timeout = timeout
-            .and_then(|t| t.as_millis().try_into().ok())
-            .unwrap_or(-1);
-        let destroy_on_error = on_drop(|| self.destroy());
-        if timeout != 0 {
-            self.flush_locked(&lock)?;
-        }
-        self.wait_for_work(&lock, timeout)?;
-        self.accept_connections(&lock)?;
-        self.read_messages(&lock)?;
-        self.flush_locked(&lock)?;
-        destroy_on_error.forget();
-        Ok(())
-    }
-
-    pub fn flush(&self) -> Result<(), StateError> {
-        let lock = self.acquire_handler_lock()?;
-        let destroy_on_error = on_drop(|| self.destroy());
-        self.flush_locked(&lock)?;
-        destroy_on_error.forget();
-        Ok(())
     }
 
     fn flush_locked(&self, lock: &HandlerLock<'_>) -> Result<(), StateError> {
@@ -384,13 +229,13 @@ impl State {
         if let Err((e, object)) = object.delete_id() {
             log::warn!(
                 "Could not handle a wl_display.delete_id message: {}",
-                Report::new(e)
+                Report::new(e),
             );
             let _ = object.delete_id();
         }
     }
 
-    pub(crate) fn perform_writes(&self, _: &HandlerLock<'_>) -> Result<(), StateError> {
+    fn perform_writes(&self, _: &HandlerLock<'_>) -> Result<(), StateError> {
         if !self.has_flushable_endpoints.get() {
             return Ok(());
         }
@@ -431,10 +276,7 @@ impl State {
         Ok(())
     }
 
-    pub(crate) fn accept_connections(
-        self: &Rc<Self>,
-        lock: &HandlerLock<'_>,
-    ) -> Result<(), StateError> {
+    fn accept_connections(self: &Rc<Self>, lock: &HandlerLock<'_>) -> Result<(), StateError> {
         if !self.has_acceptable_acceptors.get() {
             return Ok(());
         }
@@ -457,7 +299,7 @@ impl State {
         Ok(())
     }
 
-    pub(crate) fn read_messages(&self, lock: &HandlerLock<'_>) -> Result<(), StateError> {
+    fn read_messages(&self, lock: &HandlerLock<'_>) -> Result<(), StateError> {
         if !self.has_readable_endpoints.get() {
             return Ok(());
         }
@@ -477,7 +319,7 @@ impl State {
         Ok(())
     }
 
-    pub(crate) fn change_interest(&self, endpoint: &Rc<Endpoint>, f: impl FnOnce(u32) -> u32) {
+    fn change_interest(&self, endpoint: &Rc<Endpoint>, f: impl FnOnce(u32) -> u32) {
         if self.destroyed.get() {
             return;
         }
@@ -508,11 +350,7 @@ impl State {
         self.has_flushable_endpoints.set(true);
     }
 
-    pub(crate) fn wait_for_work(
-        &self,
-        _: &HandlerLock<'_>,
-        mut timeout: c::c_int,
-    ) -> Result<(), StateError> {
+    fn wait_for_work(&self, _: &HandlerLock<'_>, mut timeout: c::c_int) -> Result<(), StateError> {
         self.check_destroyed()?;
         let mut events = [PollEvent::default(); poll::MAX_EVENTS];
         let pollables = &mut *self.pollables.borrow_mut();
@@ -556,8 +394,9 @@ impl State {
                         self.acceptable_acceptors.push(a.clone());
                         self.has_acceptable_acceptors.set(true);
                     }
-                    Pollable::Destructor(_, destroy) => {
+                    Pollable::Destructor(fd, destroy) => {
                         let destroy = destroy.load(Acquire);
+                        self.poller.unregister(fd);
                         pollables.remove(&id);
                         if destroy {
                             return Err(StateErrorKind::RemoteDestroyed.into());
@@ -568,12 +407,12 @@ impl State {
         }
     }
 
-    pub(crate) fn add_client_to_kill(&self, client: &Rc<Client>) {
+    fn add_client_to_kill(&self, client: &Rc<Client>) {
         self.clients_to_kill.push(client.clone());
         self.has_clients_to_kill.set(true);
     }
 
-    pub(crate) fn kill_clients(&self) {
+    fn kill_clients(&self) {
         if !self.has_clients_to_kill.get() {
             return;
         }
@@ -586,13 +425,13 @@ impl State {
         self.has_clients_to_kill.set(false);
     }
 
-    pub(crate) fn create_pollable_id(&self) -> u64 {
+    fn create_pollable_id(&self) -> u64 {
         let id = self.next_pollable_id.get();
         self.next_pollable_id.set(id + 1);
         id
     }
 
-    pub(crate) fn update_interests(&self) -> Result<(), StateError> {
+    fn update_interests(&self) -> Result<(), StateError> {
         if self.has_interest_update_endpoints.get() {
             while let Some(endpoint) = self.interest_update_endpoints.pop() {
                 endpoint.interest_update_queued.set(false);
@@ -625,18 +464,120 @@ impl State {
         Ok(())
     }
 
-    pub fn create_object<P>(self: &Rc<Self>, version: u32) -> Rc<P>
-    where
-        P: Object + Sized,
-    {
-        P::new(self, version)
-    }
-
     #[cold]
     pub(crate) fn log(&self, args: fmt::Arguments<'_>) {
         let writer = &mut *self.log_writer.borrow_mut();
         let _ = writer.write_fmt(args);
         let _ = writer.flush();
+    }
+}
+
+/// These functions can be used to dispatch and flush messages.
+impl State {
+    /// Performs a blocking dispatch.
+    ///
+    /// This is a shorthand for `self.dispatch(None)`.
+    pub fn dispatch_blocking(self: &Rc<Self>) -> Result<(), StateError> {
+        self.dispatch(None)
+    }
+
+    /// Performs a non-blocking dispatch.
+    ///
+    /// This is a shorthand for `self.dispatch(Some(Duration::from_secs(0))`.
+    pub fn dispatch_available(self: &Rc<Self>) -> Result<(), StateError> {
+        self.dispatch(Some(Duration::from_secs(0)))
+    }
+
+    /// Performs a dispatch.
+    ///
+    /// The timeout determines how long this function will wait for new events. If the
+    /// timeout is `None`, then it will wait indefinitely. If the timeout is `0`, then
+    /// it will only process currently available events.
+    ///
+    /// If the timeout is not `0`, then outgoing messages will be flushed before waiting.
+    ///
+    /// Outgoing messages will be flushed immediately before this function returns.
+    ///
+    /// This function is not reentrant. It should not be called from within a callback.
+    /// Trying to do so will cause it to return an error immediately and the state will
+    /// be otherwise unchanged.
+    pub fn dispatch(self: &Rc<Self>, timeout: Option<Duration>) -> Result<(), StateError> {
+        let lock = self.acquire_handler_lock()?;
+        let timeout = timeout
+            .and_then(|t| t.as_millis().try_into().ok())
+            .unwrap_or(-1);
+        let destroy_on_error = on_drop(|| self.destroy());
+        if timeout != 0 {
+            self.flush_locked(&lock)?;
+        }
+        self.wait_for_work(&lock, timeout)?;
+        self.accept_connections(&lock)?;
+        self.read_messages(&lock)?;
+        self.flush_locked(&lock)?;
+        destroy_on_error.forget();
+        Ok(())
+    }
+}
+
+impl State {
+    /// Returns a file descriptor that can be used with epoll or similar.
+    ///
+    /// If this file descriptor becomes readable, the state should be dispatched.
+    /// [`Self::before_poll`] should be used before going to sleep.
+    ///
+    /// This function always returns the same file descriptor.
+    pub fn poll_fd(&self) -> &Rc<OwnedFd> {
+        self.poller.fd()
+    }
+
+    /// Prepares the state for an external poll operation.
+    ///
+    /// If [`Self::poll_fd`] is used, this function should be called immediately before
+    /// going to sleep. Otherwise, outgoing messages might not be flushed.
+    ///
+    /// ```
+    /// # use std::os::fd::OwnedFd;
+    /// # use std::rc::Rc;
+    /// # use wl_proxy::state::State;
+    /// # fn poll(fd: &OwnedFd) { }
+    /// # fn f(state: &Rc<State>) {
+    /// loop {
+    ///     state.before_poll().unwrap();
+    ///     poll(state.poll_fd());
+    ///     state.dispatch_available().unwrap();
+    /// }
+    /// # }
+    /// ```
+    pub fn before_poll(&self) -> Result<(), StateError> {
+        let lock = self.acquire_handler_lock()?;
+        let destroy_on_error = on_drop(|| self.destroy());
+        self.flush_locked(&lock)?;
+        destroy_on_error.forget();
+        Ok(())
+    }
+}
+
+/// These functions can be used to manipulate objects.
+impl State {
+    /// Creates a new object.
+    ///
+    /// The new object is not associated with a client ID or a server ID. It can become
+    /// associated with a client ID by sending an event with a `new_id` parameter. It can
+    /// become associated with a server ID by sending a request with a `new_id` parameter.
+    ///
+    /// The object can only be associated with one client at a time. The association with
+    /// a client is removed when the object is used in a destructor event.
+    ///
+    /// This function does not enforce that the version is less than or equal to the
+    /// maximum version supported by this crate. Using a version that exceeds tha maximum
+    /// supported version can cause a protocol error if the client sends a request that is
+    /// not available in the maximum supported protocol version or if the server sends an
+    /// event that is not available in the maximum supported protocol version.
+    pub fn create_object<P>(self: &Rc<Self>, version: u32) -> Rc<P>
+    where
+        P: Object,
+    {
+        P::new(self, version)
     }
 }
 
@@ -808,12 +749,18 @@ impl State {
         }
         let proxies = &mut *self.proxy_stash.borrow();
         for pollable in self.pollables.borrow().values() {
-            if let Pollable::Endpoint(ewc) = pollable {
-                if let Some(c) = &ewc.client {
-                    c.destroyed.set(true);
+            let fd = match pollable {
+                Pollable::Endpoint(ewc) => {
+                    if let Some(c) = &ewc.client {
+                        c.destroyed.set(true);
+                    }
+                    proxies.extend(ewc.endpoint.objects.borrow_mut().drain().map(|v| v.1));
+                    &ewc.endpoint.socket
                 }
-                proxies.extend(ewc.endpoint.objects.borrow_mut().drain().map(|v| v.1));
-            }
+                Pollable::Acceptor(a) => &a.socket,
+                Pollable::Destructor(fd, _) => fd,
+            };
+            self.poller.unregister(fd);
         }
         proxies.clear();
         for proxy in self.all_proxies.borrow().values() {
@@ -841,7 +788,7 @@ impl State {
     /// Creates a RAII destructor for this state.
     ///
     /// Dropping the destructor will automatically call [`State::destroy`] unless you
-    /// first call [`Destructor::forget`].
+    /// first call [`Destructor::disable`].
     ///
     /// State objects contain reference cycles that must be cleared manually to release
     /// the associated resources. Dropping the [`State`] is usually not sufficient to do
@@ -852,7 +799,7 @@ impl State {
     pub fn create_destructor(self: &Rc<Self>) -> Destructor {
         Destructor {
             state: self.clone(),
-            forget: false,
+            enabled: Cell::new(true),
         }
     }
 
@@ -875,12 +822,16 @@ impl State {
         Ok(RemoteDestructor {
             destroy,
             _fd: w.into(),
-            forget: false,
+            enabled: AtomicBool::new(true),
         })
     }
 }
 
-/// A handler for events created by a state.
-pub trait StateHandler: 'static {
-    fn new_client(&mut self, client: &Rc<Client>);
+impl StateError {
+    /// Returns whether this error was emitted because the state is already destroyed.
+    ///
+    /// This can be used to determine the severity of emitted log messages.
+    pub fn is_destroyed(&self) -> bool {
+        matches!(self.0, StateErrorKind::Destroyed)
+    }
 }

@@ -1,9 +1,7 @@
 #![allow(non_upper_case_globals, unused)]
 
-use {
-    crate::protocols::ObjectInterface,
-    linearize::{Linearize, StaticCopyMap},
-};
+use linearize::{StaticCopyMap, Linearize};
+use crate::protocols::ObjectInterface;
 
 const ext_background_effect_manager_v1: u32 = 1;
 const ext_background_effect_surface_v1: u32 = 1;
@@ -248,7 +246,7 @@ const zxdg_output_v1: u32 = 3;
 const zxdg_toplevel_decoration_v1: u32 = 1;
 
 #[rustfmt::skip]
-pub(super) const BASELINE: &StaticCopyMap<ObjectInterface, u32> = {
+pub(in super::super) const BASELINE: &StaticCopyMap<ObjectInterface, u32> = {
     static BASELINE: [u32; ObjectInterface::LENGTH] = {
         let mut baseline = [0; ObjectInterface::LENGTH];
         #[cfg(feature = "protocol-ext_background_effect_v1")]

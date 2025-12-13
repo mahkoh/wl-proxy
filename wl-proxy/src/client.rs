@@ -59,6 +59,6 @@ impl Client {
             proxies.push(object);
         }
         self.handler.set(None);
-        self.state.pollables.borrow_mut().remove(&self.endpoint.id);
+        self.state.remove_endpoint(&self.endpoint);
     }
 }
