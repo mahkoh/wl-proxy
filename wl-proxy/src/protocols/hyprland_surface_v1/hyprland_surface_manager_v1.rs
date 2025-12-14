@@ -175,6 +175,9 @@ pub trait HyprlandSurfaceManagerV1Handler: Any {
         id: &Rc<HyprlandSurfaceV1>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_hyprland_surface(
             id,
             surface,
@@ -193,6 +196,9 @@ pub trait HyprlandSurfaceManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandSurfaceManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

@@ -900,6 +900,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         _slf: &Rc<ZwlrOutputHeadV1>,
         name: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_name(
             name,
         );
@@ -934,6 +937,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         _slf: &Rc<ZwlrOutputHeadV1>,
         description: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_description(
             description,
         );
@@ -963,6 +969,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         width: i32,
         height: i32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_physical_size(
             width,
             height,
@@ -986,6 +995,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         _slf: &Rc<ZwlrOutputHeadV1>,
         mode: &Rc<ZwlrOutputModeV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_mode(
             mode,
         );
@@ -1011,6 +1023,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         _slf: &Rc<ZwlrOutputHeadV1>,
         enabled: i32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_enabled(
             enabled,
         );
@@ -1036,6 +1051,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         _slf: &Rc<ZwlrOutputHeadV1>,
         mode: &Rc<ZwlrOutputModeV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = mode.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1067,6 +1085,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         x: i32,
         y: i32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_position(
             x,
             y,
@@ -1090,6 +1111,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         _slf: &Rc<ZwlrOutputHeadV1>,
         transform: WlOutputTransform,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_transform(
             transform,
         );
@@ -1112,6 +1136,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         _slf: &Rc<ZwlrOutputHeadV1>,
         scale: Fixed,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_scale(
             scale,
         );
@@ -1130,6 +1157,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrOutputHeadV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {
@@ -1168,6 +1198,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         _slf: &Rc<ZwlrOutputHeadV1>,
         make: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_make(
             make,
         );
@@ -1207,6 +1240,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         _slf: &Rc<ZwlrOutputHeadV1>,
         model: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_model(
             model,
         );
@@ -1247,6 +1283,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         _slf: &Rc<ZwlrOutputHeadV1>,
         serial_number: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_serial_number(
             serial_number,
         );
@@ -1264,6 +1303,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrOutputHeadV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_release(
         );
         if let Err(e) = res {
@@ -1286,6 +1328,9 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         _slf: &Rc<ZwlrOutputHeadV1>,
         state: ZwlrOutputHeadV1AdaptiveSyncState,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_adaptive_sync(
             state,
         );

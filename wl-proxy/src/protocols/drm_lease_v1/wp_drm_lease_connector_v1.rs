@@ -358,6 +358,9 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         _slf: &Rc<WpDrmLeaseConnectorV1>,
         name: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_name(
             name,
         );
@@ -382,6 +385,9 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         _slf: &Rc<WpDrmLeaseConnectorV1>,
         description: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_description(
             description,
         );
@@ -406,6 +412,9 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         _slf: &Rc<WpDrmLeaseConnectorV1>,
         connector_id: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_connector_id(
             connector_id,
         );
@@ -424,6 +433,9 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         &mut self,
         _slf: &Rc<WpDrmLeaseConnectorV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -449,6 +461,9 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         &mut self,
         _slf: &Rc<WpDrmLeaseConnectorV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_withdrawn(
         );
         if let Err(e) = res {
@@ -468,6 +483,9 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         &mut self,
         _slf: &Rc<WpDrmLeaseConnectorV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

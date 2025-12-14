@@ -258,6 +258,9 @@ pub trait ExtSessionLockSurfaceV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtSessionLockSurfaceV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -301,6 +304,9 @@ pub trait ExtSessionLockSurfaceV1Handler: Any {
         _slf: &Rc<ExtSessionLockSurfaceV1>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_ack_configure(
             serial,
         );
@@ -331,6 +337,9 @@ pub trait ExtSessionLockSurfaceV1Handler: Any {
         width: u32,
         height: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_configure(
             serial,
             width,

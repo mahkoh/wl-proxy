@@ -314,6 +314,9 @@ pub trait WpSecurityContextV1Handler: Any {
         &mut self,
         _slf: &Rc<WpSecurityContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -341,6 +344,9 @@ pub trait WpSecurityContextV1Handler: Any {
         _slf: &Rc<WpSecurityContextV1>,
         name: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_sandbox_engine(
             name,
         );
@@ -374,6 +380,9 @@ pub trait WpSecurityContextV1Handler: Any {
         _slf: &Rc<WpSecurityContextV1>,
         app_id: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_app_id(
             app_id,
         );
@@ -405,6 +414,9 @@ pub trait WpSecurityContextV1Handler: Any {
         _slf: &Rc<WpSecurityContextV1>,
         instance_id: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_instance_id(
             instance_id,
         );
@@ -430,6 +442,9 @@ pub trait WpSecurityContextV1Handler: Any {
         &mut self,
         _slf: &Rc<WpSecurityContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_commit(
         );
         if let Err(e) = res {

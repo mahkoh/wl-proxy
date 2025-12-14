@@ -454,6 +454,15 @@ fn format_interface_message_handler(w: &mut impl Write, interface: &Interface) -
             }
         }
         wl!(r#"    ) {{"#)?;
+        if msg.is_request {
+            wl!(r#"        if !_slf.core.forward_to_server.get() {{"#)?;
+            wl!(r#"            return;"#)?;
+            wl!(r#"        }}"#)?;
+        } else {
+            wl!(r#"        if !_slf.core.forward_to_client.get() {{"#)?;
+            wl!(r#"            return;"#)?;
+            wl!(r#"        }}"#)?;
+        }
         if !msg.is_request && msg.args.iter().any(|a| matches!(a.ty, ArgType::Object)) {
             wl!(r#"        if let Some(client_id) = _slf.core.client_id.get() {{"#)?;
             for arg in &msg.args {

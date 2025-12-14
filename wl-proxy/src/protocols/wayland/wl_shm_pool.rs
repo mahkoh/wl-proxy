@@ -272,6 +272,9 @@ pub trait WlShmPoolHandler: Any {
         stride: i32,
         format: WlShmFormat,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_buffer(
             id,
             offset,
@@ -297,6 +300,9 @@ pub trait WlShmPoolHandler: Any {
         &mut self,
         _slf: &Rc<WlShmPool>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -326,6 +332,9 @@ pub trait WlShmPoolHandler: Any {
         _slf: &Rc<WlShmPool>,
         size: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_resize(
             size,
         );

@@ -626,6 +626,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         _slf: &Rc<ExtWorkspaceHandleV1>,
         id: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_id(
             id,
         );
@@ -651,6 +654,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         _slf: &Rc<ExtWorkspaceHandleV1>,
         name: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_name(
             name,
         );
@@ -689,6 +695,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         _slf: &Rc<ExtWorkspaceHandleV1>,
         coordinates: &[u8],
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_coordinates(
             coordinates,
         );
@@ -715,6 +724,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         _slf: &Rc<ExtWorkspaceHandleV1>,
         state: ExtWorkspaceHandleV1State,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_state(
             state,
         );
@@ -748,6 +760,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         _slf: &Rc<ExtWorkspaceHandleV1>,
         capabilities: ExtWorkspaceHandleV1WorkspaceCapabilities,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_capabilities(
             capabilities,
         );
@@ -772,6 +787,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtWorkspaceHandleV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_removed(
         );
         if let Err(e) = res {
@@ -791,6 +809,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtWorkspaceHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -811,6 +832,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtWorkspaceHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_activate(
         );
         if let Err(e) = res {
@@ -828,6 +852,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtWorkspaceHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_deactivate(
         );
         if let Err(e) = res {
@@ -853,6 +880,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         _slf: &Rc<ExtWorkspaceHandleV1>,
         workspace_group: &Rc<ExtWorkspaceGroupHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_assign(
             workspace_group,
         );
@@ -871,6 +901,9 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtWorkspaceHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_remove(
         );
         if let Err(e) = res {

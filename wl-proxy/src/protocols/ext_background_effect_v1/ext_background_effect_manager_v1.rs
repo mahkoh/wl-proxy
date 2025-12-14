@@ -222,6 +222,9 @@ pub trait ExtBackgroundEffectManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtBackgroundEffectManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -240,6 +243,9 @@ pub trait ExtBackgroundEffectManagerV1Handler: Any {
         _slf: &Rc<ExtBackgroundEffectManagerV1>,
         flags: ExtBackgroundEffectManagerV1Capability,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_capabilities(
             flags,
         );
@@ -271,6 +277,9 @@ pub trait ExtBackgroundEffectManagerV1Handler: Any {
         id: &Rc<ExtBackgroundEffectSurfaceV1>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_background_effect(
             id,
             surface,

@@ -291,6 +291,9 @@ pub trait TreelandVirtualOutputManagerV1Handler: Any {
         name: &str,
         outputs: &[u8],
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_virtual_output(
             id,
             name,
@@ -309,6 +312,9 @@ pub trait TreelandVirtualOutputManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandVirtualOutputManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_virtual_output_list(
         );
         if let Err(e) = res {
@@ -329,6 +335,9 @@ pub trait TreelandVirtualOutputManagerV1Handler: Any {
         _slf: &Rc<TreelandVirtualOutputManagerV1>,
         names: &[u8],
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_virtual_output_list(
             names,
         );
@@ -353,6 +362,9 @@ pub trait TreelandVirtualOutputManagerV1Handler: Any {
         name: &str,
         id: &Rc<TreelandVirtualOutputV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_virtual_output(
             name,
             id,

@@ -800,6 +800,9 @@ pub trait WpColorManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<WpColorManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -828,6 +831,9 @@ pub trait WpColorManagerV1Handler: Any {
         id: &Rc<WpColorManagementOutputV1>,
         output: &Rc<WlOutput>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_output(
             id,
             output,
@@ -861,6 +867,9 @@ pub trait WpColorManagerV1Handler: Any {
         id: &Rc<WpColorManagementSurfaceV1>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_surface(
             id,
             surface,
@@ -892,6 +901,9 @@ pub trait WpColorManagerV1Handler: Any {
         id: &Rc<WpColorManagementSurfaceFeedbackV1>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_surface_feedback(
             id,
             surface,
@@ -921,6 +933,9 @@ pub trait WpColorManagerV1Handler: Any {
         _slf: &Rc<WpColorManagerV1>,
         obj: &Rc<WpImageDescriptionCreatorIccV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_icc_creator(
             obj,
         );
@@ -949,6 +964,9 @@ pub trait WpColorManagerV1Handler: Any {
         _slf: &Rc<WpColorManagerV1>,
         obj: &Rc<WpImageDescriptionCreatorParamsV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_parametric_creator(
             obj,
         );
@@ -1013,6 +1031,9 @@ pub trait WpColorManagerV1Handler: Any {
         _slf: &Rc<WpColorManagerV1>,
         image_description: &Rc<WpImageDescriptionV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_windows_scrgb(
             image_description,
         );
@@ -1038,6 +1059,9 @@ pub trait WpColorManagerV1Handler: Any {
         _slf: &Rc<WpColorManagerV1>,
         render_intent: WpColorManagerV1RenderIntent,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_supported_intent(
             render_intent,
         );
@@ -1063,6 +1087,9 @@ pub trait WpColorManagerV1Handler: Any {
         _slf: &Rc<WpColorManagerV1>,
         feature: WpColorManagerV1Feature,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_supported_feature(
             feature,
         );
@@ -1089,6 +1116,9 @@ pub trait WpColorManagerV1Handler: Any {
         _slf: &Rc<WpColorManagerV1>,
         tf: WpColorManagerV1TransferFunction,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_supported_tf_named(
             tf,
         );
@@ -1115,6 +1145,9 @@ pub trait WpColorManagerV1Handler: Any {
         _slf: &Rc<WpColorManagerV1>,
         primaries: WpColorManagerV1Primaries,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_supported_primaries_named(
             primaries,
         );
@@ -1132,6 +1165,9 @@ pub trait WpColorManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<WpColorManagerV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -1160,6 +1196,9 @@ pub trait WpColorManagerV1Handler: Any {
         image_description: &Rc<WpImageDescriptionV1>,
         reference: &Rc<WpImageDescriptionReferenceV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_image_description(
             image_description,
             reference,

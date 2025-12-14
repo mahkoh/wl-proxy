@@ -599,6 +599,9 @@ pub trait XdgPositionerHandler: Any {
         &mut self,
         _slf: &Rc<XdgPositioner>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -625,6 +628,9 @@ pub trait XdgPositionerHandler: Any {
         width: i32,
         height: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_size(
             width,
             height,
@@ -662,6 +668,9 @@ pub trait XdgPositionerHandler: Any {
         width: i32,
         height: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_anchor_rect(
             x,
             y,
@@ -691,6 +700,9 @@ pub trait XdgPositionerHandler: Any {
         _slf: &Rc<XdgPositioner>,
         anchor: XdgPositionerAnchor,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_anchor(
             anchor,
         );
@@ -718,6 +730,9 @@ pub trait XdgPositionerHandler: Any {
         _slf: &Rc<XdgPositioner>,
         gravity: XdgPositionerGravity,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_gravity(
             gravity,
         );
@@ -751,6 +766,9 @@ pub trait XdgPositionerHandler: Any {
         _slf: &Rc<XdgPositioner>,
         constraint_adjustment: XdgPositionerConstraintAdjustment,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_constraint_adjustment(
             constraint_adjustment,
         );
@@ -784,6 +802,9 @@ pub trait XdgPositionerHandler: Any {
         x: i32,
         y: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_offset(
             x,
             y,
@@ -806,6 +827,9 @@ pub trait XdgPositionerHandler: Any {
         &mut self,
         _slf: &Rc<XdgPositioner>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_reactive(
         );
         if let Err(e) = res {
@@ -833,6 +857,9 @@ pub trait XdgPositionerHandler: Any {
         parent_width: i32,
         parent_height: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_parent_size(
             parent_width,
             parent_height,
@@ -858,6 +885,9 @@ pub trait XdgPositionerHandler: Any {
         _slf: &Rc<XdgPositioner>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_parent_configure(
             serial,
         );

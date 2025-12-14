@@ -266,6 +266,9 @@ pub trait ZwlrScreencopyManagerV1Handler: Any {
         overlay_cursor: i32,
         output: &Rc<WlOutput>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_capture_output(
             frame,
             overlay_cursor,
@@ -308,6 +311,9 @@ pub trait ZwlrScreencopyManagerV1Handler: Any {
         width: i32,
         height: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_capture_output_region(
             frame,
             overlay_cursor,
@@ -331,6 +337,9 @@ pub trait ZwlrScreencopyManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrScreencopyManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

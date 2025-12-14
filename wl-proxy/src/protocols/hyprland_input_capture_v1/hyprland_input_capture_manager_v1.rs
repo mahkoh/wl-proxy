@@ -125,6 +125,9 @@ pub trait HyprlandInputCaptureManagerV1Handler: Any {
         session: &Rc<HyprlandInputCaptureV1>,
         handle: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_session(
             session,
             handle,

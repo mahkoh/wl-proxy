@@ -485,6 +485,9 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandInputCaptureV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_clear_barriers(
         );
         if let Err(e) = res {
@@ -515,6 +518,9 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         x2: u32,
         y2: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_add_barrier(
             zone_set,
             id,
@@ -536,6 +542,9 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandInputCaptureV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_enable(
         );
         if let Err(e) = res {
@@ -551,6 +560,9 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandInputCaptureV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_disable(
         );
         if let Err(e) = res {
@@ -576,6 +588,9 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         x: Fixed,
         y: Fixed,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_release(
             activation_id,
             x,
@@ -599,6 +614,9 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         _slf: &Rc<HyprlandInputCaptureV1>,
         fd: &Rc<OwnedFd>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_eis_fd(
             fd,
         );
@@ -615,6 +633,9 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandInputCaptureV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_disabled(
         );
         if let Err(e) = res {
@@ -641,6 +662,9 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         y: Fixed,
         barrier_id: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_activated(
             activation_id,
             x,
@@ -665,6 +689,9 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         _slf: &Rc<HyprlandInputCaptureV1>,
         activation_id: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_deactivated(
             activation_id,
         );

@@ -246,6 +246,9 @@ pub trait XdgToplevelIconV1Handler: Any {
         &mut self,
         _slf: &Rc<XdgToplevelIconV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -280,6 +283,9 @@ pub trait XdgToplevelIconV1Handler: Any {
         _slf: &Rc<XdgToplevelIconV1>,
         icon_name: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_name(
             icon_name,
         );
@@ -329,6 +335,9 @@ pub trait XdgToplevelIconV1Handler: Any {
         buffer: &Rc<WlBuffer>,
         scale: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_add_buffer(
             buffer,
             scale,

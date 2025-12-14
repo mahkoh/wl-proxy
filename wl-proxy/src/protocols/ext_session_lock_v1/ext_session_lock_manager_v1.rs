@@ -151,6 +151,9 @@ pub trait ExtSessionLockManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtSessionLockManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -174,6 +177,9 @@ pub trait ExtSessionLockManagerV1Handler: Any {
         _slf: &Rc<ExtSessionLockManagerV1>,
         id: &Rc<ExtSessionLockV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_lock(
             id,
         );

@@ -172,6 +172,9 @@ pub trait ZwlrGammaControlManagerV1Handler: Any {
         id: &Rc<ZwlrGammaControlV1>,
         output: &Rc<WlOutput>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_gamma_control(
             id,
             output,
@@ -190,6 +193,9 @@ pub trait ZwlrGammaControlManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrGammaControlManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

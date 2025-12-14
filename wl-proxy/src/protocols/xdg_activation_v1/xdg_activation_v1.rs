@@ -222,6 +222,9 @@ pub trait XdgActivationV1Handler: Any {
         &mut self,
         _slf: &Rc<XdgActivationV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -244,6 +247,9 @@ pub trait XdgActivationV1Handler: Any {
         _slf: &Rc<XdgActivationV1>,
         id: &Rc<XdgActivationTokenV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_activation_token(
             id,
         );
@@ -279,6 +285,9 @@ pub trait XdgActivationV1Handler: Any {
         token: &str,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_activate(
             token,
             surface,

@@ -106,6 +106,9 @@ pub trait ZwlrInputInhibitorV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrInputInhibitorV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

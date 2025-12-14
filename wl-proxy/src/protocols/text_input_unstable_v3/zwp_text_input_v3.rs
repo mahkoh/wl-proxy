@@ -958,6 +958,9 @@ pub trait ZwpTextInputV3Handler: Any {
         &mut self,
         _slf: &Rc<ZwpTextInputV3>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -1000,6 +1003,9 @@ pub trait ZwpTextInputV3Handler: Any {
         &mut self,
         _slf: &Rc<ZwpTextInputV3>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_enable(
         );
         if let Err(e) = res {
@@ -1019,6 +1025,9 @@ pub trait ZwpTextInputV3Handler: Any {
         &mut self,
         _slf: &Rc<ZwpTextInputV3>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_disable(
         );
         if let Err(e) = res {
@@ -1073,6 +1082,9 @@ pub trait ZwpTextInputV3Handler: Any {
         cursor: i32,
         anchor: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_surrounding_text(
             text,
             cursor,
@@ -1109,6 +1121,9 @@ pub trait ZwpTextInputV3Handler: Any {
         _slf: &Rc<ZwpTextInputV3>,
         cause: ZwpTextInputV3ChangeCause,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_text_change_cause(
             cause,
         );
@@ -1142,6 +1157,9 @@ pub trait ZwpTextInputV3Handler: Any {
         hint: ZwpTextInputV3ContentHint,
         purpose: ZwpTextInputV3ContentPurpose,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_content_type(
             hint,
             purpose,
@@ -1186,6 +1204,9 @@ pub trait ZwpTextInputV3Handler: Any {
         width: i32,
         height: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_cursor_rectangle(
             x,
             y,
@@ -1227,6 +1248,9 @@ pub trait ZwpTextInputV3Handler: Any {
         &mut self,
         _slf: &Rc<ZwpTextInputV3>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_commit(
         );
         if let Err(e) = res {
@@ -1257,6 +1281,9 @@ pub trait ZwpTextInputV3Handler: Any {
         _slf: &Rc<ZwpTextInputV3>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1298,6 +1325,9 @@ pub trait ZwpTextInputV3Handler: Any {
         _slf: &Rc<ZwpTextInputV3>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1347,6 +1377,9 @@ pub trait ZwpTextInputV3Handler: Any {
         cursor_begin: i32,
         cursor_end: i32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_preedit_string(
             text,
             cursor_begin,
@@ -1377,6 +1410,9 @@ pub trait ZwpTextInputV3Handler: Any {
         _slf: &Rc<ZwpTextInputV3>,
         text: Option<&str>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_commit_string(
             text,
         );
@@ -1413,6 +1449,9 @@ pub trait ZwpTextInputV3Handler: Any {
         before_length: u32,
         after_length: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_delete_surrounding_text(
             before_length,
             after_length,
@@ -1461,6 +1500,9 @@ pub trait ZwpTextInputV3Handler: Any {
         _slf: &Rc<ZwpTextInputV3>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_done(
             serial,
         );

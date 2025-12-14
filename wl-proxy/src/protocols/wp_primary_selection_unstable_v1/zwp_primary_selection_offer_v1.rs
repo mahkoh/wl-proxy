@@ -225,6 +225,9 @@ pub trait ZwpPrimarySelectionOfferV1Handler: Any {
         mime_type: &str,
         fd: &Rc<OwnedFd>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_receive(
             mime_type,
             fd,
@@ -242,6 +245,9 @@ pub trait ZwpPrimarySelectionOfferV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpPrimarySelectionOfferV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -265,6 +271,9 @@ pub trait ZwpPrimarySelectionOfferV1Handler: Any {
         _slf: &Rc<ZwpPrimarySelectionOfferV1>,
         mime_type: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_offer(
             mime_type,
         );

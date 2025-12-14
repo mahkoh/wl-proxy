@@ -212,6 +212,9 @@ pub trait ZwpPrimarySelectionDeviceManagerV1Handler: Any {
         _slf: &Rc<ZwpPrimarySelectionDeviceManagerV1>,
         id: &Rc<ZwpPrimarySelectionSourceV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_source(
             id,
         );
@@ -238,6 +241,9 @@ pub trait ZwpPrimarySelectionDeviceManagerV1Handler: Any {
         id: &Rc<ZwpPrimarySelectionDeviceV1>,
         seat: &Rc<WlSeat>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_device(
             id,
             seat,
@@ -255,6 +261,9 @@ pub trait ZwpPrimarySelectionDeviceManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpPrimarySelectionDeviceManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

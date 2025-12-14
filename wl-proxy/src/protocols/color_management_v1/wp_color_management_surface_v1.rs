@@ -236,6 +236,9 @@ pub trait WpColorManagementSurfaceV1Handler: Any {
         &mut self,
         _slf: &Rc<WpColorManagementSurfaceV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -299,6 +302,9 @@ pub trait WpColorManagementSurfaceV1Handler: Any {
         image_description: &Rc<WpImageDescriptionV1>,
         render_intent: WpColorManagerV1RenderIntent,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_image_description(
             image_description,
             render_intent,
@@ -321,6 +327,9 @@ pub trait WpColorManagementSurfaceV1Handler: Any {
         &mut self,
         _slf: &Rc<WpColorManagementSurfaceV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_unset_image_description(
         );
         if let Err(e) = res {

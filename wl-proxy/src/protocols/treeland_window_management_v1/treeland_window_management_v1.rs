@@ -202,6 +202,9 @@ pub trait TreelandWindowManagementV1Handler: Any {
         _slf: &Rc<TreelandWindowManagementV1>,
         state: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_desktop(
             state,
         );
@@ -227,6 +230,9 @@ pub trait TreelandWindowManagementV1Handler: Any {
         _slf: &Rc<TreelandWindowManagementV1>,
         state: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_show_desktop(
             state,
         );
@@ -241,6 +247,9 @@ pub trait TreelandWindowManagementV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandWindowManagementV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

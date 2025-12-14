@@ -230,6 +230,9 @@ pub trait WpLinuxDrmSyncobjManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<WpLinuxDrmSyncobjManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -265,6 +268,9 @@ pub trait WpLinuxDrmSyncobjManagerV1Handler: Any {
         id: &Rc<WpLinuxDrmSyncobjSurfaceV1>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_surface(
             id,
             surface,
@@ -291,6 +297,9 @@ pub trait WpLinuxDrmSyncobjManagerV1Handler: Any {
         id: &Rc<WpLinuxDrmSyncobjTimelineV1>,
         fd: &Rc<OwnedFd>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_import_timeline(
             id,
             fd,

@@ -235,6 +235,9 @@ pub trait HyprlandSurfaceV1Handler: Any {
         _slf: &Rc<HyprlandSurfaceV1>,
         opacity: Fixed,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_opacity(
             opacity,
         );
@@ -252,6 +255,9 @@ pub trait HyprlandSurfaceV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandSurfaceV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -293,6 +299,9 @@ pub trait HyprlandSurfaceV1Handler: Any {
         _slf: &Rc<HyprlandSurfaceV1>,
         region: Option<&Rc<WlRegion>>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_visible_region(
             region,
         );

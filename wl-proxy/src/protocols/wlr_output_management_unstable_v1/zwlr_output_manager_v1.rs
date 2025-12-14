@@ -340,6 +340,9 @@ pub trait ZwlrOutputManagerV1Handler: Any {
         _slf: &Rc<ZwlrOutputManagerV1>,
         head: &Rc<ZwlrOutputHeadV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_head(
             head,
         );
@@ -371,6 +374,9 @@ pub trait ZwlrOutputManagerV1Handler: Any {
         _slf: &Rc<ZwlrOutputManagerV1>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_done(
             serial,
         );
@@ -395,6 +401,9 @@ pub trait ZwlrOutputManagerV1Handler: Any {
         id: &Rc<ZwlrOutputConfigurationV1>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_configuration(
             id,
             serial,
@@ -416,6 +425,9 @@ pub trait ZwlrOutputManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrOutputManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_stop(
         );
         if let Err(e) = res {
@@ -434,6 +446,9 @@ pub trait ZwlrOutputManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrOutputManagerV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {

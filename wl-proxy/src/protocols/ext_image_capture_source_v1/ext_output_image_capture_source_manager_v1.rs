@@ -176,6 +176,9 @@ pub trait ExtOutputImageCaptureSourceManagerV1Handler: Any {
         source: &Rc<ExtImageCaptureSourceV1>,
         output: &Rc<WlOutput>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_source(
             source,
             output,
@@ -195,6 +198,9 @@ pub trait ExtOutputImageCaptureSourceManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtOutputImageCaptureSourceManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

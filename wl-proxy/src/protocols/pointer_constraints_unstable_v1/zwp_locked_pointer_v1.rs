@@ -315,6 +315,9 @@ pub trait ZwpLockedPointerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpLockedPointerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -346,6 +349,9 @@ pub trait ZwpLockedPointerV1Handler: Any {
         surface_x: Fixed,
         surface_y: Fixed,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_cursor_position_hint(
             surface_x,
             surface_y,
@@ -375,6 +381,9 @@ pub trait ZwpLockedPointerV1Handler: Any {
         _slf: &Rc<ZwpLockedPointerV1>,
         region: Option<&Rc<WlRegion>>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_region(
             region,
         );
@@ -391,6 +400,9 @@ pub trait ZwpLockedPointerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpLockedPointerV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_locked(
         );
         if let Err(e) = res {
@@ -411,6 +423,9 @@ pub trait ZwpLockedPointerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpLockedPointerV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_unlocked(
         );
         if let Err(e) = res {

@@ -479,6 +479,9 @@ pub trait JayTrayItemV1Handler: Any {
         &mut self,
         _slf: &Rc<JayTrayItemV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -501,6 +504,9 @@ pub trait JayTrayItemV1Handler: Any {
         _slf: &Rc<JayTrayItemV1>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_ack_configure(
             serial,
         );
@@ -546,6 +552,9 @@ pub trait JayTrayItemV1Handler: Any {
         serial: u32,
         focus_hint: JayTrayItemV1KeyboardFocusHint,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_popup(
             popup,
             seat,
@@ -588,6 +597,9 @@ pub trait JayTrayItemV1Handler: Any {
         width: i32,
         height: i32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_configure_size(
             width,
             height,
@@ -617,6 +629,9 @@ pub trait JayTrayItemV1Handler: Any {
         _slf: &Rc<JayTrayItemV1>,
         anchor: XdgPositionerAnchor,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_preferred_anchor(
             anchor,
         );
@@ -645,6 +660,9 @@ pub trait JayTrayItemV1Handler: Any {
         _slf: &Rc<JayTrayItemV1>,
         gravity: XdgPositionerGravity,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_preferred_gravity(
             gravity,
         );
@@ -670,6 +688,9 @@ pub trait JayTrayItemV1Handler: Any {
         _slf: &Rc<JayTrayItemV1>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_configure(
             serial,
         );

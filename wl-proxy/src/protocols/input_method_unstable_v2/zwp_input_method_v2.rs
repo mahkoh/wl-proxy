@@ -927,6 +927,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_activate(
         );
         if let Err(e) = res {
@@ -950,6 +953,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_deactivate(
         );
         if let Err(e) = res {
@@ -1002,6 +1008,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         cursor: u32,
         anchor: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_surrounding_text(
             text,
             cursor,
@@ -1039,6 +1048,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         _slf: &Rc<ZwpInputMethodV2>,
         cause: ZwpTextInputV3ChangeCause,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_text_change_cause(
             cause,
         );
@@ -1069,6 +1081,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         hint: ZwpTextInputV3ContentHint,
         purpose: ZwpTextInputV3ContentPurpose,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_content_type(
             hint,
             purpose,
@@ -1102,6 +1117,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -1135,6 +1153,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         _slf: &Rc<ZwpInputMethodV2>,
         text: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_commit_string(
             text,
         );
@@ -1183,6 +1204,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         cursor_begin: i32,
         cursor_end: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_preedit_string(
             text,
             cursor_begin,
@@ -1221,6 +1245,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         before_length: u32,
         after_length: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_delete_surrounding_text(
             before_length,
             after_length,
@@ -1265,6 +1292,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         _slf: &Rc<ZwpInputMethodV2>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_commit(
             serial,
         );
@@ -1296,6 +1326,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         id: &Rc<ZwpInputPopupSurfaceV2>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_input_popup_surface(
             id,
             surface,
@@ -1329,6 +1362,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         _slf: &Rc<ZwpInputMethodV2>,
         keyboard: &Rc<ZwpInputMethodKeyboardGrabV2>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_grab_keyboard(
             keyboard,
         );
@@ -1356,6 +1392,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_unavailable(
         );
         if let Err(e) = res {
@@ -1373,6 +1412,9 @@ pub trait ZwpInputMethodV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpInputMethodV2>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

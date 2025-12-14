@@ -665,6 +665,9 @@ pub trait WlDataDeviceHandler: Any {
         icon: Option<&Rc<WlSurface>>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_start_drag(
             source,
             origin,
@@ -701,6 +704,9 @@ pub trait WlDataDeviceHandler: Any {
         source: Option<&Rc<WlDataSource>>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_selection(
             source,
             serial,
@@ -729,6 +735,9 @@ pub trait WlDataDeviceHandler: Any {
         _slf: &Rc<WlDataDevice>,
         id: &Rc<WlDataOffer>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_data_offer(
             id,
         );
@@ -764,6 +773,9 @@ pub trait WlDataDeviceHandler: Any {
         y: Fixed,
         id: Option<&Rc<WlDataOffer>>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -800,6 +812,9 @@ pub trait WlDataDeviceHandler: Any {
         &mut self,
         _slf: &Rc<WlDataDevice>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_leave(
         );
         if let Err(e) = res {
@@ -827,6 +842,9 @@ pub trait WlDataDeviceHandler: Any {
         x: Fixed,
         y: Fixed,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_motion(
             time,
             x,
@@ -857,6 +875,9 @@ pub trait WlDataDeviceHandler: Any {
         &mut self,
         _slf: &Rc<WlDataDevice>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_drop(
         );
         if let Err(e) = res {
@@ -891,6 +912,9 @@ pub trait WlDataDeviceHandler: Any {
         _slf: &Rc<WlDataDevice>,
         id: Option<&Rc<WlDataOffer>>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {
@@ -916,6 +940,9 @@ pub trait WlDataDeviceHandler: Any {
         &mut self,
         _slf: &Rc<WlDataDevice>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_release(
         );
         if let Err(e) = res {

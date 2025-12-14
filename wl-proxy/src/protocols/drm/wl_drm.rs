@@ -526,6 +526,9 @@ pub trait WlDrmHandler: Any {
         _slf: &Rc<WlDrm>,
         id: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_authenticate(
             id,
         );
@@ -553,6 +556,9 @@ pub trait WlDrmHandler: Any {
         stride: u32,
         format: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_buffer(
             id,
             name,
@@ -595,6 +601,9 @@ pub trait WlDrmHandler: Any {
         offset2: i32,
         stride2: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_planar_buffer(
             id,
             name,
@@ -622,6 +631,9 @@ pub trait WlDrmHandler: Any {
         _slf: &Rc<WlDrm>,
         name: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_device(
             name,
         );
@@ -639,6 +651,9 @@ pub trait WlDrmHandler: Any {
         _slf: &Rc<WlDrm>,
         format: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_format(
             format,
         );
@@ -652,6 +667,9 @@ pub trait WlDrmHandler: Any {
         &mut self,
         _slf: &Rc<WlDrm>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_authenticated(
         );
         if let Err(e) = res {
@@ -668,6 +686,9 @@ pub trait WlDrmHandler: Any {
         _slf: &Rc<WlDrm>,
         value: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_capabilities(
             value,
         );
@@ -705,6 +726,9 @@ pub trait WlDrmHandler: Any {
         offset2: i32,
         stride2: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_prime_buffer(
             id,
             name,

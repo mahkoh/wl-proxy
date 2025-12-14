@@ -322,6 +322,9 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
         mat7: Fixed,
         mat8: Fixed,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_ctm_for_output(
             output,
             mat0,
@@ -347,6 +350,9 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandCtmControlManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_commit(
         );
         if let Err(e) = res {
@@ -365,6 +371,9 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandCtmControlManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -383,6 +392,9 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandCtmControlManagerV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_blocked(
         );
         if let Err(e) = res {

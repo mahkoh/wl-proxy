@@ -260,6 +260,9 @@ pub trait ZxdgToplevelDecorationV1Handler: Any {
         &mut self,
         _slf: &Rc<ZxdgToplevelDecorationV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -300,6 +303,9 @@ pub trait ZxdgToplevelDecorationV1Handler: Any {
         _slf: &Rc<ZxdgToplevelDecorationV1>,
         mode: ZxdgToplevelDecorationV1Mode,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_mode(
             mode,
         );
@@ -319,6 +325,9 @@ pub trait ZxdgToplevelDecorationV1Handler: Any {
         &mut self,
         _slf: &Rc<ZxdgToplevelDecorationV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_unset_mode(
         );
         if let Err(e) = res {
@@ -345,6 +354,9 @@ pub trait ZxdgToplevelDecorationV1Handler: Any {
         _slf: &Rc<ZxdgToplevelDecorationV1>,
         mode: ZxdgToplevelDecorationV1Mode,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_configure(
             mode,
         );

@@ -177,6 +177,9 @@ pub trait TreelandPrelaunchSplashManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandPrelaunchSplashManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -216,6 +219,9 @@ pub trait TreelandPrelaunchSplashManagerV1Handler: Any {
         sandbox_engine_name: &str,
         icon_buffer: Option<&Rc<WlBuffer>>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_splash(
             app_id,
             sandbox_engine_name,

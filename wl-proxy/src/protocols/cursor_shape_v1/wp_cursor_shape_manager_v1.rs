@@ -231,6 +231,9 @@ pub trait WpCursorShapeManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<WpCursorShapeManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -259,6 +262,9 @@ pub trait WpCursorShapeManagerV1Handler: Any {
         cursor_shape_device: &Rc<WpCursorShapeDeviceV1>,
         pointer: &Rc<WlPointer>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_pointer(
             cursor_shape_device,
             pointer,
@@ -289,6 +295,9 @@ pub trait WpCursorShapeManagerV1Handler: Any {
         cursor_shape_device: &Rc<WpCursorShapeDeviceV1>,
         tablet_tool: &Rc<ZwpTabletToolV2>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_tablet_tool_v2(
             cursor_shape_device,
             tablet_tool,

@@ -901,6 +901,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
         title: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_title(
             title,
         );
@@ -922,6 +925,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
         app_id: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_app_id(
             app_id,
         );
@@ -947,6 +953,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
         output: &Rc<WlOutput>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -980,6 +989,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
         output: &Rc<WlOutput>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1004,6 +1016,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_maximized(
         );
         if let Err(e) = res {
@@ -1020,6 +1035,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_unset_maximized(
         );
         if let Err(e) = res {
@@ -1036,6 +1054,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_minimized(
         );
         if let Err(e) = res {
@@ -1052,6 +1073,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_unset_minimized(
         );
         if let Err(e) = res {
@@ -1076,6 +1100,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
         seat: &Rc<WlSeat>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_activate(
             seat,
         );
@@ -1099,6 +1126,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
         state: &[u8],
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_state(
             state,
         );
@@ -1119,6 +1149,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -1139,6 +1172,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_close(
         );
         if let Err(e) = res {
@@ -1180,6 +1216,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         width: i32,
         height: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_rectangle(
             surface,
             x,
@@ -1203,6 +1242,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_closed(
         );
         if let Err(e) = res {
@@ -1222,6 +1264,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -1252,6 +1297,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
         output: Option<&Rc<WlOutput>>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_fullscreen(
             output,
         );
@@ -1269,6 +1317,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_unset_fullscreen(
         );
         if let Err(e) = res {
@@ -1294,6 +1345,9 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         _slf: &Rc<ZwlrForeignToplevelHandleV1>,
         parent: Option<&Rc<ZwlrForeignToplevelHandleV1>>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(parent) = parent {
                 if let Some(client_id_2) = parent.core().client_id.get() {

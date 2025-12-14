@@ -380,6 +380,9 @@ pub trait XdgActivationTokenV1Handler: Any {
         serial: u32,
         seat: &Rc<WlSeat>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_serial(
             serial,
             seat,
@@ -405,6 +408,9 @@ pub trait XdgActivationTokenV1Handler: Any {
         _slf: &Rc<XdgActivationTokenV1>,
         app_id: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_app_id(
             app_id,
         );
@@ -435,6 +441,9 @@ pub trait XdgActivationTokenV1Handler: Any {
         _slf: &Rc<XdgActivationTokenV1>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_surface(
             surface,
         );
@@ -452,6 +461,9 @@ pub trait XdgActivationTokenV1Handler: Any {
         &mut self,
         _slf: &Rc<XdgActivationTokenV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_commit(
         );
         if let Err(e) = res {
@@ -473,6 +485,9 @@ pub trait XdgActivationTokenV1Handler: Any {
         _slf: &Rc<XdgActivationTokenV1>,
         token: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_done(
             token,
         );
@@ -490,6 +505,9 @@ pub trait XdgActivationTokenV1Handler: Any {
         &mut self,
         _slf: &Rc<XdgActivationTokenV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

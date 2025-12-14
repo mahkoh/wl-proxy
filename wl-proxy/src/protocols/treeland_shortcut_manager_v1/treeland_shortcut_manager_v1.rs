@@ -138,6 +138,9 @@ pub trait TreelandShortcutManagerV1Handler: Any {
         key: &str,
         id: &Rc<TreelandShortcutContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_register_shortcut_context(
             key,
             id,

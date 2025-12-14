@@ -336,6 +336,9 @@ pub trait XdgWmBaseHandler: Any {
         &mut self,
         _slf: &Rc<XdgWmBase>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -358,6 +361,9 @@ pub trait XdgWmBaseHandler: Any {
         _slf: &Rc<XdgWmBase>,
         id: &Rc<XdgPositioner>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_positioner(
             id,
         );
@@ -396,6 +402,9 @@ pub trait XdgWmBaseHandler: Any {
         id: &Rc<XdgSurface>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_xdg_surface(
             id,
             surface,
@@ -420,6 +429,9 @@ pub trait XdgWmBaseHandler: Any {
         _slf: &Rc<XdgWmBase>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_pong(
             serial,
         );
@@ -453,6 +465,9 @@ pub trait XdgWmBaseHandler: Any {
         _slf: &Rc<XdgWmBase>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_ping(
             serial,
         );

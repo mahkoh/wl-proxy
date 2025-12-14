@@ -1232,6 +1232,9 @@ pub trait XdgToplevelHandler: Any {
         &mut self,
         _slf: &Rc<XdgToplevel>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -1274,6 +1277,9 @@ pub trait XdgToplevelHandler: Any {
         _slf: &Rc<XdgToplevel>,
         parent: Option<&Rc<XdgToplevel>>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_parent(
             parent,
         );
@@ -1301,6 +1307,9 @@ pub trait XdgToplevelHandler: Any {
         _slf: &Rc<XdgToplevel>,
         title: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_title(
             title,
         );
@@ -1344,6 +1353,9 @@ pub trait XdgToplevelHandler: Any {
         _slf: &Rc<XdgToplevel>,
         app_id: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_app_id(
             app_id,
         );
@@ -1385,6 +1397,9 @@ pub trait XdgToplevelHandler: Any {
         x: i32,
         y: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_show_window_menu(
             seat,
             serial,
@@ -1429,6 +1444,9 @@ pub trait XdgToplevelHandler: Any {
         seat: &Rc<WlSeat>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_move(
             seat,
             serial,
@@ -1488,6 +1506,9 @@ pub trait XdgToplevelHandler: Any {
         serial: u32,
         edges: XdgToplevelResizeEdge,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_resize(
             seat,
             serial,
@@ -1545,6 +1566,9 @@ pub trait XdgToplevelHandler: Any {
         width: i32,
         height: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_max_size(
             width,
             height,
@@ -1601,6 +1625,9 @@ pub trait XdgToplevelHandler: Any {
         width: i32,
         height: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_min_size(
             width,
             height,
@@ -1636,6 +1663,9 @@ pub trait XdgToplevelHandler: Any {
         &mut self,
         _slf: &Rc<XdgToplevel>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_maximized(
         );
         if let Err(e) = res {
@@ -1671,6 +1701,9 @@ pub trait XdgToplevelHandler: Any {
         &mut self,
         _slf: &Rc<XdgToplevel>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_unset_maximized(
         );
         if let Err(e) = res {
@@ -1716,6 +1749,9 @@ pub trait XdgToplevelHandler: Any {
         _slf: &Rc<XdgToplevel>,
         output: Option<&Rc<WlOutput>>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_fullscreen(
             output,
         );
@@ -1748,6 +1784,9 @@ pub trait XdgToplevelHandler: Any {
         &mut self,
         _slf: &Rc<XdgToplevel>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_unset_fullscreen(
         );
         if let Err(e) = res {
@@ -1770,6 +1809,9 @@ pub trait XdgToplevelHandler: Any {
         &mut self,
         _slf: &Rc<XdgToplevel>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_minimized(
         );
         if let Err(e) = res {
@@ -1812,6 +1854,9 @@ pub trait XdgToplevelHandler: Any {
         height: i32,
         states: &[u8],
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_configure(
             width,
             height,
@@ -1837,6 +1882,9 @@ pub trait XdgToplevelHandler: Any {
         &mut self,
         _slf: &Rc<XdgToplevel>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_close(
         );
         if let Err(e) = res {
@@ -1873,6 +1921,9 @@ pub trait XdgToplevelHandler: Any {
         width: i32,
         height: i32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_configure_bounds(
             width,
             height,
@@ -1914,6 +1965,9 @@ pub trait XdgToplevelHandler: Any {
         _slf: &Rc<XdgToplevel>,
         capabilities: &[u8],
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_wm_capabilities(
             capabilities,
         );

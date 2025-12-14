@@ -204,6 +204,9 @@ pub trait ExtTransientSeatV1Handler: Any {
         _slf: &Rc<ExtTransientSeatV1>,
         global_name: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_ready(
             global_name,
         );
@@ -226,6 +229,9 @@ pub trait ExtTransientSeatV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtTransientSeatV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_denied(
         );
         if let Err(e) = res {
@@ -242,6 +248,9 @@ pub trait ExtTransientSeatV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtTransientSeatV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

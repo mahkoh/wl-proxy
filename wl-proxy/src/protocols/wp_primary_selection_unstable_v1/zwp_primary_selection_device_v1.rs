@@ -282,6 +282,9 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
         source: Option<&Rc<ZwpPrimarySelectionSourceV1>>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_selection(
             source,
             serial,
@@ -308,6 +311,9 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
         _slf: &Rc<ZwpPrimarySelectionDeviceV1>,
         offer: &Rc<ZwpPrimarySelectionOfferV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_data_offer(
             offer,
         );
@@ -340,6 +346,9 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
         _slf: &Rc<ZwpPrimarySelectionDeviceV1>,
         id: Option<&Rc<ZwpPrimarySelectionOfferV1>>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {
@@ -365,6 +374,9 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpPrimarySelectionDeviceV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

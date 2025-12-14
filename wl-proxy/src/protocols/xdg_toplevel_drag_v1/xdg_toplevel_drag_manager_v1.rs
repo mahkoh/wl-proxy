@@ -203,6 +203,9 @@ pub trait XdgToplevelDragManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<XdgToplevelDragManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -237,6 +240,9 @@ pub trait XdgToplevelDragManagerV1Handler: Any {
         id: &Rc<XdgToplevelDragV1>,
         data_source: &Rc<WlDataSource>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_xdg_toplevel_drag(
             id,
             data_source,

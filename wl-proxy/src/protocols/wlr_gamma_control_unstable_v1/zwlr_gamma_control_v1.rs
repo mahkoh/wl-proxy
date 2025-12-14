@@ -258,6 +258,9 @@ pub trait ZwlrGammaControlV1Handler: Any {
         _slf: &Rc<ZwlrGammaControlV1>,
         size: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_gamma_size(
             size,
         );
@@ -285,6 +288,9 @@ pub trait ZwlrGammaControlV1Handler: Any {
         _slf: &Rc<ZwlrGammaControlV1>,
         fd: &Rc<OwnedFd>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_gamma(
             fd,
         );
@@ -308,6 +314,9 @@ pub trait ZwlrGammaControlV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrGammaControlV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_failed(
         );
         if let Err(e) = res {
@@ -324,6 +333,9 @@ pub trait ZwlrGammaControlV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrGammaControlV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

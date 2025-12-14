@@ -195,6 +195,9 @@ pub trait WpDrmLeaseRequestV1Handler: Any {
         _slf: &Rc<WpDrmLeaseRequestV1>,
         connector: &Rc<WpDrmLeaseConnectorV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_request_connector(
             connector,
         );
@@ -222,6 +225,9 @@ pub trait WpDrmLeaseRequestV1Handler: Any {
         _slf: &Rc<WpDrmLeaseRequestV1>,
         id: &Rc<WpDrmLeaseV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_submit(
             id,
         );

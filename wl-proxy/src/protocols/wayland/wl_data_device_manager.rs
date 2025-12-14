@@ -183,6 +183,9 @@ pub trait WlDataDeviceManagerHandler: Any {
         _slf: &Rc<WlDataDeviceManager>,
         id: &Rc<WlDataSource>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_data_source(
             id,
         );
@@ -209,6 +212,9 @@ pub trait WlDataDeviceManagerHandler: Any {
         id: &Rc<WlDataDevice>,
         seat: &Rc<WlSeat>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_data_device(
             id,
             seat,

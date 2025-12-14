@@ -1116,6 +1116,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpInputMethodContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -1146,6 +1149,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         serial: u32,
         text: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_commit_string(
             serial,
             text,
@@ -1178,6 +1184,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         text: &str,
         commit: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_preedit_string(
             serial,
             text,
@@ -1210,6 +1219,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         length: u32,
         style: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_preedit_styling(
             index,
             length,
@@ -1238,6 +1250,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         _slf: &Rc<ZwpInputMethodContextV1>,
         index: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_preedit_cursor(
             index,
         );
@@ -1264,6 +1279,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         index: i32,
         length: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_delete_surrounding_text(
             index,
             length,
@@ -1297,6 +1315,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         index: i32,
         anchor: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_cursor_position(
             index,
             anchor,
@@ -1315,6 +1336,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         _slf: &Rc<ZwpInputMethodContextV1>,
         map: &[u8],
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_modifiers_map(
             map,
         );
@@ -1347,6 +1371,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         state: u32,
         modifiers: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_keysym(
             serial,
             time,
@@ -1375,6 +1402,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         _slf: &Rc<ZwpInputMethodContextV1>,
         keyboard: &Rc<WlKeyboard>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_grab_keyboard(
             keyboard,
         );
@@ -1407,6 +1437,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         key: u32,
         state: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_key(
             serial,
             time,
@@ -1442,6 +1475,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         mods_locked: u32,
         group: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_modifiers(
             serial,
             mods_depressed,
@@ -1465,6 +1501,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         serial: u32,
         language: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_language(
             serial,
             language,
@@ -1485,6 +1524,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         serial: u32,
         direction: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_text_direction(
             serial,
             direction,
@@ -1515,6 +1557,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         cursor: u32,
         anchor: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_surrounding_text(
             text,
             cursor,
@@ -1530,6 +1575,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpInputMethodContextV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_reset(
         );
         if let Err(e) = res {
@@ -1548,6 +1596,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         hint: u32,
         purpose: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_content_type(
             hint,
             purpose,
@@ -1568,6 +1619,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         button: u32,
         index: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_invoke_action(
             button,
             index,
@@ -1586,6 +1640,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         _slf: &Rc<ZwpInputMethodContextV1>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_commit_state(
             serial,
         );
@@ -1603,6 +1660,9 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         _slf: &Rc<ZwpInputMethodContextV1>,
         language: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_preferred_language(
             language,
         );

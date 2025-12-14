@@ -204,6 +204,9 @@ pub trait XwaylandSurfaceV1Handler: Any {
         serial_lo: u32,
         serial_hi: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_serial(
             serial_lo,
             serial_hi,
@@ -223,6 +226,9 @@ pub trait XwaylandSurfaceV1Handler: Any {
         &mut self,
         _slf: &Rc<XwaylandSurfaceV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

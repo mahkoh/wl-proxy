@@ -429,6 +429,9 @@ pub trait WlSubsurfaceHandler: Any {
         &mut self,
         _slf: &Rc<WlSubsurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -464,6 +467,9 @@ pub trait WlSubsurfaceHandler: Any {
         x: i32,
         y: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_position(
             x,
             y,
@@ -501,6 +507,9 @@ pub trait WlSubsurfaceHandler: Any {
         _slf: &Rc<WlSubsurface>,
         sibling: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_place_above(
             sibling,
         );
@@ -526,6 +535,9 @@ pub trait WlSubsurfaceHandler: Any {
         _slf: &Rc<WlSubsurface>,
         sibling: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_place_below(
             sibling,
         );
@@ -554,6 +566,9 @@ pub trait WlSubsurfaceHandler: Any {
         &mut self,
         _slf: &Rc<WlSubsurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_sync(
         );
         if let Err(e) = res {
@@ -587,6 +602,9 @@ pub trait WlSubsurfaceHandler: Any {
         &mut self,
         _slf: &Rc<WlSubsurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_desync(
         );
         if let Err(e) = res {

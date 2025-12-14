@@ -441,6 +441,9 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         fd: &Rc<OwnedFd>,
         metadata: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_fd(
             fd,
             metadata,
@@ -461,6 +464,9 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         identifier: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_identifier(
             identifier,
         );
@@ -480,6 +486,9 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         output: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_output(
             output,
         );
@@ -499,6 +508,9 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         options: TreelandPersonalizationWallpaperContextV1Options,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_on(
             options,
         );
@@ -518,6 +530,9 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         isdark: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_isdark(
             isdark,
         );
@@ -532,6 +547,9 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_commit(
         );
         if let Err(e) = res {
@@ -547,6 +565,9 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_metadata(
         );
         if let Err(e) = res {
@@ -562,6 +583,9 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -582,6 +606,9 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         metadata: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_metadata(
             metadata,
         );

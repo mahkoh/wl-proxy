@@ -270,6 +270,9 @@ pub trait TreelandForeignToplevelManagerV1Handler: Any {
         _slf: &Rc<TreelandForeignToplevelManagerV1>,
         toplevel: &Rc<TreelandForeignToplevelHandleV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_toplevel(
             toplevel,
         );
@@ -290,6 +293,9 @@ pub trait TreelandForeignToplevelManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandForeignToplevelManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_stop(
         );
         if let Err(e) = res {
@@ -308,6 +314,9 @@ pub trait TreelandForeignToplevelManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandForeignToplevelManagerV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {
@@ -329,6 +338,9 @@ pub trait TreelandForeignToplevelManagerV1Handler: Any {
         relative_surface: &Rc<WlSurface>,
         id: &Rc<TreelandDockPreviewContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_dock_preview_context(
             relative_surface,
             id,

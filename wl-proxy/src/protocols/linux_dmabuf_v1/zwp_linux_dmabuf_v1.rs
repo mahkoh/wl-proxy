@@ -466,6 +466,9 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpLinuxDmabufV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -489,6 +492,9 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
         _slf: &Rc<ZwpLinuxDmabufV1>,
         params_id: &Rc<ZwpLinuxBufferParamsV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_params(
             params_id,
         );
@@ -520,6 +526,9 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
         _slf: &Rc<ZwpLinuxDmabufV1>,
         format: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_format(
             format,
         );
@@ -567,6 +576,9 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
         modifier_hi: u32,
         modifier_lo: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_modifier(
             format,
             modifier_hi,
@@ -593,6 +605,9 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
         _slf: &Rc<ZwpLinuxDmabufV1>,
         id: &Rc<ZwpLinuxDmabufFeedbackV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_default_feedback(
             id,
         );
@@ -624,6 +639,9 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
         id: &Rc<ZwpLinuxDmabufFeedbackV1>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_surface_feedback(
             id,
             surface,

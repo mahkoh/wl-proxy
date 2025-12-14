@@ -170,6 +170,9 @@ pub trait WpViewporterHandler: Any {
         &mut self,
         _slf: &Rc<WpViewporter>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -198,6 +201,9 @@ pub trait WpViewporterHandler: Any {
         id: &Rc<WpViewport>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_viewport(
             id,
             surface,

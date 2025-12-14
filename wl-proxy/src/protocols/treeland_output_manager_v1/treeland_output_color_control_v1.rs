@@ -374,6 +374,9 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         _slf: &Rc<TreelandOutputColorControlV1>,
         temperature: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_color_temperature(
             temperature,
         );
@@ -396,6 +399,9 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         _slf: &Rc<TreelandOutputColorControlV1>,
         brightness: Fixed,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_brightness(
             brightness,
         );
@@ -410,6 +416,9 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandOutputColorControlV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_commit(
         );
         if let Err(e) = res {
@@ -428,6 +437,9 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         _slf: &Rc<TreelandOutputColorControlV1>,
         success: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_result(
             success,
         );
@@ -455,6 +467,9 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         _slf: &Rc<TreelandOutputColorControlV1>,
         temperature: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_color_temperature(
             temperature,
         );
@@ -479,6 +494,9 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         _slf: &Rc<TreelandOutputColorControlV1>,
         brightness: Fixed,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_brightness(
             brightness,
         );
@@ -493,6 +511,9 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandOutputColorControlV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

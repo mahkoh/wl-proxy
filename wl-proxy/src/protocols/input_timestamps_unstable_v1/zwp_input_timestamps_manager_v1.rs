@@ -304,6 +304,9 @@ pub trait ZwpInputTimestampsManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpInputTimestampsManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -336,6 +339,9 @@ pub trait ZwpInputTimestampsManagerV1Handler: Any {
         id: &Rc<ZwpInputTimestampsV1>,
         keyboard: &Rc<WlKeyboard>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_keyboard_timestamps(
             id,
             keyboard,
@@ -370,6 +376,9 @@ pub trait ZwpInputTimestampsManagerV1Handler: Any {
         id: &Rc<ZwpInputTimestampsV1>,
         pointer: &Rc<WlPointer>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_pointer_timestamps(
             id,
             pointer,
@@ -404,6 +413,9 @@ pub trait ZwpInputTimestampsManagerV1Handler: Any {
         id: &Rc<ZwpInputTimestampsV1>,
         touch: &Rc<WlTouch>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_touch_timestamps(
             id,
             touch,

@@ -166,6 +166,9 @@ pub trait WpTearingControlV1Handler: Any {
         _slf: &Rc<WpTearingControlV1>,
         hint: WpTearingControlV1PresentationHint,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_presentation_hint(
             hint,
         );
@@ -183,6 +186,9 @@ pub trait WpTearingControlV1Handler: Any {
         &mut self,
         _slf: &Rc<WpTearingControlV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

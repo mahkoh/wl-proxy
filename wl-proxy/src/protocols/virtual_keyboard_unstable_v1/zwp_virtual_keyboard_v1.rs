@@ -298,6 +298,9 @@ pub trait ZwpVirtualKeyboardV1Handler: Any {
         fd: &Rc<OwnedFd>,
         size: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_keymap(
             format,
             fd,
@@ -332,6 +335,9 @@ pub trait ZwpVirtualKeyboardV1Handler: Any {
         key: u32,
         state: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_key(
             time,
             key,
@@ -367,6 +373,9 @@ pub trait ZwpVirtualKeyboardV1Handler: Any {
         mods_locked: u32,
         group: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_modifiers(
             mods_depressed,
             mods_latched,
@@ -384,6 +393,9 @@ pub trait ZwpVirtualKeyboardV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpVirtualKeyboardV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

@@ -191,6 +191,9 @@ pub trait WpSecurityContextManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<WpSecurityContextManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -229,6 +232,9 @@ pub trait WpSecurityContextManagerV1Handler: Any {
         listen_fd: &Rc<OwnedFd>,
         close_fd: &Rc<OwnedFd>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_listener(
             id,
             listen_fd,

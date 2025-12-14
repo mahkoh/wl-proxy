@@ -493,6 +493,9 @@ pub trait ExtWorkspaceGroupHandleV1Handler: Any {
         _slf: &Rc<ExtWorkspaceGroupHandleV1>,
         capabilities: ExtWorkspaceGroupHandleV1GroupCapabilities,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_capabilities(
             capabilities,
         );
@@ -519,6 +522,9 @@ pub trait ExtWorkspaceGroupHandleV1Handler: Any {
         _slf: &Rc<ExtWorkspaceGroupHandleV1>,
         output: &Rc<WlOutput>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -551,6 +557,9 @@ pub trait ExtWorkspaceGroupHandleV1Handler: Any {
         _slf: &Rc<ExtWorkspaceGroupHandleV1>,
         output: &Rc<WlOutput>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -584,6 +593,9 @@ pub trait ExtWorkspaceGroupHandleV1Handler: Any {
         _slf: &Rc<ExtWorkspaceGroupHandleV1>,
         workspace: &Rc<ExtWorkspaceHandleV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = workspace.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -615,6 +627,9 @@ pub trait ExtWorkspaceGroupHandleV1Handler: Any {
         _slf: &Rc<ExtWorkspaceGroupHandleV1>,
         workspace: &Rc<ExtWorkspaceHandleV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = workspace.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -645,6 +660,9 @@ pub trait ExtWorkspaceGroupHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtWorkspaceGroupHandleV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_removed(
         );
         if let Err(e) = res {
@@ -669,6 +687,9 @@ pub trait ExtWorkspaceGroupHandleV1Handler: Any {
         _slf: &Rc<ExtWorkspaceGroupHandleV1>,
         workspace: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_workspace(
             workspace,
         );
@@ -689,6 +710,9 @@ pub trait ExtWorkspaceGroupHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtWorkspaceGroupHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

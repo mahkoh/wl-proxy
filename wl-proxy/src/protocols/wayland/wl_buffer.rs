@@ -167,6 +167,9 @@ pub trait WlBufferHandler: Any {
         &mut self,
         _slf: &Rc<WlBuffer>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -195,6 +198,9 @@ pub trait WlBufferHandler: Any {
         &mut self,
         _slf: &Rc<WlBuffer>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_release(
         );
         if let Err(e) = res {

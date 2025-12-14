@@ -205,6 +205,9 @@ pub trait WlproxySyncV1Handler: Any {
         &mut self,
         _slf: &Rc<WlproxySyncV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -230,6 +233,9 @@ pub trait WlproxySyncV1Handler: Any {
         id_hi: u32,
         id_lo: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_sync_with_proxy(
             id_hi,
             id_lo,
@@ -257,6 +263,9 @@ pub trait WlproxySyncV1Handler: Any {
         id_hi: u32,
         id_lo: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_sync_with_client(
             id_hi,
             id_lo,

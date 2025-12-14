@@ -309,6 +309,9 @@ pub trait ZwpTabletPadDialV2Handler: Any {
         description: &str,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_feedback(
             description,
             serial,
@@ -326,6 +329,9 @@ pub trait ZwpTabletPadDialV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpTabletPadDialV2>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -355,6 +361,9 @@ pub trait ZwpTabletPadDialV2Handler: Any {
         _slf: &Rc<ZwpTabletPadDialV2>,
         value120: i32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_delta(
             value120,
         );
@@ -386,6 +395,9 @@ pub trait ZwpTabletPadDialV2Handler: Any {
         _slf: &Rc<ZwpTabletPadDialV2>,
         time: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_frame(
             time,
         );

@@ -240,6 +240,9 @@ pub trait XdgToplevelTagManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<XdgToplevelTagManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -278,6 +281,9 @@ pub trait XdgToplevelTagManagerV1Handler: Any {
         toplevel: &Rc<XdgToplevel>,
         tag: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_toplevel_tag(
             toplevel,
             tag,
@@ -312,6 +318,9 @@ pub trait XdgToplevelTagManagerV1Handler: Any {
         toplevel: &Rc<XdgToplevel>,
         description: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_toplevel_description(
             toplevel,
             description,

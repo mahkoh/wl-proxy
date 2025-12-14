@@ -252,6 +252,9 @@ pub trait HyprlandToplevelExportManagerV1Handler: Any {
         overlay_cursor: i32,
         handle: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_capture_toplevel(
             frame,
             overlay_cursor,
@@ -271,6 +274,9 @@ pub trait HyprlandToplevelExportManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandToplevelExportManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -298,6 +304,9 @@ pub trait HyprlandToplevelExportManagerV1Handler: Any {
         overlay_cursor: i32,
         handle: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_capture_toplevel_with_wlr_toplevel_handle(
             frame,
             overlay_cursor,

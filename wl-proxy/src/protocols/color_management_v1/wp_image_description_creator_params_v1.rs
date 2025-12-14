@@ -882,6 +882,9 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
         _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         image_description: &Rc<WpImageDescriptionV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create(
             image_description,
         );
@@ -914,6 +917,9 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
         _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         tf: WpColorManagerV1TransferFunction,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_tf_named(
             tf,
         );
@@ -952,6 +958,9 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
         _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         eexp: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_tf_power(
             eexp,
         );
@@ -982,6 +991,9 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
         _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         primaries: WpColorManagerV1Primaries,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_primaries_named(
             primaries,
         );
@@ -1029,6 +1041,9 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
         w_x: i32,
         w_y: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_primaries(
             r_x,
             r_y,
@@ -1109,6 +1124,9 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
         max_lum: u32,
         reference_lum: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_luminances(
             min_lum,
             max_lum,
@@ -1191,6 +1209,9 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
         w_x: i32,
         w_y: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_mastering_display_primaries(
             r_x,
             r_y,
@@ -1253,6 +1274,9 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
         min_lum: u32,
         max_lum: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_mastering_luminance(
             min_lum,
             max_lum,
@@ -1277,6 +1301,9 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
         _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         max_cll: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_max_cll(
             max_cll,
         );
@@ -1301,6 +1328,9 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
         _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         max_fall: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_max_fall(
             max_fall,
         );

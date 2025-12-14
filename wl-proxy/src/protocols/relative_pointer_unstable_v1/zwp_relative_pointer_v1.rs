@@ -198,6 +198,9 @@ pub trait ZwpRelativePointerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpRelativePointerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -257,6 +260,9 @@ pub trait ZwpRelativePointerV1Handler: Any {
         dx_unaccel: Fixed,
         dy_unaccel: Fixed,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_relative_motion(
             utime_hi,
             utime_lo,

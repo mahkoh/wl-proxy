@@ -249,6 +249,9 @@ pub trait ExtIdleNotifierV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtIdleNotifierV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -283,6 +286,9 @@ pub trait ExtIdleNotifierV1Handler: Any {
         timeout: u32,
         seat: &Rc<WlSeat>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_idle_notification(
             id,
             timeout,
@@ -322,6 +328,9 @@ pub trait ExtIdleNotifierV1Handler: Any {
         timeout: u32,
         seat: &Rc<WlSeat>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_input_idle_notification(
             id,
             timeout,

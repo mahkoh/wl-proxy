@@ -261,6 +261,9 @@ pub trait WpPresentationHandler: Any {
         &mut self,
         _slf: &Rc<WpPresentation>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -293,6 +296,9 @@ pub trait WpPresentationHandler: Any {
         surface: &Rc<WlSurface>,
         callback: &Rc<WpPresentationFeedback>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_feedback(
             surface,
             callback,
@@ -342,6 +348,9 @@ pub trait WpPresentationHandler: Any {
         _slf: &Rc<WpPresentation>,
         clk_id: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_clock_id(
             clk_id,
         );

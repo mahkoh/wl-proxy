@@ -184,6 +184,9 @@ pub trait JayTrayV1Handler: Any {
         &mut self,
         _slf: &Rc<JayTrayV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -215,6 +218,9 @@ pub trait JayTrayV1Handler: Any {
         id: &Rc<JayTrayItemV1>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_tray_item(
             id,
             surface,

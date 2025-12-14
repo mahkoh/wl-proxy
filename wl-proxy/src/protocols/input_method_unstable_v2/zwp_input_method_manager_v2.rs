@@ -176,6 +176,9 @@ pub trait ZwpInputMethodManagerV2Handler: Any {
         seat: &Rc<WlSeat>,
         input_method: &Rc<ZwpInputMethodV2>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_input_method(
             seat,
             input_method,
@@ -195,6 +198,9 @@ pub trait ZwpInputMethodManagerV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpInputMethodManagerV2>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

@@ -259,6 +259,9 @@ pub trait ZwpConfinedPointerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpConfinedPointerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -295,6 +298,9 @@ pub trait ZwpConfinedPointerV1Handler: Any {
         _slf: &Rc<ZwpConfinedPointerV1>,
         region: Option<&Rc<WlRegion>>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_region(
             region,
         );
@@ -312,6 +318,9 @@ pub trait ZwpConfinedPointerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpConfinedPointerV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_confined(
         );
         if let Err(e) = res {
@@ -332,6 +341,9 @@ pub trait ZwpConfinedPointerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpConfinedPointerV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_unconfined(
         );
         if let Err(e) = res {

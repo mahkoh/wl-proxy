@@ -230,6 +230,9 @@ pub trait HyprlandToplevelMappingManagerV1Handler: Any {
         handle: &Rc<HyprlandToplevelWindowMappingHandleV1>,
         toplevel: &Rc<ExtForeignToplevelHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_window_for_toplevel(
             handle,
             toplevel,
@@ -257,6 +260,9 @@ pub trait HyprlandToplevelMappingManagerV1Handler: Any {
         handle: &Rc<HyprlandToplevelWindowMappingHandleV1>,
         toplevel: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_window_for_toplevel_wlr(
             handle,
             toplevel,
@@ -275,6 +281,9 @@ pub trait HyprlandToplevelMappingManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandToplevelMappingManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

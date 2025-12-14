@@ -330,6 +330,9 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandDockPreviewContextV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_enter(
         );
         if let Err(e) = res {
@@ -345,6 +348,9 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandDockPreviewContextV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_leave(
         );
         if let Err(e) = res {
@@ -372,6 +378,9 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
         y: i32,
         direction: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_show(
             surfaces,
             x,
@@ -398,6 +407,9 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
         y: i32,
         direction: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_show_tooltip(
             tooltip,
             x,
@@ -417,6 +429,9 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandDockPreviewContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_close(
         );
         if let Err(e) = res {
@@ -432,6 +447,9 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandDockPreviewContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

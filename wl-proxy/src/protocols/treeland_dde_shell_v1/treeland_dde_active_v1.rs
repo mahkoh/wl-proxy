@@ -252,6 +252,9 @@ pub trait TreelandDdeActiveV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandDdeActiveV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -270,6 +273,9 @@ pub trait TreelandDdeActiveV1Handler: Any {
         _slf: &Rc<TreelandDdeActiveV1>,
         reason: TreelandDdeActiveV1Reason,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_active_in(
             reason,
         );
@@ -289,6 +295,9 @@ pub trait TreelandDdeActiveV1Handler: Any {
         _slf: &Rc<TreelandDdeActiveV1>,
         reason: TreelandDdeActiveV1Reason,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_active_out(
             reason,
         );
@@ -303,6 +312,9 @@ pub trait TreelandDdeActiveV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandDdeActiveV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_start_drag(
         );
         if let Err(e) = res {
@@ -316,6 +328,9 @@ pub trait TreelandDdeActiveV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandDdeActiveV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_drop(
         );
         if let Err(e) = res {

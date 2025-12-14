@@ -169,6 +169,9 @@ pub trait WpAlphaModifierV1Handler: Any {
         &mut self,
         _slf: &Rc<WpAlphaModifierV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -196,6 +199,9 @@ pub trait WpAlphaModifierV1Handler: Any {
         id: &Rc<WpAlphaModifierSurfaceV1>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_surface(
             id,
             surface,

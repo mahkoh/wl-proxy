@@ -315,6 +315,9 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<WpColorRepresentationManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -346,6 +349,9 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
         id: &Rc<WpColorRepresentationSurfaceV1>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_surface(
             id,
             surface,
@@ -372,6 +378,9 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
         _slf: &Rc<WpColorRepresentationManagerV1>,
         alpha_mode: WpColorRepresentationSurfaceV1AlphaMode,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_supported_alpha_mode(
             alpha_mode,
         );
@@ -401,6 +410,9 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
         coefficients: WpColorRepresentationSurfaceV1Coefficients,
         range: WpColorRepresentationSurfaceV1Range,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_supported_coefficients_and_ranges(
             coefficients,
             range,
@@ -418,6 +430,9 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<WpColorRepresentationManagerV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {

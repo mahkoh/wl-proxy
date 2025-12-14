@@ -368,6 +368,9 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
         _slf: &Rc<ZwlrOutputConfigurationHeadV1>,
         mode: &Rc<ZwlrOutputModeV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_mode(
             mode,
         );
@@ -397,6 +400,9 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
         height: i32,
         refresh: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_custom_mode(
             width,
             height,
@@ -422,6 +428,9 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
         x: i32,
         y: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_position(
             x,
             y,
@@ -444,6 +453,9 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
         _slf: &Rc<ZwlrOutputConfigurationHeadV1>,
         transform: WlOutputTransform,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_transform(
             transform,
         );
@@ -465,6 +477,9 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
         _slf: &Rc<ZwlrOutputConfigurationHeadV1>,
         scale: Fixed,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_scale(
             scale,
         );
@@ -487,6 +502,9 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
         _slf: &Rc<ZwlrOutputConfigurationHeadV1>,
         state: ZwlrOutputHeadV1AdaptiveSyncState,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_adaptive_sync(
             state,
         );

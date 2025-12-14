@@ -185,6 +185,9 @@ pub trait WpSinglePixelBufferManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<WpSinglePixelBufferManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -225,6 +228,9 @@ pub trait WpSinglePixelBufferManagerV1Handler: Any {
         b: u32,
         a: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_u32_rgba_buffer(
             id,
             r,

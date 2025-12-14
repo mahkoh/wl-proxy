@@ -242,6 +242,9 @@ pub trait ZwpPointerGestureHoldV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpPointerGestureHoldV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -271,6 +274,9 @@ pub trait ZwpPointerGestureHoldV1Handler: Any {
         surface: &Rc<WlSurface>,
         fingers: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -314,6 +320,9 @@ pub trait ZwpPointerGestureHoldV1Handler: Any {
         time: u32,
         cancelled: i32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_end(
             serial,
             time,

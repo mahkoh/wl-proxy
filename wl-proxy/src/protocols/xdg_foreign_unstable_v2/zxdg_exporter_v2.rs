@@ -169,6 +169,9 @@ pub trait ZxdgExporterV2Handler: Any {
         &mut self,
         _slf: &Rc<ZxdgExporterV2>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -202,6 +205,9 @@ pub trait ZxdgExporterV2Handler: Any {
         id: &Rc<ZxdgExportedV2>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_export_toplevel(
             id,
             surface,

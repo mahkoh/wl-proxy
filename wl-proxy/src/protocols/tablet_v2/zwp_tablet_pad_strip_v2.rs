@@ -411,6 +411,9 @@ pub trait ZwpTabletPadStripV2Handler: Any {
         description: &str,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_feedback(
             description,
             serial,
@@ -428,6 +431,9 @@ pub trait ZwpTabletPadStripV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpTabletPadStripV2>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -459,6 +465,9 @@ pub trait ZwpTabletPadStripV2Handler: Any {
         _slf: &Rc<ZwpTabletPadStripV2>,
         source: ZwpTabletPadStripV2Source,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_source(
             source,
         );
@@ -484,6 +493,9 @@ pub trait ZwpTabletPadStripV2Handler: Any {
         _slf: &Rc<ZwpTabletPadStripV2>,
         position: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_position(
             position,
         );
@@ -509,6 +521,9 @@ pub trait ZwpTabletPadStripV2Handler: Any {
         &mut self,
         _slf: &Rc<ZwpTabletPadStripV2>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_stop(
         );
         if let Err(e) = res {
@@ -542,6 +557,9 @@ pub trait ZwpTabletPadStripV2Handler: Any {
         _slf: &Rc<ZwpTabletPadStripV2>,
         time: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_frame(
             time,
         );

@@ -149,6 +149,9 @@ pub trait WlShellHandler: Any {
         id: &Rc<WlShellSurface>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_shell_surface(
             id,
             surface,

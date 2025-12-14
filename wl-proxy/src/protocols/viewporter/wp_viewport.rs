@@ -281,6 +281,9 @@ pub trait WpViewportHandler: Any {
         &mut self,
         _slf: &Rc<WpViewport>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -316,6 +319,9 @@ pub trait WpViewportHandler: Any {
         width: Fixed,
         height: Fixed,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_source(
             x,
             y,
@@ -351,6 +357,9 @@ pub trait WpViewportHandler: Any {
         width: i32,
         height: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_destination(
             width,
             height,

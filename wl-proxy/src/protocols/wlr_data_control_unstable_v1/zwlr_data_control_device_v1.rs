@@ -461,6 +461,9 @@ pub trait ZwlrDataControlDeviceV1Handler: Any {
         _slf: &Rc<ZwlrDataControlDeviceV1>,
         source: Option<&Rc<ZwlrDataControlSourceV1>>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_selection(
             source,
         );
@@ -477,6 +480,9 @@ pub trait ZwlrDataControlDeviceV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrDataControlDeviceV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -504,6 +510,9 @@ pub trait ZwlrDataControlDeviceV1Handler: Any {
         _slf: &Rc<ZwlrDataControlDeviceV1>,
         id: &Rc<ZwlrDataControlOfferV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_data_offer(
             id,
         );
@@ -539,6 +548,9 @@ pub trait ZwlrDataControlDeviceV1Handler: Any {
         _slf: &Rc<ZwlrDataControlDeviceV1>,
         id: Option<&Rc<ZwlrDataControlOfferV1>>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {
@@ -565,6 +577,9 @@ pub trait ZwlrDataControlDeviceV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrDataControlDeviceV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {
@@ -600,6 +615,9 @@ pub trait ZwlrDataControlDeviceV1Handler: Any {
         _slf: &Rc<ZwlrDataControlDeviceV1>,
         id: Option<&Rc<ZwlrDataControlOfferV1>>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {
@@ -643,6 +661,9 @@ pub trait ZwlrDataControlDeviceV1Handler: Any {
         _slf: &Rc<ZwlrDataControlDeviceV1>,
         source: Option<&Rc<ZwlrDataControlSourceV1>>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_primary_selection(
             source,
         );

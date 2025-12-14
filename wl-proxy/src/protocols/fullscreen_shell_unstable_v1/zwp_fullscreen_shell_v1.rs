@@ -398,6 +398,9 @@ pub trait ZwpFullscreenShellV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpFullscreenShellV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_release(
         );
         if let Err(e) = res {
@@ -425,6 +428,9 @@ pub trait ZwpFullscreenShellV1Handler: Any {
         _slf: &Rc<ZwpFullscreenShellV1>,
         capability: ZwpFullscreenShellV1Capability,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_capability(
             capability,
         );
@@ -473,6 +479,9 @@ pub trait ZwpFullscreenShellV1Handler: Any {
         method: ZwpFullscreenShellV1PresentMethod,
         output: Option<&Rc<WlOutput>>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_present_surface(
             surface,
             method,
@@ -545,6 +554,9 @@ pub trait ZwpFullscreenShellV1Handler: Any {
         framerate: i32,
         feedback: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_present_surface_for_mode(
             surface,
             output,

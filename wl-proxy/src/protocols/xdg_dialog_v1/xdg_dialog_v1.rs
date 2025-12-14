@@ -189,6 +189,9 @@ pub trait XdgDialogV1Handler: Any {
         &mut self,
         _slf: &Rc<XdgDialogV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -214,6 +217,9 @@ pub trait XdgDialogV1Handler: Any {
         &mut self,
         _slf: &Rc<XdgDialogV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_modal(
         );
         if let Err(e) = res {
@@ -230,6 +236,9 @@ pub trait XdgDialogV1Handler: Any {
         &mut self,
         _slf: &Rc<XdgDialogV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_unset_modal(
         );
         if let Err(e) = res {

@@ -382,6 +382,9 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         _slf: &Rc<WpDrmLeaseDeviceV1>,
         id: &Rc<WpDrmLeaseRequestV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_lease_request(
             id,
         );
@@ -403,6 +406,9 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         &mut self,
         _slf: &Rc<WpDrmLeaseDeviceV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_release(
         );
         if let Err(e) = res {
@@ -430,6 +436,9 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         _slf: &Rc<WpDrmLeaseDeviceV1>,
         fd: &Rc<OwnedFd>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_drm_fd(
             fd,
         );
@@ -460,6 +469,9 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         _slf: &Rc<WpDrmLeaseDeviceV1>,
         id: &Rc<WpDrmLeaseConnectorV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_connector(
             id,
         );
@@ -481,6 +493,9 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         &mut self,
         _slf: &Rc<WpDrmLeaseDeviceV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -500,6 +515,9 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         &mut self,
         _slf: &Rc<WpDrmLeaseDeviceV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_released(
         );
         if let Err(e) = res {

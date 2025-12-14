@@ -464,6 +464,9 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         _slf: &Rc<ExtDataControlDeviceV1>,
         source: Option<&Rc<ExtDataControlSourceV1>>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_selection(
             source,
         );
@@ -480,6 +483,9 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtDataControlDeviceV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -507,6 +513,9 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         _slf: &Rc<ExtDataControlDeviceV1>,
         id: &Rc<ExtDataControlOfferV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_data_offer(
             id,
         );
@@ -543,6 +552,9 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         _slf: &Rc<ExtDataControlDeviceV1>,
         id: Option<&Rc<ExtDataControlOfferV1>>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {
@@ -569,6 +581,9 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtDataControlDeviceV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {
@@ -606,6 +621,9 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         _slf: &Rc<ExtDataControlDeviceV1>,
         id: Option<&Rc<ExtDataControlOfferV1>>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {
@@ -649,6 +667,9 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         _slf: &Rc<ExtDataControlDeviceV1>,
         source: Option<&Rc<ExtDataControlSourceV1>>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_primary_selection(
             source,
         );

@@ -270,6 +270,9 @@ pub trait WlRegistryHandler: Any {
         name: u32,
         id: Rc<dyn Object>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_bind(
             name,
             id,
@@ -300,6 +303,9 @@ pub trait WlRegistryHandler: Any {
         interface: ObjectInterface,
         version: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_global(
             name,
             interface,
@@ -332,6 +338,9 @@ pub trait WlRegistryHandler: Any {
         _slf: &Rc<WlRegistry>,
         name: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_global_remove(
             name,
         );

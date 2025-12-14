@@ -235,6 +235,9 @@ pub trait WlShmHandler: Any {
         fd: &Rc<OwnedFd>,
         size: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_pool(
             id,
             fd,
@@ -260,6 +263,9 @@ pub trait WlShmHandler: Any {
         _slf: &Rc<WlShm>,
         format: WlShmFormat,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_format(
             format,
         );
@@ -279,6 +285,9 @@ pub trait WlShmHandler: Any {
         &mut self,
         _slf: &Rc<WlShm>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_release(
         );
         if let Err(e) = res {

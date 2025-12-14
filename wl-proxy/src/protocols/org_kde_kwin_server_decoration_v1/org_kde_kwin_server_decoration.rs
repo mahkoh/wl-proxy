@@ -192,6 +192,9 @@ pub trait OrgKdeKwinServerDecorationHandler: Any {
         &mut self,
         _slf: &Rc<OrgKdeKwinServerDecoration>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_release(
         );
         if let Err(e) = res {
@@ -210,6 +213,9 @@ pub trait OrgKdeKwinServerDecorationHandler: Any {
         _slf: &Rc<OrgKdeKwinServerDecoration>,
         mode: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_request_mode(
             mode,
         );
@@ -243,6 +249,9 @@ pub trait OrgKdeKwinServerDecorationHandler: Any {
         _slf: &Rc<OrgKdeKwinServerDecoration>,
         mode: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_mode(
             mode,
         );

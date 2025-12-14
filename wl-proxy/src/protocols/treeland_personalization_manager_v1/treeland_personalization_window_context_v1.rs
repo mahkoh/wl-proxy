@@ -390,6 +390,9 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationWindowContextV1>,
         mode: TreelandPersonalizationWindowContextV1BlendMode,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_blend_mode(
             mode,
         );
@@ -415,6 +418,9 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationWindowContextV1>,
         radius: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_round_corner_radius(
             radius,
         );
@@ -451,6 +457,9 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
         b: i32,
         a: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_shadow(
             radius,
             offset_x,
@@ -486,6 +495,9 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
         b: i32,
         a: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_border(
             width,
             r,
@@ -511,6 +523,9 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationWindowContextV1>,
         mode: TreelandPersonalizationWindowContextV1EnableMode,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_titlebar(
             mode,
         );
@@ -527,6 +542,9 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandPersonalizationWindowContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

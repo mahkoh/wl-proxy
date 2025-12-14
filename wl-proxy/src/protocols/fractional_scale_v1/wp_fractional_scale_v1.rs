@@ -151,6 +151,9 @@ pub trait WpFractionalScaleV1Handler: Any {
         &mut self,
         _slf: &Rc<WpFractionalScaleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -174,6 +177,9 @@ pub trait WpFractionalScaleV1Handler: Any {
         _slf: &Rc<WpFractionalScaleV1>,
         scale: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_preferred_scale(
             scale,
         );

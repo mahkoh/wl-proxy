@@ -187,6 +187,9 @@ pub trait ZxdgDecorationManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZxdgDecorationManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -218,6 +221,9 @@ pub trait ZxdgDecorationManagerV1Handler: Any {
         id: &Rc<ZxdgToplevelDecorationV1>,
         toplevel: &Rc<XdgToplevel>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_toplevel_decoration(
             id,
             toplevel,

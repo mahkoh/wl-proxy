@@ -123,6 +123,9 @@ pub trait WlCallbackHandler: Any {
         _slf: &Rc<WlCallback>,
         callback_data: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_done(
             callback_data,
         );

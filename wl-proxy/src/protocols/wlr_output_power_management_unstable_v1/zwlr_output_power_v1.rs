@@ -250,6 +250,9 @@ pub trait ZwlrOutputPowerV1Handler: Any {
         _slf: &Rc<ZwlrOutputPowerV1>,
         mode: ZwlrOutputPowerV1Mode,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_mode(
             mode,
         );
@@ -277,6 +280,9 @@ pub trait ZwlrOutputPowerV1Handler: Any {
         _slf: &Rc<ZwlrOutputPowerV1>,
         mode: ZwlrOutputPowerV1Mode,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_mode(
             mode,
         );
@@ -301,6 +307,9 @@ pub trait ZwlrOutputPowerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrOutputPowerV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_failed(
         );
         if let Err(e) = res {
@@ -316,6 +325,9 @@ pub trait ZwlrOutputPowerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrOutputPowerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

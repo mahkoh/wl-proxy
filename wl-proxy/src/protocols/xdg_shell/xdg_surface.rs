@@ -516,6 +516,9 @@ pub trait XdgSurfaceHandler: Any {
         &mut self,
         _slf: &Rc<XdgSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -540,6 +543,9 @@ pub trait XdgSurfaceHandler: Any {
         _slf: &Rc<XdgSurface>,
         id: &Rc<XdgToplevel>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_toplevel(
             id,
         );
@@ -575,6 +581,9 @@ pub trait XdgSurfaceHandler: Any {
         parent: Option<&Rc<XdgSurface>>,
         positioner: &Rc<XdgPositioner>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_popup(
             id,
             parent,
@@ -643,6 +652,9 @@ pub trait XdgSurfaceHandler: Any {
         width: i32,
         height: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_window_geometry(
             x,
             y,
@@ -698,6 +710,9 @@ pub trait XdgSurfaceHandler: Any {
         _slf: &Rc<XdgSurface>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_ack_configure(
             serial,
         );
@@ -734,6 +749,9 @@ pub trait XdgSurfaceHandler: Any {
         _slf: &Rc<XdgSurface>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_configure(
             serial,
         );

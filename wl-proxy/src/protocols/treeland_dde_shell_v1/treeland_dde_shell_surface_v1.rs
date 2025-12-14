@@ -446,6 +446,9 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandDdeShellSurfaceV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -471,6 +474,9 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
         x: i32,
         y: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_surface_position(
             x,
             y,
@@ -493,6 +499,9 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
         _slf: &Rc<TreelandDdeShellSurfaceV1>,
         role: TreelandDdeShellSurfaceV1Role,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_role(
             role,
         );
@@ -520,6 +529,9 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
         _slf: &Rc<TreelandDdeShellSurfaceV1>,
         y_offset: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_auto_placement(
             y_offset,
         );
@@ -541,6 +553,9 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
         _slf: &Rc<TreelandDdeShellSurfaceV1>,
         skip: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_skip_switcher(
             skip,
         );
@@ -562,6 +577,9 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
         _slf: &Rc<TreelandDdeShellSurfaceV1>,
         skip: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_skip_dock_preview(
             skip,
         );
@@ -583,6 +601,9 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
         _slf: &Rc<TreelandDdeShellSurfaceV1>,
         skip: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_skip_muti_task_view(
             skip,
         );
@@ -606,6 +627,9 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
         _slf: &Rc<TreelandDdeShellSurfaceV1>,
         accept: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_accept_keyboard_focus(
             accept,
         );

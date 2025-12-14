@@ -173,6 +173,9 @@ pub trait ExtForeignToplevelImageCaptureSourceManagerV1Handler: Any {
         source: &Rc<ExtImageCaptureSourceV1>,
         toplevel_handle: &Rc<ExtForeignToplevelHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_source(
             source,
             toplevel_handle,
@@ -192,6 +195,9 @@ pub trait ExtForeignToplevelImageCaptureSourceManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtForeignToplevelImageCaptureSourceManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

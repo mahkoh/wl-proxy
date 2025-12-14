@@ -878,6 +878,9 @@ pub trait WlShellSurfaceHandler: Any {
         _slf: &Rc<WlShellSurface>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_pong(
             serial,
         );
@@ -908,6 +911,9 @@ pub trait WlShellSurfaceHandler: Any {
         seat: &Rc<WlSeat>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_move(
             seat,
             serial,
@@ -941,6 +947,9 @@ pub trait WlShellSurfaceHandler: Any {
         serial: u32,
         edges: WlShellSurfaceResize,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_resize(
             seat,
             serial,
@@ -961,6 +970,9 @@ pub trait WlShellSurfaceHandler: Any {
         &mut self,
         _slf: &Rc<WlShellSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_toplevel(
         );
         if let Err(e) = res {
@@ -996,6 +1008,9 @@ pub trait WlShellSurfaceHandler: Any {
         y: i32,
         flags: WlShellSurfaceTransient,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_transient(
             parent,
             x,
@@ -1059,6 +1074,9 @@ pub trait WlShellSurfaceHandler: Any {
         framerate: u32,
         output: Option<&Rc<WlOutput>>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_fullscreen(
             method,
             framerate,
@@ -1113,6 +1131,9 @@ pub trait WlShellSurfaceHandler: Any {
         y: i32,
         flags: WlShellSurfaceTransient,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_popup(
             seat,
             serial,
@@ -1159,6 +1180,9 @@ pub trait WlShellSurfaceHandler: Any {
         _slf: &Rc<WlShellSurface>,
         output: Option<&Rc<WlOutput>>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_maximized(
             output,
         );
@@ -1186,6 +1210,9 @@ pub trait WlShellSurfaceHandler: Any {
         _slf: &Rc<WlShellSurface>,
         title: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_title(
             title,
         );
@@ -1212,6 +1239,9 @@ pub trait WlShellSurfaceHandler: Any {
         _slf: &Rc<WlShellSurface>,
         class_: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_class(
             class_,
         );
@@ -1234,6 +1264,9 @@ pub trait WlShellSurfaceHandler: Any {
         _slf: &Rc<WlShellSurface>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_ping(
             serial,
         );
@@ -1275,6 +1308,9 @@ pub trait WlShellSurfaceHandler: Any {
         width: i32,
         height: i32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_configure(
             edges,
             width,
@@ -1295,6 +1331,9 @@ pub trait WlShellSurfaceHandler: Any {
         &mut self,
         _slf: &Rc<WlShellSurface>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_popup_done(
         );
         if let Err(e) = res {

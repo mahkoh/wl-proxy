@@ -1151,6 +1151,9 @@ pub trait WlSurfaceHandler: Any {
         &mut self,
         _slf: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -1242,6 +1245,9 @@ pub trait WlSurfaceHandler: Any {
         x: i32,
         y: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_attach(
             buffer,
             x,
@@ -1291,6 +1297,9 @@ pub trait WlSurfaceHandler: Any {
         width: i32,
         height: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_damage(
             x,
             y,
@@ -1346,6 +1355,9 @@ pub trait WlSurfaceHandler: Any {
         _slf: &Rc<WlSurface>,
         callback: &Rc<WlCallback>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_frame(
             callback,
         );
@@ -1393,6 +1405,9 @@ pub trait WlSurfaceHandler: Any {
         _slf: &Rc<WlSurface>,
         region: Option<&Rc<WlRegion>>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_opaque_region(
             region,
         );
@@ -1438,6 +1453,9 @@ pub trait WlSurfaceHandler: Any {
         _slf: &Rc<WlSurface>,
         region: Option<&Rc<WlRegion>>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_input_region(
             region,
         );
@@ -1472,6 +1490,9 @@ pub trait WlSurfaceHandler: Any {
         &mut self,
         _slf: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_commit(
         );
         if let Err(e) = res {
@@ -1499,6 +1520,9 @@ pub trait WlSurfaceHandler: Any {
         _slf: &Rc<WlSurface>,
         output: &Rc<WlOutput>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1538,6 +1562,9 @@ pub trait WlSurfaceHandler: Any {
         _slf: &Rc<WlSurface>,
         output: &Rc<WlOutput>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         if let Some(client_id) = _slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
@@ -1596,6 +1623,9 @@ pub trait WlSurfaceHandler: Any {
         _slf: &Rc<WlSurface>,
         transform: WlOutputTransform,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_buffer_transform(
             transform,
         );
@@ -1639,6 +1669,9 @@ pub trait WlSurfaceHandler: Any {
         _slf: &Rc<WlSurface>,
         scale: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_buffer_scale(
             scale,
         );
@@ -1697,6 +1730,9 @@ pub trait WlSurfaceHandler: Any {
         width: i32,
         height: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_damage_buffer(
             x,
             y,
@@ -1737,6 +1773,9 @@ pub trait WlSurfaceHandler: Any {
         x: i32,
         y: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_offset(
             x,
             y,
@@ -1770,6 +1809,9 @@ pub trait WlSurfaceHandler: Any {
         _slf: &Rc<WlSurface>,
         factor: i32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_preferred_buffer_scale(
             factor,
         );
@@ -1799,6 +1841,9 @@ pub trait WlSurfaceHandler: Any {
         _slf: &Rc<WlSurface>,
         transform: WlOutputTransform,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_preferred_buffer_transform(
             transform,
         );

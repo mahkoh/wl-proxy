@@ -210,6 +210,9 @@ pub trait TreelandAppIdResolverV1Handler: Any {
         request_id: u32,
         pidfd: &Rc<OwnedFd>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_identify_request(
             request_id,
             pidfd,
@@ -238,6 +241,9 @@ pub trait TreelandAppIdResolverV1Handler: Any {
         app_id: &str,
         sandbox_engine_name: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_respond(
             request_id,
             app_id,
@@ -254,6 +260,9 @@ pub trait TreelandAppIdResolverV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandAppIdResolverV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

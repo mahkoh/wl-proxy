@@ -165,6 +165,9 @@ pub trait WpFractionalScaleManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<WpFractionalScaleManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -193,6 +196,9 @@ pub trait WpFractionalScaleManagerV1Handler: Any {
         id: &Rc<WpFractionalScaleV1>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_fractional_scale(
             id,
             surface,

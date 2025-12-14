@@ -154,6 +154,9 @@ pub trait WlFixesHandler: Any {
         &mut self,
         _slf: &Rc<WlFixes>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -185,6 +188,9 @@ pub trait WlFixesHandler: Any {
         _slf: &Rc<WlFixes>,
         registry: &Rc<WlRegistry>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy_registry(
             registry,
         );

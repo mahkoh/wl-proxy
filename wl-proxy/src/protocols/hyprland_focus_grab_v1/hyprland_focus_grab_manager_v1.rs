@@ -150,6 +150,9 @@ pub trait HyprlandFocusGrabManagerV1Handler: Any {
         _slf: &Rc<HyprlandFocusGrabManagerV1>,
         grab: &Rc<HyprlandFocusGrabV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_grab(
             grab,
         );
@@ -167,6 +170,9 @@ pub trait HyprlandFocusGrabManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandFocusGrabManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

@@ -431,6 +431,9 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
         name: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_theme(
             name,
         );
@@ -445,6 +448,9 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_theme(
         );
         if let Err(e) = res {
@@ -463,6 +469,9 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
         size: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_size(
             size,
         );
@@ -477,6 +486,9 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_size(
         );
         if let Err(e) = res {
@@ -492,6 +504,9 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_commit(
         );
         if let Err(e) = res {
@@ -507,6 +522,9 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -527,6 +545,9 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
         success: i32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_verfity(
             success,
         );
@@ -548,6 +569,9 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
         name: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_theme(
             name,
         );
@@ -569,6 +593,9 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationCursorContextV1>,
         size: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_size(
             size,
         );

@@ -263,6 +263,9 @@ pub trait ExtImageCopyCaptureManagerV1Handler: Any {
         source: &Rc<ExtImageCaptureSourceV1>,
         options: ExtImageCopyCaptureManagerV1Options,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_session(
             session,
             source,
@@ -294,6 +297,9 @@ pub trait ExtImageCopyCaptureManagerV1Handler: Any {
         source: &Rc<ExtImageCaptureSourceV1>,
         pointer: &Rc<WlPointer>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_pointer_cursor_session(
             session,
             source,
@@ -314,6 +320,9 @@ pub trait ExtImageCopyCaptureManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtImageCopyCaptureManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

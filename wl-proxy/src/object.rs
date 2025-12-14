@@ -5,6 +5,7 @@ use {
         state::State,
         utils::handler_holder::{HandlerMut, HandlerRef},
     },
+    error_reporter::Report,
     std::{
         any::Any,
         cell::{Cell, RefCell},
@@ -81,6 +82,14 @@ pub trait ObjectUtils: Object {
         self.core().delete_id()
     }
 
+    fn set_forward_to_client(&self, enabled: bool) {
+        self.core().set_forward_to_client(enabled);
+    }
+
+    fn set_forward_to_server(&self, enabled: bool) {
+        self.core().set_forward_to_server(enabled);
+    }
+
     fn try_get_handler_ref<T>(&self) -> Result<HandlerRef<'_, T>, HandlerAccessError>
     where
         T: 'static,
@@ -98,7 +107,7 @@ pub trait ObjectUtils: Object {
     where
         T: 'static,
     {
-        self.try_get_handler_ref().unwrap()
+        self.try_get_handler_ref().map_err(Report::new).unwrap()
     }
 
     fn try_get_handler_mut<T>(&self) -> Result<HandlerMut<'_, T>, HandlerAccessError>
@@ -118,7 +127,7 @@ pub trait ObjectUtils: Object {
     where
         T: 'static,
     {
-        self.try_get_handler_mut().unwrap()
+        self.try_get_handler_mut().map_err(Report::new).unwrap()
     }
 }
 
@@ -144,6 +153,8 @@ pub struct ObjectCore {
     id: u64,
     pub(crate) interface: ObjectInterface,
     pub(crate) version: u32,
+    pub(crate) forward_to_client: Cell<bool>,
+    pub(crate) forward_to_server: Cell<bool>,
     pub(crate) awaiting_delete_id: Cell<bool>,
     pub(crate) server_obj_id: Cell<Option<u32>>,
     pub(crate) client_obj_id: Cell<Option<u32>>,
@@ -192,6 +203,8 @@ impl ObjectCore {
             id: proxy_id,
             interface,
             version,
+            forward_to_client: Cell::new(true),
+            forward_to_server: Cell::new(true),
             awaiting_delete_id: Default::default(),
             server_obj_id: Default::default(),
             client_obj_id: Default::default(),
@@ -361,6 +374,14 @@ impl ObjectCore {
 
     pub fn unique_id(&self) -> u64 {
         self.id
+    }
+
+    pub fn set_forward_to_client(&self, enabled: bool) {
+        self.forward_to_client.set(enabled);
+    }
+
+    pub fn set_forward_to_server(&self, enabled: bool) {
+        self.forward_to_server.set(enabled);
     }
 }
 

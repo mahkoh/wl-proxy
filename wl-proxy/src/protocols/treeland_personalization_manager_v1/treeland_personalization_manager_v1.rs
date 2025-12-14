@@ -322,6 +322,9 @@ pub trait TreelandPersonalizationManagerV1Handler: Any {
         id: &Rc<TreelandPersonalizationWindowContextV1>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_window_context(
             id,
             surface,
@@ -344,6 +347,9 @@ pub trait TreelandPersonalizationManagerV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationManagerV1>,
         id: &Rc<TreelandPersonalizationWallpaperContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_wallpaper_context(
             id,
         );
@@ -365,6 +371,9 @@ pub trait TreelandPersonalizationManagerV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationManagerV1>,
         id: &Rc<TreelandPersonalizationCursorContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_cursor_context(
             id,
         );
@@ -386,6 +395,9 @@ pub trait TreelandPersonalizationManagerV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationManagerV1>,
         id: &Rc<TreelandPersonalizationFontContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_font_context(
             id,
         );
@@ -407,6 +419,9 @@ pub trait TreelandPersonalizationManagerV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationManagerV1>,
         id: &Rc<TreelandPersonalizationAppearanceContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_appearance_context(
             id,
         );

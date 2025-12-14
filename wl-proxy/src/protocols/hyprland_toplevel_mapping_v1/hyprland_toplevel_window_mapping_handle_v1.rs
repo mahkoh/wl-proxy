@@ -200,6 +200,9 @@ pub trait HyprlandToplevelWindowMappingHandleV1Handler: Any {
         address_hi: u32,
         address: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_window_address(
             address_hi,
             address,
@@ -218,6 +221,9 @@ pub trait HyprlandToplevelWindowMappingHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandToplevelWindowMappingHandleV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_failed(
         );
         if let Err(e) = res {
@@ -233,6 +239,9 @@ pub trait HyprlandToplevelWindowMappingHandleV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandToplevelWindowMappingHandleV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

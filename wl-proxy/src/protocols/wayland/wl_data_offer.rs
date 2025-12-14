@@ -560,6 +560,9 @@ pub trait WlDataOfferHandler: Any {
         serial: u32,
         mime_type: Option<&str>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_accept(
             serial,
             mime_type,
@@ -598,6 +601,9 @@ pub trait WlDataOfferHandler: Any {
         mime_type: &str,
         fd: &Rc<OwnedFd>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_receive(
             mime_type,
             fd,
@@ -615,6 +621,9 @@ pub trait WlDataOfferHandler: Any {
         &mut self,
         _slf: &Rc<WlDataOffer>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -636,6 +645,9 @@ pub trait WlDataOfferHandler: Any {
         _slf: &Rc<WlDataOffer>,
         mime_type: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_offer(
             mime_type,
         );
@@ -665,6 +677,9 @@ pub trait WlDataOfferHandler: Any {
         &mut self,
         _slf: &Rc<WlDataOffer>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_finish(
         );
         if let Err(e) = res {
@@ -717,6 +732,9 @@ pub trait WlDataOfferHandler: Any {
         dnd_actions: WlDataDeviceManagerDndAction,
         preferred_action: WlDataDeviceManagerDndAction,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_actions(
             dnd_actions,
             preferred_action,
@@ -742,6 +760,9 @@ pub trait WlDataOfferHandler: Any {
         _slf: &Rc<WlDataOffer>,
         source_actions: WlDataDeviceManagerDndAction,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_source_actions(
             source_actions,
         );
@@ -797,6 +818,9 @@ pub trait WlDataOfferHandler: Any {
         _slf: &Rc<WlDataOffer>,
         dnd_action: WlDataDeviceManagerDndAction,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_action(
             dnd_action,
         );

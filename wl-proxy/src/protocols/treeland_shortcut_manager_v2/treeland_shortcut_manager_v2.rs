@@ -632,6 +632,9 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         &mut self,
         _slf: &Rc<TreelandShortcutManagerV2>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -653,6 +656,9 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         &mut self,
         _slf: &Rc<TreelandShortcutManagerV2>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_acquire(
         );
         if let Err(e) = res {
@@ -702,6 +708,9 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         mode: TreelandShortcutManagerV2KeybindMode,
         action: TreelandShortcutManagerV2Action,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_bind_key(
             name,
             key,
@@ -748,6 +757,9 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         direction: TreelandShortcutManagerV2Direction,
         action: TreelandShortcutManagerV2Action,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_bind_swipe_gesture(
             name,
             finger,
@@ -789,6 +801,9 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         finger: u32,
         action: TreelandShortcutManagerV2Action,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_bind_hold_gesture(
             name,
             finger,
@@ -822,6 +837,9 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         &mut self,
         _slf: &Rc<TreelandShortcutManagerV2>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_commit(
         );
         if let Err(e) = res {
@@ -845,6 +863,9 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         _slf: &Rc<TreelandShortcutManagerV2>,
         name: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_unbind(
             name,
         );
@@ -870,6 +891,9 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         name: &str,
         repeat: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_activated(
             name,
             repeat,
@@ -888,6 +912,9 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         &mut self,
         _slf: &Rc<TreelandShortcutManagerV2>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_commit_success(
         );
         if let Err(e) = res {
@@ -913,6 +940,9 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         name: &str,
         error: TreelandShortcutManagerV2BindError,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_commit_failure(
             name,
             error,

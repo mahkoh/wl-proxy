@@ -391,6 +391,9 @@ pub trait TreelandDdmHandler: Any {
         &mut self,
         _slf: &Rc<TreelandDdm>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_switch_to_greeter(
         );
         if let Err(e) = res {
@@ -411,6 +414,9 @@ pub trait TreelandDdmHandler: Any {
         _slf: &Rc<TreelandDdm>,
         username: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_switch_to_user(
             username,
         );
@@ -428,6 +434,9 @@ pub trait TreelandDdmHandler: Any {
         &mut self,
         _slf: &Rc<TreelandDdm>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_activate_session(
         );
         if let Err(e) = res {
@@ -444,6 +453,9 @@ pub trait TreelandDdmHandler: Any {
         &mut self,
         _slf: &Rc<TreelandDdm>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_deactivate_session(
         );
         if let Err(e) = res {
@@ -460,6 +472,9 @@ pub trait TreelandDdmHandler: Any {
         &mut self,
         _slf: &Rc<TreelandDdm>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_enable_render(
         );
         if let Err(e) = res {
@@ -481,6 +496,9 @@ pub trait TreelandDdmHandler: Any {
         _slf: &Rc<TreelandDdm>,
         callback: &Rc<WlCallback>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_disable_render(
             callback,
         );
@@ -503,6 +521,9 @@ pub trait TreelandDdmHandler: Any {
         _slf: &Rc<TreelandDdm>,
         vtnr: i32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_switch_to_vt(
             vtnr,
         );
@@ -525,6 +546,9 @@ pub trait TreelandDdmHandler: Any {
         _slf: &Rc<TreelandDdm>,
         vtnr: i32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_acquire_vt(
             vtnr,
         );

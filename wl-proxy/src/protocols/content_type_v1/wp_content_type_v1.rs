@@ -160,6 +160,9 @@ pub trait WpContentTypeV1Handler: Any {
         &mut self,
         _slf: &Rc<WpContentTypeV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -187,6 +190,9 @@ pub trait WpContentTypeV1Handler: Any {
         _slf: &Rc<WpContentTypeV1>,
         content_type: WpContentTypeV1Type,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_content_type(
             content_type,
         );

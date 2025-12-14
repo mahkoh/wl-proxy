@@ -196,6 +196,9 @@ pub trait TreelandLockscreenV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandLockscreenV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -211,6 +214,9 @@ pub trait TreelandLockscreenV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandLockscreenV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_lock(
         );
         if let Err(e) = res {
@@ -226,6 +232,9 @@ pub trait TreelandLockscreenV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandLockscreenV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_shutdown(
         );
         if let Err(e) = res {
@@ -241,6 +250,9 @@ pub trait TreelandLockscreenV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandLockscreenV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_switch_user(
         );
         if let Err(e) = res {

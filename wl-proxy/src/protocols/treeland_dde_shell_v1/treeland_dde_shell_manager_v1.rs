@@ -374,6 +374,9 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
         _slf: &Rc<TreelandDdeShellManagerV1>,
         id: &Rc<TreelandWindowOverlapChecker>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_window_overlap_checker(
             id,
         );
@@ -404,6 +407,9 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
         id: &Rc<TreelandDdeShellSurfaceV1>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_shell_surface(
             id,
             surface,
@@ -431,6 +437,9 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
         id: &Rc<TreelandDdeActiveV1>,
         seat: &Rc<WlSeat>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_treeland_dde_active(
             id,
             seat,
@@ -453,6 +462,9 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
         _slf: &Rc<TreelandDdeShellManagerV1>,
         id: &Rc<TreelandMultitaskviewV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_treeland_multitaskview(
             id,
         );
@@ -474,6 +486,9 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
         _slf: &Rc<TreelandDdeShellManagerV1>,
         id: &Rc<TreelandWindowPickerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_treeland_window_picker(
             id,
         );
@@ -495,6 +510,9 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
         _slf: &Rc<TreelandDdeShellManagerV1>,
         id: &Rc<TreelandLockscreenV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_treeland_lockscreen(
             id,
         );

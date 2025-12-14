@@ -252,6 +252,9 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
         &mut self,
         _slf: &Rc<TreelandWindowOverlapChecker>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_enter(
         );
         if let Err(e) = res {
@@ -268,6 +271,9 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
         &mut self,
         _slf: &Rc<TreelandWindowOverlapChecker>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_leave(
         );
         if let Err(e) = res {
@@ -301,6 +307,9 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
         anchor: TreelandWindowOverlapCheckerAnchor,
         output: &Rc<WlOutput>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_update(
             width,
             height,
@@ -324,6 +333,9 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
         &mut self,
         _slf: &Rc<TreelandWindowOverlapChecker>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

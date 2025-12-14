@@ -172,6 +172,9 @@ pub trait TreelandScreensaverHandler: Any {
         application_name: &str,
         reason_for_inhibit: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_inhibit(
             application_name,
             reason_for_inhibit,
@@ -189,6 +192,9 @@ pub trait TreelandScreensaverHandler: Any {
         &mut self,
         _slf: &Rc<TreelandScreensaver>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_uninhibit(
         );
         if let Err(e) = res {

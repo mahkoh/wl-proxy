@@ -176,6 +176,9 @@ pub trait XdgToplevelDragV1Handler: Any {
         &mut self,
         _slf: &Rc<XdgToplevelDragV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -217,6 +220,9 @@ pub trait XdgToplevelDragV1Handler: Any {
         x_offset: i32,
         y_offset: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_attach(
             toplevel,
             x_offset,

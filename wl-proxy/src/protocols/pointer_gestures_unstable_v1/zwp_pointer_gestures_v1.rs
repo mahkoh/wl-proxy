@@ -308,6 +308,9 @@ pub trait ZwpPointerGesturesV1Handler: Any {
         id: &Rc<ZwpPointerGestureSwipeV1>,
         pointer: &Rc<WlPointer>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_swipe_gesture(
             id,
             pointer,
@@ -336,6 +339,9 @@ pub trait ZwpPointerGesturesV1Handler: Any {
         id: &Rc<ZwpPointerGesturePinchV1>,
         pointer: &Rc<WlPointer>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_pinch_gesture(
             id,
             pointer,
@@ -354,6 +360,9 @@ pub trait ZwpPointerGesturesV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpPointerGesturesV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_release(
         );
         if let Err(e) = res {
@@ -380,6 +389,9 @@ pub trait ZwpPointerGesturesV1Handler: Any {
         id: &Rc<ZwpPointerGestureHoldV1>,
         pointer: &Rc<WlPointer>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_hold_gesture(
             id,
             pointer,

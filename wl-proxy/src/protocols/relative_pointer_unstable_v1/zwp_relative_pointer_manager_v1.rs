@@ -162,6 +162,9 @@ pub trait ZwpRelativePointerManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpRelativePointerManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -188,6 +191,9 @@ pub trait ZwpRelativePointerManagerV1Handler: Any {
         id: &Rc<ZwpRelativePointerV1>,
         pointer: &Rc<WlPointer>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_relative_pointer(
             id,
             pointer,

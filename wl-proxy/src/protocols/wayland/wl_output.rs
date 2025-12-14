@@ -577,6 +577,9 @@ pub trait WlOutputHandler: Any {
         model: &str,
         transform: WlOutputTransform,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_geometry(
             x,
             y,
@@ -643,6 +646,9 @@ pub trait WlOutputHandler: Any {
         height: i32,
         refresh: i32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_mode(
             flags,
             width,
@@ -666,6 +672,9 @@ pub trait WlOutputHandler: Any {
         &mut self,
         _slf: &Rc<WlOutput>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -703,6 +712,9 @@ pub trait WlOutputHandler: Any {
         _slf: &Rc<WlOutput>,
         factor: i32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_scale(
             factor,
         );
@@ -720,6 +732,9 @@ pub trait WlOutputHandler: Any {
         &mut self,
         _slf: &Rc<WlOutput>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_release(
         );
         if let Err(e) = res {
@@ -767,6 +782,9 @@ pub trait WlOutputHandler: Any {
         _slf: &Rc<WlOutput>,
         name: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_name(
             name,
         );
@@ -801,6 +819,9 @@ pub trait WlOutputHandler: Any {
         _slf: &Rc<WlOutput>,
         description: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_description(
             description,
         );

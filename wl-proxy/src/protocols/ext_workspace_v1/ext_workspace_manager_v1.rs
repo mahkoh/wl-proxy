@@ -365,6 +365,9 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         _slf: &Rc<ExtWorkspaceManagerV1>,
         workspace_group: &Rc<ExtWorkspaceGroupHandleV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_workspace_group(
             workspace_group,
         );
@@ -392,6 +395,9 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         _slf: &Rc<ExtWorkspaceManagerV1>,
         workspace: &Rc<ExtWorkspaceHandleV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_workspace(
             workspace,
         );
@@ -415,6 +421,9 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtWorkspaceManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_commit(
         );
         if let Err(e) = res {
@@ -440,6 +449,9 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtWorkspaceManagerV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -457,6 +469,9 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtWorkspaceManagerV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_finished(
         );
         if let Err(e) = res {
@@ -478,6 +493,9 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         &mut self,
         _slf: &Rc<ExtWorkspaceManagerV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_stop(
         );
         if let Err(e) = res {

@@ -486,6 +486,9 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         font_name: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_font(
             font_name,
         );
@@ -507,6 +510,9 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         font_name: &str,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_monospace_font(
             font_name,
         );
@@ -528,6 +534,9 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         font_size: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_font_size(
             font_size,
         );
@@ -549,6 +558,9 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         size: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_font_size(
             size,
         );
@@ -565,6 +577,9 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_font_size(
         );
         if let Err(e) = res {
@@ -585,6 +600,9 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         font_name: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_font(
             font_name,
         );
@@ -601,6 +619,9 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_font(
         );
         if let Err(e) = res {
@@ -621,6 +642,9 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
         font_name: &str,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_monospace_font(
             font_name,
         );
@@ -637,6 +661,9 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_monospace_font(
         );
         if let Err(e) = res {
@@ -652,6 +679,9 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         &mut self,
         _slf: &Rc<TreelandPersonalizationFontContextV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {

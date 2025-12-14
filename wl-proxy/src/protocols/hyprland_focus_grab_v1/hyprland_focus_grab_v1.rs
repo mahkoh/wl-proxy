@@ -309,6 +309,9 @@ pub trait HyprlandFocusGrabV1Handler: Any {
         _slf: &Rc<HyprlandFocusGrabV1>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_add_surface(
             surface,
         );
@@ -339,6 +342,9 @@ pub trait HyprlandFocusGrabV1Handler: Any {
         _slf: &Rc<HyprlandFocusGrabV1>,
         surface: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_remove_surface(
             surface,
         );
@@ -359,6 +365,9 @@ pub trait HyprlandFocusGrabV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandFocusGrabV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_commit(
         );
         if let Err(e) = res {
@@ -374,6 +383,9 @@ pub trait HyprlandFocusGrabV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandFocusGrabV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -390,6 +402,9 @@ pub trait HyprlandFocusGrabV1Handler: Any {
         &mut self,
         _slf: &Rc<HyprlandFocusGrabV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_cleared(
         );
         if let Err(e) = res {

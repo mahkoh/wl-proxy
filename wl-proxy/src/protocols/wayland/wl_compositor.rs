@@ -162,6 +162,9 @@ pub trait WlCompositorHandler: Any {
         _slf: &Rc<WlCompositor>,
         id: &Rc<WlSurface>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_surface(
             id,
         );
@@ -183,6 +186,9 @@ pub trait WlCompositorHandler: Any {
         _slf: &Rc<WlCompositor>,
         id: &Rc<WlRegion>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_create_region(
             id,
         );

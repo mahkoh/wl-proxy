@@ -165,6 +165,9 @@ pub trait ZwpInputPanelSurfaceV1Handler: Any {
         output: &Rc<WlOutput>,
         position: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_toplevel(
             output,
             position,
@@ -185,6 +188,9 @@ pub trait ZwpInputPanelSurfaceV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpInputPanelSurfaceV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_overlay_panel(
         );
         if let Err(e) = res {

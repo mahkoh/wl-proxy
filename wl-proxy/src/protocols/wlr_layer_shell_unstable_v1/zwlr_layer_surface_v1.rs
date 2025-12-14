@@ -766,6 +766,9 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
         width: u32,
         height: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_size(
             width,
             height,
@@ -794,6 +797,9 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
         _slf: &Rc<ZwlrLayerSurfaceV1>,
         anchor: ZwlrLayerSurfaceV1Anchor,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_anchor(
             anchor,
         );
@@ -846,6 +852,9 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
         _slf: &Rc<ZwlrLayerSurfaceV1>,
         zone: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_exclusive_zone(
             zone,
         );
@@ -879,6 +888,9 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
         bottom: i32,
         left: i32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_margin(
             top,
             right,
@@ -914,6 +926,9 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
         _slf: &Rc<ZwlrLayerSurfaceV1>,
         keyboard_interactivity: ZwlrLayerSurfaceV1KeyboardInteractivity,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_keyboard_interactivity(
             keyboard_interactivity,
         );
@@ -944,6 +959,9 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
         _slf: &Rc<ZwlrLayerSurfaceV1>,
         popup: &Rc<XdgPopup>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_get_popup(
             popup,
         );
@@ -979,6 +997,9 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
         _slf: &Rc<ZwlrLayerSurfaceV1>,
         serial: u32,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_ack_configure(
             serial,
         );
@@ -995,6 +1016,9 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrLayerSurfaceV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -1038,6 +1062,9 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
         width: u32,
         height: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_configure(
             serial,
             width,
@@ -1060,6 +1087,9 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwlrLayerSurfaceV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_closed(
         );
         if let Err(e) = res {
@@ -1082,6 +1112,9 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
         _slf: &Rc<ZwlrLayerSurfaceV1>,
         layer: ZwlrLayerShellV1Layer,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_layer(
             layer,
         );
@@ -1110,6 +1143,9 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
         _slf: &Rc<ZwlrLayerSurfaceV1>,
         edge: ZwlrLayerSurfaceV1Anchor,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_set_exclusive_edge(
             edge,
         );

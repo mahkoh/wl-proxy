@@ -533,6 +533,9 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
     ) {
+        if !_slf.core.forward_to_server.get() {
+            return;
+        }
         let res = _slf.send_destroy(
         );
         if let Err(e) = res {
@@ -552,6 +555,9 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_done(
         );
         if let Err(e) = res {
@@ -587,6 +593,9 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         fd: &Rc<OwnedFd>,
         size: u32,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_format_table(
             fd,
             size,
@@ -631,6 +640,9 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
         device: &[u8],
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_main_device(
             device,
         );
@@ -650,6 +662,9 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         &mut self,
         _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_tranche_done(
         );
         if let Err(e) = res {
@@ -695,6 +710,9 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
         device: &[u8],
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_tranche_target_device(
             device,
         );
@@ -739,6 +757,9 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
         indices: &[u8],
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_tranche_formats(
             indices,
         );
@@ -767,6 +788,9 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
         flags: ZwpLinuxDmabufFeedbackV1TrancheFlags,
     ) {
+        if !_slf.core.forward_to_client.get() {
+            return;
+        }
         let res = _slf.send_tranche_flags(
             flags,
         );
