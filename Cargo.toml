@@ -3,5 +3,8 @@ resolver = "3"
 members = [
     "wl-proxy",
     "generator",
-    "examples/wl-veil", "examples/wl-paper", "update-protocols", "examples/simple",
+    "examples/wl-veil",
+    "examples/wl-paper",
+    "update-protocols",
+    "examples/window-to-tray",
 ]

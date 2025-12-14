@@ -18,5 +18,5 @@ mod poll;
 pub mod simple;
 pub mod state;
 mod trans;
-mod utils;
+pub mod utils;
 mod wire;

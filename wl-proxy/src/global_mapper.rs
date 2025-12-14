@@ -10,10 +10,20 @@ use {
 ///
 /// This type allows filtering globals sent by the server and advertising synthetic
 /// globals that are handled by the proxy.
-#[derive(Default)]
 pub struct GlobalMapper {
     server_to_client: HashMap<u32, Option<u32>>,
     client_to_server: Vec<Option<u32>>,
+}
+
+impl Default for GlobalMapper {
+    fn default() -> Self {
+        let mut server_to_client = HashMap::new();
+        server_to_client.insert(0, None);
+        Self {
+            server_to_client,
+            client_to_server: vec![None],
+        }
+    }
 }
 
 impl GlobalMapper {

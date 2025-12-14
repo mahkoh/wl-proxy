@@ -6,7 +6,9 @@ use {
         poll::{self, Poller},
         protocols::wayland::wl_display::WlDisplay,
         state::{EndpointWithClient, Pollable, State, StateError, StateErrorKind},
-        utils::env::{WAYLAND_DISPLAY, WAYLAND_SOCKET, XDG_RUNTIME_DIR},
+        utils::env::{
+            WAYLAND_DISPLAY, WAYLAND_SOCKET, WL_PROXY_DEBUG, WL_PROXY_PREFIX, XDG_RUNTIME_DIR,
+        },
     },
     isnt::std_1::string::IsntStringExt,
     std::{
@@ -45,7 +47,7 @@ impl StateBuilder {
         Self {
             baseline,
             server: Default::default(),
-            log: Default::default(),
+            log: var(WL_PROXY_DEBUG).as_deref() == Ok("1"),
             log_prefix: Default::default(),
         }
     }
@@ -128,7 +130,7 @@ impl StateBuilder {
         );
         let poller = Poller::new().map_err(StateErrorKind::PollError)?;
         let mut log_prefix = String::new();
-        if let Ok(prefix) = var("WL_PROXY_PREFIX") {
+        if let Ok(prefix) = var(WL_PROXY_PREFIX) {
             log_prefix = prefix;
         }
         if self.log_prefix.is_not_empty() {

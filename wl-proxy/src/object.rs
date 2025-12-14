@@ -73,11 +73,15 @@ pub trait ObjectUtils: Object {
         self.core().version()
     }
 
+    fn unique_id(&self) -> u64 {
+        self.core().unique_id()
+    }
+
     fn delete_id(&self) -> Result<(), ObjectError> {
         self.core().delete_id()
     }
 
-    fn get_handler_ref<T>(&self) -> Result<HandlerRef<'_, T>, HandlerAccessError>
+    fn try_get_handler_ref<T>(&self) -> Result<HandlerRef<'_, T>, HandlerAccessError>
     where
         T: 'static,
     {
@@ -90,7 +94,14 @@ pub trait ObjectUtils: Object {
         }))
     }
 
-    fn get_handler_mut<T>(&self) -> Result<HandlerMut<'_, T>, HandlerAccessError>
+    fn get_handler_ref<T>(&self) -> HandlerRef<'_, T>
+    where
+        T: 'static,
+    {
+        self.try_get_handler_ref().unwrap()
+    }
+
+    fn try_get_handler_mut<T>(&self) -> Result<HandlerMut<'_, T>, HandlerAccessError>
     where
         T: 'static,
     {
@@ -101,6 +112,13 @@ pub trait ObjectUtils: Object {
         Ok(HandlerMut::map(handler, |h| unsafe {
             &mut *(h as *mut dyn Any as *mut T)
         }))
+    }
+
+    fn get_handler_mut<T>(&self) -> HandlerMut<'_, T>
+    where
+        T: 'static,
+    {
+        self.try_get_handler_mut().unwrap()
     }
 }
 
@@ -339,6 +357,10 @@ impl ObjectCore {
 
     pub fn version(&self) -> u32 {
         self.version
+    }
+
+    pub fn unique_id(&self) -> u64 {
+        self.id
     }
 }
 

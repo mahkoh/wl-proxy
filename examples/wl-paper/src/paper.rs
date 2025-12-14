@@ -165,7 +165,7 @@ impl WlCallbackHandler for FirstSyncHandler {
     fn handle_done(&mut self, _slf: &Rc<WlCallback>, _callback_data: u32) {
         let rh = self
             .registry
-            .get_handler_ref::<FirstRegistryHandler>()
+            .try_get_handler_ref::<FirstRegistryHandler>()
             .unwrap();
         if let Some(fixes) = &rh.wl_fixes {
             let _ = fixes.send_destroy_registry(&self.registry);
@@ -356,7 +356,7 @@ impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
         let mut direct_parent = parent;
         let mut parent_geometry = None;
         if let Some(parent) = parent
-            && let Ok(handler) = parent.get_handler_ref::<XdgSurfaceHandlerImpl>()
+            && let Ok(handler) = parent.try_get_handler_ref::<XdgSurfaceHandlerImpl>()
             && let Some(parent) = &handler.zwlr_layer_surface_v1
         {
             layer_parent = Some(parent.clone());
@@ -364,7 +364,7 @@ impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
             parent_geometry = handler.geometry.get();
         }
         let pos_handler = &*positioner
-            .get_handler_ref::<XdgPositionerHandlerImpl>()
+            .try_get_handler_ref::<XdgPositionerHandlerImpl>()
             .unwrap();
         if let Some([gx, gy, _, _]) = parent_geometry
             && let Some([px, py, pw, ph]) = pos_handler.anchor_rect
