@@ -1,8 +1,9 @@
-#![expect(clippy::collapsible_else_if)]
+#![expect(clippy::collapsible_else_if, clippy::collapsible_if)]
 
 use {
     crate::WttError,
     arrayvec::ArrayVec,
+    isnt::std_1::primitive::IsntSliceExt,
     linearize::{Linearize, StaticMap},
     run_on_drop::on_drop,
     std::{
@@ -10,6 +11,7 @@ use {
         collections::{HashMap, VecDeque},
         io::Write,
         mem,
+        os::fd::OwnedFd,
         process::{Command, exit},
         rc::{Rc, Weak},
     },
@@ -53,7 +55,7 @@ use {
             },
             viewporter::{wp_viewport::WpViewport, wp_viewporter::WpViewporter},
             wayland::{
-                wl_buffer::WlBuffer,
+                wl_buffer::{WlBuffer, WlBufferHandler},
                 wl_callback::{WlCallback, WlCallbackHandler},
                 wl_compositor::{WlCompositor, WlCompositorHandler},
                 wl_display::{WlDisplay, WlDisplayHandler},
@@ -66,7 +68,8 @@ use {
                 wl_region::{WlRegion, WlRegionHandler},
                 wl_registry::{WlRegistry, WlRegistryHandler},
                 wl_seat::{WlSeat, WlSeatCapability, WlSeatHandler},
-                wl_shm::{WlShm, WlShmFormat},
+                wl_shm::{WlShm, WlShmFormat, WlShmHandler},
+                wl_shm_pool::{WlShmPool, WlShmPoolHandler},
                 wl_subcompositor::{WlSubcompositor, WlSubcompositorHandler},
                 wl_subsurface::{WlSubsurface, WlSubsurfaceHandler},
                 wl_surface::{WlSurface, WlSurfaceHandler},
@@ -85,13 +88,19 @@ use {
                 xdg_popup::{XdgPopup, XdgPopupHandler},
                 xdg_positioner::{
                     XdgPositioner, XdgPositionerAnchor, XdgPositionerConstraintAdjustment,
-                    XdgPositionerGravity, XdgPositionerHandler,
+                    XdgPositionerGravity,
                 },
                 xdg_surface::{XdgSurface, XdgSurfaceHandler},
                 xdg_toplevel::{
                     XdgToplevel, XdgToplevelHandler, XdgToplevelResizeEdge, XdgToplevelState,
                 },
                 xdg_wm_base::{XdgWmBase, XdgWmBaseHandler},
+            },
+            xdg_toplevel_icon_v1::{
+                xdg_toplevel_icon_manager_v1::{
+                    XdgToplevelIconManagerV1, XdgToplevelIconManagerV1Handler,
+                },
+                xdg_toplevel_icon_v1::{XdgToplevelIconV1, XdgToplevelIconV1Handler},
             },
         },
         simple::{SimpleCommandExt, SimpleServer},
@@ -349,6 +358,7 @@ impl WlCallbackHandler for FirstSyncHandler {
         let black_spb =
             wp_single_pixel_buffer_manager_v1.new_send_create_u32_rgba_buffer(0, 0, 0, u32::MAX);
         black_spb.set_forward_to_client(false);
+        xdg_wm_base.set_handler(ProxyXdgWmBase);
         let globals = Globals {
             wl_compositor,
             wl_shm,
@@ -364,6 +374,14 @@ impl WlCallbackHandler for FirstSyncHandler {
         for (name, version) in mem::take(&mut shared.initial_seats) {
             shared.handle_new_seat(&self.registry, name, version);
         }
+    }
+}
+
+struct ProxyXdgWmBase;
+
+impl XdgWmBaseHandler for ProxyXdgWmBase {
+    fn handle_ping(&mut self, slf: &Rc<XdgWmBase>, serial: u32) {
+        slf.send_ping(serial);
     }
 }
 
@@ -397,6 +415,9 @@ impl WlRegistryHandler for ClientWlRegistry {
             WlSeat::INTERFACE => {
                 id.downcast::<WlSeat>().set_handler(ClientWlSeat);
             }
+            WlShm::INTERFACE => {
+                id.downcast::<WlShm>().set_handler(ClientWlShm);
+            }
             ZwpRelativePointerManagerV1::INTERFACE => {
                 id.downcast::<ZwpRelativePointerManagerV1>()
                     .set_handler(ClientZwpRelativePointerManagerV1);
@@ -413,6 +434,17 @@ impl WlRegistryHandler for ClientWlRegistry {
             OrgKdeKwinServerDecorationManager::INTERFACE => {
                 id.downcast::<OrgKdeKwinServerDecorationManager>()
                     .set_handler(OrgKdeKwinServerDecorationManagerHandlerImpl);
+                return;
+            }
+            XdgToplevelIconManagerV1::INTERFACE => {
+                let id = id.downcast::<XdgToplevelIconManagerV1>();
+                id.set_handler(ClientXdgToplevelIconManagerV1 {
+                    globals: shared.globals.clone().unwrap(),
+                });
+                for size in [8, 16, 24, 32, 64] {
+                    id.send_icon_size(size);
+                }
+                id.send_done();
                 return;
             }
             _ => {}
@@ -434,6 +466,7 @@ impl WlRegistryHandler for ClientWlRegistry {
             add_synth(XdgWmBase, 7);
             add_synth(ZxdgDecorationManagerV1, 1);
             add_synth(OrgKdeKwinServerDecorationManager, 1);
+            add_synth(XdgToplevelIconManagerV1, 1);
         }
         match interface {
             ZxdgDecorationManagerV1
@@ -442,6 +475,7 @@ impl WlRegistryHandler for ClientWlRegistry {
             | XdgWmDialogV1
             | XdgToplevelDragManagerV1
             | XdgToplevelIconManagerV1
+            | WpSecurityContextManagerV1
             | XdgToplevelTagManagerV1 => {
                 self.mapper.ignore_server_global(name);
             }
@@ -643,34 +677,42 @@ impl WlSurfaceHandler for ClientWlSurface {
     }
 
     fn handle_commit(&mut self, slf: &Rc<WlSurface>) {
-        slf.send_commit();
         let old_attached = self.attached;
         let new_attached = self.pending_attach.take().unwrap_or(old_attached);
         self.attached = new_attached;
         let Some(xdg_surface) = self.xdg_surface.upgrade() else {
+            slf.send_commit();
             return;
         };
         let mut h = xdg_surface.get_handler_mut::<ClientXdgSurface>();
+        if let Some(serial) = h.pending_ack.take() {
+            h.last_ack = serial;
+        }
         match (old_attached, new_attached) {
             (false, false) => {
+                slf.send_commit();
                 h.handle_initial_commit(&xdg_surface);
             }
             (false, true) => {
+                slf.send_commit();
                 h.handle_map(&xdg_surface);
             }
             (true, false) => {
+                slf.send_commit();
                 h.handle_unmap();
             }
             (true, true) => {
                 if h.map_upon_ack == Some(h.last_ack) {
                     h.map_upon_ack = None;
-                    h.client_wl_surface
+                    h.proxy_wl_surface
                         .send_attach(Some(&h.globals.transparent_spb), 0, 0);
-                    h.client_wl_surface.send_commit();
                 }
-                if let Some(geometry) = h.pending_geometry
+                let mut need_sync = false;
+                if h.client_xdg_toplevel.strong_count() > 0
+                    && let Some(geometry) = h.pending_geometry
                     && geometry != h.geometry
                 {
+                    need_sync = true;
                     h.geometry = geometry;
                     h.ensure_borders();
                     if let Some(pf) = h.popup_jay_tray_item.upgrade() {
@@ -681,7 +723,14 @@ impl WlSurfaceHandler for ClientWlSurface {
                             xdg_positioner.send_destroy();
                         }
                     }
-                    h.proxy_surface.send_commit();
+                }
+                if need_sync {
+                    h.subsurface.send_set_sync();
+                }
+                slf.send_commit();
+                h.proxy_wl_surface.send_commit();
+                if need_sync {
+                    h.subsurface.send_set_desync();
                 }
             }
         }
@@ -690,67 +739,24 @@ impl WlSurfaceHandler for ClientWlSurface {
 
 impl ClientXdgSurface {
     fn handle_initial_commit(&mut self, xdg_surface: &Rc<XdgSurface>) {
-        if let Some(_client_xdg_popup) = self.client_xdg_popup.upgrade() {
-            if self.sent_done {
-                return;
-            }
-            let _proxy_xdg_popup = match self.proxy_xdg_popup.upgrade() {
-                Some(p) => p,
-                _ => {
-                    let xdg_positioner = self.create_positioner();
-                    let proxy_xdg_popup = self.proxy_xdg_surface.new_send_get_popup(
-                        self.client_xdg_popup_parent.upgrade().as_ref(),
-                        &xdg_positioner,
-                    );
-                    proxy_xdg_popup.set_forward_to_client(false);
-                    xdg_positioner.send_destroy();
-                    self.proxy_xdg_popup = Rc::downgrade(&proxy_xdg_popup);
-                    proxy_xdg_popup
-                }
-            };
+        if self.proxy_xdg_popup.strong_count() > 0 {
+            self.proxy_wl_surface.send_commit();
         } else if let Some(client_xdg_toplevel) = self.client_xdg_toplevel.upgrade() {
-            let states = [
-                XdgToplevelState::CONSTRAINED_RIGHT.0,
-                XdgToplevelState::CONSTRAINED_TOP.0,
-            ];
-            client_xdg_toplevel.send_configure(
-                self.geometry[2],
-                self.geometry[3],
-                uapi::as_bytes(&states),
-            );
+            let states = compute_toplevel_states(&client_xdg_toplevel);
+            let width = self.geometry[2];
+            let height = self.geometry[3];
+            client_xdg_toplevel.send_configure(width, height, uapi::as_bytes(&*states));
             let serial = self.create_client_serial(None);
             xdg_surface.send_configure(serial as u32);
+            self.update_significant_serial(serial, [width, height]);
         }
     }
 
-    fn create_positioner(&self) -> Rc<XdgPositioner> {
-        let pp = &self.popup_position;
-        let p = self.globals.xdg_wm_base.new_send_create_positioner();
-        if let Some([w, h]) = pp.size {
-            p.send_set_size(w, h);
+    fn update_significant_serial(&mut self, serial: u64, size: [i32; 2]) {
+        if Some(size) != self.configure_size {
+            self.configure_size = Some(size);
+            self.significant_serial = serial;
         }
-        if let Some([x, y, w, h]) = pp.anchor_rect {
-            p.send_set_anchor_rect(x, y, w, h);
-        }
-        if let Some(anchor) = pp.anchor {
-            p.send_set_anchor(anchor);
-        }
-        if let Some(gravity) = pp.gravity {
-            p.send_set_gravity(gravity);
-        }
-        if let Some(constraint_adjustment) = pp.constraint_adjustment {
-            p.send_set_constraint_adjustment(constraint_adjustment);
-        }
-        if let Some([x, y]) = pp.offset {
-            p.send_set_offset(x, y);
-        }
-        if pp.reactive {
-            p.send_set_reactive();
-        }
-        if let Some([w, h]) = pp.parent_size {
-            p.send_set_parent_size(w, h);
-        }
-        p
     }
 
     fn handle_map(&mut self, xdg_surface: &Rc<XdgSurface>) {
@@ -760,11 +766,10 @@ impl ClientXdgSurface {
             for (&name, tray) in &shared.trays {
                 self.create_tray_item(name, tray, xdg_surface, &xdg_toplevel);
             }
-        } else if let Some(_client_xdg_popup) = self.client_xdg_popup.upgrade() {
-            if self.sent_done {
-                return;
-            }
-            // todo
+        } else if self.proxy_xdg_popup.strong_count() > 0 {
+            self.proxy_wl_surface
+                .send_attach(Some(&self.globals.transparent_spb), 0, 0);
+            self.proxy_wl_surface.send_commit();
         }
     }
 
@@ -785,11 +790,10 @@ impl ClientXdgSurface {
                 xdg_popup.unset_handler();
                 self.proxy_xdg_popup = Weak::new();
             }
-            self.sent_done = true;
             xdg_popup.send_popup_done();
         }
-        self.proxy_surface.send_attach(None, 0, 0);
-        self.proxy_surface.send_commit();
+        self.proxy_wl_surface.send_attach(None, 0, 0);
+        self.proxy_wl_surface.send_commit();
     }
 
     fn destroy_popups_recursive(&mut self) {
@@ -801,8 +805,11 @@ impl ClientXdgSurface {
             {
                 let mut h = rh.xdg_surface.get_handler_mut::<ClientXdgSurface>();
                 h.destroy_popups_recursive();
-                h.sent_done = true;
-                h.proxy_xdg_popup = Weak::new();
+                if let Some(xdg_popup) = h.proxy_xdg_popup.upgrade() {
+                    xdg_popup.unset_handler();
+                    xdg_popup.send_destroy();
+                    h.proxy_xdg_popup = Weak::new();
+                }
                 if let Some(xdg_popup) = h.client_xdg_popup.upgrade() {
                     xdg_popup.send_popup_done();
                 }
@@ -836,6 +843,7 @@ impl ClientXdgSurface {
             preferred_gravity: XdgPositionerGravity::BOTTOM_LEFT,
         };
         jay_tray_item_v1.set_handler(JayTrayItemV1HandlerImpl {
+            globals: self.globals.clone(),
             client_xdg_surface: xdg_surface.clone(),
             client_xdg_toplevel: xdg_toplevel.clone(),
             proxy_xdg_popup: Default::default(),
@@ -863,14 +871,6 @@ impl ClientXdgSurface {
             client_serial = client_serial.saturating_sub(u32::MAX as u64 + 1);
         }
         client_serial
-    }
-
-    fn map_tray_popup(&mut self) {
-        self.map_upon_ack = None;
-        self.ensure_borders();
-        self.proxy_surface
-            .send_attach(Some(&self.globals.transparent_spb), 0, 0);
-        self.proxy_surface.send_commit();
     }
 
     fn ensure_borders(&mut self) {
@@ -986,7 +986,7 @@ impl XdgWmBaseHandler for ClientXdgWmBase {
     }
 
     fn handle_create_positioner(&mut self, _slf: &Rc<XdgWmBase>, id: &Rc<XdgPositioner>) {
-        id.set_handler(ClientXdgPositioner::default());
+        self.globals.xdg_wm_base.send_create_positioner(id);
     }
 
     fn handle_get_xdg_surface(
@@ -1018,19 +1018,20 @@ impl XdgWmBaseHandler for ClientXdgWmBase {
             globals: self.globals.clone(),
             client_wl_surface: client_surface.clone(),
             client_xdg_popup: Default::default(),
-            client_xdg_popup_parent: Default::default(),
             client_xdg_toplevel: Default::default(),
-            proxy_surface,
+            proxy_wl_surface: proxy_surface,
             proxy_xdg_surface,
             proxy_xdg_popup: Default::default(),
             subsurface,
             popup_jay_tray_item: Default::default(),
             jay_tray_items: Default::default(),
             popups: Default::default(),
-            sent_done: false,
             geometry: [0, 0, 800, 600],
             pending_geometry: None,
-            popup_position: Default::default(),
+            configure_size: None,
+            pending_configure_size: None,
+            significant_serial: 0,
+            pending_ack: None,
             last_ack: 0,
             map_unpon_configure: Default::default(),
             map_upon_ack: Default::default(),
@@ -1038,6 +1039,7 @@ impl XdgWmBaseHandler for ClientXdgWmBase {
             pending_serials: Default::default(),
             needed_tray_edges: 0,
             tray_popup_borders: Default::default(),
+            toplevel_icon: Default::default(),
         });
         let mut client_surface_handler = client_surface.get_handler_mut::<ClientWlSurface>();
         client_surface_handler.xdg_surface = Rc::downgrade(client_xdg_surface);
@@ -1060,19 +1062,20 @@ struct ClientXdgSurface {
     globals: Rc<Globals>,
     client_wl_surface: Rc<WlSurface>,
     client_xdg_popup: Weak<XdgPopup>,
-    client_xdg_popup_parent: Weak<XdgSurface>,
     client_xdg_toplevel: Weak<XdgToplevel>,
-    proxy_surface: Rc<WlSurface>,
+    proxy_wl_surface: Rc<WlSurface>,
     proxy_xdg_surface: Rc<XdgSurface>,
     proxy_xdg_popup: Weak<XdgPopup>,
     subsurface: Rc<WlSubsurface>,
     popup_jay_tray_item: Weak<JayTrayItemV1>,
     jay_tray_items: HashMap<u32, Weak<JayTrayItemV1>>,
     popups: HashMap<u64, Weak<XdgPopup>>,
-    sent_done: bool,
     geometry: [i32; 4],
     pending_geometry: Option<[i32; 4]>,
-    popup_position: ClientXdgPositioner,
+    configure_size: Option<[i32; 2]>,
+    pending_configure_size: Option<[i32; 2]>,
+    significant_serial: u64,
+    pending_ack: Option<u64>,
     last_ack: u64,
     map_unpon_configure: bool,
     map_upon_ack: Option<u64>,
@@ -1080,6 +1083,13 @@ struct ClientXdgSurface {
     pending_serials: VecDeque<(u64, Option<u32>)>,
     needed_tray_edges: usize,
     tray_popup_borders: Option<StaticMap<WindowEdge, TrayPopupBorder>>,
+    toplevel_icon: Option<Vec<Icon>>,
+}
+
+struct Icon {
+    logical_size: i32,
+    buffer_size: i32,
+    buffer: Rc<WlBuffer>,
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Linearize)]
@@ -1107,8 +1117,8 @@ impl XdgSurfaceHandler for ClientXdgSurface {
             .xdg_surface = Weak::new();
         self.proxy_xdg_surface.send_destroy();
         self.subsurface.send_destroy();
-        self.proxy_surface.unset_handler();
-        self.proxy_surface.send_destroy();
+        self.proxy_wl_surface.unset_handler();
+        self.proxy_wl_surface.send_destroy();
         slf.unset_handler();
         slf.delete_id();
     }
@@ -1141,7 +1151,7 @@ impl XdgSurfaceHandler for ClientXdgSurface {
             let wl_subsurface = self
                 .globals
                 .wl_subcompositor
-                .new_send_get_subsurface(&wl_surface, &self.proxy_surface);
+                .new_send_get_subsurface(&wl_surface, &self.proxy_wl_surface);
             TrayPopupBorder {
                 wl_surface,
                 wl_subsurface,
@@ -1162,15 +1172,23 @@ impl XdgSurfaceHandler for ClientXdgSurface {
         parent: Option<&Rc<XdgSurface>>,
         positioner: &Rc<XdgPositioner>,
     ) {
-        if let Some(parent) = parent {
-            self.client_xdg_popup_parent = Rc::downgrade(parent);
-        }
-        self.popup_position = *positioner.get_handler_mut::<ClientXdgPositioner>();
         id.set_handler(ClientXdgPopup {
             xdg_surface: slf.clone(),
+            parent_xdg_surface: parent.cloned(),
         });
-        self.popups.insert(id.core().unique_id(), Rc::downgrade(id));
+        let mut parent_xdg_surface = parent.map(|p| p.get_handler_mut::<ClientXdgSurface>());
+        if let Some(parent_xdg_surface) = &mut parent_xdg_surface {
+            parent_xdg_surface
+                .popups
+                .insert(id.unique_id(), Rc::downgrade(id));
+        }
+        let parent = parent_xdg_surface.as_ref().map(|p| &p.proxy_xdg_surface);
         self.client_xdg_popup = Rc::downgrade(id);
+        let proxy_xdg_popup = self
+            .proxy_xdg_surface
+            .new_send_get_popup(parent, positioner);
+        proxy_xdg_popup.set_forward_to_client(false);
+        self.proxy_xdg_popup = Rc::downgrade(&proxy_xdg_popup);
     }
 
     fn handle_set_window_geometry(
@@ -1191,7 +1209,7 @@ impl XdgSurfaceHandler for ClientXdgSurface {
 
     fn handle_ack_configure(&mut self, _slf: &Rc<XdgSurface>, client_serial: u32) {
         let client_serial = self.recover_client_serial(client_serial);
-        self.last_ack = client_serial;
+        self.pending_ack = Some(client_serial);
         while let Some(&(expected, server_serial)) = self.pending_serials.front() {
             if expected <= client_serial {
                 if let Some(server_serial) = server_serial {
@@ -1304,79 +1322,9 @@ impl XdgToplevelHandler for ClientXdgToplevel {
     }
 }
 
-#[derive(Default, Copy, Clone)]
-struct ClientXdgPositioner {
-    size: Option<[i32; 2]>,
-    anchor_rect: Option<[i32; 4]>,
-    anchor: Option<XdgPositionerAnchor>,
-    gravity: Option<XdgPositionerGravity>,
-    constraint_adjustment: Option<XdgPositionerConstraintAdjustment>,
-    offset: Option<[i32; 2]>,
-    reactive: bool,
-    parent_size: Option<[i32; 2]>,
-}
-
-impl XdgPositionerHandler for ClientXdgPositioner {
-    fn handle_destroy(&mut self, slf: &Rc<XdgPositioner>) {
-        slf.unset_handler();
-        slf.delete_id();
-    }
-
-    fn handle_set_size(&mut self, _slf: &Rc<XdgPositioner>, width: i32, height: i32) {
-        self.size = Some([width, height]);
-    }
-
-    fn handle_set_anchor_rect(
-        &mut self,
-        _slf: &Rc<XdgPositioner>,
-        x: i32,
-        y: i32,
-        width: i32,
-        height: i32,
-    ) {
-        self.anchor_rect = Some([x, y, width, height]);
-    }
-
-    fn handle_set_anchor(&mut self, _slf: &Rc<XdgPositioner>, anchor: XdgPositionerAnchor) {
-        self.anchor = Some(anchor);
-    }
-
-    fn handle_set_gravity(&mut self, _slf: &Rc<XdgPositioner>, gravity: XdgPositionerGravity) {
-        self.gravity = Some(gravity);
-    }
-
-    fn handle_set_constraint_adjustment(
-        &mut self,
-        _slf: &Rc<XdgPositioner>,
-        constraint_adjustment: XdgPositionerConstraintAdjustment,
-    ) {
-        self.constraint_adjustment = Some(constraint_adjustment);
-    }
-
-    fn handle_set_offset(&mut self, _slf: &Rc<XdgPositioner>, x: i32, y: i32) {
-        self.offset = Some([x, y]);
-    }
-
-    fn handle_set_reactive(&mut self, _slf: &Rc<XdgPositioner>) {
-        self.reactive = true;
-    }
-
-    fn handle_set_parent_size(
-        &mut self,
-        _slf: &Rc<XdgPositioner>,
-        parent_width: i32,
-        parent_height: i32,
-    ) {
-        self.parent_size = Some([parent_width, parent_height]);
-    }
-
-    fn handle_set_parent_configure(&mut self, _slf: &Rc<XdgPositioner>, _serial: u32) {
-        // nothing
-    }
-}
-
 struct ClientXdgPopup {
     xdg_surface: Rc<XdgSurface>,
+    parent_xdg_surface: Option<Rc<XdgSurface>>,
 }
 
 impl ClientXdgPopup {
@@ -1390,9 +1338,14 @@ impl XdgPopupHandler for ClientXdgPopup {
         let mut h = self.get_handler();
         h.handle_unmap();
         h.client_xdg_popup = Weak::new();
-        h.client_xdg_popup_parent = Weak::new();
         slf.unset_handler();
         slf.delete_id();
+        if let Some(parent) = &self.parent_xdg_surface {
+            parent
+                .get_handler_mut::<ClientXdgSurface>()
+                .popups
+                .remove(&slf.unique_id());
+        }
     }
 
     fn handle_grab(&mut self, _slf: &Rc<XdgPopup>, seat: &Rc<WlSeat>, serial: u32) {
@@ -1527,6 +1480,7 @@ impl WlPointerHandler for ProxyWlPointer {
                 .send_configure(w, h, uapi::as_bytes(&*states));
             let serial = client_xdg_surface.create_client_serial(None);
             tsh.xdg_surface.send_configure(serial as _);
+            client_xdg_surface.update_significant_serial(serial, [w, h]);
         }
     }
 
@@ -1577,7 +1531,7 @@ impl WlPointerHandler for ProxyWlPointer {
             serial,
             JayTrayItemV1KeyboardFocusHint::IMMEDIATE,
         );
-        xdg_surface_handler.proxy_surface.send_commit();
+        xdg_surface_handler.proxy_wl_surface.send_commit();
         xdg_popup.set_handler(ProxyTrayXdgPopup {
             jay_tray_item_v1: pf.clone(),
         });
@@ -1904,10 +1858,19 @@ impl XdgSurfaceHandler for ProxyXdgSurface {
             .get_handler_mut::<ClientXdgSurface>();
         let client_serial = h.create_client_serial(Some(server_serial));
         self.client_xdg_surface.send_configure(client_serial as u32);
+        if let Some(pending_size) = h.pending_configure_size.take() {
+            h.update_significant_serial(client_serial, pending_size);
+        }
         if h.map_unpon_configure {
             h.map_unpon_configure = false;
-            h.map_upon_ack = Some(client_serial);
-            h.map_tray_popup();
+            if h.last_ack < h.significant_serial {
+                h.map_upon_ack = Some(h.significant_serial);
+            } else {
+                h.ensure_borders();
+                h.proxy_wl_surface
+                    .send_attach(Some(&h.globals.transparent_spb), 0, 0);
+                h.proxy_wl_surface.send_commit();
+            }
         }
     }
 }
@@ -1921,6 +1884,10 @@ impl XdgPopupHandler for ProxyTrayXdgPopup {
         let tray_item_handler = self
             .jay_tray_item_v1
             .get_handler_mut::<JayTrayItemV1HandlerImpl>();
+        let mut client_xdg_surface = tray_item_handler
+            .client_xdg_surface
+            .get_handler_mut::<ClientXdgSurface>();
+        client_xdg_surface.pending_configure_size = Some([width, height]);
         let states = compute_toplevel_states(&tray_item_handler.client_xdg_toplevel);
         tray_item_handler.client_xdg_toplevel.send_configure(
             width,
@@ -1974,6 +1941,8 @@ struct JayTrayItemV1Config {
 }
 
 struct JayTrayItemV1HandlerImpl {
+    globals: Rc<Globals>,
+
     // client toplevel
     client_xdg_surface: Rc<XdgSurface>,
     client_xdg_toplevel: Rc<XdgToplevel>,
@@ -1996,8 +1965,8 @@ impl JayTrayItemV1HandlerImpl {
             popup.unset_handler();
             popup.send_destroy();
             client_xdg_surface.popup_jay_tray_item = Weak::new();
-            client_xdg_surface.proxy_surface.send_attach(None, 0, 0);
-            client_xdg_surface.proxy_surface.send_commit();
+            client_xdg_surface.proxy_wl_surface.send_attach(None, 0, 0);
+            client_xdg_surface.proxy_wl_surface.send_commit();
         }
     }
 
@@ -2032,6 +2001,34 @@ impl JayTrayItemV1HandlerImpl {
         );
         xdg_positioner
     }
+
+    fn update_icon(&mut self, client_xdg_surface: &ClientXdgSurface, commit: bool) {
+        self.wl_surface.send_damage(0, 0, i32::MAX, i32::MAX);
+        let Some(icons) = &client_xdg_surface.toplevel_icon else {
+            self.wl_surface
+                .send_attach(Some(&self.globals.black_spb), 0, 0);
+            if commit {
+                self.wl_surface.send_commit();
+            }
+            return;
+        };
+        let mut icon = &icons[0];
+        for cand in &icons[1..] {
+            if icon.logical_size < self.current.size[0] {
+                if (cand.logical_size, cand.buffer_size) > (icon.logical_size, icon.buffer_size) {
+                    icon = cand;
+                }
+            } else if cand.logical_size >= self.current.size[0] {
+                if (cand.logical_size, cand.buffer_size) < (icon.logical_size, icon.buffer_size) {
+                    icon = cand;
+                }
+            }
+        }
+        self.wl_surface.send_attach(Some(&icon.buffer), 0, 0);
+        if commit {
+            self.wl_surface.send_commit();
+        }
+    }
 }
 
 impl JayTrayItemV1Handler for JayTrayItemV1HandlerImpl {
@@ -2052,69 +2049,37 @@ impl JayTrayItemV1Handler for JayTrayItemV1HandlerImpl {
     }
 
     fn handle_configure(&mut self, slf: &Rc<JayTrayItemV1>, serial: u32) {
+        let client_xdg_surface = self.client_xdg_surface.clone();
+        let mut client_xdg_surface = client_xdg_surface.get_handler_mut::<ClientXdgSurface>();
         slf.send_ack_configure(serial);
         if self.pending.size != self.current.size {
             self.wp_viewport
                 .send_set_destination(self.pending.size[0], self.pending.size[1]);
         }
         self.current = self.pending;
+        self.update_icon(&client_xdg_surface, false);
         self.wl_surface.send_commit();
         let mut needed_tray_edges = 0;
+        macro_rules! need {
+            ($($edge:ident),*) => {{
+                $(
+                    needed_tray_edges |= 1 << WindowEdge::$edge.linearize();
+                )*
+            }};
+        }
         match self.current.preferred_gravity {
             XdgPositionerGravity::NONE => {}
-            XdgPositionerGravity::TOP => {
-                needed_tray_edges |= 1 << WindowEdge::Left.linearize();
-                needed_tray_edges |= 1 << WindowEdge::TopLeft.linearize();
-                needed_tray_edges |= 1 << WindowEdge::Top.linearize();
-                needed_tray_edges |= 1 << WindowEdge::TopRight.linearize();
-                needed_tray_edges |= 1 << WindowEdge::Right.linearize();
-            }
-            XdgPositionerGravity::BOTTOM => {
-                needed_tray_edges |= 1 << WindowEdge::Left.linearize();
-                needed_tray_edges |= 1 << WindowEdge::BottomLeft.linearize();
-                needed_tray_edges |= 1 << WindowEdge::Bottom.linearize();
-                needed_tray_edges |= 1 << WindowEdge::BottomRight.linearize();
-                needed_tray_edges |= 1 << WindowEdge::Right.linearize();
-            }
-            XdgPositionerGravity::LEFT => {
-                needed_tray_edges |= 1 << WindowEdge::Top.linearize();
-                needed_tray_edges |= 1 << WindowEdge::TopLeft.linearize();
-                needed_tray_edges |= 1 << WindowEdge::Left.linearize();
-                needed_tray_edges |= 1 << WindowEdge::BottomLeft.linearize();
-                needed_tray_edges |= 1 << WindowEdge::Bottom.linearize();
-            }
-            XdgPositionerGravity::RIGHT => {
-                needed_tray_edges |= 1 << WindowEdge::Top.linearize();
-                needed_tray_edges |= 1 << WindowEdge::TopRight.linearize();
-                needed_tray_edges |= 1 << WindowEdge::Right.linearize();
-                needed_tray_edges |= 1 << WindowEdge::BottomRight.linearize();
-                needed_tray_edges |= 1 << WindowEdge::Bottom.linearize();
-            }
-            XdgPositionerGravity::TOP_LEFT => {
-                needed_tray_edges |= 1 << WindowEdge::Top.linearize();
-                needed_tray_edges |= 1 << WindowEdge::TopLeft.linearize();
-                needed_tray_edges |= 1 << WindowEdge::Left.linearize();
-            }
-            XdgPositionerGravity::BOTTOM_LEFT => {
-                needed_tray_edges |= 1 << WindowEdge::Left.linearize();
-                needed_tray_edges |= 1 << WindowEdge::BottomLeft.linearize();
-                needed_tray_edges |= 1 << WindowEdge::Bottom.linearize();
-            }
-            XdgPositionerGravity::TOP_RIGHT => {
-                needed_tray_edges |= 1 << WindowEdge::Top.linearize();
-                needed_tray_edges |= 1 << WindowEdge::TopRight.linearize();
-                needed_tray_edges |= 1 << WindowEdge::Right.linearize();
-            }
-            XdgPositionerGravity::BOTTOM_RIGHT => {
-                needed_tray_edges |= 1 << WindowEdge::Bottom.linearize();
-                needed_tray_edges |= 1 << WindowEdge::BottomRight.linearize();
-                needed_tray_edges |= 1 << WindowEdge::Right.linearize();
-            }
+            XdgPositionerGravity::TOP => need!(Left, TopLeft, Top, TopRight, Right),
+            XdgPositionerGravity::BOTTOM => need!(Left, BottomLeft, Bottom, BottomRight, Right),
+            XdgPositionerGravity::LEFT => need!(Top, TopLeft, Left, BottomLeft, Bottom),
+            XdgPositionerGravity::RIGHT => need!(Top, TopRight, Right, BottomRight, Bottom),
+            XdgPositionerGravity::TOP_LEFT => need!(Top, TopLeft, Left),
+            XdgPositionerGravity::BOTTOM_LEFT => need!(Bottom, BottomLeft, Left),
+            XdgPositionerGravity::TOP_RIGHT => need!(Top, TopRight, Right),
+            XdgPositionerGravity::BOTTOM_RIGHT => need!(Bottom, BottomRight, Right),
             _ => {}
         }
-        self.client_xdg_surface
-            .get_handler_mut::<ClientXdgSurface>()
-            .needed_tray_edges = needed_tray_edges;
+        client_xdg_surface.needed_tray_edges = needed_tray_edges;
     }
 }
 
@@ -2181,3 +2146,158 @@ impl OrgKdeKwinServerDecorationHandler for OrgKdeKwinServerDecorationHandlerImpl
         slf.send_mode(mode);
     }
 }
+
+struct ClientXdgToplevelIconManagerV1 {
+    globals: Rc<Globals>,
+}
+
+impl XdgToplevelIconManagerV1Handler for ClientXdgToplevelIconManagerV1 {
+    fn handle_destroy(&mut self, slf: &Rc<XdgToplevelIconManagerV1>) {
+        slf.unset_handler();
+        slf.delete_id();
+    }
+
+    fn handle_create_icon(
+        &mut self,
+        _slf: &Rc<XdgToplevelIconManagerV1>,
+        id: &Rc<XdgToplevelIconV1>,
+    ) {
+        id.set_handler(ClientXdgToplevelIconV1 {
+            buffers: Default::default(),
+        });
+    }
+
+    fn handle_set_icon(
+        &mut self,
+        _slf: &Rc<XdgToplevelIconManagerV1>,
+        toplevel: &Rc<XdgToplevel>,
+        icon: Option<&Rc<XdgToplevelIconV1>>,
+    ) {
+        let mut icons = None;
+        if let Some(icon) = icon {
+            let mut vec = vec![];
+            for (&(size, scale), buffer) in
+                &icon.get_handler_mut::<ClientXdgToplevelIconV1>().buffers
+            {
+                let buffer = buffer.get_handler_mut::<ClientShmWlBuffer>();
+                let wl_shm_pool = self
+                    .globals
+                    .wl_shm
+                    .new_send_create_pool(&buffer.pool_fd, buffer.pool_size);
+                let wl_buffer = wl_shm_pool.new_send_create_buffer(
+                    buffer.offset,
+                    buffer.size[0],
+                    buffer.size[1],
+                    buffer.stride,
+                    buffer.format,
+                );
+                wl_buffer.set_forward_to_client(false);
+                vec.push(Icon {
+                    logical_size: size / scale.max(1),
+                    buffer_size: size,
+                    buffer: wl_buffer,
+                });
+                wl_shm_pool.send_destroy();
+            }
+            if vec.is_not_empty() {
+                icons = Some(vec);
+            }
+        }
+        let client_xdg_toplevel = toplevel.get_handler_mut::<ClientXdgToplevel>();
+        let mut client_xdg_surface = client_xdg_toplevel
+            .xdg_surface
+            .get_handler_mut::<ClientXdgSurface>();
+        if let Some(prev) = mem::replace(&mut client_xdg_surface.toplevel_icon, icons) {
+            for icon in prev {
+                icon.buffer.send_destroy();
+            }
+        }
+        for tray in client_xdg_surface.jay_tray_items.values() {
+            if let Some(tray) = tray.upgrade() {
+                tray.get_handler_mut::<JayTrayItemV1HandlerImpl>()
+                    .update_icon(&client_xdg_surface, true);
+            }
+        }
+    }
+}
+
+struct ClientXdgToplevelIconV1 {
+    buffers: HashMap<(i32, i32), Rc<WlBuffer>>,
+}
+
+impl XdgToplevelIconV1Handler for ClientXdgToplevelIconV1 {
+    fn handle_destroy(&mut self, slf: &Rc<XdgToplevelIconV1>) {
+        slf.delete_id();
+    }
+
+    fn handle_set_name(&mut self, _slf: &Rc<XdgToplevelIconV1>, _icon_name: &str) {
+        // nothing
+    }
+
+    fn handle_add_buffer(
+        &mut self,
+        _slf: &Rc<XdgToplevelIconV1>,
+        buffer: &Rc<WlBuffer>,
+        scale: i32,
+    ) {
+        let size = buffer.get_handler_mut::<ClientShmWlBuffer>().size;
+        self.buffers.insert((size[0], scale), buffer.clone());
+    }
+}
+
+struct ClientWlShm;
+
+impl WlShmHandler for ClientWlShm {
+    fn handle_create_pool(
+        &mut self,
+        slf: &Rc<WlShm>,
+        id: &Rc<WlShmPool>,
+        fd: &Rc<OwnedFd>,
+        size: i32,
+    ) {
+        id.set_handler(ClientWlShmPool {
+            fd: fd.clone(),
+            size,
+        });
+        slf.send_create_pool(id, fd, size);
+    }
+}
+
+struct ClientWlShmPool {
+    fd: Rc<OwnedFd>,
+    size: i32,
+}
+
+impl WlShmPoolHandler for ClientWlShmPool {
+    fn handle_create_buffer(
+        &mut self,
+        slf: &Rc<WlShmPool>,
+        id: &Rc<WlBuffer>,
+        offset: i32,
+        width: i32,
+        height: i32,
+        stride: i32,
+        format: WlShmFormat,
+    ) {
+        id.set_handler(ClientShmWlBuffer {
+            pool_fd: self.fd.clone(),
+            pool_size: self.size,
+            offset,
+            size: [width, height],
+            stride,
+            format,
+        });
+        slf.send_create_buffer(id, offset, width, height, stride, format);
+    }
+}
+
+struct ClientShmWlBuffer {
+    pool_fd: Rc<OwnedFd>,
+    pool_size: i32,
+    offset: i32,
+    size: [i32; 2],
+    stride: i32,
+    format: WlShmFormat,
+}
+
+impl WlBufferHandler for ClientShmWlBuffer {}
