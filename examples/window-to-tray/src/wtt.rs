@@ -1,14 +1,17 @@
 use {
     crate::WttError,
     arrayvec::ArrayVec,
+    linearize::{Linearize, StaticMap},
     run_on_drop::on_drop,
     std::{
         cell::RefCell,
         collections::{HashMap, VecDeque},
+        io::Write,
         mem,
         process::{Command, exit},
         rc::{Rc, Weak},
     },
+    uapi::c,
     wl_proxy::{
         baseline::Baseline,
         fixed::Fixed,
@@ -35,6 +38,12 @@ use {
                     OrgKdeKwinServerDecorationManager, OrgKdeKwinServerDecorationManagerHandler,
                 },
             },
+            relative_pointer_unstable_v1::{
+                zwp_relative_pointer_manager_v1::{
+                    ZwpRelativePointerManagerV1, ZwpRelativePointerManagerV1Handler,
+                },
+                zwp_relative_pointer_v1::{ZwpRelativePointerV1, ZwpRelativePointerV1Handler},
+            },
             single_pixel_buffer_v1::wp_single_pixel_buffer_manager_v1::WpSinglePixelBufferManagerV1,
             text_input_unstable_v3::{
                 zwp_text_input_manager_v3::{ZwpTextInputManagerV3, ZwpTextInputManagerV3Handler},
@@ -47,7 +56,7 @@ use {
                 wl_compositor::{WlCompositor, WlCompositorHandler},
                 wl_display::{WlDisplay, WlDisplayHandler},
                 wl_keyboard::{WlKeyboard, WlKeyboardHandler, WlKeyboardKeyState},
-                wl_output::WlOutput,
+                wl_output::{WlOutput, WlOutputTransform},
                 wl_pointer::{
                     WlPointer, WlPointerAxis, WlPointerAxisRelativeDirection, WlPointerAxisSource,
                     WlPointerButtonState, WlPointerHandler,
@@ -55,6 +64,8 @@ use {
                 wl_region::{WlRegion, WlRegionHandler},
                 wl_registry::{WlRegistry, WlRegistryHandler},
                 wl_seat::{WlSeat, WlSeatCapability, WlSeatHandler},
+                wl_shm::{WlShm, WlShmFormat},
+                wl_shm_pool::WlShmPool,
                 wl_subcompositor::{WlSubcompositor, WlSubcompositorHandler},
                 wl_subsurface::{WlSubsurface, WlSubsurfaceHandler},
                 wl_surface::{WlSurface, WlSurfaceHandler},
@@ -112,6 +123,7 @@ struct SharedMut {
     toplevels: HashMap<u64, Rc<XdgSurface>>,
     globals: Option<Rc<Globals>>,
     wl_compositor: Option<Rc<WlCompositor>>,
+    wl_shm: Option<Rc<WlShm>>,
     wl_subcompositor: Option<Rc<WlSubcompositor>>,
     wp_viewporter: Option<Rc<WpViewporter>>,
     wp_single_pixel_buffer_manager_v1: Option<Rc<WpSinglePixelBufferManagerV1>>,
@@ -141,7 +153,7 @@ impl WlDisplayHandler for DisplayHandler {
         if !self.init {
             self.init = true;
             let wl_registry = slf.create_child::<WlRegistry>();
-            wl_registry.set_handler(FirstRegistryHandler {
+            wl_registry.set_handler(ProxyWlRegistry {
                 shared: self.shared.clone(),
             });
             let _ = slf.send_get_registry(&wl_registry);
@@ -152,32 +164,20 @@ impl WlDisplayHandler for DisplayHandler {
             });
             let _ = slf.send_sync(&sync);
         }
-        let mut filter = GlobalMapper::default();
-        let _ = filter.add_synthetic_global(registry, ObjectInterface::XdgWmBase, 7);
-        let _ = filter.add_synthetic_global(registry, ObjectInterface::ZxdgDecorationManagerV1, 1);
-        let _ = filter.add_synthetic_global(
-            registry,
-            ObjectInterface::OrgKdeKwinServerDecorationManager,
-            1,
-        );
-        let _ = filter.add_synthetic_global(
-            registry,
-            ObjectInterface::OrgKdeKwinServerDecorationManager,
-            1,
-        );
         let _ = slf.send_get_registry(registry);
         registry.set_handler(ClientWlRegistry {
+            init: false,
             shared: self.shared.clone(),
-            filter,
+            filter: Default::default(),
         });
     }
 }
 
-struct FirstRegistryHandler {
+struct ProxyWlRegistry {
     shared: Rc<Shared>,
 }
 
-impl WlRegistryHandler for FirstRegistryHandler {
+impl WlRegistryHandler for ProxyWlRegistry {
     fn handle_global(
         &mut self,
         slf: &Rc<WlRegistry>,
@@ -188,12 +188,14 @@ impl WlRegistryHandler for FirstRegistryHandler {
         macro_rules! bind {
             ($field:ident, $ty:ty, $min:expr) => {{
                 let proxy = slf.state().create_object::<$ty>(version.min($min));
+                proxy.set_forward_to_client(false);
                 let _ = slf.send_bind(name, proxy.clone());
                 self.shared.shared.borrow_mut().$field = Some(proxy);
             }};
         }
         match interface {
             WlCompositor::INTERFACE => bind!(wl_compositor, WlCompositor, 6),
+            WlShm::INTERFACE => bind!(wl_shm, WlShm, 2),
             WlSubcompositor::INTERFACE => bind!(wl_subcompositor, WlSubcompositor, 1),
             WpViewporter::INTERFACE => bind!(wp_viewporter, WpViewporter, 1),
             WpSinglePixelBufferManagerV1::INTERFACE => bind!(
@@ -260,14 +262,18 @@ impl SeatMut {
                 proxy.set_handler(ProxyWlPointer {
                     seat: seat.clone(),
                     wp_cursor_shape_device_v1,
-                    pointer_focus: None,
+                    tray_icon_focus: None,
+                    edge_focus: None,
+                    pos: [0, 0],
+                    button_down_pos: None,
+                    surface: None,
                 });
                 self.wl_pointer = Some(proxy);
             }
         } else {
             if let Some(proxy) = self.wl_pointer.take() {
                 let mut h = proxy.get_handler_mut::<ProxyWlPointer>();
-                h.pointer_focus = None;
+                h.tray_icon_focus = None;
                 h.wp_cursor_shape_device_v1.unset_handler();
                 let _ = h.wp_cursor_shape_device_v1.send_destroy();
                 proxy.unset_handler();
@@ -333,6 +339,7 @@ impl WlCallbackHandler for FirstSyncHandler {
             };
         }
         expect!(wl_compositor);
+        expect!(wl_shm);
         expect!(wl_subcompositor);
         expect!(wp_viewporter);
         expect!(wp_cursor_shape_manager_v1);
@@ -360,6 +367,7 @@ impl WlCallbackHandler for FirstSyncHandler {
         );
         let globals = Globals {
             wl_compositor,
+            wl_shm,
             wl_subcompositor,
             wp_viewporter,
             wp_cursor_shape_manager_v1,
@@ -376,6 +384,7 @@ impl WlCallbackHandler for FirstSyncHandler {
 }
 
 struct ClientWlRegistry {
+    init: bool,
     shared: Rc<Shared>,
     filter: GlobalMapper,
 }
@@ -406,6 +415,13 @@ impl WlRegistryHandler for ClientWlRegistry {
                 let id = id.clone().downcast::<WlSeat>().unwrap();
                 id.set_handler(ClientWlSeat {});
             }
+            ZwpRelativePointerManagerV1::INTERFACE => {
+                let id = id
+                    .clone()
+                    .downcast::<ZwpRelativePointerManagerV1>()
+                    .unwrap();
+                id.set_handler(ClientZwpRelativePointerManagerV1);
+            }
             ZwpTextInputManagerV3::INTERFACE => {
                 let id = id.clone().downcast::<ZwpTextInputManagerV3>().unwrap();
                 id.set_handler(ClientZwpTextInputManagerV3 {});
@@ -435,6 +451,25 @@ impl WlRegistryHandler for ClientWlRegistry {
         interface: ObjectInterface,
         version: u32,
     ) {
+        if !self.init {
+            self.init = true;
+            let _ = self
+                .filter
+                .add_synthetic_global(slf, ObjectInterface::XdgWmBase, 7);
+            let _ =
+                self.filter
+                    .add_synthetic_global(slf, ObjectInterface::ZxdgDecorationManagerV1, 1);
+            let _ = self.filter.add_synthetic_global(
+                slf,
+                ObjectInterface::OrgKdeKwinServerDecorationManager,
+                1,
+            );
+            let _ = self.filter.add_synthetic_global(
+                slf,
+                ObjectInterface::OrgKdeKwinServerDecorationManager,
+                1,
+            );
+        }
         match interface {
             ObjectInterface::ZxdgDecorationManagerV1
             | ObjectInterface::OrgKdeKwinServerDecorationManager
@@ -538,6 +573,7 @@ impl WlSubsurfaceHandler for ClientWlSubsurface {
 
 struct Globals {
     wl_compositor: Rc<WlCompositor>,
+    wl_shm: Rc<WlShm>,
     wl_subcompositor: Rc<WlSubcompositor>,
     wp_viewporter: Rc<WpViewporter>,
     wp_cursor_shape_manager_v1: Rc<WpCursorShapeManagerV1>,
@@ -664,6 +700,21 @@ impl WlSurfaceHandler for ClientWlSurface {
                         .send_attach(Some(&h.globals.transparent_spb), 0, 0);
                     let _ = h.client_wl_surface.send_commit();
                 }
+                if let Some(geometry) = h.pending_geometry
+                    && geometry != h.geometry
+                {
+                    h.geometry = geometry;
+                    h.ensure_borders();
+                    if let Some(pf) = h.popup_jay_tray_item.upgrade() {
+                        let h2 = pf.get_handler_mut::<JayTrayItemV1HandlerImpl>();
+                        if let Some(xdg_popup) = h2.proxy_xdg_popup.upgrade() {
+                            let xdg_positioner = h2.create_positioner(&h);
+                            let _ = xdg_popup.send_reposition(&xdg_positioner, 0);
+                            let _ = xdg_positioner.send_destroy();
+                        }
+                    }
+                    let _ = h.proxy_surface.send_commit();
+                }
             }
         }
     }
@@ -697,13 +748,12 @@ impl ClientXdgSurface {
                 XdgToplevelState::CONSTRAINED_TOP.0,
             ];
             let _ = client_xdg_toplevel.send_configure(
-                self.toplevel_size[0],
-                self.toplevel_size[1],
+                self.geometry[2],
+                self.geometry[3],
                 uapi::as_bytes(&states),
             );
             let serial = self.create_client_serial(None);
             let _ = xdg_surface.send_configure(serial as u32);
-            eprintln!("sending initial configure");
         }
     }
 
@@ -797,18 +847,6 @@ impl ClientXdgSurface {
         }
     }
 
-    fn find_tray_with_popup(&self) -> Option<Rc<JayTrayItemV1>> {
-        for (_, tray) in &self.jay_tray_items {
-            if let Some(tray) = tray.upgrade()
-                && let Ok(h) = tray.try_get_handler_mut::<JayTrayItemV1HandlerImpl>()
-                && h.proxy_xdg_popup.strong_count() > 0
-            {
-                return Some(tray.clone());
-            }
-        }
-        None
-    }
-
     fn create_tray_item(
         &mut self,
         name: u32,
@@ -865,6 +903,122 @@ impl ClientXdgSurface {
             client_serial = client_serial.saturating_sub(u32::MAX as u64 + 1);
         }
         client_serial
+    }
+
+    fn map_tray_popup(&mut self) {
+        self.map_upon_ack = None;
+        self.ensure_borders();
+        let _ = self
+            .proxy_surface
+            .send_attach(Some(&self.globals.transparent_spb), 0, 0);
+        let _ = self.proxy_surface.send_commit();
+    }
+
+    fn ensure_borders(&mut self) {
+        let borders = self.tray_popup_borders.as_mut().unwrap();
+        for (k, v) in borders {
+            if self.needed_tray_edges & (1 << k.linearize()) == 0 {
+                let _ = v.wl_surface.send_attach(None, 0, 0);
+                let _ = v.wl_surface.send_commit();
+                v.buffer_size = [0, 0];
+            } else {
+                // todo
+                let length = 20;
+                let length32 = length as i32;
+                {
+                    let (x, y) = match k {
+                        WindowEdge::Top => (0, -length32),
+                        WindowEdge::TopRight => (self.geometry[2], -length32),
+                        WindowEdge::Right => (self.geometry[2], 0),
+                        WindowEdge::BottomRight => (self.geometry[2], self.geometry[3]),
+                        WindowEdge::Bottom => (0, self.geometry[3]),
+                        WindowEdge::BottomLeft => (-length32, self.geometry[3]),
+                        WindowEdge::Left => (-length32, 0),
+                        WindowEdge::TopLeft => (-length32, -length32),
+                    };
+                    let _ = v.wl_subsurface.send_set_position(x + self.geometry[0], y + self.geometry[1]);
+                }
+                let required_size = match k {
+                    WindowEdge::Top | WindowEdge::Bottom => {
+                        [self.geometry[2] as usize, length]
+                    }
+                    WindowEdge::Right | WindowEdge::Left => {
+                        [self.geometry[3] as usize, length]
+                    }
+                    WindowEdge::TopRight
+                    | WindowEdge::BottomRight
+                    | WindowEdge::BottomLeft
+                    | WindowEdge::TopLeft => [length, length],
+                };
+                if v.buffer_size == required_size {
+                    continue;
+                }
+                let mut mem = vec![0u32; required_size[0] * required_size[1]];
+                if matches!(
+                    k,
+                    WindowEdge::TopRight
+                        | WindowEdge::BottomRight
+                        | WindowEdge::BottomLeft
+                        | WindowEdge::TopLeft
+                ) {
+                    let lengthf = length as f32;
+                    for x in 0..length {
+                        for y in 0..length {
+                            let dist = match k {
+                                WindowEdge::TopRight => {
+                                    ((x.pow(2) + (length - y - 1).pow(2)) as f32).sqrt() / lengthf
+                                }
+                                WindowEdge::BottomRight => {
+                                    ((x.pow(2) + y.pow(2)) as f32).sqrt() / lengthf
+                                }
+                                WindowEdge::BottomLeft => {
+                                    (((length - x - 1).pow(2) + y.pow(2)) as f32).sqrt() / lengthf
+                                }
+                                WindowEdge::TopLeft => {
+                                    (((length - x - 1).pow(2) + (length - y - 1).pow(2)) as f32)
+                                        .sqrt()
+                                        / lengthf
+                                }
+                                _ => unreachable!(),
+                            };
+                            let alpha = 0.5 * (1.0 - dist);
+                            let v = u32::from_le_bytes([0, 0, 0, (alpha * 255.0) as u8]);
+                            mem[y * length + x] = v;
+                        }
+                    }
+                } else {
+                    for y in 0..length {
+                        let dist = (length - y - 1) as f32 / length as f32;
+                        let alpha = 0.5 * (1.0 - dist);
+                        let v = u32::from_le_bytes([0, 0, 0, (alpha * 255.0) as u8]);
+                        mem[y * required_size[0]..][..required_size[0]].fill(v);
+                    }
+                }
+                let mut fd = uapi::memfd_create("", c::MFD_CLOEXEC | c::MFD_ALLOW_SEALING).unwrap();
+                uapi::fcntl_add_seals(fd.raw(), c::F_SEAL_SHRINK).unwrap();
+                fd.write_all(uapi::as_bytes(&*mem)).unwrap();
+                let wl_shm_pool = self.globals.wl_shm.create_child::<WlShmPool>();
+                let _ = self.globals.wl_shm.send_create_pool(
+                    &wl_shm_pool,
+                    &Rc::new(fd.into()),
+                    size_of_val(&*mem) as _,
+                );
+                let wl_buffer = wl_shm_pool.create_child::<WlBuffer>();
+                let _ = wl_shm_pool.send_create_buffer(
+                    &wl_buffer,
+                    0,
+                    required_size[0] as i32,
+                    required_size[1] as i32,
+                    required_size[0] as i32 * 4,
+                    WlShmFormat::ARGB8888,
+                );
+                let _ = v.wl_surface.send_attach(Some(&wl_buffer), 0, 0);
+                let _ = v.wl_surface.send_commit();
+                let _ = wl_buffer.send_destroy();
+                let _ = wl_shm_pool.send_destroy();
+                v.buffer_size = required_size;
+            }
+        }
     }
 }
 
@@ -923,16 +1077,20 @@ impl XdgWmBaseHandler for ClientXdgWmBase {
             proxy_xdg_surface,
             proxy_xdg_popup: Default::default(),
             subsurface,
+            popup_jay_tray_item: Default::default(),
             jay_tray_items: Default::default(),
             popups: Default::default(),
             sent_done: false,
-            toplevel_size: [800, 600],
+            geometry: [0, 0, 800, 600],
+            pending_geometry: None,
             popup_position: Default::default(),
             last_ack: 0,
             map_unpon_configure: Default::default(),
             map_upon_ack: Default::default(),
             next_client_serial: 1,
             pending_serials: Default::default(),
+            needed_tray_edges: 0,
+            tray_popup_borders: Default::default(),
         });
         let mut client_surface_handler = client_surface.get_handler_mut::<ClientWlSurface>();
         client_surface_handler.xdg_surface = Rc::downgrade(&client_xdg_surface);
@@ -961,20 +1119,45 @@ struct ClientXdgSurface {
     proxy_xdg_surface: Rc<XdgSurface>,
     proxy_xdg_popup: Weak<XdgPopup>,
     subsurface: Rc<WlSubsurface>,
+    popup_jay_tray_item: Weak<JayTrayItemV1>,
     jay_tray_items: HashMap<u32, Weak<JayTrayItemV1>>,
     popups: HashMap<u64, Weak<XdgPopup>>,
     sent_done: bool,
-    toplevel_size: [i32; 2],
+    geometry: [i32; 4],
+    pending_geometry: Option<[i32; 4]>,
     popup_position: ClientXdgPositioner,
     last_ack: u64,
     map_unpon_configure: bool,
     map_upon_ack: Option<u64>,
     next_client_serial: u64,
     pending_serials: VecDeque<(u64, Option<u32>)>,
+    needed_tray_edges: usize,
+    tray_popup_borders: Option<StaticMap<WindowEdge, TrayPopupBorder>>,
+}
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Linearize)]
+enum WindowEdge {
+    Top,
+    TopRight,
+    Right,
+    BottomRight,
+    Bottom,
+    BottomLeft,
+    Left,
+    TopLeft,
+}
+
+struct TrayPopupBorder {
+    wl_surface: Rc<WlSurface>,
+    wl_subsurface: Rc<WlSubsurface>,
+    buffer_size: [usize; 2],
 }
 
 impl XdgSurfaceHandler for ClientXdgSurface {
     fn handle_destroy(&mut self, slf: &Rc<XdgSurface>) {
+        self.client_wl_surface
+            .get_handler_mut::<ClientWlSurface>()
+            .xdg_surface = Weak::new();
         let _ = self.proxy_xdg_surface.send_destroy();
         let _ = self.subsurface.send_destroy();
         self.proxy_surface.unset_handler();
@@ -989,6 +1172,39 @@ impl XdgSurfaceHandler for ClientXdgSurface {
         id.set_handler(ClientXdgToplevel {
             xdg_surface: slf.clone(),
         });
+        let borders = StaticMap::from_fn(|e| {
+            let wl_surface = self.globals.wl_compositor.create_child::<WlSurface>();
+            wl_surface.set_forward_to_client(false);
+            wl_surface.set_handler(ProxyTrayPopupBorderWlSurface {
+                xdg_surface: slf.clone(),
+                xdg_toplevel: id.clone(),
+                window_edge: e,
+            });
+            let rotation = match e {
+                WindowEdge::Top => WlOutputTransform::NORMAL,
+                WindowEdge::Right => WlOutputTransform::_90,
+                WindowEdge::Bottom => WlOutputTransform::_180,
+                WindowEdge::Left => WlOutputTransform::_270,
+                WindowEdge::TopRight
+                | WindowEdge::BottomRight
+                | WindowEdge::BottomLeft
+                | WindowEdge::TopLeft => WlOutputTransform::NORMAL,
+            };
+            let _ = self.globals.wl_compositor.send_create_surface(&wl_surface);
+            let _ = wl_surface.send_set_buffer_transform(rotation);
+            let wl_subsurface = self.globals.wl_subcompositor.create_child::<WlSubsurface>();
+            let _ = self.globals.wl_subcompositor.send_get_subsurface(
+                &wl_subsurface,
+                &wl_surface,
+                &self.proxy_surface,
+            );
+            TrayPopupBorder {
+                wl_surface,
+                wl_subsurface,
+                buffer_size: [0, 0],
+            }
+        });
+        self.tray_popup_borders = Some(borders);
         self.client_xdg_toplevel = Rc::downgrade(id);
         if id.version() >= XdgToplevel::MSG__WM_CAPABILITIES__SINCE {
             let _ = id.send_wm_capabilities(&[]);
@@ -1027,6 +1243,7 @@ impl XdgSurfaceHandler for ClientXdgSurface {
         let _ = self
             .proxy_xdg_surface
             .send_set_window_geometry(x, y, width, height);
+        self.pending_geometry = Some([x, y, width, height]);
     }
 
     fn handle_ack_configure(&mut self, _slf: &Rc<XdgSurface>, client_serial: u32) {
@@ -1034,14 +1251,24 @@ impl XdgSurfaceHandler for ClientXdgSurface {
         self.last_ack = client_serial;
         while let Some(&(expected, server_serial)) = self.pending_serials.front() {
             if expected <= client_serial {
-                if let Some(server_serial) = dbg!(server_serial) {
+                if let Some(server_serial) = server_serial {
                     let _ = self.proxy_xdg_surface.send_ack_configure(server_serial);
                 }
                 self.pending_serials.pop_front();
+            } else {
+                break;
             }
         }
     }
 }
+
+struct ProxyTrayPopupBorderWlSurface {
+    xdg_surface: Rc<XdgSurface>,
+    xdg_toplevel: Rc<XdgToplevel>,
+    window_edge: WindowEdge,
+}
+
+impl WlSurfaceHandler for ProxyTrayPopupBorderWlSurface {}
 
 struct ClientXdgToplevel {
     xdg_surface: Rc<XdgSurface>,
@@ -1052,6 +1279,13 @@ impl XdgToplevelHandler for ClientXdgToplevel {
         let mut h = self.xdg_surface.get_handler_mut::<ClientXdgSurface>();
         h.handle_unmap();
         h.client_xdg_toplevel = Weak::new();
+        if let Some(edges) = h.tray_popup_borders.take() {
+            for edge in edges.values() {
+                edge.wl_surface.unset_handler();
+                let _ = edge.wl_subsurface.send_destroy();
+                let _ = edge.wl_surface.send_destroy();
+            }
+        }
         h.shared
             .shared
             .borrow_mut()
@@ -1275,7 +1509,11 @@ impl WlRegionHandler for ClientWlRegion {
 struct ProxyWlPointer {
     seat: Rc<Seat>,
     wp_cursor_shape_device_v1: Rc<WpCursorShapeDeviceV1>,
-    pointer_focus: Option<Rc<JayTrayItemV1>>,
+    tray_icon_focus: Option<Rc<JayTrayItemV1>>,
+    edge_focus: Option<WindowEdge>,
+    pos: [i32; 2],
+    button_down_pos: Option<[i32; 2]>,
+    surface: Option<Rc<WlSurface>>,
 }
 
 impl WlPointerHandler for ProxyWlPointer {
@@ -1284,23 +1522,71 @@ impl WlPointerHandler for ProxyWlPointer {
         _slf: &Rc<WlPointer>,
         serial: u32,
         surface: &Rc<WlSurface>,
-        _surface_x: Fixed,
-        _surface_y: Fixed,
+        surface_x: Fixed,
+        surface_y: Fixed,
     ) {
-        let Ok(tsh) = surface.try_get_handler_mut::<TrayIconWlSurfaceHandler>() else {
-            return;
-        };
-        let _ = self
-            .wp_cursor_shape_device_v1
-            .send_set_shape(serial, WpCursorShapeDeviceV1Shape::DEFAULT);
-        self.pointer_focus = Some(tsh.jay_tray_item_v1.clone());
+        self.surface = Some(surface.clone());
+        self.pos = [surface_x.to_i32_floor(), surface_y.to_i32_floor()];
+        if let Ok(tsh) = surface.try_get_handler_mut::<TrayIconWlSurfaceHandler>() {
+            let _ = self
+                .wp_cursor_shape_device_v1
+                .send_set_shape(serial, WpCursorShapeDeviceV1Shape::DEFAULT);
+            self.tray_icon_focus = Some(tsh.jay_tray_item_v1.clone());
+        } else if let Ok(tsh) = surface.try_get_handler_mut::<ProxyTrayPopupBorderWlSurface>() {
+            let shape = match tsh.window_edge {
+                WindowEdge::Top | WindowEdge::Bottom => WpCursorShapeDeviceV1Shape::NS_RESIZE,
+                WindowEdge::Right | WindowEdge::Left => WpCursorShapeDeviceV1Shape::EW_RESIZE,
+                WindowEdge::TopRight | WindowEdge::BottomLeft => {
+                    WpCursorShapeDeviceV1Shape::NESW_RESIZE
+                }
+                WindowEdge::BottomRight | WindowEdge::TopLeft => {
+                    WpCursorShapeDeviceV1Shape::NWSE_RESIZE
+                }
+            };
+            let _ = self.wp_cursor_shape_device_v1.send_set_shape(serial, shape);
+            self.edge_focus = Some(tsh.window_edge);
+        }
     }
 
-    fn handle_leave(&mut self, _slf: &Rc<WlPointer>, _serial: u32, surface: &Rc<WlSurface>) {
-        let Ok(_) = surface.try_get_handler_mut::<TrayIconWlSurfaceHandler>() else {
-            return;
-        };
-        self.pointer_focus = None;
+    fn handle_leave(&mut self, _slf: &Rc<WlPointer>, _serial: u32, _surface: &Rc<WlSurface>) {
+        self.surface = None;
+        self.tray_icon_focus = None;
+        self.edge_focus = None;
+    }
+
+    fn handle_motion(
+        &mut self,
+        _slf: &Rc<WlPointer>,
+        _time: u32,
+        surface_x: Fixed,
+        surface_y: Fixed,
+    ) {
+        self.pos = [surface_x.to_i32_floor(), surface_y.to_i32_floor()];
+        if let Some(edge) = self.edge_focus
+            && let Some(old) = &self.button_down_pos
+            && let Some(surface) = &self.surface
+            && let Ok(tsh) = surface.try_get_handler_mut::<ProxyTrayPopupBorderWlSurface>()
+        {
+            let (dx, dy) = match edge {
+                WindowEdge::Top => (0, old[1] - self.pos[1]),
+                WindowEdge::TopRight => (self.pos[0] - old[0], old[1] - self.pos[1]),
+                WindowEdge::Right => (self.pos[0] - old[0], 0),
+                WindowEdge::BottomRight => (self.pos[0] - old[0], self.pos[1] - old[1]),
+                WindowEdge::Bottom => (0, self.pos[1] - old[1]),
+                WindowEdge::BottomLeft => (old[0] - self.pos[0], self.pos[1] - old[1]),
+                WindowEdge::Left => (old[0] - self.pos[0], 0),
+                WindowEdge::TopLeft => (old[0] - self.pos[0], old[1] - self.pos[1]),
+            };
+            let mut client_xdg_surface = tsh.xdg_surface.get_handler_mut::<ClientXdgSurface>();
+            let w = client_xdg_surface.geometry[2] + dx;
+            let h = client_xdg_surface.geometry[3] + dy;
+            let states = compute_toplevel_states(&tsh.xdg_toplevel);
+            let _ = tsh
+                .xdg_toplevel
+                .send_configure(w, h, uapi::as_bytes(&*states));
+            let serial = client_xdg_surface.create_client_serial(None);
+            let _ = tsh.xdg_surface.send_configure(serial as _);
+        }
     }
 
     fn handle_button(
@@ -1308,50 +1594,37 @@ impl WlPointerHandler for ProxyWlPointer {
         _slf: &Rc<WlPointer>,
         serial: u32,
         _time: u32,
-        _button: u32,
+        button: u32,
         state: WlPointerButtonState,
     ) {
+        const BTN_LEFT: u32 = 0x110;
+        if button == BTN_LEFT {
+            if state == WlPointerButtonState::PRESSED {
+                self.button_down_pos = Some(self.pos);
+            } else {
+                self.button_down_pos = None;
+            }
+        }
         if state != WlPointerButtonState::PRESSED {
             return;
         }
-        let Some(pf) = &self.pointer_focus else {
+        let Some(pf) = &self.tray_icon_focus else {
             return;
         };
-        eprintln!("Handling button {}", pf.unique_id());
         let tray_item_handler = &mut *pf.get_handler_mut::<JayTrayItemV1HandlerImpl>();
         let client_xdg_surface = tray_item_handler.client_xdg_surface.clone();
         let xdg_surface_handler = &mut *client_xdg_surface.get_handler_mut::<ClientXdgSurface>();
         if tray_item_handler.proxy_xdg_popup.strong_count() > 0 {
             tray_item_handler.destroy_popup(xdg_surface_handler);
-            eprintln!("Destroying old popup");
             return;
         }
-        if let Some(other) = xdg_surface_handler.find_tray_with_popup() {
+        if let Some(other) = xdg_surface_handler.popup_jay_tray_item.upgrade() {
             other
                 .get_handler_mut::<JayTrayItemV1HandlerImpl>()
                 .destroy_popup(xdg_surface_handler);
         }
-        eprintln!("Creating new popup");
-        let config = tray_item_handler.current;
-        let globals = &xdg_surface_handler.globals;
-        let xdg_positioner = globals.xdg_wm_base.create_child::<XdgPositioner>();
-        let _ = globals.xdg_wm_base.send_create_positioner(&xdg_positioner);
-        let _ = xdg_positioner.send_set_reactive();
-        let _ = xdg_positioner.send_set_anchor_rect(0, 0, config.size[0], config.size[1]);
-        let _ = xdg_positioner.send_set_anchor(config.preferred_anchor);
-        let _ = xdg_positioner.send_set_gravity(config.preferred_gravity);
-        let _ = xdg_positioner.send_set_size(
-            xdg_surface_handler.toplevel_size[0],
-            xdg_surface_handler.toplevel_size[1],
-        );
-        let _ = xdg_positioner.send_set_constraint_adjustment(
-            XdgPositionerConstraintAdjustment::FLIP_X
-                | XdgPositionerConstraintAdjustment::FLIP_Y
-                | XdgPositionerConstraintAdjustment::SLIDE_X
-                | XdgPositionerConstraintAdjustment::SLIDE_Y
-                | XdgPositionerConstraintAdjustment::RESIZE_X
-                | XdgPositionerConstraintAdjustment::RESIZE_Y,
-        );
+        xdg_surface_handler.popup_jay_tray_item = Rc::downgrade(pf);
+        let xdg_positioner = tray_item_handler.create_positioner(xdg_surface_handler);
         let xdg_popup = xdg_surface_handler
             .proxy_xdg_surface
             .create_child::<XdgPopup>();
@@ -1642,6 +1915,47 @@ impl ZwpTextInputV3Handler for ClientDevice {
     }
 }
 
+struct ClientZwpRelativePointerManagerV1;
+
+impl ZwpRelativePointerManagerV1Handler for ClientZwpRelativePointerManagerV1 {
+    fn handle_get_relative_pointer(
+        &mut self,
+        slf: &Rc<ZwpRelativePointerManagerV1>,
+        id: &Rc<ZwpRelativePointerV1>,
+        pointer: &Rc<WlPointer>,
+    ) {
+        id.set_handler(ClientZwpRelativePointerV1 {
+            wl_pointer: pointer.clone(),
+        });
+        let _ = slf.send_get_relative_pointer(id, pointer);
+    }
+}
+
+struct ClientZwpRelativePointerV1 {
+    wl_pointer: Rc<WlPointer>,
+}
+
+impl ZwpRelativePointerV1Handler for ClientZwpRelativePointerV1 {
+    fn handle_relative_motion(
+        &mut self,
+        slf: &Rc<ZwpRelativePointerV1>,
+        utime_hi: u32,
+        utime_lo: u32,
+        dx: Fixed,
+        dy: Fixed,
+        dx_unaccel: Fixed,
+        dy_unaccel: Fixed,
+    ) {
+        if self
+            .wl_pointer
+            .get_handler_mut::<ClientDevice>()
+            .on_client_surface
+        {
+            let _ = slf.send_relative_motion(utime_hi, utime_lo, dx, dy, dx_unaccel, dy_unaccel);
+        }
+    }
+}
+
 struct ProxyXdgSurface {
     client_xdg_surface: Rc<XdgSurface>,
 }
@@ -1656,14 +1970,7 @@ impl XdgSurfaceHandler for ProxyXdgSurface {
         if h.map_unpon_configure {
             h.map_unpon_configure = false;
             h.map_upon_ack = Some(client_serial);
-            {
-                h.map_upon_ack = None;
-                let _ = h
-                    .proxy_surface
-                    .send_attach(Some(&h.globals.transparent_spb), 0, 0);
-                let _ = h.proxy_surface.send_commit();
-                eprintln!("commit");
-            }
+            h.map_tray_popup();
         }
     }
 }
@@ -1683,11 +1990,6 @@ impl XdgPopupHandler for ProxyTrayXdgPopup {
             height,
             uapi::as_bytes(&*states),
         );
-        let mut h = tray_item_handler
-            .client_xdg_surface
-            .get_handler_mut::<ClientXdgSurface>();
-        h.toplevel_size[0] = width;
-        h.toplevel_size[1] = height;
     }
 
     fn handle_popup_done(&mut self, _slf: &Rc<XdgPopup>) {
@@ -1756,6 +2058,9 @@ impl JayTrayItemV1HandlerImpl {
             client_xdg_surface.destroy_popups_recursive();
             popup.unset_handler();
             let _ = popup.send_destroy();
+            client_xdg_surface.popup_jay_tray_item = Weak::new();
+            let _ = client_xdg_surface.proxy_surface.send_attach(None, 0, 0);
+            let _ = client_xdg_surface.proxy_surface.send_commit();
         }
     }
 
@@ -1766,6 +2071,30 @@ impl JayTrayItemV1HandlerImpl {
         let _ = slf.send_destroy();
         let _ = self.wp_viewport.send_destroy();
         let _ = self.wl_surface.send_destroy();
+    }
+
+    fn create_positioner(&self, client_xdg_surface: &ClientXdgSurface) -> Rc<XdgPositioner> {
+        let globals = &client_xdg_surface.globals;
+        let config = self.current;
+        let xdg_positioner = globals.xdg_wm_base.create_child::<XdgPositioner>();
+        let _ = globals.xdg_wm_base.send_create_positioner(&xdg_positioner);
+        let _ = xdg_positioner.send_set_reactive();
+        let _ = xdg_positioner.send_set_anchor_rect(0, 0, config.size[0], config.size[1]);
+        let _ = xdg_positioner.send_set_anchor(config.preferred_anchor);
+        let _ = xdg_positioner.send_set_gravity(config.preferred_gravity);
+        let _ = xdg_positioner.send_set_size(
+            client_xdg_surface.geometry[2],
+            client_xdg_surface.geometry[3],
+        );
+        let _ = xdg_positioner.send_set_constraint_adjustment(
+            XdgPositionerConstraintAdjustment::FLIP_X
+                | XdgPositionerConstraintAdjustment::FLIP_Y
+                | XdgPositionerConstraintAdjustment::SLIDE_X
+                | XdgPositionerConstraintAdjustment::SLIDE_Y
+                | XdgPositionerConstraintAdjustment::RESIZE_X
+                | XdgPositionerConstraintAdjustment::RESIZE_Y,
+        );
+        xdg_positioner
     }
 }
 
@@ -1795,6 +2124,62 @@ impl JayTrayItemV1Handler for JayTrayItemV1HandlerImpl {
         }
         self.current = self.pending;
         let _ = self.wl_surface.send_commit();
+        let mut needed_tray_edges = 0;
+        match self.current.preferred_gravity {
+            XdgPositionerGravity::NONE => {}
+            XdgPositionerGravity::TOP => {
+                needed_tray_edges |= 1 << WindowEdge::Left.linearize();
+                needed_tray_edges |= 1 << WindowEdge::TopLeft.linearize();
+                needed_tray_edges |= 1 << WindowEdge::Top.linearize();
+                needed_tray_edges |= 1 << WindowEdge::TopRight.linearize();
+                needed_tray_edges |= 1 << WindowEdge::Right.linearize();
+            }
+            XdgPositionerGravity::BOTTOM => {
+                needed_tray_edges |= 1 << WindowEdge::Left.linearize();
+                needed_tray_edges |= 1 << WindowEdge::BottomLeft.linearize();
+                needed_tray_edges |= 1 << WindowEdge::Bottom.linearize();
+                needed_tray_edges |= 1 << WindowEdge::BottomRight.linearize();
+                needed_tray_edges |= 1 << WindowEdge::Right.linearize();
+            }
+            XdgPositionerGravity::LEFT => {
+                needed_tray_edges |= 1 << WindowEdge::Top.linearize();
+                needed_tray_edges |= 1 << WindowEdge::TopLeft.linearize();
+                needed_tray_edges |= 1 << WindowEdge::Left.linearize();
+                needed_tray_edges |= 1 << WindowEdge::BottomLeft.linearize();
+                needed_tray_edges |= 1 << WindowEdge::Bottom.linearize();
+            }
+            XdgPositionerGravity::RIGHT => {
+                needed_tray_edges |= 1 << WindowEdge::Top.linearize();
+                needed_tray_edges |= 1 << WindowEdge::TopRight.linearize();
+                needed_tray_edges |= 1 << WindowEdge::Right.linearize();
+                needed_tray_edges |= 1 << WindowEdge::BottomRight.linearize();
+                needed_tray_edges |= 1 << WindowEdge::Bottom.linearize();
+            }
+            XdgPositionerGravity::TOP_LEFT => {
+                needed_tray_edges |= 1 << WindowEdge::Top.linearize();
+                needed_tray_edges |= 1 << WindowEdge::TopLeft.linearize();
+                needed_tray_edges |= 1 << WindowEdge::Left.linearize();
+            }
+            XdgPositionerGravity::BOTTOM_LEFT => {
+                needed_tray_edges |= 1 << WindowEdge::Left.linearize();
+                needed_tray_edges |= 1 << WindowEdge::BottomLeft.linearize();
+                needed_tray_edges |= 1 << WindowEdge::Bottom.linearize();
+            }
+            XdgPositionerGravity::TOP_RIGHT => {
+                needed_tray_edges |= 1 << WindowEdge::Top.linearize();
+                needed_tray_edges |= 1 << WindowEdge::TopRight.linearize();
+                needed_tray_edges |= 1 << WindowEdge::Right.linearize();
+            }
+            XdgPositionerGravity::BOTTOM_RIGHT => {
+                needed_tray_edges |= 1 << WindowEdge::Bottom.linearize();
+                needed_tray_edges |= 1 << WindowEdge::BottomRight.linearize();
+                needed_tray_edges |= 1 << WindowEdge::Right.linearize();
+            }
+            _ => {}
+        }
+        self.client_xdg_surface
+            .get_handler_mut::<ClientXdgSurface>()
+            .needed_tray_edges = needed_tray_edges;
     }
 }
 

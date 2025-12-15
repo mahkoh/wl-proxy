@@ -71,14 +71,14 @@ impl SimpleServer {
                         let state = match state {
                             Ok(s) => s,
                             Err(e) => {
-                                log::error!("could not create a new state: {}", Report::new(e));
+                                log::error!("Could not create a new state: {}", Report::new(e));
                                 return;
                             }
                         };
                         let client = match state.add_client(&Rc::new(socket)) {
                             Ok(c) => c,
                             Err(e) => {
-                                log::error!("could not add client to state: {}", Report::new(e));
+                                log::error!("Could not add client to state: {}", Report::new(e));
                                 return;
                             }
                         };
@@ -90,7 +90,7 @@ impl SimpleServer {
                         client.display.set_handler(handler);
                         while state.is_not_destroyed() {
                             if let Err(e) = state.dispatch_blocking() {
-                                log::error!("could not dispatch state: {}", e);
+                                log::error!("Could not dispatch state: {}", Report::new(e));
                             }
                         }
                     });
@@ -134,11 +134,11 @@ impl SimpleCommandExt for Command {
                     let _ = raise(signal);
                     exit(1);
                 }
-                eprintln!("child terminated with neither a signal nor an exit code");
+                eprintln!("Child terminated with neither a signal nor an exit code");
                 exit(1);
             }
             Err(e) => {
-                eprintln!("could not wait for child: {}", Report::new(e));
+                eprintln!("Could not wait for child: {}", Report::new(e));
                 exit(1);
             }
         });

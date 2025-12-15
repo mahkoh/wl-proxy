@@ -13,6 +13,7 @@ clap_complete = "4.5.61"
 uapi = "0.2.13"
 arrayvec = "0.7.6"
 run-on-drop = "1.0.0"
+linearize = { version = "0.1.5", features = ["derive"] }
 
 [dependencies.wl-proxy]
 path = "../../wl-proxy"
