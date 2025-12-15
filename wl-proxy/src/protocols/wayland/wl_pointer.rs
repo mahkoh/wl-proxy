@@ -131,10 +131,14 @@ impl WlPointer {
             },
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_pointer#{}.set_cursor(serial: {}, surface: wl_surface#{}, hotspot_x: {}, hotspot_y: {})\n", id, arg0, arg1_id, arg2, arg3);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: u32, arg2: i32, arg3: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_pointer#{}.set_cursor(serial: {}, surface: wl_surface#{}, hotspot_x: {}, hotspot_y: {})\n", id, arg0, arg1, arg2, arg3);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0, arg1_id, arg2, arg3);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -203,10 +207,14 @@ impl WlPointer {
         }
         let arg1_id = arg1.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.enter(serial: {}, surface: wl_surface#{}, surface_x: {}, surface_y: {})\n", client.endpoint.id, id, arg0, arg1_id, arg2, arg3);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32, arg2: Fixed, arg3: Fixed) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.enter(serial: {}, surface: wl_surface#{}, surface_x: {}, surface_y: {})\n", client_id, id, arg0, arg1, arg2, arg3);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1_id, arg2, arg3);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -266,10 +274,14 @@ impl WlPointer {
         }
         let arg1_id = arg1.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.leave(serial: {}, surface: wl_surface#{})\n", client.endpoint.id, id, arg0, arg1_id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.leave(serial: {}, surface: wl_surface#{})\n", client_id, id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1_id);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -324,10 +336,14 @@ impl WlPointer {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.motion(time: {}, surface_x: {}, surface_y: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: Fixed, arg2: Fixed) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.motion(time: {}, surface_x: {}, surface_y: {})\n", client_id, id, arg0, arg1, arg2);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1, arg2);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -398,10 +414,14 @@ impl WlPointer {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.button(serial: {}, time: {}, button: {}, state: {:?})\n", client.endpoint.id, id, arg0, arg1, arg2, arg3);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32, arg2: u32, arg3: WlPointerButtonState) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.button(serial: {}, time: {}, button: {}, state: {:?})\n", client_id, id, arg0, arg1, arg2, arg3);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1, arg2, arg3);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -471,10 +491,14 @@ impl WlPointer {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.axis(time: {}, axis: {:?}, value: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: WlPointerAxis, arg2: Fixed) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.axis(time: {}, axis: {:?}, value: {})\n", client_id, id, arg0, arg1, arg2);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1, arg2);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -512,10 +536,14 @@ impl WlPointer {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_pointer#{}.release()\n", id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_pointer#{}.release()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -582,10 +610,14 @@ impl WlPointer {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.frame()\n", client.endpoint.id, id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.frame()\n", client_id, id);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -652,10 +684,14 @@ impl WlPointer {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.axis_source(axis_source: {:?})\n", client.endpoint.id, id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: WlPointerAxisSource) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.axis_source(axis_source: {:?})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -716,10 +752,14 @@ impl WlPointer {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.axis_stop(time: {}, axis: {:?})\n", client.endpoint.id, id, arg0, arg1);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: WlPointerAxis) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.axis_stop(time: {}, axis: {:?})\n", client_id, id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -800,10 +840,14 @@ impl WlPointer {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.axis_discrete(axis: {:?}, discrete: {})\n", client.endpoint.id, id, arg0, arg1);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: WlPointerAxis, arg1: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.axis_discrete(axis: {:?}, discrete: {})\n", client_id, id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -872,10 +916,14 @@ impl WlPointer {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.axis_value120(axis: {:?}, value120: {})\n", client.endpoint.id, id, arg0, arg1);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: WlPointerAxis, arg1: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.axis_value120(axis: {:?}, value120: {})\n", client_id, id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -958,10 +1006,14 @@ impl WlPointer {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.axis_relative_direction(axis: {:?}, direction: {:?})\n", client.endpoint.id, id, arg0, arg1);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: WlPointerAxis, arg1: WlPointerAxisRelativeDirection) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.axis_relative_direction(axis: {:?}, direction: {:?})\n", client_id, id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -1631,10 +1683,14 @@ impl ObjectPrivate for WlPointer {
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_pointer#{}.set_cursor(serial: {}, surface: wl_surface#{}, hotspot_x: {}, hotspot_y: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32, arg2: i32, arg3: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_pointer#{}.set_cursor(serial: {}, surface: wl_surface#{}, hotspot_x: {}, hotspot_y: {})\n", client_id, id, arg0, arg1, arg2, arg3);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                 }
                 let arg1 = if arg1 == 0 {
                     None
@@ -1661,10 +1717,14 @@ impl ObjectPrivate for WlPointer {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_pointer#{}.release()\n", client.endpoint.id, msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_pointer#{}.release()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
@@ -1702,10 +1762,14 @@ impl ObjectPrivate for WlPointer {
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 let arg3 = Fixed::from_wire(arg3 as i32);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.enter(serial: {}, surface: wl_surface#{}, surface_x: {}, surface_y: {})\n", msg[0], arg0, arg1, arg2, arg3);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32, arg1: u32, arg2: Fixed, arg3: Fixed) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.enter(serial: {}, surface: wl_surface#{}, surface_x: {}, surface_y: {})\n", id, arg0, arg1, arg2, arg3);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1, arg2, arg3);
                 }
                 let arg1_id = arg1;
                 let Some(arg1) = self.core.state.server.lookup(arg1_id) else {
@@ -1730,10 +1794,14 @@ impl ObjectPrivate for WlPointer {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.leave(serial: {}, surface: wl_surface#{})\n", msg[0], arg0, arg1);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32, arg1: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.leave(serial: {}, surface: wl_surface#{})\n", id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1);
                 }
                 let arg1_id = arg1;
                 let Some(arg1) = self.core.state.server.lookup(arg1_id) else {
@@ -1761,10 +1829,14 @@ impl ObjectPrivate for WlPointer {
                 let arg1 = Fixed::from_wire(arg1 as i32);
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.motion(time: {}, surface_x: {}, surface_y: {})\n", msg[0], arg0, arg1, arg2);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32, arg1: Fixed, arg2: Fixed) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.motion(time: {}, surface_x: {}, surface_y: {})\n", id, arg0, arg1, arg2);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1, arg2);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_motion(&self, arg0, arg1, arg2);
@@ -1783,10 +1855,14 @@ impl ObjectPrivate for WlPointer {
                 };
                 let arg3 = WlPointerButtonState(arg3);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.button(serial: {}, time: {}, button: {}, state: {:?})\n", msg[0], arg0, arg1, arg2, arg3);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32, arg1: u32, arg2: u32, arg3: WlPointerButtonState) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.button(serial: {}, time: {}, button: {}, state: {:?})\n", id, arg0, arg1, arg2, arg3);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1, arg2, arg3);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_button(&self, arg0, arg1, arg2, arg3);
@@ -1805,10 +1881,14 @@ impl ObjectPrivate for WlPointer {
                 let arg1 = WlPointerAxis(arg1);
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.axis(time: {}, axis: {:?}, value: {})\n", msg[0], arg0, arg1, arg2);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32, arg1: WlPointerAxis, arg2: Fixed) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.axis(time: {}, axis: {:?}, value: {})\n", id, arg0, arg1, arg2);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1, arg2);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_axis(&self, arg0, arg1, arg2);
@@ -1821,10 +1901,14 @@ impl ObjectPrivate for WlPointer {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.frame()\n", msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.frame()\n", id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0]);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_frame(&self);
@@ -1840,10 +1924,14 @@ impl ObjectPrivate for WlPointer {
                 };
                 let arg0 = WlPointerAxisSource(arg0);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.axis_source(axis_source: {:?})\n", msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: WlPointerAxisSource) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.axis_source(axis_source: {:?})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_axis_source(&self, arg0);
@@ -1860,10 +1948,14 @@ impl ObjectPrivate for WlPointer {
                 };
                 let arg1 = WlPointerAxis(arg1);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.axis_stop(time: {}, axis: {:?})\n", msg[0], arg0, arg1);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32, arg1: WlPointerAxis) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.axis_stop(time: {}, axis: {:?})\n", id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_axis_stop(&self, arg0, arg1);
@@ -1881,10 +1973,14 @@ impl ObjectPrivate for WlPointer {
                 let arg0 = WlPointerAxis(arg0);
                 let arg1 = arg1 as i32;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.axis_discrete(axis: {:?}, discrete: {})\n", msg[0], arg0, arg1);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: WlPointerAxis, arg1: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.axis_discrete(axis: {:?}, discrete: {})\n", id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_axis_discrete(&self, arg0, arg1);
@@ -1902,10 +1998,14 @@ impl ObjectPrivate for WlPointer {
                 let arg0 = WlPointerAxis(arg0);
                 let arg1 = arg1 as i32;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.axis_value120(axis: {:?}, value120: {})\n", msg[0], arg0, arg1);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: WlPointerAxis, arg1: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.axis_value120(axis: {:?}, value120: {})\n", id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_axis_value120(&self, arg0, arg1);
@@ -1923,10 +2023,14 @@ impl ObjectPrivate for WlPointer {
                 let arg0 = WlPointerAxis(arg0);
                 let arg1 = WlPointerAxisRelativeDirection(arg1);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.axis_relative_direction(axis: {:?}, direction: {:?})\n", msg[0], arg0, arg1);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: WlPointerAxis, arg1: WlPointerAxisRelativeDirection) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.axis_relative_direction(axis: {:?}, direction: {:?})\n", id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_axis_relative_direction(&self, arg0, arg1);

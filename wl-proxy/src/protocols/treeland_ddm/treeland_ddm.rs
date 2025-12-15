@@ -63,10 +63,14 @@ impl TreelandDdm {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_ddm#{}.switch_to_greeter()\n", id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_ddm#{}.switch_to_greeter()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -107,10 +111,14 @@ impl TreelandDdm {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_ddm#{}.switch_to_user(username: {:?})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: &str) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_ddm#{}.switch_to_user(username: {:?})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -143,10 +151,14 @@ impl TreelandDdm {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_ddm#{}.activate_session()\n", id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_ddm#{}.activate_session()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -178,10 +190,14 @@ impl TreelandDdm {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_ddm#{}.deactivate_session()\n", id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_ddm#{}.deactivate_session()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -213,10 +229,14 @@ impl TreelandDdm {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_ddm#{}.enable_render()\n", id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_ddm#{}.enable_render()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -259,10 +279,14 @@ impl TreelandDdm {
             .map_err(|e| ObjectError::GenerateServerId("callback", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_ddm#{}.disable_render(callback: wl_callback#{})\n", id, arg0_id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_ddm#{}.disable_render(callback: wl_callback#{})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -307,10 +331,14 @@ impl TreelandDdm {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= treeland_ddm#{}.switch_to_vt(vtnr: {})\n", client.endpoint.id, id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= treeland_ddm#{}.switch_to_vt(vtnr: {})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -355,10 +383,14 @@ impl TreelandDdm {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= treeland_ddm#{}.acquire_vt(vtnr: {})\n", client.endpoint.id, id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= treeland_ddm#{}.acquire_vt(vtnr: {})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -589,10 +621,14 @@ impl ObjectPrivate for TreelandDdm {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_ddm#{}.switch_to_greeter()\n", client.endpoint.id, msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_ddm#{}.switch_to_greeter()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_switch_to_greeter(&self);
@@ -628,10 +664,14 @@ impl ObjectPrivate for TreelandDdm {
                     return Err(ObjectError::TrailingBytes);
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_ddm#{}.switch_to_user(username: {:?})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: &str) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_ddm#{}.switch_to_user(username: {:?})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_switch_to_user(&self, arg0);
@@ -644,10 +684,14 @@ impl ObjectPrivate for TreelandDdm {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_ddm#{}.activate_session()\n", client.endpoint.id, msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_ddm#{}.activate_session()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_activate_session(&self);
@@ -660,10 +704,14 @@ impl ObjectPrivate for TreelandDdm {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_ddm#{}.deactivate_session()\n", client.endpoint.id, msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_ddm#{}.deactivate_session()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_deactivate_session(&self);
@@ -676,10 +724,14 @@ impl ObjectPrivate for TreelandDdm {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_ddm#{}.enable_render()\n", client.endpoint.id, msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_ddm#{}.enable_render()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_enable_render(&self);
@@ -694,10 +746,14 @@ impl ObjectPrivate for TreelandDdm {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_ddm#{}.disable_render(callback: wl_callback#{})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_ddm#{}.disable_render(callback: wl_callback#{})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 let arg0_id = arg0;
                 let arg0 = WlCallback::new(&self.core.state, self.core.version);
@@ -735,10 +791,14 @@ impl ObjectPrivate for TreelandDdm {
                 };
                 let arg0 = arg0 as i32;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> treeland_ddm#{}.switch_to_vt(vtnr: {})\n", msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> treeland_ddm#{}.switch_to_vt(vtnr: {})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_switch_to_vt(&self, arg0);
@@ -754,10 +814,14 @@ impl ObjectPrivate for TreelandDdm {
                 };
                 let arg0 = arg0 as i32;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> treeland_ddm#{}.acquire_vt(vtnr: {})\n", msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> treeland_ddm#{}.acquire_vt(vtnr: {})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_acquire_vt(&self, arg0);

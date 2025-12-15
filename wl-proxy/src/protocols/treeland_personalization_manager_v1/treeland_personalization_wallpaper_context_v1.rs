@@ -79,10 +79,14 @@ impl TreelandPersonalizationWallpaperContextV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_personalization_wallpaper_context_v1#{}.set_fd(fd: {}, metadata: {:?})\n", id, arg0.as_raw_fd(), arg1);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: i32, arg1: &str) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_personalization_wallpaper_context_v1#{}.set_fd(fd: {}, metadata: {:?})\n", id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0.as_raw_fd(), arg1);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -123,10 +127,14 @@ impl TreelandPersonalizationWallpaperContextV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_personalization_wallpaper_context_v1#{}.set_identifier(identifier: {:?})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: &str) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_personalization_wallpaper_context_v1#{}.set_identifier(identifier: {:?})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -166,10 +174,14 @@ impl TreelandPersonalizationWallpaperContextV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_personalization_wallpaper_context_v1#{}.set_output(output: {:?})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: &str) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_personalization_wallpaper_context_v1#{}.set_output(output: {:?})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -209,10 +221,14 @@ impl TreelandPersonalizationWallpaperContextV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_personalization_wallpaper_context_v1#{}.set_on(options: {:?})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: TreelandPersonalizationWallpaperContextV1Options) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_personalization_wallpaper_context_v1#{}.set_on(options: {:?})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -252,10 +268,14 @@ impl TreelandPersonalizationWallpaperContextV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_personalization_wallpaper_context_v1#{}.set_isdark(isdark: {})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_personalization_wallpaper_context_v1#{}.set_isdark(isdark: {})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -285,10 +305,14 @@ impl TreelandPersonalizationWallpaperContextV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_personalization_wallpaper_context_v1#{}.commit()\n", id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_personalization_wallpaper_context_v1#{}.commit()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -319,10 +343,14 @@ impl TreelandPersonalizationWallpaperContextV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_personalization_wallpaper_context_v1#{}.get_metadata()\n", id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_personalization_wallpaper_context_v1#{}.get_metadata()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -353,10 +381,14 @@ impl TreelandPersonalizationWallpaperContextV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_personalization_wallpaper_context_v1#{}.destroy()\n", id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_personalization_wallpaper_context_v1#{}.destroy()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -400,10 +432,14 @@ impl TreelandPersonalizationWallpaperContextV1 {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= treeland_personalization_wallpaper_context_v1#{}.metadata(metadata: {:?})\n", client.endpoint.id, id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: &str) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= treeland_personalization_wallpaper_context_v1#{}.metadata(metadata: {:?})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -676,10 +712,14 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                 };
                 let arg0 = &arg0;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_wallpaper_context_v1#{}.set_fd(fd: {}, metadata: {:?})\n", client.endpoint.id, msg[0], arg0.as_raw_fd(), arg1);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: i32, arg1: &str) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_wallpaper_context_v1#{}.set_fd(fd: {}, metadata: {:?})\n", client_id, id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0.as_raw_fd(), arg1);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_fd(&self, arg0, arg1);
@@ -715,10 +755,14 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                     return Err(ObjectError::TrailingBytes);
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_wallpaper_context_v1#{}.set_identifier(identifier: {:?})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: &str) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_wallpaper_context_v1#{}.set_identifier(identifier: {:?})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_identifier(&self, arg0);
@@ -754,10 +798,14 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                     return Err(ObjectError::TrailingBytes);
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_wallpaper_context_v1#{}.set_output(output: {:?})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: &str) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_wallpaper_context_v1#{}.set_output(output: {:?})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_output(&self, arg0);
@@ -773,10 +821,14 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                 };
                 let arg0 = TreelandPersonalizationWallpaperContextV1Options(arg0);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_wallpaper_context_v1#{}.set_on(options: {:?})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: TreelandPersonalizationWallpaperContextV1Options) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_wallpaper_context_v1#{}.set_on(options: {:?})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_on(&self, arg0);
@@ -791,10 +843,14 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_wallpaper_context_v1#{}.set_isdark(isdark: {})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_wallpaper_context_v1#{}.set_isdark(isdark: {})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_isdark(&self, arg0);
@@ -807,10 +863,14 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_wallpaper_context_v1#{}.commit()\n", client.endpoint.id, msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_wallpaper_context_v1#{}.commit()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_commit(&self);
@@ -823,10 +883,14 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_wallpaper_context_v1#{}.get_metadata()\n", client.endpoint.id, msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_wallpaper_context_v1#{}.get_metadata()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_get_metadata(&self);
@@ -839,10 +903,14 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_wallpaper_context_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_personalization_wallpaper_context_v1#{}.destroy()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
@@ -896,10 +964,14 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
                     return Err(ObjectError::TrailingBytes);
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> treeland_personalization_wallpaper_context_v1#{}.metadata(metadata: {:?})\n", msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: &str) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> treeland_personalization_wallpaper_context_v1#{}.metadata(metadata: {:?})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_metadata(&self, arg0);

@@ -64,10 +64,14 @@ impl WlDrm {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_drm#{}.authenticate(id: {})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_drm#{}.authenticate(id: {})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -130,10 +134,14 @@ impl WlDrm {
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_drm#{}.create_buffer(id: wl_buffer#{}, name: {}, width: {}, height: {}, stride: {}, format: {})\n", id, arg0_id, arg1, arg2, arg3, arg4, arg5);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: u32, arg2: i32, arg3: i32, arg4: u32, arg5: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_drm#{}.create_buffer(id: wl_buffer#{}, name: {}, width: {}, height: {}, stride: {}, format: {})\n", id, arg0, arg1, arg2, arg3, arg4, arg5);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id, arg1, arg2, arg3, arg4, arg5);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -221,10 +229,14 @@ impl WlDrm {
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_drm#{}.create_planar_buffer(id: wl_buffer#{}, name: {}, width: {}, height: {}, format: {}, offset0: {}, stride0: {}, offset1: {}, stride1: {}, offset2: {}, stride2: {})\n", id, arg0_id, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: u32, arg2: i32, arg3: i32, arg4: u32, arg5: i32, arg6: i32, arg7: i32, arg8: i32, arg9: i32, arg10: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_drm#{}.create_planar_buffer(id: wl_buffer#{}, name: {}, width: {}, height: {}, format: {}, offset0: {}, stride0: {}, offset1: {}, stride1: {}, offset2: {}, stride2: {})\n", id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -274,10 +286,14 @@ impl WlDrm {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_drm#{}.device(name: {:?})\n", client.endpoint.id, id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: &str) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_drm#{}.device(name: {:?})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -317,10 +333,14 @@ impl WlDrm {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_drm#{}.format(format: {})\n", client.endpoint.id, id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_drm#{}.format(format: {})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -351,10 +371,14 @@ impl WlDrm {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_drm#{}.authenticated()\n", client.endpoint.id, id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_drm#{}.authenticated()\n", client_id, id);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -393,10 +417,14 @@ impl WlDrm {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_drm#{}.capabilities(value: {})\n", client.endpoint.id, id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_drm#{}.capabilities(value: {})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -479,10 +507,14 @@ impl WlDrm {
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_drm#{}.create_prime_buffer(id: wl_buffer#{}, name: {}, width: {}, height: {}, format: {}, offset0: {}, stride0: {}, offset1: {}, stride1: {}, offset2: {}, stride2: {})\n", id, arg0_id, arg1.as_raw_fd(), arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: i32, arg2: i32, arg3: i32, arg4: u32, arg5: i32, arg6: i32, arg7: i32, arg8: i32, arg9: i32, arg10: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_drm#{}.create_prime_buffer(id: wl_buffer#{}, name: {}, width: {}, height: {}, format: {}, offset0: {}, stride0: {}, offset1: {}, stride1: {}, offset2: {}, stride2: {})\n", id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id, arg1.as_raw_fd(), arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -781,10 +813,14 @@ impl ObjectPrivate for WlDrm {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_drm#{}.authenticate(id: {})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_drm#{}.authenticate(id: {})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_authenticate(&self, arg0);
@@ -806,10 +842,14 @@ impl ObjectPrivate for WlDrm {
                 let arg2 = arg2 as i32;
                 let arg3 = arg3 as i32;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_drm#{}.create_buffer(id: wl_buffer#{}, name: {}, width: {}, height: {}, stride: {}, format: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4, arg5);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32, arg2: i32, arg3: i32, arg4: u32, arg5: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_drm#{}.create_buffer(id: wl_buffer#{}, name: {}, width: {}, height: {}, stride: {}, format: {})\n", client_id, id, arg0, arg1, arg2, arg3, arg4, arg5);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4, arg5);
                 }
                 let arg0_id = arg0;
                 let arg0 = WlBuffer::new(&self.core.state, self.core.version);
@@ -847,10 +887,14 @@ impl ObjectPrivate for WlDrm {
                 let arg9 = arg9 as i32;
                 let arg10 = arg10 as i32;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_drm#{}.create_planar_buffer(id: wl_buffer#{}, name: {}, width: {}, height: {}, format: {}, offset0: {}, stride0: {}, offset1: {}, stride1: {}, offset2: {}, stride2: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32, arg2: i32, arg3: i32, arg4: u32, arg5: i32, arg6: i32, arg7: i32, arg8: i32, arg9: i32, arg10: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_drm#{}.create_planar_buffer(id: wl_buffer#{}, name: {}, width: {}, height: {}, format: {}, offset0: {}, stride0: {}, offset1: {}, stride1: {}, offset2: {}, stride2: {})\n", client_id, id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
                 }
                 let arg0_id = arg0;
                 let arg0 = WlBuffer::new(&self.core.state, self.core.version);
@@ -891,10 +935,14 @@ impl ObjectPrivate for WlDrm {
                 let arg9 = arg9 as i32;
                 let arg10 = arg10 as i32;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_drm#{}.create_prime_buffer(id: wl_buffer#{}, name: {}, width: {}, height: {}, format: {}, offset0: {}, stride0: {}, offset1: {}, stride1: {}, offset2: {}, stride2: {})\n", client.endpoint.id, msg[0], arg0, arg1.as_raw_fd(), arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: i32, arg2: i32, arg3: i32, arg4: u32, arg5: i32, arg6: i32, arg7: i32, arg8: i32, arg9: i32, arg10: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_drm#{}.create_prime_buffer(id: wl_buffer#{}, name: {}, width: {}, height: {}, format: {}, offset0: {}, stride0: {}, offset1: {}, stride1: {}, offset2: {}, stride2: {})\n", client_id, id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1.as_raw_fd(), arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
                 }
                 let arg0_id = arg0;
                 let arg0 = WlBuffer::new(&self.core.state, self.core.version);
@@ -952,10 +1000,14 @@ impl ObjectPrivate for WlDrm {
                     return Err(ObjectError::TrailingBytes);
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_drm#{}.device(name: {:?})\n", msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: &str) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_drm#{}.device(name: {:?})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_device(&self, arg0);
@@ -970,10 +1022,14 @@ impl ObjectPrivate for WlDrm {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_drm#{}.format(format: {})\n", msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_drm#{}.format(format: {})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_format(&self, arg0);
@@ -986,10 +1042,14 @@ impl ObjectPrivate for WlDrm {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_drm#{}.authenticated()\n", msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_drm#{}.authenticated()\n", id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0]);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_authenticated(&self);
@@ -1004,10 +1064,14 @@ impl ObjectPrivate for WlDrm {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_drm#{}.capabilities(value: {})\n", msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_drm#{}.capabilities(value: {})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_capabilities(&self, arg0);

@@ -60,10 +60,14 @@ impl TreelandWindowPickerV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_window_picker_v1#{}.destroy()\n", id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_window_picker_v1#{}.destroy()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -105,10 +109,14 @@ impl TreelandWindowPickerV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_window_picker_v1#{}.pick(hint: {:?})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: &str) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= treeland_window_picker_v1#{}.pick(hint: {:?})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -152,10 +160,14 @@ impl TreelandWindowPickerV1 {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= treeland_window_picker_v1#{}.window(pid: {})\n", client.endpoint.id, id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= treeland_window_picker_v1#{}.window(pid: {})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -276,10 +288,14 @@ impl ObjectPrivate for TreelandWindowPickerV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_window_picker_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_window_picker_v1#{}.destroy()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
@@ -316,10 +332,14 @@ impl ObjectPrivate for TreelandWindowPickerV1 {
                     return Err(ObjectError::TrailingBytes);
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_window_picker_v1#{}.pick(hint: {:?})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: &str) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> treeland_window_picker_v1#{}.pick(hint: {:?})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_pick(&self, arg0);
@@ -352,10 +372,14 @@ impl ObjectPrivate for TreelandWindowPickerV1 {
                 };
                 let arg0 = arg0 as i32;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> treeland_window_picker_v1#{}.window(pid: {})\n", msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> treeland_window_picker_v1#{}.window(pid: {})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_window(&self, arg0);

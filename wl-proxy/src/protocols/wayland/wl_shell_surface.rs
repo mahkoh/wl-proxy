@@ -83,10 +83,14 @@ impl WlShellSurface {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.pong(serial: {})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.pong(serial: {})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -141,10 +145,14 @@ impl WlShellSurface {
             Some(id) => id,
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.move(seat: wl_seat#{}, serial: {})\n", id, arg0_id, arg1);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.move(seat: wl_seat#{}, serial: {})\n", id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id, arg1);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -204,10 +212,14 @@ impl WlShellSurface {
             Some(id) => id,
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.resize(seat: wl_seat#{}, serial: {}, edges: {:?})\n", id, arg0_id, arg1, arg2);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: u32, arg2: WlShellSurfaceResize) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.resize(seat: wl_seat#{}, serial: {}, edges: {:?})\n", id, arg0, arg1, arg2);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id, arg1, arg2);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -243,10 +255,14 @@ impl WlShellSurface {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.set_toplevel()\n", id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.set_toplevel()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -310,10 +326,14 @@ impl WlShellSurface {
             Some(id) => id,
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.set_transient(parent: wl_surface#{}, x: {}, y: {}, flags: {:?})\n", id, arg0_id, arg1, arg2, arg3);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: i32, arg2: i32, arg3: WlShellSurfaceTransient) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.set_transient(parent: wl_surface#{}, x: {}, y: {}, flags: {:?})\n", id, arg0, arg1, arg2, arg3);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id, arg1, arg2, arg3);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -406,10 +426,14 @@ impl WlShellSurface {
             },
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.set_fullscreen(method: {:?}, framerate: {}, output: wl_output#{})\n", id, arg0, arg1, arg2_id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: WlShellSurfaceFullscreenMethod, arg1: u32, arg2: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.set_fullscreen(method: {:?}, framerate: {}, output: wl_output#{})\n", id, arg0, arg1, arg2);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0, arg1, arg2_id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -501,10 +525,14 @@ impl WlShellSurface {
             Some(id) => id,
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.set_popup(seat: wl_seat#{}, serial: {}, parent: wl_surface#{}, x: {}, y: {}, flags: {:?})\n", id, arg0_id, arg1, arg2_id, arg3, arg4, arg5);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: u32, arg2: u32, arg3: i32, arg4: i32, arg5: WlShellSurfaceTransient) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.set_popup(seat: wl_seat#{}, serial: {}, parent: wl_surface#{}, x: {}, y: {}, flags: {:?})\n", id, arg0, arg1, arg2, arg3, arg4, arg5);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id, arg1, arg2_id, arg3, arg4, arg5);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -576,10 +604,14 @@ impl WlShellSurface {
             },
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.set_maximized(output: wl_output#{})\n", id, arg0_id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.set_maximized(output: wl_output#{})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -627,10 +659,14 @@ impl WlShellSurface {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.set_title(title: {:?})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: &str) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.set_title(title: {:?})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -677,10 +713,14 @@ impl WlShellSurface {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.set_class(class_: {:?})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: &str) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_shell_surface#{}.set_class(class_: {:?})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -725,10 +765,14 @@ impl WlShellSurface {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_shell_surface#{}.ping(serial: {})\n", client.endpoint.id, id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_shell_surface#{}.ping(serial: {})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -796,10 +840,14 @@ impl WlShellSurface {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_shell_surface#{}.configure(edges: {:?}, width: {}, height: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: WlShellSurfaceResize, arg1: i32, arg2: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_shell_surface#{}.configure(edges: {:?}, width: {}, height: {})\n", client_id, id, arg0, arg1, arg2);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1, arg2);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -837,10 +885,14 @@ impl WlShellSurface {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_shell_surface#{}.popup_done()\n", client.endpoint.id, id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_shell_surface#{}.popup_done()\n", client_id, id);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -1375,10 +1427,14 @@ impl ObjectPrivate for WlShellSurface {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.pong(serial: {})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.pong(serial: {})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_pong(&self, arg0);
@@ -1394,10 +1450,14 @@ impl ObjectPrivate for WlShellSurface {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.move(seat: wl_seat#{}, serial: {})\n", client.endpoint.id, msg[0], arg0, arg1);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.move(seat: wl_seat#{}, serial: {})\n", client_id, id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1);
                 }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
@@ -1424,10 +1484,14 @@ impl ObjectPrivate for WlShellSurface {
                 };
                 let arg2 = WlShellSurfaceResize(arg2);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.resize(seat: wl_seat#{}, serial: {}, edges: {:?})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32, arg2: WlShellSurfaceResize) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.resize(seat: wl_seat#{}, serial: {}, edges: {:?})\n", client_id, id, arg0, arg1, arg2);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1, arg2);
                 }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
@@ -1449,10 +1513,14 @@ impl ObjectPrivate for WlShellSurface {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.set_toplevel()\n", client.endpoint.id, msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.set_toplevel()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_toplevel(&self);
@@ -1473,10 +1541,14 @@ impl ObjectPrivate for WlShellSurface {
                 let arg2 = arg2 as i32;
                 let arg3 = WlShellSurfaceTransient(arg3);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.set_transient(parent: wl_surface#{}, x: {}, y: {}, flags: {:?})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: i32, arg2: i32, arg3: WlShellSurfaceTransient) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.set_transient(parent: wl_surface#{}, x: {}, y: {}, flags: {:?})\n", client_id, id, arg0, arg1, arg2, arg3);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1, arg2, arg3);
                 }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
@@ -1503,10 +1575,14 @@ impl ObjectPrivate for WlShellSurface {
                 };
                 let arg0 = WlShellSurfaceFullscreenMethod(arg0);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.set_fullscreen(method: {:?}, framerate: {}, output: wl_output#{})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: WlShellSurfaceFullscreenMethod, arg1: u32, arg2: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.set_fullscreen(method: {:?}, framerate: {}, output: wl_output#{})\n", client_id, id, arg0, arg1, arg2);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1, arg2);
                 }
                 let arg2 = if arg2 == 0 {
                     None
@@ -1543,10 +1619,14 @@ impl ObjectPrivate for WlShellSurface {
                 let arg4 = arg4 as i32;
                 let arg5 = WlShellSurfaceTransient(arg5);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.set_popup(seat: wl_seat#{}, serial: {}, parent: wl_surface#{}, x: {}, y: {}, flags: {:?})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4, arg5);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32, arg2: u32, arg3: i32, arg4: i32, arg5: WlShellSurfaceTransient) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.set_popup(seat: wl_seat#{}, serial: {}, parent: wl_surface#{}, x: {}, y: {}, flags: {:?})\n", client_id, id, arg0, arg1, arg2, arg3, arg4, arg5);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4, arg5);
                 }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
@@ -1579,10 +1659,14 @@ impl ObjectPrivate for WlShellSurface {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.set_maximized(output: wl_output#{})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.set_maximized(output: wl_output#{})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 let arg0 = if arg0 == 0 {
                     None
@@ -1632,10 +1716,14 @@ impl ObjectPrivate for WlShellSurface {
                     return Err(ObjectError::TrailingBytes);
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.set_title(title: {:?})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: &str) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.set_title(title: {:?})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_title(&self, arg0);
@@ -1671,10 +1759,14 @@ impl ObjectPrivate for WlShellSurface {
                     return Err(ObjectError::TrailingBytes);
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.set_class(class_: {:?})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: &str) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_shell_surface#{}.set_class(class_: {:?})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_class(&self, arg0);
@@ -1706,10 +1798,14 @@ impl ObjectPrivate for WlShellSurface {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_shell_surface#{}.ping(serial: {})\n", msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_shell_surface#{}.ping(serial: {})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_ping(&self, arg0);
@@ -1729,10 +1825,14 @@ impl ObjectPrivate for WlShellSurface {
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_shell_surface#{}.configure(edges: {:?}, width: {}, height: {})\n", msg[0], arg0, arg1, arg2);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: WlShellSurfaceResize, arg1: i32, arg2: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_shell_surface#{}.configure(edges: {:?}, width: {}, height: {})\n", id, arg0, arg1, arg2);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1, arg2);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_configure(&self, arg0, arg1, arg2);
@@ -1745,10 +1845,14 @@ impl ObjectPrivate for WlShellSurface {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_shell_surface#{}.popup_done()\n", msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_shell_surface#{}.popup_done()\n", id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0]);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_popup_done(&self);

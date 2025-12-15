@@ -86,10 +86,14 @@ impl ZwlrForeignToplevelManagerV1 {
             .map_err(|e| ObjectError::GenerateClientId("toplevel", e))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_foreign_toplevel_manager_v1#{}.toplevel(toplevel: zwlr_foreign_toplevel_handle_v1#{})\n", client.endpoint.id, id, arg0_id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_foreign_toplevel_manager_v1#{}.toplevel(toplevel: zwlr_foreign_toplevel_handle_v1#{})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0_id);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -125,10 +129,14 @@ impl ZwlrForeignToplevelManagerV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_foreign_toplevel_manager_v1#{}.stop()\n", id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_foreign_toplevel_manager_v1#{}.stop()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -164,10 +172,14 @@ impl ZwlrForeignToplevelManagerV1 {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_foreign_toplevel_manager_v1#{}.finished()\n", client.endpoint.id, id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_foreign_toplevel_manager_v1#{}.finished()\n", client_id, id);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -300,10 +312,14 @@ impl ObjectPrivate for ZwlrForeignToplevelManagerV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_foreign_toplevel_manager_v1#{}.stop()\n", client.endpoint.id, msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_foreign_toplevel_manager_v1#{}.stop()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_stop(&self);
@@ -335,10 +351,14 @@ impl ObjectPrivate for ZwlrForeignToplevelManagerV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_foreign_toplevel_manager_v1#{}.toplevel(toplevel: zwlr_foreign_toplevel_handle_v1#{})\n", msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_foreign_toplevel_manager_v1#{}.toplevel(toplevel: zwlr_foreign_toplevel_handle_v1#{})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
                 }
                 let arg0_id = arg0;
                 let arg0 = ZwlrForeignToplevelHandleV1::new(&self.core.state, self.core.version);
@@ -356,10 +376,14 @@ impl ObjectPrivate for ZwlrForeignToplevelManagerV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_foreign_toplevel_manager_v1#{}.finished()\n", msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_foreign_toplevel_manager_v1#{}.finished()\n", id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0]);
                 }
                 self.core.handle_server_destroy();
                 if let Some(handler) = handler {

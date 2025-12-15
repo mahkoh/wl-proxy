@@ -88,10 +88,14 @@ impl ExtDataControlOfferV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= ext_data_control_offer_v1#{}.receive(mime_type: {:?}, fd: {})\n", id, arg0, arg1.as_raw_fd());
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: &str, arg1: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= ext_data_control_offer_v1#{}.receive(mime_type: {:?}, fd: {})\n", id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0, arg1.as_raw_fd());
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -124,10 +128,14 @@ impl ExtDataControlOfferV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= ext_data_control_offer_v1#{}.destroy()\n", id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= ext_data_control_offer_v1#{}.destroy()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -172,10 +180,14 @@ impl ExtDataControlOfferV1 {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= ext_data_control_offer_v1#{}.offer(mime_type: {:?})\n", client.endpoint.id, id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: &str) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= ext_data_control_offer_v1#{}.offer(mime_type: {:?})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -338,10 +350,14 @@ impl ObjectPrivate for ExtDataControlOfferV1 {
                 };
                 let arg1 = &arg1;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> ext_data_control_offer_v1#{}.receive(mime_type: {:?}, fd: {})\n", client.endpoint.id, msg[0], arg0, arg1.as_raw_fd());
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: &str, arg1: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> ext_data_control_offer_v1#{}.receive(mime_type: {:?}, fd: {})\n", client_id, id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1.as_raw_fd());
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_receive(&self, arg0, arg1);
@@ -354,10 +370,14 @@ impl ObjectPrivate for ExtDataControlOfferV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> ext_data_control_offer_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> ext_data_control_offer_v1#{}.destroy()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
@@ -411,10 +431,14 @@ impl ObjectPrivate for ExtDataControlOfferV1 {
                     return Err(ObjectError::TrailingBytes);
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> ext_data_control_offer_v1#{}.offer(mime_type: {:?})\n", msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: &str) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> ext_data_control_offer_v1#{}.offer(mime_type: {:?})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_offer(&self, arg0);

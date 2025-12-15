@@ -88,10 +88,14 @@ impl ZwlrOutputModeV1 {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_output_mode_v1#{}.size(width: {}, height: {})\n", client.endpoint.id, id, arg0, arg1);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: i32, arg1: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_output_mode_v1#{}.size(width: {}, height: {})\n", client_id, id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -137,10 +141,14 @@ impl ZwlrOutputModeV1 {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_output_mode_v1#{}.refresh(refresh: {})\n", client.endpoint.id, id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_output_mode_v1#{}.refresh(refresh: {})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -174,10 +182,14 @@ impl ZwlrOutputModeV1 {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_output_mode_v1#{}.preferred()\n", client.endpoint.id, id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_output_mode_v1#{}.preferred()\n", client_id, id);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -212,10 +224,14 @@ impl ZwlrOutputModeV1 {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_output_mode_v1#{}.finished()\n", client.endpoint.id, id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_output_mode_v1#{}.finished()\n", client_id, id);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -247,10 +263,14 @@ impl ZwlrOutputModeV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_output_mode_v1#{}.release()\n", id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_output_mode_v1#{}.release()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -419,10 +439,14 @@ impl ObjectPrivate for ZwlrOutputModeV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_output_mode_v1#{}.release()\n", client.endpoint.id, msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_output_mode_v1#{}.release()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
@@ -458,10 +482,14 @@ impl ObjectPrivate for ZwlrOutputModeV1 {
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_output_mode_v1#{}.size(width: {}, height: {})\n", msg[0], arg0, arg1);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: i32, arg1: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_output_mode_v1#{}.size(width: {}, height: {})\n", id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_size(&self, arg0, arg1);
@@ -477,10 +505,14 @@ impl ObjectPrivate for ZwlrOutputModeV1 {
                 };
                 let arg0 = arg0 as i32;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_output_mode_v1#{}.refresh(refresh: {})\n", msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_output_mode_v1#{}.refresh(refresh: {})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_refresh(&self, arg0);
@@ -493,10 +525,14 @@ impl ObjectPrivate for ZwlrOutputModeV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_output_mode_v1#{}.preferred()\n", msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_output_mode_v1#{}.preferred()\n", id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0]);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_preferred(&self);
@@ -509,10 +545,14 @@ impl ObjectPrivate for ZwlrOutputModeV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_output_mode_v1#{}.finished()\n", msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_output_mode_v1#{}.finished()\n", id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0]);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_finished(&self);

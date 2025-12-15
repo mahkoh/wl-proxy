@@ -98,10 +98,14 @@ impl WlKeyboard {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_keyboard#{}.keymap(format: {:?}, fd: {}, size: {})\n", client.endpoint.id, id, arg0, arg1.as_raw_fd(), arg2);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: WlKeyboardKeymapFormat, arg1: i32, arg2: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_keyboard#{}.keymap(format: {:?}, fd: {}, size: {})\n", client_id, id, arg0, arg1, arg2);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1.as_raw_fd(), arg2);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -172,10 +176,14 @@ impl WlKeyboard {
         }
         let arg1_id = arg1.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_keyboard#{}.enter(serial: {}, surface: wl_surface#{}, keys: {})\n", client.endpoint.id, id, arg0, arg1_id, debug_array(arg2));
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32, arg2: &[u8]) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_keyboard#{}.enter(serial: {}, surface: wl_surface#{}, keys: {})\n", client_id, id, arg0, arg1, debug_array(arg2));
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1_id, arg2);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -239,10 +247,14 @@ impl WlKeyboard {
         }
         let arg1_id = arg1.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_keyboard#{}.leave(serial: {}, surface: wl_surface#{})\n", client.endpoint.id, id, arg0, arg1_id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_keyboard#{}.leave(serial: {}, surface: wl_surface#{})\n", client_id, id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1_id);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -321,10 +333,14 @@ impl WlKeyboard {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_keyboard#{}.key(serial: {}, time: {}, key: {}, state: {:?})\n", client.endpoint.id, id, arg0, arg1, arg2, arg3);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32, arg2: u32, arg3: WlKeyboardKeyState) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_keyboard#{}.key(serial: {}, time: {}, key: {}, state: {:?})\n", client_id, id, arg0, arg1, arg2, arg3);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1, arg2, arg3);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -399,10 +415,14 @@ impl WlKeyboard {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_keyboard#{}.modifiers(serial: {}, mods_depressed: {}, mods_latched: {}, mods_locked: {}, group: {})\n", client.endpoint.id, id, arg0, arg1, arg2, arg3, arg4);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32, arg2: u32, arg3: u32, arg4: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_keyboard#{}.modifiers(serial: {}, mods_depressed: {}, mods_latched: {}, mods_locked: {}, group: {})\n", client_id, id, arg0, arg1, arg2, arg3, arg4);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1, arg2, arg3, arg4);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -436,10 +456,14 @@ impl WlKeyboard {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_keyboard#{}.release()\n", id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_keyboard#{}.release()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -498,10 +522,14 @@ impl WlKeyboard {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_keyboard#{}.repeat_info(rate: {}, delay: {})\n", client.endpoint.id, id, arg0, arg1);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: i32, arg1: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_keyboard#{}.repeat_info(rate: {}, delay: {})\n", client_id, id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -849,10 +877,14 @@ impl ObjectPrivate for WlKeyboard {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_keyboard#{}.release()\n", client.endpoint.id, msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_keyboard#{}.release()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
@@ -891,10 +923,14 @@ impl ObjectPrivate for WlKeyboard {
                 let arg0 = WlKeyboardKeymapFormat(arg0);
                 let arg1 = &arg1;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_keyboard#{}.keymap(format: {:?}, fd: {}, size: {})\n", msg[0], arg0, arg1.as_raw_fd(), arg2);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: WlKeyboardKeymapFormat, arg1: i32, arg2: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_keyboard#{}.keymap(format: {:?}, fd: {}, size: {})\n", id, arg0, arg1, arg2);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1.as_raw_fd(), arg2);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_keymap(&self, arg0, arg1, arg2);
@@ -930,10 +966,14 @@ impl ObjectPrivate for WlKeyboard {
                     return Err(ObjectError::TrailingBytes);
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_keyboard#{}.enter(serial: {}, surface: wl_surface#{}, keys: {})\n", msg[0], arg0, arg1, debug_array(arg2));
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32, arg1: u32, arg2: &[u8]) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_keyboard#{}.enter(serial: {}, surface: wl_surface#{}, keys: {})\n", id, arg0, arg1, debug_array(arg2));
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1, arg2);
                 }
                 let arg1_id = arg1;
                 let Some(arg1) = self.core.state.server.lookup(arg1_id) else {
@@ -958,10 +998,14 @@ impl ObjectPrivate for WlKeyboard {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_keyboard#{}.leave(serial: {}, surface: wl_surface#{})\n", msg[0], arg0, arg1);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32, arg1: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_keyboard#{}.leave(serial: {}, surface: wl_surface#{})\n", id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1);
                 }
                 let arg1_id = arg1;
                 let Some(arg1) = self.core.state.server.lookup(arg1_id) else {
@@ -989,10 +1033,14 @@ impl ObjectPrivate for WlKeyboard {
                 };
                 let arg3 = WlKeyboardKeyState(arg3);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_keyboard#{}.key(serial: {}, time: {}, key: {}, state: {:?})\n", msg[0], arg0, arg1, arg2, arg3);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32, arg1: u32, arg2: u32, arg3: WlKeyboardKeyState) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_keyboard#{}.key(serial: {}, time: {}, key: {}, state: {:?})\n", id, arg0, arg1, arg2, arg3);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1, arg2, arg3);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_key(&self, arg0, arg1, arg2, arg3);
@@ -1011,10 +1059,14 @@ impl ObjectPrivate for WlKeyboard {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 28));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_keyboard#{}.modifiers(serial: {}, mods_depressed: {}, mods_latched: {}, mods_locked: {}, group: {})\n", msg[0], arg0, arg1, arg2, arg3, arg4);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32, arg1: u32, arg2: u32, arg3: u32, arg4: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_keyboard#{}.modifiers(serial: {}, mods_depressed: {}, mods_latched: {}, mods_locked: {}, group: {})\n", id, arg0, arg1, arg2, arg3, arg4);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1, arg2, arg3, arg4);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_modifiers(&self, arg0, arg1, arg2, arg3, arg4);
@@ -1032,10 +1084,14 @@ impl ObjectPrivate for WlKeyboard {
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_keyboard#{}.repeat_info(rate: {}, delay: {})\n", msg[0], arg0, arg1);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: i32, arg1: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_keyboard#{}.repeat_info(rate: {}, delay: {})\n", id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_repeat_info(&self, arg0, arg1);

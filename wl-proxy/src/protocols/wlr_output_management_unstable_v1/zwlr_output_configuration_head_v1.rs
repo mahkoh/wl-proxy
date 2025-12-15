@@ -79,10 +79,14 @@ impl ZwlrOutputConfigurationHeadV1 {
             Some(id) => id,
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_output_configuration_head_v1#{}.set_mode(mode: zwlr_output_mode_v1#{})\n", id, arg0_id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_output_configuration_head_v1#{}.set_mode(mode: zwlr_output_mode_v1#{})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -136,10 +140,14 @@ impl ZwlrOutputConfigurationHeadV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_output_configuration_head_v1#{}.set_custom_mode(width: {}, height: {}, refresh: {})\n", id, arg0, arg1, arg2);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: i32, arg1: i32, arg2: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_output_configuration_head_v1#{}.set_custom_mode(width: {}, height: {}, refresh: {})\n", id, arg0, arg1, arg2);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0, arg1, arg2);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -187,10 +195,14 @@ impl ZwlrOutputConfigurationHeadV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_output_configuration_head_v1#{}.set_position(x: {}, y: {})\n", id, arg0, arg1);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: i32, arg1: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_output_configuration_head_v1#{}.set_position(x: {}, y: {})\n", id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0, arg1);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -233,10 +245,14 @@ impl ZwlrOutputConfigurationHeadV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_output_configuration_head_v1#{}.set_transform(transform: {:?})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: WlOutputTransform) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_output_configuration_head_v1#{}.set_transform(transform: {:?})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -278,10 +294,14 @@ impl ZwlrOutputConfigurationHeadV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_output_configuration_head_v1#{}.set_scale(scale: {})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: Fixed) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_output_configuration_head_v1#{}.set_scale(scale: {})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -324,10 +344,14 @@ impl ZwlrOutputConfigurationHeadV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_output_configuration_head_v1#{}.set_adaptive_sync(state: {:?})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: ZwlrOutputHeadV1AdaptiveSyncState) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_output_configuration_head_v1#{}.set_adaptive_sync(state: {:?})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -547,10 +571,14 @@ impl ObjectPrivate for ZwlrOutputConfigurationHeadV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_output_configuration_head_v1#{}.set_mode(mode: zwlr_output_mode_v1#{})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_output_configuration_head_v1#{}.set_mode(mode: zwlr_output_mode_v1#{})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
@@ -579,10 +607,14 @@ impl ObjectPrivate for ZwlrOutputConfigurationHeadV1 {
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_output_configuration_head_v1#{}.set_custom_mode(width: {}, height: {}, refresh: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: i32, arg1: i32, arg2: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_output_configuration_head_v1#{}.set_custom_mode(width: {}, height: {}, refresh: {})\n", client_id, id, arg0, arg1, arg2);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1, arg2);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_custom_mode(&self, arg0, arg1, arg2);
@@ -600,10 +632,14 @@ impl ObjectPrivate for ZwlrOutputConfigurationHeadV1 {
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_output_configuration_head_v1#{}.set_position(x: {}, y: {})\n", client.endpoint.id, msg[0], arg0, arg1);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: i32, arg1: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_output_configuration_head_v1#{}.set_position(x: {}, y: {})\n", client_id, id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_position(&self, arg0, arg1);
@@ -619,10 +655,14 @@ impl ObjectPrivate for ZwlrOutputConfigurationHeadV1 {
                 };
                 let arg0 = WlOutputTransform(arg0);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_output_configuration_head_v1#{}.set_transform(transform: {:?})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: WlOutputTransform) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_output_configuration_head_v1#{}.set_transform(transform: {:?})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_transform(&self, arg0);
@@ -638,10 +678,14 @@ impl ObjectPrivate for ZwlrOutputConfigurationHeadV1 {
                 };
                 let arg0 = Fixed::from_wire(arg0 as i32);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_output_configuration_head_v1#{}.set_scale(scale: {})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: Fixed) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_output_configuration_head_v1#{}.set_scale(scale: {})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_scale(&self, arg0);
@@ -657,10 +701,14 @@ impl ObjectPrivate for ZwlrOutputConfigurationHeadV1 {
                 };
                 let arg0 = ZwlrOutputHeadV1AdaptiveSyncState(arg0);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_output_configuration_head_v1#{}.set_adaptive_sync(state: {:?})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: ZwlrOutputHeadV1AdaptiveSyncState) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_output_configuration_head_v1#{}.set_adaptive_sync(state: {:?})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_adaptive_sync(&self, arg0);

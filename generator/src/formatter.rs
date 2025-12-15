@@ -1000,9 +1000,42 @@ fn format_wayland_debug(
         prefix = "                ";
     }
     wl!(r#"{prefix}if self.core.state.log {{"#)?;
-    wl!(r#"{prefix}    let (millis, micros) = time_since_epoch();"#)?;
-    wl!(r#"{prefix}    let prefix = &self.core.state.log_prefix;"#)?;
-    w!(r#"{prefix}    let args = format_args!("[{{millis:7}}.{{micros:03}}] "#)?;
+    wl!(r#"{prefix}    #[cold]"#)?;
+    w!(r#"{prefix}    fn log(state: &State"#)?;
+    if msg.is_request ^ outgoing {
+        w!(r#", client_id: u64"#)?;
+    }
+    w!(r#", id: u32"#)?;
+    for (idx, arg) in msg.args.iter().enumerate() {
+        let ty = match arg.ty {
+            ArgType::NewId => {
+                if arg.interface.is_none() {
+                    w!(r#", arg{idx}_interface: &str"#)?;
+                    w!(r#", arg{idx}_id: u32"#)?;
+                    w!(r#", arg{idx}_version: u32"#)?;
+                    continue;
+                }
+                "u32"
+            }
+            ArgType::Object => "u32",
+            ArgType::Uint | ArgType::Int if arg.enum_.is_some() => {
+                w!(r#", arg{idx}: {}"#, arg_type(interface, arg))?;
+                continue;
+            }
+            ArgType::Int => "i32",
+            ArgType::Uint => "u32",
+            ArgType::Fixed => "Fixed",
+            ArgType::String if arg.allow_null => "Option<&str>",
+            ArgType::String => "&str",
+            ArgType::Array => "&[u8]",
+            ArgType::Fd => "i32",
+        };
+        w!(r#", arg{idx}: {ty}"#)?;
+    }
+    wl!(r#") {{"#)?;
+    wl!(r#"{prefix}        let (millis, micros) = time_since_epoch();"#)?;
+    wl!(r#"{prefix}        let prefix = &state.log_prefix;"#)?;
+    w!(r#"{prefix}        let args = format_args!("[{{millis:7}}.{{micros:03}}] "#)?;
     w!(r#"{{prefix}}"#)?;
     if msg.is_request ^ outgoing {
         w!(r#"client#{{:<4}}"#)?;
@@ -1043,6 +1076,27 @@ fn format_wayland_debug(
     }
     w!(r#")\n""#)?;
     if msg.is_request ^ outgoing {
+        w!(r#", client_id"#)?;
+    }
+    w!(r#", id"#)?;
+    for (idx, arg) in msg.args.iter().enumerate() {
+        match arg.ty {
+            ArgType::NewId => {
+                if arg.interface.is_none() {
+                    w!(r#", arg{idx}_interface, arg{idx}_id, arg{idx}_version"#)?;
+                } else {
+                    w!(r#", arg{idx}"#)?;
+                }
+            }
+            ArgType::Array => w!(r#", debug_array(arg{idx})"#)?,
+            _ => w!(r#", arg{idx}"#)?,
+        }
+    }
+    wl!(r#");"#)?;
+    wl!(r#"{prefix}        state.log(args);"#)?;
+    wl!(r#"{prefix}    }}"#)?;
+    w!(r#"{prefix}    log(&self.core.state"#)?;
+    if msg.is_request ^ outgoing {
         w!(r#", client.endpoint.id"#)?;
     }
     if outgoing {
@@ -1081,12 +1135,11 @@ fn format_wayland_debug(
                 }
             }
             ArgType::Int | ArgType::Uint | ArgType::Fixed | ArgType::String => w!(r#", arg{idx}"#)?,
-            ArgType::Array => w!(r#", debug_array(arg{idx})"#)?,
+            ArgType::Array => w!(r#", arg{idx}"#)?,
             ArgType::Fd => w!(r#", arg{idx}.as_raw_fd()"#)?,
         }
     }
     wl!(r#");"#)?;
-    wl!(r#"{prefix}    self.core.state.log(args);"#)?;
     wl!(r#"{prefix}}}"#)?;
     Ok(())
 }

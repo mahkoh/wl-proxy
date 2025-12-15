@@ -168,7 +168,7 @@ impl WlDisplayHandler for DisplayHandler {
         registry.set_handler(ClientWlRegistry {
             init: false,
             shared: self.shared.clone(),
-            filter: Default::default(),
+            mapper: Default::default(),
         });
     }
 }
@@ -290,6 +290,7 @@ impl SharedMut {
             return;
         };
         let proxy = registry.state().create_object::<WlSeat>(version.min(10));
+        proxy.set_forward_to_client(false);
         let _ = registry.send_bind(name, proxy.clone());
         let seat = Rc::new(Seat {
             wl_seat: proxy.clone(),
@@ -386,7 +387,7 @@ impl WlCallbackHandler for FirstSyncHandler {
 struct ClientWlRegistry {
     init: bool,
     shared: Rc<Shared>,
-    filter: GlobalMapper,
+    mapper: GlobalMapper,
 }
 
 impl WlRegistryHandler for ClientWlRegistry {
@@ -394,54 +395,46 @@ impl WlRegistryHandler for ClientWlRegistry {
         let shared = &mut *self.shared.shared.borrow_mut();
         match id.interface() {
             XdgWmBase::INTERFACE => {
-                let id = id.clone().downcast::<XdgWmBase>().unwrap();
-                id.set_handler(ClientXdgWmBase {
+                id.downcast::<XdgWmBase>().set_handler(ClientXdgWmBase {
                     shared: self.shared.clone(),
                     globals: shared.globals.clone().unwrap(),
                 });
                 return;
             }
             WlCompositor::INTERFACE => {
-                let id = id.clone().downcast::<WlCompositor>().unwrap();
-                id.set_handler(ClientWlCompositor {
-                    globals: shared.globals.clone().unwrap(),
-                });
+                id.downcast::<WlCompositor>()
+                    .set_handler(ClientWlCompositor {
+                        globals: shared.globals.clone().unwrap(),
+                    });
             }
             WlSubcompositor::INTERFACE => {
-                let id = id.clone().downcast::<WlSubcompositor>().unwrap();
-                id.set_handler(ClientWlSubcompositor {});
+                id.downcast::<WlSubcompositor>()
+                    .set_handler(ClientWlSubcompositor);
             }
             WlSeat::INTERFACE => {
-                let id = id.clone().downcast::<WlSeat>().unwrap();
-                id.set_handler(ClientWlSeat {});
+                id.downcast::<WlSeat>().set_handler(ClientWlSeat);
             }
             ZwpRelativePointerManagerV1::INTERFACE => {
-                let id = id
-                    .clone()
-                    .downcast::<ZwpRelativePointerManagerV1>()
-                    .unwrap();
-                id.set_handler(ClientZwpRelativePointerManagerV1);
+                id.downcast::<ZwpRelativePointerManagerV1>()
+                    .set_handler(ClientZwpRelativePointerManagerV1);
             }
             ZwpTextInputManagerV3::INTERFACE => {
-                let id = id.clone().downcast::<ZwpTextInputManagerV3>().unwrap();
-                id.set_handler(ClientZwpTextInputManagerV3 {});
+                id.downcast::<ZwpTextInputManagerV3>()
+                    .set_handler(ClientZwpTextInputManagerV3);
             }
             ZxdgDecorationManagerV1::INTERFACE => {
-                let id = id.clone().downcast::<ZxdgDecorationManagerV1>().unwrap();
-                id.set_handler(ZxdgDecorationManagerV1HandlerImpl);
+                id.downcast::<ZxdgDecorationManagerV1>()
+                    .set_handler(ZxdgDecorationManagerV1HandlerImpl);
                 return;
             }
             OrgKdeKwinServerDecorationManager::INTERFACE => {
-                let id = id
-                    .clone()
-                    .downcast::<OrgKdeKwinServerDecorationManager>()
-                    .unwrap();
-                id.set_handler(OrgKdeKwinServerDecorationManagerHandlerImpl);
+                id.downcast::<OrgKdeKwinServerDecorationManager>()
+                    .set_handler(OrgKdeKwinServerDecorationManagerHandlerImpl);
                 return;
             }
             _ => {}
         }
-        let _ = self.filter.handle_client_bind(slf, name, &id);
+        let _ = self.mapper.handle_client_bind(slf, name, &id);
     }
 
     fn handle_global(
@@ -451,45 +444,34 @@ impl WlRegistryHandler for ClientWlRegistry {
         interface: ObjectInterface,
         version: u32,
     ) {
+        use ObjectInterface::*;
         if !self.init {
             self.init = true;
-            let _ = self
-                .filter
-                .add_synthetic_global(slf, ObjectInterface::XdgWmBase, 7);
-            let _ =
-                self.filter
-                    .add_synthetic_global(slf, ObjectInterface::ZxdgDecorationManagerV1, 1);
-            let _ = self.filter.add_synthetic_global(
-                slf,
-                ObjectInterface::OrgKdeKwinServerDecorationManager,
-                1,
-            );
-            let _ = self.filter.add_synthetic_global(
-                slf,
-                ObjectInterface::OrgKdeKwinServerDecorationManager,
-                1,
-            );
+            let mut add_synth = |t, v| self.mapper.add_synthetic_global(slf, t, v);
+            let _ = add_synth(XdgWmBase, 7);
+            let _ = add_synth(ZxdgDecorationManagerV1, 1);
+            let _ = add_synth(OrgKdeKwinServerDecorationManager, 1);
         }
         match interface {
-            ObjectInterface::ZxdgDecorationManagerV1
-            | ObjectInterface::OrgKdeKwinServerDecorationManager
-            | ObjectInterface::XdgWmBase
-            | ObjectInterface::XdgWmDialogV1
-            | ObjectInterface::XdgToplevelDragManagerV1
-            | ObjectInterface::XdgToplevelIconManagerV1
-            | ObjectInterface::XdgToplevelTagManagerV1 => {
-                self.filter.ignore_server_global(name);
+            ZxdgDecorationManagerV1
+            | OrgKdeKwinServerDecorationManager
+            | XdgWmBase
+            | XdgWmDialogV1
+            | XdgToplevelDragManagerV1
+            | XdgToplevelIconManagerV1
+            | XdgToplevelTagManagerV1 => {
+                self.mapper.ignore_server_global(name);
             }
             _ => {
                 let _ = self
-                    .filter
+                    .mapper
                     .handle_server_global(slf, name, interface, version);
             }
         }
     }
 
     fn handle_global_remove(&mut self, slf: &Rc<WlRegistry>, name: u32) {
-        let _ = self.filter.handle_server_global_remove(slf, name);
+        let _ = self.mapper.handle_server_global_remove(slf, name);
     }
 }
 
@@ -506,6 +488,7 @@ impl WlCompositorHandler for ClientWlCompositor {
             xdg_surface: Default::default(),
             client_input_region: Default::default(),
             input_mask: Default::default(),
+            subsurface_position: [0, 0],
             subsurfaces: Default::default(),
         });
         let _ = slf.send_create_surface(id);
@@ -519,7 +502,7 @@ impl WlCompositorHandler for ClientWlCompositor {
     }
 }
 
-struct ClientWlSubcompositor {}
+struct ClientWlSubcompositor;
 
 impl WlSubcompositorHandler for ClientWlSubcompositor {
     fn handle_get_subsurface(
@@ -531,8 +514,8 @@ impl WlSubcompositorHandler for ClientWlSubcompositor {
     ) {
         let mut p = parent.get_handler_mut::<ClientWlSurface>();
         let mut c = surface.get_handler_mut::<ClientWlSurface>();
-        p.subsurfaces
-            .insert(surface.unique_id(), ([0, 0], surface.clone()));
+        p.subsurfaces.insert(surface.unique_id(), surface.clone());
+        c.subsurface_position = [0, 0];
         c.set_input_mask(surface, p.input_mask);
         id.set_handler(ClientWlSubsurface {
             parent: parent.clone(),
@@ -561,12 +544,10 @@ impl WlSubsurfaceHandler for ClientWlSubsurface {
     }
 
     fn handle_set_position(&mut self, slf: &Rc<WlSubsurface>, dx: i32, dy: i32) {
-        let mut p = self.parent.get_handler_mut::<ClientWlSurface>();
-        p.subsurfaces.get_mut(&self.surface.unique_id()).unwrap().0 = [dx, dy];
-        let input_mask = p.input_mask.map(|[x, y, w, h]| [x - dx, y - dy, w, h]);
-        self.surface
-            .get_handler_mut::<ClientWlSurface>()
-            .set_input_mask(&self.surface, input_mask);
+        let p = self.parent.get_handler_mut::<ClientWlSurface>();
+        let mut c = self.surface.get_handler_mut::<ClientWlSurface>();
+        c.subsurface_position = [dx, dy];
+        c.set_input_mask(&self.surface, p.input_mask);
         let _ = slf.send_set_position(dx, dy);
     }
 }
@@ -590,18 +571,25 @@ struct ClientWlSurface {
     xdg_surface: Weak<XdgSurface>,
     client_input_region: Option<Vec<WlRegionOp>>,
     input_mask: Option<[i32; 4]>,
-    subsurfaces: HashMap<u64, ([i32; 2], Rc<WlSurface>)>,
+    subsurface_position: [i32; 2],
+    subsurfaces: HashMap<u64, Rc<WlSurface>>,
 }
 
 impl ClientWlSurface {
-    fn set_input_mask(&mut self, slf: &Rc<WlSurface>, mask: Option<[i32; 4]>) {
-        self.input_mask = mask;
+    fn set_input_mask(&mut self, slf: &Rc<WlSurface>, parent_mask: Option<[i32; 4]>) {
+        self.input_mask = parent_mask.map(|[x, y, w, h]| {
+            [
+                x - self.subsurface_position[0],
+                y - self.subsurface_position[1],
+                w,
+                h,
+            ]
+        });
         self.update_region(slf);
-        for ([dx, dy], surface) in self.subsurfaces.values() {
-            let mask = mask.map(|[x, y, w, h]| [x - *dx, y - *dy, w, h]);
+        for surface in self.subsurfaces.values() {
             surface
                 .get_handler_mut::<ClientWlSurface>()
-                .set_input_mask(surface, mask);
+                .set_input_mask(surface, self.input_mask);
         }
     }
 
@@ -936,15 +924,13 @@ impl ClientXdgSurface {
                         WindowEdge::Left => (-length32, 0),
                         WindowEdge::TopLeft => (-length32, -length32),
                     };
-                    let _ = v.wl_subsurface.send_set_position(x + self.geometry[0], y + self.geometry[1]);
+                    let _ = v
+                        .wl_subsurface
+                        .send_set_position(x + self.geometry[0], y + self.geometry[1]);
                 }
                 let required_size = match k {
-                    WindowEdge::Top | WindowEdge::Bottom => {
-                        [self.geometry[2] as usize, length]
-                    }
-                    WindowEdge::Right | WindowEdge::Left => {
-                        [self.geometry[3] as usize, length]
-                    }
+                    WindowEdge::Top | WindowEdge::Bottom => [self.geometry[2] as usize, length],
+                    WindowEdge::Right | WindowEdge::Left => [self.geometry[3] as usize, length],
                     WindowEdge::TopRight
                     | WindowEdge::BottomRight
                     | WindowEdge::BottomLeft
@@ -1649,7 +1635,7 @@ impl WlPointerHandler for ProxyWlPointer {
     }
 }
 
-struct ClientWlSeat {}
+struct ClientWlSeat;
 
 impl WlSeatHandler for ClientWlSeat {
     fn handle_get_pointer(&mut self, slf: &Rc<WlSeat>, id: &Rc<WlPointer>) {
@@ -1857,7 +1843,7 @@ impl WlKeyboardHandler for ClientDevice {
     }
 }
 
-struct ClientZwpTextInputManagerV3 {}
+struct ClientZwpTextInputManagerV3;
 
 impl ZwpTextInputManagerV3Handler for ClientZwpTextInputManagerV3 {
     fn handle_get_text_input(

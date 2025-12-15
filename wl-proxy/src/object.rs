@@ -134,17 +134,28 @@ pub trait ObjectUtils: Object {
 impl<T> ObjectUtils for T where T: Object + ?Sized {}
 
 pub trait ObjectRcUtils {
-    fn downcast<T>(self) -> Option<Rc<T>>
+    fn try_downcast<T>(&self) -> Option<Rc<T>>
+    where
+        T: 'static;
+
+    fn downcast<T>(&self) -> Rc<T>
     where
         T: 'static;
 }
 
 impl ObjectRcUtils for Rc<dyn Object> {
-    fn downcast<T>(self) -> Option<Rc<T>>
+    fn try_downcast<T>(&self) -> Option<Rc<T>>
     where
         T: 'static,
     {
-        (self as Rc<dyn Any>).downcast().ok()
+        (self.clone() as Rc<dyn Any>).downcast().ok()
+    }
+
+    fn downcast<T>(&self) -> Rc<T>
+    where
+        T: 'static,
+    {
+        self.try_downcast().unwrap()
     }
 }
 

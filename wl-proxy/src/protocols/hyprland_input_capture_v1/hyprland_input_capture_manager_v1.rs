@@ -81,10 +81,14 @@ impl HyprlandInputCaptureManagerV1 {
             .map_err(|e| ObjectError::GenerateServerId("session", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= hyprland_input_capture_manager_v1#{}.create_session(session: hyprland_input_capture_v1#{}, handle: {:?})\n", id, arg0_id, arg1);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: &str) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= hyprland_input_capture_manager_v1#{}.create_session(session: hyprland_input_capture_v1#{}, handle: {:?})\n", id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id, arg1);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -196,10 +200,14 @@ impl ObjectPrivate for HyprlandInputCaptureManagerV1 {
                     return Err(ObjectError::TrailingBytes);
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> hyprland_input_capture_manager_v1#{}.create_session(session: hyprland_input_capture_v1#{}, handle: {:?})\n", client.endpoint.id, msg[0], arg0, arg1);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: &str) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> hyprland_input_capture_manager_v1#{}.create_session(session: hyprland_input_capture_v1#{}, handle: {:?})\n", client_id, id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1);
                 }
                 let arg0_id = arg0;
                 let arg0 = HyprlandInputCaptureV1::new(&self.core.state, self.core.version);

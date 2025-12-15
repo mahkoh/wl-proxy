@@ -87,10 +87,14 @@ impl HyprlandToplevelMappingManagerV1 {
             .map_err(|e| ObjectError::GenerateServerId("handle", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= hyprland_toplevel_mapping_manager_v1#{}.get_window_for_toplevel(handle: hyprland_toplevel_window_mapping_handle_v1#{}, toplevel: ext_foreign_toplevel_handle_v1#{})\n", id, arg0_id, arg1_id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= hyprland_toplevel_mapping_manager_v1#{}.get_window_for_toplevel(handle: hyprland_toplevel_window_mapping_handle_v1#{}, toplevel: ext_foreign_toplevel_handle_v1#{})\n", id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id, arg1_id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -147,10 +151,14 @@ impl HyprlandToplevelMappingManagerV1 {
             .map_err(|e| ObjectError::GenerateServerId("handle", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= hyprland_toplevel_mapping_manager_v1#{}.get_window_for_toplevel_wlr(handle: hyprland_toplevel_window_mapping_handle_v1#{}, toplevel: zwlr_foreign_toplevel_handle_v1#{})\n", id, arg0_id, arg1_id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= hyprland_toplevel_mapping_manager_v1#{}.get_window_for_toplevel_wlr(handle: hyprland_toplevel_window_mapping_handle_v1#{}, toplevel: zwlr_foreign_toplevel_handle_v1#{})\n", id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id, arg1_id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -184,10 +192,14 @@ impl HyprlandToplevelMappingManagerV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= hyprland_toplevel_mapping_manager_v1#{}.destroy()\n", id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= hyprland_toplevel_mapping_manager_v1#{}.destroy()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -326,10 +338,14 @@ impl ObjectPrivate for HyprlandToplevelMappingManagerV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> hyprland_toplevel_mapping_manager_v1#{}.get_window_for_toplevel(handle: hyprland_toplevel_window_mapping_handle_v1#{}, toplevel: ext_foreign_toplevel_handle_v1#{})\n", client.endpoint.id, msg[0], arg0, arg1);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> hyprland_toplevel_mapping_manager_v1#{}.get_window_for_toplevel(handle: hyprland_toplevel_window_mapping_handle_v1#{}, toplevel: ext_foreign_toplevel_handle_v1#{})\n", client_id, id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1);
                 }
                 let arg0_id = arg0;
                 let arg0 = HyprlandToplevelWindowMappingHandleV1::new(&self.core.state, self.core.version);
@@ -359,10 +375,14 @@ impl ObjectPrivate for HyprlandToplevelMappingManagerV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> hyprland_toplevel_mapping_manager_v1#{}.get_window_for_toplevel_wlr(handle: hyprland_toplevel_window_mapping_handle_v1#{}, toplevel: zwlr_foreign_toplevel_handle_v1#{})\n", client.endpoint.id, msg[0], arg0, arg1);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> hyprland_toplevel_mapping_manager_v1#{}.get_window_for_toplevel_wlr(handle: hyprland_toplevel_window_mapping_handle_v1#{}, toplevel: zwlr_foreign_toplevel_handle_v1#{})\n", client_id, id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1);
                 }
                 let arg0_id = arg0;
                 let arg0 = HyprlandToplevelWindowMappingHandleV1::new(&self.core.state, self.core.version);
@@ -389,10 +409,14 @@ impl ObjectPrivate for HyprlandToplevelMappingManagerV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> hyprland_toplevel_mapping_manager_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> hyprland_toplevel_mapping_manager_v1#{}.destroy()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {

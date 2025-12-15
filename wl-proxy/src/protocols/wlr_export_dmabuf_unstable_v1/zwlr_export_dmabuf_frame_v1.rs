@@ -129,10 +129,14 @@ impl ZwlrExportDmabufFrameV1 {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_export_dmabuf_frame_v1#{}.frame(width: {}, height: {}, offset_x: {}, offset_y: {}, buffer_flags: {}, flags: {:?}, format: {}, mod_high: {}, mod_low: {}, num_objects: {})\n", client.endpoint.id, id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32, arg2: u32, arg3: u32, arg4: u32, arg5: ZwlrExportDmabufFrameV1Flags, arg6: u32, arg7: u32, arg8: u32, arg9: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_export_dmabuf_frame_v1#{}.frame(width: {}, height: {}, offset_x: {}, offset_y: {}, buffer_flags: {}, flags: {:?}, format: {}, mod_high: {}, mod_low: {}, num_objects: {})\n", client_id, id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -209,10 +213,14 @@ impl ZwlrExportDmabufFrameV1 {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_export_dmabuf_frame_v1#{}.object(index: {}, fd: {}, size: {}, offset: {}, stride: {}, plane_index: {})\n", client.endpoint.id, id, arg0, arg1.as_raw_fd(), arg2, arg3, arg4, arg5);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: i32, arg2: u32, arg3: u32, arg4: u32, arg5: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_export_dmabuf_frame_v1#{}.object(index: {}, fd: {}, size: {}, offset: {}, stride: {}, plane_index: {})\n", client_id, id, arg0, arg1, arg2, arg3, arg4, arg5);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1.as_raw_fd(), arg2, arg3, arg4, arg5);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -280,10 +288,14 @@ impl ZwlrExportDmabufFrameV1 {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_export_dmabuf_frame_v1#{}.ready(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {})\n", client.endpoint.id, id, arg0, arg1, arg2);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32, arg2: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_export_dmabuf_frame_v1#{}.ready(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {})\n", client_id, id, arg0, arg1, arg2);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1, arg2);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -337,10 +349,14 @@ impl ZwlrExportDmabufFrameV1 {
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_export_dmabuf_frame_v1#{}.cancel(reason: {:?})\n", client.endpoint.id, id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: ZwlrExportDmabufFrameV1CancelReason) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwlr_export_dmabuf_frame_v1#{}.cancel(reason: {:?})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
         }
         let endpoint = &client.endpoint;
         if !endpoint.flush_queued.replace(true) {
@@ -376,10 +392,14 @@ impl ZwlrExportDmabufFrameV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_export_dmabuf_frame_v1#{}.destroy()\n", id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwlr_export_dmabuf_frame_v1#{}.destroy()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -631,10 +651,14 @@ impl ObjectPrivate for ZwlrExportDmabufFrameV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_export_dmabuf_frame_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwlr_export_dmabuf_frame_v1#{}.destroy()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
@@ -677,10 +701,14 @@ impl ObjectPrivate for ZwlrExportDmabufFrameV1 {
                 };
                 let arg5 = ZwlrExportDmabufFrameV1Flags(arg5);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_export_dmabuf_frame_v1#{}.frame(width: {}, height: {}, offset_x: {}, offset_y: {}, buffer_flags: {}, flags: {:?}, format: {}, mod_high: {}, mod_low: {}, num_objects: {})\n", msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32, arg1: u32, arg2: u32, arg3: u32, arg4: u32, arg5: ZwlrExportDmabufFrameV1Flags, arg6: u32, arg7: u32, arg8: u32, arg9: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_export_dmabuf_frame_v1#{}.frame(width: {}, height: {}, offset_x: {}, offset_y: {}, buffer_flags: {}, flags: {:?}, format: {}, mod_high: {}, mod_low: {}, num_objects: {})\n", id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_frame(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
@@ -703,10 +731,14 @@ impl ObjectPrivate for ZwlrExportDmabufFrameV1 {
                 };
                 let arg1 = &arg1;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_export_dmabuf_frame_v1#{}.object(index: {}, fd: {}, size: {}, offset: {}, stride: {}, plane_index: {})\n", msg[0], arg0, arg1.as_raw_fd(), arg2, arg3, arg4, arg5);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32, arg1: i32, arg2: u32, arg3: u32, arg4: u32, arg5: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_export_dmabuf_frame_v1#{}.object(index: {}, fd: {}, size: {}, offset: {}, stride: {}, plane_index: {})\n", id, arg0, arg1, arg2, arg3, arg4, arg5);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1.as_raw_fd(), arg2, arg3, arg4, arg5);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_object(&self, arg0, arg1, arg2, arg3, arg4, arg5);
@@ -723,10 +755,14 @@ impl ObjectPrivate for ZwlrExportDmabufFrameV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_export_dmabuf_frame_v1#{}.ready(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {})\n", msg[0], arg0, arg1, arg2);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32, arg1: u32, arg2: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_export_dmabuf_frame_v1#{}.ready(tv_sec_hi: {}, tv_sec_lo: {}, tv_nsec: {})\n", id, arg0, arg1, arg2);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1, arg2);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_ready(&self, arg0, arg1, arg2);
@@ -742,10 +778,14 @@ impl ObjectPrivate for ZwlrExportDmabufFrameV1 {
                 };
                 let arg0 = ZwlrExportDmabufFrameV1CancelReason(arg0);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_export_dmabuf_frame_v1#{}.cancel(reason: {:?})\n", msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: ZwlrExportDmabufFrameV1CancelReason) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwlr_export_dmabuf_frame_v1#{}.cancel(reason: {:?})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_cancel(&self, arg0);

@@ -191,22 +191,19 @@ impl WlRegistryHandler for WlRegistryHandlerImpl {
     fn handle_bind(&mut self, slf: &Rc<WlRegistry>, name: u32, id: Rc<dyn Object>) {
         match id.interface() {
             XdgWmBase::INTERFACE => {
-                let id = id.clone().downcast::<XdgWmBase>().unwrap();
+                let id = id.downcast::<XdgWmBase>();
                 id.set_handler(XdgWmBaseHandlerImpl {
                     zwlr_layer_shell_v1: self.layer_shell.layer_shell.borrow().clone().unwrap(),
                     config: self.config.clone(),
                 });
             }
             ZxdgDecorationManagerV1::INTERFACE => {
-                let id = id.clone().downcast::<ZxdgDecorationManagerV1>().unwrap();
+                let id = id.downcast::<ZxdgDecorationManagerV1>();
                 id.set_handler(ZxdgDecorationManagerV1HandlerImpl);
                 return;
             }
             OrgKdeKwinServerDecorationManager::INTERFACE => {
-                let id = id
-                    .clone()
-                    .downcast::<OrgKdeKwinServerDecorationManager>()
-                    .unwrap();
+                let id = id.downcast::<OrgKdeKwinServerDecorationManager>();
                 id.set_handler(OrgKdeKwinServerDecorationManagerHandlerImpl);
                 return;
             }

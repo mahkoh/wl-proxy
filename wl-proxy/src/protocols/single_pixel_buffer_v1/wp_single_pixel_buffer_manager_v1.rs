@@ -65,10 +65,14 @@ impl WpSinglePixelBufferManagerV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_single_pixel_buffer_manager_v1#{}.destroy()\n", id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_single_pixel_buffer_manager_v1#{}.destroy()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -143,10 +147,14 @@ impl WpSinglePixelBufferManagerV1 {
             .map_err(|e| ObjectError::GenerateServerId("id", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_single_pixel_buffer_manager_v1#{}.create_u32_rgba_buffer(id: wl_buffer#{}, r: {}, g: {}, b: {}, a: {})\n", id, arg0_id, arg1, arg2, arg3, arg4);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: u32, arg2: u32, arg3: u32, arg4: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_single_pixel_buffer_manager_v1#{}.create_u32_rgba_buffer(id: wl_buffer#{}, r: {}, g: {}, b: {}, a: {})\n", id, arg0, arg1, arg2, arg3, arg4);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id, arg1, arg2, arg3, arg4);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -275,10 +283,14 @@ impl ObjectPrivate for WpSinglePixelBufferManagerV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
                 }
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_single_pixel_buffer_manager_v1#{}.destroy()\n", client.endpoint.id, msg[0]);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_single_pixel_buffer_manager_v1#{}.destroy()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
                 }
                 self.core.handle_client_destroy();
                 if let Some(handler) = handler {
@@ -298,10 +310,14 @@ impl ObjectPrivate for WpSinglePixelBufferManagerV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 28));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_single_pixel_buffer_manager_v1#{}.create_u32_rgba_buffer(id: wl_buffer#{}, r: {}, g: {}, b: {}, a: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32, arg2: u32, arg3: u32, arg4: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_single_pixel_buffer_manager_v1#{}.create_u32_rgba_buffer(id: wl_buffer#{}, r: {}, g: {}, b: {}, a: {})\n", client_id, id, arg0, arg1, arg2, arg3, arg4);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4);
                 }
                 let arg0_id = arg0;
                 let arg0 = WlBuffer::new(&self.core.state, self.core.version);

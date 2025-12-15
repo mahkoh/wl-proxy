@@ -142,10 +142,14 @@ impl WpImageDescriptionCreatorParamsV1 {
             .map_err(|e| ObjectError::GenerateServerId("image_description", e))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.create(image_description: wp_image_description_v1#{})\n", id, arg0_id);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.create(image_description: wp_image_description_v1#{})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -199,10 +203,14 @@ impl WpImageDescriptionCreatorParamsV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_tf_named(tf: {:?})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: WpColorManagerV1TransferFunction) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_tf_named(tf: {:?})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -261,10 +269,14 @@ impl WpImageDescriptionCreatorParamsV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_tf_power(eexp: {})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_tf_power(eexp: {})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -315,10 +327,14 @@ impl WpImageDescriptionCreatorParamsV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_primaries_named(primaries: {:?})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: WpColorManagerV1Primaries) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_primaries_named(primaries: {:?})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -400,10 +416,14 @@ impl WpImageDescriptionCreatorParamsV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_primaries(r_x: {}, r_y: {}, g_x: {}, g_y: {}, b_x: {}, b_y: {}, w_x: {}, w_y: {})\n", id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: i32, arg1: i32, arg2: i32, arg3: i32, arg4: i32, arg5: i32, arg6: i32, arg7: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_primaries(r_x: {}, r_y: {}, g_x: {}, g_y: {}, b_x: {}, b_y: {}, w_x: {}, w_y: {})\n", id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -508,10 +528,14 @@ impl WpImageDescriptionCreatorParamsV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_luminances(min_lum: {}, max_lum: {}, reference_lum: {})\n", id, arg0, arg1, arg2);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: u32, arg2: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_luminances(min_lum: {}, max_lum: {}, reference_lum: {})\n", id, arg0, arg1, arg2);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0, arg1, arg2);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -628,10 +652,14 @@ impl WpImageDescriptionCreatorParamsV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_mastering_display_primaries(r_x: {}, r_y: {}, g_x: {}, g_y: {}, b_x: {}, b_y: {}, w_x: {}, w_y: {})\n", id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: i32, arg1: i32, arg2: i32, arg3: i32, arg4: i32, arg5: i32, arg6: i32, arg7: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_mastering_display_primaries(r_x: {}, r_y: {}, g_x: {}, g_y: {}, b_x: {}, b_y: {}, w_x: {}, w_y: {})\n", id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -716,10 +744,14 @@ impl WpImageDescriptionCreatorParamsV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_mastering_luminance(min_lum: {}, max_lum: {})\n", id, arg0, arg1);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_mastering_luminance(min_lum: {}, max_lum: {})\n", id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0, arg1);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -764,10 +796,14 @@ impl WpImageDescriptionCreatorParamsV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_max_cll(max_cll: {})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_max_cll(max_cll: {})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -812,10 +848,14 @@ impl WpImageDescriptionCreatorParamsV1 {
             return Err(ObjectError::ReceiverNoServerId);
         };
         if self.core.state.log {
-            let (millis, micros) = time_since_epoch();
-            let prefix = &self.core.state.log_prefix;
-            let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_max_fall(max_fall: {})\n", id, arg0);
-            self.core.state.log(args);
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_params_v1#{}.set_max_fall(max_fall: {})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
         }
         let endpoint = &self.core.state.server;
         if !endpoint.flush_queued.replace(true) {
@@ -1373,10 +1413,14 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.create(image_description: wp_image_description_v1#{})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.create(image_description: wp_image_description_v1#{})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 let arg0_id = arg0;
                 let arg0 = WpImageDescriptionV1::new(&self.core.state, self.core.version);
@@ -1398,10 +1442,14 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                 };
                 let arg0 = WpColorManagerV1TransferFunction(arg0);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_tf_named(tf: {:?})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: WpColorManagerV1TransferFunction) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_tf_named(tf: {:?})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_tf_named(&self, arg0);
@@ -1416,10 +1464,14 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_tf_power(eexp: {})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_tf_power(eexp: {})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_tf_power(&self, arg0);
@@ -1435,10 +1487,14 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                 };
                 let arg0 = WpColorManagerV1Primaries(arg0);
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_primaries_named(primaries: {:?})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: WpColorManagerV1Primaries) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_primaries_named(primaries: {:?})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_primaries_named(&self, arg0);
@@ -1468,10 +1524,14 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                 let arg6 = arg6 as i32;
                 let arg7 = arg7 as i32;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_primaries(r_x: {}, r_y: {}, g_x: {}, g_y: {}, b_x: {}, b_y: {}, w_x: {}, w_y: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: i32, arg1: i32, arg2: i32, arg3: i32, arg4: i32, arg5: i32, arg6: i32, arg7: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_primaries(r_x: {}, r_y: {}, g_x: {}, g_y: {}, b_x: {}, b_y: {}, w_x: {}, w_y: {})\n", client_id, id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
@@ -1488,10 +1548,14 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_luminances(min_lum: {}, max_lum: {}, reference_lum: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32, arg2: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_luminances(min_lum: {}, max_lum: {}, reference_lum: {})\n", client_id, id, arg0, arg1, arg2);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1, arg2);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_luminances(&self, arg0, arg1, arg2);
@@ -1521,10 +1585,14 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                 let arg6 = arg6 as i32;
                 let arg7 = arg7 as i32;
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_mastering_display_primaries(r_x: {}, r_y: {}, g_x: {}, g_y: {}, b_x: {}, b_y: {}, w_x: {}, w_y: {})\n", client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: i32, arg1: i32, arg2: i32, arg3: i32, arg4: i32, arg5: i32, arg6: i32, arg7: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_mastering_display_primaries(r_x: {}, r_y: {}, g_x: {}, g_y: {}, b_x: {}, b_y: {}, w_x: {}, w_y: {})\n", client_id, id, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_mastering_display_primaries(&self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
@@ -1540,10 +1608,14 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_mastering_luminance(min_lum: {}, max_lum: {})\n", client.endpoint.id, msg[0], arg0, arg1);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_mastering_luminance(min_lum: {}, max_lum: {})\n", client_id, id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_mastering_luminance(&self, arg0, arg1);
@@ -1558,10 +1630,14 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_max_cll(max_cll: {})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_max_cll(max_cll: {})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_max_cll(&self, arg0);
@@ -1576,10 +1652,14 @@ impl ObjectPrivate for WpImageDescriptionCreatorParamsV1 {
                     return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
                 };
                 if self.core.state.log {
-                    let (millis, micros) = time_since_epoch();
-                    let prefix = &self.core.state.log_prefix;
-                    let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_max_fall(max_fall: {})\n", client.endpoint.id, msg[0], arg0);
-                    self.core.state.log(args);
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_image_description_creator_params_v1#{}.set_max_fall(max_fall: {})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
                 }
                 if let Some(handler) = handler {
                     (**handler).handle_set_max_fall(&self, arg0);
