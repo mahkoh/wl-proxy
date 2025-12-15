@@ -69,7 +69,7 @@ impl ZwlrGammaControlV1 {
     ///
     /// - `size`: number of elements in a ramp
     #[inline]
-    pub fn send_gamma_size(
+    pub fn try_send_gamma_size(
         &self,
         size: u32,
     ) -> Result<(), ObjectError> {
@@ -109,6 +109,28 @@ impl ZwlrGammaControlV1 {
         Ok(())
     }
 
+    /// size of gamma ramps
+    ///
+    /// Advertise the size of each gamma ramp.
+    ///
+    /// This event is sent immediately when the gamma control object is created.
+    ///
+    /// # Arguments
+    ///
+    /// - `size`: number of elements in a ramp
+    #[inline]
+    pub fn send_gamma_size(
+        &self,
+        size: u32,
+    ) {
+        let res = self.try_send_gamma_size(
+            size,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_gamma_control_v1.gamma_size", &e);
+        }
+    }
+
     /// Since when the set_gamma message is available.
     pub const MSG__SET_GAMMA__SINCE: u32 = 1;
 
@@ -126,7 +148,7 @@ impl ZwlrGammaControlV1 {
     ///
     /// - `fd`: gamma table file descriptor
     #[inline]
-    pub fn send_set_gamma(
+    pub fn try_send_set_gamma(
         &self,
         fd: &Rc<OwnedFd>,
     ) -> Result<(), ObjectError> {
@@ -164,6 +186,32 @@ impl ZwlrGammaControlV1 {
         Ok(())
     }
 
+    /// set the gamma table
+    ///
+    /// Set the gamma table. The file descriptor can be memory-mapped to provide
+    /// the raw gamma table, which contains successive gamma ramps for the red,
+    /// green and blue channels. Each gamma ramp is an array of 16-byte unsigned
+    /// integers which has the same length as the gamma size.
+    ///
+    /// The file descriptor data must have the same length as three times the
+    /// gamma size.
+    ///
+    /// # Arguments
+    ///
+    /// - `fd`: gamma table file descriptor
+    #[inline]
+    pub fn send_set_gamma(
+        &self,
+        fd: &Rc<OwnedFd>,
+    ) {
+        let res = self.try_send_set_gamma(
+            fd,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_gamma_control_v1.set_gamma", &e);
+        }
+    }
+
     /// Since when the failed message is available.
     pub const MSG__FAILED__SINCE: u32 = 1;
 
@@ -178,7 +226,7 @@ impl ZwlrGammaControlV1 {
     ///
     /// Upon receiving this event, the client should destroy this object.
     #[inline]
-    pub fn send_failed(
+    pub fn try_send_failed(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -211,6 +259,27 @@ impl ZwlrGammaControlV1 {
         Ok(())
     }
 
+    /// object no longer valid
+    ///
+    /// This event indicates that the gamma control is no longer valid. This
+    /// can happen for a number of reasons, including:
+    /// - The output doesn't support gamma tables
+    /// - Setting the gamma tables failed
+    /// - Another client already has exclusive gamma control for this output
+    /// - The compositor has transferred gamma control to another client
+    ///
+    /// Upon receiving this event, the client should destroy this object.
+    #[inline]
+    pub fn send_failed(
+        &self,
+    ) {
+        let res = self.try_send_failed(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_gamma_control_v1.failed", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -219,7 +288,7 @@ impl ZwlrGammaControlV1 {
     /// Destroys the gamma control object. If the object is still valid, this
     /// restores the original gamma tables.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -250,13 +319,28 @@ impl ZwlrGammaControlV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy this control
+    ///
+    /// Destroys the gamma control object. If the object is still valid, this
+    /// restores the original gamma tables.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_gamma_control_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrGammaControlV1] proxies.
 pub trait ZwlrGammaControlV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrGammaControlV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// size of gamma ramps
@@ -277,11 +361,11 @@ pub trait ZwlrGammaControlV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_gamma_size(
+        let res = _slf.try_send_gamma_size(
             size,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_gamma_control_v1.gamma_size message: {}", Report::new(e));
+            log_forward("zwlr_gamma_control_v1.gamma_size", &e);
         }
     }
 
@@ -307,11 +391,11 @@ pub trait ZwlrGammaControlV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_gamma(
+        let res = _slf.try_send_set_gamma(
             fd,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_gamma_control_v1.set_gamma message: {}", Report::new(e));
+            log_forward("zwlr_gamma_control_v1.set_gamma", &e);
         }
     }
 
@@ -333,10 +417,10 @@ pub trait ZwlrGammaControlV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_failed(
+        let res = _slf.try_send_failed(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_gamma_control_v1.failed message: {}", Report::new(e));
+            log_forward("zwlr_gamma_control_v1.failed", &e);
         }
     }
 
@@ -352,10 +436,10 @@ pub trait ZwlrGammaControlV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_gamma_control_v1.destroy message: {}", Report::new(e));
+            log_forward("zwlr_gamma_control_v1.destroy", &e);
         }
     }
 }
@@ -375,7 +459,7 @@ impl ObjectPrivate for ZwlrGammaControlV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -104,7 +104,7 @@ impl ZwpTabletPadV2 {
     /// - `description`: button description
     /// - `serial`: serial of the mode switch event
     #[inline]
-    pub fn send_set_feedback(
+    pub fn try_send_set_feedback(
         &self,
         button: u32,
         description: &str,
@@ -152,6 +152,55 @@ impl ZwpTabletPadV2 {
         Ok(())
     }
 
+    /// set compositor feedback
+    ///
+    /// Requests the compositor to use the provided feedback string
+    /// associated with this button. This request should be issued immediately
+    /// after a zwp_tablet_pad_group_v2.mode_switch event from the corresponding
+    /// group is received, or whenever a button is mapped to a different
+    /// action. See zwp_tablet_pad_group_v2.mode_switch for more details.
+    ///
+    /// Clients are encouraged to provide context-aware descriptions for
+    /// the actions associated with each button, and compositors may use
+    /// this information to offer visual feedback on the button layout
+    /// (e.g. on-screen displays).
+    ///
+    /// Button indices start at 0. Setting the feedback string on a button
+    /// that is reserved by the compositor (i.e. not belonging to any
+    /// zwp_tablet_pad_group_v2) does not generate an error but the compositor
+    /// is free to ignore the request.
+    ///
+    /// The provided string 'description' is a UTF-8 encoded string to be
+    /// associated with this ring, and is considered user-visible; general
+    /// internationalization rules apply.
+    ///
+    /// The serial argument will be that of the last
+    /// zwp_tablet_pad_group_v2.mode_switch event received for the group of this
+    /// button. Requests providing other serials than the most recent one will
+    /// be ignored.
+    ///
+    /// # Arguments
+    ///
+    /// - `button`: button index
+    /// - `description`: button description
+    /// - `serial`: serial of the mode switch event
+    #[inline]
+    pub fn send_set_feedback(
+        &self,
+        button: u32,
+        description: &str,
+        serial: u32,
+    ) {
+        let res = self.try_send_set_feedback(
+            button,
+            description,
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_v2.set_feedback", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -160,7 +209,7 @@ impl ZwpTabletPadV2 {
     /// Destroy the zwp_tablet_pad_v2 object. Objects created from this object
     /// are unaffected and should be destroyed separately.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -192,6 +241,21 @@ impl ZwpTabletPadV2 {
         Ok(())
     }
 
+    /// destroy the pad object
+    ///
+    /// Destroy the zwp_tablet_pad_v2 object. Objects created from this object
+    /// are unaffected and should be destroyed separately.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_v2.destroy", &e);
+        }
+    }
+
     /// Since when the group message is available.
     pub const MSG__GROUP__SINCE: u32 = 1;
 
@@ -203,7 +267,7 @@ impl ZwpTabletPadV2 {
     /// This event is sent in the initial burst of events before the
     /// zwp_tablet_pad_v2.done event. At least one group will be announced.
     #[inline]
-    pub fn send_group(
+    pub fn try_send_group(
         &self,
         pad_group: &Rc<ZwpTabletPadGroupV2>,
     ) -> Result<(), ObjectError> {
@@ -248,6 +312,26 @@ impl ZwpTabletPadV2 {
         Ok(())
     }
 
+    /// group announced
+    ///
+    /// Sent on zwp_tablet_pad_v2 initialization to announce available groups.
+    /// One event is sent for each pad group available.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_pad_v2.done event. At least one group will be announced.
+    #[inline]
+    pub fn send_group(
+        &self,
+        pad_group: &Rc<ZwpTabletPadGroupV2>,
+    ) {
+        let res = self.try_send_group(
+            pad_group,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_v2.group", &e);
+        }
+    }
+
     /// Since when the path message is available.
     pub const MSG__PATH__SINCE: u32 = 1;
 
@@ -268,7 +352,7 @@ impl ZwpTabletPadV2 {
     ///
     /// - `path`: path to local device
     #[inline]
-    pub fn send_path(
+    pub fn try_send_path(
         &self,
         path: &str,
     ) -> Result<(), ObjectError> {
@@ -308,6 +392,35 @@ impl ZwpTabletPadV2 {
         Ok(())
     }
 
+    /// path to the device
+    ///
+    /// A system-specific device path that indicates which device is behind
+    /// this zwp_tablet_pad_v2. This information may be used to gather additional
+    /// information about the device, e.g. through libwacom.
+    ///
+    /// The format of the path is unspecified, it may be a device node, a
+    /// sysfs path, or some other identifier. It is up to the client to
+    /// identify the string provided.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_pad_v2.done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `path`: path to local device
+    #[inline]
+    pub fn send_path(
+        &self,
+        path: &str,
+    ) {
+        let res = self.try_send_path(
+            path,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_v2.path", &e);
+        }
+    }
+
     /// Since when the buttons message is available.
     pub const MSG__BUTTONS__SINCE: u32 = 1;
 
@@ -324,7 +437,7 @@ impl ZwpTabletPadV2 {
     ///
     /// - `buttons`: the number of buttons
     #[inline]
-    pub fn send_buttons(
+    pub fn try_send_buttons(
         &self,
         buttons: u32,
     ) -> Result<(), ObjectError> {
@@ -364,6 +477,31 @@ impl ZwpTabletPadV2 {
         Ok(())
     }
 
+    /// buttons announced
+    ///
+    /// Sent on zwp_tablet_pad_v2 initialization to announce the available
+    /// buttons.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_pad_v2.done event. This event is only sent when at least one
+    /// button is available.
+    ///
+    /// # Arguments
+    ///
+    /// - `buttons`: the number of buttons
+    #[inline]
+    pub fn send_buttons(
+        &self,
+        buttons: u32,
+    ) {
+        let res = self.try_send_buttons(
+            buttons,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_v2.buttons", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -373,7 +511,7 @@ impl ZwpTabletPadV2 {
     /// events. A client may consider the static description of the pad to
     /// be complete and finalize initialization of the pad.
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -406,6 +544,22 @@ impl ZwpTabletPadV2 {
         Ok(())
     }
 
+    /// pad description event sequence complete
+    ///
+    /// This event signals the end of the initial burst of descriptive
+    /// events. A client may consider the static description of the pad to
+    /// be complete and finalize initialization of the pad.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) {
+        let res = self.try_send_done(
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_v2.done", &e);
+        }
+    }
+
     /// Since when the button message is available.
     pub const MSG__BUTTON__SINCE: u32 = 1;
 
@@ -419,7 +573,7 @@ impl ZwpTabletPadV2 {
     /// - `button`: the index of the button that changed state
     /// - `state`:
     #[inline]
-    pub fn send_button(
+    pub fn try_send_button(
         &self,
         time: u32,
         button: u32,
@@ -467,6 +621,32 @@ impl ZwpTabletPadV2 {
         Ok(())
     }
 
+    /// physical button state
+    ///
+    /// Sent whenever the physical state of a button changes.
+    ///
+    /// # Arguments
+    ///
+    /// - `time`: the time of the event with millisecond granularity
+    /// - `button`: the index of the button that changed state
+    /// - `state`:
+    #[inline]
+    pub fn send_button(
+        &self,
+        time: u32,
+        button: u32,
+        state: ZwpTabletPadV2ButtonState,
+    ) {
+        let res = self.try_send_button(
+            time,
+            button,
+            state,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_v2.button", &e);
+        }
+    }
+
     /// Since when the enter message is available.
     pub const MSG__ENTER__SINCE: u32 = 1;
 
@@ -480,7 +660,7 @@ impl ZwpTabletPadV2 {
     /// - `tablet`: the tablet the pad is attached to
     /// - `surface`: surface the pad is focused on
     #[inline]
-    pub fn send_enter(
+    pub fn try_send_enter(
         &self,
         serial: u32,
         tablet: &Rc<ZwpTabletV2>,
@@ -538,6 +718,32 @@ impl ZwpTabletPadV2 {
         Ok(())
     }
 
+    /// enter event
+    ///
+    /// Notification that this pad is focused on the specified surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the enter event
+    /// - `tablet`: the tablet the pad is attached to
+    /// - `surface`: surface the pad is focused on
+    #[inline]
+    pub fn send_enter(
+        &self,
+        serial: u32,
+        tablet: &Rc<ZwpTabletV2>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_enter(
+            serial,
+            tablet,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_v2.enter", &e);
+        }
+    }
+
     /// Since when the leave message is available.
     pub const MSG__LEAVE__SINCE: u32 = 1;
 
@@ -551,7 +757,7 @@ impl ZwpTabletPadV2 {
     /// - `serial`: serial number of the leave event
     /// - `surface`: surface the pad is no longer focused on
     #[inline]
-    pub fn send_leave(
+    pub fn try_send_leave(
         &self,
         serial: u32,
         surface: &Rc<WlSurface>,
@@ -600,6 +806,30 @@ impl ZwpTabletPadV2 {
         Ok(())
     }
 
+    /// leave event
+    ///
+    /// Notification that this pad is no longer focused on the specified
+    /// surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the leave event
+    /// - `surface`: surface the pad is no longer focused on
+    #[inline]
+    pub fn send_leave(
+        &self,
+        serial: u32,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_leave(
+            serial,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_v2.leave", &e);
+        }
+    }
+
     /// Since when the removed message is available.
     pub const MSG__REMOVED__SINCE: u32 = 1;
 
@@ -612,7 +842,7 @@ impl ZwpTabletPadV2 {
     /// and groups that were offered by this pad, and issue zwp_tablet_pad_v2.destroy
     /// the pad itself.
     #[inline]
-    pub fn send_removed(
+    pub fn try_send_removed(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -644,13 +874,32 @@ impl ZwpTabletPadV2 {
         ]);
         Ok(())
     }
+
+    /// pad removed event
+    ///
+    /// Sent when the pad has been removed from the system. When a tablet
+    /// is removed its pad(s) will be removed too.
+    ///
+    /// When this event is received, the client must destroy all rings, strips
+    /// and groups that were offered by this pad, and issue zwp_tablet_pad_v2.destroy
+    /// the pad itself.
+    #[inline]
+    pub fn send_removed(
+        &self,
+    ) {
+        let res = self.try_send_removed(
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_v2.removed", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpTabletPadV2] proxies.
 pub trait ZwpTabletPadV2Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpTabletPadV2>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// set compositor feedback
@@ -696,13 +945,13 @@ pub trait ZwpTabletPadV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_feedback(
+        let res = _slf.try_send_set_feedback(
             button,
             description,
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_v2.set_feedback message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_v2.set_feedback", &e);
         }
     }
 
@@ -718,10 +967,10 @@ pub trait ZwpTabletPadV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_v2.destroy message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_v2.destroy", &e);
         }
     }
 
@@ -745,11 +994,11 @@ pub trait ZwpTabletPadV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_group(
+        let res = _slf.try_send_group(
             pad_group,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_v2.group message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_v2.group", &e);
         }
     }
 
@@ -778,11 +1027,11 @@ pub trait ZwpTabletPadV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_path(
+        let res = _slf.try_send_path(
             path,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_v2.path message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_v2.path", &e);
         }
     }
 
@@ -807,11 +1056,11 @@ pub trait ZwpTabletPadV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_buttons(
+        let res = _slf.try_send_buttons(
             buttons,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_v2.buttons message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_v2.buttons", &e);
         }
     }
 
@@ -828,10 +1077,10 @@ pub trait ZwpTabletPadV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_v2.done message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_v2.done", &e);
         }
     }
 
@@ -855,13 +1104,13 @@ pub trait ZwpTabletPadV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_button(
+        let res = _slf.try_send_button(
             time,
             button,
             state,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_v2.button message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_v2.button", &e);
         }
     }
 
@@ -900,13 +1149,13 @@ pub trait ZwpTabletPadV2Handler: Any {
                 }
             }
         }
-        let res = _slf.send_enter(
+        let res = _slf.try_send_enter(
             serial,
             tablet,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_v2.enter message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_v2.enter", &e);
         }
     }
 
@@ -939,12 +1188,12 @@ pub trait ZwpTabletPadV2Handler: Any {
                 }
             }
         }
-        let res = _slf.send_leave(
+        let res = _slf.try_send_leave(
             serial,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_v2.leave message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_v2.leave", &e);
         }
     }
 
@@ -964,10 +1213,10 @@ pub trait ZwpTabletPadV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_removed(
+        let res = _slf.try_send_removed(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_v2.removed message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_v2.removed", &e);
         }
     }
 }
@@ -987,7 +1236,7 @@ impl ObjectPrivate for ZwpTabletPadV2 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

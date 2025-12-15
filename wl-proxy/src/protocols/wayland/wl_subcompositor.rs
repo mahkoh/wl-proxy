@@ -74,7 +74,7 @@ impl WlSubcompositor {
     /// protocol object anymore. This does not affect any other
     /// objects, wl_subsurface objects included.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -104,6 +104,22 @@ impl WlSubcompositor {
         ]);
         self.core.handle_server_destroy();
         Ok(())
+    }
+
+    /// unbind from the subcompositor interface
+    ///
+    /// Informs the server that the client will not be using this
+    /// protocol object anymore. This does not affect any other
+    /// objects, wl_subsurface objects included.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wl_subcompositor.destroy", &e);
+        }
     }
 
     /// Since when the get_subsurface message is available.
@@ -137,7 +153,7 @@ impl WlSubcompositor {
     /// - `surface`: the surface to be turned into a sub-surface
     /// - `parent`: the parent surface
     #[inline]
-    pub fn send_get_subsurface(
+    pub fn try_send_get_subsurface(
         &self,
         id: &Rc<WlSubsurface>,
         surface: &Rc<WlSurface>,
@@ -197,13 +213,57 @@ impl WlSubcompositor {
         ]);
         Ok(())
     }
+
+    /// give a surface the role sub-surface
+    ///
+    /// Create a sub-surface interface for the given surface, and
+    /// associate it with the given parent surface. This turns a
+    /// plain wl_surface into a sub-surface.
+    ///
+    /// The to-be sub-surface must not already have another role, and it
+    /// must not have an existing wl_subsurface object. Otherwise the
+    /// bad_surface protocol error is raised.
+    ///
+    /// Adding sub-surfaces to a parent is a double-buffered operation on the
+    /// parent (see wl_surface.commit). The effect of adding a sub-surface
+    /// becomes visible on the next time the state of the parent surface is
+    /// applied.
+    ///
+    /// The parent surface must not be one of the child surface's descendants,
+    /// and the parent must be different from the child surface, otherwise the
+    /// bad_parent protocol error is raised.
+    ///
+    /// This request modifies the behaviour of wl_surface.commit request on
+    /// the sub-surface, see the documentation on wl_subsurface interface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new sub-surface object ID
+    /// - `surface`: the surface to be turned into a sub-surface
+    /// - `parent`: the parent surface
+    #[inline]
+    pub fn send_get_subsurface(
+        &self,
+        id: &Rc<WlSubsurface>,
+        surface: &Rc<WlSurface>,
+        parent: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_subsurface(
+            id,
+            surface,
+            parent,
+        );
+        if let Err(e) = res {
+            log_send("wl_subcompositor.get_subsurface", &e);
+        }
+    }
 }
 
 /// A message handler for [WlSubcompositor] proxies.
 pub trait WlSubcompositorHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlSubcompositor>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// unbind from the subcompositor interface
@@ -219,10 +279,10 @@ pub trait WlSubcompositorHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_subcompositor.destroy message: {}", Report::new(e));
+            log_forward("wl_subcompositor.destroy", &e);
         }
     }
 
@@ -267,13 +327,13 @@ pub trait WlSubcompositorHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_subsurface(
+        let res = _slf.try_send_get_subsurface(
             id,
             surface,
             parent,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_subcompositor.get_subsurface message: {}", Report::new(e));
+            log_forward("wl_subcompositor.get_subsurface", &e);
         }
     }
 }
@@ -293,7 +353,7 @@ impl ObjectPrivate for WlSubcompositor {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

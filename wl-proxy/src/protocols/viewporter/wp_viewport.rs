@@ -108,7 +108,7 @@ impl WpViewport {
     /// The associated wl_surface's crop and scale state is removed.
     /// The change is applied on the next wl_surface.commit.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -140,6 +140,21 @@ impl WpViewport {
         Ok(())
     }
 
+    /// remove scaling and cropping from the surface
+    ///
+    /// The associated wl_surface's crop and scale state is removed.
+    /// The change is applied on the next wl_surface.commit.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_viewport.destroy", &e);
+        }
+    }
+
     /// Since when the set_source message is available.
     pub const MSG__SET_SOURCE__SINCE: u32 = 1;
 
@@ -163,7 +178,7 @@ impl WpViewport {
     /// - `width`: source rectangle width
     /// - `height`: source rectangle height
     #[inline]
-    pub fn send_set_source(
+    pub fn try_send_set_source(
         &self,
         x: Fixed,
         y: Fixed,
@@ -213,6 +228,44 @@ impl WpViewport {
         Ok(())
     }
 
+    /// set the source rectangle for cropping
+    ///
+    /// Set the source rectangle of the associated wl_surface. See
+    /// wp_viewport for the description, and relation to the wl_buffer
+    /// size.
+    ///
+    /// If all of x, y, width and height are -1.0, the source rectangle is
+    /// unset instead. Any other set of values where width or height are zero
+    /// or negative, or x or y are negative, raise the bad_value protocol
+    /// error.
+    ///
+    /// The crop and scale state is double-buffered, see wl_surface.commit.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: source rectangle x
+    /// - `y`: source rectangle y
+    /// - `width`: source rectangle width
+    /// - `height`: source rectangle height
+    #[inline]
+    pub fn send_set_source(
+        &self,
+        x: Fixed,
+        y: Fixed,
+        width: Fixed,
+        height: Fixed,
+    ) {
+        let res = self.try_send_set_source(
+            x,
+            y,
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("wp_viewport.set_source", &e);
+        }
+    }
+
     /// Since when the set_destination message is available.
     pub const MSG__SET_DESTINATION__SINCE: u32 = 1;
 
@@ -234,7 +287,7 @@ impl WpViewport {
     /// - `width`: surface width
     /// - `height`: surface height
     #[inline]
-    pub fn send_set_destination(
+    pub fn try_send_set_destination(
         &self,
         width: i32,
         height: i32,
@@ -275,13 +328,45 @@ impl WpViewport {
         ]);
         Ok(())
     }
+
+    /// set the surface size for scaling
+    ///
+    /// Set the destination size of the associated wl_surface. See
+    /// wp_viewport for the description, and relation to the wl_buffer
+    /// size.
+    ///
+    /// If width is -1 and height is -1, the destination size is unset
+    /// instead. Any other pair of values for width and height that
+    /// contains zero or negative values raises the bad_value protocol
+    /// error.
+    ///
+    /// The crop and scale state is double-buffered, see wl_surface.commit.
+    ///
+    /// # Arguments
+    ///
+    /// - `width`: surface width
+    /// - `height`: surface height
+    #[inline]
+    pub fn send_set_destination(
+        &self,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_set_destination(
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("wp_viewport.set_destination", &e);
+        }
+    }
 }
 
 /// A message handler for [WpViewport] proxies.
 pub trait WpViewportHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpViewport>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// remove scaling and cropping from the surface
@@ -296,10 +381,10 @@ pub trait WpViewportHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_viewport.destroy message: {}", Report::new(e));
+            log_forward("wp_viewport.destroy", &e);
         }
     }
 
@@ -334,14 +419,14 @@ pub trait WpViewportHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_source(
+        let res = _slf.try_send_set_source(
             x,
             y,
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_viewport.set_source message: {}", Report::new(e));
+            log_forward("wp_viewport.set_source", &e);
         }
     }
 
@@ -372,12 +457,12 @@ pub trait WpViewportHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_destination(
+        let res = _slf.try_send_set_destination(
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_viewport.set_destination message: {}", Report::new(e));
+            log_forward("wp_viewport.set_destination", &e);
         }
     }
 }
@@ -397,7 +482,7 @@ impl ObjectPrivate for WpViewport {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -64,7 +64,7 @@ impl HyprlandToplevelWindowMappingHandleV1 {
     /// - `address_hi`: upper 32 bits of the window address
     /// - `address`: lower 32 bits of the window address
     #[inline]
-    pub fn send_window_address(
+    pub fn try_send_window_address(
         &self,
         address_hi: u32,
         address: u32,
@@ -108,6 +108,30 @@ impl HyprlandToplevelWindowMappingHandleV1 {
         Ok(())
     }
 
+    /// address of the window
+    ///
+    /// The full 64bit window address. The `address` field contains the lower 32 bits whilst the
+    /// `address_hi` contains the upper 32 bits
+    ///
+    /// # Arguments
+    ///
+    /// - `address_hi`: upper 32 bits of the window address
+    /// - `address`: lower 32 bits of the window address
+    #[inline]
+    pub fn send_window_address(
+        &self,
+        address_hi: u32,
+        address: u32,
+    ) {
+        let res = self.try_send_window_address(
+            address_hi,
+            address,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_toplevel_window_mapping_handle_v1.window_address", &e);
+        }
+    }
+
     /// Since when the failed message is available.
     pub const MSG__FAILED__SINCE: u32 = 1;
 
@@ -116,7 +140,7 @@ impl HyprlandToplevelWindowMappingHandleV1 {
     /// The mapping of the toplevel to a window address failed. Most likely the window does not
     /// exist (anymore).
     #[inline]
-    pub fn send_failed(
+    pub fn try_send_failed(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -149,6 +173,21 @@ impl HyprlandToplevelWindowMappingHandleV1 {
         Ok(())
     }
 
+    /// mapping failed
+    ///
+    /// The mapping of the toplevel to a window address failed. Most likely the window does not
+    /// exist (anymore).
+    #[inline]
+    pub fn send_failed(
+        &self,
+    ) {
+        let res = self.try_send_failed(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_toplevel_window_mapping_handle_v1.failed", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -156,7 +195,7 @@ impl HyprlandToplevelWindowMappingHandleV1 {
     ///
     /// Destroy the handle. This request can be sent at any time by the client.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -187,13 +226,27 @@ impl HyprlandToplevelWindowMappingHandleV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy handle
+    ///
+    /// Destroy the handle. This request can be sent at any time by the client.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_toplevel_window_mapping_handle_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [HyprlandToplevelWindowMappingHandleV1] proxies.
 pub trait HyprlandToplevelWindowMappingHandleV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandToplevelWindowMappingHandleV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// address of the window
@@ -215,12 +268,12 @@ pub trait HyprlandToplevelWindowMappingHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_window_address(
+        let res = _slf.try_send_window_address(
             address_hi,
             address,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_toplevel_window_mapping_handle_v1.window_address message: {}", Report::new(e));
+            log_forward("hyprland_toplevel_window_mapping_handle_v1.window_address", &e);
         }
     }
 
@@ -236,10 +289,10 @@ pub trait HyprlandToplevelWindowMappingHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_failed(
+        let res = _slf.try_send_failed(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_toplevel_window_mapping_handle_v1.failed message: {}", Report::new(e));
+            log_forward("hyprland_toplevel_window_mapping_handle_v1.failed", &e);
         }
     }
 
@@ -254,10 +307,10 @@ pub trait HyprlandToplevelWindowMappingHandleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_toplevel_window_mapping_handle_v1.destroy message: {}", Report::new(e));
+            log_forward("hyprland_toplevel_window_mapping_handle_v1.destroy", &e);
         }
     }
 }
@@ -277,7 +330,7 @@ impl ObjectPrivate for HyprlandToplevelWindowMappingHandleV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

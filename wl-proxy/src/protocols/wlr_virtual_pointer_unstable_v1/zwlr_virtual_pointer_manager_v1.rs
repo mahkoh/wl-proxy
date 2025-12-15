@@ -60,7 +60,7 @@ impl ZwlrVirtualPointerManagerV1 {
     /// - `seat`:
     /// - `id`:
     #[inline]
-    pub fn send_create_virtual_pointer(
+    pub fn try_send_create_virtual_pointer(
         &self,
         seat: Option<&Rc<WlSeat>>,
         id: &Rc<ZwlrVirtualPointerV1>,
@@ -115,12 +115,36 @@ impl ZwlrVirtualPointerManagerV1 {
         Ok(())
     }
 
+    /// Create a new virtual pointer
+    ///
+    /// Creates a new virtual pointer. The optional seat is a suggestion to the
+    /// compositor.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`:
+    /// - `id`:
+    #[inline]
+    pub fn send_create_virtual_pointer(
+        &self,
+        seat: Option<&Rc<WlSeat>>,
+        id: &Rc<ZwlrVirtualPointerV1>,
+    ) {
+        let res = self.try_send_create_virtual_pointer(
+            seat,
+            id,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_virtual_pointer_manager_v1.create_virtual_pointer", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the virtual pointer manager
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -152,6 +176,18 @@ impl ZwlrVirtualPointerManagerV1 {
         Ok(())
     }
 
+    /// destroy the virtual pointer manager
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_virtual_pointer_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the create_virtual_pointer_with_output message is available.
     pub const MSG__CREATE_VIRTUAL_POINTER_WITH_OUTPUT__SINCE: u32 = 2;
 
@@ -168,7 +204,7 @@ impl ZwlrVirtualPointerManagerV1 {
     /// - `output`:
     /// - `id`:
     #[inline]
-    pub fn send_create_virtual_pointer_with_output(
+    pub fn try_send_create_virtual_pointer_with_output(
         &self,
         seat: Option<&Rc<WlSeat>>,
         output: Option<&Rc<WlOutput>>,
@@ -234,13 +270,42 @@ impl ZwlrVirtualPointerManagerV1 {
         ]);
         Ok(())
     }
+
+    /// Create a new virtual pointer
+    ///
+    /// Creates a new virtual pointer. The seat and the output arguments are
+    /// optional. If the seat argument is set, the compositor should assign the
+    /// input device to the requested seat. If the output argument is set, the
+    /// compositor should map the input device to the requested output.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`:
+    /// - `output`:
+    /// - `id`:
+    #[inline]
+    pub fn send_create_virtual_pointer_with_output(
+        &self,
+        seat: Option<&Rc<WlSeat>>,
+        output: Option<&Rc<WlOutput>>,
+        id: &Rc<ZwlrVirtualPointerV1>,
+    ) {
+        let res = self.try_send_create_virtual_pointer_with_output(
+            seat,
+            output,
+            id,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_virtual_pointer_manager_v1.create_virtual_pointer_with_output", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrVirtualPointerManagerV1] proxies.
 pub trait ZwlrVirtualPointerManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrVirtualPointerManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// Create a new virtual pointer
@@ -265,12 +330,12 @@ pub trait ZwlrVirtualPointerManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_virtual_pointer(
+        let res = _slf.try_send_create_virtual_pointer(
             seat,
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_virtual_pointer_manager_v1.create_virtual_pointer message: {}", Report::new(e));
+            log_forward("zwlr_virtual_pointer_manager_v1.create_virtual_pointer", &e);
         }
     }
 
@@ -283,10 +348,10 @@ pub trait ZwlrVirtualPointerManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_virtual_pointer_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("zwlr_virtual_pointer_manager_v1.destroy", &e);
         }
     }
 
@@ -316,13 +381,13 @@ pub trait ZwlrVirtualPointerManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_virtual_pointer_with_output(
+        let res = _slf.try_send_create_virtual_pointer_with_output(
             seat,
             output,
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_virtual_pointer_manager_v1.create_virtual_pointer_with_output message: {}", Report::new(e));
+            log_forward("zwlr_virtual_pointer_manager_v1.create_virtual_pointer_with_output", &e);
         }
     }
 }
@@ -342,7 +407,7 @@ impl ObjectPrivate for ZwlrVirtualPointerManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

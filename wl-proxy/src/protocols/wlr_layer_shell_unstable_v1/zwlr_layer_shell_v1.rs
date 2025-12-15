@@ -88,7 +88,7 @@ impl ZwlrLayerShellV1 {
     /// - `layer`: layer to add this surface to
     /// - `namespace`: namespace for the layer surface
     #[inline]
-    pub fn send_get_layer_surface(
+    pub fn try_send_get_layer_surface(
         &self,
         id: &Rc<ZwlrLayerSurfaceV1>,
         surface: &Rc<WlSurface>,
@@ -160,6 +160,58 @@ impl ZwlrLayerShellV1 {
         Ok(())
     }
 
+    /// create a layer_surface from a surface
+    ///
+    /// Create a layer surface for an existing surface. This assigns the role of
+    /// layer_surface, or raises a protocol error if another role is already
+    /// assigned.
+    ///
+    /// Creating a layer surface from a wl_surface which has a buffer attached
+    /// or committed is a client error, and any attempts by a client to attach
+    /// or manipulate a buffer prior to the first layer_surface.configure call
+    /// must also be treated as errors.
+    ///
+    /// After creating a layer_surface object and setting it up, the client
+    /// must perform an initial commit without any buffer attached.
+    /// The compositor will reply with a layer_surface.configure event.
+    /// The client must acknowledge it and is then allowed to attach a buffer
+    /// to map the surface.
+    ///
+    /// You may pass NULL for output to allow the compositor to decide which
+    /// output to use. Generally this will be the one that the user most
+    /// recently interacted with.
+    ///
+    /// Clients can specify a namespace that defines the purpose of the layer
+    /// surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    /// - `output`:
+    /// - `layer`: layer to add this surface to
+    /// - `namespace`: namespace for the layer surface
+    #[inline]
+    pub fn send_get_layer_surface(
+        &self,
+        id: &Rc<ZwlrLayerSurfaceV1>,
+        surface: &Rc<WlSurface>,
+        output: Option<&Rc<WlOutput>>,
+        layer: ZwlrLayerShellV1Layer,
+        namespace: &str,
+    ) {
+        let res = self.try_send_get_layer_surface(
+            id,
+            surface,
+            output,
+            layer,
+            namespace,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_layer_shell_v1.get_layer_surface", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 3;
 
@@ -169,7 +221,7 @@ impl ZwlrLayerShellV1 {
     /// object any more. Objects that have been created through this instance
     /// are not affected.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -200,13 +252,29 @@ impl ZwlrLayerShellV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the layer_shell object
+    ///
+    /// This request indicates that the client will not use the layer_shell
+    /// object any more. Objects that have been created through this instance
+    /// are not affected.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_layer_shell_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrLayerShellV1] proxies.
 pub trait ZwlrLayerShellV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrLayerShellV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// create a layer_surface from a surface
@@ -256,7 +324,7 @@ pub trait ZwlrLayerShellV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_layer_surface(
+        let res = _slf.try_send_get_layer_surface(
             id,
             surface,
             output,
@@ -264,7 +332,7 @@ pub trait ZwlrLayerShellV1Handler: Any {
             namespace,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_layer_shell_v1.get_layer_surface message: {}", Report::new(e));
+            log_forward("zwlr_layer_shell_v1.get_layer_surface", &e);
         }
     }
 
@@ -281,10 +349,10 @@ pub trait ZwlrLayerShellV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_layer_shell_v1.destroy message: {}", Report::new(e));
+            log_forward("zwlr_layer_shell_v1.destroy", &e);
         }
     }
 }
@@ -304,7 +372,7 @@ impl ObjectPrivate for ZwlrLayerShellV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

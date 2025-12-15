@@ -62,7 +62,7 @@ impl WpContentTypeV1 {
     /// equivalent to setting the content type to none, including double
     /// buffering semantics. See set_content_type for details.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -94,6 +94,22 @@ impl WpContentTypeV1 {
         Ok(())
     }
 
+    /// destroy the content type object
+    ///
+    /// Switch back to not specifying the content type of this surface. This is
+    /// equivalent to setting the content type to none, including double
+    /// buffering semantics. See set_content_type for details.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_content_type_v1.destroy", &e);
+        }
+    }
+
     /// Since when the set_content_type message is available.
     pub const MSG__SET_CONTENT_TYPE__SINCE: u32 = 1;
 
@@ -112,7 +128,7 @@ impl WpContentTypeV1 {
     ///
     /// - `content_type`: the content type
     #[inline]
-    pub fn send_set_content_type(
+    pub fn try_send_set_content_type(
         &self,
         content_type: WpContentTypeV1Type,
     ) -> Result<(), ObjectError> {
@@ -149,13 +165,40 @@ impl WpContentTypeV1 {
         ]);
         Ok(())
     }
+
+    /// specify the content type
+    ///
+    /// Set the surface content type. This informs the compositor that the
+    /// client believes it is displaying buffers matching this content type.
+    ///
+    /// This is purely a hint for the compositor, which can be used to adjust
+    /// its behavior or hardware settings to fit the presented content best.
+    ///
+    /// The content type is double-buffered state, see wl_surface.commit for
+    /// details.
+    ///
+    /// # Arguments
+    ///
+    /// - `content_type`: the content type
+    #[inline]
+    pub fn send_set_content_type(
+        &self,
+        content_type: WpContentTypeV1Type,
+    ) {
+        let res = self.try_send_set_content_type(
+            content_type,
+        );
+        if let Err(e) = res {
+            log_send("wp_content_type_v1.set_content_type", &e);
+        }
+    }
 }
 
 /// A message handler for [WpContentTypeV1] proxies.
 pub trait WpContentTypeV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpContentTypeV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the content type object
@@ -171,10 +214,10 @@ pub trait WpContentTypeV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_content_type_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_content_type_v1.destroy", &e);
         }
     }
 
@@ -201,11 +244,11 @@ pub trait WpContentTypeV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_content_type(
+        let res = _slf.try_send_set_content_type(
             content_type,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_content_type_v1.set_content_type message: {}", Report::new(e));
+            log_forward("wp_content_type_v1.set_content_type", &e);
         }
     }
 }
@@ -225,7 +268,7 @@ impl ObjectPrivate for WpContentTypeV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

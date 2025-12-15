@@ -52,7 +52,7 @@ impl TreelandMultitaskviewV1 {
 
     /// destroy the treeland_multitaskview_v1 object
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -84,6 +84,18 @@ impl TreelandMultitaskviewV1 {
         Ok(())
     }
 
+    /// destroy the treeland_multitaskview_v1 object
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_multitaskview_v1.destroy", &e);
+        }
+    }
+
     /// Since when the toggle message is available.
     pub const MSG__TOGGLE__SINCE: u32 = 1;
 
@@ -91,7 +103,7 @@ impl TreelandMultitaskviewV1 {
     ///
     /// Show or hide the multitaskview.
     #[inline]
-    pub fn send_toggle(
+    pub fn try_send_toggle(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -121,13 +133,27 @@ impl TreelandMultitaskviewV1 {
         ]);
         Ok(())
     }
+
+    /// toggle multitaskview
+    ///
+    /// Show or hide the multitaskview.
+    #[inline]
+    pub fn send_toggle(
+        &self,
+    ) {
+        let res = self.try_send_toggle(
+        );
+        if let Err(e) = res {
+            log_send("treeland_multitaskview_v1.toggle", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandMultitaskviewV1] proxies.
 pub trait TreelandMultitaskviewV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandMultitaskviewV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the treeland_multitaskview_v1 object
@@ -139,10 +165,10 @@ pub trait TreelandMultitaskviewV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_multitaskview_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_multitaskview_v1.destroy", &e);
         }
     }
 
@@ -157,10 +183,10 @@ pub trait TreelandMultitaskviewV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_toggle(
+        let res = _slf.try_send_toggle(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_multitaskview_v1.toggle message: {}", Report::new(e));
+            log_forward("treeland_multitaskview_v1.toggle", &e);
         }
     }
 }
@@ -180,7 +206,7 @@ impl ObjectPrivate for TreelandMultitaskviewV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

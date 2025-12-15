@@ -57,7 +57,7 @@ impl ZxdgOutputManagerV1 {
     ///
     /// Any objects already created through this instance are not affected.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -89,6 +89,23 @@ impl ZxdgOutputManagerV1 {
         Ok(())
     }
 
+    /// destroy the xdg_output_manager object
+    ///
+    /// Using this request a client can tell the server that it is not
+    /// going to use the xdg_output_manager object anymore.
+    ///
+    /// Any objects already created through this instance are not affected.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zxdg_output_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_xdg_output message is available.
     pub const MSG__GET_XDG_OUTPUT__SINCE: u32 = 1;
 
@@ -101,7 +118,7 @@ impl ZxdgOutputManagerV1 {
     /// - `id`:
     /// - `output`:
     #[inline]
-    pub fn send_get_xdg_output(
+    pub fn try_send_get_xdg_output(
         &self,
         id: &Rc<ZxdgOutputV1>,
         output: &Rc<WlOutput>,
@@ -152,13 +169,36 @@ impl ZxdgOutputManagerV1 {
         ]);
         Ok(())
     }
+
+    /// create an xdg output from a wl_output
+    ///
+    /// This creates a new xdg_output object for the given wl_output.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `output`:
+    #[inline]
+    pub fn send_get_xdg_output(
+        &self,
+        id: &Rc<ZxdgOutputV1>,
+        output: &Rc<WlOutput>,
+    ) {
+        let res = self.try_send_get_xdg_output(
+            id,
+            output,
+        );
+        if let Err(e) = res {
+            log_send("zxdg_output_manager_v1.get_xdg_output", &e);
+        }
+    }
 }
 
 /// A message handler for [ZxdgOutputManagerV1] proxies.
 pub trait ZxdgOutputManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZxdgOutputManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the xdg_output_manager object
@@ -175,10 +215,10 @@ pub trait ZxdgOutputManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zxdg_output_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("zxdg_output_manager_v1.destroy", &e);
         }
     }
 
@@ -203,12 +243,12 @@ pub trait ZxdgOutputManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_xdg_output(
+        let res = _slf.try_send_get_xdg_output(
             id,
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zxdg_output_manager_v1.get_xdg_output message: {}", Report::new(e));
+            log_forward("zxdg_output_manager_v1.get_xdg_output", &e);
         }
     }
 }
@@ -228,7 +268,7 @@ impl ObjectPrivate for ZxdgOutputManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

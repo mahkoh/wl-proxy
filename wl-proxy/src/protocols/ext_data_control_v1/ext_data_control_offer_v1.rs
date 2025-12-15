@@ -71,7 +71,7 @@ impl ExtDataControlOfferV1 {
     /// - `mime_type`: MIME type desired by receiver
     /// - `fd`: file descriptor for data transfer
     #[inline]
-    pub fn send_receive(
+    pub fn try_send_receive(
         &self,
         mime_type: &str,
         fd: &Rc<OwnedFd>,
@@ -113,6 +113,38 @@ impl ExtDataControlOfferV1 {
         Ok(())
     }
 
+    /// request that the data is transferred
+    ///
+    /// To transfer the offered data, the client issues this request and
+    /// indicates the MIME type it wants to receive. The transfer happens
+    /// through the passed file descriptor (typically created with the pipe
+    /// system call). The source client writes the data in the MIME type
+    /// representation requested and then closes the file descriptor.
+    ///
+    /// The receiving client reads from the read end of the pipe until EOF and
+    /// then closes its end, at which point the transfer is complete.
+    ///
+    /// This request may happen multiple times for different MIME types.
+    ///
+    /// # Arguments
+    ///
+    /// - `mime_type`: MIME type desired by receiver
+    /// - `fd`: file descriptor for data transfer
+    #[inline]
+    pub fn send_receive(
+        &self,
+        mime_type: &str,
+        fd: &Rc<OwnedFd>,
+    ) {
+        let res = self.try_send_receive(
+            mime_type,
+            fd,
+        );
+        if let Err(e) = res {
+            log_send("ext_data_control_offer_v1.receive", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -120,7 +152,7 @@ impl ExtDataControlOfferV1 {
     ///
     /// Destroys the data offer object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -152,6 +184,20 @@ impl ExtDataControlOfferV1 {
         Ok(())
     }
 
+    /// destroy this offer
+    ///
+    /// Destroys the data offer object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_data_control_offer_v1.destroy", &e);
+        }
+    }
+
     /// Since when the offer message is available.
     pub const MSG__OFFER__SINCE: u32 = 1;
 
@@ -164,7 +210,7 @@ impl ExtDataControlOfferV1 {
     ///
     /// - `mime_type`: offered MIME type
     #[inline]
-    pub fn send_offer(
+    pub fn try_send_offer(
         &self,
         mime_type: &str,
     ) -> Result<(), ObjectError> {
@@ -203,13 +249,34 @@ impl ExtDataControlOfferV1 {
         fmt.string(arg0);
         Ok(())
     }
+
+    /// advertise offered MIME type
+    ///
+    /// Sent immediately after creating the ext_data_control_offer object.
+    /// One event per offered MIME type.
+    ///
+    /// # Arguments
+    ///
+    /// - `mime_type`: offered MIME type
+    #[inline]
+    pub fn send_offer(
+        &self,
+        mime_type: &str,
+    ) {
+        let res = self.try_send_offer(
+            mime_type,
+        );
+        if let Err(e) = res {
+            log_send("ext_data_control_offer_v1.offer", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtDataControlOfferV1] proxies.
 pub trait ExtDataControlOfferV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtDataControlOfferV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// request that the data is transferred
@@ -239,12 +306,12 @@ pub trait ExtDataControlOfferV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_receive(
+        let res = _slf.try_send_receive(
             mime_type,
             fd,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_data_control_offer_v1.receive message: {}", Report::new(e));
+            log_forward("ext_data_control_offer_v1.receive", &e);
         }
     }
 
@@ -259,10 +326,10 @@ pub trait ExtDataControlOfferV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_data_control_offer_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_data_control_offer_v1.destroy", &e);
         }
     }
 
@@ -283,11 +350,11 @@ pub trait ExtDataControlOfferV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_offer(
+        let res = _slf.try_send_offer(
             mime_type,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_data_control_offer_v1.offer message: {}", Report::new(e));
+            log_forward("ext_data_control_offer_v1.offer", &e);
         }
     }
 }
@@ -307,7 +374,7 @@ impl ObjectPrivate for ExtDataControlOfferV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

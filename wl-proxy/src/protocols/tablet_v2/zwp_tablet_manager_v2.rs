@@ -62,7 +62,7 @@ impl ZwpTabletManagerV2 {
     /// - `tablet_seat`:
     /// - `seat`: The wl_seat object to retrieve the tablets for
     #[inline]
-    pub fn send_get_tablet_seat(
+    pub fn try_send_get_tablet_seat(
         &self,
         tablet_seat: &Rc<ZwpTabletSeatV2>,
         seat: &Rc<WlSeat>,
@@ -114,6 +114,30 @@ impl ZwpTabletManagerV2 {
         Ok(())
     }
 
+    /// get the tablet seat
+    ///
+    /// Get the zwp_tablet_seat_v2 object for the given seat. This object
+    /// provides access to all graphics tablets in this seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `tablet_seat`:
+    /// - `seat`: The wl_seat object to retrieve the tablets for
+    #[inline]
+    pub fn send_get_tablet_seat(
+        &self,
+        tablet_seat: &Rc<ZwpTabletSeatV2>,
+        seat: &Rc<WlSeat>,
+    ) {
+        let res = self.try_send_get_tablet_seat(
+            tablet_seat,
+            seat,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_manager_v2.get_tablet_seat", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -122,7 +146,7 @@ impl ZwpTabletManagerV2 {
     /// Destroy the zwp_tablet_manager_v2 object. Objects created from this
     /// object are unaffected and should be destroyed separately.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -153,13 +177,28 @@ impl ZwpTabletManagerV2 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// release the memory for the tablet manager object
+    ///
+    /// Destroy the zwp_tablet_manager_v2 object. Objects created from this
+    /// object are unaffected and should be destroyed separately.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_manager_v2.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpTabletManagerV2] proxies.
 pub trait ZwpTabletManagerV2Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpTabletManagerV2>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// get the tablet seat
@@ -184,12 +223,12 @@ pub trait ZwpTabletManagerV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_tablet_seat(
+        let res = _slf.try_send_get_tablet_seat(
             tablet_seat,
             seat,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_manager_v2.get_tablet_seat message: {}", Report::new(e));
+            log_forward("zwp_tablet_manager_v2.get_tablet_seat", &e);
         }
     }
 
@@ -205,10 +244,10 @@ pub trait ZwpTabletManagerV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_manager_v2.destroy message: {}", Report::new(e));
+            log_forward("zwp_tablet_manager_v2.destroy", &e);
         }
     }
 }
@@ -228,7 +267,7 @@ impl ObjectPrivate for ZwpTabletManagerV2 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

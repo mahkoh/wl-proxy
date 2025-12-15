@@ -54,7 +54,7 @@ impl TreelandAppIdResolverManagerV1 {
 
     /// destroy the manager
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -86,6 +86,18 @@ impl TreelandAppIdResolverManagerV1 {
         Ok(())
     }
 
+    /// destroy the manager
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_app_id_resolver_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_resolver message is available.
     pub const MSG__GET_RESOLVER__SINCE: u32 = 1;
 
@@ -98,7 +110,7 @@ impl TreelandAppIdResolverManagerV1 {
     /// error on the manager and will NOT create a new resolver object for
     /// this request.
     #[inline]
-    pub fn send_get_resolver(
+    pub fn try_send_get_resolver(
         &self,
         id: &Rc<TreelandAppIdResolverV1>,
     ) -> Result<(), ObjectError> {
@@ -140,13 +152,34 @@ impl TreelandAppIdResolverManagerV1 {
         ]);
         Ok(())
     }
+
+    /// create/bind a resolver object
+    ///
+    /// Create or bind a resolver object. Only one resolver may be registered
+    /// per session. Treeland is a multi-user compositor; different user
+    /// sessions may each register their own resolver. If a resolver is
+    /// already bound in the same session, the compositor will report an
+    /// error on the manager and will NOT create a new resolver object for
+    /// this request.
+    #[inline]
+    pub fn send_get_resolver(
+        &self,
+        id: &Rc<TreelandAppIdResolverV1>,
+    ) {
+        let res = self.try_send_get_resolver(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("treeland_app_id_resolver_manager_v1.get_resolver", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandAppIdResolverManagerV1] proxies.
 pub trait TreelandAppIdResolverManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandAppIdResolverManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the manager
@@ -158,10 +191,10 @@ pub trait TreelandAppIdResolverManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_app_id_resolver_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_app_id_resolver_manager_v1.destroy", &e);
         }
     }
 
@@ -186,11 +219,11 @@ pub trait TreelandAppIdResolverManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_resolver(
+        let res = _slf.try_send_get_resolver(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_app_id_resolver_manager_v1.get_resolver message: {}", Report::new(e));
+            log_forward("treeland_app_id_resolver_manager_v1.get_resolver", &e);
         }
     }
 }
@@ -210,7 +243,7 @@ impl ObjectPrivate for TreelandAppIdResolverManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

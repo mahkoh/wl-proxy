@@ -63,7 +63,7 @@ impl WpSecurityContextV1 {
     ///
     /// Destroy the security context object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -95,6 +95,20 @@ impl WpSecurityContextV1 {
         Ok(())
     }
 
+    /// destroy the security context object
+    ///
+    /// Destroy the security context object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_security_context_v1.destroy", &e);
+        }
+    }
+
     /// Since when the set_sandbox_engine message is available.
     pub const MSG__SET_SANDBOX_ENGINE__SINCE: u32 = 1;
 
@@ -113,7 +127,7 @@ impl WpSecurityContextV1 {
     ///
     /// - `name`: the sandbox engine name
     #[inline]
-    pub fn send_set_sandbox_engine(
+    pub fn try_send_set_sandbox_engine(
         &self,
         name: &str,
     ) -> Result<(), ObjectError> {
@@ -151,6 +165,33 @@ impl WpSecurityContextV1 {
         Ok(())
     }
 
+    /// set the sandbox engine
+    ///
+    /// Attach a unique sandbox engine name to the security context. The name
+    /// should follow the reverse-DNS style (e.g. "org.flatpak").
+    ///
+    /// A list of well-known engines is maintained at:
+    /// https://gitlab.freedesktop.org/wayland/wayland-protocols/-/blob/main/staging/security-context/engines.md
+    ///
+    /// It is a protocol error to call this request twice. The already_set
+    /// error is sent in this case.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: the sandbox engine name
+    #[inline]
+    pub fn send_set_sandbox_engine(
+        &self,
+        name: &str,
+    ) {
+        let res = self.try_send_set_sandbox_engine(
+            name,
+        );
+        if let Err(e) = res {
+            log_send("wp_security_context_v1.set_sandbox_engine", &e);
+        }
+    }
+
     /// Since when the set_app_id message is available.
     pub const MSG__SET_APP_ID__SINCE: u32 = 1;
 
@@ -174,7 +215,7 @@ impl WpSecurityContextV1 {
     ///
     /// - `app_id`: the application ID
     #[inline]
-    pub fn send_set_app_id(
+    pub fn try_send_set_app_id(
         &self,
         app_id: &str,
     ) -> Result<(), ObjectError> {
@@ -212,6 +253,38 @@ impl WpSecurityContextV1 {
         Ok(())
     }
 
+    /// set the application ID
+    ///
+    /// Attach an application ID to the security context.
+    ///
+    /// The application ID is an opaque, sandbox-specific identifier for an
+    /// application. See the well-known engines document for more details:
+    /// https://gitlab.freedesktop.org/wayland/wayland-protocols/-/blob/main/staging/security-context/engines.md
+    ///
+    /// The compositor may use the application ID to group clients belonging to
+    /// the same security context application.
+    ///
+    /// Whether this request is optional or not depends on the sandbox engine used.
+    ///
+    /// It is a protocol error to call this request twice. The already_set
+    /// error is sent in this case.
+    ///
+    /// # Arguments
+    ///
+    /// - `app_id`: the application ID
+    #[inline]
+    pub fn send_set_app_id(
+        &self,
+        app_id: &str,
+    ) {
+        let res = self.try_send_set_app_id(
+            app_id,
+        );
+        if let Err(e) = res {
+            log_send("wp_security_context_v1.set_app_id", &e);
+        }
+    }
+
     /// Since when the set_instance_id message is available.
     pub const MSG__SET_INSTANCE_ID__SINCE: u32 = 1;
 
@@ -233,7 +306,7 @@ impl WpSecurityContextV1 {
     ///
     /// - `instance_id`: the instance ID
     #[inline]
-    pub fn send_set_instance_id(
+    pub fn try_send_set_instance_id(
         &self,
         instance_id: &str,
     ) -> Result<(), ObjectError> {
@@ -271,6 +344,36 @@ impl WpSecurityContextV1 {
         Ok(())
     }
 
+    /// set the instance ID
+    ///
+    /// Attach an instance ID to the security context.
+    ///
+    /// The instance ID is an opaque, sandbox-specific identifier for a running
+    /// instance of an application. See the well-known engines document for
+    /// more details:
+    /// https://gitlab.freedesktop.org/wayland/wayland-protocols/-/blob/main/staging/security-context/engines.md
+    ///
+    /// Whether this request is optional or not depends on the sandbox engine used.
+    ///
+    /// It is a protocol error to call this request twice. The already_set
+    /// error is sent in this case.
+    ///
+    /// # Arguments
+    ///
+    /// - `instance_id`: the instance ID
+    #[inline]
+    pub fn send_set_instance_id(
+        &self,
+        instance_id: &str,
+    ) {
+        let res = self.try_send_set_instance_id(
+            instance_id,
+        );
+        if let Err(e) = res {
+            log_send("wp_security_context_v1.set_instance_id", &e);
+        }
+    }
+
     /// Since when the commit message is available.
     pub const MSG__COMMIT__SINCE: u32 = 1;
 
@@ -287,7 +390,7 @@ impl WpSecurityContextV1 {
     /// It's a protocol error to send any request other than "destroy" after
     /// this request. In this case, the already_used error is sent.
     #[inline]
-    pub fn send_commit(
+    pub fn try_send_commit(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -317,13 +420,36 @@ impl WpSecurityContextV1 {
         ]);
         Ok(())
     }
+
+    /// register the security context
+    ///
+    /// Atomically register the new client and attach the security context
+    /// metadata.
+    ///
+    /// If the provided metadata is inconsistent or does not match with out of
+    /// band metadata (see
+    /// https://gitlab.freedesktop.org/wayland/wayland-protocols/-/blob/main/staging/security-context/engines.md),
+    /// the invalid_metadata error may be sent eventually.
+    ///
+    /// It's a protocol error to send any request other than "destroy" after
+    /// this request. In this case, the already_used error is sent.
+    #[inline]
+    pub fn send_commit(
+        &self,
+    ) {
+        let res = self.try_send_commit(
+        );
+        if let Err(e) = res {
+            log_send("wp_security_context_v1.commit", &e);
+        }
+    }
 }
 
 /// A message handler for [WpSecurityContextV1] proxies.
 pub trait WpSecurityContextV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpSecurityContextV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the security context object
@@ -337,10 +463,10 @@ pub trait WpSecurityContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_security_context_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_security_context_v1.destroy", &e);
         }
     }
 
@@ -367,11 +493,11 @@ pub trait WpSecurityContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_sandbox_engine(
+        let res = _slf.try_send_set_sandbox_engine(
             name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_security_context_v1.set_sandbox_engine message: {}", Report::new(e));
+            log_forward("wp_security_context_v1.set_sandbox_engine", &e);
         }
     }
 
@@ -403,11 +529,11 @@ pub trait WpSecurityContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_app_id(
+        let res = _slf.try_send_set_app_id(
             app_id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_security_context_v1.set_app_id message: {}", Report::new(e));
+            log_forward("wp_security_context_v1.set_app_id", &e);
         }
     }
 
@@ -437,11 +563,11 @@ pub trait WpSecurityContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_instance_id(
+        let res = _slf.try_send_set_instance_id(
             instance_id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_security_context_v1.set_instance_id message: {}", Report::new(e));
+            log_forward("wp_security_context_v1.set_instance_id", &e);
         }
     }
 
@@ -465,10 +591,10 @@ pub trait WpSecurityContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_commit(
+        let res = _slf.try_send_commit(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_security_context_v1.commit message: {}", Report::new(e));
+            log_forward("wp_security_context_v1.commit", &e);
         }
     }
 }
@@ -488,7 +614,7 @@ impl ObjectPrivate for WpSecurityContextV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

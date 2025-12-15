@@ -64,7 +64,7 @@ impl ZwpInputMethodManagerV2 {
     /// - `seat`:
     /// - `input_method`:
     #[inline]
-    pub fn send_get_input_method(
+    pub fn try_send_get_input_method(
         &self,
         seat: &Rc<WlSeat>,
         input_method: &Rc<ZwpInputMethodV2>,
@@ -116,6 +116,30 @@ impl ZwpInputMethodManagerV2 {
         Ok(())
     }
 
+    /// request an input method object
+    ///
+    /// Request a new input zwp_input_method_v2 object associated with a given
+    /// seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`:
+    /// - `input_method`:
+    #[inline]
+    pub fn send_get_input_method(
+        &self,
+        seat: &Rc<WlSeat>,
+        input_method: &Rc<ZwpInputMethodV2>,
+    ) {
+        let res = self.try_send_get_input_method(
+            seat,
+            input_method,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_manager_v2.get_input_method", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -125,7 +149,7 @@ impl ZwpInputMethodManagerV2 {
     ///
     /// The zwp_input_method_v2 objects originating from it remain valid.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -156,13 +180,29 @@ impl ZwpInputMethodManagerV2 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the input method manager
+    ///
+    /// Destroys the zwp_input_method_manager_v2 object.
+    ///
+    /// The zwp_input_method_v2 objects originating from it remain valid.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_manager_v2.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpInputMethodManagerV2] proxies.
 pub trait ZwpInputMethodManagerV2Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpInputMethodManagerV2>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// request an input method object
@@ -187,12 +227,12 @@ pub trait ZwpInputMethodManagerV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_input_method(
+        let res = _slf.try_send_get_input_method(
             seat,
             input_method,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_manager_v2.get_input_method message: {}", Report::new(e));
+            log_forward("zwp_input_method_manager_v2.get_input_method", &e);
         }
     }
 
@@ -209,10 +249,10 @@ pub trait ZwpInputMethodManagerV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_manager_v2.destroy message: {}", Report::new(e));
+            log_forward("zwp_input_method_manager_v2.destroy", &e);
         }
     }
 }
@@ -232,7 +272,7 @@ impl ObjectPrivate for ZwpInputMethodManagerV2 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

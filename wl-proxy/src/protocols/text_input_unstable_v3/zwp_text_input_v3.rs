@@ -80,7 +80,7 @@ impl ZwpTextInputV3 {
     /// Destroy the wp_text_input object. Also disables all surfaces enabled
     /// through this wp_text_input object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -110,6 +110,21 @@ impl ZwpTextInputV3 {
         ]);
         self.core.handle_server_destroy();
         Ok(())
+    }
+
+    /// Destroy the wp_text_input
+    ///
+    /// Destroy the wp_text_input object. Also disables all surfaces enabled
+    /// through this wp_text_input object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.destroy", &e);
+        }
     }
 
     /// Since when the enable message is available.
@@ -146,7 +161,7 @@ impl ZwpTextInputV3 {
     /// The changes must be applied by the compositor after issuing a
     /// zwp_text_input_v3.commit request.
     #[inline]
-    pub fn send_enable(
+    pub fn try_send_enable(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -177,6 +192,47 @@ impl ZwpTextInputV3 {
         Ok(())
     }
 
+    /// Request text input to be enabled
+    ///
+    /// Requests text input on the surface previously obtained from the enter
+    /// event.
+    ///
+    /// This request must be issued every time the focused text input changes
+    /// to a new one, including within the current surface. Use
+    /// zwp_text_input_v3.disable when there is no longer any input focus on
+    /// the current surface.
+    ///
+    /// Clients must not enable more than one text input on the single seat
+    /// and should disable the current text input before enabling the new one.
+    /// Requests to enable a text input when another text input is enabled
+    /// on the same seat must be ignored by compositor.
+    ///
+    /// This request resets all state associated with previous enable, disable,
+    /// set_surrounding_text, set_text_change_cause, set_content_type, and
+    /// set_cursor_rectangle requests, as well as the state associated with
+    /// preedit_string, commit_string, and delete_surrounding_text events.
+    ///
+    /// The set_surrounding_text, set_content_type and set_cursor_rectangle
+    /// requests must follow if the text input supports the necessary
+    /// functionality.
+    ///
+    /// State set with this request is double-buffered. It will get applied on
+    /// the next zwp_text_input_v3.commit request, and stay valid until the
+    /// next committed enable or disable request.
+    ///
+    /// The changes must be applied by the compositor after issuing a
+    /// zwp_text_input_v3.commit request.
+    #[inline]
+    pub fn send_enable(
+        &self,
+    ) {
+        let res = self.try_send_enable(
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.enable", &e);
+        }
+    }
+
     /// Since when the disable message is available.
     pub const MSG__DISABLE__SINCE: u32 = 1;
 
@@ -188,7 +244,7 @@ impl ZwpTextInputV3 {
     /// State set with this request is double-buffered. It will get applied on
     /// the next zwp_text_input_v3.commit request.
     #[inline]
-    pub fn send_disable(
+    pub fn try_send_disable(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -217,6 +273,24 @@ impl ZwpTextInputV3 {
             2,
         ]);
         Ok(())
+    }
+
+    /// Disable text input on a surface
+    ///
+    /// Explicitly disable text input on the current surface (typically when
+    /// there is no focus on any text entry inside the surface).
+    ///
+    /// State set with this request is double-buffered. It will get applied on
+    /// the next zwp_text_input_v3.commit request.
+    #[inline]
+    pub fn send_disable(
+        &self,
+    ) {
+        let res = self.try_send_disable(
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.disable", &e);
+        }
     }
 
     /// Since when the set_surrounding_text message is available.
@@ -262,7 +336,7 @@ impl ZwpTextInputV3 {
     /// - `cursor`:
     /// - `anchor`:
     #[inline]
-    pub fn send_set_surrounding_text(
+    pub fn try_send_set_surrounding_text(
         &self,
         text: &str,
         cursor: i32,
@@ -310,6 +384,62 @@ impl ZwpTextInputV3 {
         Ok(())
     }
 
+    /// sets the surrounding text
+    ///
+    /// Sets the surrounding plain text around the input, excluding the preedit
+    /// text.
+    ///
+    /// The client should notify the compositor of any changes in any of the
+    /// values carried with this request, including changes caused by handling
+    /// incoming text-input events as well as changes caused by other
+    /// mechanisms like keyboard typing.
+    ///
+    /// If the client is unaware of the text around the cursor, it should not
+    /// issue this request, to signify lack of support to the compositor.
+    ///
+    /// Text is UTF-8 encoded, and should include the cursor position, the
+    /// complete selection and additional characters before and after them.
+    /// There is a maximum length of wayland messages, so text can not be
+    /// longer than 4000 bytes.
+    ///
+    /// Cursor is the byte offset of the cursor within text buffer.
+    ///
+    /// Anchor is the byte offset of the selection anchor within text buffer.
+    /// If there is no selected text, anchor is the same as cursor.
+    ///
+    /// If any preedit text is present, it is replaced with a cursor for the
+    /// purpose of this event.
+    ///
+    /// Values set with this request are double-buffered. They will get applied
+    /// on the next zwp_text_input_v3.commit request, and stay valid until the
+    /// next committed enable or disable request.
+    ///
+    /// The initial state for affected fields is empty, meaning that the text
+    /// input does not support sending surrounding text. If the empty values
+    /// get applied, subsequent attempts to change them may have no effect.
+    ///
+    /// # Arguments
+    ///
+    /// - `text`:
+    /// - `cursor`:
+    /// - `anchor`:
+    #[inline]
+    pub fn send_set_surrounding_text(
+        &self,
+        text: &str,
+        cursor: i32,
+        anchor: i32,
+    ) {
+        let res = self.try_send_set_surrounding_text(
+            text,
+            cursor,
+            anchor,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.set_surrounding_text", &e);
+        }
+    }
+
     /// Since when the set_text_change_cause message is available.
     pub const MSG__SET_TEXT_CHANGE_CAUSE__SINCE: u32 = 1;
 
@@ -334,7 +464,7 @@ impl ZwpTextInputV3 {
     ///
     /// - `cause`:
     #[inline]
-    pub fn send_set_text_change_cause(
+    pub fn try_send_set_text_change_cause(
         &self,
         cause: ZwpTextInputV3ChangeCause,
     ) -> Result<(), ObjectError> {
@@ -372,6 +502,39 @@ impl ZwpTextInputV3 {
         Ok(())
     }
 
+    /// indicates the cause of surrounding text change
+    ///
+    /// Tells the compositor why the text surrounding the cursor changed.
+    ///
+    /// Whenever the client detects an external change in text, cursor, or
+    /// anchor posision, it must issue this request to the compositor. This
+    /// request is intended to give the input method a chance to update the
+    /// preedit text in an appropriate way, e.g. by removing it when the user
+    /// starts typing with a keyboard.
+    ///
+    /// cause describes the source of the change.
+    ///
+    /// The value set with this request is double-buffered. It must be applied
+    /// and reset to initial at the next zwp_text_input_v3.commit request.
+    ///
+    /// The initial value of cause is input_method.
+    ///
+    /// # Arguments
+    ///
+    /// - `cause`:
+    #[inline]
+    pub fn send_set_text_change_cause(
+        &self,
+        cause: ZwpTextInputV3ChangeCause,
+    ) {
+        let res = self.try_send_set_text_change_cause(
+            cause,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.set_text_change_cause", &e);
+        }
+    }
+
     /// Since when the set_content_type message is available.
     pub const MSG__SET_CONTENT_TYPE__SINCE: u32 = 1;
 
@@ -394,7 +557,7 @@ impl ZwpTextInputV3 {
     /// - `hint`:
     /// - `purpose`:
     #[inline]
-    pub fn send_set_content_type(
+    pub fn try_send_set_content_type(
         &self,
         hint: ZwpTextInputV3ContentHint,
         purpose: ZwpTextInputV3ContentPurpose,
@@ -436,6 +599,39 @@ impl ZwpTextInputV3 {
         Ok(())
     }
 
+    /// set content purpose and hint
+    ///
+    /// Sets the content purpose and content hint. While the purpose is the
+    /// basic purpose of an input field, the hint flags allow to modify some of
+    /// the behavior.
+    ///
+    /// Values set with this request are double-buffered. They will get applied
+    /// on the next zwp_text_input_v3.commit request.
+    /// Subsequent attempts to update them may have no effect. The values
+    /// remain valid until the next committed enable or disable request.
+    ///
+    /// The initial value for hint is none, and the initial value for purpose
+    /// is normal.
+    ///
+    /// # Arguments
+    ///
+    /// - `hint`:
+    /// - `purpose`:
+    #[inline]
+    pub fn send_set_content_type(
+        &self,
+        hint: ZwpTextInputV3ContentHint,
+        purpose: ZwpTextInputV3ContentPurpose,
+    ) {
+        let res = self.try_send_set_content_type(
+            hint,
+            purpose,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.set_content_type", &e);
+        }
+    }
+
     /// Since when the set_cursor_rectangle message is available.
     pub const MSG__SET_CURSOR_RECTANGLE__SINCE: u32 = 1;
 
@@ -466,7 +662,7 @@ impl ZwpTextInputV3 {
     /// - `width`:
     /// - `height`:
     #[inline]
-    pub fn send_set_cursor_rectangle(
+    pub fn try_send_set_cursor_rectangle(
         &self,
         x: i32,
         y: i32,
@@ -516,6 +712,51 @@ impl ZwpTextInputV3 {
         Ok(())
     }
 
+    /// set cursor position
+    ///
+    /// Marks an area around the cursor as a x, y, width, height rectangle in
+    /// surface local coordinates.
+    ///
+    /// Allows the compositor to put a window with word suggestions near the
+    /// cursor, without obstructing the text being input.
+    ///
+    /// If the client is unaware of the position of edited text, it should not
+    /// issue this request, to signify lack of support to the compositor.
+    ///
+    /// Values set with this request are double-buffered. They will get applied
+    /// on the next zwp_text_input_v3.commit request, and stay valid until the
+    /// next committed enable or disable request.
+    ///
+    /// The initial values describing a cursor rectangle are empty. That means
+    /// the text input does not support describing the cursor area. If the
+    /// empty values get applied, subsequent attempts to change them may have
+    /// no effect.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`:
+    /// - `y`:
+    /// - `width`:
+    /// - `height`:
+    #[inline]
+    pub fn send_set_cursor_rectangle(
+        &self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_set_cursor_rectangle(
+            x,
+            y,
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.set_cursor_rectangle", &e);
+        }
+    }
+
     /// Since when the commit message is available.
     pub const MSG__COMMIT__SINCE: u32 = 1;
 
@@ -545,7 +786,7 @@ impl ZwpTextInputV3 {
     /// each zwp_text_input_v3 object and use the count as the serial in done
     /// events.
     #[inline]
-    pub fn send_commit(
+    pub fn try_send_commit(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -576,6 +817,42 @@ impl ZwpTextInputV3 {
         Ok(())
     }
 
+    /// commit state
+    ///
+    /// Atomically applies state changes recently sent to the compositor.
+    ///
+    /// The commit request establishes and updates the state of the client, and
+    /// must be issued after any changes to apply them.
+    ///
+    /// Text input state (enabled status, content purpose, content hint,
+    /// surrounding text and change cause, cursor rectangle) is conceptually
+    /// double-buffered within the context of a text input, i.e. between a
+    /// committed enable request and the following committed enable or disable
+    /// request.
+    ///
+    /// Protocol requests modify the pending state, as opposed to the current
+    /// state in use by the input method. A commit request atomically applies
+    /// all pending state, replacing the current state. After commit, the new
+    /// pending state is as documented for each related request.
+    ///
+    /// Requests are applied in the order of arrival.
+    ///
+    /// Neither current nor pending state are modified unless noted otherwise.
+    ///
+    /// The compositor must count the number of commit requests coming from
+    /// each zwp_text_input_v3 object and use the count as the serial in done
+    /// events.
+    #[inline]
+    pub fn send_commit(
+        &self,
+    ) {
+        let res = self.try_send_commit(
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.commit", &e);
+        }
+    }
+
     /// Since when the enter message is available.
     pub const MSG__ENTER__SINCE: u32 = 1;
 
@@ -594,7 +871,7 @@ impl ZwpTextInputV3 {
     ///
     /// - `surface`:
     #[inline]
-    pub fn send_enter(
+    pub fn try_send_enter(
         &self,
         surface: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
@@ -639,6 +916,33 @@ impl ZwpTextInputV3 {
         Ok(())
     }
 
+    /// enter event
+    ///
+    /// Notification that this seat's text-input focus is on a certain surface.
+    ///
+    /// If client has created multiple text input objects, compositor must send
+    /// this event to all of them.
+    ///
+    /// When the seat has the keyboard capability the text-input focus follows
+    /// the keyboard focus. This event sets the current surface for the
+    /// text-input object.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`:
+    #[inline]
+    pub fn send_enter(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_enter(
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.enter", &e);
+        }
+    }
+
     /// Since when the leave message is available.
     pub const MSG__LEAVE__SINCE: u32 = 1;
 
@@ -660,7 +964,7 @@ impl ZwpTextInputV3 {
     ///
     /// - `surface`:
     #[inline]
-    pub fn send_leave(
+    pub fn try_send_leave(
         &self,
         surface: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
@@ -705,6 +1009,36 @@ impl ZwpTextInputV3 {
         Ok(())
     }
 
+    /// leave event
+    ///
+    /// Notification that this seat's text-input focus is no longer on a
+    /// certain surface. The client should reset any preedit string previously
+    /// set.
+    ///
+    /// The leave notification clears the current surface. It is sent before
+    /// the enter notification for the new focus. After leave event, compositor
+    /// must ignore requests from any text input instances until next enter
+    /// event.
+    ///
+    /// When the seat has the keyboard capability the text-input focus follows
+    /// the keyboard focus.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`:
+    #[inline]
+    pub fn send_leave(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_leave(
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.leave", &e);
+        }
+    }
+
     /// Since when the preedit_string message is available.
     pub const MSG__PREEDIT_STRING__SINCE: u32 = 1;
 
@@ -735,7 +1069,7 @@ impl ZwpTextInputV3 {
     /// - `cursor_begin`:
     /// - `cursor_end`:
     #[inline]
-    pub fn send_preedit_string(
+    pub fn try_send_preedit_string(
         &self,
         text: Option<&str>,
         cursor_begin: i32,
@@ -789,6 +1123,49 @@ impl ZwpTextInputV3 {
         Ok(())
     }
 
+    /// pre-edit
+    ///
+    /// Notify when a new composing text (pre-edit) should be set at the
+    /// current cursor position. Any previously set composing text must be
+    /// removed. Any previously existing selected text must be removed.
+    ///
+    /// The argument text contains the pre-edit string buffer.
+    ///
+    /// The parameters cursor_begin and cursor_end are counted in bytes
+    /// relative to the beginning of the submitted text buffer. Cursor should
+    /// be hidden when both are equal to -1.
+    ///
+    /// They could be represented by the client as a line if both values are
+    /// the same, or as a text highlight otherwise.
+    ///
+    /// Values set with this event are double-buffered. They must be applied
+    /// and reset to initial on the next zwp_text_input_v3.done event.
+    ///
+    /// The initial value of text is an empty string, and cursor_begin,
+    /// cursor_end and cursor_hidden are all 0.
+    ///
+    /// # Arguments
+    ///
+    /// - `text`:
+    /// - `cursor_begin`:
+    /// - `cursor_end`:
+    #[inline]
+    pub fn send_preedit_string(
+        &self,
+        text: Option<&str>,
+        cursor_begin: i32,
+        cursor_end: i32,
+    ) {
+        let res = self.try_send_preedit_string(
+            text,
+            cursor_begin,
+            cursor_end,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.preedit_string", &e);
+        }
+    }
+
     /// Since when the commit_string message is available.
     pub const MSG__COMMIT_STRING__SINCE: u32 = 1;
 
@@ -807,7 +1184,7 @@ impl ZwpTextInputV3 {
     ///
     /// - `text`:
     #[inline]
-    pub fn send_commit_string(
+    pub fn try_send_commit_string(
         &self,
         text: Option<&str>,
     ) -> Result<(), ObjectError> {
@@ -851,6 +1228,33 @@ impl ZwpTextInputV3 {
         Ok(())
     }
 
+    /// text commit
+    ///
+    /// Notify when text should be inserted into the editor widget. The text to
+    /// commit could be either just a single character after a key press or the
+    /// result of some composing (pre-edit).
+    ///
+    /// Values set with this event are double-buffered. They must be applied
+    /// and reset to initial on the next zwp_text_input_v3.done event.
+    ///
+    /// The initial value of text is an empty string.
+    ///
+    /// # Arguments
+    ///
+    /// - `text`:
+    #[inline]
+    pub fn send_commit_string(
+        &self,
+        text: Option<&str>,
+    ) {
+        let res = self.try_send_commit_string(
+            text,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.commit_string", &e);
+        }
+    }
+
     /// Since when the delete_surrounding_text message is available.
     pub const MSG__DELETE_SURROUNDING_TEXT__SINCE: u32 = 1;
 
@@ -876,7 +1280,7 @@ impl ZwpTextInputV3 {
     /// - `before_length`: length of text before current cursor position
     /// - `after_length`: length of text after current cursor position
     #[inline]
-    pub fn send_delete_surrounding_text(
+    pub fn try_send_delete_surrounding_text(
         &self,
         before_length: u32,
         after_length: u32,
@@ -920,6 +1324,42 @@ impl ZwpTextInputV3 {
         Ok(())
     }
 
+    /// delete surrounding text
+    ///
+    /// Notify when the text around the current cursor position should be
+    /// deleted.
+    ///
+    /// Before_length and after_length are the number of bytes before and after
+    /// the current cursor index (excluding the selection) to delete.
+    ///
+    /// If a preedit text is present, in effect before_length is counted from
+    /// the beginning of it, and after_length from its end (see done event
+    /// sequence).
+    ///
+    /// Values set with this event are double-buffered. They must be applied
+    /// and reset to initial on the next zwp_text_input_v3.done event.
+    ///
+    /// The initial values of both before_length and after_length are 0.
+    ///
+    /// # Arguments
+    ///
+    /// - `before_length`: length of text before current cursor position
+    /// - `after_length`: length of text after current cursor position
+    #[inline]
+    pub fn send_delete_surrounding_text(
+        &self,
+        before_length: u32,
+        after_length: u32,
+    ) {
+        let res = self.try_send_delete_surrounding_text(
+            before_length,
+            after_length,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.delete_surrounding_text", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -957,7 +1397,7 @@ impl ZwpTextInputV3 {
     ///
     /// - `serial`:
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
         serial: u32,
     ) -> Result<(), ObjectError> {
@@ -996,13 +1436,59 @@ impl ZwpTextInputV3 {
         ]);
         Ok(())
     }
+
+    /// apply changes
+    ///
+    /// Instruct the application to apply changes to state requested by the
+    /// preedit_string, commit_string and delete_surrounding_text events. The
+    /// state relating to these events is double-buffered, and each one
+    /// modifies the pending state. This event replaces the current state with
+    /// the pending state.
+    ///
+    /// The application must proceed by evaluating the changes in the following
+    /// order:
+    ///
+    /// 1. Replace existing preedit string with the cursor.
+    /// 2. Delete requested surrounding text.
+    /// 3. Insert commit string with the cursor at its end.
+    /// 4. Calculate surrounding text to send.
+    /// 5. Insert new preedit text in cursor position.
+    /// 6. Place cursor inside preedit text.
+    ///
+    /// The serial number reflects the last state of the zwp_text_input_v3
+    /// object known to the compositor. The value of the serial argument must
+    /// be equal to the number of commit requests already issued on that object.
+    ///
+    /// When the client receives a done event with a serial different than the
+    /// number of past commit requests, it must proceed with evaluating and
+    /// applying the changes as normal, except it should not change the current
+    /// state of the zwp_text_input_v3 object. All pending state requests
+    /// (set_surrounding_text, set_content_type and set_cursor_rectangle) on
+    /// the zwp_text_input_v3 object should be sent and committed after
+    /// receiving a zwp_text_input_v3.done event with a matching serial.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`:
+    #[inline]
+    pub fn send_done(
+        &self,
+        serial: u32,
+    ) {
+        let res = self.try_send_done(
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.done", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpTextInputV3] proxies.
 pub trait ZwpTextInputV3Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpTextInputV3>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// Destroy the wp_text_input
@@ -1017,10 +1503,10 @@ pub trait ZwpTextInputV3Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v3.destroy message: {}", Report::new(e));
+            log_forward("zwp_text_input_v3.destroy", &e);
         }
     }
 
@@ -1062,10 +1548,10 @@ pub trait ZwpTextInputV3Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_enable(
+        let res = _slf.try_send_enable(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v3.enable message: {}", Report::new(e));
+            log_forward("zwp_text_input_v3.enable", &e);
         }
     }
 
@@ -1084,10 +1570,10 @@ pub trait ZwpTextInputV3Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_disable(
+        let res = _slf.try_send_disable(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v3.disable message: {}", Report::new(e));
+            log_forward("zwp_text_input_v3.disable", &e);
         }
     }
 
@@ -1141,13 +1627,13 @@ pub trait ZwpTextInputV3Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_surrounding_text(
+        let res = _slf.try_send_set_surrounding_text(
             text,
             cursor,
             anchor,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v3.set_surrounding_text message: {}", Report::new(e));
+            log_forward("zwp_text_input_v3.set_surrounding_text", &e);
         }
     }
 
@@ -1180,11 +1666,11 @@ pub trait ZwpTextInputV3Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_text_change_cause(
+        let res = _slf.try_send_set_text_change_cause(
             cause,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v3.set_text_change_cause message: {}", Report::new(e));
+            log_forward("zwp_text_input_v3.set_text_change_cause", &e);
         }
     }
 
@@ -1216,12 +1702,12 @@ pub trait ZwpTextInputV3Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_content_type(
+        let res = _slf.try_send_set_content_type(
             hint,
             purpose,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v3.set_content_type message: {}", Report::new(e));
+            log_forward("zwp_text_input_v3.set_content_type", &e);
         }
     }
 
@@ -1263,14 +1749,14 @@ pub trait ZwpTextInputV3Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_cursor_rectangle(
+        let res = _slf.try_send_set_cursor_rectangle(
             x,
             y,
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v3.set_cursor_rectangle message: {}", Report::new(e));
+            log_forward("zwp_text_input_v3.set_cursor_rectangle", &e);
         }
     }
 
@@ -1307,10 +1793,10 @@ pub trait ZwpTextInputV3Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_commit(
+        let res = _slf.try_send_commit(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v3.commit message: {}", Report::new(e));
+            log_forward("zwp_text_input_v3.commit", &e);
         }
     }
 
@@ -1347,11 +1833,11 @@ pub trait ZwpTextInputV3Handler: Any {
                 }
             }
         }
-        let res = _slf.send_enter(
+        let res = _slf.try_send_enter(
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v3.enter message: {}", Report::new(e));
+            log_forward("zwp_text_input_v3.enter", &e);
         }
     }
 
@@ -1391,11 +1877,11 @@ pub trait ZwpTextInputV3Handler: Any {
                 }
             }
         }
-        let res = _slf.send_leave(
+        let res = _slf.try_send_leave(
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v3.leave message: {}", Report::new(e));
+            log_forward("zwp_text_input_v3.leave", &e);
         }
     }
 
@@ -1436,13 +1922,13 @@ pub trait ZwpTextInputV3Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_preedit_string(
+        let res = _slf.try_send_preedit_string(
             text,
             cursor_begin,
             cursor_end,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v3.preedit_string message: {}", Report::new(e));
+            log_forward("zwp_text_input_v3.preedit_string", &e);
         }
     }
 
@@ -1469,11 +1955,11 @@ pub trait ZwpTextInputV3Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_commit_string(
+        let res = _slf.try_send_commit_string(
             text,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v3.commit_string message: {}", Report::new(e));
+            log_forward("zwp_text_input_v3.commit_string", &e);
         }
     }
 
@@ -1508,12 +1994,12 @@ pub trait ZwpTextInputV3Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_delete_surrounding_text(
+        let res = _slf.try_send_delete_surrounding_text(
             before_length,
             after_length,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v3.delete_surrounding_text message: {}", Report::new(e));
+            log_forward("zwp_text_input_v3.delete_surrounding_text", &e);
         }
     }
 
@@ -1559,11 +2045,11 @@ pub trait ZwpTextInputV3Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v3.done message: {}", Report::new(e));
+            log_forward("zwp_text_input_v3.done", &e);
         }
     }
 }
@@ -1583,7 +2069,7 @@ impl ObjectPrivate for ZwpTextInputV3 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

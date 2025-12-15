@@ -71,7 +71,7 @@ impl ZwpPrimarySelectionOfferV1 {
     /// - `mime_type`:
     /// - `fd`:
     #[inline]
-    pub fn send_receive(
+    pub fn try_send_receive(
         &self,
         mime_type: &str,
         fd: &Rc<OwnedFd>,
@@ -113,6 +113,37 @@ impl ZwpPrimarySelectionOfferV1 {
         Ok(())
     }
 
+    /// request that the data is transferred
+    ///
+    /// To transfer the contents of the primary selection clipboard, the client
+    /// issues this request and indicates the mime type that it wants to
+    /// receive. The transfer happens through the passed file descriptor
+    /// (typically created with the pipe system call). The source client writes
+    /// the data in the mime type representation requested and then closes the
+    /// file descriptor.
+    ///
+    /// The receiving client reads from the read end of the pipe until EOF and
+    /// closes its end, at which point the transfer is complete.
+    ///
+    /// # Arguments
+    ///
+    /// - `mime_type`:
+    /// - `fd`:
+    #[inline]
+    pub fn send_receive(
+        &self,
+        mime_type: &str,
+        fd: &Rc<OwnedFd>,
+    ) {
+        let res = self.try_send_receive(
+            mime_type,
+            fd,
+        );
+        if let Err(e) = res {
+            log_send("zwp_primary_selection_offer_v1.receive", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -120,7 +151,7 @@ impl ZwpPrimarySelectionOfferV1 {
     ///
     /// Destroy the primary selection offer.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -152,6 +183,20 @@ impl ZwpPrimarySelectionOfferV1 {
         Ok(())
     }
 
+    /// destroy the primary selection offer
+    ///
+    /// Destroy the primary selection offer.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_primary_selection_offer_v1.destroy", &e);
+        }
+    }
+
     /// Since when the offer message is available.
     pub const MSG__OFFER__SINCE: u32 = 1;
 
@@ -166,7 +211,7 @@ impl ZwpPrimarySelectionOfferV1 {
     ///
     /// - `mime_type`:
     #[inline]
-    pub fn send_offer(
+    pub fn try_send_offer(
         &self,
         mime_type: &str,
     ) -> Result<(), ObjectError> {
@@ -205,13 +250,36 @@ impl ZwpPrimarySelectionOfferV1 {
         fmt.string(arg0);
         Ok(())
     }
+
+    /// advertise offered mime type
+    ///
+    /// Sent immediately after creating announcing the
+    /// wp_primary_selection_offer through
+    /// wp_primary_selection_device.data_offer. One event is sent per offered
+    /// mime type.
+    ///
+    /// # Arguments
+    ///
+    /// - `mime_type`:
+    #[inline]
+    pub fn send_offer(
+        &self,
+        mime_type: &str,
+    ) {
+        let res = self.try_send_offer(
+            mime_type,
+        );
+        if let Err(e) = res {
+            log_send("zwp_primary_selection_offer_v1.offer", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpPrimarySelectionOfferV1] proxies.
 pub trait ZwpPrimarySelectionOfferV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpPrimarySelectionOfferV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// request that the data is transferred
@@ -240,12 +308,12 @@ pub trait ZwpPrimarySelectionOfferV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_receive(
+        let res = _slf.try_send_receive(
             mime_type,
             fd,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_primary_selection_offer_v1.receive message: {}", Report::new(e));
+            log_forward("zwp_primary_selection_offer_v1.receive", &e);
         }
     }
 
@@ -260,10 +328,10 @@ pub trait ZwpPrimarySelectionOfferV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_primary_selection_offer_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_primary_selection_offer_v1.destroy", &e);
         }
     }
 
@@ -286,11 +354,11 @@ pub trait ZwpPrimarySelectionOfferV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_offer(
+        let res = _slf.try_send_offer(
             mime_type,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_primary_selection_offer_v1.offer message: {}", Report::new(e));
+            log_forward("zwp_primary_selection_offer_v1.offer", &e);
         }
     }
 }
@@ -310,7 +378,7 @@ impl ObjectPrivate for ZwpPrimarySelectionOfferV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

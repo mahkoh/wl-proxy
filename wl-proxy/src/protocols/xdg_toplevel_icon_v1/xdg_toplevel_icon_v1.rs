@@ -63,7 +63,7 @@ impl XdgToplevelIconV1 {
     /// The icon must still remain set on every toplevel it was assigned to,
     /// until the toplevel icon is reset explicitly.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -95,6 +95,22 @@ impl XdgToplevelIconV1 {
         Ok(())
     }
 
+    /// destroy the icon object
+    ///
+    /// Destroys the 'xdg_toplevel_icon_v1' object.
+    /// The icon must still remain set on every toplevel it was assigned to,
+    /// until the toplevel icon is reset explicitly.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel_icon_v1.destroy", &e);
+        }
+    }
+
     /// Since when the set_name message is available.
     pub const MSG__SET_NAME__SINCE: u32 = 1;
 
@@ -120,7 +136,7 @@ impl XdgToplevelIconV1 {
     ///
     /// - `icon_name`:
     #[inline]
-    pub fn send_set_name(
+    pub fn try_send_set_name(
         &self,
         icon_name: &str,
     ) -> Result<(), ObjectError> {
@@ -158,6 +174,40 @@ impl XdgToplevelIconV1 {
         Ok(())
     }
 
+    /// set an icon name
+    ///
+    /// This request assigns an icon name to this icon.
+    /// Any previously set name is overridden.
+    ///
+    /// The compositor must resolve 'icon_name' according to the lookup rules
+    /// described in the XDG icon theme specification[1] using the
+    /// environment's current icon theme.
+    ///
+    /// If the compositor does not support icon names or cannot resolve
+    /// 'icon_name' according to the XDG icon theme specification it must
+    /// fall back to using pixel buffer data instead.
+    ///
+    /// If this request is made after the icon has been assigned to a toplevel
+    /// via 'set_icon', a 'immutable' error must be raised.
+    ///
+    /// [1]: https://specifications.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html
+    ///
+    /// # Arguments
+    ///
+    /// - `icon_name`:
+    #[inline]
+    pub fn send_set_name(
+        &self,
+        icon_name: &str,
+    ) {
+        let res = self.try_send_set_name(
+            icon_name,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel_icon_v1.set_name", &e);
+        }
+    }
+
     /// Since when the add_buffer message is available.
     pub const MSG__ADD_BUFFER__SINCE: u32 = 1;
 
@@ -193,7 +243,7 @@ impl XdgToplevelIconV1 {
     /// - `buffer`:
     /// - `scale`: the scaling factor of the icon, e.g. 1
     #[inline]
-    pub fn send_add_buffer(
+    pub fn try_send_add_buffer(
         &self,
         buffer: &Rc<WlBuffer>,
         scale: i32,
@@ -239,13 +289,59 @@ impl XdgToplevelIconV1 {
         ]);
         Ok(())
     }
+
+    /// add icon data from a pixel buffer
+    ///
+    /// This request adds pixel data supplied as wl_buffer to the icon.
+    ///
+    /// The client should add pixel data for all icon sizes and scales that
+    /// it can provide, or which are explicitly requested by the compositor
+    /// via 'icon_size' events on xdg_toplevel_icon_manager_v1.
+    ///
+    /// The wl_buffer supplying pixel data as 'buffer' must be backed by wl_shm
+    /// and must be a square (width and height being equal).
+    /// If any of these buffer requirements are not fulfilled, a 'invalid_buffer'
+    /// error must be raised.
+    ///
+    /// If this icon instance already has a buffer of the same size and scale
+    /// from a previous 'add_buffer' request, data from the last request
+    /// overrides the preexisting pixel data.
+    ///
+    /// The wl_buffer must be kept alive for as long as the xdg_toplevel_icon
+    /// it is associated with is not destroyed, otherwise a 'no_buffer' error
+    /// is raised. The buffer contents must not be modified after it was
+    /// assigned to the icon. As a result, the region of the wl_shm_pool's
+    /// backing storage used for the wl_buffer must not be modified after this
+    /// request is sent. The wl_buffer.release event is unused.
+    ///
+    /// If this request is made after the icon has been assigned to a toplevel
+    /// via 'set_icon', a 'immutable' error must be raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `buffer`:
+    /// - `scale`: the scaling factor of the icon, e.g. 1
+    #[inline]
+    pub fn send_add_buffer(
+        &self,
+        buffer: &Rc<WlBuffer>,
+        scale: i32,
+    ) {
+        let res = self.try_send_add_buffer(
+            buffer,
+            scale,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel_icon_v1.add_buffer", &e);
+        }
+    }
 }
 
 /// A message handler for [XdgToplevelIconV1] proxies.
 pub trait XdgToplevelIconV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgToplevelIconV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the icon object
@@ -261,10 +357,10 @@ pub trait XdgToplevelIconV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel_icon_v1.destroy message: {}", Report::new(e));
+            log_forward("xdg_toplevel_icon_v1.destroy", &e);
         }
     }
 
@@ -298,11 +394,11 @@ pub trait XdgToplevelIconV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_name(
+        let res = _slf.try_send_set_name(
             icon_name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel_icon_v1.set_name message: {}", Report::new(e));
+            log_forward("xdg_toplevel_icon_v1.set_name", &e);
         }
     }
 
@@ -350,12 +446,12 @@ pub trait XdgToplevelIconV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_add_buffer(
+        let res = _slf.try_send_add_buffer(
             buffer,
             scale,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel_icon_v1.add_buffer message: {}", Report::new(e));
+            log_forward("xdg_toplevel_icon_v1.add_buffer", &e);
         }
     }
 }
@@ -375,7 +471,7 @@ impl ObjectPrivate for XdgToplevelIconV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -77,7 +77,7 @@ impl XdgActivationTokenV1 {
     /// - `serial`: the serial of the event that triggered the activation
     /// - `seat`: the wl_seat of the event
     #[inline]
-    pub fn send_set_serial(
+    pub fn try_send_set_serial(
         &self,
         serial: u32,
         seat: &Rc<WlSeat>,
@@ -124,6 +124,40 @@ impl XdgActivationTokenV1 {
         Ok(())
     }
 
+    /// specifies the seat and serial of the activating event
+    ///
+    /// Provides information about the seat and serial event that requested the
+    /// token.
+    ///
+    /// The serial can come from an input or focus event. For instance, if a
+    /// click triggers the launch of a third-party client, the launcher client
+    /// should send a set_serial request with the serial and seat from the
+    /// wl_pointer.button event.
+    ///
+    /// Some compositors might refuse to activate toplevels when the token
+    /// doesn't have a valid and recent enough event serial.
+    ///
+    /// Must be sent before commit. This information is optional.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: the serial of the event that triggered the activation
+    /// - `seat`: the wl_seat of the event
+    #[inline]
+    pub fn send_set_serial(
+        &self,
+        serial: u32,
+        seat: &Rc<WlSeat>,
+    ) {
+        let res = self.try_send_set_serial(
+            serial,
+            seat,
+        );
+        if let Err(e) = res {
+            log_send("xdg_activation_token_v1.set_serial", &e);
+        }
+    }
+
     /// Since when the set_app_id message is available.
     pub const MSG__SET_APP_ID__SINCE: u32 = 1;
 
@@ -138,7 +172,7 @@ impl XdgActivationTokenV1 {
     ///
     /// - `app_id`: the application id of the client being activated.
     #[inline]
-    pub fn send_set_app_id(
+    pub fn try_send_set_app_id(
         &self,
         app_id: &str,
     ) -> Result<(), ObjectError> {
@@ -176,6 +210,29 @@ impl XdgActivationTokenV1 {
         Ok(())
     }
 
+    /// specifies the application being activated
+    ///
+    /// The requesting client can specify an app_id to associate the token
+    /// being created with it.
+    ///
+    /// Must be sent before commit. This information is optional.
+    ///
+    /// # Arguments
+    ///
+    /// - `app_id`: the application id of the client being activated.
+    #[inline]
+    pub fn send_set_app_id(
+        &self,
+        app_id: &str,
+    ) {
+        let res = self.try_send_set_app_id(
+            app_id,
+        );
+        if let Err(e) = res {
+            log_send("xdg_activation_token_v1.set_app_id", &e);
+        }
+    }
+
     /// Since when the set_surface message is available.
     pub const MSG__SET_SURFACE__SINCE: u32 = 1;
 
@@ -193,7 +250,7 @@ impl XdgActivationTokenV1 {
     ///
     /// - `surface`: the requesting surface
     #[inline]
-    pub fn send_set_surface(
+    pub fn try_send_set_surface(
         &self,
         surface: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
@@ -236,6 +293,32 @@ impl XdgActivationTokenV1 {
         Ok(())
     }
 
+    /// specifies the surface requesting activation
+    ///
+    /// This request sets the surface requesting the activation. Note, this is
+    /// different from the surface that will be activated.
+    ///
+    /// Some compositors might refuse to activate toplevels when the token
+    /// doesn't have a requesting surface.
+    ///
+    /// Must be sent before commit. This information is optional.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`: the requesting surface
+    #[inline]
+    pub fn send_set_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_set_surface(
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("xdg_activation_token_v1.set_surface", &e);
+        }
+    }
+
     /// Since when the commit message is available.
     pub const MSG__COMMIT__SINCE: u32 = 1;
 
@@ -244,7 +327,7 @@ impl XdgActivationTokenV1 {
     /// Requests an activation token based on the different parameters that
     /// have been offered through set_serial, set_surface and set_app_id.
     #[inline]
-    pub fn send_commit(
+    pub fn try_send_commit(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -275,6 +358,21 @@ impl XdgActivationTokenV1 {
         Ok(())
     }
 
+    /// issues the token request
+    ///
+    /// Requests an activation token based on the different parameters that
+    /// have been offered through set_serial, set_surface and set_app_id.
+    #[inline]
+    pub fn send_commit(
+        &self,
+    ) {
+        let res = self.try_send_commit(
+        );
+        if let Err(e) = res {
+            log_send("xdg_activation_token_v1.commit", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -287,7 +385,7 @@ impl XdgActivationTokenV1 {
     ///
     /// - `token`: the exported activation token
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
         token: &str,
     ) -> Result<(), ObjectError> {
@@ -327,6 +425,27 @@ impl XdgActivationTokenV1 {
         Ok(())
     }
 
+    /// the exported activation token
+    ///
+    /// The 'done' event contains the unique token of this activation request
+    /// and notifies that the provider is done.
+    ///
+    /// # Arguments
+    ///
+    /// - `token`: the exported activation token
+    #[inline]
+    pub fn send_done(
+        &self,
+        token: &str,
+    ) {
+        let res = self.try_send_done(
+            token,
+        );
+        if let Err(e) = res {
+            log_send("xdg_activation_token_v1.done", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -335,7 +454,7 @@ impl XdgActivationTokenV1 {
     /// Notify the compositor that the xdg_activation_token_v1 object will no
     /// longer be used. The received token stays valid.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -366,13 +485,28 @@ impl XdgActivationTokenV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the xdg_activation_token_v1 object
+    ///
+    /// Notify the compositor that the xdg_activation_token_v1 object will no
+    /// longer be used. The received token stays valid.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("xdg_activation_token_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [XdgActivationTokenV1] proxies.
 pub trait XdgActivationTokenV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgActivationTokenV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// specifies the seat and serial of the activating event
@@ -407,12 +541,12 @@ pub trait XdgActivationTokenV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_serial(
+        let res = _slf.try_send_set_serial(
             serial,
             seat,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_activation_token_v1.set_serial message: {}", Report::new(e));
+            log_forward("xdg_activation_token_v1.set_serial", &e);
         }
     }
 
@@ -435,11 +569,11 @@ pub trait XdgActivationTokenV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_app_id(
+        let res = _slf.try_send_set_app_id(
             app_id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_activation_token_v1.set_app_id message: {}", Report::new(e));
+            log_forward("xdg_activation_token_v1.set_app_id", &e);
         }
     }
 
@@ -468,11 +602,11 @@ pub trait XdgActivationTokenV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_surface(
+        let res = _slf.try_send_set_surface(
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_activation_token_v1.set_surface message: {}", Report::new(e));
+            log_forward("xdg_activation_token_v1.set_surface", &e);
         }
     }
 
@@ -488,10 +622,10 @@ pub trait XdgActivationTokenV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_commit(
+        let res = _slf.try_send_commit(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_activation_token_v1.commit message: {}", Report::new(e));
+            log_forward("xdg_activation_token_v1.commit", &e);
         }
     }
 
@@ -512,11 +646,11 @@ pub trait XdgActivationTokenV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
             token,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_activation_token_v1.done message: {}", Report::new(e));
+            log_forward("xdg_activation_token_v1.done", &e);
         }
     }
 
@@ -532,10 +666,10 @@ pub trait XdgActivationTokenV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_activation_token_v1.destroy message: {}", Report::new(e));
+            log_forward("xdg_activation_token_v1.destroy", &e);
         }
     }
 }
@@ -555,7 +689,7 @@ impl ObjectPrivate for XdgActivationTokenV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

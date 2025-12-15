@@ -70,7 +70,7 @@ impl ZwpLinuxBufferParamsV1 {
     /// Cleans up the temporary data sent to the server for dmabuf-based
     /// wl_buffer creation.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -100,6 +100,21 @@ impl ZwpLinuxBufferParamsV1 {
         ]);
         self.core.handle_server_destroy();
         Ok(())
+    }
+
+    /// delete this object, used or not
+    ///
+    /// Cleans up the temporary data sent to the server for dmabuf-based
+    /// wl_buffer creation.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_buffer_params_v1.destroy", &e);
+        }
     }
 
     /// Since when the add message is available.
@@ -136,7 +151,7 @@ impl ZwpLinuxBufferParamsV1 {
     /// - `modifier_hi`: high 32 bits of layout modifier
     /// - `modifier_lo`: low 32 bits of layout modifier
     #[inline]
-    pub fn send_add(
+    pub fn try_send_add(
         &self,
         fd: &Rc<OwnedFd>,
         plane_idx: u32,
@@ -194,8 +209,180 @@ impl ZwpLinuxBufferParamsV1 {
         Ok(())
     }
 
+    /// add a dmabuf to the temporary set
+    ///
+    /// This request adds one dmabuf to the set in this
+    /// zwp_linux_buffer_params_v1.
+    ///
+    /// The 64-bit unsigned value combined from modifier_hi and modifier_lo
+    /// is the dmabuf layout modifier. DRM AddFB2 ioctl calls this the
+    /// fb modifier, which is defined in drm_mode.h of Linux UAPI.
+    /// This is an opaque token. Drivers use this token to express tiling,
+    /// compression, etc. driver-specific modifications to the base format
+    /// defined by the DRM fourcc code.
+    ///
+    /// Starting from version 4, the invalid_format protocol error is sent if
+    /// the format + modifier pair was not advertised as supported.
+    ///
+    /// Starting from version 5, the invalid_format protocol error is sent if
+    /// all planes don't use the same modifier.
+    ///
+    /// This request raises the PLANE_IDX error if plane_idx is too large.
+    /// The error PLANE_SET is raised if attempting to set a plane that
+    /// was already set.
+    ///
+    /// # Arguments
+    ///
+    /// - `fd`: dmabuf fd
+    /// - `plane_idx`: plane index
+    /// - `offset`: offset in bytes
+    /// - `stride`: stride in bytes
+    /// - `modifier_hi`: high 32 bits of layout modifier
+    /// - `modifier_lo`: low 32 bits of layout modifier
+    #[inline]
+    pub fn send_add(
+        &self,
+        fd: &Rc<OwnedFd>,
+        plane_idx: u32,
+        offset: u32,
+        stride: u32,
+        modifier_hi: u32,
+        modifier_lo: u32,
+    ) {
+        let res = self.try_send_add(
+            fd,
+            plane_idx,
+            offset,
+            stride,
+            modifier_hi,
+            modifier_lo,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_buffer_params_v1.add", &e);
+        }
+    }
+
     /// Since when the create message is available.
     pub const MSG__CREATE__SINCE: u32 = 1;
+
+    /// create a wl_buffer from the given dmabufs
+    ///
+    /// This asks for creation of a wl_buffer from the added dmabuf
+    /// buffers. The wl_buffer is not created immediately but returned via
+    /// the 'created' event if the dmabuf sharing succeeds. The sharing
+    /// may fail at runtime for reasons a client cannot predict, in
+    /// which case the 'failed' event is triggered.
+    ///
+    /// The 'format' argument is a DRM_FORMAT code, as defined by the
+    /// libdrm's drm_fourcc.h. The Linux kernel's DRM sub-system is the
+    /// authoritative source on how the format codes should work.
+    ///
+    /// The 'flags' is a bitfield of the flags defined in enum "flags".
+    /// 'y_invert' means the that the image needs to be y-flipped.
+    ///
+    /// Flag 'interlaced' means that the frame in the buffer is not
+    /// progressive as usual, but interlaced. An interlaced buffer as
+    /// supported here must always contain both top and bottom fields.
+    /// The top field always begins on the first pixel row. The temporal
+    /// ordering between the two fields is top field first, unless
+    /// 'bottom_first' is specified. It is undefined whether 'bottom_first'
+    /// is ignored if 'interlaced' is not set.
+    ///
+    /// This protocol does not convey any information about field rate,
+    /// duration, or timing, other than the relative ordering between the
+    /// two fields in one buffer. A compositor may have to estimate the
+    /// intended field rate from the incoming buffer rate. It is undefined
+    /// whether the time of receiving wl_surface.commit with a new buffer
+    /// attached, applying the wl_surface state, wl_surface.frame callback
+    /// trigger, presentation, or any other point in the compositor cycle
+    /// is used to measure the frame or field times. There is no support
+    /// for detecting missed or late frames/fields/buffers either, and
+    /// there is no support whatsoever for cooperating with interlaced
+    /// compositor output.
+    ///
+    /// The composited image quality resulting from the use of interlaced
+    /// buffers is explicitly undefined. A compositor may use elaborate
+    /// hardware features or software to deinterlace and create progressive
+    /// output frames from a sequence of interlaced input buffers, or it
+    /// may produce substandard image quality. However, compositors that
+    /// cannot guarantee reasonable image quality in all cases are recommended
+    /// to just reject all interlaced buffers.
+    ///
+    /// Any argument errors, including non-positive width or height,
+    /// mismatch between the number of planes and the format, bad
+    /// format, bad offset or stride, may be indicated by fatal protocol
+    /// errors: INCOMPLETE, INVALID_FORMAT, INVALID_DIMENSIONS,
+    /// OUT_OF_BOUNDS.
+    ///
+    /// Dmabuf import errors in the server that are not obvious client
+    /// bugs are returned via the 'failed' event as non-fatal. This
+    /// allows attempting dmabuf sharing and falling back in the client
+    /// if it fails.
+    ///
+    /// This request can be sent only once in the object's lifetime, after
+    /// which the only legal request is destroy. This object should be
+    /// destroyed after issuing a 'create' request. Attempting to use this
+    /// object after issuing 'create' raises ALREADY_USED protocol error.
+    ///
+    /// It is not mandatory to issue 'create'. If a client wants to
+    /// cancel the buffer creation, it can just destroy this object.
+    ///
+    /// # Arguments
+    ///
+    /// - `width`: base plane width in pixels
+    /// - `height`: base plane height in pixels
+    /// - `format`: DRM_FORMAT code
+    /// - `flags`: see enum flags
+    #[inline]
+    pub fn try_send_create(
+        &self,
+        width: i32,
+        height: i32,
+        format: u32,
+        flags: ZwpLinuxBufferParamsV1Flags,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+        ) = (
+            width,
+            height,
+            format,
+            flags,
+        );
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError::ReceiverNoServerId);
+        };
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: i32, arg1: i32, arg2: u32, arg3: ZwpLinuxBufferParamsV1Flags) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwp_linux_buffer_params_v1#{}.create(width: {}, height: {}, format: {}, flags: {:?})\n", id, arg0, arg1, arg2, arg3);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0, arg1, arg2, arg3);
+        }
+        let endpoint = &self.core.state.server;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            2,
+            arg0 as u32,
+            arg1 as u32,
+            arg2,
+            arg3.0,
+        ]);
+        Ok(())
+    }
 
     /// create a wl_buffer from the given dmabufs
     ///
@@ -272,48 +459,16 @@ impl ZwpLinuxBufferParamsV1 {
         height: i32,
         format: u32,
         flags: ZwpLinuxBufferParamsV1Flags,
-    ) -> Result<(), ObjectError> {
-        let (
-            arg0,
-            arg1,
-            arg2,
-            arg3,
-        ) = (
+    ) {
+        let res = self.try_send_create(
             width,
             height,
             format,
             flags,
         );
-        let core = self.core();
-        let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
-        };
-        if self.core.state.log {
-            #[cold]
-            fn log(state: &State, id: u32, arg0: i32, arg1: i32, arg2: u32, arg3: ZwpLinuxBufferParamsV1Flags) {
-                let (millis, micros) = time_since_epoch();
-                let prefix = &state.log_prefix;
-                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwp_linux_buffer_params_v1#{}.create(width: {}, height: {}, format: {}, flags: {:?})\n", id, arg0, arg1, arg2, arg3);
-                state.log(args);
-            }
-            log(&self.core.state, id, arg0, arg1, arg2, arg3);
+        if let Err(e) = res {
+            log_send("zwp_linux_buffer_params_v1.create", &e);
         }
-        let endpoint = &self.core.state.server;
-        if !endpoint.flush_queued.replace(true) {
-            self.core.state.add_flushable_endpoint(endpoint, None);
-        }
-        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
-        let outgoing = &mut *outgoing_ref;
-        let mut fmt = outgoing.formatter();
-        fmt.words([
-            id,
-            2,
-            arg0 as u32,
-            arg1 as u32,
-            arg2,
-            arg3.0,
-        ]);
-        Ok(())
     }
 
     /// Since when the created message is available.
@@ -327,7 +482,7 @@ impl ZwpLinuxBufferParamsV1 {
     /// Upon receiving this event, the client should destroy the
     /// zwp_linux_buffer_params_v1 object.
     #[inline]
-    pub fn send_created(
+    pub fn try_send_created(
         &self,
         buffer: &Rc<WlBuffer>,
     ) -> Result<(), ObjectError> {
@@ -372,6 +527,26 @@ impl ZwpLinuxBufferParamsV1 {
         Ok(())
     }
 
+    /// buffer creation succeeded
+    ///
+    /// This event indicates that the attempted buffer creation was
+    /// successful. It provides the new wl_buffer referencing the dmabuf(s).
+    ///
+    /// Upon receiving this event, the client should destroy the
+    /// zwp_linux_buffer_params_v1 object.
+    #[inline]
+    pub fn send_created(
+        &self,
+        buffer: &Rc<WlBuffer>,
+    ) {
+        let res = self.try_send_created(
+            buffer,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_buffer_params_v1.created", &e);
+        }
+    }
+
     /// Since when the failed message is available.
     pub const MSG__FAILED__SINCE: u32 = 1;
 
@@ -384,7 +559,7 @@ impl ZwpLinuxBufferParamsV1 {
     /// Upon receiving this event, the client should destroy the
     /// zwp_linux_buffer_params_v1 object.
     #[inline]
-    pub fn send_failed(
+    pub fn try_send_failed(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -415,6 +590,25 @@ impl ZwpLinuxBufferParamsV1 {
             1,
         ]);
         Ok(())
+    }
+
+    /// buffer creation failed
+    ///
+    /// This event indicates that the attempted buffer creation has
+    /// failed. It usually means that one of the dmabuf constraints
+    /// has not been fulfilled.
+    ///
+    /// Upon receiving this event, the client should destroy the
+    /// zwp_linux_buffer_params_v1 object.
+    #[inline]
+    pub fn send_failed(
+        &self,
+    ) {
+        let res = self.try_send_failed(
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_buffer_params_v1.failed", &e);
+        }
     }
 
     /// Since when the create_immed message is available.
@@ -455,7 +649,7 @@ impl ZwpLinuxBufferParamsV1 {
     /// - `format`: DRM_FORMAT code
     /// - `flags`: see enum flags
     #[inline]
-    pub fn send_create_immed(
+    pub fn try_send_create_immed(
         &self,
         buffer_id: &Rc<WlBuffer>,
         width: i32,
@@ -513,13 +707,68 @@ impl ZwpLinuxBufferParamsV1 {
         ]);
         Ok(())
     }
+
+    /// immediately create a wl_buffer from the given
+    ///                      dmabufs
+    ///
+    /// This asks for immediate creation of a wl_buffer by importing the
+    /// added dmabufs.
+    ///
+    /// In case of import success, no event is sent from the server, and the
+    /// wl_buffer is ready to be used by the client.
+    ///
+    /// Upon import failure, either of the following may happen, as seen fit
+    /// by the implementation:
+    /// - the client is terminated with one of the following fatal protocol
+    ///   errors:
+    ///   - INCOMPLETE, INVALID_FORMAT, INVALID_DIMENSIONS, OUT_OF_BOUNDS,
+    ///     in case of argument errors such as mismatch between the number
+    ///     of planes and the format, bad format, non-positive width or
+    ///     height, or bad offset or stride.
+    ///   - INVALID_WL_BUFFER, in case the cause for failure is unknown or
+    ///     platform specific.
+    /// - the server creates an invalid wl_buffer, marks it as failed and
+    ///   sends a 'failed' event to the client. The result of using this
+    ///   invalid wl_buffer as an argument in any request by the client is
+    ///   defined by the compositor implementation.
+    ///
+    /// This takes the same arguments as a 'create' request, and obeys the
+    /// same restrictions.
+    ///
+    /// # Arguments
+    ///
+    /// - `buffer_id`: id for the newly created wl_buffer
+    /// - `width`: base plane width in pixels
+    /// - `height`: base plane height in pixels
+    /// - `format`: DRM_FORMAT code
+    /// - `flags`: see enum flags
+    #[inline]
+    pub fn send_create_immed(
+        &self,
+        buffer_id: &Rc<WlBuffer>,
+        width: i32,
+        height: i32,
+        format: u32,
+        flags: ZwpLinuxBufferParamsV1Flags,
+    ) {
+        let res = self.try_send_create_immed(
+            buffer_id,
+            width,
+            height,
+            format,
+            flags,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_buffer_params_v1.create_immed", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpLinuxBufferParamsV1] proxies.
 pub trait ZwpLinuxBufferParamsV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpLinuxBufferParamsV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// delete this object, used or not
@@ -534,10 +783,10 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_buffer_params_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_linux_buffer_params_v1.destroy", &e);
         }
     }
 
@@ -585,7 +834,7 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_add(
+        let res = _slf.try_send_add(
             fd,
             plane_idx,
             offset,
@@ -594,7 +843,7 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
             modifier_lo,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_buffer_params_v1.add message: {}", Report::new(e));
+            log_forward("zwp_linux_buffer_params_v1.add", &e);
         }
     }
 
@@ -678,14 +927,14 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create(
+        let res = _slf.try_send_create(
             width,
             height,
             format,
             flags,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_buffer_params_v1.create message: {}", Report::new(e));
+            log_forward("zwp_linux_buffer_params_v1.create", &e);
         }
     }
 
@@ -709,11 +958,11 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_created(
+        let res = _slf.try_send_created(
             buffer,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_buffer_params_v1.created message: {}", Report::new(e));
+            log_forward("zwp_linux_buffer_params_v1.created", &e);
         }
     }
 
@@ -733,10 +982,10 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_failed(
+        let res = _slf.try_send_failed(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_buffer_params_v1.failed message: {}", Report::new(e));
+            log_forward("zwp_linux_buffer_params_v1.failed", &e);
         }
     }
 
@@ -787,7 +1036,7 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_immed(
+        let res = _slf.try_send_create_immed(
             buffer_id,
             width,
             height,
@@ -795,7 +1044,7 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
             flags,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_buffer_params_v1.create_immed message: {}", Report::new(e));
+            log_forward("zwp_linux_buffer_params_v1.create_immed", &e);
         }
     }
 }
@@ -815,7 +1064,7 @@ impl ObjectPrivate for ZwpLinuxBufferParamsV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

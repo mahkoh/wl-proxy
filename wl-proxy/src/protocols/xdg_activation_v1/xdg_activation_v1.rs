@@ -60,7 +60,7 @@ impl XdgActivationV1 {
     /// The child objects created via this interface are unaffected and should
     /// be destroyed separately.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -92,6 +92,24 @@ impl XdgActivationV1 {
         Ok(())
     }
 
+    /// destroy the xdg_activation object
+    ///
+    /// Notify the compositor that the xdg_activation object will no longer be
+    /// used.
+    ///
+    /// The child objects created via this interface are unaffected and should
+    /// be destroyed separately.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("xdg_activation_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_activation_token message is available.
     pub const MSG__GET_ACTIVATION_TOKEN__SINCE: u32 = 1;
 
@@ -101,7 +119,7 @@ impl XdgActivationV1 {
     /// the initiating client with a unique token for this activation. This
     /// token should be offered to the clients to be activated.
     #[inline]
-    pub fn send_get_activation_token(
+    pub fn try_send_get_activation_token(
         &self,
         id: &Rc<XdgActivationTokenV1>,
     ) -> Result<(), ObjectError> {
@@ -144,6 +162,24 @@ impl XdgActivationV1 {
         Ok(())
     }
 
+    /// requests a token
+    ///
+    /// Creates an xdg_activation_token_v1 object that will provide
+    /// the initiating client with a unique token for this activation. This
+    /// token should be offered to the clients to be activated.
+    #[inline]
+    pub fn send_get_activation_token(
+        &self,
+        id: &Rc<XdgActivationTokenV1>,
+    ) {
+        let res = self.try_send_get_activation_token(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("xdg_activation_v1.get_activation_token", &e);
+        }
+    }
+
     /// Since when the activate message is available.
     pub const MSG__ACTIVATE__SINCE: u32 = 1;
 
@@ -165,7 +201,7 @@ impl XdgActivationV1 {
     /// - `token`: the activation token of the initiating client
     /// - `surface`: the wl_surface to activate
     #[inline]
-    pub fn send_activate(
+    pub fn try_send_activate(
         &self,
         token: &str,
         surface: &Rc<WlSurface>,
@@ -213,13 +249,45 @@ impl XdgActivationV1 {
         ]);
         Ok(())
     }
+
+    /// notify new interaction being available
+    ///
+    /// Requests surface activation. It's up to the compositor to display
+    /// this information as desired, for example by placing the surface above
+    /// the rest.
+    ///
+    /// The compositor may know who requested this by checking the activation
+    /// token and might decide not to follow through with the activation if it's
+    /// considered unwanted.
+    ///
+    /// Compositors can ignore unknown activation tokens when an invalid
+    /// token is passed.
+    ///
+    /// # Arguments
+    ///
+    /// - `token`: the activation token of the initiating client
+    /// - `surface`: the wl_surface to activate
+    #[inline]
+    pub fn send_activate(
+        &self,
+        token: &str,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_activate(
+            token,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("xdg_activation_v1.activate", &e);
+        }
+    }
 }
 
 /// A message handler for [XdgActivationV1] proxies.
 pub trait XdgActivationV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgActivationV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the xdg_activation object
@@ -237,10 +305,10 @@ pub trait XdgActivationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_activation_v1.destroy message: {}", Report::new(e));
+            log_forward("xdg_activation_v1.destroy", &e);
         }
     }
 
@@ -262,11 +330,11 @@ pub trait XdgActivationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_activation_token(
+        let res = _slf.try_send_get_activation_token(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_activation_v1.get_activation_token message: {}", Report::new(e));
+            log_forward("xdg_activation_v1.get_activation_token", &e);
         }
     }
 
@@ -300,12 +368,12 @@ pub trait XdgActivationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_activate(
+        let res = _slf.try_send_activate(
             token,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_activation_v1.activate message: {}", Report::new(e));
+            log_forward("xdg_activation_v1.activate", &e);
         }
     }
 }
@@ -325,7 +393,7 @@ impl ObjectPrivate for XdgActivationV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

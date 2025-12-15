@@ -67,7 +67,7 @@ impl ZwpPointerConstraintsV1 {
     /// Used by the client to notify the server that it will no longer use this
     /// pointer constraints object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -97,6 +97,21 @@ impl ZwpPointerConstraintsV1 {
         ]);
         self.core.handle_server_destroy();
         Ok(())
+    }
+
+    /// destroy the pointer constraints manager object
+    ///
+    /// Used by the client to notify the server that it will no longer use this
+    /// pointer constraints object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_pointer_constraints_v1.destroy", &e);
+        }
     }
 
     /// Since when the lock_pointer message is available.
@@ -147,7 +162,7 @@ impl ZwpPointerConstraintsV1 {
     /// - `region`: region of surface
     /// - `lifetime`: lock lifetime
     #[inline]
-    pub fn send_lock_pointer(
+    pub fn try_send_lock_pointer(
         &self,
         id: &Rc<ZwpLockedPointerV1>,
         surface: &Rc<WlSurface>,
@@ -224,6 +239,71 @@ impl ZwpPointerConstraintsV1 {
         Ok(())
     }
 
+    /// lock pointer to a position
+    ///
+    /// The lock_pointer request lets the client request to disable movements of
+    /// the virtual pointer (i.e. the cursor), effectively locking the pointer
+    /// to a position. This request may not take effect immediately; in the
+    /// future, when the compositor deems implementation-specific constraints
+    /// are satisfied, the pointer lock will be activated and the compositor
+    /// sends a locked event.
+    ///
+    /// The protocol provides no guarantee that the constraints are ever
+    /// satisfied, and does not require the compositor to send an error if the
+    /// constraints cannot ever be satisfied. It is thus possible to request a
+    /// lock that will never activate.
+    ///
+    /// There may not be another pointer constraint of any kind requested or
+    /// active on the surface for any of the wl_pointer objects of the seat of
+    /// the passed pointer when requesting a lock. If there is, an error will be
+    /// raised. See general pointer lock documentation for more details.
+    ///
+    /// The intersection of the region passed with this request and the input
+    /// region of the surface is used to determine where the pointer must be
+    /// in order for the lock to activate. It is up to the compositor whether to
+    /// warp the pointer or require some kind of user interaction for the lock
+    /// to activate. If the region is null the surface input region is used.
+    ///
+    /// A surface may receive pointer focus without the lock being activated.
+    ///
+    /// The request creates a new object wp_locked_pointer which is used to
+    /// interact with the lock as well as receive updates about its state. See
+    /// the the description of wp_locked_pointer for further information.
+    ///
+    /// Note that while a pointer is locked, the wl_pointer objects of the
+    /// corresponding seat will not emit any wl_pointer.motion events, but
+    /// relative motion events will still be emitted via wp_relative_pointer
+    /// objects of the same seat. wl_pointer.axis and wl_pointer.button events
+    /// are unaffected.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`: surface to lock pointer to
+    /// - `pointer`: the pointer that should be locked
+    /// - `region`: region of surface
+    /// - `lifetime`: lock lifetime
+    #[inline]
+    pub fn send_lock_pointer(
+        &self,
+        id: &Rc<ZwpLockedPointerV1>,
+        surface: &Rc<WlSurface>,
+        pointer: &Rc<WlPointer>,
+        region: Option<&Rc<WlRegion>>,
+        lifetime: ZwpPointerConstraintsV1Lifetime,
+    ) {
+        let res = self.try_send_lock_pointer(
+            id,
+            surface,
+            pointer,
+            region,
+            lifetime,
+        );
+        if let Err(e) = res {
+            log_send("zwp_pointer_constraints_v1.lock_pointer", &e);
+        }
+    }
+
     /// Since when the confine_pointer message is available.
     pub const MSG__CONFINE_POINTER__SINCE: u32 = 1;
 
@@ -255,7 +335,7 @@ impl ZwpPointerConstraintsV1 {
     /// - `region`: region of surface
     /// - `lifetime`: confinement lifetime
     #[inline]
-    pub fn send_confine_pointer(
+    pub fn try_send_confine_pointer(
         &self,
         id: &Rc<ZwpConfinedPointerV1>,
         surface: &Rc<WlSurface>,
@@ -331,13 +411,61 @@ impl ZwpPointerConstraintsV1 {
         ]);
         Ok(())
     }
+
+    /// confine pointer to a region
+    ///
+    /// The confine_pointer request lets the client request to confine the
+    /// pointer cursor to a given region. This request may not take effect
+    /// immediately; in the future, when the compositor deems implementation-
+    /// specific constraints are satisfied, the pointer confinement will be
+    /// activated and the compositor sends a confined event.
+    ///
+    /// The intersection of the region passed with this request and the input
+    /// region of the surface is used to determine where the pointer must be
+    /// in order for the confinement to activate. It is up to the compositor
+    /// whether to warp the pointer or require some kind of user interaction for
+    /// the confinement to activate. If the region is null the surface input
+    /// region is used.
+    ///
+    /// The request will create a new object wp_confined_pointer which is used
+    /// to interact with the confinement as well as receive updates about its
+    /// state. See the the description of wp_confined_pointer for further
+    /// information.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`: surface to lock pointer to
+    /// - `pointer`: the pointer that should be confined
+    /// - `region`: region of surface
+    /// - `lifetime`: confinement lifetime
+    #[inline]
+    pub fn send_confine_pointer(
+        &self,
+        id: &Rc<ZwpConfinedPointerV1>,
+        surface: &Rc<WlSurface>,
+        pointer: &Rc<WlPointer>,
+        region: Option<&Rc<WlRegion>>,
+        lifetime: ZwpPointerConstraintsV1Lifetime,
+    ) {
+        let res = self.try_send_confine_pointer(
+            id,
+            surface,
+            pointer,
+            region,
+            lifetime,
+        );
+        if let Err(e) = res {
+            log_send("zwp_pointer_constraints_v1.confine_pointer", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpPointerConstraintsV1] proxies.
 pub trait ZwpPointerConstraintsV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpPointerConstraintsV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the pointer constraints manager object
@@ -352,10 +480,10 @@ pub trait ZwpPointerConstraintsV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_pointer_constraints_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_pointer_constraints_v1.destroy", &e);
         }
     }
 
@@ -419,7 +547,7 @@ pub trait ZwpPointerConstraintsV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_lock_pointer(
+        let res = _slf.try_send_lock_pointer(
             id,
             surface,
             pointer,
@@ -427,7 +555,7 @@ pub trait ZwpPointerConstraintsV1Handler: Any {
             lifetime,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_pointer_constraints_v1.lock_pointer message: {}", Report::new(e));
+            log_forward("zwp_pointer_constraints_v1.lock_pointer", &e);
         }
     }
 
@@ -474,7 +602,7 @@ pub trait ZwpPointerConstraintsV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_confine_pointer(
+        let res = _slf.try_send_confine_pointer(
             id,
             surface,
             pointer,
@@ -482,7 +610,7 @@ pub trait ZwpPointerConstraintsV1Handler: Any {
             lifetime,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_pointer_constraints_v1.confine_pointer message: {}", Report::new(e));
+            log_forward("zwp_pointer_constraints_v1.confine_pointer", &e);
         }
     }
 }
@@ -502,7 +630,7 @@ impl ObjectPrivate for ZwpPointerConstraintsV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

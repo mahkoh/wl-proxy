@@ -60,7 +60,7 @@ impl HyprlandToplevelMappingManagerV1 {
     /// - `handle`:
     /// - `toplevel`: toplevel to get the window address for
     #[inline]
-    pub fn send_get_window_for_toplevel(
+    pub fn try_send_get_window_for_toplevel(
         &self,
         handle: &Rc<HyprlandToplevelWindowMappingHandleV1>,
         toplevel: &Rc<ExtForeignToplevelHandleV1>,
@@ -112,6 +112,29 @@ impl HyprlandToplevelMappingManagerV1 {
         Ok(())
     }
 
+    /// get window address for toplevel
+    ///
+    /// Get the window address for a toplevel.
+    ///
+    /// # Arguments
+    ///
+    /// - `handle`:
+    /// - `toplevel`: toplevel to get the window address for
+    #[inline]
+    pub fn send_get_window_for_toplevel(
+        &self,
+        handle: &Rc<HyprlandToplevelWindowMappingHandleV1>,
+        toplevel: &Rc<ExtForeignToplevelHandleV1>,
+    ) {
+        let res = self.try_send_get_window_for_toplevel(
+            handle,
+            toplevel,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_toplevel_mapping_manager_v1.get_window_for_toplevel", &e);
+        }
+    }
+
     /// Since when the get_window_for_toplevel_wlr message is available.
     pub const MSG__GET_WINDOW_FOR_TOPLEVEL_WLR__SINCE: u32 = 1;
 
@@ -124,7 +147,7 @@ impl HyprlandToplevelMappingManagerV1 {
     /// - `handle`:
     /// - `toplevel`: wlr toplevel to get the window address for
     #[inline]
-    pub fn send_get_window_for_toplevel_wlr(
+    pub fn try_send_get_window_for_toplevel_wlr(
         &self,
         handle: &Rc<HyprlandToplevelWindowMappingHandleV1>,
         toplevel: &Rc<ZwlrForeignToplevelHandleV1>,
@@ -176,6 +199,29 @@ impl HyprlandToplevelMappingManagerV1 {
         Ok(())
     }
 
+    /// get window address for wlr toplevel
+    ///
+    /// Get the window address for a wlr toplevel.
+    ///
+    /// # Arguments
+    ///
+    /// - `handle`:
+    /// - `toplevel`: wlr toplevel to get the window address for
+    #[inline]
+    pub fn send_get_window_for_toplevel_wlr(
+        &self,
+        handle: &Rc<HyprlandToplevelWindowMappingHandleV1>,
+        toplevel: &Rc<ZwlrForeignToplevelHandleV1>,
+    ) {
+        let res = self.try_send_get_window_for_toplevel_wlr(
+            handle,
+            toplevel,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_toplevel_mapping_manager_v1.get_window_for_toplevel_wlr", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -184,7 +230,7 @@ impl HyprlandToplevelMappingManagerV1 {
     /// All objects created by the manager will still remain valid, until their appropriate destroy
     /// request has been called.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -215,13 +261,28 @@ impl HyprlandToplevelMappingManagerV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the manager
+    ///
+    /// All objects created by the manager will still remain valid, until their appropriate destroy
+    /// request has been called.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_toplevel_mapping_manager_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [HyprlandToplevelMappingManagerV1] proxies.
 pub trait HyprlandToplevelMappingManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandToplevelMappingManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// get window address for toplevel
@@ -245,12 +306,12 @@ pub trait HyprlandToplevelMappingManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_window_for_toplevel(
+        let res = _slf.try_send_get_window_for_toplevel(
             handle,
             toplevel,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_toplevel_mapping_manager_v1.get_window_for_toplevel message: {}", Report::new(e));
+            log_forward("hyprland_toplevel_mapping_manager_v1.get_window_for_toplevel", &e);
         }
     }
 
@@ -275,12 +336,12 @@ pub trait HyprlandToplevelMappingManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_window_for_toplevel_wlr(
+        let res = _slf.try_send_get_window_for_toplevel_wlr(
             handle,
             toplevel,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_toplevel_mapping_manager_v1.get_window_for_toplevel_wlr message: {}", Report::new(e));
+            log_forward("hyprland_toplevel_mapping_manager_v1.get_window_for_toplevel_wlr", &e);
         }
     }
 
@@ -296,10 +357,10 @@ pub trait HyprlandToplevelMappingManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_toplevel_mapping_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("hyprland_toplevel_mapping_manager_v1.destroy", &e);
         }
     }
 }
@@ -319,7 +380,7 @@ impl ObjectPrivate for HyprlandToplevelMappingManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

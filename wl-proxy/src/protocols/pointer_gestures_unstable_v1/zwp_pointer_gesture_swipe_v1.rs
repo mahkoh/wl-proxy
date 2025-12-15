@@ -66,7 +66,7 @@ impl ZwpPointerGestureSwipeV1 {
 
     /// destroy the pointer swipe gesture object
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -98,6 +98,18 @@ impl ZwpPointerGestureSwipeV1 {
         Ok(())
     }
 
+    /// destroy the pointer swipe gesture object
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_pointer_gesture_swipe_v1.destroy", &e);
+        }
+    }
+
     /// Since when the begin message is available.
     pub const MSG__BEGIN__SINCE: u32 = 1;
 
@@ -113,7 +125,7 @@ impl ZwpPointerGestureSwipeV1 {
     /// - `surface`:
     /// - `fingers`: number of fingers
     #[inline]
-    pub fn send_begin(
+    pub fn try_send_begin(
         &self,
         serial: u32,
         time: u32,
@@ -170,6 +182,36 @@ impl ZwpPointerGestureSwipeV1 {
         Ok(())
     }
 
+    /// multi-finger swipe begin
+    ///
+    /// This event is sent when a multi-finger swipe gesture is detected
+    /// on the device.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`:
+    /// - `time`: timestamp with millisecond granularity
+    /// - `surface`:
+    /// - `fingers`: number of fingers
+    #[inline]
+    pub fn send_begin(
+        &self,
+        serial: u32,
+        time: u32,
+        surface: &Rc<WlSurface>,
+        fingers: u32,
+    ) {
+        let res = self.try_send_begin(
+            serial,
+            time,
+            surface,
+            fingers,
+        );
+        if let Err(e) = res {
+            log_send("zwp_pointer_gesture_swipe_v1.begin", &e);
+        }
+    }
+
     /// Since when the update message is available.
     pub const MSG__UPDATE__SINCE: u32 = 1;
 
@@ -187,7 +229,7 @@ impl ZwpPointerGestureSwipeV1 {
     /// - `dx`: delta x coordinate in surface coordinate space
     /// - `dy`: delta y coordinate in surface coordinate space
     #[inline]
-    pub fn send_update(
+    pub fn try_send_update(
         &self,
         time: u32,
         dx: Fixed,
@@ -235,6 +277,36 @@ impl ZwpPointerGestureSwipeV1 {
         Ok(())
     }
 
+    /// multi-finger swipe motion
+    ///
+    /// This event is sent when a multi-finger swipe gesture changes the
+    /// position of the logical center.
+    ///
+    /// The dx and dy coordinates are relative coordinates of the logical
+    /// center of the gesture compared to the previous event.
+    ///
+    /// # Arguments
+    ///
+    /// - `time`: timestamp with millisecond granularity
+    /// - `dx`: delta x coordinate in surface coordinate space
+    /// - `dy`: delta y coordinate in surface coordinate space
+    #[inline]
+    pub fn send_update(
+        &self,
+        time: u32,
+        dx: Fixed,
+        dy: Fixed,
+    ) {
+        let res = self.try_send_update(
+            time,
+            dx,
+            dy,
+        );
+        if let Err(e) = res {
+            log_send("zwp_pointer_gesture_swipe_v1.update", &e);
+        }
+    }
+
     /// Since when the end message is available.
     pub const MSG__END__SINCE: u32 = 1;
 
@@ -254,7 +326,7 @@ impl ZwpPointerGestureSwipeV1 {
     /// - `time`: timestamp with millisecond granularity
     /// - `cancelled`: 1 if the gesture was cancelled, 0 otherwise
     #[inline]
-    pub fn send_end(
+    pub fn try_send_end(
         &self,
         serial: u32,
         time: u32,
@@ -301,13 +373,45 @@ impl ZwpPointerGestureSwipeV1 {
         ]);
         Ok(())
     }
+
+    /// multi-finger swipe end
+    ///
+    /// This event is sent when a multi-finger swipe gesture ceases to
+    /// be valid. This may happen when one or more fingers are lifted or
+    /// the gesture is cancelled.
+    ///
+    /// When a gesture is cancelled, the client should undo state changes
+    /// caused by this gesture. What causes a gesture to be cancelled is
+    /// implementation-dependent.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`:
+    /// - `time`: timestamp with millisecond granularity
+    /// - `cancelled`: 1 if the gesture was cancelled, 0 otherwise
+    #[inline]
+    pub fn send_end(
+        &self,
+        serial: u32,
+        time: u32,
+        cancelled: i32,
+    ) {
+        let res = self.try_send_end(
+            serial,
+            time,
+            cancelled,
+        );
+        if let Err(e) = res {
+            log_send("zwp_pointer_gesture_swipe_v1.end", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpPointerGestureSwipeV1] proxies.
 pub trait ZwpPointerGestureSwipeV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpPointerGestureSwipeV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the pointer swipe gesture object
@@ -319,10 +423,10 @@ pub trait ZwpPointerGestureSwipeV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_pointer_gesture_swipe_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_pointer_gesture_swipe_v1.destroy", &e);
         }
     }
 
@@ -359,14 +463,14 @@ pub trait ZwpPointerGestureSwipeV1Handler: Any {
                 }
             }
         }
-        let res = _slf.send_begin(
+        let res = _slf.try_send_begin(
             serial,
             time,
             surface,
             fingers,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_pointer_gesture_swipe_v1.begin message: {}", Report::new(e));
+            log_forward("zwp_pointer_gesture_swipe_v1.begin", &e);
         }
     }
 
@@ -394,13 +498,13 @@ pub trait ZwpPointerGestureSwipeV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_update(
+        let res = _slf.try_send_update(
             time,
             dx,
             dy,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_pointer_gesture_swipe_v1.update message: {}", Report::new(e));
+            log_forward("zwp_pointer_gesture_swipe_v1.update", &e);
         }
     }
 
@@ -430,13 +534,13 @@ pub trait ZwpPointerGestureSwipeV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_end(
+        let res = _slf.try_send_end(
             serial,
             time,
             cancelled,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_pointer_gesture_swipe_v1.end message: {}", Report::new(e));
+            log_forward("zwp_pointer_gesture_swipe_v1.end", &e);
         }
     }
 }
@@ -456,7 +560,7 @@ impl ObjectPrivate for ZwpPointerGestureSwipeV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

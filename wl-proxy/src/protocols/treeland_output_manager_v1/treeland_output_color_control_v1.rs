@@ -59,7 +59,7 @@ impl TreelandOutputColorControlV1 {
     ///
     /// - `temperature`: color temperature in Kelvin
     #[inline]
-    pub fn send_set_color_temperature(
+    pub fn try_send_set_color_temperature(
         &self,
         temperature: u32,
     ) -> Result<(), ObjectError> {
@@ -97,6 +97,27 @@ impl TreelandOutputColorControlV1 {
         Ok(())
     }
 
+    /// Set color temperature for output
+    ///
+    /// Color temperature settings are applied only after a commit request is made.
+    /// Setting a value outside the range [1000, 20000] is a protocol error.
+    ///
+    /// # Arguments
+    ///
+    /// - `temperature`: color temperature in Kelvin
+    #[inline]
+    pub fn send_set_color_temperature(
+        &self,
+        temperature: u32,
+    ) {
+        let res = self.try_send_set_color_temperature(
+            temperature,
+        );
+        if let Err(e) = res {
+            log_send("treeland_output_color_control_v1.set_color_temperature", &e);
+        }
+    }
+
     /// Since when the set_brightness message is available.
     pub const MSG__SET_BRIGHTNESS__SINCE: u32 = 1;
 
@@ -109,7 +130,7 @@ impl TreelandOutputColorControlV1 {
     ///
     /// - `brightness`: brightness level (in range [0.0, 100.0])
     #[inline]
-    pub fn send_set_brightness(
+    pub fn try_send_set_brightness(
         &self,
         brightness: Fixed,
     ) -> Result<(), ObjectError> {
@@ -147,12 +168,33 @@ impl TreelandOutputColorControlV1 {
         Ok(())
     }
 
+    /// Set brightness for output.
+    ///
+    /// Brightness settings are applied only after a commit request is made.
+    /// Setting a value outside the range [0.0, 100.0] is a protocol error.
+    ///
+    /// # Arguments
+    ///
+    /// - `brightness`: brightness level (in range [0.0, 100.0])
+    #[inline]
+    pub fn send_set_brightness(
+        &self,
+        brightness: Fixed,
+    ) {
+        let res = self.try_send_set_brightness(
+            brightness,
+        );
+        if let Err(e) = res {
+            log_send("treeland_output_color_control_v1.set_brightness", &e);
+        }
+    }
+
     /// Since when the commit message is available.
     pub const MSG__COMMIT__SINCE: u32 = 1;
 
     /// Commit the pending color settings changes for output.
     #[inline]
-    pub fn send_commit(
+    pub fn try_send_commit(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -183,6 +225,18 @@ impl TreelandOutputColorControlV1 {
         Ok(())
     }
 
+    /// Commit the pending color settings changes for output.
+    #[inline]
+    pub fn send_commit(
+        &self,
+    ) {
+        let res = self.try_send_commit(
+        );
+        if let Err(e) = res {
+            log_send("treeland_output_color_control_v1.commit", &e);
+        }
+    }
+
     /// Since when the result message is available.
     pub const MSG__RESULT__SINCE: u32 = 1;
 
@@ -192,7 +246,7 @@ impl TreelandOutputColorControlV1 {
     ///
     /// - `success`: 1 if the commit was successful, 0 otherwise.
     #[inline]
-    pub fn send_result(
+    pub fn try_send_result(
         &self,
         success: u32,
     ) -> Result<(), ObjectError> {
@@ -232,6 +286,24 @@ impl TreelandOutputColorControlV1 {
         Ok(())
     }
 
+    /// The result of the last commit request.
+    ///
+    /// # Arguments
+    ///
+    /// - `success`: 1 if the commit was successful, 0 otherwise.
+    #[inline]
+    pub fn send_result(
+        &self,
+        success: u32,
+    ) {
+        let res = self.try_send_result(
+            success,
+        );
+        if let Err(e) = res {
+            log_send("treeland_output_color_control_v1.result", &e);
+        }
+    }
+
     /// Since when the color_temperature message is available.
     pub const MSG__COLOR_TEMPERATURE__SINCE: u32 = 1;
 
@@ -249,7 +321,7 @@ impl TreelandOutputColorControlV1 {
     ///
     /// - `temperature`: current color temperature in Kelvin
     #[inline]
-    pub fn send_color_temperature(
+    pub fn try_send_color_temperature(
         &self,
         temperature: u32,
     ) -> Result<(), ObjectError> {
@@ -289,6 +361,32 @@ impl TreelandOutputColorControlV1 {
         Ok(())
     }
 
+    /// Current color temperature for output.
+    ///
+    /// Provides the current color temperature setting of the output.
+    /// Color temperature is valued in the range [1000, 20000].
+    /// Color temperature is defined as the corresponding temperature (in Kelvin) of the current white point
+    /// of the display on a Planckian locus.
+    /// With the current implementation, the neutral temperature is 6600K.
+    /// This event is sent once after the treeland_output_color_control_v1 object is created,
+    /// or right after when a color temperature change for the output is successfully commited.
+    ///
+    /// # Arguments
+    ///
+    /// - `temperature`: current color temperature in Kelvin
+    #[inline]
+    pub fn send_color_temperature(
+        &self,
+        temperature: u32,
+    ) {
+        let res = self.try_send_color_temperature(
+            temperature,
+        );
+        if let Err(e) = res {
+            log_send("treeland_output_color_control_v1.color_temperature", &e);
+        }
+    }
+
     /// Since when the brightness message is available.
     pub const MSG__BRIGHTNESS__SINCE: u32 = 1;
 
@@ -303,7 +401,7 @@ impl TreelandOutputColorControlV1 {
     ///
     /// - `brightness`: current brightness level (in range [0.0, 100.0])
     #[inline]
-    pub fn send_brightness(
+    pub fn try_send_brightness(
         &self,
         brightness: Fixed,
     ) -> Result<(), ObjectError> {
@@ -343,12 +441,35 @@ impl TreelandOutputColorControlV1 {
         Ok(())
     }
 
+    /// Current brightness for output.
+    ///
+    /// Provides the current brightness setting of the output.
+    /// Brightness is valued in the range [0.0, 100.0].
+    /// This event is sent once after the treeland_output_color_control_v1 object is created,
+    /// or right after when a brightness change for the output is successfully commited.
+    ///
+    /// # Arguments
+    ///
+    /// - `brightness`: current brightness level (in range [0.0, 100.0])
+    #[inline]
+    pub fn send_brightness(
+        &self,
+        brightness: Fixed,
+    ) {
+        let res = self.try_send_brightness(
+            brightness,
+        );
+        if let Err(e) = res {
+            log_send("treeland_output_color_control_v1.brightness", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// Destroy the color control interface.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -379,13 +500,25 @@ impl TreelandOutputColorControlV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// Destroy the color control interface.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_output_color_control_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandOutputColorControlV1] proxies.
 pub trait TreelandOutputColorControlV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandOutputColorControlV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// Set color temperature for output
@@ -405,11 +538,11 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_color_temperature(
+        let res = _slf.try_send_set_color_temperature(
             temperature,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_output_color_control_v1.set_color_temperature message: {}", Report::new(e));
+            log_forward("treeland_output_color_control_v1.set_color_temperature", &e);
         }
     }
 
@@ -430,11 +563,11 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_brightness(
+        let res = _slf.try_send_set_brightness(
             brightness,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_output_color_control_v1.set_brightness message: {}", Report::new(e));
+            log_forward("treeland_output_color_control_v1.set_brightness", &e);
         }
     }
 
@@ -447,10 +580,10 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_commit(
+        let res = _slf.try_send_commit(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_output_color_control_v1.commit message: {}", Report::new(e));
+            log_forward("treeland_output_color_control_v1.commit", &e);
         }
     }
 
@@ -468,11 +601,11 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_result(
+        let res = _slf.try_send_result(
             success,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_output_color_control_v1.result message: {}", Report::new(e));
+            log_forward("treeland_output_color_control_v1.result", &e);
         }
     }
 
@@ -498,11 +631,11 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_color_temperature(
+        let res = _slf.try_send_color_temperature(
             temperature,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_output_color_control_v1.color_temperature message: {}", Report::new(e));
+            log_forward("treeland_output_color_control_v1.color_temperature", &e);
         }
     }
 
@@ -525,11 +658,11 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_brightness(
+        let res = _slf.try_send_brightness(
             brightness,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_output_color_control_v1.brightness message: {}", Report::new(e));
+            log_forward("treeland_output_color_control_v1.brightness", &e);
         }
     }
 
@@ -542,10 +675,10 @@ pub trait TreelandOutputColorControlV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_output_color_control_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_output_color_control_v1.destroy", &e);
         }
     }
 }
@@ -565,7 +698,7 @@ impl ObjectPrivate for TreelandOutputColorControlV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

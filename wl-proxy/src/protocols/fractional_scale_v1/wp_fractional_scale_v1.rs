@@ -56,7 +56,7 @@ impl WpFractionalScaleV1 {
     /// Destroy the fractional scale object. When this object is destroyed,
     /// preferred_scale events will no longer be sent.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -88,6 +88,21 @@ impl WpFractionalScaleV1 {
         Ok(())
     }
 
+    /// remove surface scale information for surface
+    ///
+    /// Destroy the fractional scale object. When this object is destroyed,
+    /// preferred_scale events will no longer be sent.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_fractional_scale_v1.destroy", &e);
+        }
+    }
+
     /// Since when the preferred_scale message is available.
     pub const MSG__PREFERRED_SCALE__SINCE: u32 = 1;
 
@@ -102,7 +117,7 @@ impl WpFractionalScaleV1 {
     ///
     /// - `scale`: the new preferred scale
     #[inline]
-    pub fn send_preferred_scale(
+    pub fn try_send_preferred_scale(
         &self,
         scale: u32,
     ) -> Result<(), ObjectError> {
@@ -141,13 +156,36 @@ impl WpFractionalScaleV1 {
         ]);
         Ok(())
     }
+
+    /// notify of new preferred scale
+    ///
+    /// Notification of a new preferred scale for this surface that the
+    /// compositor suggests that the client should use.
+    ///
+    /// The sent scale is the numerator of a fraction with a denominator of 120.
+    ///
+    /// # Arguments
+    ///
+    /// - `scale`: the new preferred scale
+    #[inline]
+    pub fn send_preferred_scale(
+        &self,
+        scale: u32,
+    ) {
+        let res = self.try_send_preferred_scale(
+            scale,
+        );
+        if let Err(e) = res {
+            log_send("wp_fractional_scale_v1.preferred_scale", &e);
+        }
+    }
 }
 
 /// A message handler for [WpFractionalScaleV1] proxies.
 pub trait WpFractionalScaleV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpFractionalScaleV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// remove surface scale information for surface
@@ -162,10 +200,10 @@ pub trait WpFractionalScaleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_fractional_scale_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_fractional_scale_v1.destroy", &e);
         }
     }
 
@@ -188,11 +226,11 @@ pub trait WpFractionalScaleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_preferred_scale(
+        let res = _slf.try_send_preferred_scale(
             scale,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_fractional_scale_v1.preferred_scale message: {}", Report::new(e));
+            log_forward("wp_fractional_scale_v1.preferred_scale", &e);
         }
     }
 }
@@ -212,7 +250,7 @@ impl ObjectPrivate for WpFractionalScaleV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

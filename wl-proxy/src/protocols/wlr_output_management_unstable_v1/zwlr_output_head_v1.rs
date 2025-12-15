@@ -87,7 +87,7 @@ impl ZwlrOutputHeadV1 {
     ///
     /// - `name`:
     #[inline]
-    pub fn send_name(
+    pub fn try_send_name(
         &self,
         name: &str,
     ) -> Result<(), ObjectError> {
@@ -127,6 +127,43 @@ impl ZwlrOutputHeadV1 {
         Ok(())
     }
 
+    /// head name
+    ///
+    /// This event describes the head name.
+    ///
+    /// The naming convention is compositor defined, but limited to alphanumeric
+    /// characters and dashes (-). Each name is unique among all wlr_output_head
+    /// objects, but if a wlr_output_head object is destroyed the same name may
+    /// be reused later. The names will also remain consistent across sessions
+    /// with the same hardware and software configuration.
+    ///
+    /// Examples of names include 'HDMI-A-1', 'WL-1', 'X11-1', etc. However, do
+    /// not assume that the name is a reflection of an underlying DRM
+    /// connector, X11 connection, etc.
+    ///
+    /// If this head matches a wl_output, the wl_output.name event must report
+    /// the same name.
+    ///
+    /// The name event is sent after a wlr_output_head object is created. This
+    /// event is only sent once per object, and the name does not change over
+    /// the lifetime of the wlr_output_head object.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`:
+    #[inline]
+    pub fn send_name(
+        &self,
+        name: &str,
+    ) {
+        let res = self.try_send_name(
+            name,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_head_v1.name", &e);
+        }
+    }
+
     /// Since when the description message is available.
     pub const MSG__DESCRIPTION__SINCE: u32 = 1;
 
@@ -151,7 +188,7 @@ impl ZwlrOutputHeadV1 {
     ///
     /// - `description`:
     #[inline]
-    pub fn send_description(
+    pub fn try_send_description(
         &self,
         description: &str,
     ) -> Result<(), ObjectError> {
@@ -191,6 +228,39 @@ impl ZwlrOutputHeadV1 {
         Ok(())
     }
 
+    /// head description
+    ///
+    /// This event describes a human-readable description of the head.
+    ///
+    /// The description is a UTF-8 string with no convention defined for its
+    /// contents. Examples might include 'Foocorp 11" Display' or 'Virtual X11
+    /// output via :1'. However, do not assume that the name is a reflection of
+    /// the make, model, serial of the underlying DRM connector or the display
+    /// name of the underlying X11 connection, etc.
+    ///
+    /// If this head matches a wl_output, the wl_output.description event must
+    /// report the same name.
+    ///
+    /// The description event is sent after a wlr_output_head object is created.
+    /// This event is only sent once per object, and the description does not
+    /// change over the lifetime of the wlr_output_head object.
+    ///
+    /// # Arguments
+    ///
+    /// - `description`:
+    #[inline]
+    pub fn send_description(
+        &self,
+        description: &str,
+    ) {
+        let res = self.try_send_description(
+            description,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_head_v1.description", &e);
+        }
+    }
+
     /// Since when the physical_size message is available.
     pub const MSG__PHYSICAL_SIZE__SINCE: u32 = 1;
 
@@ -209,7 +279,7 @@ impl ZwlrOutputHeadV1 {
     /// - `width`: width in millimeters of the output
     /// - `height`: height in millimeters of the output
     #[inline]
-    pub fn send_physical_size(
+    pub fn try_send_physical_size(
         &self,
         width: i32,
         height: i32,
@@ -253,6 +323,35 @@ impl ZwlrOutputHeadV1 {
         Ok(())
     }
 
+    /// head physical size
+    ///
+    /// This event describes the physical size of the head. This event is only
+    /// sent if the head has a physical size (e.g. is not a projector or a
+    /// virtual device).
+    ///
+    /// The physical size event is sent after a wlr_output_head object is created. This
+    /// event is only sent once per object, and the physical size does not change over
+    /// the lifetime of the wlr_output_head object.
+    ///
+    /// # Arguments
+    ///
+    /// - `width`: width in millimeters of the output
+    /// - `height`: height in millimeters of the output
+    #[inline]
+    pub fn send_physical_size(
+        &self,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_physical_size(
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_head_v1.physical_size", &e);
+        }
+    }
+
     /// Since when the mode message is available.
     pub const MSG__MODE__SINCE: u32 = 1;
 
@@ -261,7 +360,7 @@ impl ZwlrOutputHeadV1 {
     /// This event introduces a mode for this head. It is sent once per
     /// supported mode.
     #[inline]
-    pub fn send_mode(
+    pub fn try_send_mode(
         &self,
         mode: &Rc<ZwlrOutputModeV1>,
     ) -> Result<(), ObjectError> {
@@ -306,6 +405,23 @@ impl ZwlrOutputHeadV1 {
         Ok(())
     }
 
+    /// introduce a mode
+    ///
+    /// This event introduces a mode for this head. It is sent once per
+    /// supported mode.
+    #[inline]
+    pub fn send_mode(
+        &self,
+        mode: &Rc<ZwlrOutputModeV1>,
+    ) {
+        let res = self.try_send_mode(
+            mode,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_head_v1.mode", &e);
+        }
+    }
+
     /// Since when the enabled message is available.
     pub const MSG__ENABLED__SINCE: u32 = 1;
 
@@ -321,7 +437,7 @@ impl ZwlrOutputHeadV1 {
     ///
     /// - `enabled`: zero if disabled, non-zero if enabled
     #[inline]
-    pub fn send_enabled(
+    pub fn try_send_enabled(
         &self,
         enabled: i32,
     ) -> Result<(), ObjectError> {
@@ -361,6 +477,30 @@ impl ZwlrOutputHeadV1 {
         Ok(())
     }
 
+    /// head is enabled or disabled
+    ///
+    /// This event describes whether the head is enabled. A disabled head is not
+    /// mapped to a region of the global compositor space.
+    ///
+    /// When a head is disabled, some properties (current_mode, position,
+    /// transform and scale) are irrelevant.
+    ///
+    /// # Arguments
+    ///
+    /// - `enabled`: zero if disabled, non-zero if enabled
+    #[inline]
+    pub fn send_enabled(
+        &self,
+        enabled: i32,
+    ) {
+        let res = self.try_send_enabled(
+            enabled,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_head_v1.enabled", &e);
+        }
+    }
+
     /// Since when the current_mode message is available.
     pub const MSG__CURRENT_MODE__SINCE: u32 = 1;
 
@@ -373,7 +513,7 @@ impl ZwlrOutputHeadV1 {
     ///
     /// - `mode`:
     #[inline]
-    pub fn send_current_mode(
+    pub fn try_send_current_mode(
         &self,
         mode: &Rc<ZwlrOutputModeV1>,
     ) -> Result<(), ObjectError> {
@@ -418,6 +558,27 @@ impl ZwlrOutputHeadV1 {
         Ok(())
     }
 
+    /// current mode
+    ///
+    /// This event describes the mode currently in use for this head. It is only
+    /// sent if the output is enabled.
+    ///
+    /// # Arguments
+    ///
+    /// - `mode`:
+    #[inline]
+    pub fn send_current_mode(
+        &self,
+        mode: &Rc<ZwlrOutputModeV1>,
+    ) {
+        let res = self.try_send_current_mode(
+            mode,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_head_v1.current_mode", &e);
+        }
+    }
+
     /// Since when the position message is available.
     pub const MSG__POSITION__SINCE: u32 = 1;
 
@@ -431,7 +592,7 @@ impl ZwlrOutputHeadV1 {
     /// - `x`: x position within the global compositor space
     /// - `y`: y position within the global compositor space
     #[inline]
-    pub fn send_position(
+    pub fn try_send_position(
         &self,
         x: i32,
         y: i32,
@@ -475,6 +636,30 @@ impl ZwlrOutputHeadV1 {
         Ok(())
     }
 
+    /// current position
+    ///
+    /// This events describes the position of the head in the global compositor
+    /// space. It is only sent if the output is enabled.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: x position within the global compositor space
+    /// - `y`: y position within the global compositor space
+    #[inline]
+    pub fn send_position(
+        &self,
+        x: i32,
+        y: i32,
+    ) {
+        let res = self.try_send_position(
+            x,
+            y,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_head_v1.position", &e);
+        }
+    }
+
     /// Since when the transform message is available.
     pub const MSG__TRANSFORM__SINCE: u32 = 1;
 
@@ -487,7 +672,7 @@ impl ZwlrOutputHeadV1 {
     ///
     /// - `transform`:
     #[inline]
-    pub fn send_transform(
+    pub fn try_send_transform(
         &self,
         transform: WlOutputTransform,
     ) -> Result<(), ObjectError> {
@@ -527,6 +712,27 @@ impl ZwlrOutputHeadV1 {
         Ok(())
     }
 
+    /// current transformation
+    ///
+    /// This event describes the transformation currently applied to the head.
+    /// It is only sent if the output is enabled.
+    ///
+    /// # Arguments
+    ///
+    /// - `transform`:
+    #[inline]
+    pub fn send_transform(
+        &self,
+        transform: WlOutputTransform,
+    ) {
+        let res = self.try_send_transform(
+            transform,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_head_v1.transform", &e);
+        }
+    }
+
     /// Since when the scale message is available.
     pub const MSG__SCALE__SINCE: u32 = 1;
 
@@ -539,7 +745,7 @@ impl ZwlrOutputHeadV1 {
     ///
     /// - `scale`:
     #[inline]
-    pub fn send_scale(
+    pub fn try_send_scale(
         &self,
         scale: Fixed,
     ) -> Result<(), ObjectError> {
@@ -579,6 +785,27 @@ impl ZwlrOutputHeadV1 {
         Ok(())
     }
 
+    /// current scale
+    ///
+    /// This events describes the scale of the head in the global compositor
+    /// space. It is only sent if the output is enabled.
+    ///
+    /// # Arguments
+    ///
+    /// - `scale`:
+    #[inline]
+    pub fn send_scale(
+        &self,
+        scale: Fixed,
+    ) {
+        let res = self.try_send_scale(
+            scale,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_head_v1.scale", &e);
+        }
+    }
+
     /// Since when the finished message is available.
     pub const MSG__FINISHED__SINCE: u32 = 1;
 
@@ -588,7 +815,7 @@ impl ZwlrOutputHeadV1 {
     /// object becomes inert. Clients should send a destroy request and release
     /// any resources associated with it.
     #[inline]
-    pub fn send_finished(
+    pub fn try_send_finished(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -621,6 +848,22 @@ impl ZwlrOutputHeadV1 {
         Ok(())
     }
 
+    /// the head has disappeared
+    ///
+    /// This event indicates that the head is no longer available. The head
+    /// object becomes inert. Clients should send a destroy request and release
+    /// any resources associated with it.
+    #[inline]
+    pub fn send_finished(
+        &self,
+    ) {
+        let res = self.try_send_finished(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_head_v1.finished", &e);
+        }
+    }
+
     /// Since when the make message is available.
     pub const MSG__MAKE__SINCE: u32 = 2;
 
@@ -650,7 +893,7 @@ impl ZwlrOutputHeadV1 {
     ///
     /// - `make`:
     #[inline]
-    pub fn send_make(
+    pub fn try_send_make(
         &self,
         make: &str,
     ) -> Result<(), ObjectError> {
@@ -690,6 +933,44 @@ impl ZwlrOutputHeadV1 {
         Ok(())
     }
 
+    /// head manufacturer
+    ///
+    /// This event describes the manufacturer of the head.
+    ///
+    /// Together with the model and serial_number events the purpose is to
+    /// allow clients to recognize heads from previous sessions and for example
+    /// load head-specific configurations back.
+    ///
+    /// It is not guaranteed this event will be ever sent. A reason for that
+    /// can be that the compositor does not have information about the make of
+    /// the head or the definition of a make is not sensible in the current
+    /// setup, for example in a virtual session. Clients can still try to
+    /// identify the head by available information from other events but should
+    /// be aware that there is an increased risk of false positives.
+    ///
+    /// If sent, the make event is sent after a wlr_output_head object is
+    /// created and only sent once per object. The make does not change over
+    /// the lifetime of the wlr_output_head object.
+    ///
+    /// It is not recommended to display the make string in UI to users. For
+    /// that the string provided by the description event should be preferred.
+    ///
+    /// # Arguments
+    ///
+    /// - `make`:
+    #[inline]
+    pub fn send_make(
+        &self,
+        make: &str,
+    ) {
+        let res = self.try_send_make(
+            make,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_head_v1.make", &e);
+        }
+    }
+
     /// Since when the model message is available.
     pub const MSG__MODEL__SINCE: u32 = 2;
 
@@ -719,7 +1000,7 @@ impl ZwlrOutputHeadV1 {
     ///
     /// - `model`:
     #[inline]
-    pub fn send_model(
+    pub fn try_send_model(
         &self,
         model: &str,
     ) -> Result<(), ObjectError> {
@@ -759,6 +1040,44 @@ impl ZwlrOutputHeadV1 {
         Ok(())
     }
 
+    /// head model
+    ///
+    /// This event describes the model of the head.
+    ///
+    /// Together with the make and serial_number events the purpose is to
+    /// allow clients to recognize heads from previous sessions and for example
+    /// load head-specific configurations back.
+    ///
+    /// It is not guaranteed this event will be ever sent. A reason for that
+    /// can be that the compositor does not have information about the model of
+    /// the head or the definition of a model is not sensible in the current
+    /// setup, for example in a virtual session. Clients can still try to
+    /// identify the head by available information from other events but should
+    /// be aware that there is an increased risk of false positives.
+    ///
+    /// If sent, the model event is sent after a wlr_output_head object is
+    /// created and only sent once per object. The model does not change over
+    /// the lifetime of the wlr_output_head object.
+    ///
+    /// It is not recommended to display the model string in UI to users. For
+    /// that the string provided by the description event should be preferred.
+    ///
+    /// # Arguments
+    ///
+    /// - `model`:
+    #[inline]
+    pub fn send_model(
+        &self,
+        model: &str,
+    ) {
+        let res = self.try_send_model(
+            model,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_head_v1.model", &e);
+        }
+    }
+
     /// Since when the serial_number message is available.
     pub const MSG__SERIAL_NUMBER__SINCE: u32 = 2;
 
@@ -789,7 +1108,7 @@ impl ZwlrOutputHeadV1 {
     ///
     /// - `serial_number`:
     #[inline]
-    pub fn send_serial_number(
+    pub fn try_send_serial_number(
         &self,
         serial_number: &str,
     ) -> Result<(), ObjectError> {
@@ -829,6 +1148,45 @@ impl ZwlrOutputHeadV1 {
         Ok(())
     }
 
+    /// head serial number
+    ///
+    /// This event describes the serial number of the head.
+    ///
+    /// Together with the make and model events the purpose is to allow clients
+    /// to recognize heads from previous sessions and for example load head-
+    /// specific configurations back.
+    ///
+    /// It is not guaranteed this event will be ever sent. A reason for that
+    /// can be that the compositor does not have information about the serial
+    /// number of the head or the definition of a serial number is not sensible
+    /// in the current setup. Clients can still try to identify the head by
+    /// available information from other events but should be aware that there
+    /// is an increased risk of false positives.
+    ///
+    /// If sent, the serial number event is sent after a wlr_output_head object
+    /// is created and only sent once per object. The serial number does not
+    /// change over the lifetime of the wlr_output_head object.
+    ///
+    /// It is not recommended to display the serial_number string in UI to
+    /// users. For that the string provided by the description event should be
+    /// preferred.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial_number`:
+    #[inline]
+    pub fn send_serial_number(
+        &self,
+        serial_number: &str,
+    ) {
+        let res = self.try_send_serial_number(
+            serial_number,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_head_v1.serial_number", &e);
+        }
+    }
+
     /// Since when the release message is available.
     pub const MSG__RELEASE__SINCE: u32 = 3;
 
@@ -837,7 +1195,7 @@ impl ZwlrOutputHeadV1 {
     /// This request indicates that the client will no longer use this head
     /// object.
     #[inline]
-    pub fn send_release(
+    pub fn try_send_release(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -869,6 +1227,21 @@ impl ZwlrOutputHeadV1 {
         Ok(())
     }
 
+    /// destroy the head object
+    ///
+    /// This request indicates that the client will no longer use this head
+    /// object.
+    #[inline]
+    pub fn send_release(
+        &self,
+    ) {
+        let res = self.try_send_release(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_head_v1.release", &e);
+        }
+    }
+
     /// Since when the adaptive_sync message is available.
     pub const MSG__ADAPTIVE_SYNC__SINCE: u32 = 4;
 
@@ -882,7 +1255,7 @@ impl ZwlrOutputHeadV1 {
     ///
     /// - `state`:
     #[inline]
-    pub fn send_adaptive_sync(
+    pub fn try_send_adaptive_sync(
         &self,
         state: ZwlrOutputHeadV1AdaptiveSyncState,
     ) -> Result<(), ObjectError> {
@@ -921,13 +1294,35 @@ impl ZwlrOutputHeadV1 {
         ]);
         Ok(())
     }
+
+    /// current adaptive sync state
+    ///
+    /// This event describes whether adaptive sync is currently enabled for
+    /// the head or not. Adaptive sync is also known as Variable Refresh
+    /// Rate or VRR.
+    ///
+    /// # Arguments
+    ///
+    /// - `state`:
+    #[inline]
+    pub fn send_adaptive_sync(
+        &self,
+        state: ZwlrOutputHeadV1AdaptiveSyncState,
+    ) {
+        let res = self.try_send_adaptive_sync(
+            state,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_head_v1.adaptive_sync", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrOutputHeadV1] proxies.
 pub trait ZwlrOutputHeadV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrOutputHeadV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// head name
@@ -963,11 +1358,11 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_name(
+        let res = _slf.try_send_name(
             name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_head_v1.name message: {}", Report::new(e));
+            log_forward("zwlr_output_head_v1.name", &e);
         }
     }
 
@@ -1000,11 +1395,11 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_description(
+        let res = _slf.try_send_description(
             description,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_head_v1.description message: {}", Report::new(e));
+            log_forward("zwlr_output_head_v1.description", &e);
         }
     }
 
@@ -1032,12 +1427,12 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_physical_size(
+        let res = _slf.try_send_physical_size(
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_head_v1.physical_size message: {}", Report::new(e));
+            log_forward("zwlr_output_head_v1.physical_size", &e);
         }
     }
 
@@ -1058,11 +1453,11 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_mode(
+        let res = _slf.try_send_mode(
             mode,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_head_v1.mode message: {}", Report::new(e));
+            log_forward("zwlr_output_head_v1.mode", &e);
         }
     }
 
@@ -1086,11 +1481,11 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_enabled(
+        let res = _slf.try_send_enabled(
             enabled,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_head_v1.enabled message: {}", Report::new(e));
+            log_forward("zwlr_output_head_v1.enabled", &e);
         }
     }
 
@@ -1121,11 +1516,11 @@ pub trait ZwlrOutputHeadV1Handler: Any {
                 }
             }
         }
-        let res = _slf.send_current_mode(
+        let res = _slf.try_send_current_mode(
             mode,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_head_v1.current_mode message: {}", Report::new(e));
+            log_forward("zwlr_output_head_v1.current_mode", &e);
         }
     }
 
@@ -1148,12 +1543,12 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_position(
+        let res = _slf.try_send_position(
             x,
             y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_head_v1.position message: {}", Report::new(e));
+            log_forward("zwlr_output_head_v1.position", &e);
         }
     }
 
@@ -1174,11 +1569,11 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_transform(
+        let res = _slf.try_send_transform(
             transform,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_head_v1.transform message: {}", Report::new(e));
+            log_forward("zwlr_output_head_v1.transform", &e);
         }
     }
 
@@ -1199,11 +1594,11 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_scale(
+        let res = _slf.try_send_scale(
             scale,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_head_v1.scale message: {}", Report::new(e));
+            log_forward("zwlr_output_head_v1.scale", &e);
         }
     }
 
@@ -1220,10 +1615,10 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_finished(
+        let res = _slf.try_send_finished(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_head_v1.finished message: {}", Report::new(e));
+            log_forward("zwlr_output_head_v1.finished", &e);
         }
     }
 
@@ -1261,11 +1656,11 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_make(
+        let res = _slf.try_send_make(
             make,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_head_v1.make message: {}", Report::new(e));
+            log_forward("zwlr_output_head_v1.make", &e);
         }
     }
 
@@ -1303,11 +1698,11 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_model(
+        let res = _slf.try_send_model(
             model,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_head_v1.model message: {}", Report::new(e));
+            log_forward("zwlr_output_head_v1.model", &e);
         }
     }
 
@@ -1346,11 +1741,11 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_serial_number(
+        let res = _slf.try_send_serial_number(
             serial_number,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_head_v1.serial_number message: {}", Report::new(e));
+            log_forward("zwlr_output_head_v1.serial_number", &e);
         }
     }
 
@@ -1366,10 +1761,10 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_release(
+        let res = _slf.try_send_release(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_head_v1.release message: {}", Report::new(e));
+            log_forward("zwlr_output_head_v1.release", &e);
         }
     }
 
@@ -1391,11 +1786,11 @@ pub trait ZwlrOutputHeadV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_adaptive_sync(
+        let res = _slf.try_send_adaptive_sync(
             state,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_head_v1.adaptive_sync message: {}", Report::new(e));
+            log_forward("zwlr_output_head_v1.adaptive_sync", &e);
         }
     }
 }
@@ -1415,7 +1810,7 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

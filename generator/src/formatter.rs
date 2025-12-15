@@ -170,7 +170,7 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
         wl!()?;
         format_message_doc(w, true, msg)?;
         wl!(r#"    #[inline]"#)?;
-        w!(r#"    pub fn send_{}"#, &msg.name)?;
+        w!(r#"    pub fn try_send_{}"#, &msg.name)?;
         wl!(r#"("#)?;
         wl!(r#"        &self,"#)?;
         let num_args = msg.args.len();
@@ -388,6 +388,35 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
         }
         wl!(r#"        Ok(())"#)?;
         wl!(r#"    }}"#)?;
+        wl!()?;
+        format_message_doc(w, true, msg)?;
+        wl!(r#"    #[inline]"#)?;
+        w!(r#"    pub fn send_{}"#, &msg.name)?;
+        wl!(r#"("#)?;
+        wl!(r#"        &self,"#)?;
+        for (idx, arg) in msg.args.iter().enumerate() {
+            let name = escape_name(&arg.name);
+            if interface.is_wl_registry && msg.name == "global" && idx == 1 {
+                wl!(r#"        {name}: ObjectInterface,"#)?;
+            } else {
+                wl!(r#"        {name}: {},"#, arg_type(interface, arg))?;
+            }
+        }
+        wl!(r#"    ) {{"#)?;
+        wl!(r#"        let res = self.try_send_{}("#, msg.name)?;
+        for (_, arg) in msg.args.iter().enumerate() {
+            let name = escape_name(&arg.name);
+            wl!(r#"            {name},"#)?;
+        }
+        wl!(r#"        );"#)?;
+        wl!(r#"        if let Err(e) = res {{"#)?;
+        wl!(
+            r#"            log_send("{}.{}", &e);"#,
+            interface.name,
+            msg.name,
+        )?;
+        wl!(r#"        }}"#)?;
+        wl!(r#"    }}"#)?;
     }
     wl!(r#"}}"#)?;
     Ok(())
@@ -436,7 +465,7 @@ fn format_interface_message_handler(w: &mut impl Write, interface: &Interface) -
     wl!(r#"pub trait {PREFIX}{camel}Handler: Any {{"#)?;
     wl!(r#"    #[inline]"#)?;
     wl!(r#"    fn delete_id(&mut self, slf: &Rc<{camel}>) {{"#)?;
-    wl!(r#"        let _ = slf.core.delete_id();"#)?;
+    wl!(r#"        slf.core.delete_id();"#)?;
     wl!(r#"    }}"#)?;
     for msg in &interface.messages {
         wl!()?;
@@ -491,14 +520,14 @@ fn format_interface_message_handler(w: &mut impl Write, interface: &Interface) -
             }
             wl!(r#"        }}"#)?;
         }
-        wl!(r#"        let res = _slf.send_{}("#, &msg.name)?;
+        wl!(r#"        let res = _slf.try_send_{}("#, &msg.name)?;
         for arg in &msg.args {
             wl!(r#"            {},"#, escape_name(&arg.name))?;
         }
         wl!(r#"        );"#)?;
         wl!(r#"        if let Err(e) = res {{"#)?;
         wl!(
-            r#"            log::warn!("Could not forward a {}.{} message: {{}}", Report::new(e));"#,
+            r#"            log_forward("{}.{}", &e);"#,
             interface.name,
             msg.name,
         )?;
@@ -888,7 +917,7 @@ fn format_object_impl(w: &mut impl Write, interface: &Interface) -> io::Result<(
     wl!(r#"        if let Some(handler) = &mut *handler {{"#)?;
     wl!(r#"            handler.delete_id(&self);"#)?;
     wl!(r#"        }} else {{"#)?;
-    wl!(r#"            let _ = self.core.delete_id();"#)?;
+    wl!(r#"            self.core.delete_id();"#)?;
     wl!(r#"        }}"#)?;
     wl!(r#"        Ok(())"#)?;
     wl!(r#"    }}"#)?;

@@ -58,7 +58,7 @@ impl ExtIdleNotifierV1 {
     /// Destroy the manager object. All objects created via this interface
     /// remain valid.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -90,6 +90,21 @@ impl ExtIdleNotifierV1 {
         Ok(())
     }
 
+    /// destroy the manager
+    ///
+    /// Destroy the manager object. All objects created via this interface
+    /// remain valid.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_idle_notifier_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_idle_notification message is available.
     pub const MSG__GET_IDLE_NOTIFICATION__SINCE: u32 = 1;
 
@@ -110,7 +125,7 @@ impl ExtIdleNotifierV1 {
     /// - `timeout`: minimum idle timeout in msec
     /// - `seat`:
     #[inline]
-    pub fn send_get_idle_notification(
+    pub fn try_send_get_idle_notification(
         &self,
         id: &Rc<ExtIdleNotificationV1>,
         timeout: u32,
@@ -166,6 +181,39 @@ impl ExtIdleNotifierV1 {
         Ok(())
     }
 
+    /// create a notification object
+    ///
+    /// Create a new idle notification object.
+    ///
+    /// The notification object has a minimum timeout duration and is tied to a
+    /// seat. The client will be notified if the seat is inactive for at least
+    /// the provided timeout. See ext_idle_notification_v1 for more details.
+    ///
+    /// A zero timeout is valid and means the client wants to be notified as
+    /// soon as possible when the seat is inactive.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `timeout`: minimum idle timeout in msec
+    /// - `seat`:
+    #[inline]
+    pub fn send_get_idle_notification(
+        &self,
+        id: &Rc<ExtIdleNotificationV1>,
+        timeout: u32,
+        seat: &Rc<WlSeat>,
+    ) {
+        let res = self.try_send_get_idle_notification(
+            id,
+            timeout,
+            seat,
+        );
+        if let Err(e) = res {
+            log_send("ext_idle_notifier_v1.get_idle_notification", &e);
+        }
+    }
+
     /// Since when the get_input_idle_notification message is available.
     pub const MSG__GET_INPUT_IDLE_NOTIFICATION__SINCE: u32 = 2;
 
@@ -188,7 +236,7 @@ impl ExtIdleNotifierV1 {
     /// - `timeout`: minimum idle timeout in msec
     /// - `seat`:
     #[inline]
-    pub fn send_get_input_idle_notification(
+    pub fn try_send_get_input_idle_notification(
         &self,
         id: &Rc<ExtIdleNotificationV1>,
         timeout: u32,
@@ -243,13 +291,48 @@ impl ExtIdleNotifierV1 {
         ]);
         Ok(())
     }
+
+    /// create a notification object
+    ///
+    /// Create a new idle notification object to track input from the
+    /// user, such as keyboard and mouse movement. Because this object is
+    /// meant to track user input alone, it ignores idle inhibitors.
+    ///
+    /// The notification object has a minimum timeout duration and is tied to a
+    /// seat. The client will be notified if the seat is inactive for at least
+    /// the provided timeout. See ext_idle_notification_v1 for more details.
+    ///
+    /// A zero timeout is valid and means the client wants to be notified as
+    /// soon as possible when the seat is inactive.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `timeout`: minimum idle timeout in msec
+    /// - `seat`:
+    #[inline]
+    pub fn send_get_input_idle_notification(
+        &self,
+        id: &Rc<ExtIdleNotificationV1>,
+        timeout: u32,
+        seat: &Rc<WlSeat>,
+    ) {
+        let res = self.try_send_get_input_idle_notification(
+            id,
+            timeout,
+            seat,
+        );
+        if let Err(e) = res {
+            log_send("ext_idle_notifier_v1.get_input_idle_notification", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtIdleNotifierV1] proxies.
 pub trait ExtIdleNotifierV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtIdleNotifierV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the manager
@@ -264,10 +347,10 @@ pub trait ExtIdleNotifierV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_idle_notifier_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_idle_notifier_v1.destroy", &e);
         }
     }
 
@@ -301,13 +384,13 @@ pub trait ExtIdleNotifierV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_idle_notification(
+        let res = _slf.try_send_get_idle_notification(
             id,
             timeout,
             seat,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_idle_notifier_v1.get_idle_notification message: {}", Report::new(e));
+            log_forward("ext_idle_notifier_v1.get_idle_notification", &e);
         }
     }
 
@@ -343,13 +426,13 @@ pub trait ExtIdleNotifierV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_input_idle_notification(
+        let res = _slf.try_send_get_input_idle_notification(
             id,
             timeout,
             seat,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_idle_notifier_v1.get_input_idle_notification message: {}", Report::new(e));
+            log_forward("ext_idle_notifier_v1.get_input_idle_notification", &e);
         }
     }
 }
@@ -369,7 +452,7 @@ impl ObjectPrivate for ExtIdleNotifierV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -70,7 +70,7 @@ impl HyprlandToplevelExportManagerV1 {
     /// - `overlay_cursor`: composite cursor onto the frame
     /// - `handle`: the handle of the toplevel (window) to be captured
     #[inline]
-    pub fn send_capture_toplevel(
+    pub fn try_send_capture_toplevel(
         &self,
         frame: &Rc<HyprlandToplevelExportFrameV1>,
         overlay_cursor: i32,
@@ -121,6 +121,41 @@ impl HyprlandToplevelExportManagerV1 {
         Ok(())
     }
 
+    /// capture a toplevel
+    ///
+    /// Capture the next frame of a toplevel. (window)
+    ///
+    /// The captured frame will not contain any server-side decorations and will
+    /// ignore the compositor-set geometry, like e.g. rounded corners.
+    ///
+    /// It will contain all the subsurfaces and popups, however the latter will be clipped
+    /// to the geometry of the base surface.
+    ///
+    /// The handle parameter refers to the address of the window as seen in `hyprctl clients`.
+    /// For example, for d161e7b0 it would be 3512854448.
+    ///
+    /// # Arguments
+    ///
+    /// - `frame`:
+    /// - `overlay_cursor`: composite cursor onto the frame
+    /// - `handle`: the handle of the toplevel (window) to be captured
+    #[inline]
+    pub fn send_capture_toplevel(
+        &self,
+        frame: &Rc<HyprlandToplevelExportFrameV1>,
+        overlay_cursor: i32,
+        handle: u32,
+    ) {
+        let res = self.try_send_capture_toplevel(
+            frame,
+            overlay_cursor,
+            handle,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_toplevel_export_manager_v1.capture_toplevel", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -129,7 +164,7 @@ impl HyprlandToplevelExportManagerV1 {
     /// All objects created by the manager will still remain valid, until their
     /// appropriate destroy request has been called.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -161,6 +196,21 @@ impl HyprlandToplevelExportManagerV1 {
         Ok(())
     }
 
+    /// destroy the manager
+    ///
+    /// All objects created by the manager will still remain valid, until their
+    /// appropriate destroy request has been called.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_toplevel_export_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the capture_toplevel_with_wlr_toplevel_handle message is available.
     pub const MSG__CAPTURE_TOPLEVEL_WITH_WLR_TOPLEVEL_HANDLE__SINCE: u32 = 2;
 
@@ -174,7 +224,7 @@ impl HyprlandToplevelExportManagerV1 {
     /// - `overlay_cursor`: composite cursor onto the frame
     /// - `handle`: the zwlr_foreign_toplevel_handle_v1 handle of the toplevel to be captured
     #[inline]
-    pub fn send_capture_toplevel_with_wlr_toplevel_handle(
+    pub fn try_send_capture_toplevel_with_wlr_toplevel_handle(
         &self,
         frame: &Rc<HyprlandToplevelExportFrameV1>,
         overlay_cursor: i32,
@@ -229,13 +279,39 @@ impl HyprlandToplevelExportManagerV1 {
         ]);
         Ok(())
     }
+
+    /// capture a toplevel
+    ///
+    /// Same as capture_toplevel, but with a zwlr_foreign_toplevel_handle_v1 handle.
+    ///
+    /// # Arguments
+    ///
+    /// - `frame`:
+    /// - `overlay_cursor`: composite cursor onto the frame
+    /// - `handle`: the zwlr_foreign_toplevel_handle_v1 handle of the toplevel to be captured
+    #[inline]
+    pub fn send_capture_toplevel_with_wlr_toplevel_handle(
+        &self,
+        frame: &Rc<HyprlandToplevelExportFrameV1>,
+        overlay_cursor: i32,
+        handle: &Rc<ZwlrForeignToplevelHandleV1>,
+    ) {
+        let res = self.try_send_capture_toplevel_with_wlr_toplevel_handle(
+            frame,
+            overlay_cursor,
+            handle,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_toplevel_export_manager_v1.capture_toplevel_with_wlr_toplevel_handle", &e);
+        }
+    }
 }
 
 /// A message handler for [HyprlandToplevelExportManagerV1] proxies.
 pub trait HyprlandToplevelExportManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandToplevelExportManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// capture a toplevel
@@ -267,13 +343,13 @@ pub trait HyprlandToplevelExportManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_capture_toplevel(
+        let res = _slf.try_send_capture_toplevel(
             frame,
             overlay_cursor,
             handle,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_toplevel_export_manager_v1.capture_toplevel message: {}", Report::new(e));
+            log_forward("hyprland_toplevel_export_manager_v1.capture_toplevel", &e);
         }
     }
 
@@ -289,10 +365,10 @@ pub trait HyprlandToplevelExportManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_toplevel_export_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("hyprland_toplevel_export_manager_v1.destroy", &e);
         }
     }
 
@@ -319,13 +395,13 @@ pub trait HyprlandToplevelExportManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_capture_toplevel_with_wlr_toplevel_handle(
+        let res = _slf.try_send_capture_toplevel_with_wlr_toplevel_handle(
             frame,
             overlay_cursor,
             handle,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_toplevel_export_manager_v1.capture_toplevel_with_wlr_toplevel_handle message: {}", Report::new(e));
+            log_forward("hyprland_toplevel_export_manager_v1.capture_toplevel_with_wlr_toplevel_handle", &e);
         }
     }
 }
@@ -345,7 +421,7 @@ impl ObjectPrivate for HyprlandToplevelExportManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -62,7 +62,7 @@ impl ZwlrInputInhibitorV1 {
     ///
     /// Destroy the inhibitor and allow other clients to receive input.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -93,13 +93,27 @@ impl ZwlrInputInhibitorV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the input inhibitor object
+    ///
+    /// Destroy the inhibitor and allow other clients to receive input.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_input_inhibitor_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrInputInhibitorV1] proxies.
 pub trait ZwlrInputInhibitorV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrInputInhibitorV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the input inhibitor object
@@ -113,10 +127,10 @@ pub trait ZwlrInputInhibitorV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_input_inhibitor_v1.destroy message: {}", Report::new(e));
+            log_forward("zwlr_input_inhibitor_v1.destroy", &e);
         }
     }
 }
@@ -136,7 +150,7 @@ impl ObjectPrivate for ZwlrInputInhibitorV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

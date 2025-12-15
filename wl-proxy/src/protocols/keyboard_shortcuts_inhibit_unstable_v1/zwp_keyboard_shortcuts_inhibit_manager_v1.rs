@@ -54,7 +54,7 @@ impl ZwpKeyboardShortcutsInhibitManagerV1 {
     ///
     /// Destroy the keyboard shortcuts inhibitor manager.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -86,6 +86,20 @@ impl ZwpKeyboardShortcutsInhibitManagerV1 {
         Ok(())
     }
 
+    /// destroy the keyboard shortcuts inhibitor object
+    ///
+    /// Destroy the keyboard shortcuts inhibitor manager.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_keyboard_shortcuts_inhibit_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the inhibit_shortcuts message is available.
     pub const MSG__INHIBIT_SHORTCUTS__SINCE: u32 = 1;
 
@@ -103,7 +117,7 @@ impl ZwpKeyboardShortcutsInhibitManagerV1 {
     /// - `surface`: the surface that inhibits the keyboard shortcuts behavior
     /// - `seat`: the wl_seat for which keyboard shortcuts should be disabled
     #[inline]
-    pub fn send_inhibit_shortcuts(
+    pub fn try_send_inhibit_shortcuts(
         &self,
         id: &Rc<ZwpKeyboardShortcutsInhibitorV1>,
         surface: &Rc<WlSurface>,
@@ -163,13 +177,43 @@ impl ZwpKeyboardShortcutsInhibitManagerV1 {
         ]);
         Ok(())
     }
+
+    /// create a new keyboard shortcuts inhibitor object
+    ///
+    /// Create a new keyboard shortcuts inhibitor object associated with
+    /// the given surface for the given seat.
+    ///
+    /// If shortcuts are already inhibited for the specified seat and surface,
+    /// a protocol error "already_inhibited" is raised by the compositor.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`: the surface that inhibits the keyboard shortcuts behavior
+    /// - `seat`: the wl_seat for which keyboard shortcuts should be disabled
+    #[inline]
+    pub fn send_inhibit_shortcuts(
+        &self,
+        id: &Rc<ZwpKeyboardShortcutsInhibitorV1>,
+        surface: &Rc<WlSurface>,
+        seat: &Rc<WlSeat>,
+    ) {
+        let res = self.try_send_inhibit_shortcuts(
+            id,
+            surface,
+            seat,
+        );
+        if let Err(e) = res {
+            log_send("zwp_keyboard_shortcuts_inhibit_manager_v1.inhibit_shortcuts", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpKeyboardShortcutsInhibitManagerV1] proxies.
 pub trait ZwpKeyboardShortcutsInhibitManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpKeyboardShortcutsInhibitManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the keyboard shortcuts inhibitor object
@@ -183,10 +227,10 @@ pub trait ZwpKeyboardShortcutsInhibitManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_keyboard_shortcuts_inhibit_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_keyboard_shortcuts_inhibit_manager_v1.destroy", &e);
         }
     }
 
@@ -217,13 +261,13 @@ pub trait ZwpKeyboardShortcutsInhibitManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_inhibit_shortcuts(
+        let res = _slf.try_send_inhibit_shortcuts(
             id,
             surface,
             seat,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_keyboard_shortcuts_inhibit_manager_v1.inhibit_shortcuts message: {}", Report::new(e));
+            log_forward("zwp_keyboard_shortcuts_inhibit_manager_v1.inhibit_shortcuts", &e);
         }
     }
 }
@@ -243,7 +287,7 @@ impl ObjectPrivate for ZwpKeyboardShortcutsInhibitManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

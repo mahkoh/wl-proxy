@@ -82,7 +82,7 @@ impl ZwlrOutputManagerV1 {
     /// appears (e.g. a monitor is plugged in) or after the output manager is
     /// bound.
     #[inline]
-    pub fn send_head(
+    pub fn try_send_head(
         &self,
         head: &Rc<ZwlrOutputHeadV1>,
     ) -> Result<(), ObjectError> {
@@ -127,6 +127,24 @@ impl ZwlrOutputManagerV1 {
         Ok(())
     }
 
+    /// introduce a new head
+    ///
+    /// This event introduces a new head. This happens whenever a new head
+    /// appears (e.g. a monitor is plugged in) or after the output manager is
+    /// bound.
+    #[inline]
+    pub fn send_head(
+        &self,
+        head: &Rc<ZwlrOutputHeadV1>,
+    ) {
+        let res = self.try_send_head(
+            head,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_manager_v1.head", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -148,7 +166,7 @@ impl ZwlrOutputManagerV1 {
     ///
     /// - `serial`: current configuration serial
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
         serial: u32,
     ) -> Result<(), ObjectError> {
@@ -188,6 +206,36 @@ impl ZwlrOutputManagerV1 {
         Ok(())
     }
 
+    /// sent all information about current configuration
+    ///
+    /// This event is sent after all information has been sent after binding to
+    /// the output manager object and after any subsequent changes. This applies
+    /// to child head and mode objects as well. In other words, this event is
+    /// sent whenever a head or mode is created or destroyed and whenever one of
+    /// their properties has been changed. Not all state is re-sent each time
+    /// the current configuration changes: only the actual changes are sent.
+    ///
+    /// This allows changes to the output configuration to be seen as atomic,
+    /// even if they happen via multiple events.
+    ///
+    /// A serial is sent to be used in a future create_configuration request.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: current configuration serial
+    #[inline]
+    pub fn send_done(
+        &self,
+        serial: u32,
+    ) {
+        let res = self.try_send_done(
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_manager_v1.done", &e);
+        }
+    }
+
     /// Since when the create_configuration message is available.
     pub const MSG__CREATE_CONFIGURATION__SINCE: u32 = 1;
 
@@ -201,7 +249,7 @@ impl ZwlrOutputManagerV1 {
     /// - `id`:
     /// - `serial`:
     #[inline]
-    pub fn send_create_configuration(
+    pub fn try_send_create_configuration(
         &self,
         id: &Rc<ZwlrOutputConfigurationV1>,
         serial: u32,
@@ -248,6 +296,30 @@ impl ZwlrOutputManagerV1 {
         Ok(())
     }
 
+    /// create a new output configuration object
+    ///
+    /// Create a new output configuration object. This allows to update head
+    /// properties.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `serial`:
+    #[inline]
+    pub fn send_create_configuration(
+        &self,
+        id: &Rc<ZwlrOutputConfigurationV1>,
+        serial: u32,
+    ) {
+        let res = self.try_send_create_configuration(
+            id,
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_manager_v1.create_configuration", &e);
+        }
+    }
+
     /// Since when the stop message is available.
     pub const MSG__STOP__SINCE: u32 = 1;
 
@@ -259,7 +331,7 @@ impl ZwlrOutputManagerV1 {
     ///
     /// The client must not send any more requests after this one.
     #[inline]
-    pub fn send_stop(
+    pub fn try_send_stop(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -290,6 +362,24 @@ impl ZwlrOutputManagerV1 {
         Ok(())
     }
 
+    /// stop sending events
+    ///
+    /// Indicates the client no longer wishes to receive events for output
+    /// configuration changes. However the compositor may emit further events,
+    /// until the finished event is emitted.
+    ///
+    /// The client must not send any more requests after this one.
+    #[inline]
+    pub fn send_stop(
+        &self,
+    ) {
+        let res = self.try_send_stop(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_manager_v1.stop", &e);
+        }
+    }
+
     /// Since when the finished message is available.
     pub const MSG__FINISHED__SINCE: u32 = 1;
 
@@ -300,7 +390,7 @@ impl ZwlrOutputManagerV1 {
     /// event, so it will become invalid and the client should release any
     /// resources associated with it.
     #[inline]
-    pub fn send_finished(
+    pub fn try_send_finished(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -336,13 +426,30 @@ impl ZwlrOutputManagerV1 {
         self.core.handle_client_destroy();
         Ok(())
     }
+
+    /// the compositor has finished with the manager
+    ///
+    /// This event indicates that the compositor is done sending manager events.
+    /// The compositor will destroy the object immediately after sending this
+    /// event, so it will become invalid and the client should release any
+    /// resources associated with it.
+    #[inline]
+    pub fn send_finished(
+        &self,
+    ) {
+        let res = self.try_send_finished(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_manager_v1.finished", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrOutputManagerV1] proxies.
 pub trait ZwlrOutputManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrOutputManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// introduce a new head
@@ -363,11 +470,11 @@ pub trait ZwlrOutputManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_head(
+        let res = _slf.try_send_head(
             head,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_manager_v1.head message: {}", Report::new(e));
+            log_forward("zwlr_output_manager_v1.head", &e);
         }
     }
 
@@ -397,11 +504,11 @@ pub trait ZwlrOutputManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_manager_v1.done message: {}", Report::new(e));
+            log_forward("zwlr_output_manager_v1.done", &e);
         }
     }
 
@@ -424,12 +531,12 @@ pub trait ZwlrOutputManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_configuration(
+        let res = _slf.try_send_create_configuration(
             id,
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_manager_v1.create_configuration message: {}", Report::new(e));
+            log_forward("zwlr_output_manager_v1.create_configuration", &e);
         }
     }
 
@@ -448,10 +555,10 @@ pub trait ZwlrOutputManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_stop(
+        let res = _slf.try_send_stop(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_manager_v1.stop message: {}", Report::new(e));
+            log_forward("zwlr_output_manager_v1.stop", &e);
         }
     }
 
@@ -469,10 +576,10 @@ pub trait ZwlrOutputManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_finished(
+        let res = _slf.try_send_finished(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_manager_v1.finished message: {}", Report::new(e));
+            log_forward("zwlr_output_manager_v1.finished", &e);
         }
     }
 }
@@ -492,7 +599,7 @@ impl ObjectPrivate for ZwlrOutputManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

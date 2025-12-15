@@ -54,7 +54,7 @@ impl ZwpTextInputManagerV1 {
     ///
     /// Creates a new text_input object.
     #[inline]
-    pub fn send_create_text_input(
+    pub fn try_send_create_text_input(
         &self,
         id: &Rc<ZwpTextInputV1>,
     ) -> Result<(), ObjectError> {
@@ -96,13 +96,29 @@ impl ZwpTextInputManagerV1 {
         ]);
         Ok(())
     }
+
+    /// create text input
+    ///
+    /// Creates a new text_input object.
+    #[inline]
+    pub fn send_create_text_input(
+        &self,
+        id: &Rc<ZwpTextInputV1>,
+    ) {
+        let res = self.try_send_create_text_input(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_manager_v1.create_text_input", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpTextInputManagerV1] proxies.
 pub trait ZwpTextInputManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpTextInputManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// create text input
@@ -121,11 +137,11 @@ pub trait ZwpTextInputManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_text_input(
+        let res = _slf.try_send_create_text_input(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_manager_v1.create_text_input message: {}", Report::new(e));
+            log_forward("zwp_text_input_manager_v1.create_text_input", &e);
         }
     }
 }
@@ -145,7 +161,7 @@ impl ObjectPrivate for ZwpTextInputManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -60,7 +60,7 @@ impl ZwlrOutputConfigurationHeadV1 {
     ///
     /// - `mode`:
     #[inline]
-    pub fn send_set_mode(
+    pub fn try_send_set_mode(
         &self,
         mode: &Rc<ZwlrOutputModeV1>,
     ) -> Result<(), ObjectError> {
@@ -103,6 +103,26 @@ impl ZwlrOutputConfigurationHeadV1 {
         Ok(())
     }
 
+    /// set the mode
+    ///
+    /// This request sets the head's mode.
+    ///
+    /// # Arguments
+    ///
+    /// - `mode`:
+    #[inline]
+    pub fn send_set_mode(
+        &self,
+        mode: &Rc<ZwlrOutputModeV1>,
+    ) {
+        let res = self.try_send_set_mode(
+            mode,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_configuration_head_v1.set_mode", &e);
+        }
+    }
+
     /// Since when the set_custom_mode message is available.
     pub const MSG__SET_CUSTOM_MODE__SINCE: u32 = 1;
 
@@ -120,7 +140,7 @@ impl ZwlrOutputConfigurationHeadV1 {
     /// - `height`: height of the mode in hardware units
     /// - `refresh`: vertical refresh rate in mHz or zero
     #[inline]
-    pub fn send_set_custom_mode(
+    pub fn try_send_set_custom_mode(
         &self,
         width: i32,
         height: i32,
@@ -166,6 +186,36 @@ impl ZwlrOutputConfigurationHeadV1 {
         Ok(())
     }
 
+    /// set a custom mode
+    ///
+    /// This request assigns a custom mode to the head. The size is given in
+    /// physical hardware units of the output device. If set to zero, the
+    /// refresh rate is unspecified.
+    ///
+    /// It is a protocol error to set both a mode and a custom mode.
+    ///
+    /// # Arguments
+    ///
+    /// - `width`: width of the mode in hardware units
+    /// - `height`: height of the mode in hardware units
+    /// - `refresh`: vertical refresh rate in mHz or zero
+    #[inline]
+    pub fn send_set_custom_mode(
+        &self,
+        width: i32,
+        height: i32,
+        refresh: i32,
+    ) {
+        let res = self.try_send_set_custom_mode(
+            width,
+            height,
+            refresh,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_configuration_head_v1.set_custom_mode", &e);
+        }
+    }
+
     /// Since when the set_position message is available.
     pub const MSG__SET_POSITION__SINCE: u32 = 1;
 
@@ -178,7 +228,7 @@ impl ZwlrOutputConfigurationHeadV1 {
     /// - `x`: x position in the global compositor space
     /// - `y`: y position in the global compositor space
     #[inline]
-    pub fn send_set_position(
+    pub fn try_send_set_position(
         &self,
         x: i32,
         y: i32,
@@ -220,6 +270,29 @@ impl ZwlrOutputConfigurationHeadV1 {
         Ok(())
     }
 
+    /// set the position
+    ///
+    /// This request sets the head's position in the global compositor space.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: x position in the global compositor space
+    /// - `y`: y position in the global compositor space
+    #[inline]
+    pub fn send_set_position(
+        &self,
+        x: i32,
+        y: i32,
+    ) {
+        let res = self.try_send_set_position(
+            x,
+            y,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_configuration_head_v1.set_position", &e);
+        }
+    }
+
     /// Since when the set_transform message is available.
     pub const MSG__SET_TRANSFORM__SINCE: u32 = 1;
 
@@ -231,7 +304,7 @@ impl ZwlrOutputConfigurationHeadV1 {
     ///
     /// - `transform`:
     #[inline]
-    pub fn send_set_transform(
+    pub fn try_send_set_transform(
         &self,
         transform: WlOutputTransform,
     ) -> Result<(), ObjectError> {
@@ -269,6 +342,26 @@ impl ZwlrOutputConfigurationHeadV1 {
         Ok(())
     }
 
+    /// set the transform
+    ///
+    /// This request sets the head's transform.
+    ///
+    /// # Arguments
+    ///
+    /// - `transform`:
+    #[inline]
+    pub fn send_set_transform(
+        &self,
+        transform: WlOutputTransform,
+    ) {
+        let res = self.try_send_set_transform(
+            transform,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_configuration_head_v1.set_transform", &e);
+        }
+    }
+
     /// Since when the set_scale message is available.
     pub const MSG__SET_SCALE__SINCE: u32 = 1;
 
@@ -280,7 +373,7 @@ impl ZwlrOutputConfigurationHeadV1 {
     ///
     /// - `scale`:
     #[inline]
-    pub fn send_set_scale(
+    pub fn try_send_set_scale(
         &self,
         scale: Fixed,
     ) -> Result<(), ObjectError> {
@@ -318,6 +411,26 @@ impl ZwlrOutputConfigurationHeadV1 {
         Ok(())
     }
 
+    /// set the scale
+    ///
+    /// This request sets the head's scale.
+    ///
+    /// # Arguments
+    ///
+    /// - `scale`:
+    #[inline]
+    pub fn send_set_scale(
+        &self,
+        scale: Fixed,
+    ) {
+        let res = self.try_send_set_scale(
+            scale,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_configuration_head_v1.set_scale", &e);
+        }
+    }
+
     /// Since when the set_adaptive_sync message is available.
     pub const MSG__SET_ADAPTIVE_SYNC__SINCE: u32 = 4;
 
@@ -330,7 +443,7 @@ impl ZwlrOutputConfigurationHeadV1 {
     ///
     /// - `state`:
     #[inline]
-    pub fn send_set_adaptive_sync(
+    pub fn try_send_set_adaptive_sync(
         &self,
         state: ZwlrOutputHeadV1AdaptiveSyncState,
     ) -> Result<(), ObjectError> {
@@ -367,13 +480,34 @@ impl ZwlrOutputConfigurationHeadV1 {
         ]);
         Ok(())
     }
+
+    /// enable/disable adaptive sync
+    ///
+    /// This request enables/disables adaptive sync. Adaptive sync is also
+    /// known as Variable Refresh Rate or VRR.
+    ///
+    /// # Arguments
+    ///
+    /// - `state`:
+    #[inline]
+    pub fn send_set_adaptive_sync(
+        &self,
+        state: ZwlrOutputHeadV1AdaptiveSyncState,
+    ) {
+        let res = self.try_send_set_adaptive_sync(
+            state,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_configuration_head_v1.set_adaptive_sync", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrOutputConfigurationHeadV1] proxies.
 pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrOutputConfigurationHeadV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// set the mode
@@ -395,11 +529,11 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_mode(
+        let res = _slf.try_send_set_mode(
             mode,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_configuration_head_v1.set_mode message: {}", Report::new(e));
+            log_forward("zwlr_output_configuration_head_v1.set_mode", &e);
         }
     }
 
@@ -427,13 +561,13 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_custom_mode(
+        let res = _slf.try_send_set_custom_mode(
             width,
             height,
             refresh,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_configuration_head_v1.set_custom_mode message: {}", Report::new(e));
+            log_forward("zwlr_output_configuration_head_v1.set_custom_mode", &e);
         }
     }
 
@@ -455,12 +589,12 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_position(
+        let res = _slf.try_send_set_position(
             x,
             y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_configuration_head_v1.set_position message: {}", Report::new(e));
+            log_forward("zwlr_output_configuration_head_v1.set_position", &e);
         }
     }
 
@@ -480,11 +614,11 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_transform(
+        let res = _slf.try_send_set_transform(
             transform,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_configuration_head_v1.set_transform message: {}", Report::new(e));
+            log_forward("zwlr_output_configuration_head_v1.set_transform", &e);
         }
     }
 
@@ -504,11 +638,11 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_scale(
+        let res = _slf.try_send_set_scale(
             scale,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_configuration_head_v1.set_scale message: {}", Report::new(e));
+            log_forward("zwlr_output_configuration_head_v1.set_scale", &e);
         }
     }
 
@@ -529,11 +663,11 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_adaptive_sync(
+        let res = _slf.try_send_set_adaptive_sync(
             state,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_configuration_head_v1.set_adaptive_sync message: {}", Report::new(e));
+            log_forward("zwlr_output_configuration_head_v1.set_adaptive_sync", &e);
         }
     }
 }
@@ -553,7 +687,7 @@ impl ObjectPrivate for ZwlrOutputConfigurationHeadV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

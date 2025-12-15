@@ -70,7 +70,7 @@ impl TreelandVirtualOutputManagerV1 {
     /// - `name`: The name of the user readable virtual output
     /// - `outputs`: Screen name array
     #[inline]
-    pub fn send_create_virtual_output(
+    pub fn try_send_create_virtual_output(
         &self,
         id: &Rc<TreelandVirtualOutputV1>,
         name: &str,
@@ -121,6 +121,42 @@ impl TreelandVirtualOutputManagerV1 {
         Ok(())
     }
 
+    /// Create a virtual output
+    ///
+    /// Create virtual output that can be used when setting screen copy mode for use
+    /// on multiple screens. Virtual outputs are created to mirror multiple wl_output
+    /// outputs.
+    ///
+    /// The element of the array is the name of the screen.
+    ///
+    /// The first element of the array outputs is the screen to be copied, and
+    /// the subsequent elements are the screens to be mirrored.
+    ///
+    /// The client calling this interface will not generate an additional wl_output
+    /// object on the client.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `name`: The name of the user readable virtual output
+    /// - `outputs`: Screen name array
+    #[inline]
+    pub fn send_create_virtual_output(
+        &self,
+        id: &Rc<TreelandVirtualOutputV1>,
+        name: &str,
+        outputs: &[u8],
+    ) {
+        let res = self.try_send_create_virtual_output(
+            id,
+            name,
+            outputs,
+        );
+        if let Err(e) = res {
+            log_send("treeland_virtual_output_manager_v1.create_virtual_output", &e);
+        }
+    }
+
     /// Since when the get_virtual_output_list message is available.
     pub const MSG__GET_VIRTUAL_OUTPUT_LIST__SINCE: u32 = 1;
 
@@ -128,7 +164,7 @@ impl TreelandVirtualOutputManagerV1 {
     ///
     /// Gets a list of virtual output names.
     #[inline]
-    pub fn send_get_virtual_output_list(
+    pub fn try_send_get_virtual_output_list(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -159,6 +195,20 @@ impl TreelandVirtualOutputManagerV1 {
         Ok(())
     }
 
+    /// Gets a list of virtual output names
+    ///
+    /// Gets a list of virtual output names.
+    #[inline]
+    pub fn send_get_virtual_output_list(
+        &self,
+    ) {
+        let res = self.try_send_get_virtual_output_list(
+        );
+        if let Err(e) = res {
+            log_send("treeland_virtual_output_manager_v1.get_virtual_output_list", &e);
+        }
+    }
+
     /// Since when the virtual_output_list message is available.
     pub const MSG__VIRTUAL_OUTPUT_LIST__SINCE: u32 = 1;
 
@@ -170,7 +220,7 @@ impl TreelandVirtualOutputManagerV1 {
     ///
     /// - `names`: List of virtual output names
     #[inline]
-    pub fn send_virtual_output_list(
+    pub fn try_send_virtual_output_list(
         &self,
         names: &[u8],
     ) -> Result<(), ObjectError> {
@@ -210,6 +260,26 @@ impl TreelandVirtualOutputManagerV1 {
         Ok(())
     }
 
+    /// Send a list of virtual output names
+    ///
+    /// Sends a list of virtual output names to the client.
+    ///
+    /// # Arguments
+    ///
+    /// - `names`: List of virtual output names
+    #[inline]
+    pub fn send_virtual_output_list(
+        &self,
+        names: &[u8],
+    ) {
+        let res = self.try_send_virtual_output_list(
+            names,
+        );
+        if let Err(e) = res {
+            log_send("treeland_virtual_output_manager_v1.virtual_output_list", &e);
+        }
+    }
+
     /// Since when the get_virtual_output message is available.
     pub const MSG__GET_VIRTUAL_OUTPUT__SINCE: u32 = 1;
 
@@ -223,7 +293,7 @@ impl TreelandVirtualOutputManagerV1 {
     /// - `name`: The name of the user readable virtual output
     /// - `id`:
     #[inline]
-    pub fn send_get_virtual_output(
+    pub fn try_send_get_virtual_output(
         &self,
         name: &str,
         id: &Rc<TreelandVirtualOutputV1>,
@@ -271,13 +341,37 @@ impl TreelandVirtualOutputManagerV1 {
         ]);
         Ok(())
     }
+
+    /// Get virtual output
+    ///
+    /// The client obtains the corresponding virtual_output_v1 object
+    /// through the virtual output name.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: The name of the user readable virtual output
+    /// - `id`:
+    #[inline]
+    pub fn send_get_virtual_output(
+        &self,
+        name: &str,
+        id: &Rc<TreelandVirtualOutputV1>,
+    ) {
+        let res = self.try_send_get_virtual_output(
+            name,
+            id,
+        );
+        if let Err(e) = res {
+            log_send("treeland_virtual_output_manager_v1.get_virtual_output", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandVirtualOutputManagerV1] proxies.
 pub trait TreelandVirtualOutputManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandVirtualOutputManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// Create a virtual output
@@ -310,13 +404,13 @@ pub trait TreelandVirtualOutputManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_virtual_output(
+        let res = _slf.try_send_create_virtual_output(
             id,
             name,
             outputs,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_virtual_output_manager_v1.create_virtual_output message: {}", Report::new(e));
+            log_forward("treeland_virtual_output_manager_v1.create_virtual_output", &e);
         }
     }
 
@@ -331,10 +425,10 @@ pub trait TreelandVirtualOutputManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_virtual_output_list(
+        let res = _slf.try_send_get_virtual_output_list(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_virtual_output_manager_v1.get_virtual_output_list message: {}", Report::new(e));
+            log_forward("treeland_virtual_output_manager_v1.get_virtual_output_list", &e);
         }
     }
 
@@ -354,11 +448,11 @@ pub trait TreelandVirtualOutputManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_virtual_output_list(
+        let res = _slf.try_send_virtual_output_list(
             names,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_virtual_output_manager_v1.virtual_output_list message: {}", Report::new(e));
+            log_forward("treeland_virtual_output_manager_v1.virtual_output_list", &e);
         }
     }
 
@@ -381,12 +475,12 @@ pub trait TreelandVirtualOutputManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_virtual_output(
+        let res = _slf.try_send_get_virtual_output(
             name,
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_virtual_output_manager_v1.get_virtual_output message: {}", Report::new(e));
+            log_forward("treeland_virtual_output_manager_v1.get_virtual_output", &e);
         }
     }
 }
@@ -406,7 +500,7 @@ impl ObjectPrivate for TreelandVirtualOutputManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

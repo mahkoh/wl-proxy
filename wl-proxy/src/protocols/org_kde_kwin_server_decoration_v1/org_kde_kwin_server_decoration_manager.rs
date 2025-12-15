@@ -74,7 +74,7 @@ impl OrgKdeKwinServerDecorationManager {
     /// - `id`:
     /// - `surface`:
     #[inline]
-    pub fn send_create(
+    pub fn try_send_create(
         &self,
         id: &Rc<OrgKdeKwinServerDecoration>,
         surface: &Rc<WlSurface>,
@@ -126,6 +126,38 @@ impl OrgKdeKwinServerDecorationManager {
         Ok(())
     }
 
+    /// Create a server-side decoration object for a given surface
+    ///
+    /// When a client creates a server-side decoration object it indicates
+    /// that it supports the protocol. The client is supposed to tell the
+    /// server whether it wants server-side decorations or will provide
+    /// client-side decorations.
+    ///
+    /// If the client does not create a server-side decoration object for
+    /// a surface the server interprets this as lack of support for this
+    /// protocol and considers it as client-side decorated. Nevertheless a
+    /// client-side decorated surface should use this protocol to indicate
+    /// to the server that it does not want a server-side deco.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn send_create(
+        &self,
+        id: &Rc<OrgKdeKwinServerDecoration>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_create(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("org_kde_kwin_server_decoration_manager.create", &e);
+        }
+    }
+
     /// Since when the default_mode message is available.
     pub const MSG__DEFAULT_MODE__SINCE: u32 = 1;
 
@@ -142,7 +174,7 @@ impl OrgKdeKwinServerDecorationManager {
     ///
     /// - `mode`: The default decoration mode applied to newly created server decorations.
     #[inline]
-    pub fn send_default_mode(
+    pub fn try_send_default_mode(
         &self,
         mode: u32,
     ) -> Result<(), ObjectError> {
@@ -181,13 +213,38 @@ impl OrgKdeKwinServerDecorationManager {
         ]);
         Ok(())
     }
+
+    /// The default mode used on the server
+    ///
+    /// This event is emitted directly after binding the interface. It contains
+    /// the default mode for the decoration. When a new server decoration object
+    /// is created this new object will be in the default mode until the first
+    /// request_mode is requested.
+    ///
+    /// The server may change the default mode at any time.
+    ///
+    /// # Arguments
+    ///
+    /// - `mode`: The default decoration mode applied to newly created server decorations.
+    #[inline]
+    pub fn send_default_mode(
+        &self,
+        mode: u32,
+    ) {
+        let res = self.try_send_default_mode(
+            mode,
+        );
+        if let Err(e) = res {
+            log_send("org_kde_kwin_server_decoration_manager.default_mode", &e);
+        }
+    }
 }
 
 /// A message handler for [OrgKdeKwinServerDecorationManager] proxies.
 pub trait OrgKdeKwinServerDecorationManagerHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<OrgKdeKwinServerDecorationManager>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// Create a server-side decoration object for a given surface
@@ -220,12 +277,12 @@ pub trait OrgKdeKwinServerDecorationManagerHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create(
+        let res = _slf.try_send_create(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a org_kde_kwin_server_decoration_manager.create message: {}", Report::new(e));
+            log_forward("org_kde_kwin_server_decoration_manager.create", &e);
         }
     }
 
@@ -250,11 +307,11 @@ pub trait OrgKdeKwinServerDecorationManagerHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_default_mode(
+        let res = _slf.try_send_default_mode(
             mode,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a org_kde_kwin_server_decoration_manager.default_mode message: {}", Report::new(e));
+            log_forward("org_kde_kwin_server_decoration_manager.default_mode", &e);
         }
     }
 }
@@ -274,7 +331,7 @@ impl ObjectPrivate for OrgKdeKwinServerDecorationManager {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

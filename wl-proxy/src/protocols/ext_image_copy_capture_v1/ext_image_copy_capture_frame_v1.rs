@@ -64,7 +64,7 @@ impl ExtImageCopyCaptureFrameV1 {
     /// Destroys the frame. This request can be sent at any time by the
     /// client.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -96,6 +96,21 @@ impl ExtImageCopyCaptureFrameV1 {
         Ok(())
     }
 
+    /// destroy this object
+    ///
+    /// Destroys the frame. This request can be sent at any time by the
+    /// client.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_frame_v1.destroy", &e);
+        }
+    }
+
     /// Since when the attach_buffer message is available.
     pub const MSG__ATTACH_BUFFER__SINCE: u32 = 1;
 
@@ -114,7 +129,7 @@ impl ExtImageCopyCaptureFrameV1 {
     ///
     /// - `buffer`:
     #[inline]
-    pub fn send_attach_buffer(
+    pub fn try_send_attach_buffer(
         &self,
         buffer: &Rc<WlBuffer>,
     ) -> Result<(), ObjectError> {
@@ -157,6 +172,33 @@ impl ExtImageCopyCaptureFrameV1 {
         Ok(())
     }
 
+    /// attach buffer to session
+    ///
+    /// Attach a buffer to the session.
+    ///
+    /// The wl_buffer.release request is unused.
+    ///
+    /// The new buffer replaces any previously attached buffer.
+    ///
+    /// This request must not be sent after capture, or else the
+    /// already_captured protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `buffer`:
+    #[inline]
+    pub fn send_attach_buffer(
+        &self,
+        buffer: &Rc<WlBuffer>,
+    ) {
+        let res = self.try_send_attach_buffer(
+            buffer,
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_frame_v1.attach_buffer", &e);
+        }
+    }
+
     /// Since when the damage_buffer message is available.
     pub const MSG__DAMAGE_BUFFER__SINCE: u32 = 1;
 
@@ -191,7 +233,7 @@ impl ExtImageCopyCaptureFrameV1 {
     /// - `width`: region width
     /// - `height`: region height
     #[inline]
-    pub fn send_damage_buffer(
+    pub fn try_send_damage_buffer(
         &self,
         x: i32,
         y: i32,
@@ -241,6 +283,55 @@ impl ExtImageCopyCaptureFrameV1 {
         Ok(())
     }
 
+    /// damage buffer
+    ///
+    /// Apply damage to the buffer which is to be captured next. This request
+    /// may be sent multiple times to describe a region.
+    ///
+    /// The client indicates the accumulated damage since this wl_buffer was
+    /// last captured. During capture, the compositor will update the buffer
+    /// with at least the union of the region passed by the client and the
+    /// region advertised by ext_image_copy_capture_frame_v1.damage.
+    ///
+    /// When a wl_buffer is captured for the first time, or when the client
+    /// doesn't track damage, the client must damage the whole buffer.
+    ///
+    /// This is for optimisation purposes. The compositor may use this
+    /// information to reduce copying.
+    ///
+    /// These coordinates originate from the upper left corner of the buffer.
+    ///
+    /// If x or y are strictly negative, or if width or height are negative or
+    /// zero, the invalid_buffer_damage protocol error is raised.
+    ///
+    /// This request must not be sent after capture, or else the
+    /// already_captured protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: region x coordinate
+    /// - `y`: region y coordinate
+    /// - `width`: region width
+    /// - `height`: region height
+    #[inline]
+    pub fn send_damage_buffer(
+        &self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_damage_buffer(
+            x,
+            y,
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_frame_v1.damage_buffer", &e);
+        }
+    }
+
     /// Since when the capture message is available.
     pub const MSG__CAPTURE__SINCE: u32 = 1;
 
@@ -256,7 +347,7 @@ impl ExtImageCopyCaptureFrameV1 {
     /// protocol error is raised. A buffer must be attached before this request
     /// is sent, or else the no_buffer protocol error is raised.
     #[inline]
-    pub fn send_capture(
+    pub fn try_send_capture(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -287,6 +378,28 @@ impl ExtImageCopyCaptureFrameV1 {
         Ok(())
     }
 
+    /// capture a frame
+    ///
+    /// Capture a frame.
+    ///
+    /// Unless this is the first successful captured frame performed in this
+    /// session, the compositor may wait an indefinite amount of time for the
+    /// source content to change before performing the copy.
+    ///
+    /// This request may only be sent once, or else the already_captured
+    /// protocol error is raised. A buffer must be attached before this request
+    /// is sent, or else the no_buffer protocol error is raised.
+    #[inline]
+    pub fn send_capture(
+        &self,
+    ) {
+        let res = self.try_send_capture(
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_frame_v1.capture", &e);
+        }
+    }
+
     /// Since when the transform message is available.
     pub const MSG__TRANSFORM__SINCE: u32 = 1;
 
@@ -299,7 +412,7 @@ impl ExtImageCopyCaptureFrameV1 {
     ///
     /// - `transform`:
     #[inline]
-    pub fn send_transform(
+    pub fn try_send_transform(
         &self,
         transform: WlOutputTransform,
     ) -> Result<(), ObjectError> {
@@ -339,6 +452,27 @@ impl ExtImageCopyCaptureFrameV1 {
         Ok(())
     }
 
+    /// buffer transform
+    ///
+    /// This event is sent before the ready event and holds the transform that
+    /// the compositor has applied to the buffer contents.
+    ///
+    /// # Arguments
+    ///
+    /// - `transform`:
+    #[inline]
+    pub fn send_transform(
+        &self,
+        transform: WlOutputTransform,
+    ) {
+        let res = self.try_send_transform(
+            transform,
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_frame_v1.transform", &e);
+        }
+    }
+
     /// Since when the damage message is available.
     pub const MSG__DAMAGE__SINCE: u32 = 1;
 
@@ -360,7 +494,7 @@ impl ExtImageCopyCaptureFrameV1 {
     /// - `width`: damage width
     /// - `height`: damage height
     #[inline]
-    pub fn send_damage(
+    pub fn try_send_damage(
         &self,
         x: i32,
         y: i32,
@@ -412,6 +546,42 @@ impl ExtImageCopyCaptureFrameV1 {
         Ok(())
     }
 
+    /// buffer damaged region
+    ///
+    /// This event is sent before the ready event. It may be generated multiple
+    /// times to describe a region.
+    ///
+    /// The first captured frame in a session will always carry full damage.
+    /// Subsequent frames' damaged regions describe which parts of the buffer
+    /// have changed since the last ready event.
+    ///
+    /// These coordinates originate in the upper left corner of the buffer.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: damage x coordinate
+    /// - `y`: damage y coordinate
+    /// - `width`: damage width
+    /// - `height`: damage height
+    #[inline]
+    pub fn send_damage(
+        &self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_damage(
+            x,
+            y,
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_frame_v1.damage", &e);
+        }
+    }
+
     /// Since when the presentation_time message is available.
     pub const MSG__PRESENTATION_TIME__SINCE: u32 = 1;
 
@@ -433,7 +603,7 @@ impl ExtImageCopyCaptureFrameV1 {
     /// - `tv_sec_lo`: low 32 bits of the seconds part of the timestamp
     /// - `tv_nsec`: nanoseconds part of the timestamp
     #[inline]
-    pub fn send_presentation_time(
+    pub fn try_send_presentation_time(
         &self,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
@@ -481,6 +651,40 @@ impl ExtImageCopyCaptureFrameV1 {
         Ok(())
     }
 
+    /// presentation time of the frame
+    ///
+    /// This event indicates the time at which the frame is presented to the
+    /// output in system monotonic time. This event is sent before the ready
+    /// event.
+    ///
+    /// The timestamp is expressed as tv_sec_hi, tv_sec_lo, tv_nsec triples,
+    /// each component being an unsigned 32-bit value. Whole seconds are in
+    /// tv_sec which is a 64-bit value combined from tv_sec_hi and tv_sec_lo,
+    /// and the additional fractional part in tv_nsec as nanoseconds. Hence,
+    /// for valid timestamps tv_nsec must be in [0, 999999999].
+    ///
+    /// # Arguments
+    ///
+    /// - `tv_sec_hi`: high 32 bits of the seconds part of the timestamp
+    /// - `tv_sec_lo`: low 32 bits of the seconds part of the timestamp
+    /// - `tv_nsec`: nanoseconds part of the timestamp
+    #[inline]
+    pub fn send_presentation_time(
+        &self,
+        tv_sec_hi: u32,
+        tv_sec_lo: u32,
+        tv_nsec: u32,
+    ) {
+        let res = self.try_send_presentation_time(
+            tv_sec_hi,
+            tv_sec_lo,
+            tv_nsec,
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_frame_v1.presentation_time", &e);
+        }
+    }
+
     /// Since when the ready message is available.
     pub const MSG__READY__SINCE: u32 = 1;
 
@@ -493,7 +697,7 @@ impl ExtImageCopyCaptureFrameV1 {
     ///
     /// After receiving this event, the client must destroy the object.
     #[inline]
-    pub fn send_ready(
+    pub fn try_send_ready(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -526,6 +730,25 @@ impl ExtImageCopyCaptureFrameV1 {
         Ok(())
     }
 
+    /// frame is available for reading
+    ///
+    /// Called as soon as the frame is copied, indicating it is available
+    /// for reading.
+    ///
+    /// The buffer may be re-used by the client after this event.
+    ///
+    /// After receiving this event, the client must destroy the object.
+    #[inline]
+    pub fn send_ready(
+        &self,
+    ) {
+        let res = self.try_send_ready(
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_frame_v1.ready", &e);
+        }
+    }
+
     /// Since when the failed message is available.
     pub const MSG__FAILED__SINCE: u32 = 1;
 
@@ -539,7 +762,7 @@ impl ExtImageCopyCaptureFrameV1 {
     ///
     /// - `reason`:
     #[inline]
-    pub fn send_failed(
+    pub fn try_send_failed(
         &self,
         reason: ExtImageCopyCaptureFrameV1FailureReason,
     ) -> Result<(), ObjectError> {
@@ -578,13 +801,35 @@ impl ExtImageCopyCaptureFrameV1 {
         ]);
         Ok(())
     }
+
+    /// capture failed
+    ///
+    /// This event indicates that the attempted frame copy has failed.
+    ///
+    /// After receiving this event, the client must destroy the object.
+    ///
+    /// # Arguments
+    ///
+    /// - `reason`:
+    #[inline]
+    pub fn send_failed(
+        &self,
+        reason: ExtImageCopyCaptureFrameV1FailureReason,
+    ) {
+        let res = self.try_send_failed(
+            reason,
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_frame_v1.failed", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtImageCopyCaptureFrameV1] proxies.
 pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtImageCopyCaptureFrameV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy this object
@@ -599,10 +844,10 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_frame_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_frame_v1.destroy", &e);
         }
     }
 
@@ -632,11 +877,11 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_attach_buffer(
+        let res = _slf.try_send_attach_buffer(
             buffer,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_frame_v1.attach_buffer message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_frame_v1.attach_buffer", &e);
         }
     }
 
@@ -682,14 +927,14 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_damage_buffer(
+        let res = _slf.try_send_damage_buffer(
             x,
             y,
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_frame_v1.damage_buffer message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_frame_v1.damage_buffer", &e);
         }
     }
 
@@ -712,10 +957,10 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_capture(
+        let res = _slf.try_send_capture(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_frame_v1.capture message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_frame_v1.capture", &e);
         }
     }
 
@@ -736,11 +981,11 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_transform(
+        let res = _slf.try_send_transform(
             transform,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_frame_v1.transform message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_frame_v1.transform", &e);
         }
     }
 
@@ -773,14 +1018,14 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_damage(
+        let res = _slf.try_send_damage(
             x,
             y,
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_frame_v1.damage message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_frame_v1.damage", &e);
         }
     }
 
@@ -812,13 +1057,13 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_presentation_time(
+        let res = _slf.try_send_presentation_time(
             tv_sec_hi,
             tv_sec_lo,
             tv_nsec,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_frame_v1.presentation_time message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_frame_v1.presentation_time", &e);
         }
     }
 
@@ -838,10 +1083,10 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_ready(
+        let res = _slf.try_send_ready(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_frame_v1.ready message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_frame_v1.ready", &e);
         }
     }
 
@@ -863,11 +1108,11 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_failed(
+        let res = _slf.try_send_failed(
             reason,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_frame_v1.failed message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_frame_v1.failed", &e);
         }
     }
 }
@@ -887,7 +1132,7 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -58,7 +58,7 @@ impl ZwpInputMethodV1 {
     /// A text input was activated. Creates an input method context object
     /// which allows communication with the text input.
     #[inline]
-    pub fn send_activate(
+    pub fn try_send_activate(
         &self,
         id: &Rc<ZwpInputMethodContextV1>,
     ) -> Result<(), ObjectError> {
@@ -103,6 +103,23 @@ impl ZwpInputMethodV1 {
         Ok(())
     }
 
+    /// activate event
+    ///
+    /// A text input was activated. Creates an input method context object
+    /// which allows communication with the text input.
+    #[inline]
+    pub fn send_activate(
+        &self,
+        id: &Rc<ZwpInputMethodContextV1>,
+    ) {
+        let res = self.try_send_activate(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_v1.activate", &e);
+        }
+    }
+
     /// Since when the deactivate message is available.
     pub const MSG__DEACTIVATE__SINCE: u32 = 1;
 
@@ -116,7 +133,7 @@ impl ZwpInputMethodV1 {
     ///
     /// - `context`:
     #[inline]
-    pub fn send_deactivate(
+    pub fn try_send_deactivate(
         &self,
         context: &Rc<ZwpInputMethodContextV1>,
     ) -> Result<(), ObjectError> {
@@ -160,13 +177,35 @@ impl ZwpInputMethodV1 {
         ]);
         Ok(())
     }
+
+    /// deactivate event
+    ///
+    /// The text input corresponding to the context argument was deactivated.
+    /// The input method context should be destroyed after deactivation is
+    /// handled.
+    ///
+    /// # Arguments
+    ///
+    /// - `context`:
+    #[inline]
+    pub fn send_deactivate(
+        &self,
+        context: &Rc<ZwpInputMethodContextV1>,
+    ) {
+        let res = self.try_send_deactivate(
+            context,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_v1.deactivate", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpInputMethodV1] proxies.
 pub trait ZwpInputMethodV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpInputMethodV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// activate event
@@ -186,11 +225,11 @@ pub trait ZwpInputMethodV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_activate(
+        let res = _slf.try_send_activate(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_v1.activate message: {}", Report::new(e));
+            log_forward("zwp_input_method_v1.activate", &e);
         }
     }
 
@@ -222,11 +261,11 @@ pub trait ZwpInputMethodV1Handler: Any {
                 }
             }
         }
-        let res = _slf.send_deactivate(
+        let res = _slf.try_send_deactivate(
             context,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_v1.deactivate message: {}", Report::new(e));
+            log_forward("zwp_input_method_v1.deactivate", &e);
         }
     }
 }
@@ -246,7 +285,7 @@ impl ObjectPrivate for ZwpInputMethodV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

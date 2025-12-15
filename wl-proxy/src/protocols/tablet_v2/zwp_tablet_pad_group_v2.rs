@@ -75,7 +75,7 @@ impl ZwpTabletPadGroupV2 {
     /// Destroy the zwp_tablet_pad_group_v2 object. Objects created from this object
     /// are unaffected and should be destroyed separately.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -107,6 +107,21 @@ impl ZwpTabletPadGroupV2 {
         Ok(())
     }
 
+    /// destroy the pad object
+    ///
+    /// Destroy the zwp_tablet_pad_group_v2 object. Objects created from this object
+    /// are unaffected and should be destroyed separately.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_group_v2.destroy", &e);
+        }
+    }
+
     /// Since when the buttons message is available.
     pub const MSG__BUTTONS__SINCE: u32 = 1;
 
@@ -129,7 +144,7 @@ impl ZwpTabletPadGroupV2 {
     ///
     /// - `buttons`: buttons in this group
     #[inline]
-    pub fn send_buttons(
+    pub fn try_send_buttons(
         &self,
         buttons: &[u8],
     ) -> Result<(), ObjectError> {
@@ -169,6 +184,37 @@ impl ZwpTabletPadGroupV2 {
         Ok(())
     }
 
+    /// buttons announced
+    ///
+    /// Sent on zwp_tablet_pad_group_v2 initialization to announce the available
+    /// buttons in the group. Button indices start at 0, a button may only be
+    /// in one group at a time.
+    ///
+    /// This event is first sent in the initial burst of events before the
+    /// zwp_tablet_pad_group_v2.done event.
+    ///
+    /// Some buttons are reserved by the compositor. These buttons may not be
+    /// assigned to any zwp_tablet_pad_group_v2. Compositors may broadcast this
+    /// event in the case of changes to the mapping of these reserved buttons.
+    /// If the compositor happens to reserve all buttons in a group, this event
+    /// will be sent with an empty array.
+    ///
+    /// # Arguments
+    ///
+    /// - `buttons`: buttons in this group
+    #[inline]
+    pub fn send_buttons(
+        &self,
+        buttons: &[u8],
+    ) {
+        let res = self.try_send_buttons(
+            buttons,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_group_v2.buttons", &e);
+        }
+    }
+
     /// Since when the ring message is available.
     pub const MSG__RING__SINCE: u32 = 1;
 
@@ -180,7 +226,7 @@ impl ZwpTabletPadGroupV2 {
     /// This event is sent in the initial burst of events before the
     /// zwp_tablet_pad_group_v2.done event.
     #[inline]
-    pub fn send_ring(
+    pub fn try_send_ring(
         &self,
         ring: &Rc<ZwpTabletPadRingV2>,
     ) -> Result<(), ObjectError> {
@@ -225,6 +271,26 @@ impl ZwpTabletPadGroupV2 {
         Ok(())
     }
 
+    /// ring announced
+    ///
+    /// Sent on zwp_tablet_pad_group_v2 initialization to announce available rings.
+    /// One event is sent for each ring available on this pad group.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_pad_group_v2.done event.
+    #[inline]
+    pub fn send_ring(
+        &self,
+        ring: &Rc<ZwpTabletPadRingV2>,
+    ) {
+        let res = self.try_send_ring(
+            ring,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_group_v2.ring", &e);
+        }
+    }
+
     /// Since when the strip message is available.
     pub const MSG__STRIP__SINCE: u32 = 1;
 
@@ -236,7 +302,7 @@ impl ZwpTabletPadGroupV2 {
     /// This event is sent in the initial burst of events before the
     /// zwp_tablet_pad_group_v2.done event.
     #[inline]
-    pub fn send_strip(
+    pub fn try_send_strip(
         &self,
         strip: &Rc<ZwpTabletPadStripV2>,
     ) -> Result<(), ObjectError> {
@@ -281,6 +347,26 @@ impl ZwpTabletPadGroupV2 {
         Ok(())
     }
 
+    /// strip announced
+    ///
+    /// Sent on zwp_tablet_pad_v2 initialization to announce available strips.
+    /// One event is sent for each strip available on this pad group.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_pad_group_v2.done event.
+    #[inline]
+    pub fn send_strip(
+        &self,
+        strip: &Rc<ZwpTabletPadStripV2>,
+    ) {
+        let res = self.try_send_strip(
+            strip,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_group_v2.strip", &e);
+        }
+    }
+
     /// Since when the modes message is available.
     pub const MSG__MODES__SINCE: u32 = 1;
 
@@ -303,7 +389,7 @@ impl ZwpTabletPadGroupV2 {
     ///
     /// - `modes`: the number of modes
     #[inline]
-    pub fn send_modes(
+    pub fn try_send_modes(
         &self,
         modes: u32,
     ) -> Result<(), ObjectError> {
@@ -343,6 +429,37 @@ impl ZwpTabletPadGroupV2 {
         Ok(())
     }
 
+    /// mode-switch ability announced
+    ///
+    /// Sent on zwp_tablet_pad_group_v2 initialization to announce that the pad
+    /// group may switch between modes. A client may use a mode to store a
+    /// specific configuration for buttons, rings and strips and use the
+    /// zwp_tablet_pad_group_v2.mode_switch event to toggle between these
+    /// configurations. Mode indices start at 0.
+    ///
+    /// Switching modes is compositor-dependent. See the
+    /// zwp_tablet_pad_group_v2.mode_switch event for more details.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_pad_group_v2.done event. This event is only sent when more than
+    /// more than one mode is available.
+    ///
+    /// # Arguments
+    ///
+    /// - `modes`: the number of modes
+    #[inline]
+    pub fn send_modes(
+        &self,
+        modes: u32,
+    ) {
+        let res = self.try_send_modes(
+            modes,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_group_v2.modes", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -353,7 +470,7 @@ impl ZwpTabletPadGroupV2 {
     /// description of the tablet to be complete and finalize initialization
     /// of the tablet group.
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -384,6 +501,23 @@ impl ZwpTabletPadGroupV2 {
             4,
         ]);
         Ok(())
+    }
+
+    /// tablet group description events sequence complete
+    ///
+    /// This event is sent immediately to signal the end of the initial
+    /// burst of descriptive events. A client may consider the static
+    /// description of the tablet to be complete and finalize initialization
+    /// of the tablet group.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) {
+        let res = self.try_send_done(
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_group_v2.done", &e);
+        }
     }
 
     /// Since when the mode_switch message is available.
@@ -425,7 +559,7 @@ impl ZwpTabletPadGroupV2 {
     /// - `serial`:
     /// - `mode`: the new mode of the pad
     #[inline]
-    pub fn send_mode_switch(
+    pub fn try_send_mode_switch(
         &self,
         time: u32,
         serial: u32,
@@ -473,6 +607,58 @@ impl ZwpTabletPadGroupV2 {
         Ok(())
     }
 
+    /// mode switch event
+    ///
+    /// Notification that the mode was switched.
+    ///
+    /// A mode applies to all buttons, rings, strips and dials in a group
+    /// simultaneously, but a client is not required to assign different actions
+    /// for each mode. For example, a client may have mode-specific button
+    /// mappings but map the ring to vertical scrolling in all modes. Mode
+    /// indices start at 0.
+    ///
+    /// Switching modes is compositor-dependent. The compositor may provide
+    /// visual cues to the user about the mode, e.g. by toggling LEDs on
+    /// the tablet device. Mode-switching may be software-controlled or
+    /// controlled by one or more physical buttons. For example, on a Wacom
+    /// Intuos Pro, the button inside the ring may be assigned to switch
+    /// between modes.
+    ///
+    /// The compositor will also send this event after zwp_tablet_pad_v2.enter on
+    /// each group in order to notify of the current mode. Groups that only
+    /// feature one mode will use mode=0 when emitting this event.
+    ///
+    /// If a button action in the new mode differs from the action in the
+    /// previous mode, the client should immediately issue a
+    /// zwp_tablet_pad_v2.set_feedback request for each changed button.
+    ///
+    /// If a ring, strip or dial action in the new mode differs from the action
+    /// in the previous mode, the client should immediately issue a
+    /// zwp_tablet_ring_v2.set_feedback, zwp_tablet_strip_v2.set_feedback or
+    /// zwp_tablet_dial_v2.set_feedback request for each changed ring, strip or dial.
+    ///
+    /// # Arguments
+    ///
+    /// - `time`: the time of the event with millisecond granularity
+    /// - `serial`:
+    /// - `mode`: the new mode of the pad
+    #[inline]
+    pub fn send_mode_switch(
+        &self,
+        time: u32,
+        serial: u32,
+        mode: u32,
+    ) {
+        let res = self.try_send_mode_switch(
+            time,
+            serial,
+            mode,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_group_v2.mode_switch", &e);
+        }
+    }
+
     /// Since when the dial message is available.
     pub const MSG__DIAL__SINCE: u32 = 2;
 
@@ -484,7 +670,7 @@ impl ZwpTabletPadGroupV2 {
     /// This event is sent in the initial burst of events before the
     /// zwp_tablet_pad_group_v2.done event.
     #[inline]
-    pub fn send_dial(
+    pub fn try_send_dial(
         &self,
         dial: &Rc<ZwpTabletPadDialV2>,
     ) -> Result<(), ObjectError> {
@@ -528,13 +714,33 @@ impl ZwpTabletPadGroupV2 {
         ]);
         Ok(())
     }
+
+    /// dial announced
+    ///
+    /// Sent on zwp_tablet_pad_v2 initialization to announce available dials.
+    /// One event is sent for each dial available on this pad group.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_pad_group_v2.done event.
+    #[inline]
+    pub fn send_dial(
+        &self,
+        dial: &Rc<ZwpTabletPadDialV2>,
+    ) {
+        let res = self.try_send_dial(
+            dial,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_group_v2.dial", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpTabletPadGroupV2] proxies.
 pub trait ZwpTabletPadGroupV2Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpTabletPadGroupV2>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the pad object
@@ -549,10 +755,10 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_group_v2.destroy message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_group_v2.destroy", &e);
         }
     }
 
@@ -583,11 +789,11 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_buttons(
+        let res = _slf.try_send_buttons(
             buttons,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_group_v2.buttons message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_group_v2.buttons", &e);
         }
     }
 
@@ -611,11 +817,11 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_ring(
+        let res = _slf.try_send_ring(
             ring,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_group_v2.ring message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_group_v2.ring", &e);
         }
     }
 
@@ -639,11 +845,11 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_strip(
+        let res = _slf.try_send_strip(
             strip,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_group_v2.strip message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_group_v2.strip", &e);
         }
     }
 
@@ -674,11 +880,11 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_modes(
+        let res = _slf.try_send_modes(
             modes,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_group_v2.modes message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_group_v2.modes", &e);
         }
     }
 
@@ -696,10 +902,10 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_group_v2.done message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_group_v2.done", &e);
         }
     }
 
@@ -749,13 +955,13 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_mode_switch(
+        let res = _slf.try_send_mode_switch(
             time,
             serial,
             mode,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_group_v2.mode_switch message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_group_v2.mode_switch", &e);
         }
     }
 
@@ -779,11 +985,11 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_dial(
+        let res = _slf.try_send_dial(
             dial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_group_v2.dial message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_group_v2.dial", &e);
         }
     }
 }
@@ -803,7 +1009,7 @@ impl ObjectPrivate for ZwpTabletPadGroupV2 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -58,7 +58,7 @@ impl TreelandPrelaunchSplashManagerV1 {
 
     /// destroy the manager
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -90,6 +90,18 @@ impl TreelandPrelaunchSplashManagerV1 {
         Ok(())
     }
 
+    /// destroy the manager
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_prelaunch_splash_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the create_splash message is available.
     pub const MSG__CREATE_SPLASH__SINCE: u32 = 1;
 
@@ -115,7 +127,7 @@ impl TreelandPrelaunchSplashManagerV1 {
     /// - `sandbox_engine_name`: the sandbox engine / security context name (required, non-empty)
     /// - `icon_buffer`: optional icon image as wl_buffer (e.g. wl_shm)
     #[inline]
-    pub fn send_create_splash(
+    pub fn try_send_create_splash(
         &self,
         app_id: &str,
         sandbox_engine_name: &str,
@@ -170,13 +182,51 @@ impl TreelandPrelaunchSplashManagerV1 {
         ]);
         Ok(())
     }
+
+    /// create a new splash screen
+    ///
+    /// Creates a new prelaunch splash screen.
+    ///
+    /// The `app_id` is a string that identifies the application. The compositor
+    /// will use this ID together with `sandbox_engine_name` to match the splash
+    /// screen with the actual application window when it appears. This
+    /// matching mechanism should also work for XWayland windows.
+    ///
+    /// Callers MUST provide a non-empty `sandbox_engine_name` string which
+    /// identifies the sandboxing/container.
+    ///
+    /// If there is already an active (not-yet-completed) splash for the same
+    /// `sandbox_engine_name` and `app_id`, the compositor will silently ignore
+    /// this request (no new splash will be created and no error is raised).
+    ///
+    /// # Arguments
+    ///
+    /// - `app_id`: the application ID
+    /// - `sandbox_engine_name`: the sandbox engine / security context name (required, non-empty)
+    /// - `icon_buffer`: optional icon image as wl_buffer (e.g. wl_shm)
+    #[inline]
+    pub fn send_create_splash(
+        &self,
+        app_id: &str,
+        sandbox_engine_name: &str,
+        icon_buffer: Option<&Rc<WlBuffer>>,
+    ) {
+        let res = self.try_send_create_splash(
+            app_id,
+            sandbox_engine_name,
+            icon_buffer,
+        );
+        if let Err(e) = res {
+            log_send("treeland_prelaunch_splash_manager_v1.create_splash", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandPrelaunchSplashManagerV1] proxies.
 pub trait TreelandPrelaunchSplashManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandPrelaunchSplashManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the manager
@@ -188,10 +238,10 @@ pub trait TreelandPrelaunchSplashManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_prelaunch_splash_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_prelaunch_splash_manager_v1.destroy", &e);
         }
     }
 
@@ -230,13 +280,13 @@ pub trait TreelandPrelaunchSplashManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_splash(
+        let res = _slf.try_send_create_splash(
             app_id,
             sandbox_engine_name,
             icon_buffer,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_prelaunch_splash_manager_v1.create_splash message: {}", Report::new(e));
+            log_forward("treeland_prelaunch_splash_manager_v1.create_splash", &e);
         }
     }
 }
@@ -256,7 +306,7 @@ impl ObjectPrivate for TreelandPrelaunchSplashManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

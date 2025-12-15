@@ -103,7 +103,7 @@ impl XdgSurface {
     /// after its role object has been destroyed, otherwise
     /// a defunct_role_object error is raised.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -135,6 +135,22 @@ impl XdgSurface {
         Ok(())
     }
 
+    /// destroy the xdg_surface
+    ///
+    /// Destroy the xdg_surface object. An xdg_surface must only be destroyed
+    /// after its role object has been destroyed, otherwise
+    /// a defunct_role_object error is raised.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("xdg_surface.destroy", &e);
+        }
+    }
+
     /// Since when the get_toplevel message is available.
     pub const MSG__GET_TOPLEVEL__SINCE: u32 = 1;
 
@@ -146,7 +162,7 @@ impl XdgSurface {
     /// See the documentation of xdg_toplevel for more details about what an
     /// xdg_toplevel is and how it is used.
     #[inline]
-    pub fn send_get_toplevel(
+    pub fn try_send_get_toplevel(
         &self,
         id: &Rc<XdgToplevel>,
     ) -> Result<(), ObjectError> {
@@ -189,6 +205,26 @@ impl XdgSurface {
         Ok(())
     }
 
+    /// assign the xdg_toplevel surface role
+    ///
+    /// This creates an xdg_toplevel object for the given xdg_surface and gives
+    /// the associated wl_surface the xdg_toplevel role.
+    ///
+    /// See the documentation of xdg_toplevel for more details about what an
+    /// xdg_toplevel is and how it is used.
+    #[inline]
+    pub fn send_get_toplevel(
+        &self,
+        id: &Rc<XdgToplevel>,
+    ) {
+        let res = self.try_send_get_toplevel(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("xdg_surface.get_toplevel", &e);
+        }
+    }
+
     /// Since when the get_popup message is available.
     pub const MSG__GET_POPUP__SINCE: u32 = 1;
 
@@ -209,7 +245,7 @@ impl XdgSurface {
     /// - `parent`:
     /// - `positioner`:
     #[inline]
-    pub fn send_get_popup(
+    pub fn try_send_get_popup(
         &self,
         id: &Rc<XdgPopup>,
         parent: Option<&Rc<XdgSurface>>,
@@ -273,8 +309,141 @@ impl XdgSurface {
         Ok(())
     }
 
+    /// assign the xdg_popup surface role
+    ///
+    /// This creates an xdg_popup object for the given xdg_surface and gives
+    /// the associated wl_surface the xdg_popup role.
+    ///
+    /// If null is passed as a parent, a parent surface must be specified using
+    /// some other protocol, before committing the initial state.
+    ///
+    /// See the documentation of xdg_popup for more details about what an
+    /// xdg_popup is and how it is used.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `parent`:
+    /// - `positioner`:
+    #[inline]
+    pub fn send_get_popup(
+        &self,
+        id: &Rc<XdgPopup>,
+        parent: Option<&Rc<XdgSurface>>,
+        positioner: &Rc<XdgPositioner>,
+    ) {
+        let res = self.try_send_get_popup(
+            id,
+            parent,
+            positioner,
+        );
+        if let Err(e) = res {
+            log_send("xdg_surface.get_popup", &e);
+        }
+    }
+
     /// Since when the set_window_geometry message is available.
     pub const MSG__SET_WINDOW_GEOMETRY__SINCE: u32 = 1;
+
+    /// set the new window geometry
+    ///
+    /// The window geometry of a surface is its "visible bounds" from the
+    /// user's perspective. Client-side decorations often have invisible
+    /// portions like drop-shadows which should be ignored for the
+    /// purposes of aligning, placing and constraining windows. Note that
+    /// in some situations, compositors may clip rendering to the window
+    /// geometry, so the client should avoid putting functional elements
+    /// outside of it.
+    ///
+    /// The window geometry is double-buffered state, see wl_surface.commit.
+    ///
+    /// When maintaining a position, the compositor should treat the (x, y)
+    /// coordinate of the window geometry as the top left corner of the window.
+    /// A client changing the (x, y) window geometry coordinate should in
+    /// general not alter the position of the window.
+    ///
+    /// Once the window geometry of the surface is set, it is not possible to
+    /// unset it, and it will remain the same until set_window_geometry is
+    /// called again, even if a new subsurface or buffer is attached.
+    ///
+    /// If never set, the value is the full bounds of the surface,
+    /// including any subsurfaces. This updates dynamically on every
+    /// commit. This unset is meant for extremely simple clients.
+    ///
+    /// The arguments are given in the surface-local coordinate space of
+    /// the wl_surface associated with this xdg_surface, and may extend outside
+    /// of the wl_surface itself to mark parts of the subsurface tree as part of
+    /// the window geometry.
+    ///
+    /// When applied, the effective window geometry will be the set window
+    /// geometry clamped to the bounding rectangle of the combined
+    /// geometry of the surface of the xdg_surface and the associated
+    /// subsurfaces.
+    ///
+    /// The effective geometry will not be recalculated unless a new call to
+    /// set_window_geometry is done and the new pending surface state is
+    /// subsequently applied.
+    ///
+    /// The width and height of the effective window geometry must be
+    /// greater than zero. Setting an invalid size will raise an
+    /// invalid_size error.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`:
+    /// - `y`:
+    /// - `width`:
+    /// - `height`:
+    #[inline]
+    pub fn try_send_set_window_geometry(
+        &self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+        ) = (
+            x,
+            y,
+            width,
+            height,
+        );
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError::ReceiverNoServerId);
+        };
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: i32, arg1: i32, arg2: i32, arg3: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_surface#{}.set_window_geometry(x: {}, y: {}, width: {}, height: {})\n", id, arg0, arg1, arg2, arg3);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0, arg1, arg2, arg3);
+        }
+        let endpoint = &self.core.state.server;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            3,
+            arg0 as u32,
+            arg1 as u32,
+            arg2 as u32,
+            arg3 as u32,
+        ]);
+        Ok(())
+    }
 
     /// set the new window geometry
     ///
@@ -332,48 +501,16 @@ impl XdgSurface {
         y: i32,
         width: i32,
         height: i32,
-    ) -> Result<(), ObjectError> {
-        let (
-            arg0,
-            arg1,
-            arg2,
-            arg3,
-        ) = (
+    ) {
+        let res = self.try_send_set_window_geometry(
             x,
             y,
             width,
             height,
         );
-        let core = self.core();
-        let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
-        };
-        if self.core.state.log {
-            #[cold]
-            fn log(state: &State, id: u32, arg0: i32, arg1: i32, arg2: i32, arg3: i32) {
-                let (millis, micros) = time_since_epoch();
-                let prefix = &state.log_prefix;
-                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_surface#{}.set_window_geometry(x: {}, y: {}, width: {}, height: {})\n", id, arg0, arg1, arg2, arg3);
-                state.log(args);
-            }
-            log(&self.core.state, id, arg0, arg1, arg2, arg3);
+        if let Err(e) = res {
+            log_send("xdg_surface.set_window_geometry", &e);
         }
-        let endpoint = &self.core.state.server;
-        if !endpoint.flush_queued.replace(true) {
-            self.core.state.add_flushable_endpoint(endpoint, None);
-        }
-        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
-        let outgoing = &mut *outgoing_ref;
-        let mut fmt = outgoing.formatter();
-        fmt.words([
-            id,
-            3,
-            arg0 as u32,
-            arg1 as u32,
-            arg2 as u32,
-            arg3 as u32,
-        ]);
-        Ok(())
     }
 
     /// Since when the ack_configure message is available.
@@ -418,7 +555,7 @@ impl XdgSurface {
     ///
     /// - `serial`: the serial from the configure event
     #[inline]
-    pub fn send_ack_configure(
+    pub fn try_send_ack_configure(
         &self,
         serial: u32,
     ) -> Result<(), ObjectError> {
@@ -456,6 +593,57 @@ impl XdgSurface {
         Ok(())
     }
 
+    /// ack a configure event
+    ///
+    /// When a configure event is received, if a client commits the
+    /// surface in response to the configure event, then the client
+    /// must make an ack_configure request sometime before the commit
+    /// request, passing along the serial of the configure event.
+    ///
+    /// For instance, for toplevel surfaces the compositor might use this
+    /// information to move a surface to the top left only when the client has
+    /// drawn itself for the maximized or fullscreen state.
+    ///
+    /// If the client receives multiple configure events before it
+    /// can respond to one, it only has to ack the last configure event.
+    /// Acking a configure event that was never sent raises an invalid_serial
+    /// error.
+    ///
+    /// A client is not required to commit immediately after sending
+    /// an ack_configure request - it may even ack_configure several times
+    /// before its next surface commit.
+    ///
+    /// A client may send multiple ack_configure requests before committing, but
+    /// only the last request sent before a commit indicates which configure
+    /// event the client really is responding to.
+    ///
+    /// Sending an ack_configure request consumes the serial number sent with
+    /// the request, as well as serial numbers sent by all configure events
+    /// sent on this xdg_surface prior to the configure event referenced by
+    /// the committed serial.
+    ///
+    /// It is an error to issue multiple ack_configure requests referencing a
+    /// serial from the same configure event, or to issue an ack_configure
+    /// request referencing a serial from a configure event issued before the
+    /// event identified by the last ack_configure request for the same
+    /// xdg_surface. Doing so will raise an invalid_serial error.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: the serial from the configure event
+    #[inline]
+    pub fn send_ack_configure(
+        &self,
+        serial: u32,
+    ) {
+        let res = self.try_send_ack_configure(
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("xdg_surface.ack_configure", &e);
+        }
+    }
+
     /// Since when the configure message is available.
     pub const MSG__CONFIGURE__SINCE: u32 = 1;
 
@@ -482,7 +670,7 @@ impl XdgSurface {
     ///
     /// - `serial`: serial of the configure event
     #[inline]
-    pub fn send_configure(
+    pub fn try_send_configure(
         &self,
         serial: u32,
     ) -> Result<(), ObjectError> {
@@ -521,13 +709,48 @@ impl XdgSurface {
         ]);
         Ok(())
     }
+
+    /// suggest a surface change
+    ///
+    /// The configure event marks the end of a configure sequence. A configure
+    /// sequence is a set of one or more events configuring the state of the
+    /// xdg_surface, including the final xdg_surface.configure event.
+    ///
+    /// Where applicable, xdg_surface surface roles will during a configure
+    /// sequence extend this event as a latched state sent as events before the
+    /// xdg_surface.configure event. Such events should be considered to make up
+    /// a set of atomically applied configuration states, where the
+    /// xdg_surface.configure commits the accumulated state.
+    ///
+    /// Clients should arrange their surface for the new states, and then send
+    /// an ack_configure request with the serial sent in this configure event at
+    /// some point before committing the new surface.
+    ///
+    /// If the client receives multiple configure events before it can respond
+    /// to one, it is free to discard all but the last event it received.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial of the configure event
+    #[inline]
+    pub fn send_configure(
+        &self,
+        serial: u32,
+    ) {
+        let res = self.try_send_configure(
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("xdg_surface.configure", &e);
+        }
+    }
 }
 
 /// A message handler for [XdgSurface] proxies.
 pub trait XdgSurfaceHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgSurface>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the xdg_surface
@@ -543,10 +766,10 @@ pub trait XdgSurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_surface.destroy message: {}", Report::new(e));
+            log_forward("xdg_surface.destroy", &e);
         }
     }
 
@@ -570,11 +793,11 @@ pub trait XdgSurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_toplevel(
+        let res = _slf.try_send_get_toplevel(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_surface.get_toplevel message: {}", Report::new(e));
+            log_forward("xdg_surface.get_toplevel", &e);
         }
     }
 
@@ -608,13 +831,13 @@ pub trait XdgSurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_popup(
+        let res = _slf.try_send_get_popup(
             id,
             parent,
             positioner,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_surface.get_popup message: {}", Report::new(e));
+            log_forward("xdg_surface.get_popup", &e);
         }
     }
 
@@ -679,14 +902,14 @@ pub trait XdgSurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_window_geometry(
+        let res = _slf.try_send_set_window_geometry(
             x,
             y,
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_surface.set_window_geometry message: {}", Report::new(e));
+            log_forward("xdg_surface.set_window_geometry", &e);
         }
     }
 
@@ -737,11 +960,11 @@ pub trait XdgSurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_ack_configure(
+        let res = _slf.try_send_ack_configure(
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_surface.ack_configure message: {}", Report::new(e));
+            log_forward("xdg_surface.ack_configure", &e);
         }
     }
 
@@ -776,11 +999,11 @@ pub trait XdgSurfaceHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_configure(
+        let res = _slf.try_send_configure(
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_surface.configure message: {}", Report::new(e));
+            log_forward("xdg_surface.configure", &e);
         }
     }
 }
@@ -800,7 +1023,7 @@ impl ObjectPrivate for XdgSurface {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

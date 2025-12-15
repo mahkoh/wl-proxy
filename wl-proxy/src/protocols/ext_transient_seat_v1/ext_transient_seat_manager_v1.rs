@@ -58,7 +58,7 @@ impl ExtTransientSeatManagerV1 {
     /// The actual seat may be removed sooner, in which case the transient seat
     /// object shall become inert.
     #[inline]
-    pub fn send_create(
+    pub fn try_send_create(
         &self,
         seat: &Rc<ExtTransientSeatV1>,
     ) -> Result<(), ObjectError> {
@@ -101,6 +101,26 @@ impl ExtTransientSeatManagerV1 {
         Ok(())
     }
 
+    /// create a transient seat
+    ///
+    /// Create a new seat that is removed when the client side transient seat
+    /// object is destroyed.
+    ///
+    /// The actual seat may be removed sooner, in which case the transient seat
+    /// object shall become inert.
+    #[inline]
+    pub fn send_create(
+        &self,
+        seat: &Rc<ExtTransientSeatV1>,
+    ) {
+        let res = self.try_send_create(
+            seat,
+        );
+        if let Err(e) = res {
+            log_send("ext_transient_seat_manager_v1.create", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -111,7 +131,7 @@ impl ExtTransientSeatManagerV1 {
     /// All objects created by the manager will remain valid until they are
     /// destroyed themselves.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -142,13 +162,30 @@ impl ExtTransientSeatManagerV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the manager
+    ///
+    /// Destroy the manager.
+    ///
+    /// All objects created by the manager will remain valid until they are
+    /// destroyed themselves.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_transient_seat_manager_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtTransientSeatManagerV1] proxies.
 pub trait ExtTransientSeatManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtTransientSeatManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// create a transient seat
@@ -171,11 +208,11 @@ pub trait ExtTransientSeatManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create(
+        let res = _slf.try_send_create(
             seat,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_transient_seat_manager_v1.create message: {}", Report::new(e));
+            log_forward("ext_transient_seat_manager_v1.create", &e);
         }
     }
 
@@ -193,10 +230,10 @@ pub trait ExtTransientSeatManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_transient_seat_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_transient_seat_manager_v1.destroy", &e);
         }
     }
 }
@@ -216,7 +253,7 @@ impl ObjectPrivate for ExtTransientSeatManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

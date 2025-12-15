@@ -61,7 +61,7 @@ impl ZwlrOutputPowerManagerV1 {
     /// - `id`:
     /// - `output`:
     #[inline]
-    pub fn send_get_output_power(
+    pub fn try_send_get_output_power(
         &self,
         id: &Rc<ZwlrOutputPowerV1>,
         output: &Rc<WlOutput>,
@@ -113,6 +113,30 @@ impl ZwlrOutputPowerManagerV1 {
         Ok(())
     }
 
+    /// get a power management for an output
+    ///
+    /// Create an output power management mode control that can be used to
+    /// adjust the power management mode for a given output.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `output`:
+    #[inline]
+    pub fn send_get_output_power(
+        &self,
+        id: &Rc<ZwlrOutputPowerV1>,
+        output: &Rc<WlOutput>,
+    ) {
+        let res = self.try_send_get_output_power(
+            id,
+            output,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_power_manager_v1.get_output_power", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -121,7 +145,7 @@ impl ZwlrOutputPowerManagerV1 {
     /// All objects created by the manager will still remain valid, until their
     /// appropriate destroy request has been called.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -152,13 +176,28 @@ impl ZwlrOutputPowerManagerV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the manager
+    ///
+    /// All objects created by the manager will still remain valid, until their
+    /// appropriate destroy request has been called.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_power_manager_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrOutputPowerManagerV1] proxies.
 pub trait ZwlrOutputPowerManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrOutputPowerManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// get a power management for an output
@@ -183,12 +222,12 @@ pub trait ZwlrOutputPowerManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_output_power(
+        let res = _slf.try_send_get_output_power(
             id,
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_power_manager_v1.get_output_power message: {}", Report::new(e));
+            log_forward("zwlr_output_power_manager_v1.get_output_power", &e);
         }
     }
 
@@ -204,10 +243,10 @@ pub trait ZwlrOutputPowerManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_power_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("zwlr_output_power_manager_v1.destroy", &e);
         }
     }
 }
@@ -227,7 +266,7 @@ impl ObjectPrivate for ZwlrOutputPowerManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -59,7 +59,7 @@ impl HyprlandInputCaptureManagerV1 {
     /// - `session`:
     /// - `handle`:
     #[inline]
-    pub fn send_create_session(
+    pub fn try_send_create_session(
         &self,
         session: &Rc<HyprlandInputCaptureV1>,
         handle: &str,
@@ -105,13 +105,36 @@ impl HyprlandInputCaptureManagerV1 {
         fmt.string(arg1);
         Ok(())
     }
+
+    /// create a input capture session
+    ///
+    /// Create a input capture session.
+    ///
+    /// # Arguments
+    ///
+    /// - `session`:
+    /// - `handle`:
+    #[inline]
+    pub fn send_create_session(
+        &self,
+        session: &Rc<HyprlandInputCaptureV1>,
+        handle: &str,
+    ) {
+        let res = self.try_send_create_session(
+            session,
+            handle,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_input_capture_manager_v1.create_session", &e);
+        }
+    }
 }
 
 /// A message handler for [HyprlandInputCaptureManagerV1] proxies.
 pub trait HyprlandInputCaptureManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandInputCaptureManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// create a input capture session
@@ -132,12 +155,12 @@ pub trait HyprlandInputCaptureManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_session(
+        let res = _slf.try_send_create_session(
             session,
             handle,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_input_capture_manager_v1.create_session message: {}", Report::new(e));
+            log_forward("hyprland_input_capture_manager_v1.create_session", &e);
         }
     }
 }
@@ -157,7 +180,7 @@ impl ObjectPrivate for HyprlandInputCaptureManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

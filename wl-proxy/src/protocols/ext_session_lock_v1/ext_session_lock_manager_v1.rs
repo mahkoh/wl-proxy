@@ -56,7 +56,7 @@ impl ExtSessionLockManagerV1 {
     /// no longer be used. Existing objects created through this interface
     /// remain valid.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -88,6 +88,22 @@ impl ExtSessionLockManagerV1 {
         Ok(())
     }
 
+    /// destroy the session lock manager object
+    ///
+    /// This informs the compositor that the session lock manager object will
+    /// no longer be used. Existing objects created through this interface
+    /// remain valid.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_session_lock_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the lock message is available.
     pub const MSG__LOCK__SINCE: u32 = 1;
 
@@ -98,7 +114,7 @@ impl ExtSessionLockManagerV1 {
     /// or ext_session_lock_v1.finished event on the created object in
     /// response to this request.
     #[inline]
-    pub fn send_lock(
+    pub fn try_send_lock(
         &self,
         id: &Rc<ExtSessionLockV1>,
     ) -> Result<(), ObjectError> {
@@ -140,13 +156,32 @@ impl ExtSessionLockManagerV1 {
         ]);
         Ok(())
     }
+
+    /// attempt to lock the session
+    ///
+    /// This request creates a session lock and asks the compositor to lock the
+    /// session. The compositor will send either the ext_session_lock_v1.locked
+    /// or ext_session_lock_v1.finished event on the created object in
+    /// response to this request.
+    #[inline]
+    pub fn send_lock(
+        &self,
+        id: &Rc<ExtSessionLockV1>,
+    ) {
+        let res = self.try_send_lock(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("ext_session_lock_manager_v1.lock", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtSessionLockManagerV1] proxies.
 pub trait ExtSessionLockManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtSessionLockManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the session lock manager object
@@ -162,10 +197,10 @@ pub trait ExtSessionLockManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_session_lock_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_session_lock_manager_v1.destroy", &e);
         }
     }
 
@@ -188,11 +223,11 @@ pub trait ExtSessionLockManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_lock(
+        let res = _slf.try_send_lock(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_session_lock_manager_v1.lock message: {}", Report::new(e));
+            log_forward("ext_session_lock_manager_v1.lock", &e);
         }
     }
 }
@@ -212,7 +247,7 @@ impl ObjectPrivate for ExtSessionLockManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

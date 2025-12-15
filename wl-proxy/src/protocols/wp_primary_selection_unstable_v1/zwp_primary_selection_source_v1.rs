@@ -61,7 +61,7 @@ impl ZwpPrimarySelectionSourceV1 {
     ///
     /// - `mime_type`:
     #[inline]
-    pub fn send_offer(
+    pub fn try_send_offer(
         &self,
         mime_type: &str,
     ) -> Result<(), ObjectError> {
@@ -99,6 +99,27 @@ impl ZwpPrimarySelectionSourceV1 {
         Ok(())
     }
 
+    /// add an offered mime type
+    ///
+    /// This request adds a mime type to the set of mime types advertised to
+    /// targets. Can be called several times to offer multiple types.
+    ///
+    /// # Arguments
+    ///
+    /// - `mime_type`:
+    #[inline]
+    pub fn send_offer(
+        &self,
+        mime_type: &str,
+    ) {
+        let res = self.try_send_offer(
+            mime_type,
+        );
+        if let Err(e) = res {
+            log_send("zwp_primary_selection_source_v1.offer", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -106,7 +127,7 @@ impl ZwpPrimarySelectionSourceV1 {
     ///
     /// Destroy the primary selection source.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -138,6 +159,20 @@ impl ZwpPrimarySelectionSourceV1 {
         Ok(())
     }
 
+    /// destroy the primary selection source
+    ///
+    /// Destroy the primary selection source.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_primary_selection_source_v1.destroy", &e);
+        }
+    }
+
     /// Since when the send message is available.
     pub const MSG__SEND__SINCE: u32 = 1;
 
@@ -152,7 +187,7 @@ impl ZwpPrimarySelectionSourceV1 {
     /// - `mime_type`:
     /// - `fd`:
     #[inline]
-    pub fn send_send(
+    pub fn try_send_send(
         &self,
         mime_type: &str,
         fd: &Rc<OwnedFd>,
@@ -196,6 +231,31 @@ impl ZwpPrimarySelectionSourceV1 {
         Ok(())
     }
 
+    /// send the primary selection contents
+    ///
+    /// Request for the current primary selection contents from the client.
+    /// Send the specified mime type over the passed file descriptor, then
+    /// close it.
+    ///
+    /// # Arguments
+    ///
+    /// - `mime_type`:
+    /// - `fd`:
+    #[inline]
+    pub fn send_send(
+        &self,
+        mime_type: &str,
+        fd: &Rc<OwnedFd>,
+    ) {
+        let res = self.try_send_send(
+            mime_type,
+            fd,
+        );
+        if let Err(e) = res {
+            log_send("zwp_primary_selection_source_v1.send", &e);
+        }
+    }
+
     /// Since when the cancelled message is available.
     pub const MSG__CANCELLED__SINCE: u32 = 1;
 
@@ -204,7 +264,7 @@ impl ZwpPrimarySelectionSourceV1 {
     /// This primary selection source is no longer valid. The client should
     /// clean up and destroy this primary selection source.
     #[inline]
-    pub fn send_cancelled(
+    pub fn try_send_cancelled(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -236,13 +296,28 @@ impl ZwpPrimarySelectionSourceV1 {
         ]);
         Ok(())
     }
+
+    /// request for primary selection contents was canceled
+    ///
+    /// This primary selection source is no longer valid. The client should
+    /// clean up and destroy this primary selection source.
+    #[inline]
+    pub fn send_cancelled(
+        &self,
+    ) {
+        let res = self.try_send_cancelled(
+        );
+        if let Err(e) = res {
+            log_send("zwp_primary_selection_source_v1.cancelled", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpPrimarySelectionSourceV1] proxies.
 pub trait ZwpPrimarySelectionSourceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpPrimarySelectionSourceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// add an offered mime type
@@ -262,11 +337,11 @@ pub trait ZwpPrimarySelectionSourceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_offer(
+        let res = _slf.try_send_offer(
             mime_type,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_primary_selection_source_v1.offer message: {}", Report::new(e));
+            log_forward("zwp_primary_selection_source_v1.offer", &e);
         }
     }
 
@@ -281,10 +356,10 @@ pub trait ZwpPrimarySelectionSourceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_primary_selection_source_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_primary_selection_source_v1.destroy", &e);
         }
     }
 
@@ -308,12 +383,12 @@ pub trait ZwpPrimarySelectionSourceV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_send(
+        let res = _slf.try_send_send(
             mime_type,
             fd,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_primary_selection_source_v1.send message: {}", Report::new(e));
+            log_forward("zwp_primary_selection_source_v1.send", &e);
         }
     }
 
@@ -329,10 +404,10 @@ pub trait ZwpPrimarySelectionSourceV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_cancelled(
+        let res = _slf.try_send_cancelled(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_primary_selection_source_v1.cancelled message: {}", Report::new(e));
+            log_forward("zwp_primary_selection_source_v1.cancelled", &e);
         }
     }
 }
@@ -352,7 +427,7 @@ impl ObjectPrivate for ZwpPrimarySelectionSourceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

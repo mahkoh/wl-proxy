@@ -76,7 +76,7 @@ impl HyprlandFocusGrabV1 {
     ///
     /// - `surface`:
     #[inline]
-    pub fn send_add_surface(
+    pub fn try_send_add_surface(
         &self,
         surface: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
@@ -119,6 +119,30 @@ impl HyprlandFocusGrabV1 {
         Ok(())
     }
 
+    /// add a surface to the focus whitelist
+    ///
+    /// Add a surface to the whitelist. Destroying the surface is treated the
+    /// same as an explicit call to remove_surface and duplicate additions are
+    /// ignored.
+    ///
+    /// Does not take effect until commit is called.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`:
+    #[inline]
+    pub fn send_add_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_add_surface(
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_focus_grab_v1.add_surface", &e);
+        }
+    }
+
     /// Since when the remove_surface message is available.
     pub const MSG__REMOVE_SURFACE__SINCE: u32 = 1;
 
@@ -136,7 +160,7 @@ impl HyprlandFocusGrabV1 {
     ///
     /// - `surface`:
     #[inline]
-    pub fn send_remove_surface(
+    pub fn try_send_remove_surface(
         &self,
         surface: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
@@ -179,6 +203,32 @@ impl HyprlandFocusGrabV1 {
         Ok(())
     }
 
+    /// remove a surface from the focus whitelist
+    ///
+    /// Remove a surface from the whitelist. Destroying the surface is treated
+    /// the same as an explicit call to this function.
+    ///
+    /// If the grab was active and the removed surface was entered by the
+    /// keyboard, another surface will be entered on commit.
+    ///
+    /// Does not take effect until commit is called.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`:
+    #[inline]
+    pub fn send_remove_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_remove_surface(
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_focus_grab_v1.remove_surface", &e);
+        }
+    }
+
     /// Since when the commit message is available.
     pub const MSG__COMMIT__SINCE: u32 = 1;
 
@@ -190,7 +240,7 @@ impl HyprlandFocusGrabV1 {
     /// will start. If it previously had entries and now has none, the grab will
     /// become inert.
     #[inline]
-    pub fn send_commit(
+    pub fn try_send_commit(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -221,6 +271,24 @@ impl HyprlandFocusGrabV1 {
         Ok(())
     }
 
+    /// commit the focus whitelist
+    ///
+    /// Commit pending changes to the surface whitelist.
+    ///
+    /// If the list previously had no entries and now has at least one, the grab
+    /// will start. If it previously had entries and now has none, the grab will
+    /// become inert.
+    #[inline]
+    pub fn send_commit(
+        &self,
+    ) {
+        let res = self.try_send_commit(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_focus_grab_v1.commit", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -228,7 +296,7 @@ impl HyprlandFocusGrabV1 {
     ///
     /// Destroy the grab object and remove the grab if active.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -260,6 +328,20 @@ impl HyprlandFocusGrabV1 {
         Ok(())
     }
 
+    /// destroy the focus grab
+    ///
+    /// Destroy the grab object and remove the grab if active.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_focus_grab_v1.destroy", &e);
+        }
+    }
+
     /// Since when the cleared message is available.
     pub const MSG__CLEARED__SINCE: u32 = 1;
 
@@ -268,7 +350,7 @@ impl HyprlandFocusGrabV1 {
     /// Sent when an active grab is cancelled by the compositor,
     /// regardless of cause.
     #[inline]
-    pub fn send_cleared(
+    pub fn try_send_cleared(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -300,13 +382,28 @@ impl HyprlandFocusGrabV1 {
         ]);
         Ok(())
     }
+
+    /// the focus grab was cleared
+    ///
+    /// Sent when an active grab is cancelled by the compositor,
+    /// regardless of cause.
+    #[inline]
+    pub fn send_cleared(
+        &self,
+    ) {
+        let res = self.try_send_cleared(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_focus_grab_v1.cleared", &e);
+        }
+    }
 }
 
 /// A message handler for [HyprlandFocusGrabV1] proxies.
 pub trait HyprlandFocusGrabV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandFocusGrabV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// add a surface to the focus whitelist
@@ -332,11 +429,11 @@ pub trait HyprlandFocusGrabV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_add_surface(
+        let res = _slf.try_send_add_surface(
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_focus_grab_v1.add_surface message: {}", Report::new(e));
+            log_forward("hyprland_focus_grab_v1.add_surface", &e);
         }
     }
 
@@ -365,11 +462,11 @@ pub trait HyprlandFocusGrabV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_remove_surface(
+        let res = _slf.try_send_remove_surface(
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_focus_grab_v1.remove_surface message: {}", Report::new(e));
+            log_forward("hyprland_focus_grab_v1.remove_surface", &e);
         }
     }
 
@@ -388,10 +485,10 @@ pub trait HyprlandFocusGrabV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_commit(
+        let res = _slf.try_send_commit(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_focus_grab_v1.commit message: {}", Report::new(e));
+            log_forward("hyprland_focus_grab_v1.commit", &e);
         }
     }
 
@@ -406,10 +503,10 @@ pub trait HyprlandFocusGrabV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_focus_grab_v1.destroy message: {}", Report::new(e));
+            log_forward("hyprland_focus_grab_v1.destroy", &e);
         }
     }
 
@@ -425,10 +522,10 @@ pub trait HyprlandFocusGrabV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_cleared(
+        let res = _slf.try_send_cleared(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_focus_grab_v1.cleared message: {}", Report::new(e));
+            log_forward("hyprland_focus_grab_v1.cleared", &e);
         }
     }
 }
@@ -448,7 +545,7 @@ impl ObjectPrivate for HyprlandFocusGrabV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

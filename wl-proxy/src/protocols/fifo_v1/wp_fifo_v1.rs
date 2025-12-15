@@ -68,7 +68,7 @@ impl WpFifoV1 {
     /// Requesting set_barrier after the fifo object's surface is
     /// destroyed will generate a "surface_destroyed" error.
     #[inline]
-    pub fn send_set_barrier(
+    pub fn try_send_set_barrier(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -99,6 +99,33 @@ impl WpFifoV1 {
         Ok(())
     }
 
+    /// sets the start point for a fifo constraint
+    ///
+    /// When the content update containing the "set_barrier" is applied,
+    /// it sets a "fifo_barrier" condition on the surface associated with
+    /// the fifo object. The condition is cleared immediately after the
+    /// following latching deadline for non-tearing presentation.
+    ///
+    /// The compositor may clear the condition early if it must do so to
+    /// ensure client forward progress assumptions.
+    ///
+    /// To wait for this condition to clear, use the "wait_barrier" request.
+    ///
+    /// "set_barrier" is double-buffered state, see wl_surface.commit.
+    ///
+    /// Requesting set_barrier after the fifo object's surface is
+    /// destroyed will generate a "surface_destroyed" error.
+    #[inline]
+    pub fn send_set_barrier(
+        &self,
+    ) {
+        let res = self.try_send_set_barrier(
+        );
+        if let Err(e) = res {
+            log_send("wp_fifo_v1.set_barrier", &e);
+        }
+    }
+
     /// Since when the wait_barrier message is available.
     pub const MSG__WAIT_BARRIER__SINCE: u32 = 1;
 
@@ -125,7 +152,7 @@ impl WpFifoV1 {
     /// Requesting "wait_barrier" after the fifo object's surface is
     /// destroyed will generate a "surface_destroyed" error.
     #[inline]
-    pub fn send_wait_barrier(
+    pub fn try_send_wait_barrier(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -156,6 +183,39 @@ impl WpFifoV1 {
         Ok(())
     }
 
+    /// adds a fifo constraint to a content update
+    ///
+    /// Indicate that this content update is not ready while a
+    /// "fifo_barrier" condition is present on the surface.
+    ///
+    /// This means that when the content update containing "set_barrier"
+    /// was made active at a latching deadline, it will be active for
+    /// at least one refresh cycle. A content update which is allowed to
+    /// tear might become active after a latching deadline if no content
+    /// update became active at the deadline.
+    ///
+    /// The constraint must be ignored if the surface is a subsurface in
+    /// synchronized mode. If the surface is not being updated by the
+    /// compositor (off-screen, occluded) the compositor may ignore the
+    /// constraint. Clients must use an additional mechanism such as
+    /// frame callbacks or timestamps to ensure throttling occurs under
+    /// all conditions.
+    ///
+    /// "wait_barrier" is double-buffered state, see wl_surface.commit.
+    ///
+    /// Requesting "wait_barrier" after the fifo object's surface is
+    /// destroyed will generate a "surface_destroyed" error.
+    #[inline]
+    pub fn send_wait_barrier(
+        &self,
+    ) {
+        let res = self.try_send_wait_barrier(
+        );
+        if let Err(e) = res {
+            log_send("wp_fifo_v1.wait_barrier", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -167,7 +227,7 @@ impl WpFifoV1 {
     /// Surface state changes previously made by this protocol are
     /// unaffected by this object's destruction.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -198,13 +258,31 @@ impl WpFifoV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the fifo interface
+    ///
+    /// Informs the server that the client will no longer be using
+    /// this protocol object.
+    ///
+    /// Surface state changes previously made by this protocol are
+    /// unaffected by this object's destruction.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_fifo_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [WpFifoV1] proxies.
 pub trait WpFifoV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpFifoV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// sets the start point for a fifo constraint
@@ -231,10 +309,10 @@ pub trait WpFifoV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_barrier(
+        let res = _slf.try_send_set_barrier(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_fifo_v1.set_barrier message: {}", Report::new(e));
+            log_forward("wp_fifo_v1.set_barrier", &e);
         }
     }
 
@@ -268,10 +346,10 @@ pub trait WpFifoV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_wait_barrier(
+        let res = _slf.try_send_wait_barrier(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_fifo_v1.wait_barrier message: {}", Report::new(e));
+            log_forward("wp_fifo_v1.wait_barrier", &e);
         }
     }
 
@@ -290,10 +368,10 @@ pub trait WpFifoV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_fifo_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_fifo_v1.destroy", &e);
         }
     }
 }
@@ -313,7 +391,7 @@ impl ObjectPrivate for WpFifoV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

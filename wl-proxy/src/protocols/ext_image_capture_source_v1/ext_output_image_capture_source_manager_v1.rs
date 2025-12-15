@@ -62,7 +62,7 @@ impl ExtOutputImageCaptureSourceManagerV1 {
     /// - `source`:
     /// - `output`:
     #[inline]
-    pub fn send_create_source(
+    pub fn try_send_create_source(
         &self,
         source: &Rc<ExtImageCaptureSourceV1>,
         output: &Rc<WlOutput>,
@@ -114,6 +114,32 @@ impl ExtOutputImageCaptureSourceManagerV1 {
         Ok(())
     }
 
+    /// create source object for output
+    ///
+    /// Creates a source object for an output. Images captured from this source
+    /// will show the same content as the output. Some elements may be omitted,
+    /// such as cursors and overlays that have been marked as transparent to
+    /// capturing.
+    ///
+    /// # Arguments
+    ///
+    /// - `source`:
+    /// - `output`:
+    #[inline]
+    pub fn send_create_source(
+        &self,
+        source: &Rc<ExtImageCaptureSourceV1>,
+        output: &Rc<WlOutput>,
+    ) {
+        let res = self.try_send_create_source(
+            source,
+            output,
+        );
+        if let Err(e) = res {
+            log_send("ext_output_image_capture_source_manager_v1.create_source", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -123,7 +149,7 @@ impl ExtOutputImageCaptureSourceManagerV1 {
     /// and objects created by the manager will remain valid after its
     /// destruction.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -154,13 +180,29 @@ impl ExtOutputImageCaptureSourceManagerV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// delete this object
+    ///
+    /// Destroys the manager. This request may be sent at any time by the client
+    /// and objects created by the manager will remain valid after its
+    /// destruction.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_output_image_capture_source_manager_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtOutputImageCaptureSourceManagerV1] proxies.
 pub trait ExtOutputImageCaptureSourceManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtOutputImageCaptureSourceManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// create source object for output
@@ -187,12 +229,12 @@ pub trait ExtOutputImageCaptureSourceManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_source(
+        let res = _slf.try_send_create_source(
             source,
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_output_image_capture_source_manager_v1.create_source message: {}", Report::new(e));
+            log_forward("ext_output_image_capture_source_manager_v1.create_source", &e);
         }
     }
 
@@ -209,10 +251,10 @@ pub trait ExtOutputImageCaptureSourceManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_output_image_capture_source_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_output_image_capture_source_manager_v1.destroy", &e);
         }
     }
 }
@@ -232,7 +274,7 @@ impl ObjectPrivate for ExtOutputImageCaptureSourceManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

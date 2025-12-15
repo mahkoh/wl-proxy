@@ -65,7 +65,7 @@ impl ExtDataControlSourceV1 {
     ///
     /// - `mime_type`: MIME type offered by the data source
     #[inline]
-    pub fn send_offer(
+    pub fn try_send_offer(
         &self,
         mime_type: &str,
     ) -> Result<(), ObjectError> {
@@ -103,6 +103,30 @@ impl ExtDataControlSourceV1 {
         Ok(())
     }
 
+    /// add an offered MIME type
+    ///
+    /// This request adds a MIME type to the set of MIME types advertised to
+    /// targets. Can be called several times to offer multiple types.
+    ///
+    /// Calling this after ext_data_control_device.set_selection is a protocol
+    /// error.
+    ///
+    /// # Arguments
+    ///
+    /// - `mime_type`: MIME type offered by the data source
+    #[inline]
+    pub fn send_offer(
+        &self,
+        mime_type: &str,
+    ) {
+        let res = self.try_send_offer(
+            mime_type,
+        );
+        if let Err(e) = res {
+            log_send("ext_data_control_source_v1.offer", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -110,7 +134,7 @@ impl ExtDataControlSourceV1 {
     ///
     /// Destroys the data source object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -142,6 +166,20 @@ impl ExtDataControlSourceV1 {
         Ok(())
     }
 
+    /// destroy this source
+    ///
+    /// Destroys the data source object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_data_control_source_v1.destroy", &e);
+        }
+    }
+
     /// Since when the send message is available.
     pub const MSG__SEND__SINCE: u32 = 1;
 
@@ -155,7 +193,7 @@ impl ExtDataControlSourceV1 {
     /// - `mime_type`: MIME type for the data
     /// - `fd`: file descriptor for the data
     #[inline]
-    pub fn send_send(
+    pub fn try_send_send(
         &self,
         mime_type: &str,
         fd: &Rc<OwnedFd>,
@@ -199,6 +237,30 @@ impl ExtDataControlSourceV1 {
         Ok(())
     }
 
+    /// send the data
+    ///
+    /// Request for data from the client. Send the data as the specified MIME
+    /// type over the passed file descriptor, then close it.
+    ///
+    /// # Arguments
+    ///
+    /// - `mime_type`: MIME type for the data
+    /// - `fd`: file descriptor for the data
+    #[inline]
+    pub fn send_send(
+        &self,
+        mime_type: &str,
+        fd: &Rc<OwnedFd>,
+    ) {
+        let res = self.try_send_send(
+            mime_type,
+            fd,
+        );
+        if let Err(e) = res {
+            log_send("ext_data_control_source_v1.send", &e);
+        }
+    }
+
     /// Since when the cancelled message is available.
     pub const MSG__CANCELLED__SINCE: u32 = 1;
 
@@ -209,7 +271,7 @@ impl ExtDataControlSourceV1 {
     ///
     /// The client should clean up and destroy this data source.
     #[inline]
-    pub fn send_cancelled(
+    pub fn try_send_cancelled(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -241,13 +303,30 @@ impl ExtDataControlSourceV1 {
         ]);
         Ok(())
     }
+
+    /// selection was cancelled
+    ///
+    /// This data source is no longer valid. The data source has been replaced
+    /// by another data source.
+    ///
+    /// The client should clean up and destroy this data source.
+    #[inline]
+    pub fn send_cancelled(
+        &self,
+    ) {
+        let res = self.try_send_cancelled(
+        );
+        if let Err(e) = res {
+            log_send("ext_data_control_source_v1.cancelled", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtDataControlSourceV1] proxies.
 pub trait ExtDataControlSourceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtDataControlSourceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// add an offered MIME type
@@ -270,11 +349,11 @@ pub trait ExtDataControlSourceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_offer(
+        let res = _slf.try_send_offer(
             mime_type,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_data_control_source_v1.offer message: {}", Report::new(e));
+            log_forward("ext_data_control_source_v1.offer", &e);
         }
     }
 
@@ -289,10 +368,10 @@ pub trait ExtDataControlSourceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_data_control_source_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_data_control_source_v1.destroy", &e);
         }
     }
 
@@ -315,12 +394,12 @@ pub trait ExtDataControlSourceV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_send(
+        let res = _slf.try_send_send(
             mime_type,
             fd,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_data_control_source_v1.send message: {}", Report::new(e));
+            log_forward("ext_data_control_source_v1.send", &e);
         }
     }
 
@@ -338,10 +417,10 @@ pub trait ExtDataControlSourceV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_cancelled(
+        let res = _slf.try_send_cancelled(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_data_control_source_v1.cancelled message: {}", Report::new(e));
+            log_forward("ext_data_control_source_v1.cancelled", &e);
         }
     }
 }
@@ -361,7 +440,7 @@ impl ObjectPrivate for ExtDataControlSourceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

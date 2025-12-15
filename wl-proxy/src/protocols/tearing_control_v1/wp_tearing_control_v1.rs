@@ -70,7 +70,7 @@ impl WpTearingControlV1 {
     ///
     /// - `hint`:
     #[inline]
-    pub fn send_set_presentation_hint(
+    pub fn try_send_set_presentation_hint(
         &self,
         hint: WpTearingControlV1PresentationHint,
     ) -> Result<(), ObjectError> {
@@ -108,6 +108,31 @@ impl WpTearingControlV1 {
         Ok(())
     }
 
+    /// set presentation hint
+    ///
+    /// Set the presentation hint for the associated wl_surface. This state is
+    /// double-buffered, see wl_surface.commit.
+    ///
+    /// The compositor is free to dynamically respect or ignore this hint based
+    /// on various conditions like hardware capabilities, surface state and
+    /// user preferences.
+    ///
+    /// # Arguments
+    ///
+    /// - `hint`:
+    #[inline]
+    pub fn send_set_presentation_hint(
+        &self,
+        hint: WpTearingControlV1PresentationHint,
+    ) {
+        let res = self.try_send_set_presentation_hint(
+            hint,
+        );
+        if let Err(e) = res {
+            log_send("wp_tearing_control_v1.set_presentation_hint", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -116,7 +141,7 @@ impl WpTearingControlV1 {
     /// Destroy this surface tearing object and revert the presentation hint to
     /// vsync. The change will be applied on the next wl_surface.commit.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -147,13 +172,28 @@ impl WpTearingControlV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy tearing control object
+    ///
+    /// Destroy this surface tearing object and revert the presentation hint to
+    /// vsync. The change will be applied on the next wl_surface.commit.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_tearing_control_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [WpTearingControlV1] proxies.
 pub trait WpTearingControlV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpTearingControlV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// set presentation hint
@@ -177,11 +217,11 @@ pub trait WpTearingControlV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_presentation_hint(
+        let res = _slf.try_send_set_presentation_hint(
             hint,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_tearing_control_v1.set_presentation_hint message: {}", Report::new(e));
+            log_forward("wp_tearing_control_v1.set_presentation_hint", &e);
         }
     }
 
@@ -197,10 +237,10 @@ pub trait WpTearingControlV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_tearing_control_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_tearing_control_v1.destroy", &e);
         }
     }
 }
@@ -220,7 +260,7 @@ impl ObjectPrivate for WpTearingControlV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

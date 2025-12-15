@@ -61,7 +61,7 @@ impl ExtImageCaptureSourceV1 {
     /// Destroys the image capture source. This request may be sent at any time
     /// by the client.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -92,13 +92,28 @@ impl ExtImageCaptureSourceV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// delete this object
+    ///
+    /// Destroys the image capture source. This request may be sent at any time
+    /// by the client.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_image_capture_source_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtImageCaptureSourceV1] proxies.
 pub trait ExtImageCaptureSourceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtImageCaptureSourceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// delete this object
@@ -113,10 +128,10 @@ pub trait ExtImageCaptureSourceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_capture_source_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_image_capture_source_v1.destroy", &e);
         }
     }
 }
@@ -136,7 +151,7 @@ impl ObjectPrivate for ExtImageCaptureSourceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

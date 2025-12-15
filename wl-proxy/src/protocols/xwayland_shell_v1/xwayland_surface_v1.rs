@@ -86,7 +86,7 @@ impl XwaylandSurfaceV1 {
     /// - `serial_lo`: The lower 32-bits of the serial number associated with the X11 window
     /// - `serial_hi`: The upper 32-bits of the serial number associated with the X11 window
     #[inline]
-    pub fn send_set_serial(
+    pub fn try_send_set_serial(
         &self,
         serial_lo: u32,
         serial_hi: u32,
@@ -128,6 +128,49 @@ impl XwaylandSurfaceV1 {
         Ok(())
     }
 
+    /// associates a Xwayland window to a wl_surface
+    ///
+    /// Associates an Xwayland window to a wl_surface.
+    /// The association state is double-buffered, see wl_surface.commit.
+    ///
+    /// The `serial_lo` and `serial_hi` parameters specify a non-zero
+    /// monotonic serial number which is entirely unique and provided by the
+    /// Xwayland server equal to the serial value provided by a client message
+    /// with a message type of the `WL_SURFACE_SERIAL` atom on the X11 window
+    /// for this surface to be associated to.
+    ///
+    /// The serial value in the `WL_SURFACE_SERIAL` client message is specified
+    /// as having the lo-bits specified in `l[0]` and the hi-bits specified
+    /// in `l[1]`.
+    ///
+    /// If the serial value provided by `serial_lo` and `serial_hi` is not
+    /// valid, the `invalid_serial` protocol error will be raised.
+    ///
+    /// An X11 window may be associated with multiple surfaces throughout its
+    /// lifespan. (eg. unmapping and remapping a window).
+    ///
+    /// For each wl_surface, this state must not be committed more than once,
+    /// otherwise the `already_associated` protocol error will be raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial_lo`: The lower 32-bits of the serial number associated with the X11 window
+    /// - `serial_hi`: The upper 32-bits of the serial number associated with the X11 window
+    #[inline]
+    pub fn send_set_serial(
+        &self,
+        serial_lo: u32,
+        serial_hi: u32,
+    ) {
+        let res = self.try_send_set_serial(
+            serial_lo,
+            serial_hi,
+        );
+        if let Err(e) = res {
+            log_send("xwayland_surface_v1.set_serial", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -137,7 +180,7 @@ impl XwaylandSurfaceV1 {
     ///
     /// Any already existing associations are unaffected by this action.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -168,13 +211,29 @@ impl XwaylandSurfaceV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the Xwayland surface object
+    ///
+    /// Destroy the xwayland_surface_v1 object.
+    ///
+    /// Any already existing associations are unaffected by this action.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("xwayland_surface_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [XwaylandSurfaceV1] proxies.
 pub trait XwaylandSurfaceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XwaylandSurfaceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// associates a Xwayland window to a wl_surface
@@ -215,12 +274,12 @@ pub trait XwaylandSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_serial(
+        let res = _slf.try_send_set_serial(
             serial_lo,
             serial_hi,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xwayland_surface_v1.set_serial message: {}", Report::new(e));
+            log_forward("xwayland_surface_v1.set_serial", &e);
         }
     }
 
@@ -237,10 +296,10 @@ pub trait XwaylandSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xwayland_surface_v1.destroy message: {}", Report::new(e));
+            log_forward("xwayland_surface_v1.destroy", &e);
         }
     }
 }
@@ -260,7 +319,7 @@ impl ObjectPrivate for XwaylandSurfaceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -75,7 +75,7 @@ impl ZwpPointerGesturesV1 {
     /// - `id`:
     /// - `pointer`:
     #[inline]
-    pub fn send_get_swipe_gesture(
+    pub fn try_send_get_swipe_gesture(
         &self,
         id: &Rc<ZwpPointerGestureSwipeV1>,
         pointer: &Rc<WlPointer>,
@@ -127,6 +127,30 @@ impl ZwpPointerGesturesV1 {
         Ok(())
     }
 
+    /// get swipe gesture
+    ///
+    /// Create a swipe gesture object. See the
+    /// wl_pointer_gesture_swipe interface for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `pointer`:
+    #[inline]
+    pub fn send_get_swipe_gesture(
+        &self,
+        id: &Rc<ZwpPointerGestureSwipeV1>,
+        pointer: &Rc<WlPointer>,
+    ) {
+        let res = self.try_send_get_swipe_gesture(
+            id,
+            pointer,
+        );
+        if let Err(e) = res {
+            log_send("zwp_pointer_gestures_v1.get_swipe_gesture", &e);
+        }
+    }
+
     /// Since when the get_pinch_gesture message is available.
     pub const MSG__GET_PINCH_GESTURE__SINCE: u32 = 1;
 
@@ -140,7 +164,7 @@ impl ZwpPointerGesturesV1 {
     /// - `id`:
     /// - `pointer`:
     #[inline]
-    pub fn send_get_pinch_gesture(
+    pub fn try_send_get_pinch_gesture(
         &self,
         id: &Rc<ZwpPointerGesturePinchV1>,
         pointer: &Rc<WlPointer>,
@@ -192,6 +216,30 @@ impl ZwpPointerGesturesV1 {
         Ok(())
     }
 
+    /// get pinch gesture
+    ///
+    /// Create a pinch gesture object. See the
+    /// wl_pointer_gesture_pinch interface for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `pointer`:
+    #[inline]
+    pub fn send_get_pinch_gesture(
+        &self,
+        id: &Rc<ZwpPointerGesturePinchV1>,
+        pointer: &Rc<WlPointer>,
+    ) {
+        let res = self.try_send_get_pinch_gesture(
+            id,
+            pointer,
+        );
+        if let Err(e) = res {
+            log_send("zwp_pointer_gestures_v1.get_pinch_gesture", &e);
+        }
+    }
+
     /// Since when the release message is available.
     pub const MSG__RELEASE__SINCE: u32 = 2;
 
@@ -200,7 +248,7 @@ impl ZwpPointerGesturesV1 {
     /// Destroy the pointer gesture object. Swipe, pinch and hold objects
     /// created via this gesture object remain valid.
     #[inline]
-    pub fn send_release(
+    pub fn try_send_release(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -232,6 +280,21 @@ impl ZwpPointerGesturesV1 {
         Ok(())
     }
 
+    /// destroy the pointer gesture object
+    ///
+    /// Destroy the pointer gesture object. Swipe, pinch and hold objects
+    /// created via this gesture object remain valid.
+    #[inline]
+    pub fn send_release(
+        &self,
+    ) {
+        let res = self.try_send_release(
+        );
+        if let Err(e) = res {
+            log_send("zwp_pointer_gestures_v1.release", &e);
+        }
+    }
+
     /// Since when the get_hold_gesture message is available.
     pub const MSG__GET_HOLD_GESTURE__SINCE: u32 = 3;
 
@@ -245,7 +308,7 @@ impl ZwpPointerGesturesV1 {
     /// - `id`:
     /// - `pointer`:
     #[inline]
-    pub fn send_get_hold_gesture(
+    pub fn try_send_get_hold_gesture(
         &self,
         id: &Rc<ZwpPointerGestureHoldV1>,
         pointer: &Rc<WlPointer>,
@@ -296,13 +359,37 @@ impl ZwpPointerGesturesV1 {
         ]);
         Ok(())
     }
+
+    /// get hold gesture
+    ///
+    /// Create a hold gesture object. See the
+    /// wl_pointer_gesture_hold interface for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `pointer`:
+    #[inline]
+    pub fn send_get_hold_gesture(
+        &self,
+        id: &Rc<ZwpPointerGestureHoldV1>,
+        pointer: &Rc<WlPointer>,
+    ) {
+        let res = self.try_send_get_hold_gesture(
+            id,
+            pointer,
+        );
+        if let Err(e) = res {
+            log_send("zwp_pointer_gestures_v1.get_hold_gesture", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpPointerGesturesV1] proxies.
 pub trait ZwpPointerGesturesV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpPointerGesturesV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// get swipe gesture
@@ -327,12 +414,12 @@ pub trait ZwpPointerGesturesV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_swipe_gesture(
+        let res = _slf.try_send_get_swipe_gesture(
             id,
             pointer,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_pointer_gestures_v1.get_swipe_gesture message: {}", Report::new(e));
+            log_forward("zwp_pointer_gestures_v1.get_swipe_gesture", &e);
         }
     }
 
@@ -358,12 +445,12 @@ pub trait ZwpPointerGesturesV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_pinch_gesture(
+        let res = _slf.try_send_get_pinch_gesture(
             id,
             pointer,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_pointer_gestures_v1.get_pinch_gesture message: {}", Report::new(e));
+            log_forward("zwp_pointer_gestures_v1.get_pinch_gesture", &e);
         }
     }
 
@@ -379,10 +466,10 @@ pub trait ZwpPointerGesturesV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_release(
+        let res = _slf.try_send_release(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_pointer_gestures_v1.release message: {}", Report::new(e));
+            log_forward("zwp_pointer_gestures_v1.release", &e);
         }
     }
 
@@ -408,12 +495,12 @@ pub trait ZwpPointerGesturesV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_hold_gesture(
+        let res = _slf.try_send_get_hold_gesture(
             id,
             pointer,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_pointer_gestures_v1.get_hold_gesture message: {}", Report::new(e));
+            log_forward("zwp_pointer_gestures_v1.get_hold_gesture", &e);
         }
     }
 }
@@ -433,7 +520,7 @@ impl ObjectPrivate for ZwpPointerGesturesV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

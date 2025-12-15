@@ -68,7 +68,7 @@ impl ExtImageCopyCaptureManagerV1 {
     /// - `source`:
     /// - `options`:
     #[inline]
-    pub fn send_create_session(
+    pub fn try_send_create_session(
         &self,
         session: &Rc<ExtImageCopyCaptureSessionV1>,
         source: &Rc<ExtImageCaptureSourceV1>,
@@ -124,6 +124,39 @@ impl ExtImageCopyCaptureManagerV1 {
         Ok(())
     }
 
+    /// capture an image capture source
+    ///
+    /// Create a capturing session for an image capture source.
+    ///
+    /// If the paint_cursors option is set, cursors shall be composited onto
+    /// the captured frame. The cursor must not be composited onto the frame
+    /// if this flag is not set.
+    ///
+    /// If the options bitfield is invalid, the invalid_option protocol error
+    /// is sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `session`:
+    /// - `source`:
+    /// - `options`:
+    #[inline]
+    pub fn send_create_session(
+        &self,
+        session: &Rc<ExtImageCopyCaptureSessionV1>,
+        source: &Rc<ExtImageCaptureSourceV1>,
+        options: ExtImageCopyCaptureManagerV1Options,
+    ) {
+        let res = self.try_send_create_session(
+            session,
+            source,
+            options,
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_manager_v1.create_session", &e);
+        }
+    }
+
     /// Since when the create_pointer_cursor_session message is available.
     pub const MSG__CREATE_POINTER_CURSOR_SESSION__SINCE: u32 = 1;
 
@@ -138,7 +171,7 @@ impl ExtImageCopyCaptureManagerV1 {
     /// - `source`:
     /// - `pointer`:
     #[inline]
-    pub fn send_create_pointer_cursor_session(
+    pub fn try_send_create_pointer_cursor_session(
         &self,
         session: &Rc<ExtImageCopyCaptureCursorSessionV1>,
         source: &Rc<ExtImageCaptureSourceV1>,
@@ -199,6 +232,33 @@ impl ExtImageCopyCaptureManagerV1 {
         Ok(())
     }
 
+    /// capture the pointer cursor of an image capture source
+    ///
+    /// Create a cursor capturing session for the pointer of an image capture
+    /// source.
+    ///
+    /// # Arguments
+    ///
+    /// - `session`:
+    /// - `source`:
+    /// - `pointer`:
+    #[inline]
+    pub fn send_create_pointer_cursor_session(
+        &self,
+        session: &Rc<ExtImageCopyCaptureCursorSessionV1>,
+        source: &Rc<ExtImageCaptureSourceV1>,
+        pointer: &Rc<WlPointer>,
+    ) {
+        let res = self.try_send_create_pointer_cursor_session(
+            session,
+            source,
+            pointer,
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_manager_v1.create_pointer_cursor_session", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -208,7 +268,7 @@ impl ExtImageCopyCaptureManagerV1 {
     ///
     /// Other objects created via this interface are unaffected.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -239,13 +299,29 @@ impl ExtImageCopyCaptureManagerV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the manager
+    ///
+    /// Destroy the manager object.
+    ///
+    /// Other objects created via this interface are unaffected.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_manager_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtImageCopyCaptureManagerV1] proxies.
 pub trait ExtImageCopyCaptureManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtImageCopyCaptureManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// capture an image capture source
@@ -278,13 +354,13 @@ pub trait ExtImageCopyCaptureManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_session(
+        let res = _slf.try_send_create_session(
             session,
             source,
             options,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_manager_v1.create_session message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_manager_v1.create_session", &e);
         }
     }
 
@@ -312,13 +388,13 @@ pub trait ExtImageCopyCaptureManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_pointer_cursor_session(
+        let res = _slf.try_send_create_pointer_cursor_session(
             session,
             source,
             pointer,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_manager_v1.create_pointer_cursor_session message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_manager_v1.create_pointer_cursor_session", &e);
         }
     }
 
@@ -335,10 +411,10 @@ pub trait ExtImageCopyCaptureManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_manager_v1.destroy", &e);
         }
     }
 }
@@ -358,7 +434,7 @@ impl ObjectPrivate for ExtImageCopyCaptureManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

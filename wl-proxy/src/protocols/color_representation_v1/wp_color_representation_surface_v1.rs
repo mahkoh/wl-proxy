@@ -69,7 +69,7 @@ impl WpColorRepresentationSurfaceV1 {
     /// representation metadata. Unsetting is double-buffered state, see
     /// wl_surface.commit.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -101,6 +101,26 @@ impl WpColorRepresentationSurfaceV1 {
         Ok(())
     }
 
+    /// destroy the color representation
+    ///
+    /// Destroy the wp_color_representation_surface_v1 object.
+    ///
+    /// Destroying this object unsets all the color representation metadata from
+    /// the surface. See the wp_color_representation_surface_v1 interface
+    /// description for how a compositor handles a surface without color
+    /// representation metadata. Unsetting is double-buffered state, see
+    /// wl_surface.commit.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_color_representation_surface_v1.destroy", &e);
+        }
+    }
+
     /// Since when the set_alpha_mode message is available.
     pub const MSG__SET_ALPHA_MODE__SINCE: u32 = 1;
 
@@ -122,7 +142,7 @@ impl WpColorRepresentationSurfaceV1 {
     ///
     /// - `alpha_mode`: alpha mode
     #[inline]
-    pub fn send_set_alpha_mode(
+    pub fn try_send_set_alpha_mode(
         &self,
         alpha_mode: WpColorRepresentationSurfaceV1AlphaMode,
     ) -> Result<(), ObjectError> {
@@ -158,6 +178,36 @@ impl WpColorRepresentationSurfaceV1 {
             arg0.0,
         ]);
         Ok(())
+    }
+
+    /// set the surface alpha mode
+    ///
+    /// If this protocol object is inert, the protocol error inert is raised.
+    ///
+    /// Assuming an alpha channel exists, it is always linear. The alpha mode
+    /// determines whether and how the color channels include pre-multiplied
+    /// alpha. Using straight alpha might have performance benefits.
+    ///
+    /// Only alpha modes advertised by the compositor are allowed to be used as
+    /// argument for this request. The "alpha_mode" protocol error is raised
+    /// otherwise.
+    ///
+    /// Alpha mode is double buffered, see wl_surface.commit.
+    ///
+    /// # Arguments
+    ///
+    /// - `alpha_mode`: alpha mode
+    #[inline]
+    pub fn send_set_alpha_mode(
+        &self,
+        alpha_mode: WpColorRepresentationSurfaceV1AlphaMode,
+    ) {
+        let res = self.try_send_set_alpha_mode(
+            alpha_mode,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_representation_surface_v1.set_alpha_mode", &e);
+        }
     }
 
     /// Since when the set_coefficients_and_range message is available.
@@ -197,7 +247,7 @@ impl WpColorRepresentationSurfaceV1 {
     /// - `coefficients`: matrix coefficients
     /// - `range`: range
     #[inline]
-    pub fn send_set_coefficients_and_range(
+    pub fn try_send_set_coefficients_and_range(
         &self,
         coefficients: WpColorRepresentationSurfaceV1Coefficients,
         range: WpColorRepresentationSurfaceV1Range,
@@ -239,6 +289,54 @@ impl WpColorRepresentationSurfaceV1 {
         Ok(())
     }
 
+    /// set the matrix coefficients and range
+    ///
+    /// If this protocol object is inert, the protocol error inert is raised.
+    ///
+    /// Set the matrix coefficients and video range which defines the formula
+    /// and the related constants used to derive red, green and blue signals.
+    /// Usually coefficients correspond to MatrixCoefficients code points in
+    /// H.273.
+    ///
+    /// Only combinations advertised by the compositor are allowed to be used as
+    /// argument for this request. The "coefficients" protocol error is raised
+    /// otherwise.
+    ///
+    /// A call to wl_surface.commit verifies that the pixel format and the
+    /// coefficients-range combination in the committed surface contents are
+    /// compatible, if contents exist. The "pixel_format" protocol error is
+    /// raised otherwise.
+    ///
+    /// A pixel format is compatible with the coefficients-range combination if
+    /// the related equations and conventions as defined in H.273 can produce
+    /// the color channels (RGB or YCbCr) of the pixel format.
+    ///
+    /// For the definition of the supported combination, see the
+    /// wp_color_representation_surface_v1::coefficients and
+    /// wp_color_representation_surface_v1::range enums.
+    ///
+    /// The coefficients-range combination is double-buffered, see
+    /// wl_surface.commit.
+    ///
+    /// # Arguments
+    ///
+    /// - `coefficients`: matrix coefficients
+    /// - `range`: range
+    #[inline]
+    pub fn send_set_coefficients_and_range(
+        &self,
+        coefficients: WpColorRepresentationSurfaceV1Coefficients,
+        range: WpColorRepresentationSurfaceV1Range,
+    ) {
+        let res = self.try_send_set_coefficients_and_range(
+            coefficients,
+            range,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_representation_surface_v1.set_coefficients_and_range", &e);
+        }
+    }
+
     /// Since when the set_chroma_location message is available.
     pub const MSG__SET_CHROMA_LOCATION__SINCE: u32 = 1;
 
@@ -266,7 +364,7 @@ impl WpColorRepresentationSurfaceV1 {
     ///
     /// - `chroma_location`: chroma sample location
     #[inline]
-    pub fn send_set_chroma_location(
+    pub fn try_send_set_chroma_location(
         &self,
         chroma_location: WpColorRepresentationSurfaceV1ChromaLocation,
     ) -> Result<(), ObjectError> {
@@ -303,13 +401,49 @@ impl WpColorRepresentationSurfaceV1 {
         ]);
         Ok(())
     }
+
+    /// set the chroma location
+    ///
+    /// If this protocol object is inert, the protocol error inert is raised.
+    ///
+    /// Set the chroma location type which defines the position of downsampled
+    /// chroma samples, corresponding to Chroma420SampleLocType code points in
+    /// H.273.
+    ///
+    /// An invalid chroma location enum value raises the "chroma_location"
+    /// protocol error.
+    ///
+    /// A call to wl_surface.commit verifies that the pixel format and chroma
+    /// location type in the committed surface contents are compatible, if
+    /// contents exist. The "pixel_format" protocol error is raised otherwise.
+    ///
+    /// For the definition of the supported chroma location types, see the
+    /// wp_color_representation_surface_v1::chroma_location enum.
+    ///
+    /// The chroma location type is double-buffered, see wl_surface.commit.
+    ///
+    /// # Arguments
+    ///
+    /// - `chroma_location`: chroma sample location
+    #[inline]
+    pub fn send_set_chroma_location(
+        &self,
+        chroma_location: WpColorRepresentationSurfaceV1ChromaLocation,
+    ) {
+        let res = self.try_send_set_chroma_location(
+            chroma_location,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_representation_surface_v1.set_chroma_location", &e);
+        }
+    }
 }
 
 /// A message handler for [WpColorRepresentationSurfaceV1] proxies.
 pub trait WpColorRepresentationSurfaceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpColorRepresentationSurfaceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the color representation
@@ -329,10 +463,10 @@ pub trait WpColorRepresentationSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_representation_surface_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_color_representation_surface_v1.destroy", &e);
         }
     }
 
@@ -362,11 +496,11 @@ pub trait WpColorRepresentationSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_alpha_mode(
+        let res = _slf.try_send_set_alpha_mode(
             alpha_mode,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_representation_surface_v1.set_alpha_mode message: {}", Report::new(e));
+            log_forward("wp_color_representation_surface_v1.set_alpha_mode", &e);
         }
     }
 
@@ -413,12 +547,12 @@ pub trait WpColorRepresentationSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_coefficients_and_range(
+        let res = _slf.try_send_set_coefficients_and_range(
             coefficients,
             range,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_representation_surface_v1.set_coefficients_and_range message: {}", Report::new(e));
+            log_forward("wp_color_representation_surface_v1.set_coefficients_and_range", &e);
         }
     }
 
@@ -454,11 +588,11 @@ pub trait WpColorRepresentationSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_chroma_location(
+        let res = _slf.try_send_set_chroma_location(
             chroma_location,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_representation_surface_v1.set_chroma_location message: {}", Report::new(e));
+            log_forward("wp_color_representation_surface_v1.set_chroma_location", &e);
         }
     }
 }
@@ -478,7 +612,7 @@ impl ObjectPrivate for WpColorRepresentationSurfaceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

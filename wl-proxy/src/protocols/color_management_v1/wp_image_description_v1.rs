@@ -78,7 +78,7 @@ impl WpImageDescriptionV1 {
     /// even if a wp_color_management_surface_v1.set_image_description has not
     /// yet been followed by a wl_surface.commit.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -110,6 +110,24 @@ impl WpImageDescriptionV1 {
         Ok(())
     }
 
+    /// destroy the image description
+    ///
+    /// Destroy this object. It is safe to destroy an object which is not ready.
+    ///
+    /// Destroying a wp_image_description_v1 object has no side-effects, not
+    /// even if a wp_color_management_surface_v1.set_image_description has not
+    /// yet been followed by a wl_surface.commit.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_v1.destroy", &e);
+        }
+    }
+
     /// Since when the failed message is available.
     pub const MSG__FAILED__SINCE: u32 = 1;
 
@@ -131,7 +149,7 @@ impl WpImageDescriptionV1 {
     /// - `cause`: generic reason
     /// - `msg`: ad hoc human-readable explanation
     #[inline]
-    pub fn send_failed(
+    pub fn try_send_failed(
         &self,
         cause: WpImageDescriptionV1Cause,
         msg: &str,
@@ -175,6 +193,38 @@ impl WpImageDescriptionV1 {
         Ok(())
     }
 
+    /// graceful error on creating the image description
+    ///
+    /// If creating a wp_image_description_v1 object fails for a reason that is
+    /// not defined as a protocol error, this event is sent.
+    ///
+    /// The requests that create image description objects define whether and
+    /// when this can occur. Only such creation requests can trigger this event.
+    /// This event cannot be triggered after the image description was
+    /// successfully formed.
+    ///
+    /// Once this event has been sent, the wp_image_description_v1 object will
+    /// never become ready and it can only be destroyed.
+    ///
+    /// # Arguments
+    ///
+    /// - `cause`: generic reason
+    /// - `msg`: ad hoc human-readable explanation
+    #[inline]
+    pub fn send_failed(
+        &self,
+        cause: WpImageDescriptionV1Cause,
+        msg: &str,
+    ) {
+        let res = self.try_send_failed(
+            cause,
+            msg,
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_v1.failed", &e);
+        }
+    }
+
     /// Since when the ready message is available.
     pub const MSG__READY__SINCE: u32 = 1;
 
@@ -198,7 +248,7 @@ impl WpImageDescriptionV1 {
     ///
     /// - `identity`: the 32-bit image description id number
     #[inline]
-    pub fn send_ready(
+    pub fn try_send_ready(
         &self,
         identity: u32,
     ) -> Result<(), ObjectError> {
@@ -238,6 +288,35 @@ impl WpImageDescriptionV1 {
         Ok(())
     }
 
+    /// the object is ready to be used (32-bit)
+    ///
+    /// Starting from interface version 2, the 'ready2' event is sent instead
+    /// of this event.
+    ///
+    /// For the definition of this event, see the 'ready2' event. The
+    /// difference to this event is as follows.
+    ///
+    /// The id number is valid only as long as the protocol object is alive. If
+    /// all protocol objects referring to the same image description record are
+    /// destroyed, the id number may be recycled for a different image
+    /// description record.
+    ///
+    /// # Arguments
+    ///
+    /// - `identity`: the 32-bit image description id number
+    #[inline]
+    pub fn send_ready(
+        &self,
+        identity: u32,
+    ) {
+        let res = self.try_send_ready(
+            identity,
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_v1.ready", &e);
+        }
+    }
+
     /// Since when the get_information message is available.
     pub const MSG__GET_INFORMATION__SINCE: u32 = 1;
 
@@ -251,7 +330,7 @@ impl WpImageDescriptionV1 {
     /// created the object. If get_information is not allowed, the protocol
     /// error no_information is raised.
     #[inline]
-    pub fn send_get_information(
+    pub fn try_send_get_information(
         &self,
         information: &Rc<WpImageDescriptionInfoV1>,
     ) -> Result<(), ObjectError> {
@@ -294,6 +373,28 @@ impl WpImageDescriptionV1 {
         Ok(())
     }
 
+    /// get information about the image description
+    ///
+    /// Creates a wp_image_description_info_v1 object which delivers the
+    /// information that makes up the image description.
+    ///
+    /// Not all image description protocol objects allow get_information
+    /// request. Whether it is allowed or not is defined by the request that
+    /// created the object. If get_information is not allowed, the protocol
+    /// error no_information is raised.
+    #[inline]
+    pub fn send_get_information(
+        &self,
+        information: &Rc<WpImageDescriptionInfoV1>,
+    ) {
+        let res = self.try_send_get_information(
+            information,
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_v1.get_information", &e);
+        }
+    }
+
     /// Since when the ready2 message is available.
     pub const MSG__READY2__SINCE: u32 = 2;
 
@@ -329,7 +430,7 @@ impl WpImageDescriptionV1 {
     /// - `identity_hi`: high 32 bits of the 64-bit image description id number
     /// - `identity_lo`: low 32 bits of the 64-bit image description id number
     #[inline]
-    pub fn send_ready2(
+    pub fn try_send_ready2(
         &self,
         identity_hi: u32,
         identity_lo: u32,
@@ -372,13 +473,59 @@ impl WpImageDescriptionV1 {
         ]);
         Ok(())
     }
+
+    /// the object is ready to be used
+    ///
+    /// Once this event has been sent, the wp_image_description_v1 object is
+    /// deemed "ready". Ready objects can be used to send requests and can be
+    /// used through other interfaces.
+    ///
+    /// Every ready wp_image_description_v1 protocol object refers to an
+    /// underlying image description record in the compositor. Multiple protocol
+    /// objects may end up referring to the same record. Clients may identify
+    /// these "copies" by comparing their id numbers: if the numbers from two
+    /// protocol objects are identical, the protocol objects refer to the same
+    /// image description record. Two different image description records
+    /// cannot have the same id number simultaneously. The id number does not
+    /// change during the lifetime of the image description record.
+    ///
+    /// Image description id number is not a protocol object id. Zero is
+    /// reserved as an invalid id number. It shall not be possible for a client
+    /// to refer to an image description by its id number in protocol. The id
+    /// numbers might not be portable between Wayland connections. A compositor
+    /// shall not send an invalid id number.
+    ///
+    /// Compositors must not recycle image description id numbers.
+    ///
+    /// This identity allows clients to de-duplicate image description records
+    /// and avoid get_information request if they already have the image
+    /// description information.
+    ///
+    /// # Arguments
+    ///
+    /// - `identity_hi`: high 32 bits of the 64-bit image description id number
+    /// - `identity_lo`: low 32 bits of the 64-bit image description id number
+    #[inline]
+    pub fn send_ready2(
+        &self,
+        identity_hi: u32,
+        identity_lo: u32,
+    ) {
+        let res = self.try_send_ready2(
+            identity_hi,
+            identity_lo,
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_v1.ready2", &e);
+        }
+    }
 }
 
 /// A message handler for [WpImageDescriptionV1] proxies.
 pub trait WpImageDescriptionV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpImageDescriptionV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the image description
@@ -396,10 +543,10 @@ pub trait WpImageDescriptionV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_image_description_v1.destroy", &e);
         }
     }
 
@@ -430,12 +577,12 @@ pub trait WpImageDescriptionV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_failed(
+        let res = _slf.try_send_failed(
             cause,
             msg,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_v1.failed message: {}", Report::new(e));
+            log_forward("wp_image_description_v1.failed", &e);
         }
     }
 
@@ -464,11 +611,11 @@ pub trait WpImageDescriptionV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_ready(
+        let res = _slf.try_send_ready(
             identity,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_v1.ready message: {}", Report::new(e));
+            log_forward("wp_image_description_v1.ready", &e);
         }
     }
 
@@ -494,11 +641,11 @@ pub trait WpImageDescriptionV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_information(
+        let res = _slf.try_send_get_information(
             information,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_v1.get_information message: {}", Report::new(e));
+            log_forward("wp_image_description_v1.get_information", &e);
         }
     }
 
@@ -543,12 +690,12 @@ pub trait WpImageDescriptionV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_ready2(
+        let res = _slf.try_send_ready2(
             identity_hi,
             identity_lo,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_v1.ready2 message: {}", Report::new(e));
+            log_forward("wp_image_description_v1.ready2", &e);
         }
     }
 }
@@ -568,7 +715,7 @@ impl ObjectPrivate for WpImageDescriptionV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

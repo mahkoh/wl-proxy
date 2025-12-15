@@ -58,7 +58,7 @@ impl ZxdgImportedV2 {
     /// object. Any relationship that may have been set up will at this point
     /// be invalidated.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -90,6 +90,22 @@ impl ZxdgImportedV2 {
         Ok(())
     }
 
+    /// destroy the xdg_imported object
+    ///
+    /// Notify the compositor that it will no longer use the xdg_imported
+    /// object. Any relationship that may have been set up will at this point
+    /// be invalidated.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zxdg_imported_v2.destroy", &e);
+        }
+    }
+
     /// Since when the set_parent_of message is available.
     pub const MSG__SET_PARENT_OF__SINCE: u32 = 1;
 
@@ -105,7 +121,7 @@ impl ZxdgImportedV2 {
     ///
     /// - `surface`: the child surface
     #[inline]
-    pub fn send_set_parent_of(
+    pub fn try_send_set_parent_of(
         &self,
         surface: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
@@ -148,6 +164,30 @@ impl ZxdgImportedV2 {
         Ok(())
     }
 
+    /// set as the parent of some surface
+    ///
+    /// Set the imported surface as the parent of some surface of the client.
+    /// The passed surface must be an xdg_toplevel equivalent, otherwise an
+    /// invalid_surface protocol error is sent. Calling this function sets up
+    /// a surface to surface relation with the same stacking and positioning
+    /// semantics as xdg_toplevel.set_parent.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`: the child surface
+    #[inline]
+    pub fn send_set_parent_of(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_set_parent_of(
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("zxdg_imported_v2.set_parent_of", &e);
+        }
+    }
+
     /// Since when the destroyed message is available.
     pub const MSG__DESTROYED__SINCE: u32 = 1;
 
@@ -158,7 +198,7 @@ impl ZxdgImportedV2 {
     /// example if the exported surface or the exported surface handle has been
     /// destroyed, if the handle used for importing was invalid.
     #[inline]
-    pub fn send_destroyed(
+    pub fn try_send_destroyed(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -190,13 +230,30 @@ impl ZxdgImportedV2 {
         ]);
         Ok(())
     }
+
+    /// the imported surface handle has been destroyed
+    ///
+    /// The imported surface handle has been destroyed and any relationship set
+    /// up has been invalidated. This may happen for various reasons, for
+    /// example if the exported surface or the exported surface handle has been
+    /// destroyed, if the handle used for importing was invalid.
+    #[inline]
+    pub fn send_destroyed(
+        &self,
+    ) {
+        let res = self.try_send_destroyed(
+        );
+        if let Err(e) = res {
+            log_send("zxdg_imported_v2.destroyed", &e);
+        }
+    }
 }
 
 /// A message handler for [ZxdgImportedV2] proxies.
 pub trait ZxdgImportedV2Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZxdgImportedV2>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the xdg_imported object
@@ -212,10 +269,10 @@ pub trait ZxdgImportedV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zxdg_imported_v2.destroy message: {}", Report::new(e));
+            log_forward("zxdg_imported_v2.destroy", &e);
         }
     }
 
@@ -242,11 +299,11 @@ pub trait ZxdgImportedV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_parent_of(
+        let res = _slf.try_send_set_parent_of(
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zxdg_imported_v2.set_parent_of message: {}", Report::new(e));
+            log_forward("zxdg_imported_v2.set_parent_of", &e);
         }
     }
 
@@ -264,10 +321,10 @@ pub trait ZxdgImportedV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_destroyed(
+        let res = _slf.try_send_destroyed(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zxdg_imported_v2.destroyed message: {}", Report::new(e));
+            log_forward("zxdg_imported_v2.destroyed", &e);
         }
     }
 }
@@ -287,7 +344,7 @@ impl ObjectPrivate for ZxdgImportedV2 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

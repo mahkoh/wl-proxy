@@ -52,7 +52,7 @@ impl TreelandLockscreenV1 {
 
     /// destroy the treeland_lockscreen_v1 object
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -84,6 +84,18 @@ impl TreelandLockscreenV1 {
         Ok(())
     }
 
+    /// destroy the treeland_lockscreen_v1 object
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_lockscreen_v1.destroy", &e);
+        }
+    }
+
     /// Since when the lock message is available.
     pub const MSG__LOCK__SINCE: u32 = 1;
 
@@ -91,7 +103,7 @@ impl TreelandLockscreenV1 {
     ///
     /// Lock the screen.
     #[inline]
-    pub fn send_lock(
+    pub fn try_send_lock(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -122,6 +134,20 @@ impl TreelandLockscreenV1 {
         Ok(())
     }
 
+    /// lock screen
+    ///
+    /// Lock the screen.
+    #[inline]
+    pub fn send_lock(
+        &self,
+    ) {
+        let res = self.try_send_lock(
+        );
+        if let Err(e) = res {
+            log_send("treeland_lockscreen_v1.lock", &e);
+        }
+    }
+
     /// Since when the shutdown message is available.
     pub const MSG__SHUTDOWN__SINCE: u32 = 1;
 
@@ -129,7 +155,7 @@ impl TreelandLockscreenV1 {
     ///
     /// Show shutdown.
     #[inline]
-    pub fn send_shutdown(
+    pub fn try_send_shutdown(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -160,6 +186,20 @@ impl TreelandLockscreenV1 {
         Ok(())
     }
 
+    /// show shutdown
+    ///
+    /// Show shutdown.
+    #[inline]
+    pub fn send_shutdown(
+        &self,
+    ) {
+        let res = self.try_send_shutdown(
+        );
+        if let Err(e) = res {
+            log_send("treeland_lockscreen_v1.shutdown", &e);
+        }
+    }
+
     /// Since when the switch_user message is available.
     pub const MSG__SWITCH_USER__SINCE: u32 = 1;
 
@@ -167,7 +207,7 @@ impl TreelandLockscreenV1 {
     ///
     /// Switch user.
     #[inline]
-    pub fn send_switch_user(
+    pub fn try_send_switch_user(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -197,13 +237,27 @@ impl TreelandLockscreenV1 {
         ]);
         Ok(())
     }
+
+    /// switch user
+    ///
+    /// Switch user.
+    #[inline]
+    pub fn send_switch_user(
+        &self,
+    ) {
+        let res = self.try_send_switch_user(
+        );
+        if let Err(e) = res {
+            log_send("treeland_lockscreen_v1.switch_user", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandLockscreenV1] proxies.
 pub trait TreelandLockscreenV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandLockscreenV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the treeland_lockscreen_v1 object
@@ -215,10 +269,10 @@ pub trait TreelandLockscreenV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_lockscreen_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_lockscreen_v1.destroy", &e);
         }
     }
 
@@ -233,10 +287,10 @@ pub trait TreelandLockscreenV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_lock(
+        let res = _slf.try_send_lock(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_lockscreen_v1.lock message: {}", Report::new(e));
+            log_forward("treeland_lockscreen_v1.lock", &e);
         }
     }
 
@@ -251,10 +305,10 @@ pub trait TreelandLockscreenV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_shutdown(
+        let res = _slf.try_send_shutdown(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_lockscreen_v1.shutdown message: {}", Report::new(e));
+            log_forward("treeland_lockscreen_v1.shutdown", &e);
         }
     }
 
@@ -269,10 +323,10 @@ pub trait TreelandLockscreenV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_switch_user(
+        let res = _slf.try_send_switch_user(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_lockscreen_v1.switch_user message: {}", Report::new(e));
+            log_forward("treeland_lockscreen_v1.switch_user", &e);
         }
     }
 }
@@ -292,7 +346,7 @@ impl ObjectPrivate for TreelandLockscreenV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

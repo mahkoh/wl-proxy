@@ -56,7 +56,7 @@ impl WlCompositor {
     ///
     /// Ask the compositor to create a new surface.
     #[inline]
-    pub fn send_create_surface(
+    pub fn try_send_create_surface(
         &self,
         id: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
@@ -99,6 +99,22 @@ impl WlCompositor {
         Ok(())
     }
 
+    /// create new surface
+    ///
+    /// Ask the compositor to create a new surface.
+    #[inline]
+    pub fn send_create_surface(
+        &self,
+        id: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_create_surface(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("wl_compositor.create_surface", &e);
+        }
+    }
+
     /// Since when the create_region message is available.
     pub const MSG__CREATE_REGION__SINCE: u32 = 1;
 
@@ -106,7 +122,7 @@ impl WlCompositor {
     ///
     /// Ask the compositor to create a new region.
     #[inline]
-    pub fn send_create_region(
+    pub fn try_send_create_region(
         &self,
         id: &Rc<WlRegion>,
     ) -> Result<(), ObjectError> {
@@ -148,13 +164,29 @@ impl WlCompositor {
         ]);
         Ok(())
     }
+
+    /// create new region
+    ///
+    /// Ask the compositor to create a new region.
+    #[inline]
+    pub fn send_create_region(
+        &self,
+        id: &Rc<WlRegion>,
+    ) {
+        let res = self.try_send_create_region(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("wl_compositor.create_region", &e);
+        }
+    }
 }
 
 /// A message handler for [WlCompositor] proxies.
 pub trait WlCompositorHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlCompositor>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// create new surface
@@ -173,11 +205,11 @@ pub trait WlCompositorHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_surface(
+        let res = _slf.try_send_create_surface(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_compositor.create_surface message: {}", Report::new(e));
+            log_forward("wl_compositor.create_surface", &e);
         }
     }
 
@@ -197,11 +229,11 @@ pub trait WlCompositorHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_region(
+        let res = _slf.try_send_create_region(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_compositor.create_region message: {}", Report::new(e));
+            log_forward("wl_compositor.create_region", &e);
         }
     }
 }
@@ -221,7 +253,7 @@ impl ObjectPrivate for WlCompositor {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

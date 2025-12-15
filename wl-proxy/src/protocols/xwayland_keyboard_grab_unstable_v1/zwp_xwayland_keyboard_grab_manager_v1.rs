@@ -54,7 +54,7 @@ impl ZwpXwaylandKeyboardGrabManagerV1 {
     ///
     /// Destroy the keyboard grab manager.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -84,6 +84,20 @@ impl ZwpXwaylandKeyboardGrabManagerV1 {
         ]);
         self.core.handle_server_destroy();
         Ok(())
+    }
+
+    /// destroy the keyboard grab manager
+    ///
+    /// Destroy the keyboard grab manager.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_xwayland_keyboard_grab_manager_v1.destroy", &e);
+        }
     }
 
     /// Since when the grab_keyboard message is available.
@@ -117,7 +131,7 @@ impl ZwpXwaylandKeyboardGrabManagerV1 {
     /// - `surface`: surface to report keyboard events to
     /// - `seat`: the seat for which the keyboard should be grabbed
     #[inline]
-    pub fn send_grab_keyboard(
+    pub fn try_send_grab_keyboard(
         &self,
         id: &Rc<ZwpXwaylandKeyboardGrabV1>,
         surface: &Rc<WlSurface>,
@@ -177,13 +191,57 @@ impl ZwpXwaylandKeyboardGrabManagerV1 {
         ]);
         Ok(())
     }
+
+    /// grab the keyboard to a surface
+    ///
+    /// The grab_keyboard request asks for a grab of the keyboard, forcing
+    /// the keyboard focus for the given seat upon the given surface.
+    ///
+    /// The protocol provides no guarantee that the grab is ever satisfied,
+    /// and does not require the compositor to send an error if the grab
+    /// cannot ever be satisfied. It is thus possible to request a keyboard
+    /// grab that will never be effective.
+    ///
+    /// The protocol:
+    ///
+    /// * does not guarantee that the grab itself is applied for a surface,
+    ///   the grab request may be silently ignored by the compositor,
+    /// * does not guarantee that any events are sent to this client even
+    ///   if the grab is applied to a surface,
+    /// * does not guarantee that events sent to this client are exhaustive,
+    ///   a compositor may filter some events for its own consumption,
+    /// * does not guarantee that events sent to this client are continuous,
+    ///   a compositor may change and reroute keyboard events while the grab
+    ///   is nominally active.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`: surface to report keyboard events to
+    /// - `seat`: the seat for which the keyboard should be grabbed
+    #[inline]
+    pub fn send_grab_keyboard(
+        &self,
+        id: &Rc<ZwpXwaylandKeyboardGrabV1>,
+        surface: &Rc<WlSurface>,
+        seat: &Rc<WlSeat>,
+    ) {
+        let res = self.try_send_grab_keyboard(
+            id,
+            surface,
+            seat,
+        );
+        if let Err(e) = res {
+            log_send("zwp_xwayland_keyboard_grab_manager_v1.grab_keyboard", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpXwaylandKeyboardGrabManagerV1] proxies.
 pub trait ZwpXwaylandKeyboardGrabManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpXwaylandKeyboardGrabManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the keyboard grab manager
@@ -197,10 +255,10 @@ pub trait ZwpXwaylandKeyboardGrabManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_xwayland_keyboard_grab_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_xwayland_keyboard_grab_manager_v1.destroy", &e);
         }
     }
 
@@ -245,13 +303,13 @@ pub trait ZwpXwaylandKeyboardGrabManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_grab_keyboard(
+        let res = _slf.try_send_grab_keyboard(
             id,
             surface,
             seat,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_xwayland_keyboard_grab_manager_v1.grab_keyboard message: {}", Report::new(e));
+            log_forward("zwp_xwayland_keyboard_grab_manager_v1.grab_keyboard", &e);
         }
     }
 }
@@ -271,7 +329,7 @@ impl ObjectPrivate for ZwpXwaylandKeyboardGrabManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -57,7 +57,7 @@ impl WlRegion {
     ///
     /// Destroy the region.  This will invalidate the object ID.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -89,6 +89,20 @@ impl WlRegion {
         Ok(())
     }
 
+    /// destroy region
+    ///
+    /// Destroy the region.  This will invalidate the object ID.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wl_region.destroy", &e);
+        }
+    }
+
     /// Since when the add message is available.
     pub const MSG__ADD__SINCE: u32 = 1;
 
@@ -103,7 +117,7 @@ impl WlRegion {
     /// - `width`: rectangle width
     /// - `height`: rectangle height
     #[inline]
-    pub fn send_add(
+    pub fn try_send_add(
         &self,
         x: i32,
         y: i32,
@@ -153,6 +167,35 @@ impl WlRegion {
         Ok(())
     }
 
+    /// add rectangle to region
+    ///
+    /// Add the specified rectangle to the region.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: region-local x coordinate
+    /// - `y`: region-local y coordinate
+    /// - `width`: rectangle width
+    /// - `height`: rectangle height
+    #[inline]
+    pub fn send_add(
+        &self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_add(
+            x,
+            y,
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("wl_region.add", &e);
+        }
+    }
+
     /// Since when the subtract message is available.
     pub const MSG__SUBTRACT__SINCE: u32 = 1;
 
@@ -167,7 +210,7 @@ impl WlRegion {
     /// - `width`: rectangle width
     /// - `height`: rectangle height
     #[inline]
-    pub fn send_subtract(
+    pub fn try_send_subtract(
         &self,
         x: i32,
         y: i32,
@@ -216,13 +259,42 @@ impl WlRegion {
         ]);
         Ok(())
     }
+
+    /// subtract rectangle from region
+    ///
+    /// Subtract the specified rectangle from the region.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: region-local x coordinate
+    /// - `y`: region-local y coordinate
+    /// - `width`: rectangle width
+    /// - `height`: rectangle height
+    #[inline]
+    pub fn send_subtract(
+        &self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_subtract(
+            x,
+            y,
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("wl_region.subtract", &e);
+        }
+    }
 }
 
 /// A message handler for [WlRegion] proxies.
 pub trait WlRegionHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlRegion>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy region
@@ -236,10 +308,10 @@ pub trait WlRegionHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_region.destroy message: {}", Report::new(e));
+            log_forward("wl_region.destroy", &e);
         }
     }
 
@@ -265,14 +337,14 @@ pub trait WlRegionHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_add(
+        let res = _slf.try_send_add(
             x,
             y,
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_region.add message: {}", Report::new(e));
+            log_forward("wl_region.add", &e);
         }
     }
 
@@ -298,14 +370,14 @@ pub trait WlRegionHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_subtract(
+        let res = _slf.try_send_subtract(
             x,
             y,
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_region.subtract message: {}", Report::new(e));
+            log_forward("wl_region.subtract", &e);
         }
     }
 }
@@ -325,7 +397,7 @@ impl ObjectPrivate for WlRegion {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

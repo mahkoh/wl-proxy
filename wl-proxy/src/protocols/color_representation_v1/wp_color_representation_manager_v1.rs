@@ -59,7 +59,7 @@ impl WpColorRepresentationManagerV1 {
     /// Destroy the wp_color_representation_manager_v1 object. This does not
     /// affect any other objects in any way.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -91,6 +91,21 @@ impl WpColorRepresentationManagerV1 {
         Ok(())
     }
 
+    /// destroy the manager
+    ///
+    /// Destroy the wp_color_representation_manager_v1 object. This does not
+    /// affect any other objects in any way.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_color_representation_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_surface message is available.
     pub const MSG__GET_SURFACE__SINCE: u32 = 1;
 
@@ -109,7 +124,7 @@ impl WpColorRepresentationManagerV1 {
     /// - `id`:
     /// - `surface`:
     #[inline]
-    pub fn send_get_surface(
+    pub fn try_send_get_surface(
         &self,
         id: &Rc<WpColorRepresentationSurfaceV1>,
         surface: &Rc<WlSurface>,
@@ -161,6 +176,35 @@ impl WpColorRepresentationManagerV1 {
         Ok(())
     }
 
+    /// create a color representation interface for a wl_surface
+    ///
+    /// If a wp_color_representation_surface_v1 object already exists for the
+    /// given wl_surface, the protocol error surface_exists is raised.
+    ///
+    /// This creates a new color wp_color_representation_surface_v1 object for
+    /// the given wl_surface.
+    ///
+    /// See the wp_color_representation_surface_v1 interface for more details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn send_get_surface(
+        &self,
+        id: &Rc<WpColorRepresentationSurfaceV1>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_surface(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_representation_manager_v1.get_surface", &e);
+        }
+    }
+
     /// Since when the supported_alpha_mode message is available.
     pub const MSG__SUPPORTED_ALPHA_MODE__SINCE: u32 = 1;
 
@@ -176,7 +220,7 @@ impl WpColorRepresentationManagerV1 {
     ///
     /// - `alpha_mode`: supported alpha mode
     #[inline]
-    pub fn send_supported_alpha_mode(
+    pub fn try_send_supported_alpha_mode(
         &self,
         alpha_mode: WpColorRepresentationSurfaceV1AlphaMode,
     ) -> Result<(), ObjectError> {
@@ -216,6 +260,30 @@ impl WpColorRepresentationManagerV1 {
         Ok(())
     }
 
+    /// supported alpha modes
+    ///
+    /// When this object is created, it shall immediately send this event once
+    /// for each alpha mode the compositor supports.
+    ///
+    /// For the definition of the supported values, see the
+    /// wp_color_representation_surface_v1::alpha_mode enum.
+    ///
+    /// # Arguments
+    ///
+    /// - `alpha_mode`: supported alpha mode
+    #[inline]
+    pub fn send_supported_alpha_mode(
+        &self,
+        alpha_mode: WpColorRepresentationSurfaceV1AlphaMode,
+    ) {
+        let res = self.try_send_supported_alpha_mode(
+            alpha_mode,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_representation_manager_v1.supported_alpha_mode", &e);
+        }
+    }
+
     /// Since when the supported_coefficients_and_ranges message is available.
     pub const MSG__SUPPORTED_COEFFICIENTS_AND_RANGES__SINCE: u32 = 1;
 
@@ -234,7 +302,7 @@ impl WpColorRepresentationManagerV1 {
     /// - `coefficients`: supported matrix coefficients
     /// - `range`: full range flag
     #[inline]
-    pub fn send_supported_coefficients_and_ranges(
+    pub fn try_send_supported_coefficients_and_ranges(
         &self,
         coefficients: WpColorRepresentationSurfaceV1Coefficients,
         range: WpColorRepresentationSurfaceV1Range,
@@ -278,6 +346,35 @@ impl WpColorRepresentationManagerV1 {
         Ok(())
     }
 
+    /// supported matrix coefficients and ranges
+    ///
+    /// When this object is created, it shall immediately send this event once
+    /// for each matrix coefficient and color range combination the compositor
+    /// supports.
+    ///
+    /// For the definition of the supported values, see the
+    /// wp_color_representation_surface_v1::coefficients and
+    /// wp_color_representation_surface_v1::range enums.
+    ///
+    /// # Arguments
+    ///
+    /// - `coefficients`: supported matrix coefficients
+    /// - `range`: full range flag
+    #[inline]
+    pub fn send_supported_coefficients_and_ranges(
+        &self,
+        coefficients: WpColorRepresentationSurfaceV1Coefficients,
+        range: WpColorRepresentationSurfaceV1Range,
+    ) {
+        let res = self.try_send_supported_coefficients_and_ranges(
+            coefficients,
+            range,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_representation_manager_v1.supported_coefficients_and_ranges", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -285,7 +382,7 @@ impl WpColorRepresentationManagerV1 {
     ///
     /// This event is sent when all supported features have been sent.
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -317,13 +414,27 @@ impl WpColorRepresentationManagerV1 {
         ]);
         Ok(())
     }
+
+    /// all features have been sent
+    ///
+    /// This event is sent when all supported features have been sent.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) {
+        let res = self.try_send_done(
+        );
+        if let Err(e) = res {
+            log_send("wp_color_representation_manager_v1.done", &e);
+        }
+    }
 }
 
 /// A message handler for [WpColorRepresentationManagerV1] proxies.
 pub trait WpColorRepresentationManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpColorRepresentationManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the manager
@@ -338,10 +449,10 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_representation_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_color_representation_manager_v1.destroy", &e);
         }
     }
 
@@ -372,12 +483,12 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_surface(
+        let res = _slf.try_send_get_surface(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_representation_manager_v1.get_surface message: {}", Report::new(e));
+            log_forward("wp_color_representation_manager_v1.get_surface", &e);
         }
     }
 
@@ -401,11 +512,11 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_supported_alpha_mode(
+        let res = _slf.try_send_supported_alpha_mode(
             alpha_mode,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_representation_manager_v1.supported_alpha_mode message: {}", Report::new(e));
+            log_forward("wp_color_representation_manager_v1.supported_alpha_mode", &e);
         }
     }
 
@@ -433,12 +544,12 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_supported_coefficients_and_ranges(
+        let res = _slf.try_send_supported_coefficients_and_ranges(
             coefficients,
             range,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_representation_manager_v1.supported_coefficients_and_ranges message: {}", Report::new(e));
+            log_forward("wp_color_representation_manager_v1.supported_coefficients_and_ranges", &e);
         }
     }
 
@@ -453,10 +564,10 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_representation_manager_v1.done message: {}", Report::new(e));
+            log_forward("wp_color_representation_manager_v1.done", &e);
         }
     }
 }
@@ -476,7 +587,7 @@ impl ObjectPrivate for WpColorRepresentationManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

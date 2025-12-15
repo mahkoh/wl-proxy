@@ -62,7 +62,7 @@ impl TreelandPersonalizationWallpaperContextV1 {
     /// - `fd`: wallpaper file fd
     /// - `metadata`: file related metadata information
     #[inline]
-    pub fn send_set_fd(
+    pub fn try_send_set_fd(
         &self,
         fd: &Rc<OwnedFd>,
         metadata: &str,
@@ -104,6 +104,27 @@ impl TreelandPersonalizationWallpaperContextV1 {
         Ok(())
     }
 
+    /// set the current user's wallpaper fd
+    ///
+    /// # Arguments
+    ///
+    /// - `fd`: wallpaper file fd
+    /// - `metadata`: file related metadata information
+    #[inline]
+    pub fn send_set_fd(
+        &self,
+        fd: &Rc<OwnedFd>,
+        metadata: &str,
+    ) {
+        let res = self.try_send_set_fd(
+            fd,
+            metadata,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_wallpaper_context_v1.set_fd", &e);
+        }
+    }
+
     /// Since when the set_identifier message is available.
     pub const MSG__SET_IDENTIFIER__SINCE: u32 = 1;
 
@@ -113,7 +134,7 @@ impl TreelandPersonalizationWallpaperContextV1 {
     ///
     /// - `identifier`: Identifier for the application window
     #[inline]
-    pub fn send_set_identifier(
+    pub fn try_send_set_identifier(
         &self,
         identifier: &str,
     ) -> Result<(), ObjectError> {
@@ -151,6 +172,24 @@ impl TreelandPersonalizationWallpaperContextV1 {
         Ok(())
     }
 
+    /// identifier for the application window
+    ///
+    /// # Arguments
+    ///
+    /// - `identifier`: Identifier for the application window
+    #[inline]
+    pub fn send_set_identifier(
+        &self,
+        identifier: &str,
+    ) {
+        let res = self.try_send_set_identifier(
+            identifier,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_wallpaper_context_v1.set_identifier", &e);
+        }
+    }
+
     /// Since when the set_output message is available.
     pub const MSG__SET_OUTPUT__SINCE: u32 = 1;
 
@@ -160,7 +199,7 @@ impl TreelandPersonalizationWallpaperContextV1 {
     ///
     /// - `output`: system output name
     #[inline]
-    pub fn send_set_output(
+    pub fn try_send_set_output(
         &self,
         output: &str,
     ) -> Result<(), ObjectError> {
@@ -198,6 +237,24 @@ impl TreelandPersonalizationWallpaperContextV1 {
         Ok(())
     }
 
+    /// configure xdg desktop portal options
+    ///
+    /// # Arguments
+    ///
+    /// - `output`: system output name
+    #[inline]
+    pub fn send_set_output(
+        &self,
+        output: &str,
+    ) {
+        let res = self.try_send_set_output(
+            output,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_wallpaper_context_v1.set_output", &e);
+        }
+    }
+
     /// Since when the set_on message is available.
     pub const MSG__SET_ON__SINCE: u32 = 1;
 
@@ -207,7 +264,7 @@ impl TreelandPersonalizationWallpaperContextV1 {
     ///
     /// - `options`: xdg desktop portal options
     #[inline]
-    pub fn send_set_on(
+    pub fn try_send_set_on(
         &self,
         options: TreelandPersonalizationWallpaperContextV1Options,
     ) -> Result<(), ObjectError> {
@@ -245,6 +302,24 @@ impl TreelandPersonalizationWallpaperContextV1 {
         Ok(())
     }
 
+    /// configure xdg desktop portal options
+    ///
+    /// # Arguments
+    ///
+    /// - `options`: xdg desktop portal options
+    #[inline]
+    pub fn send_set_on(
+        &self,
+        options: TreelandPersonalizationWallpaperContextV1Options,
+    ) {
+        let res = self.try_send_set_on(
+            options,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_wallpaper_context_v1.set_on", &e);
+        }
+    }
+
     /// Since when the set_isdark message is available.
     pub const MSG__SET_ISDARK__SINCE: u32 = 1;
 
@@ -254,7 +329,7 @@ impl TreelandPersonalizationWallpaperContextV1 {
     ///
     /// - `isdark`: is dark
     #[inline]
-    pub fn send_set_isdark(
+    pub fn try_send_set_isdark(
         &self,
         isdark: u32,
     ) -> Result<(), ObjectError> {
@@ -292,12 +367,30 @@ impl TreelandPersonalizationWallpaperContextV1 {
         Ok(())
     }
 
+    /// Set whether the current wallpaper is dark
+    ///
+    /// # Arguments
+    ///
+    /// - `isdark`: is dark
+    #[inline]
+    pub fn send_set_isdark(
+        &self,
+        isdark: u32,
+    ) {
+        let res = self.try_send_set_isdark(
+            isdark,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_wallpaper_context_v1.set_isdark", &e);
+        }
+    }
+
     /// Since when the commit message is available.
     pub const MSG__COMMIT__SINCE: u32 = 1;
 
     /// commit configuration
     #[inline]
-    pub fn send_commit(
+    pub fn try_send_commit(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -328,6 +421,18 @@ impl TreelandPersonalizationWallpaperContextV1 {
         Ok(())
     }
 
+    /// commit configuration
+    #[inline]
+    pub fn send_commit(
+        &self,
+    ) {
+        let res = self.try_send_commit(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_wallpaper_context_v1.commit", &e);
+        }
+    }
+
     /// Since when the get_metadata message is available.
     pub const MSG__GET_METADATA__SINCE: u32 = 1;
 
@@ -335,7 +440,7 @@ impl TreelandPersonalizationWallpaperContextV1 {
     ///
     /// get the current user's wallpaper
     #[inline]
-    pub fn send_get_metadata(
+    pub fn try_send_get_metadata(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -366,6 +471,20 @@ impl TreelandPersonalizationWallpaperContextV1 {
         Ok(())
     }
 
+    /// get user save meta data
+    ///
+    /// get the current user's wallpaper
+    #[inline]
+    pub fn send_get_metadata(
+        &self,
+    ) {
+        let res = self.try_send_get_metadata(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_wallpaper_context_v1.get_metadata", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -373,7 +492,7 @@ impl TreelandPersonalizationWallpaperContextV1 {
     ///
     /// Destroy the context object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -405,6 +524,20 @@ impl TreelandPersonalizationWallpaperContextV1 {
         Ok(())
     }
 
+    /// destroy the context object
+    ///
+    /// Destroy the context object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_wallpaper_context_v1.destroy", &e);
+        }
+    }
+
     /// Since when the metadata message is available.
     pub const MSG__METADATA__SINCE: u32 = 1;
 
@@ -416,7 +549,7 @@ impl TreelandPersonalizationWallpaperContextV1 {
     ///
     /// - `metadata`: user meta data
     #[inline]
-    pub fn send_metadata(
+    pub fn try_send_metadata(
         &self,
         metadata: &str,
     ) -> Result<(), ObjectError> {
@@ -455,13 +588,33 @@ impl TreelandPersonalizationWallpaperContextV1 {
         fmt.string(arg0);
         Ok(())
     }
+
+    /// get metadata event
+    ///
+    /// Send this signal after getting the user's wallpaper.
+    ///
+    /// # Arguments
+    ///
+    /// - `metadata`: user meta data
+    #[inline]
+    pub fn send_metadata(
+        &self,
+        metadata: &str,
+    ) {
+        let res = self.try_send_metadata(
+            metadata,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_wallpaper_context_v1.metadata", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandPersonalizationWallpaperContextV1] proxies.
 pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandPersonalizationWallpaperContextV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// set the current user's wallpaper fd
@@ -480,12 +633,12 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_fd(
+        let res = _slf.try_send_set_fd(
             fd,
             metadata,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_wallpaper_context_v1.set_fd message: {}", Report::new(e));
+            log_forward("treeland_personalization_wallpaper_context_v1.set_fd", &e);
         }
     }
 
@@ -503,11 +656,11 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_identifier(
+        let res = _slf.try_send_set_identifier(
             identifier,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_wallpaper_context_v1.set_identifier message: {}", Report::new(e));
+            log_forward("treeland_personalization_wallpaper_context_v1.set_identifier", &e);
         }
     }
 
@@ -525,11 +678,11 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_output(
+        let res = _slf.try_send_set_output(
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_wallpaper_context_v1.set_output message: {}", Report::new(e));
+            log_forward("treeland_personalization_wallpaper_context_v1.set_output", &e);
         }
     }
 
@@ -547,11 +700,11 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_on(
+        let res = _slf.try_send_set_on(
             options,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_wallpaper_context_v1.set_on message: {}", Report::new(e));
+            log_forward("treeland_personalization_wallpaper_context_v1.set_on", &e);
         }
     }
 
@@ -569,11 +722,11 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_isdark(
+        let res = _slf.try_send_set_isdark(
             isdark,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_wallpaper_context_v1.set_isdark message: {}", Report::new(e));
+            log_forward("treeland_personalization_wallpaper_context_v1.set_isdark", &e);
         }
     }
 
@@ -586,10 +739,10 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_commit(
+        let res = _slf.try_send_commit(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_wallpaper_context_v1.commit message: {}", Report::new(e));
+            log_forward("treeland_personalization_wallpaper_context_v1.commit", &e);
         }
     }
 
@@ -604,10 +757,10 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_metadata(
+        let res = _slf.try_send_get_metadata(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_wallpaper_context_v1.get_metadata message: {}", Report::new(e));
+            log_forward("treeland_personalization_wallpaper_context_v1.get_metadata", &e);
         }
     }
 
@@ -622,10 +775,10 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_wallpaper_context_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_personalization_wallpaper_context_v1.destroy", &e);
         }
     }
 
@@ -645,11 +798,11 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_metadata(
+        let res = _slf.try_send_metadata(
             metadata,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_wallpaper_context_v1.metadata message: {}", Report::new(e));
+            log_forward("treeland_personalization_wallpaper_context_v1.metadata", &e);
         }
     }
 }
@@ -669,7 +822,7 @@ impl ObjectPrivate for TreelandPersonalizationWallpaperContextV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

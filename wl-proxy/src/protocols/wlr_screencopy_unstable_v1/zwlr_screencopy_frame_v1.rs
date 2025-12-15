@@ -78,7 +78,7 @@ impl ZwlrScreencopyFrameV1 {
     /// - `height`: buffer height
     /// - `stride`: buffer stride
     #[inline]
-    pub fn send_buffer(
+    pub fn try_send_buffer(
         &self,
         format: WlShmFormat,
         width: u32,
@@ -130,6 +130,37 @@ impl ZwlrScreencopyFrameV1 {
         Ok(())
     }
 
+    /// wl_shm buffer information
+    ///
+    /// Provides information about wl_shm buffer parameters that need to be
+    /// used for this frame. This event is sent once after the frame is created
+    /// if wl_shm buffers are supported.
+    ///
+    /// # Arguments
+    ///
+    /// - `format`: buffer format
+    /// - `width`: buffer width
+    /// - `height`: buffer height
+    /// - `stride`: buffer stride
+    #[inline]
+    pub fn send_buffer(
+        &self,
+        format: WlShmFormat,
+        width: u32,
+        height: u32,
+        stride: u32,
+    ) {
+        let res = self.try_send_buffer(
+            format,
+            width,
+            height,
+            stride,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_screencopy_frame_v1.buffer", &e);
+        }
+    }
+
     /// Since when the copy message is available.
     pub const MSG__COPY__SINCE: u32 = 1;
 
@@ -147,7 +178,7 @@ impl ZwlrScreencopyFrameV1 {
     ///
     /// - `buffer`:
     #[inline]
-    pub fn send_copy(
+    pub fn try_send_copy(
         &self,
         buffer: &Rc<WlBuffer>,
     ) -> Result<(), ObjectError> {
@@ -190,6 +221,32 @@ impl ZwlrScreencopyFrameV1 {
         Ok(())
     }
 
+    /// copy the frame
+    ///
+    /// Copy the frame to the supplied buffer. The buffer must have the
+    /// correct size, see zwlr_screencopy_frame_v1.buffer and
+    /// zwlr_screencopy_frame_v1.linux_dmabuf. The buffer needs to have a
+    /// supported format.
+    ///
+    /// If the frame is successfully copied, "flags" and "ready" events are
+    /// sent. Otherwise, a "failed" event is sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `buffer`:
+    #[inline]
+    pub fn send_copy(
+        &self,
+        buffer: &Rc<WlBuffer>,
+    ) {
+        let res = self.try_send_copy(
+            buffer,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_screencopy_frame_v1.copy", &e);
+        }
+    }
+
     /// Since when the flags message is available.
     pub const MSG__FLAGS__SINCE: u32 = 1;
 
@@ -202,7 +259,7 @@ impl ZwlrScreencopyFrameV1 {
     ///
     /// - `flags`: frame flags
     #[inline]
-    pub fn send_flags(
+    pub fn try_send_flags(
         &self,
         flags: ZwlrScreencopyFrameV1Flags,
     ) -> Result<(), ObjectError> {
@@ -242,6 +299,27 @@ impl ZwlrScreencopyFrameV1 {
         Ok(())
     }
 
+    /// frame flags
+    ///
+    /// Provides flags about the frame. This event is sent once before the
+    /// "ready" event.
+    ///
+    /// # Arguments
+    ///
+    /// - `flags`: frame flags
+    #[inline]
+    pub fn send_flags(
+        &self,
+        flags: ZwlrScreencopyFrameV1Flags,
+    ) {
+        let res = self.try_send_flags(
+            flags,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_screencopy_frame_v1.flags", &e);
+        }
+    }
+
     /// Since when the ready message is available.
     pub const MSG__READY__SINCE: u32 = 1;
 
@@ -265,7 +343,7 @@ impl ZwlrScreencopyFrameV1 {
     /// - `tv_sec_lo`: low 32 bits of the seconds part of the timestamp
     /// - `tv_nsec`: nanoseconds part of the timestamp
     #[inline]
-    pub fn send_ready(
+    pub fn try_send_ready(
         &self,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
@@ -313,6 +391,42 @@ impl ZwlrScreencopyFrameV1 {
         Ok(())
     }
 
+    /// indicates frame is available for reading
+    ///
+    /// Called as soon as the frame is copied, indicating it is available
+    /// for reading. This event includes the time at which the presentation took place.
+    ///
+    /// The timestamp is expressed as tv_sec_hi, tv_sec_lo, tv_nsec triples,
+    /// each component being an unsigned 32-bit value. Whole seconds are in
+    /// tv_sec which is a 64-bit value combined from tv_sec_hi and tv_sec_lo,
+    /// and the additional fractional part in tv_nsec as nanoseconds. Hence,
+    /// for valid timestamps tv_nsec must be in [0, 999999999]. The seconds part
+    /// may have an arbitrary offset at start.
+    ///
+    /// After receiving this event, the client should destroy the object.
+    ///
+    /// # Arguments
+    ///
+    /// - `tv_sec_hi`: high 32 bits of the seconds part of the timestamp
+    /// - `tv_sec_lo`: low 32 bits of the seconds part of the timestamp
+    /// - `tv_nsec`: nanoseconds part of the timestamp
+    #[inline]
+    pub fn send_ready(
+        &self,
+        tv_sec_hi: u32,
+        tv_sec_lo: u32,
+        tv_nsec: u32,
+    ) {
+        let res = self.try_send_ready(
+            tv_sec_hi,
+            tv_sec_lo,
+            tv_nsec,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_screencopy_frame_v1.ready", &e);
+        }
+    }
+
     /// Since when the failed message is available.
     pub const MSG__FAILED__SINCE: u32 = 1;
 
@@ -322,7 +436,7 @@ impl ZwlrScreencopyFrameV1 {
     ///
     /// After receiving this event, the client should destroy the object.
     #[inline]
-    pub fn send_failed(
+    pub fn try_send_failed(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -355,6 +469,22 @@ impl ZwlrScreencopyFrameV1 {
         Ok(())
     }
 
+    /// frame copy failed
+    ///
+    /// This event indicates that the attempted frame copy has failed.
+    ///
+    /// After receiving this event, the client should destroy the object.
+    #[inline]
+    pub fn send_failed(
+        &self,
+    ) {
+        let res = self.try_send_failed(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_screencopy_frame_v1.failed", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -362,7 +492,7 @@ impl ZwlrScreencopyFrameV1 {
     ///
     /// Destroys the frame. This request can be sent at any time by the client.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -394,6 +524,20 @@ impl ZwlrScreencopyFrameV1 {
         Ok(())
     }
 
+    /// delete this object, used or not
+    ///
+    /// Destroys the frame. This request can be sent at any time by the client.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_screencopy_frame_v1.destroy", &e);
+        }
+    }
+
     /// Since when the copy_with_damage message is available.
     pub const MSG__COPY_WITH_DAMAGE__SINCE: u32 = 2;
 
@@ -405,7 +549,7 @@ impl ZwlrScreencopyFrameV1 {
     ///
     /// - `buffer`:
     #[inline]
-    pub fn send_copy_with_damage(
+    pub fn try_send_copy_with_damage(
         &self,
         buffer: &Rc<WlBuffer>,
     ) -> Result<(), ObjectError> {
@@ -448,6 +592,26 @@ impl ZwlrScreencopyFrameV1 {
         Ok(())
     }
 
+    /// copy the frame when it's damaged
+    ///
+    /// Same as copy, except it waits until there is damage to copy.
+    ///
+    /// # Arguments
+    ///
+    /// - `buffer`:
+    #[inline]
+    pub fn send_copy_with_damage(
+        &self,
+        buffer: &Rc<WlBuffer>,
+    ) {
+        let res = self.try_send_copy_with_damage(
+            buffer,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_screencopy_frame_v1.copy_with_damage", &e);
+        }
+    }
+
     /// Since when the damage message is available.
     pub const MSG__DAMAGE__SINCE: u32 = 2;
 
@@ -471,7 +635,7 @@ impl ZwlrScreencopyFrameV1 {
     /// - `width`: current width
     /// - `height`: current height
     #[inline]
-    pub fn send_damage(
+    pub fn try_send_damage(
         &self,
         x: u32,
         y: u32,
@@ -523,6 +687,44 @@ impl ZwlrScreencopyFrameV1 {
         Ok(())
     }
 
+    /// carries the coordinates of the damaged region
+    ///
+    /// This event is sent right before the ready event when copy_with_damage is
+    /// requested. It may be generated multiple times for each copy_with_damage
+    /// request.
+    ///
+    /// The arguments describe a box around an area that has changed since the
+    /// last copy request that was derived from the current screencopy manager
+    /// instance.
+    ///
+    /// The union of all regions received between the call to copy_with_damage
+    /// and a ready event is the total damage since the prior ready event.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: damaged x coordinates
+    /// - `y`: damaged y coordinates
+    /// - `width`: current width
+    /// - `height`: current height
+    #[inline]
+    pub fn send_damage(
+        &self,
+        x: u32,
+        y: u32,
+        width: u32,
+        height: u32,
+    ) {
+        let res = self.try_send_damage(
+            x,
+            y,
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_screencopy_frame_v1.damage", &e);
+        }
+    }
+
     /// Since when the linux_dmabuf message is available.
     pub const MSG__LINUX_DMABUF__SINCE: u32 = 3;
 
@@ -538,7 +740,7 @@ impl ZwlrScreencopyFrameV1 {
     /// - `width`: buffer width
     /// - `height`: buffer height
     #[inline]
-    pub fn send_linux_dmabuf(
+    pub fn try_send_linux_dmabuf(
         &self,
         format: u32,
         width: u32,
@@ -586,6 +788,34 @@ impl ZwlrScreencopyFrameV1 {
         Ok(())
     }
 
+    /// linux-dmabuf buffer information
+    ///
+    /// Provides information about linux-dmabuf buffer parameters that need to
+    /// be used for this frame. This event is sent once after the frame is
+    /// created if linux-dmabuf buffers are supported.
+    ///
+    /// # Arguments
+    ///
+    /// - `format`: fourcc pixel format
+    /// - `width`: buffer width
+    /// - `height`: buffer height
+    #[inline]
+    pub fn send_linux_dmabuf(
+        &self,
+        format: u32,
+        width: u32,
+        height: u32,
+    ) {
+        let res = self.try_send_linux_dmabuf(
+            format,
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_screencopy_frame_v1.linux_dmabuf", &e);
+        }
+    }
+
     /// Since when the buffer_done message is available.
     pub const MSG__BUFFER_DONE__SINCE: u32 = 3;
 
@@ -596,7 +826,7 @@ impl ZwlrScreencopyFrameV1 {
     /// The client should proceed to create a buffer of one of the supported
     /// types, and send a "copy" request.
     #[inline]
-    pub fn send_buffer_done(
+    pub fn try_send_buffer_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -628,13 +858,30 @@ impl ZwlrScreencopyFrameV1 {
         ]);
         Ok(())
     }
+
+    /// all buffer types reported
+    ///
+    /// This event is sent once after all buffer events have been sent.
+    ///
+    /// The client should proceed to create a buffer of one of the supported
+    /// types, and send a "copy" request.
+    #[inline]
+    pub fn send_buffer_done(
+        &self,
+    ) {
+        let res = self.try_send_buffer_done(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_screencopy_frame_v1.buffer_done", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrScreencopyFrameV1] proxies.
 pub trait ZwlrScreencopyFrameV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrScreencopyFrameV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// wl_shm buffer information
@@ -661,14 +908,14 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_buffer(
+        let res = _slf.try_send_buffer(
             format,
             width,
             height,
             stride,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_screencopy_frame_v1.buffer message: {}", Report::new(e));
+            log_forward("zwlr_screencopy_frame_v1.buffer", &e);
         }
     }
 
@@ -697,11 +944,11 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_copy(
+        let res = _slf.try_send_copy(
             buffer,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_screencopy_frame_v1.copy message: {}", Report::new(e));
+            log_forward("zwlr_screencopy_frame_v1.copy", &e);
         }
     }
 
@@ -722,11 +969,11 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_flags(
+        let res = _slf.try_send_flags(
             flags,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_screencopy_frame_v1.flags message: {}", Report::new(e));
+            log_forward("zwlr_screencopy_frame_v1.flags", &e);
         }
     }
 
@@ -760,13 +1007,13 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_ready(
+        let res = _slf.try_send_ready(
             tv_sec_hi,
             tv_sec_lo,
             tv_nsec,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_screencopy_frame_v1.ready message: {}", Report::new(e));
+            log_forward("zwlr_screencopy_frame_v1.ready", &e);
         }
     }
 
@@ -783,10 +1030,10 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_failed(
+        let res = _slf.try_send_failed(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_screencopy_frame_v1.failed message: {}", Report::new(e));
+            log_forward("zwlr_screencopy_frame_v1.failed", &e);
         }
     }
 
@@ -801,10 +1048,10 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_screencopy_frame_v1.destroy message: {}", Report::new(e));
+            log_forward("zwlr_screencopy_frame_v1.destroy", &e);
         }
     }
 
@@ -827,11 +1074,11 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_copy_with_damage(
+        let res = _slf.try_send_copy_with_damage(
             buffer,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_screencopy_frame_v1.copy_with_damage message: {}", Report::new(e));
+            log_forward("zwlr_screencopy_frame_v1.copy_with_damage", &e);
         }
     }
 
@@ -866,14 +1113,14 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_damage(
+        let res = _slf.try_send_damage(
             x,
             y,
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_screencopy_frame_v1.damage message: {}", Report::new(e));
+            log_forward("zwlr_screencopy_frame_v1.damage", &e);
         }
     }
 
@@ -899,13 +1146,13 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_linux_dmabuf(
+        let res = _slf.try_send_linux_dmabuf(
             format,
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_screencopy_frame_v1.linux_dmabuf message: {}", Report::new(e));
+            log_forward("zwlr_screencopy_frame_v1.linux_dmabuf", &e);
         }
     }
 
@@ -923,10 +1170,10 @@ pub trait ZwlrScreencopyFrameV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_buffer_done(
+        let res = _slf.try_send_buffer_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_screencopy_frame_v1.buffer_done message: {}", Report::new(e));
+            log_forward("zwlr_screencopy_frame_v1.buffer_done", &e);
         }
     }
 }
@@ -946,7 +1193,7 @@ impl ObjectPrivate for ZwlrScreencopyFrameV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

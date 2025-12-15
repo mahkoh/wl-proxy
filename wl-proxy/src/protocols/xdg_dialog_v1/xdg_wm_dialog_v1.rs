@@ -65,7 +65,7 @@ impl XdgWmDialogV1 {
     /// Destroys the xdg_wm_dialog_v1 object. This does not affect
     /// the xdg_dialog_v1 objects generated through it.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -97,6 +97,21 @@ impl XdgWmDialogV1 {
         Ok(())
     }
 
+    /// destroy the dialog manager object
+    ///
+    /// Destroys the xdg_wm_dialog_v1 object. This does not affect
+    /// the xdg_dialog_v1 objects generated through it.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("xdg_wm_dialog_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_xdg_dialog message is available.
     pub const MSG__GET_XDG_DIALOG__SINCE: u32 = 1;
 
@@ -113,7 +128,7 @@ impl XdgWmDialogV1 {
     /// - `id`:
     /// - `toplevel`:
     #[inline]
-    pub fn send_get_xdg_dialog(
+    pub fn try_send_get_xdg_dialog(
         &self,
         id: &Rc<XdgDialogV1>,
         toplevel: &Rc<XdgToplevel>,
@@ -164,13 +179,40 @@ impl XdgWmDialogV1 {
         ]);
         Ok(())
     }
+
+    /// create a dialog object
+    ///
+    /// Creates a xdg_dialog_v1 object for the given toplevel. See the interface
+    /// description for more details.
+    ///
+    /// 	Compositors must raise an already_used error if clients attempt to
+    /// 	create multiple xdg_dialog_v1 objects for the same xdg_toplevel.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `toplevel`:
+    #[inline]
+    pub fn send_get_xdg_dialog(
+        &self,
+        id: &Rc<XdgDialogV1>,
+        toplevel: &Rc<XdgToplevel>,
+    ) {
+        let res = self.try_send_get_xdg_dialog(
+            id,
+            toplevel,
+        );
+        if let Err(e) = res {
+            log_send("xdg_wm_dialog_v1.get_xdg_dialog", &e);
+        }
+    }
 }
 
 /// A message handler for [XdgWmDialogV1] proxies.
 pub trait XdgWmDialogV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgWmDialogV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the dialog manager object
@@ -185,10 +227,10 @@ pub trait XdgWmDialogV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_wm_dialog_v1.destroy message: {}", Report::new(e));
+            log_forward("xdg_wm_dialog_v1.destroy", &e);
         }
     }
 
@@ -217,12 +259,12 @@ pub trait XdgWmDialogV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_xdg_dialog(
+        let res = _slf.try_send_get_xdg_dialog(
             id,
             toplevel,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_wm_dialog_v1.get_xdg_dialog message: {}", Report::new(e));
+            log_forward("xdg_wm_dialog_v1.get_xdg_dialog", &e);
         }
     }
 }
@@ -242,7 +284,7 @@ impl ObjectPrivate for XdgWmDialogV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

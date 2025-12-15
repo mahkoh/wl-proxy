@@ -109,7 +109,7 @@ impl ExtSessionLockV1 {
     /// It is a protocol error to make this request if the locked event was
     /// sent, the unlock_and_destroy request must be used instead.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -141,6 +141,28 @@ impl ExtSessionLockV1 {
         Ok(())
     }
 
+    /// destroy the session lock
+    ///
+    /// This informs the compositor that the lock object will no longer be
+    /// used. Existing objects created through this interface remain valid.
+    ///
+    /// After this request is made, lock surfaces created through this object
+    /// should be destroyed by the client as they will no longer be used by
+    /// the compositor.
+    ///
+    /// It is a protocol error to make this request if the locked event was
+    /// sent, the unlock_and_destroy request must be used instead.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_session_lock_v1.destroy", &e);
+        }
+    }
+
     /// Since when the locked message is available.
     pub const MSG__LOCKED__SINCE: u32 = 1;
 
@@ -156,7 +178,7 @@ impl ExtSessionLockV1 {
     /// If this event is sent, making the destroy request is a protocol error,
     /// the lock object must be destroyed using the unlock_and_destroy request.
     #[inline]
-    pub fn send_locked(
+    pub fn try_send_locked(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -189,6 +211,28 @@ impl ExtSessionLockV1 {
         Ok(())
     }
 
+    /// session successfully locked
+    ///
+    /// This client is now responsible for displaying graphics while the
+    /// session is locked and deciding when to unlock the session.
+    ///
+    /// The locked event must not be sent until a new "locked" frame has been
+    /// presented on all outputs and no security sensitive normal/unlocked
+    /// content is possibly visible.
+    ///
+    /// If this event is sent, making the destroy request is a protocol error,
+    /// the lock object must be destroyed using the unlock_and_destroy request.
+    #[inline]
+    pub fn send_locked(
+        &self,
+    ) {
+        let res = self.try_send_locked(
+        );
+        if let Err(e) = res {
+            log_send("ext_session_lock_v1.locked", &e);
+        }
+    }
+
     /// Since when the finished message is available.
     pub const MSG__FINISHED__SINCE: u32 = 1;
 
@@ -217,7 +261,7 @@ impl ExtSessionLockV1 {
     /// request or the unlock_and_destroy request, depending on whether or
     /// not the locked event was received on this object.
     #[inline]
-    pub fn send_finished(
+    pub fn try_send_finished(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -250,6 +294,41 @@ impl ExtSessionLockV1 {
         Ok(())
     }
 
+    /// the session lock object should be destroyed
+    ///
+    /// The compositor has decided that the session lock should be destroyed
+    /// as it will no longer be used by the compositor. Exactly when this
+    /// event is sent is compositor policy, but it must never be sent more
+    /// than once for a given session lock object.
+    ///
+    /// This might be sent because there is already another ext_session_lock_v1
+    /// object held by a client, or the compositor has decided to deny the
+    /// request to lock the session for some other reason. This might also
+    /// be sent because the compositor implements some alternative, secure
+    /// way to authenticate and unlock the session.
+    ///
+    /// The finished event should be sent immediately on creation of this
+    /// object if the compositor decides that the locked event will not
+    /// be sent.
+    ///
+    /// If the locked event is sent on creation of this object the finished
+    /// event may still be sent at some later time in this object's
+    /// lifetime. This is compositor policy.
+    ///
+    /// Upon receiving this event, the client should make either the destroy
+    /// request or the unlock_and_destroy request, depending on whether or
+    /// not the locked event was received on this object.
+    #[inline]
+    pub fn send_finished(
+        &self,
+    ) {
+        let res = self.try_send_finished(
+        );
+        if let Err(e) = res {
+            log_send("ext_session_lock_v1.finished", &e);
+        }
+    }
+
     /// Since when the get_lock_surface message is available.
     pub const MSG__GET_LOCK_SURFACE__SINCE: u32 = 1;
 
@@ -273,7 +352,7 @@ impl ExtSessionLockV1 {
     /// - `surface`:
     /// - `output`:
     #[inline]
-    pub fn send_get_lock_surface(
+    pub fn try_send_get_lock_surface(
         &self,
         id: &Rc<ExtSessionLockSurfaceV1>,
         surface: &Rc<WlSurface>,
@@ -334,6 +413,42 @@ impl ExtSessionLockV1 {
         Ok(())
     }
 
+    /// create a lock surface for a given output
+    ///
+    /// The client is expected to create lock surfaces for all outputs
+    /// currently present and any new outputs as they are advertised. These
+    /// won't be displayed by the compositor unless the lock is successful
+    /// and the locked event is sent.
+    ///
+    /// Providing a wl_surface which already has a role or already has a buffer
+    /// attached or committed is a protocol error, as is attaching/committing
+    /// a buffer before the first ext_session_lock_surface_v1.configure event.
+    ///
+    /// Attempting to create more than one lock surface for a given output
+    /// is a duplicate_output protocol error.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    /// - `output`:
+    #[inline]
+    pub fn send_get_lock_surface(
+        &self,
+        id: &Rc<ExtSessionLockSurfaceV1>,
+        surface: &Rc<WlSurface>,
+        output: &Rc<WlOutput>,
+    ) {
+        let res = self.try_send_get_lock_surface(
+            id,
+            surface,
+            output,
+        );
+        if let Err(e) = res {
+            log_send("ext_session_lock_v1.get_lock_surface", &e);
+        }
+    }
+
     /// Since when the unlock_and_destroy message is available.
     pub const MSG__UNLOCK_AND_DESTROY__SINCE: u32 = 1;
 
@@ -363,7 +478,7 @@ impl ExtSessionLockV1 {
     /// the server might terminate the client with a protocol error before
     /// it processes the unlock_and_destroy request.
     #[inline]
-    pub fn send_unlock_and_destroy(
+    pub fn try_send_unlock_and_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -394,13 +509,49 @@ impl ExtSessionLockV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// unlock the session, destroying the object
+    ///
+    /// This request indicates that the session should be unlocked, for
+    /// example because the user has entered their password and it has been
+    /// verified by the client.
+    ///
+    /// This request also informs the compositor that the lock object will
+    /// no longer be used and should be destroyed. Existing objects created
+    /// through this interface remain valid.
+    ///
+    /// After this request is made, lock surfaces created through this object
+    /// should be destroyed by the client as they will no longer be used by
+    /// the compositor.
+    ///
+    /// It is a protocol error to make this request if the locked event has
+    /// not been sent. In that case, the lock object must be destroyed using
+    /// the destroy request.
+    ///
+    /// Note that a correct client that wishes to exit directly after unlocking
+    /// the session must use the wl_display.sync request to ensure the server
+    /// receives and processes the unlock_and_destroy request. Otherwise
+    /// there is no guarantee that the server has unlocked the session due
+    /// to the asynchronous nature of the Wayland protocol. For example,
+    /// the server might terminate the client with a protocol error before
+    /// it processes the unlock_and_destroy request.
+    #[inline]
+    pub fn send_unlock_and_destroy(
+        &self,
+    ) {
+        let res = self.try_send_unlock_and_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_session_lock_v1.unlock_and_destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtSessionLockV1] proxies.
 pub trait ExtSessionLockV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtSessionLockV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the session lock
@@ -422,10 +573,10 @@ pub trait ExtSessionLockV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_session_lock_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_session_lock_v1.destroy", &e);
         }
     }
 
@@ -448,10 +599,10 @@ pub trait ExtSessionLockV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_locked(
+        let res = _slf.try_send_locked(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_session_lock_v1.locked message: {}", Report::new(e));
+            log_forward("ext_session_lock_v1.locked", &e);
         }
     }
 
@@ -487,10 +638,10 @@ pub trait ExtSessionLockV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_finished(
+        let res = _slf.try_send_finished(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_session_lock_v1.finished message: {}", Report::new(e));
+            log_forward("ext_session_lock_v1.finished", &e);
         }
     }
 
@@ -527,13 +678,13 @@ pub trait ExtSessionLockV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_lock_surface(
+        let res = _slf.try_send_get_lock_surface(
             id,
             surface,
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_session_lock_v1.get_lock_surface message: {}", Report::new(e));
+            log_forward("ext_session_lock_v1.get_lock_surface", &e);
         }
     }
 
@@ -570,10 +721,10 @@ pub trait ExtSessionLockV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_unlock_and_destroy(
+        let res = _slf.try_send_unlock_and_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_session_lock_v1.unlock_and_destroy message: {}", Report::new(e));
+            log_forward("ext_session_lock_v1.unlock_and_destroy", &e);
         }
     }
 }
@@ -593,7 +744,7 @@ impl ObjectPrivate for ExtSessionLockV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

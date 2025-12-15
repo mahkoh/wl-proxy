@@ -109,7 +109,7 @@ impl ZwpTabletToolV2 {
     /// - `hotspot_x`: surface-local x coordinate
     /// - `hotspot_y`: surface-local y coordinate
     #[inline]
-    pub fn send_set_cursor(
+    pub fn try_send_set_cursor(
         &self,
         serial: u32,
         surface: Option<&Rc<WlSurface>>,
@@ -167,6 +167,64 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// set the tablet tool's surface
+    ///
+    /// Sets the surface of the cursor used for this tool on the given
+    /// tablet. This request only takes effect if the tool is in proximity
+    /// of one of the requesting client's surfaces or the surface parameter
+    /// is the current pointer surface. If there was a previous surface set
+    /// with this request it is replaced. If surface is NULL, the cursor
+    /// image is hidden.
+    ///
+    /// The parameters hotspot_x and hotspot_y define the position of the
+    /// pointer surface relative to the pointer location. Its top-left corner
+    /// is always at (x, y) - (hotspot_x, hotspot_y), where (x, y) are the
+    /// coordinates of the pointer location, in surface-local coordinates.
+    ///
+    /// On surface.attach requests to the pointer surface, hotspot_x and
+    /// hotspot_y are decremented by the x and y parameters passed to the
+    /// request. Attach must be confirmed by wl_surface.commit as usual.
+    ///
+    /// The hotspot can also be updated by passing the currently set pointer
+    /// surface to this request with new values for hotspot_x and hotspot_y.
+    ///
+    /// The current and pending input regions of the wl_surface are cleared,
+    /// and wl_surface.set_input_region is ignored until the wl_surface is no
+    /// longer used as the cursor. When the use as a cursor ends, the current
+    /// and pending input regions become undefined, and the wl_surface is
+    /// unmapped.
+    ///
+    /// This request gives the surface the role of a zwp_tablet_tool_v2 cursor. A
+    /// surface may only ever be used as the cursor surface for one
+    /// zwp_tablet_tool_v2. If the surface already has another role or has
+    /// previously been used as cursor surface for a different tool, a
+    /// protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial of the proximity_in event
+    /// - `surface`:
+    /// - `hotspot_x`: surface-local x coordinate
+    /// - `hotspot_y`: surface-local y coordinate
+    #[inline]
+    pub fn send_set_cursor(
+        &self,
+        serial: u32,
+        surface: Option<&Rc<WlSurface>>,
+        hotspot_x: i32,
+        hotspot_y: i32,
+    ) {
+        let res = self.try_send_set_cursor(
+            serial,
+            surface,
+            hotspot_x,
+            hotspot_y,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.set_cursor", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -174,7 +232,7 @@ impl ZwpTabletToolV2 {
     ///
     /// This destroys the client's resource for this tool object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -206,6 +264,20 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// destroy the tool object
+    ///
+    /// This destroys the client's resource for this tool object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.destroy", &e);
+        }
+    }
+
     /// Since when the type message is available.
     pub const MSG__TYPE__SINCE: u32 = 1;
 
@@ -221,7 +293,7 @@ impl ZwpTabletToolV2 {
     ///
     /// - `tool_type`: the physical tool type
     #[inline]
-    pub fn send_type(
+    pub fn try_send_type(
         &self,
         tool_type: ZwpTabletToolV2Type,
     ) -> Result<(), ObjectError> {
@@ -261,6 +333,30 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// tool type
+    ///
+    /// The tool type is the high-level type of the tool and usually decides
+    /// the interaction expected from this tool.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_tool_v2.done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `tool_type`: the physical tool type
+    #[inline]
+    pub fn send_type(
+        &self,
+        tool_type: ZwpTabletToolV2Type,
+    ) {
+        let res = self.try_send_type(
+            tool_type,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.type", &e);
+        }
+    }
+
     /// Since when the hardware_serial message is available.
     pub const MSG__HARDWARE_SERIAL__SINCE: u32 = 1;
 
@@ -287,7 +383,7 @@ impl ZwpTabletToolV2 {
     /// - `hardware_serial_hi`: the unique serial number of the tool, most significant bits
     /// - `hardware_serial_lo`: the unique serial number of the tool, least significant bits
     #[inline]
-    pub fn send_hardware_serial(
+    pub fn try_send_hardware_serial(
         &self,
         hardware_serial_hi: u32,
         hardware_serial_lo: u32,
@@ -331,6 +427,43 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// unique hardware serial number of the tool
+    ///
+    /// If the physical tool can be identified by a unique 64-bit serial
+    /// number, this event notifies the client of this serial number.
+    ///
+    /// If multiple tablets are available in the same seat and the tool is
+    /// uniquely identifiable by the serial number, that tool may move
+    /// between tablets.
+    ///
+    /// Otherwise, if the tool has no serial number and this event is
+    /// missing, the tool is tied to the tablet it first comes into
+    /// proximity with. Even if the physical tool is used on multiple
+    /// tablets, separate zwp_tablet_tool_v2 objects will be created, one per
+    /// tablet.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_tool_v2.done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `hardware_serial_hi`: the unique serial number of the tool, most significant bits
+    /// - `hardware_serial_lo`: the unique serial number of the tool, least significant bits
+    #[inline]
+    pub fn send_hardware_serial(
+        &self,
+        hardware_serial_hi: u32,
+        hardware_serial_lo: u32,
+    ) {
+        let res = self.try_send_hardware_serial(
+            hardware_serial_hi,
+            hardware_serial_lo,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.hardware_serial", &e);
+        }
+    }
+
     /// Since when the hardware_id_wacom message is available.
     pub const MSG__HARDWARE_ID_WACOM__SINCE: u32 = 1;
 
@@ -352,7 +485,7 @@ impl ZwpTabletToolV2 {
     /// - `hardware_id_hi`: the hardware id, most significant bits
     /// - `hardware_id_lo`: the hardware id, least significant bits
     #[inline]
-    pub fn send_hardware_id_wacom(
+    pub fn try_send_hardware_id_wacom(
         &self,
         hardware_id_hi: u32,
         hardware_id_lo: u32,
@@ -396,6 +529,38 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// hardware id notification in Wacom's format
+    ///
+    /// This event notifies the client of a hardware id available on this tool.
+    ///
+    /// The hardware id is a device-specific 64-bit id that provides extra
+    /// information about the tool in use, beyond the wl_tool.type
+    /// enumeration. The format of the id is specific to tablets made by
+    /// Wacom Inc. For example, the hardware id of a Wacom Grip
+    /// Pen (a stylus) is 0x802.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_tool_v2.done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `hardware_id_hi`: the hardware id, most significant bits
+    /// - `hardware_id_lo`: the hardware id, least significant bits
+    #[inline]
+    pub fn send_hardware_id_wacom(
+        &self,
+        hardware_id_hi: u32,
+        hardware_id_lo: u32,
+    ) {
+        let res = self.try_send_hardware_id_wacom(
+            hardware_id_hi,
+            hardware_id_lo,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.hardware_id_wacom", &e);
+        }
+    }
+
     /// Since when the capability message is available.
     pub const MSG__CAPABILITY__SINCE: u32 = 1;
 
@@ -413,7 +578,7 @@ impl ZwpTabletToolV2 {
     ///
     /// - `capability`: the capability
     #[inline]
-    pub fn send_capability(
+    pub fn try_send_capability(
         &self,
         capability: ZwpTabletToolV2Capability,
     ) -> Result<(), ObjectError> {
@@ -453,6 +618,32 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// tool capability notification
+    ///
+    /// This event notifies the client of any capabilities of this tool,
+    /// beyond the main set of x/y axes and tip up/down detection.
+    ///
+    /// One event is sent for each extra capability available on this tool.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_tool_v2.done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `capability`: the capability
+    #[inline]
+    pub fn send_capability(
+        &self,
+        capability: ZwpTabletToolV2Capability,
+    ) {
+        let res = self.try_send_capability(
+            capability,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.capability", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -462,7 +653,7 @@ impl ZwpTabletToolV2 {
     /// events. A client may consider the static description of the tool to
     /// be complete and finalize initialization of the tool.
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -495,6 +686,22 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// tool description events sequence complete
+    ///
+    /// This event signals the end of the initial burst of descriptive
+    /// events. A client may consider the static description of the tool to
+    /// be complete and finalize initialization of the tool.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) {
+        let res = self.try_send_done(
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.done", &e);
+        }
+    }
+
     /// Since when the removed message is available.
     pub const MSG__REMOVED__SINCE: u32 = 1;
 
@@ -515,7 +722,7 @@ impl ZwpTabletToolV2 {
     /// When this event is received, the client must zwp_tablet_tool_v2.destroy
     /// the object.
     #[inline]
-    pub fn send_removed(
+    pub fn try_send_removed(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -548,6 +755,33 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// tool removed
+    ///
+    /// This event is sent when the tool is removed from the system and will
+    /// send no further events. Should the physical tool come back into
+    /// proximity later, a new zwp_tablet_tool_v2 object will be created.
+    ///
+    /// It is compositor-dependent when a tool is removed. A compositor may
+    /// remove a tool on proximity out, tablet removal or any other reason.
+    /// A compositor may also keep a tool alive until shutdown.
+    ///
+    /// If the tool is currently in proximity, a proximity_out event will be
+    /// sent before the removed event. See zwp_tablet_tool_v2.proximity_out for
+    /// the handling of any buttons logically down.
+    ///
+    /// When this event is received, the client must zwp_tablet_tool_v2.destroy
+    /// the object.
+    #[inline]
+    pub fn send_removed(
+        &self,
+    ) {
+        let res = self.try_send_removed(
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.removed", &e);
+        }
+    }
+
     /// Since when the proximity_in message is available.
     pub const MSG__PROXIMITY_IN__SINCE: u32 = 1;
 
@@ -569,7 +803,7 @@ impl ZwpTabletToolV2 {
     /// - `tablet`: The tablet the tool is in proximity of
     /// - `surface`: The current surface the tablet tool is over
     #[inline]
-    pub fn send_proximity_in(
+    pub fn try_send_proximity_in(
         &self,
         serial: u32,
         tablet: &Rc<ZwpTabletV2>,
@@ -627,6 +861,40 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// proximity in event
+    ///
+    /// Notification that this tool is focused on a certain surface.
+    ///
+    /// This event can be received when the tool has moved from one surface to
+    /// another, or when the tool has come back into proximity above the
+    /// surface.
+    ///
+    /// If any button is logically down when the tool comes into proximity,
+    /// the respective button event is sent after the proximity_in event but
+    /// within the same frame as the proximity_in event.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`:
+    /// - `tablet`: The tablet the tool is in proximity of
+    /// - `surface`: The current surface the tablet tool is over
+    #[inline]
+    pub fn send_proximity_in(
+        &self,
+        serial: u32,
+        tablet: &Rc<ZwpTabletV2>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_proximity_in(
+            serial,
+            tablet,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.proximity_in", &e);
+        }
+    }
+
     /// Since when the proximity_out message is available.
     pub const MSG__PROXIMITY_OUT__SINCE: u32 = 1;
 
@@ -645,7 +913,7 @@ impl ZwpTabletToolV2 {
     /// be sent until the button is actually released or the tool leaves the
     /// proximity of the tablet.
     #[inline]
-    pub fn send_proximity_out(
+    pub fn try_send_proximity_out(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -678,6 +946,31 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// proximity out event
+    ///
+    /// Notification that this tool has either left proximity, or is no
+    /// longer focused on a certain surface.
+    ///
+    /// When the tablet tool leaves proximity of the tablet, button release
+    /// events are sent for each button that was held down at the time of
+    /// leaving proximity. These events are sent before the proximity_out
+    /// event but within the same zwp_tablet_v2.frame.
+    ///
+    /// If the tool stays within proximity of the tablet, but the focus
+    /// changes from one surface to another, a button release event may not
+    /// be sent until the button is actually released or the tool leaves the
+    /// proximity of the tablet.
+    #[inline]
+    pub fn send_proximity_out(
+        &self,
+    ) {
+        let res = self.try_send_proximity_out(
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.proximity_out", &e);
+        }
+    }
+
     /// Since when the down message is available.
     pub const MSG__DOWN__SINCE: u32 = 1;
 
@@ -700,7 +993,7 @@ impl ZwpTabletToolV2 {
     ///
     /// - `serial`:
     #[inline]
-    pub fn send_down(
+    pub fn try_send_down(
         &self,
         serial: u32,
     ) -> Result<(), ObjectError> {
@@ -740,6 +1033,37 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// tablet tool is making contact
+    ///
+    /// Sent whenever the tablet tool comes in contact with the surface of the
+    /// tablet.
+    ///
+    /// If the tool is already in contact with the tablet when entering the
+    /// input region, the client owning said region will receive a
+    /// zwp_tablet_v2.proximity_in event, followed by a zwp_tablet_v2.down
+    /// event and a zwp_tablet_v2.frame event.
+    ///
+    /// Note that this event describes logical contact, not physical
+    /// contact. On some devices, a compositor may not consider a tool in
+    /// logical contact until a minimum physical pressure threshold is
+    /// exceeded.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`:
+    #[inline]
+    pub fn send_down(
+        &self,
+        serial: u32,
+    ) {
+        let res = self.try_send_down(
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.down", &e);
+        }
+    }
+
     /// Since when the up message is available.
     pub const MSG__UP__SINCE: u32 = 1;
 
@@ -762,7 +1086,7 @@ impl ZwpTabletToolV2 {
     /// of logical contact until physical pressure falls below a specific
     /// threshold.
     #[inline]
-    pub fn send_up(
+    pub fn try_send_up(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -795,6 +1119,35 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// tablet tool is no longer making contact
+    ///
+    /// Sent whenever the tablet tool stops making contact with the surface of
+    /// the tablet, or when the tablet tool moves out of the input region
+    /// and the compositor grab (if any) is dismissed.
+    ///
+    /// If the tablet tool moves out of the input region while in contact
+    /// with the surface of the tablet and the compositor does not have an
+    /// ongoing grab on the surface, the client owning said region will
+    /// receive a zwp_tablet_v2.up event, followed by a zwp_tablet_v2.proximity_out
+    /// event and a zwp_tablet_v2.frame event. If the compositor has an ongoing
+    /// grab on this device, this event sequence is sent whenever the grab
+    /// is dismissed in the future.
+    ///
+    /// Note that this event describes logical contact, not physical
+    /// contact. On some devices, a compositor may not consider a tool out
+    /// of logical contact until physical pressure falls below a specific
+    /// threshold.
+    #[inline]
+    pub fn send_up(
+        &self,
+    ) {
+        let res = self.try_send_up(
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.up", &e);
+        }
+    }
+
     /// Since when the motion message is available.
     pub const MSG__MOTION__SINCE: u32 = 1;
 
@@ -807,7 +1160,7 @@ impl ZwpTabletToolV2 {
     /// - `x`: surface-local x coordinate
     /// - `y`: surface-local y coordinate
     #[inline]
-    pub fn send_motion(
+    pub fn try_send_motion(
         &self,
         x: Fixed,
         y: Fixed,
@@ -851,6 +1204,29 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// motion event
+    ///
+    /// Sent whenever a tablet tool moves.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: surface-local x coordinate
+    /// - `y`: surface-local y coordinate
+    #[inline]
+    pub fn send_motion(
+        &self,
+        x: Fixed,
+        y: Fixed,
+    ) {
+        let res = self.try_send_motion(
+            x,
+            y,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.motion", &e);
+        }
+    }
+
     /// Since when the pressure message is available.
     pub const MSG__PRESSURE__SINCE: u32 = 1;
 
@@ -866,7 +1242,7 @@ impl ZwpTabletToolV2 {
     ///
     /// - `pressure`: The current pressure value
     #[inline]
-    pub fn send_pressure(
+    pub fn try_send_pressure(
         &self,
         pressure: u32,
     ) -> Result<(), ObjectError> {
@@ -906,6 +1282,30 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// pressure change event
+    ///
+    /// Sent whenever the pressure axis on a tool changes. The value of this
+    /// event is normalized to a value between 0 and 65535.
+    ///
+    /// Note that pressure may be nonzero even when a tool is not in logical
+    /// contact. See the down and up events for more details.
+    ///
+    /// # Arguments
+    ///
+    /// - `pressure`: The current pressure value
+    #[inline]
+    pub fn send_pressure(
+        &self,
+        pressure: u32,
+    ) {
+        let res = self.try_send_pressure(
+            pressure,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.pressure", &e);
+        }
+    }
+
     /// Since when the distance message is available.
     pub const MSG__DISTANCE__SINCE: u32 = 1;
 
@@ -921,7 +1321,7 @@ impl ZwpTabletToolV2 {
     ///
     /// - `distance`: The current distance value
     #[inline]
-    pub fn send_distance(
+    pub fn try_send_distance(
         &self,
         distance: u32,
     ) -> Result<(), ObjectError> {
@@ -961,6 +1361,30 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// distance change event
+    ///
+    /// Sent whenever the distance axis on a tool changes. The value of this
+    /// event is normalized to a value between 0 and 65535.
+    ///
+    /// Note that distance may be nonzero even when a tool is not in logical
+    /// contact. See the down and up events for more details.
+    ///
+    /// # Arguments
+    ///
+    /// - `distance`: The current distance value
+    #[inline]
+    pub fn send_distance(
+        &self,
+        distance: u32,
+    ) {
+        let res = self.try_send_distance(
+            distance,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.distance", &e);
+        }
+    }
+
     /// Since when the tilt message is available.
     pub const MSG__TILT__SINCE: u32 = 1;
 
@@ -976,7 +1400,7 @@ impl ZwpTabletToolV2 {
     /// - `tilt_x`: The current value of the X tilt axis
     /// - `tilt_y`: The current value of the Y tilt axis
     #[inline]
-    pub fn send_tilt(
+    pub fn try_send_tilt(
         &self,
         tilt_x: Fixed,
         tilt_y: Fixed,
@@ -1020,6 +1444,32 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// tilt change event
+    ///
+    /// Sent whenever one or both of the tilt axes on a tool change. Each tilt
+    /// value is in degrees, relative to the z-axis of the tablet.
+    /// The angle is positive when the top of a tool tilts along the
+    /// positive x or y axis.
+    ///
+    /// # Arguments
+    ///
+    /// - `tilt_x`: The current value of the X tilt axis
+    /// - `tilt_y`: The current value of the Y tilt axis
+    #[inline]
+    pub fn send_tilt(
+        &self,
+        tilt_x: Fixed,
+        tilt_y: Fixed,
+    ) {
+        let res = self.try_send_tilt(
+            tilt_x,
+            tilt_y,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.tilt", &e);
+        }
+    }
+
     /// Since when the rotation message is available.
     pub const MSG__ROTATION__SINCE: u32 = 1;
 
@@ -1033,7 +1483,7 @@ impl ZwpTabletToolV2 {
     ///
     /// - `degrees`: The current rotation of the Z axis
     #[inline]
-    pub fn send_rotation(
+    pub fn try_send_rotation(
         &self,
         degrees: Fixed,
     ) -> Result<(), ObjectError> {
@@ -1073,6 +1523,28 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// z-rotation change event
+    ///
+    /// Sent whenever the z-rotation axis on the tool changes. The
+    /// rotation value is in degrees clockwise from the tool's
+    /// logical neutral position.
+    ///
+    /// # Arguments
+    ///
+    /// - `degrees`: The current rotation of the Z axis
+    #[inline]
+    pub fn send_rotation(
+        &self,
+        degrees: Fixed,
+    ) {
+        let res = self.try_send_rotation(
+            degrees,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.rotation", &e);
+        }
+    }
+
     /// Since when the slider message is available.
     pub const MSG__SLIDER__SINCE: u32 = 1;
 
@@ -1088,7 +1560,7 @@ impl ZwpTabletToolV2 {
     ///
     /// - `position`: The current position of slider
     #[inline]
-    pub fn send_slider(
+    pub fn try_send_slider(
         &self,
         position: i32,
     ) -> Result<(), ObjectError> {
@@ -1128,6 +1600,30 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// Slider position change event
+    ///
+    /// Sent whenever the slider position on the tool changes. The
+    /// value is normalized between -65535 and 65535, with 0 as the logical
+    /// neutral position of the slider.
+    ///
+    /// The slider is available on e.g. the Wacom Airbrush tool.
+    ///
+    /// # Arguments
+    ///
+    /// - `position`: The current position of slider
+    #[inline]
+    pub fn send_slider(
+        &self,
+        position: i32,
+    ) {
+        let res = self.try_send_slider(
+            position,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.slider", &e);
+        }
+    }
+
     /// Since when the wheel message is available.
     pub const MSG__WHEEL__SINCE: u32 = 1;
 
@@ -1151,7 +1647,7 @@ impl ZwpTabletToolV2 {
     /// - `degrees`: The wheel delta in degrees
     /// - `clicks`: The wheel delta in discrete clicks
     #[inline]
-    pub fn send_wheel(
+    pub fn try_send_wheel(
         &self,
         degrees: Fixed,
         clicks: i32,
@@ -1195,6 +1691,40 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// Wheel delta event
+    ///
+    /// Sent whenever the wheel on the tool emits an event. This event
+    /// contains two values for the same axis change. The degrees value is
+    /// in the same orientation as the wl_pointer.vertical_scroll axis. The
+    /// clicks value is in discrete logical clicks of the mouse wheel. This
+    /// value may be zero if the movement of the wheel was less
+    /// than one logical click.
+    ///
+    /// Clients should choose either value and avoid mixing degrees and
+    /// clicks. The compositor may accumulate values smaller than a logical
+    /// click and emulate click events when a certain threshold is met.
+    /// Thus, zwp_tablet_tool_v2.wheel events with non-zero clicks values may
+    /// have different degrees values.
+    ///
+    /// # Arguments
+    ///
+    /// - `degrees`: The wheel delta in degrees
+    /// - `clicks`: The wheel delta in discrete clicks
+    #[inline]
+    pub fn send_wheel(
+        &self,
+        degrees: Fixed,
+        clicks: i32,
+    ) {
+        let res = self.try_send_wheel(
+            degrees,
+            clicks,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.wheel", &e);
+        }
+    }
+
     /// Since when the button message is available.
     pub const MSG__BUTTON__SINCE: u32 = 1;
 
@@ -1213,7 +1743,7 @@ impl ZwpTabletToolV2 {
     /// - `button`: The button whose state has changed
     /// - `state`: Whether the button was pressed or released
     #[inline]
-    pub fn send_button(
+    pub fn try_send_button(
         &self,
         serial: u32,
         button: u32,
@@ -1261,6 +1791,37 @@ impl ZwpTabletToolV2 {
         Ok(())
     }
 
+    /// button event
+    ///
+    /// Sent whenever a button on the tool is pressed or released.
+    ///
+    /// If a button is held down when the tool moves in or out of proximity,
+    /// button events are generated by the compositor. See
+    /// zwp_tablet_tool_v2.proximity_in and zwp_tablet_tool_v2.proximity_out for
+    /// details.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`:
+    /// - `button`: The button whose state has changed
+    /// - `state`: Whether the button was pressed or released
+    #[inline]
+    pub fn send_button(
+        &self,
+        serial: u32,
+        button: u32,
+        state: ZwpTabletToolV2ButtonState,
+    ) {
+        let res = self.try_send_button(
+            serial,
+            button,
+            state,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.button", &e);
+        }
+    }
+
     /// Since when the frame message is available.
     pub const MSG__FRAME__SINCE: u32 = 1;
 
@@ -1275,7 +1836,7 @@ impl ZwpTabletToolV2 {
     ///
     /// - `time`: The time of the event with millisecond granularity
     #[inline]
-    pub fn send_frame(
+    pub fn try_send_frame(
         &self,
         time: u32,
     ) -> Result<(), ObjectError> {
@@ -1314,13 +1875,36 @@ impl ZwpTabletToolV2 {
         ]);
         Ok(())
     }
+
+    /// frame event
+    ///
+    /// Marks the end of a series of axis and/or button updates from the
+    /// tablet. The Wayland protocol requires axis updates to be sent
+    /// sequentially, however all events within a frame should be considered
+    /// one hardware event.
+    ///
+    /// # Arguments
+    ///
+    /// - `time`: The time of the event with millisecond granularity
+    #[inline]
+    pub fn send_frame(
+        &self,
+        time: u32,
+    ) {
+        let res = self.try_send_frame(
+            time,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_tool_v2.frame", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpTabletToolV2] proxies.
 pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpTabletToolV2>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// set the tablet tool's surface
@@ -1377,14 +1961,14 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_cursor(
+        let res = _slf.try_send_set_cursor(
             serial,
             surface,
             hotspot_x,
             hotspot_y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.set_cursor message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.set_cursor", &e);
         }
     }
 
@@ -1399,10 +1983,10 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.destroy message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.destroy", &e);
         }
     }
 
@@ -1426,11 +2010,11 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_type(
+        let res = _slf.try_send_type(
             tool_type,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.type message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.type", &e);
         }
     }
 
@@ -1466,12 +2050,12 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_hardware_serial(
+        let res = _slf.try_send_hardware_serial(
             hardware_serial_hi,
             hardware_serial_lo,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.hardware_serial message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.hardware_serial", &e);
         }
     }
 
@@ -1502,12 +2086,12 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_hardware_id_wacom(
+        let res = _slf.try_send_hardware_id_wacom(
             hardware_id_hi,
             hardware_id_lo,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.hardware_id_wacom message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.hardware_id_wacom", &e);
         }
     }
 
@@ -1533,11 +2117,11 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_capability(
+        let res = _slf.try_send_capability(
             capability,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.capability message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.capability", &e);
         }
     }
 
@@ -1554,10 +2138,10 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.done message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.done", &e);
         }
     }
 
@@ -1585,10 +2169,10 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_removed(
+        let res = _slf.try_send_removed(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.removed message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.removed", &e);
         }
     }
 
@@ -1635,13 +2219,13 @@ pub trait ZwpTabletToolV2Handler: Any {
                 }
             }
         }
-        let res = _slf.send_proximity_in(
+        let res = _slf.try_send_proximity_in(
             serial,
             tablet,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.proximity_in message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.proximity_in", &e);
         }
     }
 
@@ -1667,10 +2251,10 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_proximity_out(
+        let res = _slf.try_send_proximity_out(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.proximity_out message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.proximity_out", &e);
         }
     }
 
@@ -1701,11 +2285,11 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_down(
+        let res = _slf.try_send_down(
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.down message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.down", &e);
         }
     }
 
@@ -1735,10 +2319,10 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_up(
+        let res = _slf.try_send_up(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.up message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.up", &e);
         }
     }
 
@@ -1760,12 +2344,12 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_motion(
+        let res = _slf.try_send_motion(
             x,
             y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.motion message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.motion", &e);
         }
     }
 
@@ -1789,11 +2373,11 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_pressure(
+        let res = _slf.try_send_pressure(
             pressure,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.pressure message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.pressure", &e);
         }
     }
 
@@ -1817,11 +2401,11 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_distance(
+        let res = _slf.try_send_distance(
             distance,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.distance message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.distance", &e);
         }
     }
 
@@ -1846,12 +2430,12 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_tilt(
+        let res = _slf.try_send_tilt(
             tilt_x,
             tilt_y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.tilt message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.tilt", &e);
         }
     }
 
@@ -1873,11 +2457,11 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_rotation(
+        let res = _slf.try_send_rotation(
             degrees,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.rotation message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.rotation", &e);
         }
     }
 
@@ -1901,11 +2485,11 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_slider(
+        let res = _slf.try_send_slider(
             position,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.slider message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.slider", &e);
         }
     }
 
@@ -1938,12 +2522,12 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_wheel(
+        let res = _slf.try_send_wheel(
             degrees,
             clicks,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.wheel message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.wheel", &e);
         }
     }
 
@@ -1972,13 +2556,13 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_button(
+        let res = _slf.try_send_button(
             serial,
             button,
             state,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.button message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.button", &e);
         }
     }
 
@@ -2001,11 +2585,11 @@ pub trait ZwpTabletToolV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_frame(
+        let res = _slf.try_send_frame(
             time,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_tool_v2.frame message: {}", Report::new(e));
+            log_forward("zwp_tablet_tool_v2.frame", &e);
         }
     }
 }
@@ -2025,7 +2609,7 @@ impl ObjectPrivate for ZwpTabletToolV2 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

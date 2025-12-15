@@ -62,7 +62,7 @@ impl WlCallback {
     ///
     /// - `callback_data`: request-specific data for the callback
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
         callback_data: u32,
     ) -> Result<(), ObjectError> {
@@ -105,13 +105,33 @@ impl WlCallback {
         self.core.handle_client_destroy();
         Ok(())
     }
+
+    /// done event
+    ///
+    /// Notify the client when the related request is done.
+    ///
+    /// # Arguments
+    ///
+    /// - `callback_data`: request-specific data for the callback
+    #[inline]
+    pub fn send_done(
+        &self,
+        callback_data: u32,
+    ) {
+        let res = self.try_send_done(
+            callback_data,
+        );
+        if let Err(e) = res {
+            log_send("wl_callback.done", &e);
+        }
+    }
 }
 
 /// A message handler for [WlCallback] proxies.
 pub trait WlCallbackHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlCallback>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// done event
@@ -130,11 +150,11 @@ pub trait WlCallbackHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
             callback_data,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_callback.done message: {}", Report::new(e));
+            log_forward("wl_callback.done", &e);
         }
     }
 }
@@ -154,7 +174,7 @@ impl ObjectPrivate for WlCallback {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

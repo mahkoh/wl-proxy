@@ -82,7 +82,7 @@ impl HyprlandCtmControlManagerV1 {
     /// - `mat7`:
     /// - `mat8`:
     #[inline]
-    pub fn send_set_ctm_for_output(
+    pub fn try_send_set_ctm_for_output(
         &self,
         output: &Rc<WlOutput>,
         mat0: Fixed,
@@ -161,6 +161,65 @@ impl HyprlandCtmControlManagerV1 {
         Ok(())
     }
 
+    /// set the CTM of an output
+    ///
+    /// Set a CTM for a wl_output.
+    ///
+    /// This state is not applied immediately; clients must call .commit to
+    /// apply any pending changes.
+    ///
+    /// The provided values describe a 3x3 Row-Major CTM with values in the range of [0, ∞)
+    ///
+    /// Passing values outside of the range will raise an invalid_matrix error.
+    ///
+    /// The default value of the CTM is an identity matrix.
+    ///
+    /// If an output doesn't get a CTM set with set_ctm_for_output and commit is called,
+    /// that output will get its CTM reset to an identity matrix.
+    ///
+    /// # Arguments
+    ///
+    /// - `output`:
+    /// - `mat0`:
+    /// - `mat1`:
+    /// - `mat2`:
+    /// - `mat3`:
+    /// - `mat4`:
+    /// - `mat5`:
+    /// - `mat6`:
+    /// - `mat7`:
+    /// - `mat8`:
+    #[inline]
+    pub fn send_set_ctm_for_output(
+        &self,
+        output: &Rc<WlOutput>,
+        mat0: Fixed,
+        mat1: Fixed,
+        mat2: Fixed,
+        mat3: Fixed,
+        mat4: Fixed,
+        mat5: Fixed,
+        mat6: Fixed,
+        mat7: Fixed,
+        mat8: Fixed,
+    ) {
+        let res = self.try_send_set_ctm_for_output(
+            output,
+            mat0,
+            mat1,
+            mat2,
+            mat3,
+            mat4,
+            mat5,
+            mat6,
+            mat7,
+            mat8,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_ctm_control_manager_v1.set_ctm_for_output", &e);
+        }
+    }
+
     /// Since when the commit message is available.
     pub const MSG__COMMIT__SINCE: u32 = 1;
 
@@ -168,7 +227,7 @@ impl HyprlandCtmControlManagerV1 {
     ///
     /// Commits the pending state(s) set by set_ctm_for_output.
     #[inline]
-    pub fn send_commit(
+    pub fn try_send_commit(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -199,6 +258,20 @@ impl HyprlandCtmControlManagerV1 {
         Ok(())
     }
 
+    /// commit the pending state
+    ///
+    /// Commits the pending state(s) set by set_ctm_for_output.
+    #[inline]
+    pub fn send_commit(
+        &self,
+    ) {
+        let res = self.try_send_commit(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_ctm_control_manager_v1.commit", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -209,7 +282,7 @@ impl HyprlandCtmControlManagerV1 {
     ///
     /// The CTMs of all outputs will be reset to an identity matrix.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -241,6 +314,23 @@ impl HyprlandCtmControlManagerV1 {
         Ok(())
     }
 
+    /// destroy the manager
+    ///
+    /// All objects created by the manager will still remain valid, until their
+    /// appropriate destroy request has been called.
+    ///
+    /// The CTMs of all outputs will be reset to an identity matrix.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_ctm_control_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the blocked message is available.
     pub const MSG__BLOCKED__SINCE: u32 = 1;
 
@@ -251,7 +341,7 @@ impl HyprlandCtmControlManagerV1 {
     ///
     /// The client should destroy the manager after receiving this event.
     #[inline]
-    pub fn send_blocked(
+    pub fn try_send_blocked(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -283,13 +373,30 @@ impl HyprlandCtmControlManagerV1 {
         ]);
         Ok(())
     }
+
+    /// This event is sent if another manager was bound by any client
+    /// at the time the current manager was bound.
+    /// Any set_ctm_for_output requests from a blocked manager will be
+    /// silently ignored by the compositor.
+    ///
+    /// The client should destroy the manager after receiving this event.
+    #[inline]
+    pub fn send_blocked(
+        &self,
+    ) {
+        let res = self.try_send_blocked(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_ctm_control_manager_v1.blocked", &e);
+        }
+    }
 }
 
 /// A message handler for [HyprlandCtmControlManagerV1] proxies.
 pub trait HyprlandCtmControlManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandCtmControlManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// set the CTM of an output
@@ -341,7 +448,7 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_ctm_for_output(
+        let res = _slf.try_send_set_ctm_for_output(
             output,
             mat0,
             mat1,
@@ -354,7 +461,7 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
             mat8,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_ctm_control_manager_v1.set_ctm_for_output message: {}", Report::new(e));
+            log_forward("hyprland_ctm_control_manager_v1.set_ctm_for_output", &e);
         }
     }
 
@@ -369,10 +476,10 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_commit(
+        let res = _slf.try_send_commit(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_ctm_control_manager_v1.commit message: {}", Report::new(e));
+            log_forward("hyprland_ctm_control_manager_v1.commit", &e);
         }
     }
 
@@ -390,10 +497,10 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_ctm_control_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("hyprland_ctm_control_manager_v1.destroy", &e);
         }
     }
 
@@ -411,10 +518,10 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_blocked(
+        let res = _slf.try_send_blocked(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_ctm_control_manager_v1.blocked message: {}", Report::new(e));
+            log_forward("hyprland_ctm_control_manager_v1.blocked", &e);
         }
     }
 }
@@ -434,7 +541,7 @@ impl ObjectPrivate for HyprlandCtmControlManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -70,7 +70,7 @@ impl WpDrmLeaseRequestV1 {
     ///
     /// - `connector`:
     #[inline]
-    pub fn send_request_connector(
+    pub fn try_send_request_connector(
         &self,
         connector: &Rc<WpDrmLeaseConnectorV1>,
     ) -> Result<(), ObjectError> {
@@ -113,6 +113,35 @@ impl WpDrmLeaseRequestV1 {
         Ok(())
     }
 
+    /// request a connector for this lease
+    ///
+    /// Indicates that the client would like to lease the given connector.
+    /// This is only used as a suggestion, the compositor may choose to
+    /// include any resources in the lease it issues, or change the set of
+    /// leased resources at any time. Compositors are however encouraged to
+    /// include the requested connector and other resources necessary
+    /// to drive the connected output in the lease.
+    ///
+    /// Requesting a connector that was created from a different lease device
+    /// than this lease request raises the wrong_device error. Requesting a
+    /// connector twice will raise the duplicate_connector error.
+    ///
+    /// # Arguments
+    ///
+    /// - `connector`:
+    #[inline]
+    pub fn send_request_connector(
+        &self,
+        connector: &Rc<WpDrmLeaseConnectorV1>,
+    ) {
+        let res = self.try_send_request_connector(
+            connector,
+        );
+        if let Err(e) = res {
+            log_send("wp_drm_lease_request_v1.request_connector", &e);
+        }
+    }
+
     /// Since when the submit message is available.
     pub const MSG__SUBMIT__SINCE: u32 = 1;
 
@@ -126,7 +155,7 @@ impl WpDrmLeaseRequestV1 {
     /// Not requesting any connectors before submitting the lease request
     /// will raise the empty_lease error.
     #[inline]
-    pub fn send_submit(
+    pub fn try_send_submit(
         &self,
         id: &Rc<WpDrmLeaseV1>,
     ) -> Result<(), ObjectError> {
@@ -169,13 +198,35 @@ impl WpDrmLeaseRequestV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// submit the lease request
+    ///
+    /// Submits the lease request and creates a new wp_drm_lease_v1 object.
+    /// After calling submit the compositor will immediately destroy this
+    /// object, issuing any more requests will cause a wl_display error.
+    /// The compositor doesn't make any guarantees about the events of the
+    /// lease object, clients cannot expect an immediate response.
+    /// Not requesting any connectors before submitting the lease request
+    /// will raise the empty_lease error.
+    #[inline]
+    pub fn send_submit(
+        &self,
+        id: &Rc<WpDrmLeaseV1>,
+    ) {
+        let res = self.try_send_submit(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("wp_drm_lease_request_v1.submit", &e);
+        }
+    }
 }
 
 /// A message handler for [WpDrmLeaseRequestV1] proxies.
 pub trait WpDrmLeaseRequestV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpDrmLeaseRequestV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// request a connector for this lease
@@ -206,11 +257,11 @@ pub trait WpDrmLeaseRequestV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_request_connector(
+        let res = _slf.try_send_request_connector(
             connector,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_drm_lease_request_v1.request_connector message: {}", Report::new(e));
+            log_forward("wp_drm_lease_request_v1.request_connector", &e);
         }
     }
 
@@ -236,11 +287,11 @@ pub trait WpDrmLeaseRequestV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_submit(
+        let res = _slf.try_send_submit(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_drm_lease_request_v1.submit message: {}", Report::new(e));
+            log_forward("wp_drm_lease_request_v1.submit", &e);
         }
     }
 }
@@ -260,7 +311,7 @@ impl ObjectPrivate for WpDrmLeaseRequestV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

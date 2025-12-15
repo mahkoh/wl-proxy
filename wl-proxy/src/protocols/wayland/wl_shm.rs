@@ -72,7 +72,7 @@ impl WlShm {
     /// - `fd`: file descriptor for the pool
     /// - `size`: pool size, in bytes
     #[inline]
-    pub fn send_create_pool(
+    pub fn try_send_create_pool(
         &self,
         id: &Rc<WlShmPool>,
         fd: &Rc<OwnedFd>,
@@ -123,6 +123,36 @@ impl WlShm {
         Ok(())
     }
 
+    /// create a shm pool
+    ///
+    /// Create a new wl_shm_pool object.
+    ///
+    /// The pool can be used to create shared memory based buffer
+    /// objects.  The server will mmap size bytes of the passed file
+    /// descriptor, to use as backing memory for the pool.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: pool to create
+    /// - `fd`: file descriptor for the pool
+    /// - `size`: pool size, in bytes
+    #[inline]
+    pub fn send_create_pool(
+        &self,
+        id: &Rc<WlShmPool>,
+        fd: &Rc<OwnedFd>,
+        size: i32,
+    ) {
+        let res = self.try_send_create_pool(
+            id,
+            fd,
+            size,
+        );
+        if let Err(e) = res {
+            log_send("wl_shm.create_pool", &e);
+        }
+    }
+
     /// Since when the format message is available.
     pub const MSG__FORMAT__SINCE: u32 = 1;
 
@@ -136,7 +166,7 @@ impl WlShm {
     ///
     /// - `format`: buffer pixel format
     #[inline]
-    pub fn send_format(
+    pub fn try_send_format(
         &self,
         format: WlShmFormat,
     ) -> Result<(), ObjectError> {
@@ -176,6 +206,28 @@ impl WlShm {
         Ok(())
     }
 
+    /// pixel format description
+    ///
+    /// Informs the client about a valid pixel format that
+    /// can be used for buffers. Known formats include
+    /// argb8888 and xrgb8888.
+    ///
+    /// # Arguments
+    ///
+    /// - `format`: buffer pixel format
+    #[inline]
+    pub fn send_format(
+        &self,
+        format: WlShmFormat,
+    ) {
+        let res = self.try_send_format(
+            format,
+        );
+        if let Err(e) = res {
+            log_send("wl_shm.format", &e);
+        }
+    }
+
     /// Since when the release message is available.
     pub const MSG__RELEASE__SINCE: u32 = 2;
 
@@ -186,7 +238,7 @@ impl WlShm {
     ///
     /// Objects created via this interface remain unaffected.
     #[inline]
-    pub fn send_release(
+    pub fn try_send_release(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -217,13 +269,30 @@ impl WlShm {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// release the shm object
+    ///
+    /// Using this request a client can tell the server that it is not going to
+    /// use the shm object anymore.
+    ///
+    /// Objects created via this interface remain unaffected.
+    #[inline]
+    pub fn send_release(
+        &self,
+    ) {
+        let res = self.try_send_release(
+        );
+        if let Err(e) = res {
+            log_send("wl_shm.release", &e);
+        }
+    }
 }
 
 /// A message handler for [WlShm] proxies.
 pub trait WlShmHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlShm>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// create a shm pool
@@ -250,13 +319,13 @@ pub trait WlShmHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_pool(
+        let res = _slf.try_send_create_pool(
             id,
             fd,
             size,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shm.create_pool message: {}", Report::new(e));
+            log_forward("wl_shm.create_pool", &e);
         }
     }
 
@@ -278,11 +347,11 @@ pub trait WlShmHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_format(
+        let res = _slf.try_send_format(
             format,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shm.format message: {}", Report::new(e));
+            log_forward("wl_shm.format", &e);
         }
     }
 
@@ -300,10 +369,10 @@ pub trait WlShmHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_release(
+        let res = _slf.try_send_release(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shm.release message: {}", Report::new(e));
+            log_forward("wl_shm.release", &e);
         }
     }
 }
@@ -323,7 +392,7 @@ impl ObjectPrivate for WlShm {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

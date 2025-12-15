@@ -75,7 +75,7 @@ impl ExtIdleNotificationV1 {
     ///
     /// Destroy the notification object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -107,6 +107,20 @@ impl ExtIdleNotificationV1 {
         Ok(())
     }
 
+    /// destroy the notification object
+    ///
+    /// Destroy the notification object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_idle_notification_v1.destroy", &e);
+        }
+    }
+
     /// Since when the idled message is available.
     pub const MSG__IDLED__SINCE: u32 = 1;
 
@@ -117,7 +131,7 @@ impl ExtIdleNotificationV1 {
     /// It's a compositor protocol error to send this event twice without a
     /// resumed event in-between.
     #[inline]
-    pub fn send_idled(
+    pub fn try_send_idled(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -150,6 +164,23 @@ impl ExtIdleNotificationV1 {
         Ok(())
     }
 
+    /// notification object is idle
+    ///
+    /// This event is sent when the notification object becomes idle.
+    ///
+    /// It's a compositor protocol error to send this event twice without a
+    /// resumed event in-between.
+    #[inline]
+    pub fn send_idled(
+        &self,
+    ) {
+        let res = self.try_send_idled(
+        );
+        if let Err(e) = res {
+            log_send("ext_idle_notification_v1.idled", &e);
+        }
+    }
+
     /// Since when the resumed message is available.
     pub const MSG__RESUMED__SINCE: u32 = 1;
 
@@ -161,7 +192,7 @@ impl ExtIdleNotificationV1 {
     /// idled event in-between. It's a compositor protocol error to send this
     /// event prior to any idled event.
     #[inline]
-    pub fn send_resumed(
+    pub fn try_send_resumed(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -193,13 +224,31 @@ impl ExtIdleNotificationV1 {
         ]);
         Ok(())
     }
+
+    /// notification object is no longer idle
+    ///
+    /// This event is sent when the notification object stops being idle.
+    ///
+    /// It's a compositor protocol error to send this event twice without an
+    /// idled event in-between. It's a compositor protocol error to send this
+    /// event prior to any idled event.
+    #[inline]
+    pub fn send_resumed(
+        &self,
+    ) {
+        let res = self.try_send_resumed(
+        );
+        if let Err(e) = res {
+            log_send("ext_idle_notification_v1.resumed", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtIdleNotificationV1] proxies.
 pub trait ExtIdleNotificationV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtIdleNotificationV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the notification object
@@ -213,10 +262,10 @@ pub trait ExtIdleNotificationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_idle_notification_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_idle_notification_v1.destroy", &e);
         }
     }
 
@@ -234,10 +283,10 @@ pub trait ExtIdleNotificationV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_idled(
+        let res = _slf.try_send_idled(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_idle_notification_v1.idled message: {}", Report::new(e));
+            log_forward("ext_idle_notification_v1.idled", &e);
         }
     }
 
@@ -256,10 +305,10 @@ pub trait ExtIdleNotificationV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_resumed(
+        let res = _slf.try_send_resumed(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_idle_notification_v1.resumed message: {}", Report::new(e));
+            log_forward("ext_idle_notification_v1.resumed", &e);
         }
     }
 }
@@ -279,7 +328,7 @@ impl ObjectPrivate for ExtIdleNotificationV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

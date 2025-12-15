@@ -55,7 +55,7 @@ impl ExtDataControlManagerV1 {
     ///
     /// Create a new data source.
     #[inline]
-    pub fn send_create_data_source(
+    pub fn try_send_create_data_source(
         &self,
         id: &Rc<ExtDataControlSourceV1>,
     ) -> Result<(), ObjectError> {
@@ -98,6 +98,22 @@ impl ExtDataControlManagerV1 {
         Ok(())
     }
 
+    /// create a new data source
+    ///
+    /// Create a new data source.
+    #[inline]
+    pub fn send_create_data_source(
+        &self,
+        id: &Rc<ExtDataControlSourceV1>,
+    ) {
+        let res = self.try_send_create_data_source(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("ext_data_control_manager_v1.create_data_source", &e);
+        }
+    }
+
     /// Since when the get_data_device message is available.
     pub const MSG__GET_DATA_DEVICE__SINCE: u32 = 1;
 
@@ -110,7 +126,7 @@ impl ExtDataControlManagerV1 {
     /// - `id`:
     /// - `seat`:
     #[inline]
-    pub fn send_get_data_device(
+    pub fn try_send_get_data_device(
         &self,
         id: &Rc<ExtDataControlDeviceV1>,
         seat: &Rc<WlSeat>,
@@ -162,6 +178,29 @@ impl ExtDataControlManagerV1 {
         Ok(())
     }
 
+    /// get a data device for a seat
+    ///
+    /// Create a data device that can be used to manage a seat's selection.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `seat`:
+    #[inline]
+    pub fn send_get_data_device(
+        &self,
+        id: &Rc<ExtDataControlDeviceV1>,
+        seat: &Rc<WlSeat>,
+    ) {
+        let res = self.try_send_get_data_device(
+            id,
+            seat,
+        );
+        if let Err(e) = res {
+            log_send("ext_data_control_manager_v1.get_data_device", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -170,7 +209,7 @@ impl ExtDataControlManagerV1 {
     /// All objects created by the manager will still remain valid, until their
     /// appropriate destroy request has been called.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -201,13 +240,28 @@ impl ExtDataControlManagerV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the manager
+    ///
+    /// All objects created by the manager will still remain valid, until their
+    /// appropriate destroy request has been called.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_data_control_manager_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtDataControlManagerV1] proxies.
 pub trait ExtDataControlManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtDataControlManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// create a new data source
@@ -226,11 +280,11 @@ pub trait ExtDataControlManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_data_source(
+        let res = _slf.try_send_create_data_source(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_data_control_manager_v1.create_data_source message: {}", Report::new(e));
+            log_forward("ext_data_control_manager_v1.create_data_source", &e);
         }
     }
 
@@ -255,12 +309,12 @@ pub trait ExtDataControlManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_data_device(
+        let res = _slf.try_send_get_data_device(
             id,
             seat,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_data_control_manager_v1.get_data_device message: {}", Report::new(e));
+            log_forward("ext_data_control_manager_v1.get_data_device", &e);
         }
     }
 
@@ -276,10 +330,10 @@ pub trait ExtDataControlManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_data_control_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_data_control_manager_v1.destroy", &e);
         }
     }
 }
@@ -299,7 +353,7 @@ impl ObjectPrivate for ExtDataControlManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

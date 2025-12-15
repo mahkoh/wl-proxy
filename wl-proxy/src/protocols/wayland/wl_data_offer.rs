@@ -77,7 +77,7 @@ impl WlDataOffer {
     /// - `serial`: serial number of the accept request
     /// - `mime_type`: mime type accepted by the client
     #[inline]
-    pub fn send_accept(
+    pub fn try_send_accept(
         &self,
         serial: u32,
         mime_type: Option<&str>,
@@ -123,6 +123,42 @@ impl WlDataOffer {
         Ok(())
     }
 
+    /// accept one of the offered mime types
+    ///
+    /// Indicate that the client can accept the given mime type, or
+    /// NULL for not accepted.
+    ///
+    /// For objects of version 2 or older, this request is used by the
+    /// client to give feedback whether the client can receive the given
+    /// mime type, or NULL if none is accepted; the feedback does not
+    /// determine whether the drag-and-drop operation succeeds or not.
+    ///
+    /// For objects of version 3 or newer, this request determines the
+    /// final result of the drag-and-drop operation. If the end result
+    /// is that no mime types were accepted, the drag-and-drop operation
+    /// will be cancelled and the corresponding drag source will receive
+    /// wl_data_source.cancelled. Clients may still use this event in
+    /// conjunction with wl_data_source.action for feedback.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the accept request
+    /// - `mime_type`: mime type accepted by the client
+    #[inline]
+    pub fn send_accept(
+        &self,
+        serial: u32,
+        mime_type: Option<&str>,
+    ) {
+        let res = self.try_send_accept(
+            serial,
+            mime_type,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_offer.accept", &e);
+        }
+    }
+
     /// Since when the receive message is available.
     pub const MSG__RECEIVE__SINCE: u32 = 1;
 
@@ -149,7 +185,7 @@ impl WlDataOffer {
     /// - `mime_type`: mime type desired by receiver
     /// - `fd`: file descriptor for data transfer
     #[inline]
-    pub fn send_receive(
+    pub fn try_send_receive(
         &self,
         mime_type: &str,
         fd: &Rc<OwnedFd>,
@@ -191,6 +227,43 @@ impl WlDataOffer {
         Ok(())
     }
 
+    /// request that the data is transferred
+    ///
+    /// To transfer the offered data, the client issues this request
+    /// and indicates the mime type it wants to receive.  The transfer
+    /// happens through the passed file descriptor (typically created
+    /// with the pipe system call).  The source client writes the data
+    /// in the mime type representation requested and then closes the
+    /// file descriptor.
+    ///
+    /// The receiving client reads from the read end of the pipe until
+    /// EOF and then closes its end, at which point the transfer is
+    /// complete.
+    ///
+    /// This request may happen multiple times for different mime types,
+    /// both before and after wl_data_device.drop. Drag-and-drop destination
+    /// clients may preemptively fetch data or examine it more closely to
+    /// determine acceptance.
+    ///
+    /// # Arguments
+    ///
+    /// - `mime_type`: mime type desired by receiver
+    /// - `fd`: file descriptor for data transfer
+    #[inline]
+    pub fn send_receive(
+        &self,
+        mime_type: &str,
+        fd: &Rc<OwnedFd>,
+    ) {
+        let res = self.try_send_receive(
+            mime_type,
+            fd,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_offer.receive", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -198,7 +271,7 @@ impl WlDataOffer {
     ///
     /// Destroy the data offer.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -230,6 +303,20 @@ impl WlDataOffer {
         Ok(())
     }
 
+    /// destroy data offer
+    ///
+    /// Destroy the data offer.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wl_data_offer.destroy", &e);
+        }
+    }
+
     /// Since when the offer message is available.
     pub const MSG__OFFER__SINCE: u32 = 1;
 
@@ -242,7 +329,7 @@ impl WlDataOffer {
     ///
     /// - `mime_type`: offered mime type
     #[inline]
-    pub fn send_offer(
+    pub fn try_send_offer(
         &self,
         mime_type: &str,
     ) -> Result<(), ObjectError> {
@@ -282,6 +369,27 @@ impl WlDataOffer {
         Ok(())
     }
 
+    /// advertise offered mime type
+    ///
+    /// Sent immediately after creating the wl_data_offer object.  One
+    /// event per offered mime type.
+    ///
+    /// # Arguments
+    ///
+    /// - `mime_type`: offered mime type
+    #[inline]
+    pub fn send_offer(
+        &self,
+        mime_type: &str,
+    ) {
+        let res = self.try_send_offer(
+            mime_type,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_offer.offer", &e);
+        }
+    }
+
     /// Since when the finish message is available.
     pub const MSG__FINISH__SINCE: u32 = 3;
 
@@ -302,7 +410,7 @@ impl WlDataOffer {
     /// If wl_data_offer.finish request is received for a non drag and drop
     /// operation, the invalid_finish protocol error is raised.
     #[inline]
-    pub fn send_finish(
+    pub fn try_send_finish(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -331,6 +439,33 @@ impl WlDataOffer {
             3,
         ]);
         Ok(())
+    }
+
+    /// the offer will no longer be used
+    ///
+    /// Notifies the compositor that the drag destination successfully
+    /// finished the drag-and-drop operation.
+    ///
+    /// Upon receiving this request, the compositor will emit
+    /// wl_data_source.dnd_finished on the drag source client.
+    ///
+    /// It is a client error to perform other requests than
+    /// wl_data_offer.destroy after this one. It is also an error to perform
+    /// this request after a NULL mime type has been set in
+    /// wl_data_offer.accept or no action was received through
+    /// wl_data_offer.action.
+    ///
+    /// If wl_data_offer.finish request is received for a non drag and drop
+    /// operation, the invalid_finish protocol error is raised.
+    #[inline]
+    pub fn send_finish(
+        &self,
+    ) {
+        let res = self.try_send_finish(
+        );
+        if let Err(e) = res {
+            log_send("wl_data_offer.finish", &e);
+        }
     }
 
     /// Since when the set_actions message is available.
@@ -375,7 +510,7 @@ impl WlDataOffer {
     /// - `dnd_actions`: actions supported by the destination client
     /// - `preferred_action`: action preferred by the destination client
     #[inline]
-    pub fn send_set_actions(
+    pub fn try_send_set_actions(
         &self,
         dnd_actions: WlDataDeviceManagerDndAction,
         preferred_action: WlDataDeviceManagerDndAction,
@@ -417,6 +552,59 @@ impl WlDataOffer {
         Ok(())
     }
 
+    /// set the available/preferred drag-and-drop actions
+    ///
+    /// Sets the actions that the destination side client supports for
+    /// this operation. This request may trigger the emission of
+    /// wl_data_source.action and wl_data_offer.action events if the compositor
+    /// needs to change the selected action.
+    ///
+    /// This request can be called multiple times throughout the
+    /// drag-and-drop operation, typically in response to wl_data_device.enter
+    /// or wl_data_device.motion events.
+    ///
+    /// This request determines the final result of the drag-and-drop
+    /// operation. If the end result is that no action is accepted,
+    /// the drag source will receive wl_data_source.cancelled.
+    ///
+    /// The dnd_actions argument must contain only values expressed in the
+    /// wl_data_device_manager.dnd_actions enum, and the preferred_action
+    /// argument must only contain one of those values set, otherwise it
+    /// will result in a protocol error.
+    ///
+    /// While managing an "ask" action, the destination drag-and-drop client
+    /// may perform further wl_data_offer.receive requests, and is expected
+    /// to perform one last wl_data_offer.set_actions request with a preferred
+    /// action other than "ask" (and optionally wl_data_offer.accept) before
+    /// requesting wl_data_offer.finish, in order to convey the action selected
+    /// by the user. If the preferred action is not in the
+    /// wl_data_offer.source_actions mask, an error will be raised.
+    ///
+    /// If the "ask" action is dismissed (e.g. user cancellation), the client
+    /// is expected to perform wl_data_offer.destroy right away.
+    ///
+    /// This request can only be made on drag-and-drop offers, a protocol error
+    /// will be raised otherwise.
+    ///
+    /// # Arguments
+    ///
+    /// - `dnd_actions`: actions supported by the destination client
+    /// - `preferred_action`: action preferred by the destination client
+    #[inline]
+    pub fn send_set_actions(
+        &self,
+        dnd_actions: WlDataDeviceManagerDndAction,
+        preferred_action: WlDataDeviceManagerDndAction,
+    ) {
+        let res = self.try_send_set_actions(
+            dnd_actions,
+            preferred_action,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_offer.set_actions", &e);
+        }
+    }
+
     /// Since when the source_actions message is available.
     pub const MSG__SOURCE_ACTIONS__SINCE: u32 = 3;
 
@@ -431,7 +619,7 @@ impl WlDataOffer {
     ///
     /// - `source_actions`: actions offered by the data source
     #[inline]
-    pub fn send_source_actions(
+    pub fn try_send_source_actions(
         &self,
         source_actions: WlDataDeviceManagerDndAction,
     ) -> Result<(), ObjectError> {
@@ -469,6 +657,29 @@ impl WlDataOffer {
             arg0.0,
         ]);
         Ok(())
+    }
+
+    /// notify the source-side available actions
+    ///
+    /// This event indicates the actions offered by the data source. It
+    /// will be sent immediately after creating the wl_data_offer object,
+    /// or anytime the source side changes its offered actions through
+    /// wl_data_source.set_actions.
+    ///
+    /// # Arguments
+    ///
+    /// - `source_actions`: actions offered by the data source
+    #[inline]
+    pub fn send_source_actions(
+        &self,
+        source_actions: WlDataDeviceManagerDndAction,
+    ) {
+        let res = self.try_send_source_actions(
+            source_actions,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_offer.source_actions", &e);
+        }
     }
 
     /// Since when the action message is available.
@@ -516,7 +727,7 @@ impl WlDataOffer {
     ///
     /// - `dnd_action`: action selected by the compositor
     #[inline]
-    pub fn send_action(
+    pub fn try_send_action(
         &self,
         dnd_action: WlDataDeviceManagerDndAction,
     ) -> Result<(), ObjectError> {
@@ -555,13 +766,67 @@ impl WlDataOffer {
         ]);
         Ok(())
     }
+
+    /// notify the selected action
+    ///
+    /// This event indicates the action selected by the compositor after
+    /// matching the source/destination side actions. Only one action (or
+    /// none) will be offered here.
+    ///
+    /// This event can be emitted multiple times during the drag-and-drop
+    /// operation in response to destination side action changes through
+    /// wl_data_offer.set_actions.
+    ///
+    /// This event will no longer be emitted after wl_data_device.drop
+    /// happened on the drag-and-drop destination, the client must
+    /// honor the last action received, or the last preferred one set
+    /// through wl_data_offer.set_actions when handling an "ask" action.
+    ///
+    /// Compositors may also change the selected action on the fly, mainly
+    /// in response to keyboard modifier changes during the drag-and-drop
+    /// operation.
+    ///
+    /// The most recent action received is always the valid one. Prior to
+    /// receiving wl_data_device.drop, the chosen action may change (e.g.
+    /// due to keyboard modifiers being pressed). At the time of receiving
+    /// wl_data_device.drop the drag-and-drop destination must honor the
+    /// last action received.
+    ///
+    /// Action changes may still happen after wl_data_device.drop,
+    /// especially on "ask" actions, where the drag-and-drop destination
+    /// may choose another action afterwards. Action changes happening
+    /// at this stage are always the result of inter-client negotiation, the
+    /// compositor shall no longer be able to induce a different action.
+    ///
+    /// Upon "ask" actions, it is expected that the drag-and-drop destination
+    /// may potentially choose a different action and/or mime type,
+    /// based on wl_data_offer.source_actions and finally chosen by the
+    /// user (e.g. popping up a menu with the available options). The
+    /// final wl_data_offer.set_actions and wl_data_offer.accept requests
+    /// must happen before the call to wl_data_offer.finish.
+    ///
+    /// # Arguments
+    ///
+    /// - `dnd_action`: action selected by the compositor
+    #[inline]
+    pub fn send_action(
+        &self,
+        dnd_action: WlDataDeviceManagerDndAction,
+    ) {
+        let res = self.try_send_action(
+            dnd_action,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_offer.action", &e);
+        }
+    }
 }
 
 /// A message handler for [WlDataOffer] proxies.
 pub trait WlDataOfferHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlDataOffer>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// accept one of the offered mime types
@@ -595,12 +860,12 @@ pub trait WlDataOfferHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_accept(
+        let res = _slf.try_send_accept(
             serial,
             mime_type,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_offer.accept message: {}", Report::new(e));
+            log_forward("wl_data_offer.accept", &e);
         }
     }
 
@@ -636,12 +901,12 @@ pub trait WlDataOfferHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_receive(
+        let res = _slf.try_send_receive(
             mime_type,
             fd,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_offer.receive message: {}", Report::new(e));
+            log_forward("wl_data_offer.receive", &e);
         }
     }
 
@@ -656,10 +921,10 @@ pub trait WlDataOfferHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_offer.destroy message: {}", Report::new(e));
+            log_forward("wl_data_offer.destroy", &e);
         }
     }
 
@@ -680,11 +945,11 @@ pub trait WlDataOfferHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_offer(
+        let res = _slf.try_send_offer(
             mime_type,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_offer.offer message: {}", Report::new(e));
+            log_forward("wl_data_offer.offer", &e);
         }
     }
 
@@ -712,10 +977,10 @@ pub trait WlDataOfferHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_finish(
+        let res = _slf.try_send_finish(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_offer.finish message: {}", Report::new(e));
+            log_forward("wl_data_offer.finish", &e);
         }
     }
 
@@ -767,12 +1032,12 @@ pub trait WlDataOfferHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_actions(
+        let res = _slf.try_send_set_actions(
             dnd_actions,
             preferred_action,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_offer.set_actions message: {}", Report::new(e));
+            log_forward("wl_data_offer.set_actions", &e);
         }
     }
 
@@ -795,11 +1060,11 @@ pub trait WlDataOfferHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_source_actions(
+        let res = _slf.try_send_source_actions(
             source_actions,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_offer.source_actions message: {}", Report::new(e));
+            log_forward("wl_data_offer.source_actions", &e);
         }
     }
 
@@ -853,11 +1118,11 @@ pub trait WlDataOfferHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_action(
+        let res = _slf.try_send_action(
             dnd_action,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_offer.action message: {}", Report::new(e));
+            log_forward("wl_data_offer.action", &e);
         }
     }
 }
@@ -877,7 +1142,7 @@ impl ObjectPrivate for WlDataOffer {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

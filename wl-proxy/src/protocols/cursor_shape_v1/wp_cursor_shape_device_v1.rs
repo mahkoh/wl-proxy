@@ -56,7 +56,7 @@ impl WpCursorShapeDeviceV1 {
     ///
     /// The device cursor shape remains unchanged.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -88,6 +88,22 @@ impl WpCursorShapeDeviceV1 {
         Ok(())
     }
 
+    /// destroy the cursor shape device
+    ///
+    /// Destroy the cursor shape device.
+    ///
+    /// The device cursor shape remains unchanged.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_cursor_shape_device_v1.destroy", &e);
+        }
+    }
+
     /// Since when the set_shape message is available.
     pub const MSG__SET_SHAPE__SINCE: u32 = 1;
 
@@ -117,7 +133,7 @@ impl WpCursorShapeDeviceV1 {
     /// - `serial`: serial number of the enter event
     /// - `shape`:
     #[inline]
-    pub fn send_set_shape(
+    pub fn try_send_set_shape(
         &self,
         serial: u32,
         shape: WpCursorShapeDeviceV1Shape,
@@ -158,13 +174,53 @@ impl WpCursorShapeDeviceV1 {
         ]);
         Ok(())
     }
+
+    /// set device cursor to the shape
+    ///
+    /// Sets the device cursor to the specified shape. The compositor will
+    /// change the cursor image based on the specified shape.
+    ///
+    /// The cursor actually changes only if the input device focus is one of
+    /// the requesting client's surfaces. If any, the previous cursor image
+    /// (surface or shape) is replaced.
+    ///
+    /// The "shape" argument must be a valid enum entry, otherwise the
+    /// invalid_shape protocol error is raised.
+    ///
+    /// This is similar to the wl_pointer.set_cursor and
+    /// zwp_tablet_tool_v2.set_cursor requests, but this request accepts a
+    /// shape instead of contents in the form of a surface. Clients can mix
+    /// set_cursor and set_shape requests.
+    ///
+    /// The serial parameter must match the latest wl_pointer.enter or
+    /// zwp_tablet_tool_v2.proximity_in serial number sent to the client.
+    /// Otherwise the request will be ignored.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the enter event
+    /// - `shape`:
+    #[inline]
+    pub fn send_set_shape(
+        &self,
+        serial: u32,
+        shape: WpCursorShapeDeviceV1Shape,
+    ) {
+        let res = self.try_send_set_shape(
+            serial,
+            shape,
+        );
+        if let Err(e) = res {
+            log_send("wp_cursor_shape_device_v1.set_shape", &e);
+        }
+    }
 }
 
 /// A message handler for [WpCursorShapeDeviceV1] proxies.
 pub trait WpCursorShapeDeviceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpCursorShapeDeviceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the cursor shape device
@@ -180,10 +236,10 @@ pub trait WpCursorShapeDeviceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_cursor_shape_device_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_cursor_shape_device_v1.destroy", &e);
         }
     }
 
@@ -222,12 +278,12 @@ pub trait WpCursorShapeDeviceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_shape(
+        let res = _slf.try_send_set_shape(
             serial,
             shape,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_cursor_shape_device_v1.set_shape message: {}", Report::new(e));
+            log_forward("wp_cursor_shape_device_v1.set_shape", &e);
         }
     }
 }
@@ -247,7 +303,7 @@ impl ObjectPrivate for WpCursorShapeDeviceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

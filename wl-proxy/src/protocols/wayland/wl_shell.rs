@@ -71,7 +71,7 @@ impl WlShell {
     /// - `id`: shell surface to create
     /// - `surface`: surface to be given the shell surface role
     #[inline]
-    pub fn send_get_shell_surface(
+    pub fn try_send_get_shell_surface(
         &self,
         id: &Rc<WlShellSurface>,
         surface: &Rc<WlSurface>,
@@ -122,13 +122,40 @@ impl WlShell {
         ]);
         Ok(())
     }
+
+    /// create a shell surface from a surface
+    ///
+    /// Create a shell surface for an existing surface. This gives
+    /// the wl_surface the role of a shell surface. If the wl_surface
+    /// already has another role, it raises a protocol error.
+    ///
+    /// Only one shell surface can be associated with a given surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: shell surface to create
+    /// - `surface`: surface to be given the shell surface role
+    #[inline]
+    pub fn send_get_shell_surface(
+        &self,
+        id: &Rc<WlShellSurface>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_shell_surface(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("wl_shell.get_shell_surface", &e);
+        }
+    }
 }
 
 /// A message handler for [WlShell] proxies.
 pub trait WlShellHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlShell>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// create a shell surface from a surface
@@ -156,12 +183,12 @@ pub trait WlShellHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_shell_surface(
+        let res = _slf.try_send_get_shell_surface(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shell.get_shell_surface message: {}", Report::new(e));
+            log_forward("wl_shell.get_shell_surface", &e);
         }
     }
 }
@@ -181,7 +208,7 @@ impl ObjectPrivate for WlShell {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

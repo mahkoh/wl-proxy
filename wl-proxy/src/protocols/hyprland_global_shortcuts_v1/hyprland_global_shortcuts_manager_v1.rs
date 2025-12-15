@@ -68,7 +68,7 @@ impl HyprlandGlobalShortcutsManagerV1 {
     /// - `description`: user-readable text describing what the shortcut does.
     /// - `trigger_description`: user-readable text describing how to trigger the shortcut for the client to render.
     #[inline]
-    pub fn send_register_shortcut(
+    pub fn try_send_register_shortcut(
         &self,
         shortcut: &Rc<HyprlandGlobalShortcutV1>,
         id: &str,
@@ -127,6 +127,44 @@ impl HyprlandGlobalShortcutsManagerV1 {
         Ok(())
     }
 
+    /// register a shortcut
+    ///
+    /// Register a new global shortcut.
+    ///
+    /// A global shortcut is anonymous, meaning the app does not know what key(s) trigger it.
+    ///
+    /// The shortcut's keybinding shall be dealt with by the compositor.
+    ///
+    /// In the case of a duplicate app_id + id combination, the already_taken protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `shortcut`:
+    /// - `id`: a unique id for the shortcut
+    /// - `app_id`: the app_id of the application requesting the shortcut
+    /// - `description`: user-readable text describing what the shortcut does.
+    /// - `trigger_description`: user-readable text describing how to trigger the shortcut for the client to render.
+    #[inline]
+    pub fn send_register_shortcut(
+        &self,
+        shortcut: &Rc<HyprlandGlobalShortcutV1>,
+        id: &str,
+        app_id: &str,
+        description: &str,
+        trigger_description: &str,
+    ) {
+        let res = self.try_send_register_shortcut(
+            shortcut,
+            id,
+            app_id,
+            description,
+            trigger_description,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_global_shortcuts_manager_v1.register_shortcut", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -135,7 +173,7 @@ impl HyprlandGlobalShortcutsManagerV1 {
     /// All objects created by the manager will still remain valid, until their
     /// appropriate destroy request has been called.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -166,13 +204,28 @@ impl HyprlandGlobalShortcutsManagerV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the manager
+    ///
+    /// All objects created by the manager will still remain valid, until their
+    /// appropriate destroy request has been called.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_global_shortcuts_manager_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [HyprlandGlobalShortcutsManagerV1] proxies.
 pub trait HyprlandGlobalShortcutsManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandGlobalShortcutsManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// register a shortcut
@@ -205,7 +258,7 @@ pub trait HyprlandGlobalShortcutsManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_register_shortcut(
+        let res = _slf.try_send_register_shortcut(
             shortcut,
             id,
             app_id,
@@ -213,7 +266,7 @@ pub trait HyprlandGlobalShortcutsManagerV1Handler: Any {
             trigger_description,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_global_shortcuts_manager_v1.register_shortcut message: {}", Report::new(e));
+            log_forward("hyprland_global_shortcuts_manager_v1.register_shortcut", &e);
         }
     }
 
@@ -229,10 +282,10 @@ pub trait HyprlandGlobalShortcutsManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_global_shortcuts_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("hyprland_global_shortcuts_manager_v1.destroy", &e);
         }
     }
 }
@@ -252,7 +305,7 @@ impl ObjectPrivate for HyprlandGlobalShortcutsManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

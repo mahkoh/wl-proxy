@@ -85,7 +85,7 @@ impl WpDrmLeaseDeviceV1 {
     ///
     /// See the documentation for wp_drm_lease_request_v1 for details.
     #[inline]
-    pub fn send_create_lease_request(
+    pub fn try_send_create_lease_request(
         &self,
         id: &Rc<WpDrmLeaseRequestV1>,
     ) -> Result<(), ObjectError> {
@@ -128,6 +128,24 @@ impl WpDrmLeaseDeviceV1 {
         Ok(())
     }
 
+    /// create a lease request object
+    ///
+    /// Creates a lease request object.
+    ///
+    /// See the documentation for wp_drm_lease_request_v1 for details.
+    #[inline]
+    pub fn send_create_lease_request(
+        &self,
+        id: &Rc<WpDrmLeaseRequestV1>,
+    ) {
+        let res = self.try_send_create_lease_request(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("wp_drm_lease_device_v1.create_lease_request", &e);
+        }
+    }
+
     /// Since when the release message is available.
     pub const MSG__RELEASE__SINCE: u32 = 1;
 
@@ -140,7 +158,7 @@ impl WpDrmLeaseDeviceV1 {
     /// requests after this one, doing so will raise a wl_display error.
     /// Existing connectors, lease request and leases will not be affected.
     #[inline]
-    pub fn send_release(
+    pub fn try_send_release(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -171,6 +189,25 @@ impl WpDrmLeaseDeviceV1 {
         Ok(())
     }
 
+    /// release this object
+    ///
+    /// Indicates the client no longer wishes to use this object. In response
+    /// the compositor will immediately send the released event and destroy
+    /// this object. It can however not guarantee that the client won't receive
+    /// connector events before the released event. The client must not send any
+    /// requests after this one, doing so will raise a wl_display error.
+    /// Existing connectors, lease request and leases will not be affected.
+    #[inline]
+    pub fn send_release(
+        &self,
+    ) {
+        let res = self.try_send_release(
+        );
+        if let Err(e) = res {
+            log_send("wp_drm_lease_device_v1.release", &e);
+        }
+    }
+
     /// Since when the drm_fd message is available.
     pub const MSG__DRM_FD__SINCE: u32 = 1;
 
@@ -189,7 +226,7 @@ impl WpDrmLeaseDeviceV1 {
     ///
     /// - `fd`: DRM file descriptor
     #[inline]
-    pub fn send_drm_fd(
+    pub fn try_send_drm_fd(
         &self,
         fd: &Rc<OwnedFd>,
     ) -> Result<(), ObjectError> {
@@ -229,6 +266,33 @@ impl WpDrmLeaseDeviceV1 {
         Ok(())
     }
 
+    /// open a non-master fd for this DRM node
+    ///
+    /// The compositor will send this event when the wp_drm_lease_device_v1
+    /// global is bound, although there are no guarantees as to how long this
+    /// takes - the compositor might need to wait until regaining DRM master.
+    /// The included fd is a non-master DRM file descriptor opened for this
+    /// device and the compositor must not authenticate it.
+    /// The purpose of this event is to give the client the ability to
+    /// query DRM and discover information which may help them pick the
+    /// appropriate DRM device or select the appropriate connectors therein.
+    ///
+    /// # Arguments
+    ///
+    /// - `fd`: DRM file descriptor
+    #[inline]
+    pub fn send_drm_fd(
+        &self,
+        fd: &Rc<OwnedFd>,
+    ) {
+        let res = self.try_send_drm_fd(
+            fd,
+        );
+        if let Err(e) = res {
+            log_send("wp_drm_lease_device_v1.drm_fd", &e);
+        }
+    }
+
     /// Since when the connector message is available.
     pub const MSG__CONNECTOR__SINCE: u32 = 1;
 
@@ -245,7 +309,7 @@ impl WpDrmLeaseDeviceV1 {
     /// After the drm_fd event it will send all available connectors but may
     /// send additional connectors at any time.
     #[inline]
-    pub fn send_connector(
+    pub fn try_send_connector(
         &self,
         id: &Rc<WpDrmLeaseConnectorV1>,
     ) -> Result<(), ObjectError> {
@@ -290,6 +354,31 @@ impl WpDrmLeaseDeviceV1 {
         Ok(())
     }
 
+    /// advertise connectors available for leases
+    ///
+    /// The compositor will use this event to advertise connectors available for
+    /// lease by clients. This object may be passed into a lease request to
+    /// indicate the client would like to lease that connector, see
+    /// wp_drm_lease_request_v1.request_connector for details. While the
+    /// compositor will make a best effort to not send disconnected connectors,
+    /// no guarantees can be made.
+    ///
+    /// The compositor must send the drm_fd event before sending connectors.
+    /// After the drm_fd event it will send all available connectors but may
+    /// send additional connectors at any time.
+    #[inline]
+    pub fn send_connector(
+        &self,
+        id: &Rc<WpDrmLeaseConnectorV1>,
+    ) {
+        let res = self.try_send_connector(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("wp_drm_lease_device_v1.connector", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -302,7 +391,7 @@ impl WpDrmLeaseDeviceV1 {
     /// similarly send this event to group wp_drm_lease_connector_v1.withdrawn
     /// events of connectors of this device.
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -335,6 +424,25 @@ impl WpDrmLeaseDeviceV1 {
         Ok(())
     }
 
+    /// signals grouping of connectors
+    ///
+    /// The compositor will send this event to indicate that it has sent all
+    /// currently available connectors after the client binds to the global or
+    /// when it updates the connector list, for example on hotplug, drm master
+    /// change or when a leased connector becomes available again. It will
+    /// similarly send this event to group wp_drm_lease_connector_v1.withdrawn
+    /// events of connectors of this device.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) {
+        let res = self.try_send_done(
+        );
+        if let Err(e) = res {
+            log_send("wp_drm_lease_device_v1.done", &e);
+        }
+    }
+
     /// Since when the released message is available.
     pub const MSG__RELEASED__SINCE: u32 = 1;
 
@@ -346,7 +454,7 @@ impl WpDrmLeaseDeviceV1 {
     /// event and it will become invalid. The client should release any
     /// resources associated with this device after receiving this event.
     #[inline]
-    pub fn send_released(
+    pub fn try_send_released(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -382,13 +490,31 @@ impl WpDrmLeaseDeviceV1 {
         self.core.handle_client_destroy();
         Ok(())
     }
+
+    /// the compositor has finished using the device
+    ///
+    /// This event is sent in response to the release request and indicates
+    /// that the compositor is done sending connector events.
+    /// The compositor will destroy this object immediately after sending the
+    /// event and it will become invalid. The client should release any
+    /// resources associated with this device after receiving this event.
+    #[inline]
+    pub fn send_released(
+        &self,
+    ) {
+        let res = self.try_send_released(
+        );
+        if let Err(e) = res {
+            log_send("wp_drm_lease_device_v1.released", &e);
+        }
+    }
 }
 
 /// A message handler for [WpDrmLeaseDeviceV1] proxies.
 pub trait WpDrmLeaseDeviceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpDrmLeaseDeviceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// create a lease request object
@@ -409,11 +535,11 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_lease_request(
+        let res = _slf.try_send_create_lease_request(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_drm_lease_device_v1.create_lease_request message: {}", Report::new(e));
+            log_forward("wp_drm_lease_device_v1.create_lease_request", &e);
         }
     }
 
@@ -433,10 +559,10 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_release(
+        let res = _slf.try_send_release(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_drm_lease_device_v1.release message: {}", Report::new(e));
+            log_forward("wp_drm_lease_device_v1.release", &e);
         }
     }
 
@@ -463,11 +589,11 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_drm_fd(
+        let res = _slf.try_send_drm_fd(
             fd,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_drm_lease_device_v1.drm_fd message: {}", Report::new(e));
+            log_forward("wp_drm_lease_device_v1.drm_fd", &e);
         }
     }
 
@@ -496,11 +622,11 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_connector(
+        let res = _slf.try_send_connector(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_drm_lease_device_v1.connector message: {}", Report::new(e));
+            log_forward("wp_drm_lease_device_v1.connector", &e);
         }
     }
 
@@ -520,10 +646,10 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_drm_lease_device_v1.done message: {}", Report::new(e));
+            log_forward("wp_drm_lease_device_v1.done", &e);
         }
     }
 
@@ -542,10 +668,10 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_released(
+        let res = _slf.try_send_released(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_drm_lease_device_v1.released message: {}", Report::new(e));
+            log_forward("wp_drm_lease_device_v1.released", &e);
         }
     }
 }
@@ -565,7 +691,7 @@ impl ObjectPrivate for WpDrmLeaseDeviceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

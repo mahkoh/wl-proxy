@@ -61,7 +61,7 @@ impl ZwlrOutputPowerV1 {
     ///
     /// - `mode`: the power save mode to set
     #[inline]
-    pub fn send_set_mode(
+    pub fn try_send_set_mode(
         &self,
         mode: ZwlrOutputPowerV1Mode,
     ) -> Result<(), ObjectError> {
@@ -99,6 +99,28 @@ impl ZwlrOutputPowerV1 {
         Ok(())
     }
 
+    /// Set an outputs power save mode
+    ///
+    /// Set an output's power save mode to the given mode. The mode change
+    /// is effective immediately. If the output does not support the given
+    /// mode a failed event is sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `mode`: the power save mode to set
+    #[inline]
+    pub fn send_set_mode(
+        &self,
+        mode: ZwlrOutputPowerV1Mode,
+    ) {
+        let res = self.try_send_set_mode(
+            mode,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_power_v1.set_mode", &e);
+        }
+    }
+
     /// Since when the mode message is available.
     pub const MSG__MODE__SINCE: u32 = 1;
 
@@ -116,7 +138,7 @@ impl ZwlrOutputPowerV1 {
     ///
     /// - `mode`: the output's new power management mode
     #[inline]
-    pub fn send_mode(
+    pub fn try_send_mode(
         &self,
         mode: ZwlrOutputPowerV1Mode,
     ) -> Result<(), ObjectError> {
@@ -156,6 +178,32 @@ impl ZwlrOutputPowerV1 {
         Ok(())
     }
 
+    /// Report a power management mode change
+    ///
+    /// Report the power management mode change of an output.
+    ///
+    /// The mode event is sent after an output changed its power
+    /// management mode. The reason can be a client using set_mode or the
+    /// compositor deciding to change an output's mode.
+    /// This event is also sent immediately when the object is created
+    /// so the client is informed about the current power management mode.
+    ///
+    /// # Arguments
+    ///
+    /// - `mode`: the output's new power management mode
+    #[inline]
+    pub fn send_mode(
+        &self,
+        mode: ZwlrOutputPowerV1Mode,
+    ) {
+        let res = self.try_send_mode(
+            mode,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_power_v1.mode", &e);
+        }
+    }
+
     /// Since when the failed message is available.
     pub const MSG__FAILED__SINCE: u32 = 1;
 
@@ -171,7 +219,7 @@ impl ZwlrOutputPowerV1 {
     ///
     /// Upon receiving this event, the client should destroy this object.
     #[inline]
-    pub fn send_failed(
+    pub fn try_send_failed(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -204,6 +252,28 @@ impl ZwlrOutputPowerV1 {
         Ok(())
     }
 
+    /// object no longer valid
+    ///
+    /// This event indicates that the output power management mode control
+    /// is no longer valid. This can happen for a number of reasons,
+    /// including:
+    /// - The output doesn't support power management
+    /// - Another client already has exclusive power management mode control
+    ///   for this output
+    /// - The output disappeared
+    ///
+    /// Upon receiving this event, the client should destroy this object.
+    #[inline]
+    pub fn send_failed(
+        &self,
+    ) {
+        let res = self.try_send_failed(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_power_v1.failed", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -211,7 +281,7 @@ impl ZwlrOutputPowerV1 {
     ///
     /// Destroys the output power management mode control object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -242,13 +312,27 @@ impl ZwlrOutputPowerV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy this power management
+    ///
+    /// Destroys the output power management mode control object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_power_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrOutputPowerV1] proxies.
 pub trait ZwlrOutputPowerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrOutputPowerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// Set an outputs power save mode
@@ -269,11 +353,11 @@ pub trait ZwlrOutputPowerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_mode(
+        let res = _slf.try_send_set_mode(
             mode,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_power_v1.set_mode message: {}", Report::new(e));
+            log_forward("zwlr_output_power_v1.set_mode", &e);
         }
     }
 
@@ -299,11 +383,11 @@ pub trait ZwlrOutputPowerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_mode(
+        let res = _slf.try_send_mode(
             mode,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_power_v1.mode message: {}", Report::new(e));
+            log_forward("zwlr_output_power_v1.mode", &e);
         }
     }
 
@@ -326,10 +410,10 @@ pub trait ZwlrOutputPowerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_failed(
+        let res = _slf.try_send_failed(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_power_v1.failed message: {}", Report::new(e));
+            log_forward("zwlr_output_power_v1.failed", &e);
         }
     }
 
@@ -344,10 +428,10 @@ pub trait ZwlrOutputPowerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_power_v1.destroy message: {}", Report::new(e));
+            log_forward("zwlr_output_power_v1.destroy", &e);
         }
     }
 }
@@ -367,7 +451,7 @@ impl ObjectPrivate for ZwlrOutputPowerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

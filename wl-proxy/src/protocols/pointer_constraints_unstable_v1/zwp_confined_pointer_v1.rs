@@ -70,7 +70,7 @@ impl ZwpConfinedPointerV1 {
     /// Destroy the confined pointer object. If applicable, the compositor will
     /// unconfine the pointer.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -102,6 +102,21 @@ impl ZwpConfinedPointerV1 {
         Ok(())
     }
 
+    /// destroy the confined pointer object
+    ///
+    /// Destroy the confined pointer object. If applicable, the compositor will
+    /// unconfine the pointer.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_confined_pointer_v1.destroy", &e);
+        }
+    }
+
     /// Since when the set_region message is available.
     pub const MSG__SET_REGION__SINCE: u32 = 1;
 
@@ -126,7 +141,7 @@ impl ZwpConfinedPointerV1 {
     ///
     /// - `region`: region of surface
     #[inline]
-    pub fn send_set_region(
+    pub fn try_send_set_region(
         &self,
         region: Option<&Rc<WlRegion>>,
     ) -> Result<(), ObjectError> {
@@ -172,6 +187,39 @@ impl ZwpConfinedPointerV1 {
         Ok(())
     }
 
+    /// set a new confine region
+    ///
+    /// Set a new region used to confine the pointer.
+    ///
+    /// The new confine region is double-buffered, see wl_surface.commit.
+    ///
+    /// If the confinement is active when the new confinement region is applied
+    /// and the pointer ends up outside of newly applied region, the pointer may
+    /// warped to a position within the new confinement region. If warped, a
+    /// wl_pointer.motion event will be emitted, but no
+    /// wp_relative_pointer.relative_motion event.
+    ///
+    /// The compositor may also, instead of using the new region, unconfine the
+    /// pointer.
+    ///
+    /// For details about the confine region, see wp_confined_pointer.
+    ///
+    /// # Arguments
+    ///
+    /// - `region`: region of surface
+    #[inline]
+    pub fn send_set_region(
+        &self,
+        region: Option<&Rc<WlRegion>>,
+    ) {
+        let res = self.try_send_set_region(
+            region,
+        );
+        if let Err(e) = res {
+            log_send("zwp_confined_pointer_v1.set_region", &e);
+        }
+    }
+
     /// Since when the confined message is available.
     pub const MSG__CONFINED__SINCE: u32 = 1;
 
@@ -180,7 +228,7 @@ impl ZwpConfinedPointerV1 {
     /// Notification that the pointer confinement of the seat's pointer is
     /// activated.
     #[inline]
-    pub fn send_confined(
+    pub fn try_send_confined(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -213,6 +261,21 @@ impl ZwpConfinedPointerV1 {
         Ok(())
     }
 
+    /// pointer confined
+    ///
+    /// Notification that the pointer confinement of the seat's pointer is
+    /// activated.
+    #[inline]
+    pub fn send_confined(
+        &self,
+    ) {
+        let res = self.try_send_confined(
+        );
+        if let Err(e) = res {
+            log_send("zwp_confined_pointer_v1.confined", &e);
+        }
+    }
+
     /// Since when the unconfined message is available.
     pub const MSG__UNCONFINED__SINCE: u32 = 1;
 
@@ -225,7 +288,7 @@ impl ZwpConfinedPointerV1 {
     /// wp_pointer_constraints.lifetime) this pointer confinement may again
     /// reactivate in the future.
     #[inline]
-    pub fn send_unconfined(
+    pub fn try_send_unconfined(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -257,13 +320,32 @@ impl ZwpConfinedPointerV1 {
         ]);
         Ok(())
     }
+
+    /// pointer unconfined
+    ///
+    /// Notification that the pointer confinement of the seat's pointer is no
+    /// longer active. If this is a oneshot pointer confinement (see
+    /// wp_pointer_constraints.lifetime) this object is now defunct and should
+    /// be destroyed. If this is a persistent pointer confinement (see
+    /// wp_pointer_constraints.lifetime) this pointer confinement may again
+    /// reactivate in the future.
+    #[inline]
+    pub fn send_unconfined(
+        &self,
+    ) {
+        let res = self.try_send_unconfined(
+        );
+        if let Err(e) = res {
+            log_send("zwp_confined_pointer_v1.unconfined", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpConfinedPointerV1] proxies.
 pub trait ZwpConfinedPointerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpConfinedPointerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the confined pointer object
@@ -278,10 +360,10 @@ pub trait ZwpConfinedPointerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_confined_pointer_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_confined_pointer_v1.destroy", &e);
         }
     }
 
@@ -317,11 +399,11 @@ pub trait ZwpConfinedPointerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_region(
+        let res = _slf.try_send_set_region(
             region,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_confined_pointer_v1.set_region message: {}", Report::new(e));
+            log_forward("zwp_confined_pointer_v1.set_region", &e);
         }
     }
 
@@ -337,10 +419,10 @@ pub trait ZwpConfinedPointerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_confined(
+        let res = _slf.try_send_confined(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_confined_pointer_v1.confined message: {}", Report::new(e));
+            log_forward("zwp_confined_pointer_v1.confined", &e);
         }
     }
 
@@ -360,10 +442,10 @@ pub trait ZwpConfinedPointerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_unconfined(
+        let res = _slf.try_send_unconfined(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_confined_pointer_v1.unconfined message: {}", Report::new(e));
+            log_forward("zwp_confined_pointer_v1.unconfined", &e);
         }
     }
 }
@@ -383,7 +465,7 @@ impl ObjectPrivate for ZwpConfinedPointerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

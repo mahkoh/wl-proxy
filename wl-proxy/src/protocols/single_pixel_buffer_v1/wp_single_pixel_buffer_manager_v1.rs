@@ -57,7 +57,7 @@ impl WpSinglePixelBufferManagerV1 {
     ///
     /// The child objects created via this interface are unaffected.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -89,6 +89,22 @@ impl WpSinglePixelBufferManagerV1 {
         Ok(())
     }
 
+    /// destroy the manager
+    ///
+    /// Destroy the wp_single_pixel_buffer_manager_v1 object.
+    ///
+    /// The child objects created via this interface are unaffected.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_single_pixel_buffer_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the create_u32_rgba_buffer message is available.
     pub const MSG__CREATE_U32_RGBA_BUFFER__SINCE: u32 = 1;
 
@@ -116,7 +132,7 @@ impl WpSinglePixelBufferManagerV1 {
     /// - `b`: value of the buffer's blue channel
     /// - `a`: value of the buffer's alpha channel
     #[inline]
-    pub fn send_create_u32_rgba_buffer(
+    pub fn try_send_create_u32_rgba_buffer(
         &self,
         id: &Rc<WlBuffer>,
         r: u32,
@@ -174,13 +190,57 @@ impl WpSinglePixelBufferManagerV1 {
         ]);
         Ok(())
     }
+
+    /// create a 1×1 buffer from 32-bit RGBA values
+    ///
+    /// Create a single-pixel buffer from four 32-bit RGBA values.
+    ///
+    /// Unless specified in another protocol extension, the RGBA values use
+    /// pre-multiplied alpha.
+    ///
+    /// The width and height of the buffer are 1.
+    ///
+    /// The r, g, b and a arguments valid range is from UINT32_MIN (0)
+    /// to UINT32_MAX (0xffffffff).
+    ///
+    /// These arguments should be interpreted as a percentage, i.e.
+    /// - UINT32_MIN = 0% of the given color component
+    /// - UINT32_MAX = 100% of the given color component
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `r`: value of the buffer's red channel
+    /// - `g`: value of the buffer's green channel
+    /// - `b`: value of the buffer's blue channel
+    /// - `a`: value of the buffer's alpha channel
+    #[inline]
+    pub fn send_create_u32_rgba_buffer(
+        &self,
+        id: &Rc<WlBuffer>,
+        r: u32,
+        g: u32,
+        b: u32,
+        a: u32,
+    ) {
+        let res = self.try_send_create_u32_rgba_buffer(
+            id,
+            r,
+            g,
+            b,
+            a,
+        );
+        if let Err(e) = res {
+            log_send("wp_single_pixel_buffer_manager_v1.create_u32_rgba_buffer", &e);
+        }
+    }
 }
 
 /// A message handler for [WpSinglePixelBufferManagerV1] proxies.
 pub trait WpSinglePixelBufferManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpSinglePixelBufferManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the manager
@@ -196,10 +256,10 @@ pub trait WpSinglePixelBufferManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_single_pixel_buffer_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_single_pixel_buffer_manager_v1.destroy", &e);
         }
     }
 
@@ -239,7 +299,7 @@ pub trait WpSinglePixelBufferManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_u32_rgba_buffer(
+        let res = _slf.try_send_create_u32_rgba_buffer(
             id,
             r,
             g,
@@ -247,7 +307,7 @@ pub trait WpSinglePixelBufferManagerV1Handler: Any {
             a,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_single_pixel_buffer_manager_v1.create_u32_rgba_buffer message: {}", Report::new(e));
+            log_forward("wp_single_pixel_buffer_manager_v1.create_u32_rgba_buffer", &e);
         }
     }
 }
@@ -267,7 +327,7 @@ impl ObjectPrivate for WpSinglePixelBufferManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

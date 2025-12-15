@@ -1,8 +1,11 @@
-use {debug_fn::debug_fn, std::fmt::Display, uapi::c};
+use {
+    crate::object::ObjectError, debug_fn::debug_fn, error_reporter::Report, std::fmt::Display,
+    uapi::c,
+};
 
 pub(crate) mod prelude {
     pub(crate) use {
-        super::{debug_array, time_since_epoch},
+        super::{debug_array, log_forward, time_since_epoch, log_send},
         crate::{
             client::Client,
             fixed::Fixed,
@@ -13,7 +16,6 @@ pub(crate) mod prelude {
             state::State,
             utils::handler_holder::{HandlerHolder, HandlerMut, HandlerRef},
         },
-        error_reporter::Report,
         std::{
             any::Any,
             collections::VecDeque,
@@ -53,4 +55,14 @@ pub(crate) fn time_since_epoch() -> (u32, u16) {
     let millis = time / 1_000;
     let micros = (time % 1_000) as u16;
     (millis, micros)
+}
+
+#[cold]
+pub(crate) fn log_forward(name: &str, e: &ObjectError) {
+    log::warn!("Could not forward a {name} message: {}", Report::new(e));
+}
+
+#[cold]
+pub(crate) fn log_send(name: &str, e: &ObjectError) {
+    log::warn!("Could not send a {name} message: {}", Report::new(e));
 }

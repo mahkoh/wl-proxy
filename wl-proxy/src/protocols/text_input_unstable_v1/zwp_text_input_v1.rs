@@ -93,7 +93,7 @@ impl ZwpTextInputV1 {
     /// - `seat`:
     /// - `surface`:
     #[inline]
-    pub fn send_activate(
+    pub fn try_send_activate(
         &self,
         seat: &Rc<WlSeat>,
         surface: &Rc<WlSurface>,
@@ -145,6 +145,35 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// request activation
+    ///
+    /// Requests the text_input object to be activated (typically when the
+    /// text entry gets focus).
+    ///
+    /// The seat argument is a wl_seat which maintains the focus for this
+    /// activation. The surface argument is a wl_surface assigned to the
+    /// text_input object and tracked for focus lost. The enter event
+    /// is emitted on successful activation.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`:
+    /// - `surface`:
+    #[inline]
+    pub fn send_activate(
+        &self,
+        seat: &Rc<WlSeat>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_activate(
+            seat,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.activate", &e);
+        }
+    }
+
     /// Since when the deactivate message is available.
     pub const MSG__DEACTIVATE__SINCE: u32 = 1;
 
@@ -158,7 +187,7 @@ impl ZwpTextInputV1 {
     ///
     /// - `seat`:
     #[inline]
-    pub fn send_deactivate(
+    pub fn try_send_deactivate(
         &self,
         seat: &Rc<WlSeat>,
     ) -> Result<(), ObjectError> {
@@ -201,6 +230,28 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// request deactivation
+    ///
+    /// Requests the text_input object to be deactivated (typically when the
+    /// text entry lost focus). The seat argument is a wl_seat which was used
+    /// for activation.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`:
+    #[inline]
+    pub fn send_deactivate(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) {
+        let res = self.try_send_deactivate(
+            seat,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.deactivate", &e);
+        }
+    }
+
     /// Since when the show_input_panel message is available.
     pub const MSG__SHOW_INPUT_PANEL__SINCE: u32 = 1;
 
@@ -208,7 +259,7 @@ impl ZwpTextInputV1 {
     ///
     /// Requests input panels (virtual keyboard) to show.
     #[inline]
-    pub fn send_show_input_panel(
+    pub fn try_send_show_input_panel(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -239,6 +290,20 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// show input panels
+    ///
+    /// Requests input panels (virtual keyboard) to show.
+    #[inline]
+    pub fn send_show_input_panel(
+        &self,
+    ) {
+        let res = self.try_send_show_input_panel(
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.show_input_panel", &e);
+        }
+    }
+
     /// Since when the hide_input_panel message is available.
     pub const MSG__HIDE_INPUT_PANEL__SINCE: u32 = 1;
 
@@ -246,7 +311,7 @@ impl ZwpTextInputV1 {
     ///
     /// Requests input panels (virtual keyboard) to hide.
     #[inline]
-    pub fn send_hide_input_panel(
+    pub fn try_send_hide_input_panel(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -277,6 +342,20 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// hide input panels
+    ///
+    /// Requests input panels (virtual keyboard) to hide.
+    #[inline]
+    pub fn send_hide_input_panel(
+        &self,
+    ) {
+        let res = self.try_send_hide_input_panel(
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.hide_input_panel", &e);
+        }
+    }
+
     /// Since when the reset message is available.
     pub const MSG__RESET__SINCE: u32 = 1;
 
@@ -286,7 +365,7 @@ impl ZwpTextInputV1 {
     /// reset, for example after the text was changed outside of the normal
     /// input method flow.
     #[inline]
-    pub fn send_reset(
+    pub fn try_send_reset(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -317,6 +396,22 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// reset
+    ///
+    /// Should be called by an editor widget when the input state should be
+    /// reset, for example after the text was changed outside of the normal
+    /// input method flow.
+    #[inline]
+    pub fn send_reset(
+        &self,
+    ) {
+        let res = self.try_send_reset(
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.reset", &e);
+        }
+    }
+
     /// Since when the set_surrounding_text message is available.
     pub const MSG__SET_SURROUNDING_TEXT__SINCE: u32 = 1;
 
@@ -334,7 +429,7 @@ impl ZwpTextInputV1 {
     /// - `cursor`:
     /// - `anchor`:
     #[inline]
-    pub fn send_set_surrounding_text(
+    pub fn try_send_set_surrounding_text(
         &self,
         text: &str,
         cursor: u32,
@@ -382,6 +477,36 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// sets the surrounding text
+    ///
+    /// Sets the plain surrounding text around the input position. Text is
+    /// UTF-8 encoded. Cursor is the byte offset within the
+    /// surrounding text. Anchor is the byte offset of the
+    /// selection anchor within the surrounding text. If there is no selected
+    /// text anchor, then it is the same as cursor.
+    ///
+    /// # Arguments
+    ///
+    /// - `text`:
+    /// - `cursor`:
+    /// - `anchor`:
+    #[inline]
+    pub fn send_set_surrounding_text(
+        &self,
+        text: &str,
+        cursor: u32,
+        anchor: u32,
+    ) {
+        let res = self.try_send_set_surrounding_text(
+            text,
+            cursor,
+            anchor,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.set_surrounding_text", &e);
+        }
+    }
+
     /// Since when the set_content_type message is available.
     pub const MSG__SET_CONTENT_TYPE__SINCE: u32 = 1;
 
@@ -400,7 +525,7 @@ impl ZwpTextInputV1 {
     /// - `hint`:
     /// - `purpose`:
     #[inline]
-    pub fn send_set_content_type(
+    pub fn try_send_set_content_type(
         &self,
         hint: ZwpTextInputV1ContentHint,
         purpose: ZwpTextInputV1ContentPurpose,
@@ -442,6 +567,35 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// set content purpose and hint
+    ///
+    /// Sets the content purpose and content hint. While the purpose is the
+    /// basic purpose of an input field, the hint flags allow to modify some
+    /// of the behavior.
+    ///
+    /// When no content type is explicitly set, a normal content purpose with
+    /// default hints (auto completion, auto correction, auto capitalization)
+    /// should be assumed.
+    ///
+    /// # Arguments
+    ///
+    /// - `hint`:
+    /// - `purpose`:
+    #[inline]
+    pub fn send_set_content_type(
+        &self,
+        hint: ZwpTextInputV1ContentHint,
+        purpose: ZwpTextInputV1ContentPurpose,
+    ) {
+        let res = self.try_send_set_content_type(
+            hint,
+            purpose,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.set_content_type", &e);
+        }
+    }
+
     /// Since when the set_cursor_rectangle message is available.
     pub const MSG__SET_CURSOR_RECTANGLE__SINCE: u32 = 1;
 
@@ -452,7 +606,7 @@ impl ZwpTextInputV1 {
     /// - `width`:
     /// - `height`:
     #[inline]
-    pub fn send_set_cursor_rectangle(
+    pub fn try_send_set_cursor_rectangle(
         &self,
         x: i32,
         y: i32,
@@ -502,6 +656,31 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// # Arguments
+    ///
+    /// - `x`:
+    /// - `y`:
+    /// - `width`:
+    /// - `height`:
+    #[inline]
+    pub fn send_set_cursor_rectangle(
+        &self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_set_cursor_rectangle(
+            x,
+            y,
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.set_cursor_rectangle", &e);
+        }
+    }
+
     /// Since when the set_preferred_language message is available.
     pub const MSG__SET_PREFERRED_LANGUAGE__SINCE: u32 = 1;
 
@@ -519,7 +698,7 @@ impl ZwpTextInputV1 {
     ///
     /// - `language`:
     #[inline]
-    pub fn send_set_preferred_language(
+    pub fn try_send_set_preferred_language(
         &self,
         language: &str,
     ) -> Result<(), ObjectError> {
@@ -557,6 +736,32 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// sets preferred language
+    ///
+    /// Sets a specific language. This allows for example a virtual keyboard to
+    /// show a language specific layout. The "language" argument is an RFC-3066
+    /// format language tag.
+    ///
+    /// It could be used for example in a word processor to indicate the
+    /// language of the currently edited document or in an instant message
+    /// application which tracks languages of contacts.
+    ///
+    /// # Arguments
+    ///
+    /// - `language`:
+    #[inline]
+    pub fn send_set_preferred_language(
+        &self,
+        language: &str,
+    ) {
+        let res = self.try_send_set_preferred_language(
+            language,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.set_preferred_language", &e);
+        }
+    }
+
     /// Since when the commit_state message is available.
     pub const MSG__COMMIT_STATE__SINCE: u32 = 1;
 
@@ -564,7 +769,7 @@ impl ZwpTextInputV1 {
     ///
     /// - `serial`: used to identify the known state
     #[inline]
-    pub fn send_commit_state(
+    pub fn try_send_commit_state(
         &self,
         serial: u32,
     ) -> Result<(), ObjectError> {
@@ -602,6 +807,22 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// # Arguments
+    ///
+    /// - `serial`: used to identify the known state
+    #[inline]
+    pub fn send_commit_state(
+        &self,
+        serial: u32,
+    ) {
+        let res = self.try_send_commit_state(
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.commit_state", &e);
+        }
+    }
+
     /// Since when the invoke_action message is available.
     pub const MSG__INVOKE_ACTION__SINCE: u32 = 1;
 
@@ -610,7 +831,7 @@ impl ZwpTextInputV1 {
     /// - `button`:
     /// - `index`:
     #[inline]
-    pub fn send_invoke_action(
+    pub fn try_send_invoke_action(
         &self,
         button: u32,
         index: u32,
@@ -652,6 +873,25 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// # Arguments
+    ///
+    /// - `button`:
+    /// - `index`:
+    #[inline]
+    pub fn send_invoke_action(
+        &self,
+        button: u32,
+        index: u32,
+    ) {
+        let res = self.try_send_invoke_action(
+            button,
+            index,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.invoke_action", &e);
+        }
+    }
+
     /// Since when the enter message is available.
     pub const MSG__ENTER__SINCE: u32 = 1;
 
@@ -664,7 +904,7 @@ impl ZwpTextInputV1 {
     ///
     /// - `surface`:
     #[inline]
-    pub fn send_enter(
+    pub fn try_send_enter(
         &self,
         surface: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
@@ -709,6 +949,27 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// enter event
+    ///
+    /// Notify the text_input object when it received focus. Typically in
+    /// response to an activate request.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`:
+    #[inline]
+    pub fn send_enter(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_enter(
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.enter", &e);
+        }
+    }
+
     /// Since when the leave message is available.
     pub const MSG__LEAVE__SINCE: u32 = 1;
 
@@ -718,7 +979,7 @@ impl ZwpTextInputV1 {
     /// to a deactivate request or when the assigned surface lost focus or was
     /// destroyed.
     #[inline]
-    pub fn send_leave(
+    pub fn try_send_leave(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -751,6 +1012,22 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// leave event
+    ///
+    /// Notify the text_input object when it lost focus. Either in response
+    /// to a deactivate request or when the assigned surface lost focus or was
+    /// destroyed.
+    #[inline]
+    pub fn send_leave(
+        &self,
+    ) {
+        let res = self.try_send_leave(
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.leave", &e);
+        }
+    }
+
     /// Since when the modifiers_map message is available.
     pub const MSG__MODIFIERS_MAP__SINCE: u32 = 1;
 
@@ -764,7 +1041,7 @@ impl ZwpTextInputV1 {
     ///
     /// - `map`:
     #[inline]
-    pub fn send_modifiers_map(
+    pub fn try_send_modifiers_map(
         &self,
         map: &[u8],
     ) -> Result<(), ObjectError> {
@@ -804,6 +1081,28 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// modifiers map
+    ///
+    /// Transfer an array of 0-terminated modifier names. The position in
+    /// the array is the index of the modifier as used in the modifiers
+    /// bitmask in the keysym event.
+    ///
+    /// # Arguments
+    ///
+    /// - `map`:
+    #[inline]
+    pub fn send_modifiers_map(
+        &self,
+        map: &[u8],
+    ) {
+        let res = self.try_send_modifiers_map(
+            map,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.modifiers_map", &e);
+        }
+    }
+
     /// Since when the input_panel_state message is available.
     pub const MSG__INPUT_PANEL_STATE__SINCE: u32 = 1;
 
@@ -815,7 +1114,7 @@ impl ZwpTextInputV1 {
     ///
     /// - `state`:
     #[inline]
-    pub fn send_input_panel_state(
+    pub fn try_send_input_panel_state(
         &self,
         state: u32,
     ) -> Result<(), ObjectError> {
@@ -855,6 +1154,26 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// state of the input panel
+    ///
+    /// Notify when the visibility state of the input panel changed.
+    ///
+    /// # Arguments
+    ///
+    /// - `state`:
+    #[inline]
+    pub fn send_input_panel_state(
+        &self,
+        state: u32,
+    ) {
+        let res = self.try_send_input_panel_state(
+            state,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.input_panel_state", &e);
+        }
+    }
+
     /// Since when the preedit_string message is available.
     pub const MSG__PREEDIT_STRING__SINCE: u32 = 1;
 
@@ -876,7 +1195,7 @@ impl ZwpTextInputV1 {
     /// - `text`:
     /// - `commit`:
     #[inline]
-    pub fn send_preedit_string(
+    pub fn try_send_preedit_string(
         &self,
         serial: u32,
         text: &str,
@@ -924,6 +1243,40 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// pre-edit
+    ///
+    /// Notify when a new composing text (pre-edit) should be set around the
+    /// current cursor position. Any previously set composing text should
+    /// be removed.
+    ///
+    /// The commit text can be used to replace the preedit text on reset
+    /// (for example on unfocus).
+    ///
+    /// The text input should also handle all preedit_style and preedit_cursor
+    /// events occurring directly before preedit_string.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial of the latest known text input state
+    /// - `text`:
+    /// - `commit`:
+    #[inline]
+    pub fn send_preedit_string(
+        &self,
+        serial: u32,
+        text: &str,
+        commit: &str,
+    ) {
+        let res = self.try_send_preedit_string(
+            serial,
+            text,
+            commit,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.preedit_string", &e);
+        }
+    }
+
     /// Since when the preedit_styling message is available.
     pub const MSG__PREEDIT_STYLING__SINCE: u32 = 1;
 
@@ -943,7 +1296,7 @@ impl ZwpTextInputV1 {
     /// - `length`:
     /// - `style`:
     #[inline]
-    pub fn send_preedit_styling(
+    pub fn try_send_preedit_styling(
         &self,
         index: u32,
         length: u32,
@@ -991,6 +1344,38 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// pre-edit styling
+    ///
+    /// Sets styling information on composing text. The style is applied for
+    /// length bytes from index relative to the beginning of the composing
+    /// text (as byte offset). Multiple styles can
+    /// be applied to a composing text by sending multiple preedit_styling
+    /// events.
+    ///
+    /// This event is handled as part of a following preedit_string event.
+    ///
+    /// # Arguments
+    ///
+    /// - `index`:
+    /// - `length`:
+    /// - `style`:
+    #[inline]
+    pub fn send_preedit_styling(
+        &self,
+        index: u32,
+        length: u32,
+        style: ZwpTextInputV1PreeditStyle,
+    ) {
+        let res = self.try_send_preedit_styling(
+            index,
+            length,
+            style,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.preedit_styling", &e);
+        }
+    }
+
     /// Since when the preedit_cursor message is available.
     pub const MSG__PREEDIT_CURSOR__SINCE: u32 = 1;
 
@@ -1006,7 +1391,7 @@ impl ZwpTextInputV1 {
     ///
     /// - `index`:
     #[inline]
-    pub fn send_preedit_cursor(
+    pub fn try_send_preedit_cursor(
         &self,
         index: i32,
     ) -> Result<(), ObjectError> {
@@ -1046,6 +1431,30 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// pre-edit cursor
+    ///
+    /// Sets the cursor position inside the composing text (as byte
+    /// offset) relative to the start of the composing text. When index is a
+    /// negative number no cursor is shown.
+    ///
+    /// This event is handled as part of a following preedit_string event.
+    ///
+    /// # Arguments
+    ///
+    /// - `index`:
+    #[inline]
+    pub fn send_preedit_cursor(
+        &self,
+        index: i32,
+    ) {
+        let res = self.try_send_preedit_cursor(
+            index,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.preedit_cursor", &e);
+        }
+    }
+
     /// Since when the commit_string message is available.
     pub const MSG__COMMIT_STRING__SINCE: u32 = 1;
 
@@ -1064,7 +1473,7 @@ impl ZwpTextInputV1 {
     /// - `serial`: serial of the latest known text input state
     /// - `text`:
     #[inline]
-    pub fn send_commit_string(
+    pub fn try_send_commit_string(
         &self,
         serial: u32,
         text: &str,
@@ -1108,6 +1517,35 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// commit
+    ///
+    /// Notify when text should be inserted into the editor widget. The text to
+    /// commit could be either just a single character after a key press or the
+    /// result of some composing (pre-edit). It could also be an empty text
+    /// when some text should be removed (see delete_surrounding_text) or when
+    /// the input cursor should be moved (see cursor_position).
+    ///
+    /// Any previously set composing text should be removed.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial of the latest known text input state
+    /// - `text`:
+    #[inline]
+    pub fn send_commit_string(
+        &self,
+        serial: u32,
+        text: &str,
+    ) {
+        let res = self.try_send_commit_string(
+            serial,
+            text,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.commit_string", &e);
+        }
+    }
+
     /// Since when the cursor_position message is available.
     pub const MSG__CURSOR_POSITION__SINCE: u32 = 1;
 
@@ -1123,7 +1561,7 @@ impl ZwpTextInputV1 {
     /// - `index`:
     /// - `anchor`:
     #[inline]
-    pub fn send_cursor_position(
+    pub fn try_send_cursor_position(
         &self,
         index: i32,
         anchor: i32,
@@ -1167,6 +1605,32 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// set cursor to new position
+    ///
+    /// Notify when the cursor or anchor position should be modified.
+    ///
+    /// This event should be handled as part of a following commit_string
+    /// event.
+    ///
+    /// # Arguments
+    ///
+    /// - `index`:
+    /// - `anchor`:
+    #[inline]
+    pub fn send_cursor_position(
+        &self,
+        index: i32,
+        anchor: i32,
+    ) {
+        let res = self.try_send_cursor_position(
+            index,
+            anchor,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.cursor_position", &e);
+        }
+    }
+
     /// Since when the delete_surrounding_text message is available.
     pub const MSG__DELETE_SURROUNDING_TEXT__SINCE: u32 = 1;
 
@@ -1186,7 +1650,7 @@ impl ZwpTextInputV1 {
     /// - `index`:
     /// - `length`:
     #[inline]
-    pub fn send_delete_surrounding_text(
+    pub fn try_send_delete_surrounding_text(
         &self,
         index: i32,
         length: u32,
@@ -1230,6 +1694,36 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// delete surrounding text
+    ///
+    /// Notify when the text around the current cursor position should be
+    /// deleted.
+    ///
+    /// Index is relative to the current cursor (in bytes).
+    /// Length is the length of deleted text (in bytes).
+    ///
+    /// This event should be handled as part of a following commit_string
+    /// event.
+    ///
+    /// # Arguments
+    ///
+    /// - `index`:
+    /// - `length`:
+    #[inline]
+    pub fn send_delete_surrounding_text(
+        &self,
+        index: i32,
+        length: u32,
+    ) {
+        let res = self.try_send_delete_surrounding_text(
+            index,
+            length,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.delete_surrounding_text", &e);
+        }
+    }
+
     /// Since when the keysym message is available.
     pub const MSG__KEYSYM__SINCE: u32 = 1;
 
@@ -1250,7 +1744,7 @@ impl ZwpTextInputV1 {
     /// - `state`:
     /// - `modifiers`:
     #[inline]
-    pub fn send_keysym(
+    pub fn try_send_keysym(
         &self,
         serial: u32,
         time: u32,
@@ -1306,6 +1800,43 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// keysym
+    ///
+    /// Notify when a key event was sent. Key events should not be used
+    /// for normal text input operations, which should be done with
+    /// commit_string, delete_surrounding_text, etc. The key event follows
+    /// the wl_keyboard key event convention. Sym is an XKB keysym, state a
+    /// wl_keyboard key_state. Modifiers are a mask for effective modifiers
+    /// (where the modifier indices are set by the modifiers_map event)
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial of the latest known text input state
+    /// - `time`:
+    /// - `sym`:
+    /// - `state`:
+    /// - `modifiers`:
+    #[inline]
+    pub fn send_keysym(
+        &self,
+        serial: u32,
+        time: u32,
+        sym: u32,
+        state: u32,
+        modifiers: u32,
+    ) {
+        let res = self.try_send_keysym(
+            serial,
+            time,
+            sym,
+            state,
+            modifiers,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.keysym", &e);
+        }
+    }
+
     /// Since when the language message is available.
     pub const MSG__LANGUAGE__SINCE: u32 = 1;
 
@@ -1319,7 +1850,7 @@ impl ZwpTextInputV1 {
     /// - `serial`: serial of the latest known text input state
     /// - `language`:
     #[inline]
-    pub fn send_language(
+    pub fn try_send_language(
         &self,
         serial: u32,
         language: &str,
@@ -1363,6 +1894,30 @@ impl ZwpTextInputV1 {
         Ok(())
     }
 
+    /// language
+    ///
+    /// Sets the language of the input text. The "language" argument is an
+    /// RFC-3066 format language tag.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial of the latest known text input state
+    /// - `language`:
+    #[inline]
+    pub fn send_language(
+        &self,
+        serial: u32,
+        language: &str,
+    ) {
+        let res = self.try_send_language(
+            serial,
+            language,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.language", &e);
+        }
+    }
+
     /// Since when the text_direction message is available.
     pub const MSG__TEXT_DIRECTION__SINCE: u32 = 1;
 
@@ -1379,7 +1934,7 @@ impl ZwpTextInputV1 {
     /// - `serial`: serial of the latest known text input state
     /// - `direction`:
     #[inline]
-    pub fn send_text_direction(
+    pub fn try_send_text_direction(
         &self,
         serial: u32,
         direction: ZwpTextInputV1TextDirection,
@@ -1422,13 +1977,40 @@ impl ZwpTextInputV1 {
         ]);
         Ok(())
     }
+
+    /// text direction
+    ///
+    /// Sets the text direction of input text.
+    ///
+    /// It is mainly needed for showing an input cursor on the correct side of
+    /// the editor when there is no input done yet and making sure neutral
+    /// direction text is laid out properly.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial of the latest known text input state
+    /// - `direction`:
+    #[inline]
+    pub fn send_text_direction(
+        &self,
+        serial: u32,
+        direction: ZwpTextInputV1TextDirection,
+    ) {
+        let res = self.try_send_text_direction(
+            serial,
+            direction,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v1.text_direction", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpTextInputV1] proxies.
 pub trait ZwpTextInputV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpTextInputV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// request activation
@@ -1458,12 +2040,12 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_activate(
+        let res = _slf.try_send_activate(
             seat,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.activate message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.activate", &e);
         }
     }
 
@@ -1488,11 +2070,11 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_deactivate(
+        let res = _slf.try_send_deactivate(
             seat,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.deactivate message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.deactivate", &e);
         }
     }
 
@@ -1507,10 +2089,10 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_show_input_panel(
+        let res = _slf.try_send_show_input_panel(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.show_input_panel message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.show_input_panel", &e);
         }
     }
 
@@ -1525,10 +2107,10 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_hide_input_panel(
+        let res = _slf.try_send_hide_input_panel(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.hide_input_panel message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.hide_input_panel", &e);
         }
     }
 
@@ -1545,10 +2127,10 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_reset(
+        let res = _slf.try_send_reset(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.reset message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.reset", &e);
         }
     }
 
@@ -1576,13 +2158,13 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_surrounding_text(
+        let res = _slf.try_send_set_surrounding_text(
             text,
             cursor,
             anchor,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.set_surrounding_text message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.set_surrounding_text", &e);
         }
     }
 
@@ -1610,12 +2192,12 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_content_type(
+        let res = _slf.try_send_set_content_type(
             hint,
             purpose,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.set_content_type message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.set_content_type", &e);
         }
     }
 
@@ -1637,14 +2219,14 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_cursor_rectangle(
+        let res = _slf.try_send_set_cursor_rectangle(
             x,
             y,
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.set_cursor_rectangle message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.set_cursor_rectangle", &e);
         }
     }
 
@@ -1670,11 +2252,11 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_preferred_language(
+        let res = _slf.try_send_set_preferred_language(
             language,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.set_preferred_language message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.set_preferred_language", &e);
         }
     }
 
@@ -1690,11 +2272,11 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_commit_state(
+        let res = _slf.try_send_commit_state(
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.commit_state message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.commit_state", &e);
         }
     }
 
@@ -1712,12 +2294,12 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_invoke_action(
+        let res = _slf.try_send_invoke_action(
             button,
             index,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.invoke_action message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.invoke_action", &e);
         }
     }
 
@@ -1748,11 +2330,11 @@ pub trait ZwpTextInputV1Handler: Any {
                 }
             }
         }
-        let res = _slf.send_enter(
+        let res = _slf.try_send_enter(
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.enter message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.enter", &e);
         }
     }
 
@@ -1769,10 +2351,10 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_leave(
+        let res = _slf.try_send_leave(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.leave message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.leave", &e);
         }
     }
 
@@ -1794,11 +2376,11 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_modifiers_map(
+        let res = _slf.try_send_modifiers_map(
             map,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.modifiers_map message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.modifiers_map", &e);
         }
     }
 
@@ -1818,11 +2400,11 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_input_panel_state(
+        let res = _slf.try_send_input_panel_state(
             state,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.input_panel_state message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.input_panel_state", &e);
         }
     }
 
@@ -1854,13 +2436,13 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_preedit_string(
+        let res = _slf.try_send_preedit_string(
             serial,
             text,
             commit,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.preedit_string message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.preedit_string", &e);
         }
     }
 
@@ -1890,13 +2472,13 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_preedit_styling(
+        let res = _slf.try_send_preedit_styling(
             index,
             length,
             style,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.preedit_styling message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.preedit_styling", &e);
         }
     }
 
@@ -1920,11 +2502,11 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_preedit_cursor(
+        let res = _slf.try_send_preedit_cursor(
             index,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.preedit_cursor message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.preedit_cursor", &e);
         }
     }
 
@@ -1952,12 +2534,12 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_commit_string(
+        let res = _slf.try_send_commit_string(
             serial,
             text,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.commit_string message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.commit_string", &e);
         }
     }
 
@@ -1982,12 +2564,12 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_cursor_position(
+        let res = _slf.try_send_cursor_position(
             index,
             anchor,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.cursor_position message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.cursor_position", &e);
         }
     }
 
@@ -2016,12 +2598,12 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_delete_surrounding_text(
+        let res = _slf.try_send_delete_surrounding_text(
             index,
             length,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.delete_surrounding_text message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.delete_surrounding_text", &e);
         }
     }
 
@@ -2054,7 +2636,7 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_keysym(
+        let res = _slf.try_send_keysym(
             serial,
             time,
             sym,
@@ -2062,7 +2644,7 @@ pub trait ZwpTextInputV1Handler: Any {
             modifiers,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.keysym message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.keysym", &e);
         }
     }
 
@@ -2085,12 +2667,12 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_language(
+        let res = _slf.try_send_language(
             serial,
             language,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.language message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.language", &e);
         }
     }
 
@@ -2116,12 +2698,12 @@ pub trait ZwpTextInputV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_text_direction(
+        let res = _slf.try_send_text_direction(
             serial,
             direction,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_v1.text_direction message: {}", Report::new(e));
+            log_forward("zwp_text_input_v1.text_direction", &e);
         }
     }
 }
@@ -2141,7 +2723,7 @@ impl ObjectPrivate for ZwpTextInputV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

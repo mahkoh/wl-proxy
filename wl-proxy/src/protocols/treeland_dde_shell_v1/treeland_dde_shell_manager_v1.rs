@@ -56,7 +56,7 @@ impl TreelandDdeShellManagerV1 {
     pub const MSG__GET_WINDOW_OVERLAP_CHECKER__SINCE: u32 = 1;
 
     #[inline]
-    pub fn send_get_window_overlap_checker(
+    pub fn try_send_get_window_overlap_checker(
         &self,
         id: &Rc<TreelandWindowOverlapChecker>,
     ) -> Result<(), ObjectError> {
@@ -99,6 +99,19 @@ impl TreelandDdeShellManagerV1 {
         Ok(())
     }
 
+    #[inline]
+    pub fn send_get_window_overlap_checker(
+        &self,
+        id: &Rc<TreelandWindowOverlapChecker>,
+    ) {
+        let res = self.try_send_get_window_overlap_checker(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_shell_manager_v1.get_window_overlap_checker", &e);
+        }
+    }
+
     /// Since when the get_shell_surface message is available.
     pub const MSG__GET_SHELL_SURFACE__SINCE: u32 = 1;
 
@@ -115,7 +128,7 @@ impl TreelandDdeShellManagerV1 {
     /// - `id`:
     /// - `surface`:
     #[inline]
-    pub fn send_get_shell_surface(
+    pub fn try_send_get_shell_surface(
         &self,
         id: &Rc<TreelandDdeShellSurfaceV1>,
         surface: &Rc<WlSurface>,
@@ -167,6 +180,33 @@ impl TreelandDdeShellManagerV1 {
         Ok(())
     }
 
+    /// create a shell surface from a surface
+    ///
+    /// Create a shell surface for an existing wl_surface.
+    ///
+    /// Only one shell surface can be associated with a given surface.
+    ///
+    /// Recommended for use with xdg_surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn send_get_shell_surface(
+        &self,
+        id: &Rc<TreelandDdeShellSurfaceV1>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_shell_surface(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_shell_manager_v1.get_shell_surface", &e);
+        }
+    }
+
     /// Since when the get_treeland_dde_active message is available.
     pub const MSG__GET_TREELAND_DDE_ACTIVE__SINCE: u32 = 1;
 
@@ -179,7 +219,7 @@ impl TreelandDdeShellManagerV1 {
     /// - `id`:
     /// - `seat`: seat associated with the dde_active
     #[inline]
-    pub fn send_get_treeland_dde_active(
+    pub fn try_send_get_treeland_dde_active(
         &self,
         id: &Rc<TreelandDdeActiveV1>,
         seat: &Rc<WlSeat>,
@@ -231,6 +271,29 @@ impl TreelandDdeShellManagerV1 {
         Ok(())
     }
 
+    /// create a new dde active
+    ///
+    /// Create a new dde active for a given seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `seat`: seat associated with the dde_active
+    #[inline]
+    pub fn send_get_treeland_dde_active(
+        &self,
+        id: &Rc<TreelandDdeActiveV1>,
+        seat: &Rc<WlSeat>,
+    ) {
+        let res = self.try_send_get_treeland_dde_active(
+            id,
+            seat,
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_shell_manager_v1.get_treeland_dde_active", &e);
+        }
+    }
+
     /// Since when the get_treeland_multitaskview message is available.
     pub const MSG__GET_TREELAND_MULTITASKVIEW__SINCE: u32 = 1;
 
@@ -238,7 +301,7 @@ impl TreelandDdeShellManagerV1 {
     ///
     /// Create a new multitaskview context for toggle.
     #[inline]
-    pub fn send_get_treeland_multitaskview(
+    pub fn try_send_get_treeland_multitaskview(
         &self,
         id: &Rc<TreelandMultitaskviewV1>,
     ) -> Result<(), ObjectError> {
@@ -281,6 +344,22 @@ impl TreelandDdeShellManagerV1 {
         Ok(())
     }
 
+    /// create a new multitaskview context
+    ///
+    /// Create a new multitaskview context for toggle.
+    #[inline]
+    pub fn send_get_treeland_multitaskview(
+        &self,
+        id: &Rc<TreelandMultitaskviewV1>,
+    ) {
+        let res = self.try_send_get_treeland_multitaskview(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_shell_manager_v1.get_treeland_multitaskview", &e);
+        }
+    }
+
     /// Since when the get_treeland_window_picker message is available.
     pub const MSG__GET_TREELAND_WINDOW_PICKER__SINCE: u32 = 1;
 
@@ -288,7 +367,7 @@ impl TreelandDdeShellManagerV1 {
     ///
     /// Create a new window picker to pick window.
     #[inline]
-    pub fn send_get_treeland_window_picker(
+    pub fn try_send_get_treeland_window_picker(
         &self,
         id: &Rc<TreelandWindowPickerV1>,
     ) -> Result<(), ObjectError> {
@@ -331,6 +410,22 @@ impl TreelandDdeShellManagerV1 {
         Ok(())
     }
 
+    /// create a new window picker
+    ///
+    /// Create a new window picker to pick window.
+    #[inline]
+    pub fn send_get_treeland_window_picker(
+        &self,
+        id: &Rc<TreelandWindowPickerV1>,
+    ) {
+        let res = self.try_send_get_treeland_window_picker(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_shell_manager_v1.get_treeland_window_picker", &e);
+        }
+    }
+
     /// Since when the get_treeland_lockscreen message is available.
     pub const MSG__GET_TREELAND_LOCKSCREEN__SINCE: u32 = 1;
 
@@ -338,7 +433,7 @@ impl TreelandDdeShellManagerV1 {
     ///
     /// Create a new lockscreen context for toggle.
     #[inline]
-    pub fn send_get_treeland_lockscreen(
+    pub fn try_send_get_treeland_lockscreen(
         &self,
         id: &Rc<TreelandLockscreenV1>,
     ) -> Result<(), ObjectError> {
@@ -380,13 +475,29 @@ impl TreelandDdeShellManagerV1 {
         ]);
         Ok(())
     }
+
+    /// create a new lockscreen context
+    ///
+    /// Create a new lockscreen context for toggle.
+    #[inline]
+    pub fn send_get_treeland_lockscreen(
+        &self,
+        id: &Rc<TreelandLockscreenV1>,
+    ) {
+        let res = self.try_send_get_treeland_lockscreen(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_shell_manager_v1.get_treeland_lockscreen", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandDdeShellManagerV1] proxies.
 pub trait TreelandDdeShellManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandDdeShellManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// # Arguments
@@ -401,11 +512,11 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_window_overlap_checker(
+        let res = _slf.try_send_get_window_overlap_checker(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_shell_manager_v1.get_window_overlap_checker message: {}", Report::new(e));
+            log_forward("treeland_dde_shell_manager_v1.get_window_overlap_checker", &e);
         }
     }
 
@@ -434,12 +545,12 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_shell_surface(
+        let res = _slf.try_send_get_shell_surface(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_shell_manager_v1.get_shell_surface message: {}", Report::new(e));
+            log_forward("treeland_dde_shell_manager_v1.get_shell_surface", &e);
         }
     }
 
@@ -464,12 +575,12 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_treeland_dde_active(
+        let res = _slf.try_send_get_treeland_dde_active(
             id,
             seat,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_shell_manager_v1.get_treeland_dde_active message: {}", Report::new(e));
+            log_forward("treeland_dde_shell_manager_v1.get_treeland_dde_active", &e);
         }
     }
 
@@ -489,11 +600,11 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_treeland_multitaskview(
+        let res = _slf.try_send_get_treeland_multitaskview(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_shell_manager_v1.get_treeland_multitaskview message: {}", Report::new(e));
+            log_forward("treeland_dde_shell_manager_v1.get_treeland_multitaskview", &e);
         }
     }
 
@@ -513,11 +624,11 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_treeland_window_picker(
+        let res = _slf.try_send_get_treeland_window_picker(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_shell_manager_v1.get_treeland_window_picker message: {}", Report::new(e));
+            log_forward("treeland_dde_shell_manager_v1.get_treeland_window_picker", &e);
         }
     }
 
@@ -537,11 +648,11 @@ pub trait TreelandDdeShellManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_treeland_lockscreen(
+        let res = _slf.try_send_get_treeland_lockscreen(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_shell_manager_v1.get_treeland_lockscreen message: {}", Report::new(e));
+            log_forward("treeland_dde_shell_manager_v1.get_treeland_lockscreen", &e);
         }
     }
 }
@@ -561,7 +672,7 @@ impl ObjectPrivate for TreelandDdeShellManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

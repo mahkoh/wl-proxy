@@ -72,7 +72,7 @@ impl JayTrayV1 {
     ///
     /// Created tray items are not affected by this.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -104,6 +104,22 @@ impl JayTrayV1 {
         Ok(())
     }
 
+    /// destroy this object
+    ///
+    /// Destroy this object.
+    ///
+    /// Created tray items are not affected by this.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("jay_tray_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_tray_item message is available.
     pub const MSG__GET_TRAY_ITEM__SINCE: u32 = 1;
 
@@ -122,7 +138,7 @@ impl JayTrayV1 {
     /// - `id`: the new tray item
     /// - `surface`: the underlying surface
     #[inline]
-    pub fn send_get_tray_item(
+    pub fn try_send_get_tray_item(
         &self,
         id: &Rc<JayTrayItemV1>,
         surface: &Rc<WlSurface>,
@@ -173,13 +189,42 @@ impl JayTrayV1 {
         ]);
         Ok(())
     }
+
+    /// request tray item interface for surface
+    ///
+    /// Create a tray item for a surface.
+    ///
+    /// The surface is assigned the ext-tray-item-v1 role. If the surface
+    /// already has another role, the conflicting_role error is emitted.
+    ///
+    /// If the surface already has a role object, the already_exists error is
+    /// emitted.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new tray item
+    /// - `surface`: the underlying surface
+    #[inline]
+    pub fn send_get_tray_item(
+        &self,
+        id: &Rc<JayTrayItemV1>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_tray_item(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("jay_tray_v1.get_tray_item", &e);
+        }
+    }
 }
 
 /// A message handler for [JayTrayV1] proxies.
 pub trait JayTrayV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<JayTrayV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy this object
@@ -195,10 +240,10 @@ pub trait JayTrayV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a jay_tray_v1.destroy message: {}", Report::new(e));
+            log_forward("jay_tray_v1.destroy", &e);
         }
     }
 
@@ -229,12 +274,12 @@ pub trait JayTrayV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_tray_item(
+        let res = _slf.try_send_get_tray_item(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a jay_tray_v1.get_tray_item message: {}", Report::new(e));
+            log_forward("jay_tray_v1.get_tray_item", &e);
         }
     }
 }
@@ -254,7 +299,7 @@ impl ObjectPrivate for JayTrayV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

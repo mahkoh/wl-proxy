@@ -52,7 +52,7 @@ impl TreelandWindowPickerV1 {
 
     /// destroy the treeland_window_picker_v1 object
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -84,6 +84,18 @@ impl TreelandWindowPickerV1 {
         Ok(())
     }
 
+    /// destroy the treeland_window_picker_v1 object
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_window_picker_v1.destroy", &e);
+        }
+    }
+
     /// Since when the pick message is available.
     pub const MSG__PICK__SINCE: u32 = 1;
 
@@ -95,7 +107,7 @@ impl TreelandWindowPickerV1 {
     ///
     /// - `hint`: Hint of pick process
     #[inline]
-    pub fn send_pick(
+    pub fn try_send_pick(
         &self,
         hint: &str,
     ) -> Result<(), ObjectError> {
@@ -133,6 +145,26 @@ impl TreelandWindowPickerV1 {
         Ok(())
     }
 
+    /// pick a window
+    ///
+    /// Pick a window to get information.
+    ///
+    /// # Arguments
+    ///
+    /// - `hint`: Hint of pick process
+    #[inline]
+    pub fn send_pick(
+        &self,
+        hint: &str,
+    ) {
+        let res = self.try_send_pick(
+            hint,
+        );
+        if let Err(e) = res {
+            log_send("treeland_window_picker_v1.pick", &e);
+        }
+    }
+
     /// Since when the window message is available.
     pub const MSG__WINDOW__SINCE: u32 = 1;
 
@@ -144,7 +176,7 @@ impl TreelandWindowPickerV1 {
     ///
     /// - `pid`: Pid of picked window
     #[inline]
-    pub fn send_window(
+    pub fn try_send_window(
         &self,
         pid: i32,
     ) -> Result<(), ObjectError> {
@@ -183,13 +215,33 @@ impl TreelandWindowPickerV1 {
         ]);
         Ok(())
     }
+
+    /// window picked
+    ///
+    /// Picked window information.
+    ///
+    /// # Arguments
+    ///
+    /// - `pid`: Pid of picked window
+    #[inline]
+    pub fn send_window(
+        &self,
+        pid: i32,
+    ) {
+        let res = self.try_send_window(
+            pid,
+        );
+        if let Err(e) = res {
+            log_send("treeland_window_picker_v1.window", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandWindowPickerV1] proxies.
 pub trait TreelandWindowPickerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandWindowPickerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the treeland_window_picker_v1 object
@@ -201,10 +253,10 @@ pub trait TreelandWindowPickerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_window_picker_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_window_picker_v1.destroy", &e);
         }
     }
 
@@ -224,11 +276,11 @@ pub trait TreelandWindowPickerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_pick(
+        let res = _slf.try_send_pick(
             hint,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_window_picker_v1.pick message: {}", Report::new(e));
+            log_forward("treeland_window_picker_v1.pick", &e);
         }
     }
 
@@ -248,11 +300,11 @@ pub trait TreelandWindowPickerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_window(
+        let res = _slf.try_send_window(
             pid,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_window_picker_v1.window message: {}", Report::new(e));
+            log_forward("treeland_window_picker_v1.window", &e);
         }
     }
 }
@@ -272,7 +324,7 @@ impl ObjectPrivate for TreelandWindowPickerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

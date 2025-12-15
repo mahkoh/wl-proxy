@@ -72,7 +72,7 @@ impl ZwpInputPopupSurfaceV2 {
     /// - `width`:
     /// - `height`:
     #[inline]
-    pub fn send_text_input_rectangle(
+    pub fn try_send_text_input_rectangle(
         &self,
         x: i32,
         y: i32,
@@ -124,11 +124,44 @@ impl ZwpInputPopupSurfaceV2 {
         Ok(())
     }
 
+    /// set text input area position
+    ///
+    /// Notify about the position of the area of the text input expressed as a
+    /// rectangle in surface local coordinates.
+    ///
+    /// This is a hint to the input method telling it the relative position of
+    /// the text being entered.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`:
+    /// - `y`:
+    /// - `width`:
+    /// - `height`:
+    #[inline]
+    pub fn send_text_input_rectangle(
+        &self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_text_input_rectangle(
+            x,
+            y,
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_popup_surface_v2.text_input_rectangle", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -159,13 +192,24 @@ impl ZwpInputPopupSurfaceV2 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_popup_surface_v2.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpInputPopupSurfaceV2] proxies.
 pub trait ZwpInputPopupSurfaceV2Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpInputPopupSurfaceV2>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// set text input area position
@@ -194,14 +238,14 @@ pub trait ZwpInputPopupSurfaceV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_text_input_rectangle(
+        let res = _slf.try_send_text_input_rectangle(
             x,
             y,
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_popup_surface_v2.text_input_rectangle message: {}", Report::new(e));
+            log_forward("zwp_input_popup_surface_v2.text_input_rectangle", &e);
         }
     }
 
@@ -213,10 +257,10 @@ pub trait ZwpInputPopupSurfaceV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_popup_surface_v2.destroy message: {}", Report::new(e));
+            log_forward("zwp_input_popup_surface_v2.destroy", &e);
         }
     }
 }
@@ -236,7 +280,7 @@ impl ObjectPrivate for ZwpInputPopupSurfaceV2 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

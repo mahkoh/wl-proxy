@@ -55,7 +55,7 @@ impl XdgToplevelDragV1 {
     /// by the dnd_drop_performed or cancelled events. In any other case an
     /// ongoing_drag error is raised.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -87,6 +87,23 @@ impl XdgToplevelDragV1 {
         Ok(())
     }
 
+    /// destroy an xdg_toplevel_drag_v1 object
+    ///
+    /// Destroy this xdg_toplevel_drag_v1 object. This request must only be
+    /// called after the underlying wl_data_source drag has ended, as indicated
+    /// by the dnd_drop_performed or cancelled events. In any other case an
+    /// ongoing_drag error is raised.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel_drag_v1.destroy", &e);
+        }
+    }
+
     /// Since when the attach message is available.
     pub const MSG__ATTACH__SINCE: u32 = 1;
 
@@ -114,7 +131,7 @@ impl XdgToplevelDragV1 {
     /// - `x_offset`: dragged surface x offset
     /// - `y_offset`: dragged surface y offset
     #[inline]
-    pub fn send_attach(
+    pub fn try_send_attach(
         &self,
         toplevel: &Rc<XdgToplevel>,
         x_offset: i32,
@@ -164,13 +181,53 @@ impl XdgToplevelDragV1 {
         ]);
         Ok(())
     }
+
+    /// Move a toplevel with the drag operation
+    ///
+    /// Request that the window will be moved with the cursor during the drag
+    /// operation. The offset is a hint to the compositor how the toplevel
+    /// should be positioned relative to the cursor hotspot in surface local
+    /// coordinates and relative to the geometry of the toplevel being attached.
+    /// See xdg_surface.set_window_geometry. For example it might only
+    /// be used when an unmapped window is attached. The attached window
+    /// does not participate in the selection of the drag target.
+    ///
+    /// If the toplevel is unmapped while it is attached, it is automatically
+    /// detached from the drag. In this case this request has to be called again
+    /// if the window should be attached after it is remapped.
+    ///
+    /// This request can be called multiple times but issuing it while a
+    /// toplevel with an active role is attached raises a toplevel_attached
+    /// error.
+    ///
+    /// # Arguments
+    ///
+    /// - `toplevel`:
+    /// - `x_offset`: dragged surface x offset
+    /// - `y_offset`: dragged surface y offset
+    #[inline]
+    pub fn send_attach(
+        &self,
+        toplevel: &Rc<XdgToplevel>,
+        x_offset: i32,
+        y_offset: i32,
+    ) {
+        let res = self.try_send_attach(
+            toplevel,
+            x_offset,
+            y_offset,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel_drag_v1.attach", &e);
+        }
+    }
 }
 
 /// A message handler for [XdgToplevelDragV1] proxies.
 pub trait XdgToplevelDragV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgToplevelDragV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy an xdg_toplevel_drag_v1 object
@@ -187,10 +244,10 @@ pub trait XdgToplevelDragV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel_drag_v1.destroy message: {}", Report::new(e));
+            log_forward("xdg_toplevel_drag_v1.destroy", &e);
         }
     }
 
@@ -231,13 +288,13 @@ pub trait XdgToplevelDragV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_attach(
+        let res = _slf.try_send_attach(
             toplevel,
             x_offset,
             y_offset,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel_drag_v1.attach message: {}", Report::new(e));
+            log_forward("xdg_toplevel_drag_v1.attach", &e);
         }
     }
 }
@@ -257,7 +314,7 @@ impl ObjectPrivate for XdgToplevelDragV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

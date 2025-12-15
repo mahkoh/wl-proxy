@@ -61,7 +61,7 @@ impl WpColorManagerV1 {
     /// Destroy the wp_color_manager_v1 object. This does not affect any other
     /// objects in any way.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -93,6 +93,21 @@ impl WpColorManagerV1 {
         Ok(())
     }
 
+    /// destroy the color manager
+    ///
+    /// Destroy the wp_color_manager_v1 object. This does not affect any other
+    /// objects in any way.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_color_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_output message is available.
     pub const MSG__GET_OUTPUT__SINCE: u32 = 1;
 
@@ -108,7 +123,7 @@ impl WpColorManagerV1 {
     /// - `id`:
     /// - `output`:
     #[inline]
-    pub fn send_get_output(
+    pub fn try_send_get_output(
         &self,
         id: &Rc<WpColorManagementOutputV1>,
         output: &Rc<WlOutput>,
@@ -160,6 +175,32 @@ impl WpColorManagerV1 {
         Ok(())
     }
 
+    /// create a color management interface for a wl_output
+    ///
+    /// This creates a new wp_color_management_output_v1 object for the
+    /// given wl_output.
+    ///
+    /// See the wp_color_management_output_v1 interface for more details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `output`:
+    #[inline]
+    pub fn send_get_output(
+        &self,
+        id: &Rc<WpColorManagementOutputV1>,
+        output: &Rc<WlOutput>,
+    ) {
+        let res = self.try_send_get_output(
+            id,
+            output,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_manager_v1.get_output", &e);
+        }
+    }
+
     /// Since when the get_surface message is available.
     pub const MSG__GET_SURFACE__SINCE: u32 = 1;
 
@@ -178,7 +219,7 @@ impl WpColorManagerV1 {
     /// - `id`:
     /// - `surface`:
     #[inline]
-    pub fn send_get_surface(
+    pub fn try_send_get_surface(
         &self,
         id: &Rc<WpColorManagementSurfaceV1>,
         surface: &Rc<WlSurface>,
@@ -230,6 +271,35 @@ impl WpColorManagerV1 {
         Ok(())
     }
 
+    /// create a color management interface for a wl_surface
+    ///
+    /// If a wp_color_management_surface_v1 object already exists for the given
+    /// wl_surface, the protocol error surface_exists is raised.
+    ///
+    /// This creates a new color wp_color_management_surface_v1 object for the
+    /// given wl_surface.
+    ///
+    /// See the wp_color_management_surface_v1 interface for more details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn send_get_surface(
+        &self,
+        id: &Rc<WpColorManagementSurfaceV1>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_surface(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_manager_v1.get_surface", &e);
+        }
+    }
+
     /// Since when the get_surface_feedback message is available.
     pub const MSG__GET_SURFACE_FEEDBACK__SINCE: u32 = 1;
 
@@ -246,7 +316,7 @@ impl WpColorManagerV1 {
     /// - `id`:
     /// - `surface`:
     #[inline]
-    pub fn send_get_surface_feedback(
+    pub fn try_send_get_surface_feedback(
         &self,
         id: &Rc<WpColorManagementSurfaceFeedbackV1>,
         surface: &Rc<WlSurface>,
@@ -298,6 +368,33 @@ impl WpColorManagerV1 {
         Ok(())
     }
 
+    /// create a color management feedback interface
+    ///
+    /// This creates a new color wp_color_management_surface_feedback_v1 object
+    /// for the given wl_surface.
+    ///
+    /// See the wp_color_management_surface_feedback_v1 interface for more
+    /// details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn send_get_surface_feedback(
+        &self,
+        id: &Rc<WpColorManagementSurfaceFeedbackV1>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_surface_feedback(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_manager_v1.get_surface_feedback", &e);
+        }
+    }
+
     /// Since when the create_icc_creator message is available.
     pub const MSG__CREATE_ICC_CREATOR__SINCE: u32 = 1;
 
@@ -312,7 +409,7 @@ impl WpColorManagerV1 {
     /// wp_color_manager_v1.feature.icc_v2_v4.
     /// Otherwise this request raises the protocol error unsupported_feature.
     #[inline]
-    pub fn send_create_icc_creator(
+    pub fn try_send_create_icc_creator(
         &self,
         obj: &Rc<WpImageDescriptionCreatorIccV1>,
     ) -> Result<(), ObjectError> {
@@ -355,6 +452,29 @@ impl WpColorManagerV1 {
         Ok(())
     }
 
+    /// make a new ICC-based image description creator object
+    ///
+    /// Makes a new ICC-based image description creator object with all
+    /// properties initially unset. The client can then use the object's
+    /// interface to define all the required properties for an image description
+    /// and finally create a wp_image_description_v1 object.
+    ///
+    /// This request can be used when the compositor advertises
+    /// wp_color_manager_v1.feature.icc_v2_v4.
+    /// Otherwise this request raises the protocol error unsupported_feature.
+    #[inline]
+    pub fn send_create_icc_creator(
+        &self,
+        obj: &Rc<WpImageDescriptionCreatorIccV1>,
+    ) {
+        let res = self.try_send_create_icc_creator(
+            obj,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_manager_v1.create_icc_creator", &e);
+        }
+    }
+
     /// Since when the create_parametric_creator message is available.
     pub const MSG__CREATE_PARAMETRIC_CREATOR__SINCE: u32 = 1;
 
@@ -369,7 +489,7 @@ impl WpColorManagerV1 {
     /// wp_color_manager_v1.feature.parametric.
     /// Otherwise this request raises the protocol error unsupported_feature.
     #[inline]
-    pub fn send_create_parametric_creator(
+    pub fn try_send_create_parametric_creator(
         &self,
         obj: &Rc<WpImageDescriptionCreatorParamsV1>,
     ) -> Result<(), ObjectError> {
@@ -410,6 +530,29 @@ impl WpColorManagerV1 {
             arg0_id,
         ]);
         Ok(())
+    }
+
+    /// make a new parametric image description creator object
+    ///
+    /// Makes a new parametric image description creator object with all
+    /// properties initially unset. The client can then use the object's
+    /// interface to define all the required properties for an image description
+    /// and finally create a wp_image_description_v1 object.
+    ///
+    /// This request can be used when the compositor advertises
+    /// wp_color_manager_v1.feature.parametric.
+    /// Otherwise this request raises the protocol error unsupported_feature.
+    #[inline]
+    pub fn send_create_parametric_creator(
+        &self,
+        obj: &Rc<WpImageDescriptionCreatorParamsV1>,
+    ) {
+        let res = self.try_send_create_parametric_creator(
+            obj,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_manager_v1.create_parametric_creator", &e);
+        }
     }
 
     /// Since when the create_windows_scrgb message is available.
@@ -462,7 +605,7 @@ impl WpColorManagerV1 {
     /// The resulting image description object does not allow get_information
     /// request. The wp_image_description_v1.ready event shall be sent.
     #[inline]
-    pub fn send_create_windows_scrgb(
+    pub fn try_send_create_windows_scrgb(
         &self,
         image_description: &Rc<WpImageDescriptionV1>,
     ) -> Result<(), ObjectError> {
@@ -505,6 +648,65 @@ impl WpColorManagerV1 {
         Ok(())
     }
 
+    /// create Windows-scRGB image description object
+    ///
+    /// This creates a pre-defined image description for the so-called
+    /// Windows-scRGB stimulus encoding. This comes from the Windows 10 handling
+    /// of its own definition of an scRGB color space for an HDR screen
+    /// driven in BT.2100/PQ signalling mode.
+    ///
+    /// Windows-scRGB uses sRGB (BT.709) color primaries and white point.
+    /// The transfer characteristic is extended linear.
+    ///
+    /// The nominal color channel value range is extended, meaning it includes
+    /// negative and greater than 1.0 values. Negative values are used to
+    /// escape the sRGB color gamut boundaries. To make use of the extended
+    /// range, the client needs to use a pixel format that can represent those
+    /// values, e.g. floating-point 16 bits per channel.
+    ///
+    /// Nominal color value R=G=B=0.0 corresponds to BT.2100/PQ system
+    /// 0 cd/m², and R=G=B=1.0 corresponds to BT.2100/PQ system 80 cd/m².
+    /// The maximum is R=G=B=125.0 corresponding to 10k cd/m².
+    ///
+    /// Windows-scRGB is displayed by Windows 10 by converting it to
+    /// BT.2100/PQ, maintaining the CIE 1931 chromaticity and mapping the
+    /// luminance as above. No adjustment is made to the signal to account
+    /// for the viewing conditions.
+    ///
+    /// The reference white level of Windows-scRGB is unknown. If a
+    /// reference white level must be assumed for compositor processing, it
+    /// should be R=G=B=2.5375 corresponding to 203 cd/m² of Report ITU-R
+    /// BT.2408-7.
+    ///
+    /// The target color volume of Windows-scRGB is unknown. The color gamut
+    /// may be anything between sRGB and BT.2100.
+    ///
+    /// Note: EGL_EXT_gl_colorspace_scrgb_linear definition differs from
+    /// Windows-scRGB by using R=G=B=1.0 as the reference white level, while
+    /// Windows-scRGB reference white level is unknown or varies. However,
+    /// it seems probable that Windows implements both
+    /// EGL_EXT_gl_colorspace_scrgb_linear and Vulkan
+    /// VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT as Windows-scRGB.
+    ///
+    /// This request can be used when the compositor advertises
+    /// wp_color_manager_v1.feature.windows_scrgb.
+    /// Otherwise this request raises the protocol error unsupported_feature.
+    ///
+    /// The resulting image description object does not allow get_information
+    /// request. The wp_image_description_v1.ready event shall be sent.
+    #[inline]
+    pub fn send_create_windows_scrgb(
+        &self,
+        image_description: &Rc<WpImageDescriptionV1>,
+    ) {
+        let res = self.try_send_create_windows_scrgb(
+            image_description,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_manager_v1.create_windows_scrgb", &e);
+        }
+    }
+
     /// Since when the supported_intent message is available.
     pub const MSG__SUPPORTED_INTENT__SINCE: u32 = 1;
 
@@ -520,7 +722,7 @@ impl WpColorManagerV1 {
     ///
     /// - `render_intent`: rendering intent
     #[inline]
-    pub fn send_supported_intent(
+    pub fn try_send_supported_intent(
         &self,
         render_intent: WpColorManagerV1RenderIntent,
     ) -> Result<(), ObjectError> {
@@ -560,6 +762,30 @@ impl WpColorManagerV1 {
         Ok(())
     }
 
+    /// supported rendering intent
+    ///
+    /// When this object is created, it shall immediately send this event once
+    /// for each rendering intent the compositor supports.
+    ///
+    /// A compositor must not advertise intents that are deprecated in the
+    /// bound version of the interface.
+    ///
+    /// # Arguments
+    ///
+    /// - `render_intent`: rendering intent
+    #[inline]
+    pub fn send_supported_intent(
+        &self,
+        render_intent: WpColorManagerV1RenderIntent,
+    ) {
+        let res = self.try_send_supported_intent(
+            render_intent,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_manager_v1.supported_intent", &e);
+        }
+    }
+
     /// Since when the supported_feature message is available.
     pub const MSG__SUPPORTED_FEATURE__SINCE: u32 = 1;
 
@@ -575,7 +801,7 @@ impl WpColorManagerV1 {
     ///
     /// - `feature`: supported feature
     #[inline]
-    pub fn send_supported_feature(
+    pub fn try_send_supported_feature(
         &self,
         feature: WpColorManagerV1Feature,
     ) -> Result<(), ObjectError> {
@@ -615,6 +841,30 @@ impl WpColorManagerV1 {
         Ok(())
     }
 
+    /// supported features
+    ///
+    /// When this object is created, it shall immediately send this event once
+    /// for each compositor supported feature listed in the enumeration.
+    ///
+    /// A compositor must not advertise features that are deprecated in the
+    /// bound version of the interface.
+    ///
+    /// # Arguments
+    ///
+    /// - `feature`: supported feature
+    #[inline]
+    pub fn send_supported_feature(
+        &self,
+        feature: WpColorManagerV1Feature,
+    ) {
+        let res = self.try_send_supported_feature(
+            feature,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_manager_v1.supported_feature", &e);
+        }
+    }
+
     /// Since when the supported_tf_named message is available.
     pub const MSG__SUPPORTED_TF_NAMED__SINCE: u32 = 1;
 
@@ -631,7 +881,7 @@ impl WpColorManagerV1 {
     ///
     /// - `tf`: Named transfer function
     #[inline]
-    pub fn send_supported_tf_named(
+    pub fn try_send_supported_tf_named(
         &self,
         tf: WpColorManagerV1TransferFunction,
     ) -> Result<(), ObjectError> {
@@ -671,6 +921,31 @@ impl WpColorManagerV1 {
         Ok(())
     }
 
+    /// supported named transfer characteristic
+    ///
+    /// When this object is created, it shall immediately send this event once
+    /// for each named transfer function the compositor supports with the
+    /// parametric image description creator.
+    ///
+    /// A compositor must not advertise transfer functions that are deprecated
+    /// in the bound version of the interface.
+    ///
+    /// # Arguments
+    ///
+    /// - `tf`: Named transfer function
+    #[inline]
+    pub fn send_supported_tf_named(
+        &self,
+        tf: WpColorManagerV1TransferFunction,
+    ) {
+        let res = self.try_send_supported_tf_named(
+            tf,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_manager_v1.supported_tf_named", &e);
+        }
+    }
+
     /// Since when the supported_primaries_named message is available.
     pub const MSG__SUPPORTED_PRIMARIES_NAMED__SINCE: u32 = 1;
 
@@ -687,7 +962,7 @@ impl WpColorManagerV1 {
     ///
     /// - `primaries`: Named color primaries
     #[inline]
-    pub fn send_supported_primaries_named(
+    pub fn try_send_supported_primaries_named(
         &self,
         primaries: WpColorManagerV1Primaries,
     ) -> Result<(), ObjectError> {
@@ -727,6 +1002,31 @@ impl WpColorManagerV1 {
         Ok(())
     }
 
+    /// supported named primaries
+    ///
+    /// When this object is created, it shall immediately send this event once
+    /// for each named set of primaries the compositor supports with the
+    /// parametric image description creator.
+    ///
+    /// A compositor must not advertise names that are deprecated in the
+    /// bound version of the interface.
+    ///
+    /// # Arguments
+    ///
+    /// - `primaries`: Named color primaries
+    #[inline]
+    pub fn send_supported_primaries_named(
+        &self,
+        primaries: WpColorManagerV1Primaries,
+    ) {
+        let res = self.try_send_supported_primaries_named(
+            primaries,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_manager_v1.supported_primaries_named", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -735,7 +1035,7 @@ impl WpColorManagerV1 {
     /// This event is sent when all supported rendering intents, features,
     /// transfer functions and named primaries have been sent.
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -768,6 +1068,21 @@ impl WpColorManagerV1 {
         Ok(())
     }
 
+    /// all features have been sent
+    ///
+    /// This event is sent when all supported rendering intents, features,
+    /// transfer functions and named primaries have been sent.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) {
+        let res = self.try_send_done(
+        );
+        if let Err(e) = res {
+            log_send("wp_color_manager_v1.done", &e);
+        }
+    }
+
     /// Since when the get_image_description message is available.
     pub const MSG__GET_IMAGE_DESCRIPTION__SINCE: u32 = 2;
 
@@ -783,7 +1098,7 @@ impl WpColorManagerV1 {
     /// - `image_description`:
     /// - `reference`:
     #[inline]
-    pub fn send_get_image_description(
+    pub fn try_send_get_image_description(
         &self,
         image_description: &Rc<WpImageDescriptionV1>,
         reference: &Rc<WpImageDescriptionReferenceV1>,
@@ -834,13 +1149,39 @@ impl WpColorManagerV1 {
         ]);
         Ok(())
     }
+
+    /// create an image description from a reference
+    ///
+    /// This request retrieves the image description backing a reference.
+    ///
+    /// The get_information request can be used if and only if the request that
+    /// creates the reference allows it.
+    ///
+    /// # Arguments
+    ///
+    /// - `image_description`:
+    /// - `reference`:
+    #[inline]
+    pub fn send_get_image_description(
+        &self,
+        image_description: &Rc<WpImageDescriptionV1>,
+        reference: &Rc<WpImageDescriptionReferenceV1>,
+    ) {
+        let res = self.try_send_get_image_description(
+            image_description,
+            reference,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_manager_v1.get_image_description", &e);
+        }
+    }
 }
 
 /// A message handler for [WpColorManagerV1] proxies.
 pub trait WpColorManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpColorManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the color manager
@@ -855,10 +1196,10 @@ pub trait WpColorManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_color_manager_v1.destroy", &e);
         }
     }
 
@@ -886,12 +1227,12 @@ pub trait WpColorManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_output(
+        let res = _slf.try_send_get_output(
             id,
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_manager_v1.get_output message: {}", Report::new(e));
+            log_forward("wp_color_manager_v1.get_output", &e);
         }
     }
 
@@ -922,12 +1263,12 @@ pub trait WpColorManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_surface(
+        let res = _slf.try_send_get_surface(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_manager_v1.get_surface message: {}", Report::new(e));
+            log_forward("wp_color_manager_v1.get_surface", &e);
         }
     }
 
@@ -956,12 +1297,12 @@ pub trait WpColorManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_surface_feedback(
+        let res = _slf.try_send_get_surface_feedback(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_manager_v1.get_surface_feedback message: {}", Report::new(e));
+            log_forward("wp_color_manager_v1.get_surface_feedback", &e);
         }
     }
 
@@ -988,11 +1329,11 @@ pub trait WpColorManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_icc_creator(
+        let res = _slf.try_send_create_icc_creator(
             obj,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_manager_v1.create_icc_creator message: {}", Report::new(e));
+            log_forward("wp_color_manager_v1.create_icc_creator", &e);
         }
     }
 
@@ -1019,11 +1360,11 @@ pub trait WpColorManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_parametric_creator(
+        let res = _slf.try_send_create_parametric_creator(
             obj,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_manager_v1.create_parametric_creator message: {}", Report::new(e));
+            log_forward("wp_color_manager_v1.create_parametric_creator", &e);
         }
     }
 
@@ -1086,11 +1427,11 @@ pub trait WpColorManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_windows_scrgb(
+        let res = _slf.try_send_create_windows_scrgb(
             image_description,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_manager_v1.create_windows_scrgb message: {}", Report::new(e));
+            log_forward("wp_color_manager_v1.create_windows_scrgb", &e);
         }
     }
 
@@ -1114,11 +1455,11 @@ pub trait WpColorManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_supported_intent(
+        let res = _slf.try_send_supported_intent(
             render_intent,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_manager_v1.supported_intent message: {}", Report::new(e));
+            log_forward("wp_color_manager_v1.supported_intent", &e);
         }
     }
 
@@ -1142,11 +1483,11 @@ pub trait WpColorManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_supported_feature(
+        let res = _slf.try_send_supported_feature(
             feature,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_manager_v1.supported_feature message: {}", Report::new(e));
+            log_forward("wp_color_manager_v1.supported_feature", &e);
         }
     }
 
@@ -1171,11 +1512,11 @@ pub trait WpColorManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_supported_tf_named(
+        let res = _slf.try_send_supported_tf_named(
             tf,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_manager_v1.supported_tf_named message: {}", Report::new(e));
+            log_forward("wp_color_manager_v1.supported_tf_named", &e);
         }
     }
 
@@ -1200,11 +1541,11 @@ pub trait WpColorManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_supported_primaries_named(
+        let res = _slf.try_send_supported_primaries_named(
             primaries,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_manager_v1.supported_primaries_named message: {}", Report::new(e));
+            log_forward("wp_color_manager_v1.supported_primaries_named", &e);
         }
     }
 
@@ -1220,10 +1561,10 @@ pub trait WpColorManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_manager_v1.done message: {}", Report::new(e));
+            log_forward("wp_color_manager_v1.done", &e);
         }
     }
 
@@ -1251,12 +1592,12 @@ pub trait WpColorManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_image_description(
+        let res = _slf.try_send_get_image_description(
             image_description,
             reference,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_manager_v1.get_image_description message: {}", Report::new(e));
+            log_forward("wp_color_manager_v1.get_image_description", &e);
         }
     }
 }
@@ -1276,7 +1617,7 @@ impl ObjectPrivate for WpColorManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

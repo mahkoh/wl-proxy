@@ -66,7 +66,7 @@ impl HyprlandLockNotificationV1 {
     ///
     /// Destroy the notification object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -98,6 +98,20 @@ impl HyprlandLockNotificationV1 {
         Ok(())
     }
 
+    /// destroy the notification object
+    ///
+    /// Destroy the notification object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_lock_notification_v1.destroy", &e);
+        }
+    }
+
     /// Since when the locked message is available.
     pub const MSG__LOCKED__SINCE: u32 = 1;
 
@@ -108,7 +122,7 @@ impl HyprlandLockNotificationV1 {
     /// It's a compositor protocol error to send this event twice without an
     /// unlock event in-between.
     #[inline]
-    pub fn send_locked(
+    pub fn try_send_locked(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -141,6 +155,23 @@ impl HyprlandLockNotificationV1 {
         Ok(())
     }
 
+    /// session is locked
+    ///
+    /// This event is sent when the wayland session is locked.
+    ///
+    /// It's a compositor protocol error to send this event twice without an
+    /// unlock event in-between.
+    #[inline]
+    pub fn send_locked(
+        &self,
+    ) {
+        let res = self.try_send_locked(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_lock_notification_v1.locked", &e);
+        }
+    }
+
     /// Since when the unlocked message is available.
     pub const MSG__UNLOCKED__SINCE: u32 = 1;
 
@@ -152,7 +183,7 @@ impl HyprlandLockNotificationV1 {
     /// locked event in-between. It's a compositor protocol error to send this
     /// event prior to any locked event.
     #[inline]
-    pub fn send_unlocked(
+    pub fn try_send_unlocked(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -184,13 +215,31 @@ impl HyprlandLockNotificationV1 {
         ]);
         Ok(())
     }
+
+    /// session is no longer locked
+    ///
+    /// This event is sent when the wayland session is unlocked.
+    ///
+    /// It's a compositor protocol error to send this event twice without an
+    /// locked event in-between. It's a compositor protocol error to send this
+    /// event prior to any locked event.
+    #[inline]
+    pub fn send_unlocked(
+        &self,
+    ) {
+        let res = self.try_send_unlocked(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_lock_notification_v1.unlocked", &e);
+        }
+    }
 }
 
 /// A message handler for [HyprlandLockNotificationV1] proxies.
 pub trait HyprlandLockNotificationV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandLockNotificationV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the notification object
@@ -204,10 +253,10 @@ pub trait HyprlandLockNotificationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_lock_notification_v1.destroy message: {}", Report::new(e));
+            log_forward("hyprland_lock_notification_v1.destroy", &e);
         }
     }
 
@@ -225,10 +274,10 @@ pub trait HyprlandLockNotificationV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_locked(
+        let res = _slf.try_send_locked(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_lock_notification_v1.locked message: {}", Report::new(e));
+            log_forward("hyprland_lock_notification_v1.locked", &e);
         }
     }
 
@@ -247,10 +296,10 @@ pub trait HyprlandLockNotificationV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_unlocked(
+        let res = _slf.try_send_unlocked(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_lock_notification_v1.unlocked message: {}", Report::new(e));
+            log_forward("hyprland_lock_notification_v1.unlocked", &e);
         }
     }
 }
@@ -270,7 +319,7 @@ impl ObjectPrivate for HyprlandLockNotificationV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

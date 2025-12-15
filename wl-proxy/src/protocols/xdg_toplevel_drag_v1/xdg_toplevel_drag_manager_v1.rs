@@ -88,7 +88,7 @@ impl XdgToplevelDragManagerV1 {
     /// including xdg_toplevel_drag_v1 objects created by this factory, are not
     /// affected by this request.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -120,6 +120,22 @@ impl XdgToplevelDragManagerV1 {
         Ok(())
     }
 
+    /// destroy the xdg_toplevel_drag_manager_v1 object
+    ///
+    /// Destroy this xdg_toplevel_drag_manager_v1 object. Other objects,
+    /// including xdg_toplevel_drag_v1 objects created by this factory, are not
+    /// affected by this request.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel_drag_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_xdg_toplevel_drag message is available.
     pub const MSG__GET_XDG_TOPLEVEL_DRAG__SINCE: u32 = 1;
 
@@ -141,7 +157,7 @@ impl XdgToplevelDragManagerV1 {
     /// - `id`:
     /// - `data_source`:
     #[inline]
-    pub fn send_get_xdg_toplevel_drag(
+    pub fn try_send_get_xdg_toplevel_drag(
         &self,
         id: &Rc<XdgToplevelDragV1>,
         data_source: &Rc<WlDataSource>,
@@ -192,13 +208,45 @@ impl XdgToplevelDragManagerV1 {
         ]);
         Ok(())
     }
+
+    /// get an xdg_toplevel_drag for a wl_data_source
+    ///
+    /// Create an xdg_toplevel_drag for a drag and drop operation that is going
+    /// to be started with data_source.
+    ///
+    /// This request can only be made on sources used in drag-and-drop, so it
+    /// must be performed before wl_data_device.start_drag. Attempting to use
+    /// the source other than for drag-and-drop such as in
+    /// wl_data_device.set_selection will raise an invalid_source error.
+    ///
+    /// Destroying data_source while a toplevel is attached to the
+    /// xdg_toplevel_drag is undefined.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `data_source`:
+    #[inline]
+    pub fn send_get_xdg_toplevel_drag(
+        &self,
+        id: &Rc<XdgToplevelDragV1>,
+        data_source: &Rc<WlDataSource>,
+    ) {
+        let res = self.try_send_get_xdg_toplevel_drag(
+            id,
+            data_source,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel_drag_manager_v1.get_xdg_toplevel_drag", &e);
+        }
+    }
 }
 
 /// A message handler for [XdgToplevelDragManagerV1] proxies.
 pub trait XdgToplevelDragManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgToplevelDragManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the xdg_toplevel_drag_manager_v1 object
@@ -214,10 +262,10 @@ pub trait XdgToplevelDragManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel_drag_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("xdg_toplevel_drag_manager_v1.destroy", &e);
         }
     }
 
@@ -251,12 +299,12 @@ pub trait XdgToplevelDragManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_xdg_toplevel_drag(
+        let res = _slf.try_send_get_xdg_toplevel_drag(
             id,
             data_source,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel_drag_manager_v1.get_xdg_toplevel_drag message: {}", Report::new(e));
+            log_forward("xdg_toplevel_drag_manager_v1.get_xdg_toplevel_drag", &e);
         }
     }
 }
@@ -276,7 +324,7 @@ impl ObjectPrivate for XdgToplevelDragManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

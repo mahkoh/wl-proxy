@@ -61,7 +61,7 @@ impl TreelandPersonalizationCursorContextV1 {
     ///
     /// - `name`: cursor theme name
     #[inline]
-    pub fn send_set_theme(
+    pub fn try_send_set_theme(
         &self,
         name: &str,
     ) -> Result<(), ObjectError> {
@@ -99,12 +99,30 @@ impl TreelandPersonalizationCursorContextV1 {
         Ok(())
     }
 
+    /// set system cursor theme
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: cursor theme name
+    #[inline]
+    pub fn send_set_theme(
+        &self,
+        name: &str,
+    ) {
+        let res = self.try_send_set_theme(
+            name,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_cursor_context_v1.set_theme", &e);
+        }
+    }
+
     /// Since when the get_theme message is available.
     pub const MSG__GET_THEME__SINCE: u32 = 1;
 
     /// get system cursor theme
     #[inline]
-    pub fn send_get_theme(
+    pub fn try_send_get_theme(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -135,6 +153,18 @@ impl TreelandPersonalizationCursorContextV1 {
         Ok(())
     }
 
+    /// get system cursor theme
+    #[inline]
+    pub fn send_get_theme(
+        &self,
+    ) {
+        let res = self.try_send_get_theme(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_cursor_context_v1.get_theme", &e);
+        }
+    }
+
     /// Since when the set_size message is available.
     pub const MSG__SET_SIZE__SINCE: u32 = 1;
 
@@ -144,7 +174,7 @@ impl TreelandPersonalizationCursorContextV1 {
     ///
     /// - `size`: cursor size
     #[inline]
-    pub fn send_set_size(
+    pub fn try_send_set_size(
         &self,
         size: u32,
     ) -> Result<(), ObjectError> {
@@ -182,12 +212,30 @@ impl TreelandPersonalizationCursorContextV1 {
         Ok(())
     }
 
+    /// set system cursor size
+    ///
+    /// # Arguments
+    ///
+    /// - `size`: cursor size
+    #[inline]
+    pub fn send_set_size(
+        &self,
+        size: u32,
+    ) {
+        let res = self.try_send_set_size(
+            size,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_cursor_context_v1.set_size", &e);
+        }
+    }
+
     /// Since when the get_size message is available.
     pub const MSG__GET_SIZE__SINCE: u32 = 1;
 
     /// get system cursor size
     #[inline]
-    pub fn send_get_size(
+    pub fn try_send_get_size(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -218,6 +266,18 @@ impl TreelandPersonalizationCursorContextV1 {
         Ok(())
     }
 
+    /// get system cursor size
+    #[inline]
+    pub fn send_get_size(
+        &self,
+    ) {
+        let res = self.try_send_get_size(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_cursor_context_v1.get_size", &e);
+        }
+    }
+
     /// Since when the commit message is available.
     pub const MSG__COMMIT__SINCE: u32 = 1;
 
@@ -225,7 +285,7 @@ impl TreelandPersonalizationCursorContextV1 {
     ///
     /// if only one commit fails validation, the commit will fail
     #[inline]
-    pub fn send_commit(
+    pub fn try_send_commit(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -256,6 +316,20 @@ impl TreelandPersonalizationCursorContextV1 {
         Ok(())
     }
 
+    /// commit configure
+    ///
+    /// if only one commit fails validation, the commit will fail
+    #[inline]
+    pub fn send_commit(
+        &self,
+    ) {
+        let res = self.try_send_commit(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_cursor_context_v1.commit", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -263,7 +337,7 @@ impl TreelandPersonalizationCursorContextV1 {
     ///
     /// Destroy the context object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -295,6 +369,20 @@ impl TreelandPersonalizationCursorContextV1 {
         Ok(())
     }
 
+    /// destroy the context object
+    ///
+    /// Destroy the context object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_cursor_context_v1.destroy", &e);
+        }
+    }
+
     /// Since when the verfity message is available.
     pub const MSG__VERFITY__SINCE: u32 = 1;
 
@@ -306,7 +394,7 @@ impl TreelandPersonalizationCursorContextV1 {
     ///
     /// - `success`: check whether the configuration is successful
     #[inline]
-    pub fn send_verfity(
+    pub fn try_send_verfity(
         &self,
         success: i32,
     ) -> Result<(), ObjectError> {
@@ -346,6 +434,26 @@ impl TreelandPersonalizationCursorContextV1 {
         Ok(())
     }
 
+    /// verfity event
+    ///
+    /// Send this signal after commit cursor configure.
+    ///
+    /// # Arguments
+    ///
+    /// - `success`: check whether the configuration is successful
+    #[inline]
+    pub fn send_verfity(
+        &self,
+        success: i32,
+    ) {
+        let res = self.try_send_verfity(
+            success,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_cursor_context_v1.verfity", &e);
+        }
+    }
+
     /// Since when the theme message is available.
     pub const MSG__THEME__SINCE: u32 = 1;
 
@@ -357,7 +465,7 @@ impl TreelandPersonalizationCursorContextV1 {
     ///
     /// - `name`: cursor theme name
     #[inline]
-    pub fn send_theme(
+    pub fn try_send_theme(
         &self,
         name: &str,
     ) -> Result<(), ObjectError> {
@@ -397,6 +505,26 @@ impl TreelandPersonalizationCursorContextV1 {
         Ok(())
     }
 
+    /// cursor theme changed event
+    ///
+    /// Send this signal after system cursor theme changed.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: cursor theme name
+    #[inline]
+    pub fn send_theme(
+        &self,
+        name: &str,
+    ) {
+        let res = self.try_send_theme(
+            name,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_cursor_context_v1.theme", &e);
+        }
+    }
+
     /// Since when the size message is available.
     pub const MSG__SIZE__SINCE: u32 = 1;
 
@@ -408,7 +536,7 @@ impl TreelandPersonalizationCursorContextV1 {
     ///
     /// - `size`: cursor size
     #[inline]
-    pub fn send_size(
+    pub fn try_send_size(
         &self,
         size: u32,
     ) -> Result<(), ObjectError> {
@@ -447,13 +575,33 @@ impl TreelandPersonalizationCursorContextV1 {
         ]);
         Ok(())
     }
+
+    /// cursor size changed event
+    ///
+    /// Send this signal after system cursor size changed.
+    ///
+    /// # Arguments
+    ///
+    /// - `size`: cursor size
+    #[inline]
+    pub fn send_size(
+        &self,
+        size: u32,
+    ) {
+        let res = self.try_send_size(
+            size,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_cursor_context_v1.size", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandPersonalizationCursorContextV1] proxies.
 pub trait TreelandPersonalizationCursorContextV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandPersonalizationCursorContextV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// set system cursor theme
@@ -470,11 +618,11 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_theme(
+        let res = _slf.try_send_set_theme(
             name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_cursor_context_v1.set_theme message: {}", Report::new(e));
+            log_forward("treeland_personalization_cursor_context_v1.set_theme", &e);
         }
     }
 
@@ -487,10 +635,10 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_theme(
+        let res = _slf.try_send_get_theme(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_cursor_context_v1.get_theme message: {}", Report::new(e));
+            log_forward("treeland_personalization_cursor_context_v1.get_theme", &e);
         }
     }
 
@@ -508,11 +656,11 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_size(
+        let res = _slf.try_send_set_size(
             size,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_cursor_context_v1.set_size message: {}", Report::new(e));
+            log_forward("treeland_personalization_cursor_context_v1.set_size", &e);
         }
     }
 
@@ -525,10 +673,10 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_size(
+        let res = _slf.try_send_get_size(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_cursor_context_v1.get_size message: {}", Report::new(e));
+            log_forward("treeland_personalization_cursor_context_v1.get_size", &e);
         }
     }
 
@@ -543,10 +691,10 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_commit(
+        let res = _slf.try_send_commit(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_cursor_context_v1.commit message: {}", Report::new(e));
+            log_forward("treeland_personalization_cursor_context_v1.commit", &e);
         }
     }
 
@@ -561,10 +709,10 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_cursor_context_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_personalization_cursor_context_v1.destroy", &e);
         }
     }
 
@@ -584,11 +732,11 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_verfity(
+        let res = _slf.try_send_verfity(
             success,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_cursor_context_v1.verfity message: {}", Report::new(e));
+            log_forward("treeland_personalization_cursor_context_v1.verfity", &e);
         }
     }
 
@@ -608,11 +756,11 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_theme(
+        let res = _slf.try_send_theme(
             name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_cursor_context_v1.theme message: {}", Report::new(e));
+            log_forward("treeland_personalization_cursor_context_v1.theme", &e);
         }
     }
 
@@ -632,11 +780,11 @@ pub trait TreelandPersonalizationCursorContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_size(
+        let res = _slf.try_send_size(
             size,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_cursor_context_v1.size message: {}", Report::new(e));
+            log_forward("treeland_personalization_cursor_context_v1.size", &e);
         }
     }
 }
@@ -656,7 +804,7 @@ impl ObjectPrivate for TreelandPersonalizationCursorContextV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

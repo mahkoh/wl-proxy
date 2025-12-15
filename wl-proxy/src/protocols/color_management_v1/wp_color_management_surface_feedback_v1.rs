@@ -58,7 +58,7 @@ impl WpColorManagementSurfaceFeedbackV1 {
     ///
     /// Destroy the wp_color_management_surface_feedback_v1 object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -90,6 +90,20 @@ impl WpColorManagementSurfaceFeedbackV1 {
         Ok(())
     }
 
+    /// destroy the color management interface for a surface
+    ///
+    /// Destroy the wp_color_management_surface_feedback_v1 object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_color_management_surface_feedback_v1.destroy", &e);
+        }
+    }
+
     /// Since when the preferred_changed message is available.
     pub const MSG__PREFERRED_CHANGED__SINCE: u32 = 1;
 
@@ -105,7 +119,7 @@ impl WpColorManagementSurfaceFeedbackV1 {
     ///
     /// - `identity`: the 32-bit image description id number
     #[inline]
-    pub fn send_preferred_changed(
+    pub fn try_send_preferred_changed(
         &self,
         identity: u32,
     ) -> Result<(), ObjectError> {
@@ -143,6 +157,27 @@ impl WpColorManagementSurfaceFeedbackV1 {
             arg0,
         ]);
         Ok(())
+    }
+
+    /// the preferred image description changed (32-bit)
+    ///
+    /// Starting from interface version 2, 'preferred_changed2' is sent instead
+    /// of this event. See the 'preferred_changed2' event for the definition.
+    ///
+    /// # Arguments
+    ///
+    /// - `identity`: the 32-bit image description id number
+    #[inline]
+    pub fn send_preferred_changed(
+        &self,
+        identity: u32,
+    ) {
+        let res = self.try_send_preferred_changed(
+            identity,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_management_surface_feedback_v1.preferred_changed", &e);
+        }
     }
 
     /// Since when the get_preferred message is available.
@@ -184,7 +219,7 @@ impl WpColorManagementSurfaceFeedbackV1 {
     /// wp_image_description_v1.failed event with the low_version cause,
     /// otherwise the object shall immediately deliver the ready event.
     #[inline]
-    pub fn send_get_preferred(
+    pub fn try_send_get_preferred(
         &self,
         image_description: &Rc<WpImageDescriptionV1>,
     ) -> Result<(), ObjectError> {
@@ -227,6 +262,54 @@ impl WpColorManagementSurfaceFeedbackV1 {
         Ok(())
     }
 
+    /// get the preferred image description
+    ///
+    /// If this protocol object is inert, the protocol error inert is raised.
+    ///
+    /// The preferred image description represents the compositor's preferred
+    /// color encoding for this wl_surface at the current time. There might be
+    /// performance and power advantages, as well as improved color
+    /// reproduction, if the image description of a content update matches the
+    /// preferred image description.
+    ///
+    /// This creates a new wp_image_description_v1 object for the currently
+    /// preferred image description for the wl_surface. The client should
+    /// stop using and destroy the image descriptions created by earlier
+    /// invocations of this request for the associated wl_surface.
+    /// This request is usually sent as a reaction to the preferred_changed
+    /// event or when creating a wp_color_management_surface_feedback_v1 object
+    /// if the client is capable of adapting to image descriptions.
+    ///
+    /// The created wp_image_description_v1 object preserves the preferred image
+    /// description of the wl_surface from the time the object was created.
+    ///
+    /// The resulting image description object allows get_information request.
+    ///
+    /// If the image description is parametric, the client should set it on its
+    /// wl_surface only if the image description is an exact match with the
+    /// client content. Particularly if everything else matches, but the target
+    /// color volume is greater than what the client needs, the client should
+    /// create its own parameric image description with its exact parameters.
+    ///
+    /// If the interface version is inadequate for the preferred image
+    /// description, meaning that the client does not support all the
+    /// events needed to deliver the crucial information, the resulting image
+    /// description object shall immediately deliver the
+    /// wp_image_description_v1.failed event with the low_version cause,
+    /// otherwise the object shall immediately deliver the ready event.
+    #[inline]
+    pub fn send_get_preferred(
+        &self,
+        image_description: &Rc<WpImageDescriptionV1>,
+    ) {
+        let res = self.try_send_get_preferred(
+            image_description,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_management_surface_feedback_v1.get_preferred", &e);
+        }
+    }
+
     /// Since when the get_preferred_parametric message is available.
     pub const MSG__GET_PREFERRED_PARAMETRIC__SINCE: u32 = 1;
 
@@ -239,7 +322,7 @@ impl WpColorManagementSurfaceFeedbackV1 {
     /// If the compositor doesn't support parametric image descriptions, the
     /// unsupported_feature error is emitted.
     #[inline]
-    pub fn send_get_preferred_parametric(
+    pub fn try_send_get_preferred_parametric(
         &self,
         image_description: &Rc<WpImageDescriptionV1>,
     ) -> Result<(), ObjectError> {
@@ -282,6 +365,27 @@ impl WpColorManagementSurfaceFeedbackV1 {
         Ok(())
     }
 
+    /// get the preferred image description
+    ///
+    /// The same description as for get_preferred applies, except the returned
+    /// image description is guaranteed to be parametric. This is meant for
+    /// clients that can only deal with parametric image descriptions.
+    ///
+    /// If the compositor doesn't support parametric image descriptions, the
+    /// unsupported_feature error is emitted.
+    #[inline]
+    pub fn send_get_preferred_parametric(
+        &self,
+        image_description: &Rc<WpImageDescriptionV1>,
+    ) {
+        let res = self.try_send_get_preferred_parametric(
+            image_description,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_management_surface_feedback_v1.get_preferred_parametric", &e);
+        }
+    }
+
     /// Since when the preferred_changed2 message is available.
     pub const MSG__PREFERRED_CHANGED2__SINCE: u32 = 2;
 
@@ -309,7 +413,7 @@ impl WpColorManagementSurfaceFeedbackV1 {
     /// - `identity_hi`: high 32 bits of the 64-bit image description id number
     /// - `identity_lo`: low 32 bits of the 64-bit image description id number
     #[inline]
-    pub fn send_preferred_changed2(
+    pub fn try_send_preferred_changed2(
         &self,
         identity_hi: u32,
         identity_lo: u32,
@@ -352,13 +456,51 @@ impl WpColorManagementSurfaceFeedbackV1 {
         ]);
         Ok(())
     }
+
+    /// the preferred image description changed
+    ///
+    /// The preferred image description is the one which likely has the most
+    /// performance and/or quality benefits for the compositor if used by the
+    /// client for its wl_surface contents. This event is sent whenever the
+    /// compositor changes the wl_surface's preferred image description.
+    ///
+    /// This event sends the identity of the new preferred state as the argument,
+    /// so clients who are aware of the image description already can reuse it.
+    /// Otherwise, if the client client wants to know what the preferred image
+    /// description is, it shall use the get_preferred request.
+    ///
+    /// The preferred image description is not automatically used for anything.
+    /// It is only a hint, and clients may set any valid image description with
+    /// set_image_description, but there might be performance and color accuracy
+    /// improvements by providing the wl_surface contents in the preferred
+    /// image description. Therefore clients that can, should render according
+    /// to the preferred image description
+    ///
+    /// # Arguments
+    ///
+    /// - `identity_hi`: high 32 bits of the 64-bit image description id number
+    /// - `identity_lo`: low 32 bits of the 64-bit image description id number
+    #[inline]
+    pub fn send_preferred_changed2(
+        &self,
+        identity_hi: u32,
+        identity_lo: u32,
+    ) {
+        let res = self.try_send_preferred_changed2(
+            identity_hi,
+            identity_lo,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_management_surface_feedback_v1.preferred_changed2", &e);
+        }
+    }
 }
 
 /// A message handler for [WpColorManagementSurfaceFeedbackV1] proxies.
 pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpColorManagementSurfaceFeedbackV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the color management interface for a surface
@@ -372,10 +514,10 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_management_surface_feedback_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_color_management_surface_feedback_v1.destroy", &e);
         }
     }
 
@@ -396,11 +538,11 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_preferred_changed(
+        let res = _slf.try_send_preferred_changed(
             identity,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_management_surface_feedback_v1.preferred_changed message: {}", Report::new(e));
+            log_forward("wp_color_management_surface_feedback_v1.preferred_changed", &e);
         }
     }
 
@@ -452,11 +594,11 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_preferred(
+        let res = _slf.try_send_get_preferred(
             image_description,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_management_surface_feedback_v1.get_preferred message: {}", Report::new(e));
+            log_forward("wp_color_management_surface_feedback_v1.get_preferred", &e);
         }
     }
 
@@ -481,11 +623,11 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_preferred_parametric(
+        let res = _slf.try_send_get_preferred_parametric(
             image_description,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_management_surface_feedback_v1.get_preferred_parametric message: {}", Report::new(e));
+            log_forward("wp_color_management_surface_feedback_v1.get_preferred_parametric", &e);
         }
     }
 
@@ -522,12 +664,12 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_preferred_changed2(
+        let res = _slf.try_send_preferred_changed2(
             identity_hi,
             identity_lo,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_management_surface_feedback_v1.preferred_changed2 message: {}", Report::new(e));
+            log_forward("wp_color_management_surface_feedback_v1.preferred_changed2", &e);
         }
     }
 }
@@ -547,7 +689,7 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -81,7 +81,7 @@ impl XdgPopup {
     /// If this xdg_popup is not the "topmost" popup, the
     /// xdg_wm_base.not_the_topmost_popup protocol error will be sent.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -111,6 +111,24 @@ impl XdgPopup {
         ]);
         self.core.handle_server_destroy();
         Ok(())
+    }
+
+    /// remove xdg_popup interface
+    ///
+    /// This destroys the popup. Explicitly destroying the xdg_popup
+    /// object will also dismiss the popup, and unmap the surface.
+    ///
+    /// If this xdg_popup is not the "topmost" popup, the
+    /// xdg_wm_base.not_the_topmost_popup protocol error will be sent.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("xdg_popup.destroy", &e);
+        }
     }
 
     /// Since when the grab message is available.
@@ -161,7 +179,7 @@ impl XdgPopup {
     /// - `seat`: the wl_seat of the user event
     /// - `serial`: the serial of the user event
     #[inline]
-    pub fn send_grab(
+    pub fn try_send_grab(
         &self,
         seat: &Rc<WlSeat>,
         serial: u32,
@@ -208,6 +226,65 @@ impl XdgPopup {
         Ok(())
     }
 
+    /// make the popup take an explicit grab
+    ///
+    /// This request makes the created popup take an explicit grab. An explicit
+    /// grab will be dismissed when the user dismisses the popup, or when the
+    /// client destroys the xdg_popup. This can be done by the user clicking
+    /// outside the surface, using the keyboard, or even locking the screen
+    /// through closing the lid or a timeout.
+    ///
+    /// If the compositor denies the grab, the popup will be immediately
+    /// dismissed.
+    ///
+    /// This request must be used in response to some sort of user action like a
+    /// button press, key press, or touch down event. The serial number of the
+    /// event should be passed as 'serial'.
+    ///
+    /// The parent of a grabbing popup must either be an xdg_toplevel surface or
+    /// another xdg_popup with an explicit grab. If the parent is another
+    /// xdg_popup it means that the popups are nested, with this popup now being
+    /// the topmost popup.
+    ///
+    /// Nested popups must be destroyed in the reverse order they were created
+    /// in, e.g. the only popup you are allowed to destroy at all times is the
+    /// topmost one.
+    ///
+    /// When compositors choose to dismiss a popup, they may dismiss every
+    /// nested grabbing popup as well. When a compositor dismisses popups, it
+    /// will follow the same dismissing order as required from the client.
+    ///
+    /// If the topmost grabbing popup is destroyed, the grab will be returned to
+    /// the parent of the popup, if that parent previously had an explicit grab.
+    ///
+    /// If the parent is a grabbing popup which has already been dismissed, this
+    /// popup will be immediately dismissed. If the parent is a popup that did
+    /// not take an explicit grab, an error will be raised.
+    ///
+    /// During a popup grab, the client owning the grab will receive pointer
+    /// and touch events for all their surfaces as normal (similar to an
+    /// "owner-events" grab in X11 parlance), while the top most grabbing popup
+    /// will always have keyboard focus.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`: the wl_seat of the user event
+    /// - `serial`: the serial of the user event
+    #[inline]
+    pub fn send_grab(
+        &self,
+        seat: &Rc<WlSeat>,
+        serial: u32,
+    ) {
+        let res = self.try_send_grab(
+            seat,
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("xdg_popup.grab", &e);
+        }
+    }
+
     /// Since when the configure message is available.
     pub const MSG__CONFIGURE__SINCE: u32 = 1;
 
@@ -233,7 +310,7 @@ impl XdgPopup {
     /// - `width`: window geometry width
     /// - `height`: window geometry height
     #[inline]
-    pub fn send_configure(
+    pub fn try_send_configure(
         &self,
         x: i32,
         y: i32,
@@ -285,6 +362,46 @@ impl XdgPopup {
         Ok(())
     }
 
+    /// configure the popup surface
+    ///
+    /// This event asks the popup surface to configure itself given the
+    /// configuration. The configured state should not be applied immediately.
+    /// See xdg_surface.configure for details.
+    ///
+    /// The x and y arguments represent the position the popup was placed at
+    /// given the xdg_positioner rule, relative to the upper left corner of the
+    /// window geometry of the parent surface.
+    ///
+    /// For version 2 or older, the configure event for an xdg_popup is only
+    /// ever sent once for the initial configuration. Starting with version 3,
+    /// it may be sent again if the popup is setup with an xdg_positioner with
+    /// set_reactive requested, or in response to xdg_popup.reposition requests.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: x position relative to parent surface window geometry
+    /// - `y`: y position relative to parent surface window geometry
+    /// - `width`: window geometry width
+    /// - `height`: window geometry height
+    #[inline]
+    pub fn send_configure(
+        &self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_configure(
+            x,
+            y,
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("xdg_popup.configure", &e);
+        }
+    }
+
     /// Since when the popup_done message is available.
     pub const MSG__POPUP_DONE__SINCE: u32 = 1;
 
@@ -294,7 +411,7 @@ impl XdgPopup {
     /// compositor. The client should destroy the xdg_popup object at this
     /// point.
     #[inline]
-    pub fn send_popup_done(
+    pub fn try_send_popup_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -325,6 +442,22 @@ impl XdgPopup {
             1,
         ]);
         Ok(())
+    }
+
+    /// popup interaction is done
+    ///
+    /// The popup_done event is sent out when a popup is dismissed by the
+    /// compositor. The client should destroy the xdg_popup object at this
+    /// point.
+    #[inline]
+    pub fn send_popup_done(
+        &self,
+    ) {
+        let res = self.try_send_popup_done(
+        );
+        if let Err(e) = res {
+            log_send("xdg_popup.popup_done", &e);
+        }
     }
 
     /// Since when the reposition message is available.
@@ -361,7 +494,7 @@ impl XdgPopup {
     /// - `positioner`:
     /// - `token`: reposition request token
     #[inline]
-    pub fn send_reposition(
+    pub fn try_send_reposition(
         &self,
         positioner: &Rc<XdgPositioner>,
         token: u32,
@@ -408,6 +541,51 @@ impl XdgPopup {
         Ok(())
     }
 
+    /// recalculate the popup's location
+    ///
+    /// Reposition an already-mapped popup. The popup will be placed given the
+    /// details in the passed xdg_positioner object, and a
+    /// xdg_popup.repositioned followed by xdg_popup.configure and
+    /// xdg_surface.configure will be emitted in response. Any parameters set
+    /// by the previous positioner will be discarded.
+    ///
+    /// The passed token will be sent in the corresponding
+    /// xdg_popup.repositioned event. The new popup position will not take
+    /// effect until the corresponding configure event is acknowledged by the
+    /// client. See xdg_popup.repositioned for details. The token itself is
+    /// opaque, and has no other special meaning.
+    ///
+    /// If multiple reposition requests are sent, the compositor may skip all
+    /// but the last one.
+    ///
+    /// If the popup is repositioned in response to a configure event for its
+    /// parent, the client should send an xdg_positioner.set_parent_configure
+    /// and possibly an xdg_positioner.set_parent_size request to allow the
+    /// compositor to properly constrain the popup.
+    ///
+    /// If the popup is repositioned together with a parent that is being
+    /// resized, but not in response to a configure event, the client should
+    /// send an xdg_positioner.set_parent_size request.
+    ///
+    /// # Arguments
+    ///
+    /// - `positioner`:
+    /// - `token`: reposition request token
+    #[inline]
+    pub fn send_reposition(
+        &self,
+        positioner: &Rc<XdgPositioner>,
+        token: u32,
+    ) {
+        let res = self.try_send_reposition(
+            positioner,
+            token,
+        );
+        if let Err(e) = res {
+            log_send("xdg_popup.reposition", &e);
+        }
+    }
+
     /// Since when the repositioned message is available.
     pub const MSG__REPOSITIONED__SINCE: u32 = 3;
 
@@ -433,7 +611,7 @@ impl XdgPopup {
     ///
     /// - `token`: reposition request token
     #[inline]
-    pub fn send_repositioned(
+    pub fn try_send_repositioned(
         &self,
         token: u32,
     ) -> Result<(), ObjectError> {
@@ -472,13 +650,47 @@ impl XdgPopup {
         ]);
         Ok(())
     }
+
+    /// signal the completion of a repositioned request
+    ///
+    /// The repositioned event is sent as part of a popup configuration
+    /// sequence, together with xdg_popup.configure and lastly
+    /// xdg_surface.configure to notify the completion of a reposition request.
+    ///
+    /// The repositioned event is to notify about the completion of a
+    /// xdg_popup.reposition request. The token argument is the token passed
+    /// in the xdg_popup.reposition request.
+    ///
+    /// Immediately after this event is emitted, xdg_popup.configure and
+    /// xdg_surface.configure will be sent with the updated size and position,
+    /// as well as a new configure serial.
+    ///
+    /// The client should optionally update the content of the popup, but must
+    /// acknowledge the new popup configuration for the new position to take
+    /// effect. See xdg_surface.ack_configure for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `token`: reposition request token
+    #[inline]
+    pub fn send_repositioned(
+        &self,
+        token: u32,
+    ) {
+        let res = self.try_send_repositioned(
+            token,
+        );
+        if let Err(e) = res {
+            log_send("xdg_popup.repositioned", &e);
+        }
+    }
 }
 
 /// A message handler for [XdgPopup] proxies.
 pub trait XdgPopupHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgPopup>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// remove xdg_popup interface
@@ -496,10 +708,10 @@ pub trait XdgPopupHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_popup.destroy message: {}", Report::new(e));
+            log_forward("xdg_popup.destroy", &e);
         }
     }
 
@@ -560,12 +772,12 @@ pub trait XdgPopupHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_grab(
+        let res = _slf.try_send_grab(
             seat,
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_popup.grab message: {}", Report::new(e));
+            log_forward("xdg_popup.grab", &e);
         }
     }
 
@@ -602,14 +814,14 @@ pub trait XdgPopupHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_configure(
+        let res = _slf.try_send_configure(
             x,
             y,
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_popup.configure message: {}", Report::new(e));
+            log_forward("xdg_popup.configure", &e);
         }
     }
 
@@ -626,10 +838,10 @@ pub trait XdgPopupHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_popup_done(
+        let res = _slf.try_send_popup_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_popup.popup_done message: {}", Report::new(e));
+            log_forward("xdg_popup.popup_done", &e);
         }
     }
 
@@ -676,12 +888,12 @@ pub trait XdgPopupHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_reposition(
+        let res = _slf.try_send_reposition(
             positioner,
             token,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_popup.reposition message: {}", Report::new(e));
+            log_forward("xdg_popup.reposition", &e);
         }
     }
 
@@ -715,11 +927,11 @@ pub trait XdgPopupHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_repositioned(
+        let res = _slf.try_send_repositioned(
             token,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_popup.repositioned message: {}", Report::new(e));
+            log_forward("xdg_popup.repositioned", &e);
         }
     }
 }
@@ -739,7 +951,7 @@ impl ObjectPrivate for XdgPopup {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

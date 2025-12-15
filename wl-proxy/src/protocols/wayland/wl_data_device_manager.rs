@@ -63,7 +63,7 @@ impl WlDataDeviceManager {
     ///
     /// Create a new data source.
     #[inline]
-    pub fn send_create_data_source(
+    pub fn try_send_create_data_source(
         &self,
         id: &Rc<WlDataSource>,
     ) -> Result<(), ObjectError> {
@@ -106,6 +106,22 @@ impl WlDataDeviceManager {
         Ok(())
     }
 
+    /// create a new data source
+    ///
+    /// Create a new data source.
+    #[inline]
+    pub fn send_create_data_source(
+        &self,
+        id: &Rc<WlDataSource>,
+    ) {
+        let res = self.try_send_create_data_source(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_device_manager.create_data_source", &e);
+        }
+    }
+
     /// Since when the get_data_device message is available.
     pub const MSG__GET_DATA_DEVICE__SINCE: u32 = 1;
 
@@ -118,7 +134,7 @@ impl WlDataDeviceManager {
     /// - `id`: data device to create
     /// - `seat`: seat associated with the data device
     #[inline]
-    pub fn send_get_data_device(
+    pub fn try_send_get_data_device(
         &self,
         id: &Rc<WlDataDevice>,
         seat: &Rc<WlSeat>,
@@ -169,13 +185,36 @@ impl WlDataDeviceManager {
         ]);
         Ok(())
     }
+
+    /// create a new data device
+    ///
+    /// Create a new data device for a given seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: data device to create
+    /// - `seat`: seat associated with the data device
+    #[inline]
+    pub fn send_get_data_device(
+        &self,
+        id: &Rc<WlDataDevice>,
+        seat: &Rc<WlSeat>,
+    ) {
+        let res = self.try_send_get_data_device(
+            id,
+            seat,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_device_manager.get_data_device", &e);
+        }
+    }
 }
 
 /// A message handler for [WlDataDeviceManager] proxies.
 pub trait WlDataDeviceManagerHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlDataDeviceManager>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// create a new data source
@@ -194,11 +233,11 @@ pub trait WlDataDeviceManagerHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_data_source(
+        let res = _slf.try_send_create_data_source(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_device_manager.create_data_source message: {}", Report::new(e));
+            log_forward("wl_data_device_manager.create_data_source", &e);
         }
     }
 
@@ -223,12 +262,12 @@ pub trait WlDataDeviceManagerHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_data_device(
+        let res = _slf.try_send_get_data_device(
             id,
             seat,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_device_manager.get_data_device message: {}", Report::new(e));
+            log_forward("wl_data_device_manager.get_data_device", &e);
         }
     }
 }
@@ -248,7 +287,7 @@ impl ObjectPrivate for WlDataDeviceManager {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

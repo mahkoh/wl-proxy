@@ -89,7 +89,7 @@ impl WlOutput {
     /// - `model`: textual description of the model
     /// - `transform`: additional transformation applied to buffer contents during presentation
     #[inline]
-    pub fn send_geometry(
+    pub fn try_send_geometry(
         &self,
         x: i32,
         y: i32,
@@ -159,6 +159,66 @@ impl WlOutput {
         Ok(())
     }
 
+    /// properties of the output
+    ///
+    /// The geometry event describes geometric properties of the output.
+    /// The event is sent when binding to the output object and whenever
+    /// any of the properties change.
+    ///
+    /// The physical size can be set to zero if it doesn't make sense for this
+    /// output (e.g. for projectors or virtual outputs).
+    ///
+    /// The geometry event will be followed by a done event (starting from
+    /// version 2).
+    ///
+    /// Clients should use wl_surface.preferred_buffer_transform instead of the
+    /// transform advertised by this event to find the preferred buffer
+    /// transform to use for a surface.
+    ///
+    /// Note: wl_output only advertises partial information about the output
+    /// position and identification. Some compositors, for instance those not
+    /// implementing a desktop-style output layout or those exposing virtual
+    /// outputs, might fake this information. Instead of using x and y, clients
+    /// should use xdg_output.logical_position. Instead of using make and model,
+    /// clients should use name and description.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: x position within the global compositor space
+    /// - `y`: y position within the global compositor space
+    /// - `physical_width`: width in millimeters of the output
+    /// - `physical_height`: height in millimeters of the output
+    /// - `subpixel`: subpixel orientation of the output
+    /// - `make`: textual description of the manufacturer
+    /// - `model`: textual description of the model
+    /// - `transform`: additional transformation applied to buffer contents during presentation
+    #[inline]
+    pub fn send_geometry(
+        &self,
+        x: i32,
+        y: i32,
+        physical_width: i32,
+        physical_height: i32,
+        subpixel: WlOutputSubpixel,
+        make: &str,
+        model: &str,
+        transform: WlOutputTransform,
+    ) {
+        let res = self.try_send_geometry(
+            x,
+            y,
+            physical_width,
+            physical_height,
+            subpixel,
+            make,
+            model,
+            transform,
+        );
+        if let Err(e) = res {
+            log_send("wl_output.geometry", &e);
+        }
+    }
+
     /// Since when the mode message is available.
     pub const MSG__MODE__SINCE: u32 = 1;
 
@@ -205,7 +265,7 @@ impl WlOutput {
     /// - `height`: height of the mode in hardware units
     /// - `refresh`: vertical refresh rate in mHz
     #[inline]
-    pub fn send_mode(
+    pub fn try_send_mode(
         &self,
         flags: WlOutputMode,
         width: i32,
@@ -257,6 +317,67 @@ impl WlOutput {
         Ok(())
     }
 
+    /// advertise available modes for the output
+    ///
+    /// The mode event describes an available mode for the output.
+    ///
+    /// The event is sent when binding to the output object and there
+    /// will always be one mode, the current mode.  The event is sent
+    /// again if an output changes mode, for the mode that is now
+    /// current.  In other words, the current mode is always the last
+    /// mode that was received with the current flag set.
+    ///
+    /// Non-current modes are deprecated. A compositor can decide to only
+    /// advertise the current mode and never send other modes. Clients
+    /// should not rely on non-current modes.
+    ///
+    /// The size of a mode is given in physical hardware units of
+    /// the output device. This is not necessarily the same as
+    /// the output size in the global compositor space. For instance,
+    /// the output may be scaled, as described in wl_output.scale,
+    /// or transformed, as described in wl_output.transform. Clients
+    /// willing to retrieve the output size in the global compositor
+    /// space should use xdg_output.logical_size instead.
+    ///
+    /// The vertical refresh rate can be set to zero if it doesn't make
+    /// sense for this output (e.g. for virtual outputs).
+    ///
+    /// The mode event will be followed by a done event (starting from
+    /// version 2).
+    ///
+    /// Clients should not use the refresh rate to schedule frames. Instead,
+    /// they should use the wl_surface.frame event or the presentation-time
+    /// protocol.
+    ///
+    /// Note: this information is not always meaningful for all outputs. Some
+    /// compositors, such as those exposing virtual outputs, might fake the
+    /// refresh rate or the size.
+    ///
+    /// # Arguments
+    ///
+    /// - `flags`: bitfield of mode flags
+    /// - `width`: width of the mode in hardware units
+    /// - `height`: height of the mode in hardware units
+    /// - `refresh`: vertical refresh rate in mHz
+    #[inline]
+    pub fn send_mode(
+        &self,
+        flags: WlOutputMode,
+        width: i32,
+        height: i32,
+        refresh: i32,
+    ) {
+        let res = self.try_send_mode(
+            flags,
+            width,
+            height,
+            refresh,
+        );
+        if let Err(e) = res {
+            log_send("wl_output.mode", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 2;
 
@@ -268,7 +389,7 @@ impl WlOutput {
     /// changes to the output properties to be seen as
     /// atomic, even if they happen via multiple events.
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -301,6 +422,24 @@ impl WlOutput {
         Ok(())
     }
 
+    /// sent all information about output
+    ///
+    /// This event is sent after all other properties have been
+    /// sent after binding to the output object and after any
+    /// other property changes done after that. This allows
+    /// changes to the output properties to be seen as
+    /// atomic, even if they happen via multiple events.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) {
+        let res = self.try_send_done(
+        );
+        if let Err(e) = res {
+            log_send("wl_output.done", &e);
+        }
+    }
+
     /// Since when the scale message is available.
     pub const MSG__SCALE__SINCE: u32 = 2;
 
@@ -329,7 +468,7 @@ impl WlOutput {
     ///
     /// - `factor`: scaling factor of output
     #[inline]
-    pub fn send_scale(
+    pub fn try_send_scale(
         &self,
         factor: i32,
     ) -> Result<(), ObjectError> {
@@ -369,6 +508,43 @@ impl WlOutput {
         Ok(())
     }
 
+    /// output scaling properties
+    ///
+    /// This event contains scaling geometry information
+    /// that is not in the geometry event. It may be sent after
+    /// binding the output object or if the output scale changes
+    /// later. The compositor will emit a non-zero, positive
+    /// value for scale. If it is not sent, the client should
+    /// assume a scale of 1.
+    ///
+    /// A scale larger than 1 means that the compositor will
+    /// automatically scale surface buffers by this amount
+    /// when rendering. This is used for very high resolution
+    /// displays where applications rendering at the native
+    /// resolution would be too small to be legible.
+    ///
+    /// Clients should use wl_surface.preferred_buffer_scale
+    /// instead of this event to find the preferred buffer
+    /// scale to use for a surface.
+    ///
+    /// The scale event will be followed by a done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `factor`: scaling factor of output
+    #[inline]
+    pub fn send_scale(
+        &self,
+        factor: i32,
+    ) {
+        let res = self.try_send_scale(
+            factor,
+        );
+        if let Err(e) = res {
+            log_send("wl_output.scale", &e);
+        }
+    }
+
     /// Since when the release message is available.
     pub const MSG__RELEASE__SINCE: u32 = 3;
 
@@ -377,7 +553,7 @@ impl WlOutput {
     /// Using this request a client can tell the server that it is not going to
     /// use the output object anymore.
     #[inline]
-    pub fn send_release(
+    pub fn try_send_release(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -407,6 +583,21 @@ impl WlOutput {
         ]);
         self.core.handle_server_destroy();
         Ok(())
+    }
+
+    /// release the output object
+    ///
+    /// Using this request a client can tell the server that it is not going to
+    /// use the output object anymore.
+    #[inline]
+    pub fn send_release(
+        &self,
+    ) {
+        let res = self.try_send_release(
+        );
+        if let Err(e) = res {
+            log_send("wl_output.release", &e);
+        }
     }
 
     /// Since when the name message is available.
@@ -447,7 +638,7 @@ impl WlOutput {
     ///
     /// - `name`: output name
     #[inline]
-    pub fn send_name(
+    pub fn try_send_name(
         &self,
         name: &str,
     ) -> Result<(), ObjectError> {
@@ -487,6 +678,53 @@ impl WlOutput {
         Ok(())
     }
 
+    /// name of this output
+    ///
+    /// Many compositors will assign user-friendly names to their outputs, show
+    /// them to the user, allow the user to refer to an output, etc. The client
+    /// may wish to know this name as well to offer the user similar behaviors.
+    ///
+    /// The name is a UTF-8 string with no convention defined for its contents.
+    /// Each name is unique among all wl_output globals. The name is only
+    /// guaranteed to be unique for the compositor instance.
+    ///
+    /// The same output name is used for all clients for a given wl_output
+    /// global. Thus, the name can be shared across processes to refer to a
+    /// specific wl_output global.
+    ///
+    /// The name is not guaranteed to be persistent across sessions, thus cannot
+    /// be used to reliably identify an output in e.g. configuration files.
+    ///
+    /// Examples of names include 'HDMI-A-1', 'WL-1', 'X11-1', etc. However, do
+    /// not assume that the name is a reflection of an underlying DRM connector,
+    /// X11 connection, etc.
+    ///
+    /// The name event is sent after binding the output object. This event is
+    /// only sent once per output object, and the name does not change over the
+    /// lifetime of the wl_output global.
+    ///
+    /// Compositors may re-use the same output name if the wl_output global is
+    /// destroyed and re-created later. Compositors should avoid re-using the
+    /// same name if possible.
+    ///
+    /// The name event will be followed by a done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: output name
+    #[inline]
+    pub fn send_name(
+        &self,
+        name: &str,
+    ) {
+        let res = self.try_send_name(
+            name,
+        );
+        if let Err(e) = res {
+            log_send("wl_output.name", &e);
+        }
+    }
+
     /// Since when the description message is available.
     pub const MSG__DESCRIPTION__SINCE: u32 = 4;
 
@@ -511,7 +749,7 @@ impl WlOutput {
     ///
     /// - `description`: output description
     #[inline]
-    pub fn send_description(
+    pub fn try_send_description(
         &self,
         description: &str,
     ) -> Result<(), ObjectError> {
@@ -550,13 +788,46 @@ impl WlOutput {
         fmt.string(arg0);
         Ok(())
     }
+
+    /// human-readable description of this output
+    ///
+    /// Many compositors can produce human-readable descriptions of their
+    /// outputs. The client may wish to know this description as well, e.g. for
+    /// output selection purposes.
+    ///
+    /// The description is a UTF-8 string with no convention defined for its
+    /// contents. The description is not guaranteed to be unique among all
+    /// wl_output globals. Examples might include 'Foocorp 11" Display' or
+    /// 'Virtual X11 output via :1'.
+    ///
+    /// The description event is sent after binding the output object and
+    /// whenever the description changes. The description is optional, and may
+    /// not be sent at all.
+    ///
+    /// The description event will be followed by a done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `description`: output description
+    #[inline]
+    pub fn send_description(
+        &self,
+        description: &str,
+    ) {
+        let res = self.try_send_description(
+            description,
+        );
+        if let Err(e) = res {
+            log_send("wl_output.description", &e);
+        }
+    }
 }
 
 /// A message handler for [WlOutput] proxies.
 pub trait WlOutputHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlOutput>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// properties of the output
@@ -608,7 +879,7 @@ pub trait WlOutputHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_geometry(
+        let res = _slf.try_send_geometry(
             x,
             y,
             physical_width,
@@ -619,7 +890,7 @@ pub trait WlOutputHandler: Any {
             transform,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_output.geometry message: {}", Report::new(e));
+            log_forward("wl_output.geometry", &e);
         }
     }
 
@@ -677,14 +948,14 @@ pub trait WlOutputHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_mode(
+        let res = _slf.try_send_mode(
             flags,
             width,
             height,
             refresh,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_output.mode message: {}", Report::new(e));
+            log_forward("wl_output.mode", &e);
         }
     }
 
@@ -703,10 +974,10 @@ pub trait WlOutputHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_output.done message: {}", Report::new(e));
+            log_forward("wl_output.done", &e);
         }
     }
 
@@ -743,11 +1014,11 @@ pub trait WlOutputHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_scale(
+        let res = _slf.try_send_scale(
             factor,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_output.scale message: {}", Report::new(e));
+            log_forward("wl_output.scale", &e);
         }
     }
 
@@ -763,10 +1034,10 @@ pub trait WlOutputHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_release(
+        let res = _slf.try_send_release(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_output.release message: {}", Report::new(e));
+            log_forward("wl_output.release", &e);
         }
     }
 
@@ -813,11 +1084,11 @@ pub trait WlOutputHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_name(
+        let res = _slf.try_send_name(
             name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_output.name message: {}", Report::new(e));
+            log_forward("wl_output.name", &e);
         }
     }
 
@@ -850,11 +1121,11 @@ pub trait WlOutputHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_description(
+        let res = _slf.try_send_description(
             description,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_output.description message: {}", Report::new(e));
+            log_forward("wl_output.description", &e);
         }
     }
 }
@@ -874,7 +1145,7 @@ impl ObjectPrivate for WlOutput {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

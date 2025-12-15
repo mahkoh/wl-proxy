@@ -59,7 +59,7 @@ impl XdgSystemBellV1 {
     ///
     /// Notify that the object will no longer be used.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -91,6 +91,20 @@ impl XdgSystemBellV1 {
         Ok(())
     }
 
+    /// destroy the system bell object
+    ///
+    /// Notify that the object will no longer be used.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("xdg_system_bell_v1.destroy", &e);
+        }
+    }
+
     /// Since when the ring message is available.
     pub const MSG__RING__SINCE: u32 = 1;
 
@@ -110,7 +124,7 @@ impl XdgSystemBellV1 {
     ///
     /// - `surface`: associated surface
     #[inline]
-    pub fn send_ring(
+    pub fn try_send_ring(
         &self,
         surface: Option<&Rc<WlSurface>>,
     ) -> Result<(), ObjectError> {
@@ -155,13 +169,41 @@ impl XdgSystemBellV1 {
         ]);
         Ok(())
     }
+
+    /// ring the system bell
+    ///
+    /// This requests rings the system bell on behalf of a client. How ringing
+    /// the bell is implemented is up to the compositor. It may be an audible
+    /// sound, a visual feedback of some kind, or any other thing including
+    /// nothing.
+    ///
+    ///         The passed surface should correspond to a toplevel like surface role,
+    ///         or be null, meaning the client doesn't have a particular toplevel it
+    ///         wants to associate the bell ringing with. See the xdg-shell protocol
+    ///         extension for a toplevel like surface role.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`: associated surface
+    #[inline]
+    pub fn send_ring(
+        &self,
+        surface: Option<&Rc<WlSurface>>,
+    ) {
+        let res = self.try_send_ring(
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("xdg_system_bell_v1.ring", &e);
+        }
+    }
 }
 
 /// A message handler for [XdgSystemBellV1] proxies.
 pub trait XdgSystemBellV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgSystemBellV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the system bell object
@@ -175,10 +217,10 @@ pub trait XdgSystemBellV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_system_bell_v1.destroy message: {}", Report::new(e));
+            log_forward("xdg_system_bell_v1.destroy", &e);
         }
     }
 
@@ -209,11 +251,11 @@ pub trait XdgSystemBellV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_ring(
+        let res = _slf.try_send_ring(
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_system_bell_v1.ring message: {}", Report::new(e));
+            log_forward("xdg_system_bell_v1.ring", &e);
         }
     }
 }
@@ -233,7 +275,7 @@ impl ObjectPrivate for XdgSystemBellV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

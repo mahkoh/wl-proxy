@@ -73,7 +73,7 @@ impl ZwpInputMethodContextV1 {
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -105,6 +105,17 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.destroy", &e);
+        }
+    }
+
     /// Since when the commit_string message is available.
     pub const MSG__COMMIT_STRING__SINCE: u32 = 1;
 
@@ -125,7 +136,7 @@ impl ZwpInputMethodContextV1 {
     /// - `serial`: serial of the latest known text input state
     /// - `text`:
     #[inline]
-    pub fn send_commit_string(
+    pub fn try_send_commit_string(
         &self,
         serial: u32,
         text: &str,
@@ -167,6 +178,37 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    /// commit string
+    ///
+    /// Send the commit string text for insertion to the application.
+    ///
+    /// The text to commit could be either just a single character after a key
+    /// press or the result of some composing (pre-edit). It could be also an
+    /// empty text when some text should be removed (see
+    /// delete_surrounding_text) or when the input cursor should be moved (see
+    /// cursor_position).
+    ///
+    /// Any previously set composing text will be removed.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial of the latest known text input state
+    /// - `text`:
+    #[inline]
+    pub fn send_commit_string(
+        &self,
+        serial: u32,
+        text: &str,
+    ) {
+        let res = self.try_send_commit_string(
+            serial,
+            text,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.commit_string", &e);
+        }
+    }
+
     /// Since when the preedit_string message is available.
     pub const MSG__PREEDIT_STRING__SINCE: u32 = 1;
 
@@ -186,7 +228,7 @@ impl ZwpInputMethodContextV1 {
     /// - `text`:
     /// - `commit`:
     #[inline]
-    pub fn send_preedit_string(
+    pub fn try_send_preedit_string(
         &self,
         serial: u32,
         text: &str,
@@ -232,6 +274,38 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    /// pre-edit string
+    ///
+    /// Send the pre-edit string text to the application text input.
+    ///
+    /// The commit text can be used to replace the pre-edit text on reset (for
+    /// example on unfocus).
+    ///
+    /// Previously sent preedit_style and preedit_cursor requests are also
+    /// processed by the text_input.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial of the latest known text input state
+    /// - `text`:
+    /// - `commit`:
+    #[inline]
+    pub fn send_preedit_string(
+        &self,
+        serial: u32,
+        text: &str,
+        commit: &str,
+    ) {
+        let res = self.try_send_preedit_string(
+            serial,
+            text,
+            commit,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.preedit_string", &e);
+        }
+    }
+
     /// Since when the preedit_styling message is available.
     pub const MSG__PREEDIT_STYLING__SINCE: u32 = 1;
 
@@ -250,7 +324,7 @@ impl ZwpInputMethodContextV1 {
     /// - `length`:
     /// - `style`:
     #[inline]
-    pub fn send_preedit_styling(
+    pub fn try_send_preedit_styling(
         &self,
         index: u32,
         length: u32,
@@ -296,6 +370,37 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    /// pre-edit styling
+    ///
+    /// Set the styling information on composing text. The style is applied for
+    /// length in bytes from index relative to the beginning of
+    /// the composing text (as byte offset). Multiple styles can
+    /// be applied to a composing text.
+    ///
+    /// This request should be sent before sending a preedit_string request.
+    ///
+    /// # Arguments
+    ///
+    /// - `index`:
+    /// - `length`:
+    /// - `style`:
+    #[inline]
+    pub fn send_preedit_styling(
+        &self,
+        index: u32,
+        length: u32,
+        style: u32,
+    ) {
+        let res = self.try_send_preedit_styling(
+            index,
+            length,
+            style,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.preedit_styling", &e);
+        }
+    }
+
     /// Since when the preedit_cursor message is available.
     pub const MSG__PREEDIT_CURSOR__SINCE: u32 = 1;
 
@@ -312,7 +417,7 @@ impl ZwpInputMethodContextV1 {
     ///
     /// - `index`:
     #[inline]
-    pub fn send_preedit_cursor(
+    pub fn try_send_preedit_cursor(
         &self,
         index: i32,
     ) -> Result<(), ObjectError> {
@@ -350,6 +455,31 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    /// pre-edit cursor
+    ///
+    /// Set the cursor position inside the composing text (as byte offset)
+    /// relative to the start of the composing text.
+    ///
+    /// When index is negative no cursor should be displayed.
+    ///
+    /// This request should be sent before sending a preedit_string request.
+    ///
+    /// # Arguments
+    ///
+    /// - `index`:
+    #[inline]
+    pub fn send_preedit_cursor(
+        &self,
+        index: i32,
+    ) {
+        let res = self.try_send_preedit_cursor(
+            index,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.preedit_cursor", &e);
+        }
+    }
+
     /// Since when the delete_surrounding_text message is available.
     pub const MSG__DELETE_SURROUNDING_TEXT__SINCE: u32 = 1;
 
@@ -365,7 +495,7 @@ impl ZwpInputMethodContextV1 {
     /// - `index`:
     /// - `length`:
     #[inline]
-    pub fn send_delete_surrounding_text(
+    pub fn try_send_delete_surrounding_text(
         &self,
         index: i32,
         length: u32,
@@ -407,6 +537,32 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    /// delete text
+    ///
+    /// Remove the surrounding text.
+    ///
+    /// This request will be handled on the text_input side directly following
+    /// a commit_string request.
+    ///
+    /// # Arguments
+    ///
+    /// - `index`:
+    /// - `length`:
+    #[inline]
+    pub fn send_delete_surrounding_text(
+        &self,
+        index: i32,
+        length: u32,
+    ) {
+        let res = self.try_send_delete_surrounding_text(
+            index,
+            length,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.delete_surrounding_text", &e);
+        }
+    }
+
     /// Since when the cursor_position message is available.
     pub const MSG__CURSOR_POSITION__SINCE: u32 = 1;
 
@@ -428,7 +584,7 @@ impl ZwpInputMethodContextV1 {
     /// - `index`:
     /// - `anchor`:
     #[inline]
-    pub fn send_cursor_position(
+    pub fn try_send_cursor_position(
         &self,
         index: i32,
         anchor: i32,
@@ -470,6 +626,38 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    /// set cursor to a new position
+    ///
+    /// Set the cursor and anchor to a new position. Index is the new cursor
+    /// position in bytes (when >= 0 this is relative to the end of the inserted text,
+    /// otherwise it is relative to the beginning of the inserted text). Anchor is
+    /// the new anchor position in bytes (when >= 0 this is relative to the end of the
+    /// inserted text, otherwise it is relative to the beginning of the inserted
+    /// text). When there should be no selected text, anchor should be the same
+    /// as index.
+    ///
+    /// This request will be handled on the text_input side directly following
+    /// a commit_string request.
+    ///
+    /// # Arguments
+    ///
+    /// - `index`:
+    /// - `anchor`:
+    #[inline]
+    pub fn send_cursor_position(
+        &self,
+        index: i32,
+        anchor: i32,
+    ) {
+        let res = self.try_send_cursor_position(
+            index,
+            anchor,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.cursor_position", &e);
+        }
+    }
+
     /// Since when the modifiers_map message is available.
     pub const MSG__MODIFIERS_MAP__SINCE: u32 = 1;
 
@@ -477,7 +665,7 @@ impl ZwpInputMethodContextV1 {
     ///
     /// - `map`:
     #[inline]
-    pub fn send_modifiers_map(
+    pub fn try_send_modifiers_map(
         &self,
         map: &[u8],
     ) -> Result<(), ObjectError> {
@@ -515,6 +703,22 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    /// # Arguments
+    ///
+    /// - `map`:
+    #[inline]
+    pub fn send_modifiers_map(
+        &self,
+        map: &[u8],
+    ) {
+        let res = self.try_send_modifiers_map(
+            map,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.modifiers_map", &e);
+        }
+    }
+
     /// Since when the keysym message is available.
     pub const MSG__KEYSYM__SINCE: u32 = 1;
 
@@ -533,7 +737,7 @@ impl ZwpInputMethodContextV1 {
     /// - `state`:
     /// - `modifiers`:
     #[inline]
-    pub fn send_keysym(
+    pub fn try_send_keysym(
         &self,
         serial: u32,
         time: u32,
@@ -587,6 +791,41 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    /// keysym
+    ///
+    /// Notify when a key event was sent. Key events should not be used for
+    /// normal text input operations, which should be done with commit_string,
+    /// delete_surrounding_text, etc. The key event follows the wl_keyboard key
+    /// event convention. Sym is an XKB keysym, state is a wl_keyboard key_state.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial of the latest known text input state
+    /// - `time`:
+    /// - `sym`:
+    /// - `state`:
+    /// - `modifiers`:
+    #[inline]
+    pub fn send_keysym(
+        &self,
+        serial: u32,
+        time: u32,
+        sym: u32,
+        state: u32,
+        modifiers: u32,
+    ) {
+        let res = self.try_send_keysym(
+            serial,
+            time,
+            sym,
+            state,
+            modifiers,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.keysym", &e);
+        }
+    }
+
     /// Since when the grab_keyboard message is available.
     pub const MSG__GRAB_KEYBOARD__SINCE: u32 = 1;
 
@@ -597,7 +836,7 @@ impl ZwpInputMethodContextV1 {
     /// allows input methods which compose multiple key events for inputting
     /// text like it is done for CJK languages.
     #[inline]
-    pub fn send_grab_keyboard(
+    pub fn try_send_grab_keyboard(
         &self,
         keyboard: &Rc<WlKeyboard>,
     ) -> Result<(), ObjectError> {
@@ -640,6 +879,25 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    /// grab hardware keyboard
+    ///
+    /// Allow an input method to receive hardware keyboard input and process
+    /// key events to generate text events (with pre-edit) over the wire. This
+    /// allows input methods which compose multiple key events for inputting
+    /// text like it is done for CJK languages.
+    #[inline]
+    pub fn send_grab_keyboard(
+        &self,
+        keyboard: &Rc<WlKeyboard>,
+    ) {
+        let res = self.try_send_grab_keyboard(
+            keyboard,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.grab_keyboard", &e);
+        }
+    }
+
     /// Since when the key message is available.
     pub const MSG__KEY__SINCE: u32 = 1;
 
@@ -659,7 +917,7 @@ impl ZwpInputMethodContextV1 {
     /// - `key`: key from wl_keyboard::key
     /// - `state`: state from wl_keyboard::key
     #[inline]
-    pub fn send_key(
+    pub fn try_send_key(
         &self,
         serial: u32,
         time: u32,
@@ -709,6 +967,40 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    /// forward key event
+    ///
+    /// Forward a wl_keyboard::key event to the client that was not processed
+    /// by the input method itself. Should be used when filtering key events
+    /// with grab_keyboard.  The arguments should be the ones from the
+    /// wl_keyboard::key event.
+    ///
+    /// For generating custom key events use the keysym request instead.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial from wl_keyboard::key
+    /// - `time`: time from wl_keyboard::key
+    /// - `key`: key from wl_keyboard::key
+    /// - `state`: state from wl_keyboard::key
+    #[inline]
+    pub fn send_key(
+        &self,
+        serial: u32,
+        time: u32,
+        key: u32,
+        state: u32,
+    ) {
+        let res = self.try_send_key(
+            serial,
+            time,
+            key,
+            state,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.key", &e);
+        }
+    }
+
     /// Since when the modifiers message is available.
     pub const MSG__MODIFIERS__SINCE: u32 = 1;
 
@@ -727,7 +1019,7 @@ impl ZwpInputMethodContextV1 {
     /// - `mods_locked`: mods_locked from wl_keyboard::modifiers
     /// - `group`: group from wl_keyboard::modifiers
     #[inline]
-    pub fn send_modifiers(
+    pub fn try_send_modifiers(
         &self,
         serial: u32,
         mods_depressed: u32,
@@ -781,6 +1073,41 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    /// forward modifiers event
+    ///
+    /// Forward a wl_keyboard::modifiers event to the client that was not
+    /// processed by the input method itself.  Should be used when filtering
+    /// key events with grab_keyboard. The arguments should be the ones
+    /// from the wl_keyboard::modifiers event.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial from wl_keyboard::modifiers
+    /// - `mods_depressed`: mods_depressed from wl_keyboard::modifiers
+    /// - `mods_latched`: mods_latched from wl_keyboard::modifiers
+    /// - `mods_locked`: mods_locked from wl_keyboard::modifiers
+    /// - `group`: group from wl_keyboard::modifiers
+    #[inline]
+    pub fn send_modifiers(
+        &self,
+        serial: u32,
+        mods_depressed: u32,
+        mods_latched: u32,
+        mods_locked: u32,
+        group: u32,
+    ) {
+        let res = self.try_send_modifiers(
+            serial,
+            mods_depressed,
+            mods_latched,
+            mods_locked,
+            group,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.modifiers", &e);
+        }
+    }
+
     /// Since when the language message is available.
     pub const MSG__LANGUAGE__SINCE: u32 = 1;
 
@@ -789,7 +1116,7 @@ impl ZwpInputMethodContextV1 {
     /// - `serial`: serial of the latest known text input state
     /// - `language`:
     #[inline]
-    pub fn send_language(
+    pub fn try_send_language(
         &self,
         serial: u32,
         language: &str,
@@ -831,6 +1158,25 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    /// # Arguments
+    ///
+    /// - `serial`: serial of the latest known text input state
+    /// - `language`:
+    #[inline]
+    pub fn send_language(
+        &self,
+        serial: u32,
+        language: &str,
+    ) {
+        let res = self.try_send_language(
+            serial,
+            language,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.language", &e);
+        }
+    }
+
     /// Since when the text_direction message is available.
     pub const MSG__TEXT_DIRECTION__SINCE: u32 = 1;
 
@@ -839,7 +1185,7 @@ impl ZwpInputMethodContextV1 {
     /// - `serial`: serial of the latest known text input state
     /// - `direction`:
     #[inline]
-    pub fn send_text_direction(
+    pub fn try_send_text_direction(
         &self,
         serial: u32,
         direction: u32,
@@ -881,6 +1227,25 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    /// # Arguments
+    ///
+    /// - `serial`: serial of the latest known text input state
+    /// - `direction`:
+    #[inline]
+    pub fn send_text_direction(
+        &self,
+        serial: u32,
+        direction: u32,
+    ) {
+        let res = self.try_send_text_direction(
+            serial,
+            direction,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.text_direction", &e);
+        }
+    }
+
     /// Since when the surrounding_text message is available.
     pub const MSG__SURROUNDING_TEXT__SINCE: u32 = 1;
 
@@ -898,7 +1263,7 @@ impl ZwpInputMethodContextV1 {
     /// - `cursor`:
     /// - `anchor`:
     #[inline]
-    pub fn send_surrounding_text(
+    pub fn try_send_surrounding_text(
         &self,
         text: &str,
         cursor: u32,
@@ -948,11 +1313,41 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    /// surrounding text event
+    ///
+    /// The plain surrounding text around the input position. Cursor is the
+    /// position in bytes within the surrounding text relative to the beginning
+    /// of the text. Anchor is the position in bytes of the selection anchor
+    /// within the surrounding text relative to the beginning of the text. If
+    /// there is no selected text then anchor is the same as cursor.
+    ///
+    /// # Arguments
+    ///
+    /// - `text`:
+    /// - `cursor`:
+    /// - `anchor`:
+    #[inline]
+    pub fn send_surrounding_text(
+        &self,
+        text: &str,
+        cursor: u32,
+        anchor: u32,
+    ) {
+        let res = self.try_send_surrounding_text(
+            text,
+            cursor,
+            anchor,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.surrounding_text", &e);
+        }
+    }
+
     /// Since when the reset message is available.
     pub const MSG__RESET__SINCE: u32 = 1;
 
     #[inline]
-    pub fn send_reset(
+    pub fn try_send_reset(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -985,6 +1380,17 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    #[inline]
+    pub fn send_reset(
+        &self,
+    ) {
+        let res = self.try_send_reset(
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.reset", &e);
+        }
+    }
+
     /// Since when the content_type message is available.
     pub const MSG__CONTENT_TYPE__SINCE: u32 = 1;
 
@@ -993,7 +1399,7 @@ impl ZwpInputMethodContextV1 {
     /// - `hint`:
     /// - `purpose`:
     #[inline]
-    pub fn send_content_type(
+    pub fn try_send_content_type(
         &self,
         hint: u32,
         purpose: u32,
@@ -1037,6 +1443,25 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    /// # Arguments
+    ///
+    /// - `hint`:
+    /// - `purpose`:
+    #[inline]
+    pub fn send_content_type(
+        &self,
+        hint: u32,
+        purpose: u32,
+    ) {
+        let res = self.try_send_content_type(
+            hint,
+            purpose,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.content_type", &e);
+        }
+    }
+
     /// Since when the invoke_action message is available.
     pub const MSG__INVOKE_ACTION__SINCE: u32 = 1;
 
@@ -1045,7 +1470,7 @@ impl ZwpInputMethodContextV1 {
     /// - `button`:
     /// - `index`:
     #[inline]
-    pub fn send_invoke_action(
+    pub fn try_send_invoke_action(
         &self,
         button: u32,
         index: u32,
@@ -1089,6 +1514,25 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    /// # Arguments
+    ///
+    /// - `button`:
+    /// - `index`:
+    #[inline]
+    pub fn send_invoke_action(
+        &self,
+        button: u32,
+        index: u32,
+    ) {
+        let res = self.try_send_invoke_action(
+            button,
+            index,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.invoke_action", &e);
+        }
+    }
+
     /// Since when the commit_state message is available.
     pub const MSG__COMMIT_STATE__SINCE: u32 = 1;
 
@@ -1096,7 +1540,7 @@ impl ZwpInputMethodContextV1 {
     ///
     /// - `serial`: serial of text input state
     #[inline]
-    pub fn send_commit_state(
+    pub fn try_send_commit_state(
         &self,
         serial: u32,
     ) -> Result<(), ObjectError> {
@@ -1136,6 +1580,22 @@ impl ZwpInputMethodContextV1 {
         Ok(())
     }
 
+    /// # Arguments
+    ///
+    /// - `serial`: serial of text input state
+    #[inline]
+    pub fn send_commit_state(
+        &self,
+        serial: u32,
+    ) {
+        let res = self.try_send_commit_state(
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.commit_state", &e);
+        }
+    }
+
     /// Since when the preferred_language message is available.
     pub const MSG__PREFERRED_LANGUAGE__SINCE: u32 = 1;
 
@@ -1143,7 +1603,7 @@ impl ZwpInputMethodContextV1 {
     ///
     /// - `language`:
     #[inline]
-    pub fn send_preferred_language(
+    pub fn try_send_preferred_language(
         &self,
         language: &str,
     ) -> Result<(), ObjectError> {
@@ -1182,13 +1642,29 @@ impl ZwpInputMethodContextV1 {
         fmt.string(arg0);
         Ok(())
     }
+
+    /// # Arguments
+    ///
+    /// - `language`:
+    #[inline]
+    pub fn send_preferred_language(
+        &self,
+        language: &str,
+    ) {
+        let res = self.try_send_preferred_language(
+            language,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_context_v1.preferred_language", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpInputMethodContextV1] proxies.
 pub trait ZwpInputMethodContextV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpInputMethodContextV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     #[inline]
@@ -1199,10 +1675,10 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.destroy", &e);
         }
     }
 
@@ -1232,12 +1708,12 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_commit_string(
+        let res = _slf.try_send_commit_string(
             serial,
             text,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.commit_string message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.commit_string", &e);
         }
     }
 
@@ -1267,13 +1743,13 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_preedit_string(
+        let res = _slf.try_send_preedit_string(
             serial,
             text,
             commit,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.preedit_string message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.preedit_string", &e);
         }
     }
 
@@ -1302,13 +1778,13 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_preedit_styling(
+        let res = _slf.try_send_preedit_styling(
             index,
             length,
             style,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.preedit_styling message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.preedit_styling", &e);
         }
     }
 
@@ -1333,11 +1809,11 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_preedit_cursor(
+        let res = _slf.try_send_preedit_cursor(
             index,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.preedit_cursor message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.preedit_cursor", &e);
         }
     }
 
@@ -1362,12 +1838,12 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_delete_surrounding_text(
+        let res = _slf.try_send_delete_surrounding_text(
             index,
             length,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.delete_surrounding_text message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.delete_surrounding_text", &e);
         }
     }
 
@@ -1398,12 +1874,12 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_cursor_position(
+        let res = _slf.try_send_cursor_position(
             index,
             anchor,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.cursor_position message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.cursor_position", &e);
         }
     }
 
@@ -1419,11 +1895,11 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_modifiers_map(
+        let res = _slf.try_send_modifiers_map(
             map,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.modifiers_map message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.modifiers_map", &e);
         }
     }
 
@@ -1454,7 +1930,7 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_keysym(
+        let res = _slf.try_send_keysym(
             serial,
             time,
             sym,
@@ -1462,7 +1938,7 @@ pub trait ZwpInputMethodContextV1Handler: Any {
             modifiers,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.keysym message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.keysym", &e);
         }
     }
 
@@ -1485,11 +1961,11 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_grab_keyboard(
+        let res = _slf.try_send_grab_keyboard(
             keyboard,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.grab_keyboard message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.grab_keyboard", &e);
         }
     }
 
@@ -1520,14 +1996,14 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_key(
+        let res = _slf.try_send_key(
             serial,
             time,
             key,
             state,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.key message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.key", &e);
         }
     }
 
@@ -1558,7 +2034,7 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_modifiers(
+        let res = _slf.try_send_modifiers(
             serial,
             mods_depressed,
             mods_latched,
@@ -1566,7 +2042,7 @@ pub trait ZwpInputMethodContextV1Handler: Any {
             group,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.modifiers message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.modifiers", &e);
         }
     }
 
@@ -1584,12 +2060,12 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_language(
+        let res = _slf.try_send_language(
             serial,
             language,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.language message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.language", &e);
         }
     }
 
@@ -1607,12 +2083,12 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_text_direction(
+        let res = _slf.try_send_text_direction(
             serial,
             direction,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.text_direction message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.text_direction", &e);
         }
     }
 
@@ -1640,13 +2116,13 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_surrounding_text(
+        let res = _slf.try_send_surrounding_text(
             text,
             cursor,
             anchor,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.surrounding_text message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.surrounding_text", &e);
         }
     }
 
@@ -1658,10 +2134,10 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_reset(
+        let res = _slf.try_send_reset(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.reset message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.reset", &e);
         }
     }
 
@@ -1679,12 +2155,12 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_content_type(
+        let res = _slf.try_send_content_type(
             hint,
             purpose,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.content_type message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.content_type", &e);
         }
     }
 
@@ -1702,12 +2178,12 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_invoke_action(
+        let res = _slf.try_send_invoke_action(
             button,
             index,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.invoke_action message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.invoke_action", &e);
         }
     }
 
@@ -1723,11 +2199,11 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_commit_state(
+        let res = _slf.try_send_commit_state(
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.commit_state message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.commit_state", &e);
         }
     }
 
@@ -1743,11 +2219,11 @@ pub trait ZwpInputMethodContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_preferred_language(
+        let res = _slf.try_send_preferred_language(
             language,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_context_v1.preferred_language message: {}", Report::new(e));
+            log_forward("zwp_input_method_context_v1.preferred_language", &e);
         }
     }
 }
@@ -1767,7 +2243,7 @@ impl ObjectPrivate for ZwpInputMethodContextV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

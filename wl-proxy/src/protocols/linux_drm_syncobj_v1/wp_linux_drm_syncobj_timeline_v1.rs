@@ -57,7 +57,7 @@ impl WpLinuxDrmSyncobjTimelineV1 {
     /// affected by this request, in particular timeline points set by
     /// set_acquire_point and set_release_point are not unset.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -88,13 +88,29 @@ impl WpLinuxDrmSyncobjTimelineV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the timeline
+    ///
+    /// Destroy the synchronization object timeline. Other objects are not
+    /// affected by this request, in particular timeline points set by
+    /// set_acquire_point and set_release_point are not unset.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_linux_drm_syncobj_timeline_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [WpLinuxDrmSyncobjTimelineV1] proxies.
 pub trait WpLinuxDrmSyncobjTimelineV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpLinuxDrmSyncobjTimelineV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the timeline
@@ -110,10 +126,10 @@ pub trait WpLinuxDrmSyncobjTimelineV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_linux_drm_syncobj_timeline_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_linux_drm_syncobj_timeline_v1.destroy", &e);
         }
     }
 }
@@ -133,7 +149,7 @@ impl ObjectPrivate for WpLinuxDrmSyncobjTimelineV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -73,7 +73,7 @@ impl WpCommitTimerV1 {
     /// - `tv_sec_lo`: low 32 bits of the seconds part of target time
     /// - `tv_nsec`: nanoseconds part of target time
     #[inline]
-    pub fn send_set_timestamp(
+    pub fn try_send_set_timestamp(
         &self,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
@@ -119,6 +119,45 @@ impl WpCommitTimerV1 {
         Ok(())
     }
 
+    /// Specify time the following commit takes effect
+    ///
+    /// Provide a timing constraint for a surface content update.
+    ///
+    /// A set_timestamp request may be made before a wl_surface.commit to
+    /// tell the compositor that the content is intended to be presented
+    /// as closely as possible to, but not before, the specified time.
+    /// The time is in the domain of the compositor's presentation clock.
+    ///
+    /// An invalid_timestamp error will be generated for invalid tv_nsec.
+    ///
+    /// If a timestamp already exists on the surface, a timestamp_exists
+    /// error is generated.
+    ///
+    /// Requesting set_timestamp after the commit_timer object's surface is
+    /// destroyed will generate a "surface_destroyed" error.
+    ///
+    /// # Arguments
+    ///
+    /// - `tv_sec_hi`: high 32 bits of the seconds part of target time
+    /// - `tv_sec_lo`: low 32 bits of the seconds part of target time
+    /// - `tv_nsec`: nanoseconds part of target time
+    #[inline]
+    pub fn send_set_timestamp(
+        &self,
+        tv_sec_hi: u32,
+        tv_sec_lo: u32,
+        tv_nsec: u32,
+    ) {
+        let res = self.try_send_set_timestamp(
+            tv_sec_hi,
+            tv_sec_lo,
+            tv_nsec,
+        );
+        if let Err(e) = res {
+            log_send("wp_commit_timer_v1.set_timestamp", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -129,7 +168,7 @@ impl WpCommitTimerV1 {
     ///
     /// Existing timing constraints are not affected by the destruction.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -160,13 +199,30 @@ impl WpCommitTimerV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// Destroy the timer
+    ///
+    /// Informs the server that the client will no longer be using
+    /// this protocol object.
+    ///
+    /// Existing timing constraints are not affected by the destruction.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_commit_timer_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [WpCommitTimerV1] proxies.
 pub trait WpCommitTimerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpCommitTimerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// Specify time the following commit takes effect
@@ -202,13 +258,13 @@ pub trait WpCommitTimerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_timestamp(
+        let res = _slf.try_send_set_timestamp(
             tv_sec_hi,
             tv_sec_lo,
             tv_nsec,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_commit_timer_v1.set_timestamp message: {}", Report::new(e));
+            log_forward("wp_commit_timer_v1.set_timestamp", &e);
         }
     }
 
@@ -226,10 +282,10 @@ pub trait WpCommitTimerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_commit_timer_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_commit_timer_v1.destroy", &e);
         }
     }
 }
@@ -249,7 +305,7 @@ impl ObjectPrivate for WpCommitTimerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

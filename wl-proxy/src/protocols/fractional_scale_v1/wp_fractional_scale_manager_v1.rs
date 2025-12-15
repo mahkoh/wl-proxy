@@ -56,7 +56,7 @@ impl WpFractionalScaleManagerV1 {
     /// object anymore. This does not affect any other objects,
     /// wp_fractional_scale_v1 objects included.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -88,6 +88,22 @@ impl WpFractionalScaleManagerV1 {
         Ok(())
     }
 
+    /// unbind the fractional surface scale interface
+    ///
+    /// Informs the server that the client will not be using this protocol
+    /// object anymore. This does not affect any other objects,
+    /// wp_fractional_scale_v1 objects included.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_fractional_scale_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_fractional_scale message is available.
     pub const MSG__GET_FRACTIONAL_SCALE__SINCE: u32 = 1;
 
@@ -103,7 +119,7 @@ impl WpFractionalScaleManagerV1 {
     /// - `id`: the new surface scale info interface id
     /// - `surface`: the surface
     #[inline]
-    pub fn send_get_fractional_scale(
+    pub fn try_send_get_fractional_scale(
         &self,
         id: &Rc<WpFractionalScaleV1>,
         surface: &Rc<WlSurface>,
@@ -154,13 +170,39 @@ impl WpFractionalScaleManagerV1 {
         ]);
         Ok(())
     }
+
+    /// extend surface interface for scale information
+    ///
+    /// Create an add-on object for the the wl_surface to let the compositor
+    /// request fractional scales. If the given wl_surface already has a
+    /// wp_fractional_scale_v1 object associated, the fractional_scale_exists
+    /// protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new surface scale info interface id
+    /// - `surface`: the surface
+    #[inline]
+    pub fn send_get_fractional_scale(
+        &self,
+        id: &Rc<WpFractionalScaleV1>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_fractional_scale(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("wp_fractional_scale_manager_v1.get_fractional_scale", &e);
+        }
+    }
 }
 
 /// A message handler for [WpFractionalScaleManagerV1] proxies.
 pub trait WpFractionalScaleManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpFractionalScaleManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// unbind the fractional surface scale interface
@@ -176,10 +218,10 @@ pub trait WpFractionalScaleManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_fractional_scale_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_fractional_scale_manager_v1.destroy", &e);
         }
     }
 
@@ -207,12 +249,12 @@ pub trait WpFractionalScaleManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_fractional_scale(
+        let res = _slf.try_send_get_fractional_scale(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_fractional_scale_manager_v1.get_fractional_scale message: {}", Report::new(e));
+            log_forward("wp_fractional_scale_manager_v1.get_fractional_scale", &e);
         }
     }
 }
@@ -232,7 +274,7 @@ impl ObjectPrivate for WpFractionalScaleManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

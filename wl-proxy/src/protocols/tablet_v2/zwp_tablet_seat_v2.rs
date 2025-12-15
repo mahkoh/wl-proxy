@@ -57,7 +57,7 @@ impl ZwpTabletSeatV2 {
     /// Destroy the zwp_tablet_seat_v2 object. Objects created from this
     /// object are unaffected and should be destroyed separately.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -89,6 +89,21 @@ impl ZwpTabletSeatV2 {
         Ok(())
     }
 
+    /// release the memory for the tablet seat object
+    ///
+    /// Destroy the zwp_tablet_seat_v2 object. Objects created from this
+    /// object are unaffected and should be destroyed separately.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_seat_v2.destroy", &e);
+        }
+    }
+
     /// Since when the tablet_added message is available.
     pub const MSG__TABLET_ADDED__SINCE: u32 = 1;
 
@@ -99,7 +114,7 @@ impl ZwpTabletSeatV2 {
     /// static information about the tablet (device name, vid/pid, etc.) is
     /// sent through the zwp_tablet_v2 interface.
     #[inline]
-    pub fn send_tablet_added(
+    pub fn try_send_tablet_added(
         &self,
         id: &Rc<ZwpTabletV2>,
     ) -> Result<(), ObjectError> {
@@ -144,6 +159,25 @@ impl ZwpTabletSeatV2 {
         Ok(())
     }
 
+    /// new device notification
+    ///
+    /// This event is sent whenever a new tablet becomes available on this
+    /// seat. This event only provides the object id of the tablet, any
+    /// static information about the tablet (device name, vid/pid, etc.) is
+    /// sent through the zwp_tablet_v2 interface.
+    #[inline]
+    pub fn send_tablet_added(
+        &self,
+        id: &Rc<ZwpTabletV2>,
+    ) {
+        let res = self.try_send_tablet_added(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_seat_v2.tablet_added", &e);
+        }
+    }
+
     /// Since when the tool_added message is available.
     pub const MSG__TOOL_ADDED__SINCE: u32 = 1;
 
@@ -154,7 +188,7 @@ impl ZwpTabletSeatV2 {
     /// of the tool; any static information about the tool (capabilities,
     /// type, etc.) is sent through the zwp_tablet_tool_v2 interface.
     #[inline]
-    pub fn send_tool_added(
+    pub fn try_send_tool_added(
         &self,
         id: &Rc<ZwpTabletToolV2>,
     ) -> Result<(), ObjectError> {
@@ -199,6 +233,25 @@ impl ZwpTabletSeatV2 {
         Ok(())
     }
 
+    /// a new tool has been used with a tablet
+    ///
+    /// This event is sent whenever a tool that has not previously been used
+    /// with a tablet comes into use. This event only provides the object id
+    /// of the tool; any static information about the tool (capabilities,
+    /// type, etc.) is sent through the zwp_tablet_tool_v2 interface.
+    #[inline]
+    pub fn send_tool_added(
+        &self,
+        id: &Rc<ZwpTabletToolV2>,
+    ) {
+        let res = self.try_send_tool_added(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_seat_v2.tool_added", &e);
+        }
+    }
+
     /// Since when the pad_added message is available.
     pub const MSG__PAD_ADDED__SINCE: u32 = 1;
 
@@ -215,7 +268,7 @@ impl ZwpTabletSeatV2 {
     /// features (buttons, strips, rings) are sent through the zwp_tablet_pad_v2
     /// interface.
     #[inline]
-    pub fn send_pad_added(
+    pub fn try_send_pad_added(
         &self,
         id: &Rc<ZwpTabletPadV2>,
     ) -> Result<(), ObjectError> {
@@ -259,13 +312,38 @@ impl ZwpTabletSeatV2 {
         ]);
         Ok(())
     }
+
+    /// new pad notification
+    ///
+    /// This event is sent whenever a new pad is known to the system. Typically,
+    /// pads are physically attached to tablets and a pad_added event is
+    /// sent immediately after the zwp_tablet_seat_v2.tablet_added.
+    /// However, some standalone pad devices logically attach to tablets at
+    /// runtime, and the client must wait for zwp_tablet_pad_v2.enter to know
+    /// the tablet a pad is attached to.
+    ///
+    /// This event only provides the object id of the pad. All further
+    /// features (buttons, strips, rings) are sent through the zwp_tablet_pad_v2
+    /// interface.
+    #[inline]
+    pub fn send_pad_added(
+        &self,
+        id: &Rc<ZwpTabletPadV2>,
+    ) {
+        let res = self.try_send_pad_added(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_seat_v2.pad_added", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpTabletSeatV2] proxies.
 pub trait ZwpTabletSeatV2Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpTabletSeatV2>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// release the memory for the tablet seat object
@@ -280,10 +358,10 @@ pub trait ZwpTabletSeatV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_seat_v2.destroy message: {}", Report::new(e));
+            log_forward("zwp_tablet_seat_v2.destroy", &e);
         }
     }
 
@@ -306,11 +384,11 @@ pub trait ZwpTabletSeatV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_tablet_added(
+        let res = _slf.try_send_tablet_added(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_seat_v2.tablet_added message: {}", Report::new(e));
+            log_forward("zwp_tablet_seat_v2.tablet_added", &e);
         }
     }
 
@@ -333,11 +411,11 @@ pub trait ZwpTabletSeatV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_tool_added(
+        let res = _slf.try_send_tool_added(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_seat_v2.tool_added message: {}", Report::new(e));
+            log_forward("zwp_tablet_seat_v2.tool_added", &e);
         }
     }
 
@@ -366,11 +444,11 @@ pub trait ZwpTabletSeatV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_pad_added(
+        let res = _slf.try_send_pad_added(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_seat_v2.pad_added message: {}", Report::new(e));
+            log_forward("zwp_tablet_seat_v2.pad_added", &e);
         }
     }
 }
@@ -390,7 +468,7 @@ impl ObjectPrivate for ZwpTabletSeatV2 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

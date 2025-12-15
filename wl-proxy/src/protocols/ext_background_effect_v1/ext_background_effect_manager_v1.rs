@@ -66,7 +66,7 @@ impl ExtBackgroundEffectManagerV1 {
     /// protocol object. Existing objects created by this object are not
     /// affected.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -98,6 +98,22 @@ impl ExtBackgroundEffectManagerV1 {
         Ok(())
     }
 
+    /// destroy the background effect manager
+    ///
+    /// Informs the server that the client will no longer be using this
+    /// protocol object. Existing objects created by this object are not
+    /// affected.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_background_effect_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the capabilities message is available.
     pub const MSG__CAPABILITIES__SINCE: u32 = 1;
 
@@ -107,7 +123,7 @@ impl ExtBackgroundEffectManagerV1 {
     ///
     /// - `flags`:
     #[inline]
-    pub fn send_capabilities(
+    pub fn try_send_capabilities(
         &self,
         flags: ExtBackgroundEffectManagerV1Capability,
     ) -> Result<(), ObjectError> {
@@ -147,6 +163,24 @@ impl ExtBackgroundEffectManagerV1 {
         Ok(())
     }
 
+    /// capabilities of the compositor
+    ///
+    /// # Arguments
+    ///
+    /// - `flags`:
+    #[inline]
+    pub fn send_capabilities(
+        &self,
+        flags: ExtBackgroundEffectManagerV1Capability,
+    ) {
+        let res = self.try_send_capabilities(
+            flags,
+        );
+        if let Err(e) = res {
+            log_send("ext_background_effect_manager_v1.capabilities", &e);
+        }
+    }
+
     /// Since when the get_background_effect message is available.
     pub const MSG__GET_BACKGROUND_EFFECT__SINCE: u32 = 1;
 
@@ -164,7 +198,7 @@ impl ExtBackgroundEffectManagerV1 {
     /// - `id`: the new ext_background_effect_surface_v1 object
     /// - `surface`: the surface
     #[inline]
-    pub fn send_get_background_effect(
+    pub fn try_send_get_background_effect(
         &self,
         id: &Rc<ExtBackgroundEffectSurfaceV1>,
         surface: &Rc<WlSurface>,
@@ -215,13 +249,41 @@ impl ExtBackgroundEffectManagerV1 {
         ]);
         Ok(())
     }
+
+    /// get a background effects object
+    ///
+    /// Instantiate an interface extension for the given wl_surface to add
+    /// effects like blur for the background behind it.
+    ///
+    /// If the given wl_surface already has a ext_background_effect_surface_v1
+    /// object associated, the background_effect_exists protocol error will be
+    /// raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new ext_background_effect_surface_v1 object
+    /// - `surface`: the surface
+    #[inline]
+    pub fn send_get_background_effect(
+        &self,
+        id: &Rc<ExtBackgroundEffectSurfaceV1>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_background_effect(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("ext_background_effect_manager_v1.get_background_effect", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtBackgroundEffectManagerV1] proxies.
 pub trait ExtBackgroundEffectManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtBackgroundEffectManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the background effect manager
@@ -237,10 +299,10 @@ pub trait ExtBackgroundEffectManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_background_effect_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_background_effect_manager_v1.destroy", &e);
         }
     }
 
@@ -258,11 +320,11 @@ pub trait ExtBackgroundEffectManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_capabilities(
+        let res = _slf.try_send_capabilities(
             flags,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_background_effect_manager_v1.capabilities message: {}", Report::new(e));
+            log_forward("ext_background_effect_manager_v1.capabilities", &e);
         }
     }
 
@@ -292,12 +354,12 @@ pub trait ExtBackgroundEffectManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_background_effect(
+        let res = _slf.try_send_get_background_effect(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_background_effect_manager_v1.get_background_effect message: {}", Report::new(e));
+            log_forward("ext_background_effect_manager_v1.get_background_effect", &e);
         }
     }
 }
@@ -317,7 +379,7 @@ impl ObjectPrivate for ExtBackgroundEffectManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -65,7 +65,7 @@ impl ZwpIdleInhibitManagerV1 {
     ///
     /// Destroy the inhibit manager.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -97,6 +97,20 @@ impl ZwpIdleInhibitManagerV1 {
         Ok(())
     }
 
+    /// destroy the idle inhibitor object
+    ///
+    /// Destroy the inhibit manager.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_idle_inhibit_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the create_inhibitor message is available.
     pub const MSG__CREATE_INHIBITOR__SINCE: u32 = 1;
 
@@ -109,7 +123,7 @@ impl ZwpIdleInhibitManagerV1 {
     /// - `id`:
     /// - `surface`: the surface that inhibits the idle behavior
     #[inline]
-    pub fn send_create_inhibitor(
+    pub fn try_send_create_inhibitor(
         &self,
         id: &Rc<ZwpIdleInhibitorV1>,
         surface: &Rc<WlSurface>,
@@ -160,13 +174,36 @@ impl ZwpIdleInhibitManagerV1 {
         ]);
         Ok(())
     }
+
+    /// create a new inhibitor object
+    ///
+    /// Create a new inhibitor object associated with the given surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`: the surface that inhibits the idle behavior
+    #[inline]
+    pub fn send_create_inhibitor(
+        &self,
+        id: &Rc<ZwpIdleInhibitorV1>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_create_inhibitor(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("zwp_idle_inhibit_manager_v1.create_inhibitor", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpIdleInhibitManagerV1] proxies.
 pub trait ZwpIdleInhibitManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpIdleInhibitManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the idle inhibitor object
@@ -180,10 +217,10 @@ pub trait ZwpIdleInhibitManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_idle_inhibit_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_idle_inhibit_manager_v1.destroy", &e);
         }
     }
 
@@ -208,12 +245,12 @@ pub trait ZwpIdleInhibitManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_inhibitor(
+        let res = _slf.try_send_create_inhibitor(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_idle_inhibit_manager_v1.create_inhibitor message: {}", Report::new(e));
+            log_forward("zwp_idle_inhibit_manager_v1.create_inhibitor", &e);
         }
     }
 }
@@ -233,7 +270,7 @@ impl ObjectPrivate for ZwpIdleInhibitManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

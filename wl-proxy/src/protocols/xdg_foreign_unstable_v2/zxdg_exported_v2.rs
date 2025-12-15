@@ -59,7 +59,7 @@ impl ZxdgExportedV2 {
     /// relationship the importer may have set up using the xdg_imported created
     /// given the handle sent via xdg_exported.handle.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -91,6 +91,22 @@ impl ZxdgExportedV2 {
         Ok(())
     }
 
+    /// unexport the exported surface
+    ///
+    /// Revoke the previously exported surface. This invalidates any
+    /// relationship the importer may have set up using the xdg_imported created
+    /// given the handle sent via xdg_exported.handle.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zxdg_exported_v2.destroy", &e);
+        }
+    }
+
     /// Since when the handle message is available.
     pub const MSG__HANDLE__SINCE: u32 = 1;
 
@@ -105,7 +121,7 @@ impl ZxdgExportedV2 {
     ///
     /// - `handle`: the exported surface handle
     #[inline]
-    pub fn send_handle(
+    pub fn try_send_handle(
         &self,
         handle: &str,
     ) -> Result<(), ObjectError> {
@@ -144,13 +160,36 @@ impl ZxdgExportedV2 {
         fmt.string(arg0);
         Ok(())
     }
+
+    /// the exported surface handle
+    ///
+    /// The handle event contains the unique handle of this exported surface
+    /// reference. It may be shared with any client, which then can use it to
+    /// import the surface by calling xdg_importer.import_toplevel. A handle
+    /// may be used to import the surface multiple times.
+    ///
+    /// # Arguments
+    ///
+    /// - `handle`: the exported surface handle
+    #[inline]
+    pub fn send_handle(
+        &self,
+        handle: &str,
+    ) {
+        let res = self.try_send_handle(
+            handle,
+        );
+        if let Err(e) = res {
+            log_send("zxdg_exported_v2.handle", &e);
+        }
+    }
 }
 
 /// A message handler for [ZxdgExportedV2] proxies.
 pub trait ZxdgExportedV2Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZxdgExportedV2>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// unexport the exported surface
@@ -166,10 +205,10 @@ pub trait ZxdgExportedV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zxdg_exported_v2.destroy message: {}", Report::new(e));
+            log_forward("zxdg_exported_v2.destroy", &e);
         }
     }
 
@@ -192,11 +231,11 @@ pub trait ZxdgExportedV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_handle(
+        let res = _slf.try_send_handle(
             handle,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zxdg_exported_v2.handle message: {}", Report::new(e));
+            log_forward("zxdg_exported_v2.handle", &e);
         }
     }
 }
@@ -216,7 +255,7 @@ impl ObjectPrivate for ZxdgExportedV2 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

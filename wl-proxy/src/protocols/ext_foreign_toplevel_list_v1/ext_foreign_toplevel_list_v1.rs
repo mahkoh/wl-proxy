@@ -76,7 +76,7 @@ impl ExtForeignToplevelListV1 {
     /// ext_foreign_toplevel_handle_v1.done event to indicate when all data has
     /// been sent.
     #[inline]
-    pub fn send_toplevel(
+    pub fn try_send_toplevel(
         &self,
         toplevel: &Rc<ExtForeignToplevelHandleV1>,
     ) -> Result<(), ObjectError> {
@@ -121,6 +121,29 @@ impl ExtForeignToplevelListV1 {
         Ok(())
     }
 
+    /// a toplevel has been created
+    ///
+    /// This event is emitted whenever a new toplevel window is created. It is
+    /// emitted for all toplevels, regardless of the app that has created them.
+    ///
+    /// All initial properties of the toplevel (identifier, title, app_id) will be sent
+    /// immediately after this event using the corresponding events for
+    /// ext_foreign_toplevel_handle_v1. The compositor will use the
+    /// ext_foreign_toplevel_handle_v1.done event to indicate when all data has
+    /// been sent.
+    #[inline]
+    pub fn send_toplevel(
+        &self,
+        toplevel: &Rc<ExtForeignToplevelHandleV1>,
+    ) {
+        let res = self.try_send_toplevel(
+            toplevel,
+        );
+        if let Err(e) = res {
+            log_send("ext_foreign_toplevel_list_v1.toplevel", &e);
+        }
+    }
+
     /// Since when the finished message is available.
     pub const MSG__FINISHED__SINCE: u32 = 1;
 
@@ -132,7 +155,7 @@ impl ExtForeignToplevelListV1 {
     ///
     /// The compositor must not send any more toplevel events after this event.
     #[inline]
-    pub fn send_finished(
+    pub fn try_send_finished(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -165,6 +188,24 @@ impl ExtForeignToplevelListV1 {
         Ok(())
     }
 
+    /// the compositor has finished with the toplevel manager
+    ///
+    /// This event indicates that the compositor is done sending events
+    /// to this object. The client should destroy the object.
+    /// See ext_foreign_toplevel_list_v1.destroy for more information.
+    ///
+    /// The compositor must not send any more toplevel events after this event.
+    #[inline]
+    pub fn send_finished(
+        &self,
+    ) {
+        let res = self.try_send_finished(
+        );
+        if let Err(e) = res {
+            log_send("ext_foreign_toplevel_list_v1.finished", &e);
+        }
+    }
+
     /// Since when the stop message is available.
     pub const MSG__STOP__SINCE: u32 = 1;
 
@@ -178,7 +219,7 @@ impl ExtForeignToplevelListV1 {
     /// The client should wait for a ext_foreign_toplevel_list_v1.finished
     /// event before destroying this object.
     #[inline]
-    pub fn send_stop(
+    pub fn try_send_stop(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -209,6 +250,26 @@ impl ExtForeignToplevelListV1 {
         Ok(())
     }
 
+    /// stop sending events
+    ///
+    /// This request indicates that the client no longer wishes to receive
+    /// events for new toplevels.
+    ///
+    /// The Wayland protocol is asynchronous, meaning the compositor may send
+    /// further toplevel events until the stop request is processed.
+    /// The client should wait for a ext_foreign_toplevel_list_v1.finished
+    /// event before destroying this object.
+    #[inline]
+    pub fn send_stop(
+        &self,
+    ) {
+        let res = self.try_send_stop(
+        );
+        if let Err(e) = res {
+            log_send("ext_foreign_toplevel_list_v1.stop", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -222,7 +283,7 @@ impl ExtForeignToplevelListV1 {
     /// ext_foreign_toplevel_list_v1.stop request and wait for a ext_foreign_toplevel_list_v1.finished
     /// event, then destroy the handles and then this object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -253,13 +314,33 @@ impl ExtForeignToplevelListV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the ext_foreign_toplevel_list_v1 object
+    ///
+    /// This request should be called either when the client will no longer
+    /// use the ext_foreign_toplevel_list_v1 or after the finished event
+    /// has been received to allow destruction of the object.
+    ///
+    /// If a client wishes to destroy this object it should send a
+    /// ext_foreign_toplevel_list_v1.stop request and wait for a ext_foreign_toplevel_list_v1.finished
+    /// event, then destroy the handles and then this object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_foreign_toplevel_list_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtForeignToplevelListV1] proxies.
 pub trait ExtForeignToplevelListV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtForeignToplevelListV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// a toplevel has been created
@@ -285,11 +366,11 @@ pub trait ExtForeignToplevelListV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_toplevel(
+        let res = _slf.try_send_toplevel(
             toplevel,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_foreign_toplevel_list_v1.toplevel message: {}", Report::new(e));
+            log_forward("ext_foreign_toplevel_list_v1.toplevel", &e);
         }
     }
 
@@ -308,10 +389,10 @@ pub trait ExtForeignToplevelListV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_finished(
+        let res = _slf.try_send_finished(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_foreign_toplevel_list_v1.finished message: {}", Report::new(e));
+            log_forward("ext_foreign_toplevel_list_v1.finished", &e);
         }
     }
 
@@ -332,10 +413,10 @@ pub trait ExtForeignToplevelListV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_stop(
+        let res = _slf.try_send_stop(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_foreign_toplevel_list_v1.stop message: {}", Report::new(e));
+            log_forward("ext_foreign_toplevel_list_v1.stop", &e);
         }
     }
 
@@ -356,10 +437,10 @@ pub trait ExtForeignToplevelListV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_foreign_toplevel_list_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_foreign_toplevel_list_v1.destroy", &e);
         }
     }
 }
@@ -379,7 +460,7 @@ impl ObjectPrivate for ExtForeignToplevelListV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

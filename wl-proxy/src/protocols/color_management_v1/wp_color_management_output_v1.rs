@@ -61,7 +61,7 @@ impl WpColorManagementOutputV1 {
     /// Destroy the color wp_color_management_output_v1 object. This does not
     /// affect any remaining protocol objects.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -93,6 +93,21 @@ impl WpColorManagementOutputV1 {
         Ok(())
     }
 
+    /// destroy the color management output
+    ///
+    /// Destroy the color wp_color_management_output_v1 object. This does not
+    /// affect any remaining protocol objects.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_color_management_output_v1.destroy", &e);
+        }
+    }
+
     /// Since when the image_description_changed message is available.
     pub const MSG__IMAGE_DESCRIPTION_CHANGED__SINCE: u32 = 1;
 
@@ -106,7 +121,7 @@ impl WpColorManagementOutputV1 {
     /// get_image_description again, because image description objects are
     /// immutable.
     #[inline]
-    pub fn send_image_description_changed(
+    pub fn try_send_image_description_changed(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -137,6 +152,26 @@ impl WpColorManagementOutputV1 {
             0,
         ]);
         Ok(())
+    }
+
+    /// image description changed
+    ///
+    /// This event is sent whenever the image description of the output changed,
+    /// followed by one wl_output.done event common to output events across all
+    /// extensions.
+    ///
+    /// If the client wants to use the updated image description, it needs to do
+    /// get_image_description again, because image description objects are
+    /// immutable.
+    #[inline]
+    pub fn send_image_description_changed(
+        &self,
+    ) {
+        let res = self.try_send_image_description_changed(
+        );
+        if let Err(e) = res {
+            log_send("wp_color_management_output_v1.image_description_changed", &e);
+        }
     }
 
     /// Since when the get_image_description message is available.
@@ -176,7 +211,7 @@ impl WpColorManagementOutputV1 {
     ///
     /// Otherwise the object shall immediately deliver the ready event.
     #[inline]
-    pub fn send_get_image_description(
+    pub fn try_send_get_image_description(
         &self,
         image_description: &Rc<WpImageDescriptionV1>,
     ) -> Result<(), ObjectError> {
@@ -218,13 +253,59 @@ impl WpColorManagementOutputV1 {
         ]);
         Ok(())
     }
+
+    /// get the image description of the output
+    ///
+    /// This creates a new wp_image_description_v1 object for the current image
+    /// description of the output. There always is exactly one image description
+    /// active for an output so the client should destroy the image description
+    /// created by earlier invocations of this request. This request is usually
+    /// sent as a reaction to the image_description_changed event or when
+    /// creating a wp_color_management_output_v1 object.
+    ///
+    /// The image description of an output represents the color encoding the
+    /// output expects. There might be performance and power advantages, as well
+    /// as improved color reproduction, if a content update matches the image
+    /// description of the output it is being shown on. If a content update is
+    /// shown on any other output than the one it matches the image description
+    /// of, then the color reproduction on those outputs might be considerably
+    /// worse.
+    ///
+    /// The created wp_image_description_v1 object preserves the image
+    /// description of the output from the time the object was created.
+    ///
+    /// The resulting image description object allows get_information request.
+    ///
+    /// If this protocol object is inert, the resulting image description object
+    /// shall immediately deliver the wp_image_description_v1.failed event with
+    /// the no_output cause.
+    ///
+    /// If the interface version is inadequate for the output's image
+    /// description, meaning that the client does not support all the events
+    /// needed to deliver the crucial information, the resulting image
+    /// description object shall immediately deliver the
+    /// wp_image_description_v1.failed event with the low_version cause.
+    ///
+    /// Otherwise the object shall immediately deliver the ready event.
+    #[inline]
+    pub fn send_get_image_description(
+        &self,
+        image_description: &Rc<WpImageDescriptionV1>,
+    ) {
+        let res = self.try_send_get_image_description(
+            image_description,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_management_output_v1.get_image_description", &e);
+        }
+    }
 }
 
 /// A message handler for [WpColorManagementOutputV1] proxies.
 pub trait WpColorManagementOutputV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpColorManagementOutputV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the color management output
@@ -239,10 +320,10 @@ pub trait WpColorManagementOutputV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_management_output_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_color_management_output_v1.destroy", &e);
         }
     }
 
@@ -263,10 +344,10 @@ pub trait WpColorManagementOutputV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_image_description_changed(
+        let res = _slf.try_send_image_description_changed(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_management_output_v1.image_description_changed message: {}", Report::new(e));
+            log_forward("wp_color_management_output_v1.image_description_changed", &e);
         }
     }
 
@@ -316,11 +397,11 @@ pub trait WpColorManagementOutputV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_image_description(
+        let res = _slf.try_send_get_image_description(
             image_description,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_management_output_v1.get_image_description message: {}", Report::new(e));
+            log_forward("wp_color_management_output_v1.get_image_description", &e);
         }
     }
 }
@@ -340,7 +421,7 @@ impl ObjectPrivate for WpColorManagementOutputV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -61,7 +61,7 @@ impl ExtForeignToplevelImageCaptureSourceManagerV1 {
     /// - `source`:
     /// - `toplevel_handle`:
     #[inline]
-    pub fn send_create_source(
+    pub fn try_send_create_source(
         &self,
         source: &Rc<ExtImageCaptureSourceV1>,
         toplevel_handle: &Rc<ExtForeignToplevelHandleV1>,
@@ -113,6 +113,30 @@ impl ExtForeignToplevelImageCaptureSourceManagerV1 {
         Ok(())
     }
 
+    /// create source object for foreign toplevel
+    ///
+    /// Creates a source object for a foreign toplevel handle. Images captured
+    /// from this source will show the same content as the toplevel.
+    ///
+    /// # Arguments
+    ///
+    /// - `source`:
+    /// - `toplevel_handle`:
+    #[inline]
+    pub fn send_create_source(
+        &self,
+        source: &Rc<ExtImageCaptureSourceV1>,
+        toplevel_handle: &Rc<ExtForeignToplevelHandleV1>,
+    ) {
+        let res = self.try_send_create_source(
+            source,
+            toplevel_handle,
+        );
+        if let Err(e) = res {
+            log_send("ext_foreign_toplevel_image_capture_source_manager_v1.create_source", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -122,7 +146,7 @@ impl ExtForeignToplevelImageCaptureSourceManagerV1 {
     /// and objects created by the manager will remain valid after its
     /// destruction.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -153,13 +177,29 @@ impl ExtForeignToplevelImageCaptureSourceManagerV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// delete this object
+    ///
+    /// Destroys the manager. This request may be sent at any time by the client
+    /// and objects created by the manager will remain valid after its
+    /// destruction.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_foreign_toplevel_image_capture_source_manager_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtForeignToplevelImageCaptureSourceManagerV1] proxies.
 pub trait ExtForeignToplevelImageCaptureSourceManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtForeignToplevelImageCaptureSourceManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// create source object for foreign toplevel
@@ -184,12 +224,12 @@ pub trait ExtForeignToplevelImageCaptureSourceManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_source(
+        let res = _slf.try_send_create_source(
             source,
             toplevel_handle,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_foreign_toplevel_image_capture_source_manager_v1.create_source message: {}", Report::new(e));
+            log_forward("ext_foreign_toplevel_image_capture_source_manager_v1.create_source", &e);
         }
     }
 
@@ -206,10 +246,10 @@ pub trait ExtForeignToplevelImageCaptureSourceManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_foreign_toplevel_image_capture_source_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_foreign_toplevel_image_capture_source_manager_v1.destroy", &e);
         }
     }
 }
@@ -229,7 +269,7 @@ impl ObjectPrivate for ExtForeignToplevelImageCaptureSourceManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

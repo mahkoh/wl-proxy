@@ -58,7 +58,7 @@ impl ZwpInputTimestampsV1 {
     /// protocol object. After the server processes the request, no more
     /// timestamp events will be emitted.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -90,6 +90,22 @@ impl ZwpInputTimestampsV1 {
         Ok(())
     }
 
+    /// destroy the input timestamps object
+    ///
+    /// Informs the server that the client will no longer be using this
+    /// protocol object. After the server processes the request, no more
+    /// timestamp events will be emitted.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_timestamps_v1.destroy", &e);
+        }
+    }
+
     /// Since when the timestamp message is available.
     pub const MSG__TIMESTAMP__SINCE: u32 = 1;
 
@@ -116,7 +132,7 @@ impl ZwpInputTimestampsV1 {
     /// - `tv_sec_lo`: low 32 bits of the seconds part of the timestamp
     /// - `tv_nsec`: nanoseconds part of the timestamp
     #[inline]
-    pub fn send_timestamp(
+    pub fn try_send_timestamp(
         &self,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
@@ -163,13 +179,52 @@ impl ZwpInputTimestampsV1 {
         ]);
         Ok(())
     }
+
+    /// high-resolution timestamp event
+    ///
+    /// The timestamp event is associated with the first subsequent input event
+    /// carrying a timestamp which belongs to the set of input events this
+    /// object is subscribed to.
+    ///
+    /// The timestamp provided by this event is a high-resolution version of
+    /// the timestamp argument of the associated input event. The provided
+    /// timestamp is in the same clock domain and is at least as accurate as
+    /// the associated input event timestamp.
+    ///
+    /// The timestamp is expressed as tv_sec_hi, tv_sec_lo, tv_nsec triples,
+    /// each component being an unsigned 32-bit value. Whole seconds are in
+    /// tv_sec which is a 64-bit value combined from tv_sec_hi and tv_sec_lo,
+    /// and the additional fractional part in tv_nsec as nanoseconds. Hence,
+    /// for valid timestamps tv_nsec must be in [0, 999999999].
+    ///
+    /// # Arguments
+    ///
+    /// - `tv_sec_hi`: high 32 bits of the seconds part of the timestamp
+    /// - `tv_sec_lo`: low 32 bits of the seconds part of the timestamp
+    /// - `tv_nsec`: nanoseconds part of the timestamp
+    #[inline]
+    pub fn send_timestamp(
+        &self,
+        tv_sec_hi: u32,
+        tv_sec_lo: u32,
+        tv_nsec: u32,
+    ) {
+        let res = self.try_send_timestamp(
+            tv_sec_hi,
+            tv_sec_lo,
+            tv_nsec,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_timestamps_v1.timestamp", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpInputTimestampsV1] proxies.
 pub trait ZwpInputTimestampsV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpInputTimestampsV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the input timestamps object
@@ -185,10 +240,10 @@ pub trait ZwpInputTimestampsV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_timestamps_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_input_timestamps_v1.destroy", &e);
         }
     }
 
@@ -225,13 +280,13 @@ pub trait ZwpInputTimestampsV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_timestamp(
+        let res = _slf.try_send_timestamp(
             tv_sec_hi,
             tv_sec_lo,
             tv_nsec,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_timestamps_v1.timestamp message: {}", Report::new(e));
+            log_forward("zwp_input_timestamps_v1.timestamp", &e);
         }
     }
 }
@@ -251,7 +306,7 @@ impl ObjectPrivate for ZwpInputTimestampsV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

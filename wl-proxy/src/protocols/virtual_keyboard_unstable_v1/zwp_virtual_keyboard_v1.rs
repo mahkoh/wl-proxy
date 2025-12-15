@@ -67,7 +67,7 @@ impl ZwpVirtualKeyboardV1 {
     /// - `fd`: keymap file descriptor
     /// - `size`: keymap size, in bytes
     #[inline]
-    pub fn send_keymap(
+    pub fn try_send_keymap(
         &self,
         format: u32,
         fd: &Rc<OwnedFd>,
@@ -113,6 +113,35 @@ impl ZwpVirtualKeyboardV1 {
         Ok(())
     }
 
+    /// keyboard mapping
+    ///
+    /// Provide a file descriptor to the compositor which can be
+    /// memory-mapped to provide a keyboard mapping description.
+    ///
+    /// Format carries a value from the keymap_format enumeration.
+    ///
+    /// # Arguments
+    ///
+    /// - `format`: keymap format
+    /// - `fd`: keymap file descriptor
+    /// - `size`: keymap size, in bytes
+    #[inline]
+    pub fn send_keymap(
+        &self,
+        format: u32,
+        fd: &Rc<OwnedFd>,
+        size: u32,
+    ) {
+        let res = self.try_send_keymap(
+            format,
+            fd,
+            size,
+        );
+        if let Err(e) = res {
+            log_send("zwp_virtual_keyboard_v1.keymap", &e);
+        }
+    }
+
     /// Since when the key message is available.
     pub const MSG__KEY__SINCE: u32 = 1;
 
@@ -133,7 +162,7 @@ impl ZwpVirtualKeyboardV1 {
     /// - `key`: key that produced the event
     /// - `state`: physical state of the key
     #[inline]
-    pub fn send_key(
+    pub fn try_send_key(
         &self,
         time: u32,
         key: u32,
@@ -179,6 +208,39 @@ impl ZwpVirtualKeyboardV1 {
         Ok(())
     }
 
+    /// key event
+    ///
+    /// A key was pressed or released.
+    /// The time argument is a timestamp with millisecond granularity, with an
+    /// undefined base. All requests regarding a single object must share the
+    /// same clock.
+    ///
+    /// Keymap must be set before issuing this request.
+    ///
+    /// State carries a value from the key_state enumeration.
+    ///
+    /// # Arguments
+    ///
+    /// - `time`: timestamp with millisecond granularity
+    /// - `key`: key that produced the event
+    /// - `state`: physical state of the key
+    #[inline]
+    pub fn send_key(
+        &self,
+        time: u32,
+        key: u32,
+        state: u32,
+    ) {
+        let res = self.try_send_key(
+            time,
+            key,
+            state,
+        );
+        if let Err(e) = res {
+            log_send("zwp_virtual_keyboard_v1.key", &e);
+        }
+    }
+
     /// Since when the modifiers message is available.
     pub const MSG__MODIFIERS__SINCE: u32 = 1;
 
@@ -199,7 +261,7 @@ impl ZwpVirtualKeyboardV1 {
     /// - `mods_locked`: locked modifiers
     /// - `group`: keyboard layout
     #[inline]
-    pub fn send_modifiers(
+    pub fn try_send_modifiers(
         &self,
         mods_depressed: u32,
         mods_latched: u32,
@@ -249,12 +311,47 @@ impl ZwpVirtualKeyboardV1 {
         Ok(())
     }
 
+    /// modifier and group state
+    ///
+    /// Notifies the compositor that the modifier and/or group state has
+    /// changed, and it should update state.
+    ///
+    /// The client should use wl_keyboard.modifiers event to synchronize its
+    /// internal state with seat state.
+    ///
+    /// Keymap must be set before issuing this request.
+    ///
+    /// # Arguments
+    ///
+    /// - `mods_depressed`: depressed modifiers
+    /// - `mods_latched`: latched modifiers
+    /// - `mods_locked`: locked modifiers
+    /// - `group`: keyboard layout
+    #[inline]
+    pub fn send_modifiers(
+        &self,
+        mods_depressed: u32,
+        mods_latched: u32,
+        mods_locked: u32,
+        group: u32,
+    ) {
+        let res = self.try_send_modifiers(
+            mods_depressed,
+            mods_latched,
+            mods_locked,
+            group,
+        );
+        if let Err(e) = res {
+            log_send("zwp_virtual_keyboard_v1.modifiers", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the virtual keyboard keyboard object
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -285,13 +382,25 @@ impl ZwpVirtualKeyboardV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the virtual keyboard keyboard object
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_virtual_keyboard_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpVirtualKeyboardV1] proxies.
 pub trait ZwpVirtualKeyboardV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpVirtualKeyboardV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// keyboard mapping
@@ -317,13 +426,13 @@ pub trait ZwpVirtualKeyboardV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_keymap(
+        let res = _slf.try_send_keymap(
             format,
             fd,
             size,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_virtual_keyboard_v1.keymap message: {}", Report::new(e));
+            log_forward("zwp_virtual_keyboard_v1.keymap", &e);
         }
     }
 
@@ -354,13 +463,13 @@ pub trait ZwpVirtualKeyboardV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_key(
+        let res = _slf.try_send_key(
             time,
             key,
             state,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_virtual_keyboard_v1.key message: {}", Report::new(e));
+            log_forward("zwp_virtual_keyboard_v1.key", &e);
         }
     }
 
@@ -392,14 +501,14 @@ pub trait ZwpVirtualKeyboardV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_modifiers(
+        let res = _slf.try_send_modifiers(
             mods_depressed,
             mods_latched,
             mods_locked,
             group,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_virtual_keyboard_v1.modifiers message: {}", Report::new(e));
+            log_forward("zwp_virtual_keyboard_v1.modifiers", &e);
         }
     }
 
@@ -412,10 +521,10 @@ pub trait ZwpVirtualKeyboardV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_virtual_keyboard_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_virtual_keyboard_v1.destroy", &e);
         }
     }
 }
@@ -435,7 +544,7 @@ impl ObjectPrivate for ZwpVirtualKeyboardV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

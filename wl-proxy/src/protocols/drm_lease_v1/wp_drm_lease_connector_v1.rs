@@ -71,7 +71,7 @@ impl WpDrmLeaseConnectorV1 {
     ///
     /// - `name`: connector name
     #[inline]
-    pub fn send_name(
+    pub fn try_send_name(
         &self,
         name: &str,
     ) -> Result<(), ObjectError> {
@@ -111,6 +111,33 @@ impl WpDrmLeaseConnectorV1 {
         Ok(())
     }
 
+    /// name
+    ///
+    /// The compositor sends this event once the connector is created to
+    /// indicate the name of this connector. This will not change for the
+    /// duration of the Wayland session, but is not guaranteed to be consistent
+    /// between sessions.
+    ///
+    /// If the compositor supports wl_output version 4 and this connector
+    /// corresponds to a wl_output, the compositor should use the same name as
+    /// for the wl_output.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: connector name
+    #[inline]
+    pub fn send_name(
+        &self,
+        name: &str,
+    ) {
+        let res = self.try_send_name(
+            name,
+        );
+        if let Err(e) = res {
+            log_send("wp_drm_lease_connector_v1.name", &e);
+        }
+    }
+
     /// Since when the description message is available.
     pub const MSG__DESCRIPTION__SINCE: u32 = 1;
 
@@ -125,7 +152,7 @@ impl WpDrmLeaseConnectorV1 {
     ///
     /// - `description`: connector description
     #[inline]
-    pub fn send_description(
+    pub fn try_send_description(
         &self,
         description: &str,
     ) -> Result<(), ObjectError> {
@@ -165,6 +192,29 @@ impl WpDrmLeaseConnectorV1 {
         Ok(())
     }
 
+    /// description
+    ///
+    /// The compositor sends this event once the connector is created to provide
+    /// a human-readable description for this connector, which may be presented
+    /// to the user. The compositor may send this event multiple times over the
+    /// lifetime of this object to reflect changes in the description.
+    ///
+    /// # Arguments
+    ///
+    /// - `description`: connector description
+    #[inline]
+    pub fn send_description(
+        &self,
+        description: &str,
+    ) {
+        let res = self.try_send_description(
+            description,
+        );
+        if let Err(e) = res {
+            log_send("wp_drm_lease_connector_v1.description", &e);
+        }
+    }
+
     /// Since when the connector_id message is available.
     pub const MSG__CONNECTOR_ID__SINCE: u32 = 1;
 
@@ -179,7 +229,7 @@ impl WpDrmLeaseConnectorV1 {
     ///
     /// - `connector_id`: DRM connector ID
     #[inline]
-    pub fn send_connector_id(
+    pub fn try_send_connector_id(
         &self,
         connector_id: u32,
     ) -> Result<(), ObjectError> {
@@ -219,6 +269,29 @@ impl WpDrmLeaseConnectorV1 {
         Ok(())
     }
 
+    /// connector_id
+    ///
+    /// The compositor sends this event once the connector is created to
+    /// indicate the DRM object ID which represents the underlying connector
+    /// that is being offered. Note that the final lease may include additional
+    /// object IDs, such as CRTCs and planes.
+    ///
+    /// # Arguments
+    ///
+    /// - `connector_id`: DRM connector ID
+    #[inline]
+    pub fn send_connector_id(
+        &self,
+        connector_id: u32,
+    ) {
+        let res = self.try_send_connector_id(
+            connector_id,
+        );
+        if let Err(e) = res {
+            log_send("wp_drm_lease_connector_v1.connector_id", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -228,7 +301,7 @@ impl WpDrmLeaseConnectorV1 {
     /// This allows changes to the properties to be seen as atomic even if they
     /// happen via multiple events.
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -261,6 +334,22 @@ impl WpDrmLeaseConnectorV1 {
         Ok(())
     }
 
+    /// all properties have been sent
+    ///
+    /// This event is sent after all properties of a connector have been sent.
+    /// This allows changes to the properties to be seen as atomic even if they
+    /// happen via multiple events.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) {
+        let res = self.try_send_done(
+        );
+        if let Err(e) = res {
+            log_send("wp_drm_lease_connector_v1.done", &e);
+        }
+    }
+
     /// Since when the withdrawn message is available.
     pub const MSG__WITHDRAWN__SINCE: u32 = 1;
 
@@ -278,7 +367,7 @@ impl WpDrmLeaseConnectorV1 {
     /// remains the same. The client should destroy the object after receiving
     /// this event.
     #[inline]
-    pub fn send_withdrawn(
+    pub fn try_send_withdrawn(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -311,6 +400,30 @@ impl WpDrmLeaseConnectorV1 {
         Ok(())
     }
 
+    /// lease offer withdrawn
+    ///
+    /// Sent to indicate that the compositor will no longer honor requests for
+    /// DRM leases which include this connector. The client may still issue a
+    /// lease request including this connector, but the compositor will send
+    /// wp_drm_lease_v1.finished without issuing a lease fd. Compositors are
+    /// encouraged to send this event when they lose access to connector, for
+    /// example when the connector is hot-unplugged, when the connector gets
+    /// leased to a client or when the compositor loses DRM master.
+    ///
+    /// If a client holds a lease for the connector, the status of the lease
+    /// remains the same. The client should destroy the object after receiving
+    /// this event.
+    #[inline]
+    pub fn send_withdrawn(
+        &self,
+    ) {
+        let res = self.try_send_withdrawn(
+        );
+        if let Err(e) = res {
+            log_send("wp_drm_lease_connector_v1.withdrawn", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -322,7 +435,7 @@ impl WpDrmLeaseConnectorV1 {
     /// associated with this connector offer. Neither existing lease requests
     /// nor leases will be affected.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -353,13 +466,31 @@ impl WpDrmLeaseConnectorV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy connector
+    ///
+    /// The client may send this request to indicate that it will not use this
+    /// connector. Clients are encouraged to send this after receiving the
+    /// "withdrawn" event so that the server can release the resources
+    /// associated with this connector offer. Neither existing lease requests
+    /// nor leases will be affected.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_drm_lease_connector_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [WpDrmLeaseConnectorV1] proxies.
 pub trait WpDrmLeaseConnectorV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpDrmLeaseConnectorV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// name
@@ -385,11 +516,11 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_name(
+        let res = _slf.try_send_name(
             name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_drm_lease_connector_v1.name message: {}", Report::new(e));
+            log_forward("wp_drm_lease_connector_v1.name", &e);
         }
     }
 
@@ -412,11 +543,11 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_description(
+        let res = _slf.try_send_description(
             description,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_drm_lease_connector_v1.description message: {}", Report::new(e));
+            log_forward("wp_drm_lease_connector_v1.description", &e);
         }
     }
 
@@ -439,11 +570,11 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_connector_id(
+        let res = _slf.try_send_connector_id(
             connector_id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_drm_lease_connector_v1.connector_id message: {}", Report::new(e));
+            log_forward("wp_drm_lease_connector_v1.connector_id", &e);
         }
     }
 
@@ -460,10 +591,10 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_drm_lease_connector_v1.done message: {}", Report::new(e));
+            log_forward("wp_drm_lease_connector_v1.done", &e);
         }
     }
 
@@ -488,10 +619,10 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_withdrawn(
+        let res = _slf.try_send_withdrawn(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_drm_lease_connector_v1.withdrawn message: {}", Report::new(e));
+            log_forward("wp_drm_lease_connector_v1.withdrawn", &e);
         }
     }
 
@@ -510,10 +641,10 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_drm_lease_connector_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_drm_lease_connector_v1.destroy", &e);
         }
     }
 }
@@ -533,7 +664,7 @@ impl ObjectPrivate for WpDrmLeaseConnectorV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -55,7 +55,7 @@ impl ZwpFullscreenShellModeFeedbackV1 {
     /// Upon receiving this event, the client should destroy the
     /// wl_fullscreen_shell_mode_feedback object.
     #[inline]
-    pub fn send_mode_successful(
+    pub fn try_send_mode_successful(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -92,6 +92,25 @@ impl ZwpFullscreenShellModeFeedbackV1 {
         Ok(())
     }
 
+    /// mode switch succeeded
+    ///
+    /// This event indicates that the attempted mode switch operation was
+    /// successful.  A surface of the size requested in the mode switch
+    /// will fill the output without scaling.
+    ///
+    /// Upon receiving this event, the client should destroy the
+    /// wl_fullscreen_shell_mode_feedback object.
+    #[inline]
+    pub fn send_mode_successful(
+        &self,
+    ) {
+        let res = self.try_send_mode_successful(
+        );
+        if let Err(e) = res {
+            log_send("zwp_fullscreen_shell_mode_feedback_v1.mode_successful", &e);
+        }
+    }
+
     /// Since when the mode_failed message is available.
     pub const MSG__MODE_FAILED__SINCE: u32 = 1;
 
@@ -104,7 +123,7 @@ impl ZwpFullscreenShellModeFeedbackV1 {
     /// Upon receiving this event, the client should destroy the
     /// wl_fullscreen_shell_mode_feedback object.
     #[inline]
-    pub fn send_mode_failed(
+    pub fn try_send_mode_failed(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -141,6 +160,25 @@ impl ZwpFullscreenShellModeFeedbackV1 {
         Ok(())
     }
 
+    /// mode switch failed
+    ///
+    /// This event indicates that the attempted mode switch operation
+    /// failed.  This may be because the requested output mode is not
+    /// possible or it may mean that the compositor does not want to allow it.
+    ///
+    /// Upon receiving this event, the client should destroy the
+    /// wl_fullscreen_shell_mode_feedback object.
+    #[inline]
+    pub fn send_mode_failed(
+        &self,
+    ) {
+        let res = self.try_send_mode_failed(
+        );
+        if let Err(e) = res {
+            log_send("zwp_fullscreen_shell_mode_feedback_v1.mode_failed", &e);
+        }
+    }
+
     /// Since when the present_cancelled message is available.
     pub const MSG__PRESENT_CANCELLED__SINCE: u32 = 1;
 
@@ -153,7 +191,7 @@ impl ZwpFullscreenShellModeFeedbackV1 {
     /// Upon receiving this event, the client should destroy the
     /// wl_fullscreen_shell_mode_feedback object.
     #[inline]
-    pub fn send_present_cancelled(
+    pub fn try_send_present_cancelled(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -189,13 +227,32 @@ impl ZwpFullscreenShellModeFeedbackV1 {
         self.core.handle_client_destroy();
         Ok(())
     }
+
+    /// mode switch cancelled
+    ///
+    /// This event indicates that the attempted mode switch operation was
+    /// cancelled.  Most likely this is because the client requested a
+    /// second mode switch before the first one completed.
+    ///
+    /// Upon receiving this event, the client should destroy the
+    /// wl_fullscreen_shell_mode_feedback object.
+    #[inline]
+    pub fn send_present_cancelled(
+        &self,
+    ) {
+        let res = self.try_send_present_cancelled(
+        );
+        if let Err(e) = res {
+            log_send("zwp_fullscreen_shell_mode_feedback_v1.present_cancelled", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpFullscreenShellModeFeedbackV1] proxies.
 pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpFullscreenShellModeFeedbackV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// mode switch succeeded
@@ -214,10 +271,10 @@ pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_mode_successful(
+        let res = _slf.try_send_mode_successful(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_fullscreen_shell_mode_feedback_v1.mode_successful message: {}", Report::new(e));
+            log_forward("zwp_fullscreen_shell_mode_feedback_v1.mode_successful", &e);
         }
     }
 
@@ -237,10 +294,10 @@ pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_mode_failed(
+        let res = _slf.try_send_mode_failed(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_fullscreen_shell_mode_feedback_v1.mode_failed message: {}", Report::new(e));
+            log_forward("zwp_fullscreen_shell_mode_feedback_v1.mode_failed", &e);
         }
     }
 
@@ -260,10 +317,10 @@ pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_present_cancelled(
+        let res = _slf.try_send_present_cancelled(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_fullscreen_shell_mode_feedback_v1.present_cancelled message: {}", Report::new(e));
+            log_forward("zwp_fullscreen_shell_mode_feedback_v1.present_cancelled", &e);
         }
     }
 }
@@ -283,7 +340,7 @@ impl ObjectPrivate for ZwpFullscreenShellModeFeedbackV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

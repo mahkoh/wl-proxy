@@ -61,7 +61,7 @@ impl ZwlrInputInhibitManagerV1 {
     /// Activates the input inhibitor. As long as the inhibitor is active, the
     /// compositor will not send input events to other clients.
     #[inline]
-    pub fn send_get_inhibitor(
+    pub fn try_send_get_inhibitor(
         &self,
         id: &Rc<ZwlrInputInhibitorV1>,
     ) -> Result<(), ObjectError> {
@@ -103,13 +103,30 @@ impl ZwlrInputInhibitManagerV1 {
         ]);
         Ok(())
     }
+
+    /// inhibit input to other clients
+    ///
+    /// Activates the input inhibitor. As long as the inhibitor is active, the
+    /// compositor will not send input events to other clients.
+    #[inline]
+    pub fn send_get_inhibitor(
+        &self,
+        id: &Rc<ZwlrInputInhibitorV1>,
+    ) {
+        let res = self.try_send_get_inhibitor(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_input_inhibit_manager_v1.get_inhibitor", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrInputInhibitManagerV1] proxies.
 pub trait ZwlrInputInhibitManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrInputInhibitManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// inhibit input to other clients
@@ -129,11 +146,11 @@ pub trait ZwlrInputInhibitManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_inhibitor(
+        let res = _slf.try_send_get_inhibitor(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_input_inhibit_manager_v1.get_inhibitor message: {}", Report::new(e));
+            log_forward("zwlr_input_inhibit_manager_v1.get_inhibitor", &e);
         }
     }
 }
@@ -153,7 +170,7 @@ impl ObjectPrivate for ZwlrInputInhibitManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

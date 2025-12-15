@@ -67,7 +67,7 @@ impl TreelandDdeShellSurfaceV1 {
     ///
     /// The shell surface role is lost and wl_surface is unmapped.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -99,6 +99,24 @@ impl TreelandDdeShellSurfaceV1 {
         Ok(())
     }
 
+    /// destroy the treeland_dde_shell_surface_v1 object
+    ///
+    /// The treeland_dde_shell_surface_v1 interface is removed from the
+    /// wl_surface object that was turned into a shell surface with the
+    /// treeland_shell_v1.get_treeland_dde_shell_surface request.
+    ///
+    /// The shell surface role is lost and wl_surface is unmapped.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_shell_surface_v1.destroy", &e);
+        }
+    }
+
     /// Since when the set_surface_position message is available.
     pub const MSG__SET_SURFACE_POSITION__SINCE: u32 = 1;
 
@@ -114,7 +132,7 @@ impl TreelandDdeShellSurfaceV1 {
     /// - `x`: x coordinate in global space
     /// - `y`: y coordinate in global space
     #[inline]
-    pub fn send_set_surface_position(
+    pub fn try_send_set_surface_position(
         &self,
         x: i32,
         y: i32,
@@ -156,6 +174,32 @@ impl TreelandDdeShellSurfaceV1 {
         Ok(())
     }
 
+    /// change the shell surface position
+    ///
+    /// Move the surface to new coordinates.
+    ///
+    /// Coordinates are global, for example 50,50 for a 1920,0+1920x1080 output
+    /// is 1970,50 in global coordinates space.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: x coordinate in global space
+    /// - `y`: y coordinate in global space
+    #[inline]
+    pub fn send_set_surface_position(
+        &self,
+        x: i32,
+        y: i32,
+    ) {
+        let res = self.try_send_set_surface_position(
+            x,
+            y,
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_shell_surface_v1.set_surface_position", &e);
+        }
+    }
+
     /// Since when the set_role message is available.
     pub const MSG__SET_ROLE__SINCE: u32 = 1;
 
@@ -167,7 +211,7 @@ impl TreelandDdeShellSurfaceV1 {
     ///
     /// - `role`:
     #[inline]
-    pub fn send_set_role(
+    pub fn try_send_set_role(
         &self,
         role: TreelandDdeShellSurfaceV1Role,
     ) -> Result<(), ObjectError> {
@@ -205,6 +249,26 @@ impl TreelandDdeShellSurfaceV1 {
         Ok(())
     }
 
+    /// assign a role to this surface
+    ///
+    /// Assign a role to a shell surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `role`:
+    #[inline]
+    pub fn send_set_role(
+        &self,
+        role: TreelandDdeShellSurfaceV1Role,
+    ) {
+        let res = self.try_send_set_role(
+            role,
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_shell_surface_v1.set_role", &e);
+        }
+    }
+
     /// Since when the set_auto_placement message is available.
     pub const MSG__SET_AUTO_PLACEMENT__SINCE: u32 = 1;
 
@@ -222,7 +286,7 @@ impl TreelandDdeShellSurfaceV1 {
     ///
     /// - `y_offset`: y position is relative to the cursor bottom
     #[inline]
-    pub fn send_set_auto_placement(
+    pub fn try_send_set_auto_placement(
         &self,
         y_offset: u32,
     ) -> Result<(), ObjectError> {
@@ -260,6 +324,32 @@ impl TreelandDdeShellSurfaceV1 {
         Ok(())
     }
 
+    /// Place the surface at the bottom of the cursor area
+    ///
+    /// Set the vertical alignment of the surface within the cursor width.
+    ///
+    /// Do not use it together with set_surface_position to avoid exceptions.
+    ///
+    /// The position of the surface will be controlled by the compositor after the
+    /// request, including preventing it from being displayed beyond the edge of
+    /// the output.
+    ///
+    /// # Arguments
+    ///
+    /// - `y_offset`: y position is relative to the cursor bottom
+    #[inline]
+    pub fn send_set_auto_placement(
+        &self,
+        y_offset: u32,
+    ) {
+        let res = self.try_send_set_auto_placement(
+            y_offset,
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_shell_surface_v1.set_auto_placement", &e);
+        }
+    }
+
     /// Since when the set_skip_switcher message is available.
     pub const MSG__SET_SKIP_SWITCHER__SINCE: u32 = 1;
 
@@ -271,7 +361,7 @@ impl TreelandDdeShellSurfaceV1 {
     ///
     /// - `skip`: Boolean value that sets whether to skip the window switcher.
     #[inline]
-    pub fn send_set_skip_switcher(
+    pub fn try_send_set_skip_switcher(
         &self,
         skip: u32,
     ) -> Result<(), ObjectError> {
@@ -309,6 +399,26 @@ impl TreelandDdeShellSurfaceV1 {
         Ok(())
     }
 
+    /// make the window not appear in a switcher
+    ///
+    /// Setting this bit will indicate that the window prefers not to be listed in a switcher.
+    ///
+    /// # Arguments
+    ///
+    /// - `skip`: Boolean value that sets whether to skip the window switcher.
+    #[inline]
+    pub fn send_set_skip_switcher(
+        &self,
+        skip: u32,
+    ) {
+        let res = self.try_send_set_skip_switcher(
+            skip,
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_shell_surface_v1.set_skip_switcher", &e);
+        }
+    }
+
     /// Since when the set_skip_dock_preview message is available.
     pub const MSG__SET_SKIP_DOCK_PREVIEW__SINCE: u32 = 1;
 
@@ -320,7 +430,7 @@ impl TreelandDdeShellSurfaceV1 {
     ///
     /// - `skip`: Boolean value that sets whether to skip the dock preview.
     #[inline]
-    pub fn send_set_skip_dock_preview(
+    pub fn try_send_set_skip_dock_preview(
         &self,
         skip: u32,
     ) -> Result<(), ObjectError> {
@@ -358,6 +468,26 @@ impl TreelandDdeShellSurfaceV1 {
         Ok(())
     }
 
+    /// make the window not appear in a dock preview
+    ///
+    /// Setting this bit will indicate that the window prefers not to be listed in a dock preview.
+    ///
+    /// # Arguments
+    ///
+    /// - `skip`: Boolean value that sets whether to skip the dock preview.
+    #[inline]
+    pub fn send_set_skip_dock_preview(
+        &self,
+        skip: u32,
+    ) {
+        let res = self.try_send_set_skip_dock_preview(
+            skip,
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_shell_surface_v1.set_skip_dock_preview", &e);
+        }
+    }
+
     /// Since when the set_skip_muti_task_view message is available.
     pub const MSG__SET_SKIP_MUTI_TASK_VIEW__SINCE: u32 = 1;
 
@@ -369,7 +499,7 @@ impl TreelandDdeShellSurfaceV1 {
     ///
     /// - `skip`: Boolean value that sets whether to skip the mutitask view.
     #[inline]
-    pub fn send_set_skip_muti_task_view(
+    pub fn try_send_set_skip_muti_task_view(
         &self,
         skip: u32,
     ) -> Result<(), ObjectError> {
@@ -407,6 +537,26 @@ impl TreelandDdeShellSurfaceV1 {
         Ok(())
     }
 
+    /// make the window not appear in a mutitask view
+    ///
+    /// Setting this bit will indicate that the window prefers not to be listed in a mutitask view.
+    ///
+    /// # Arguments
+    ///
+    /// - `skip`: Boolean value that sets whether to skip the mutitask view.
+    #[inline]
+    pub fn send_set_skip_muti_task_view(
+        &self,
+        skip: u32,
+    ) {
+        let res = self.try_send_set_skip_muti_task_view(
+            skip,
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_shell_surface_v1.set_skip_muti_task_view", &e);
+        }
+    }
+
     /// Since when the set_accept_keyboard_focus message is available.
     pub const MSG__SET_ACCEPT_KEYBOARD_FOCUS__SINCE: u32 = 1;
 
@@ -420,7 +570,7 @@ impl TreelandDdeShellSurfaceV1 {
     ///
     /// - `accept`: Boolean value that sets whether to accept keyboard focus
     #[inline]
-    pub fn send_set_accept_keyboard_focus(
+    pub fn try_send_set_accept_keyboard_focus(
         &self,
         accept: u32,
     ) -> Result<(), ObjectError> {
@@ -457,13 +607,35 @@ impl TreelandDdeShellSurfaceV1 {
         ]);
         Ok(())
     }
+
+    /// control whether the surface accepts keyboard focus
+    ///
+    /// Setting this will determine whether the surface can receive keyboard focus.
+    /// When set to 0, the surface will not receive keyboard focus even when clicked or activated.
+    /// When set to 1 (default), the surface will receive keyboard focus normally.
+    ///
+    /// # Arguments
+    ///
+    /// - `accept`: Boolean value that sets whether to accept keyboard focus
+    #[inline]
+    pub fn send_set_accept_keyboard_focus(
+        &self,
+        accept: u32,
+    ) {
+        let res = self.try_send_set_accept_keyboard_focus(
+            accept,
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_shell_surface_v1.set_accept_keyboard_focus", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandDdeShellSurfaceV1] proxies.
 pub trait TreelandDdeShellSurfaceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandDdeShellSurfaceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the treeland_dde_shell_surface_v1 object
@@ -481,10 +653,10 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_shell_surface_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_dde_shell_surface_v1.destroy", &e);
         }
     }
 
@@ -509,12 +681,12 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_surface_position(
+        let res = _slf.try_send_set_surface_position(
             x,
             y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_shell_surface_v1.set_surface_position message: {}", Report::new(e));
+            log_forward("treeland_dde_shell_surface_v1.set_surface_position", &e);
         }
     }
 
@@ -534,11 +706,11 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_role(
+        let res = _slf.try_send_set_role(
             role,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_shell_surface_v1.set_role message: {}", Report::new(e));
+            log_forward("treeland_dde_shell_surface_v1.set_role", &e);
         }
     }
 
@@ -564,11 +736,11 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_auto_placement(
+        let res = _slf.try_send_set_auto_placement(
             y_offset,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_shell_surface_v1.set_auto_placement message: {}", Report::new(e));
+            log_forward("treeland_dde_shell_surface_v1.set_auto_placement", &e);
         }
     }
 
@@ -588,11 +760,11 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_skip_switcher(
+        let res = _slf.try_send_set_skip_switcher(
             skip,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_shell_surface_v1.set_skip_switcher message: {}", Report::new(e));
+            log_forward("treeland_dde_shell_surface_v1.set_skip_switcher", &e);
         }
     }
 
@@ -612,11 +784,11 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_skip_dock_preview(
+        let res = _slf.try_send_set_skip_dock_preview(
             skip,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_shell_surface_v1.set_skip_dock_preview message: {}", Report::new(e));
+            log_forward("treeland_dde_shell_surface_v1.set_skip_dock_preview", &e);
         }
     }
 
@@ -636,11 +808,11 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_skip_muti_task_view(
+        let res = _slf.try_send_set_skip_muti_task_view(
             skip,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_shell_surface_v1.set_skip_muti_task_view message: {}", Report::new(e));
+            log_forward("treeland_dde_shell_surface_v1.set_skip_muti_task_view", &e);
         }
     }
 
@@ -662,11 +834,11 @@ pub trait TreelandDdeShellSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_accept_keyboard_focus(
+        let res = _slf.try_send_set_accept_keyboard_focus(
             accept,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_shell_surface_v1.set_accept_keyboard_focus message: {}", Report::new(e));
+            log_forward("treeland_dde_shell_surface_v1.set_accept_keyboard_focus", &e);
         }
     }
 }
@@ -686,7 +858,7 @@ impl ObjectPrivate for TreelandDdeShellSurfaceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

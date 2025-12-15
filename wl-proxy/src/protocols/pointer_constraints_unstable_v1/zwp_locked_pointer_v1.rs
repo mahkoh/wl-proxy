@@ -77,7 +77,7 @@ impl ZwpLockedPointerV1 {
     /// Destroy the locked pointer object. If applicable, the compositor will
     /// unlock the pointer.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -109,6 +109,21 @@ impl ZwpLockedPointerV1 {
         Ok(())
     }
 
+    /// destroy the locked pointer object
+    ///
+    /// Destroy the locked pointer object. If applicable, the compositor will
+    /// unlock the pointer.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_locked_pointer_v1.destroy", &e);
+        }
+    }
+
     /// Since when the set_cursor_position_hint message is available.
     pub const MSG__SET_CURSOR_POSITION_HINT__SINCE: u32 = 1;
 
@@ -130,7 +145,7 @@ impl ZwpLockedPointerV1 {
     /// - `surface_x`: surface-local x coordinate
     /// - `surface_y`: surface-local y coordinate
     #[inline]
-    pub fn send_set_cursor_position_hint(
+    pub fn try_send_set_cursor_position_hint(
         &self,
         surface_x: Fixed,
         surface_y: Fixed,
@@ -172,6 +187,38 @@ impl ZwpLockedPointerV1 {
         Ok(())
     }
 
+    /// set the pointer cursor position hint
+    ///
+    /// Set the cursor position hint relative to the top left corner of the
+    /// surface.
+    ///
+    /// If the client is drawing its own cursor, it should update the position
+    /// hint to the position of its own cursor. A compositor may use this
+    /// information to warp the pointer upon unlock in order to avoid pointer
+    /// jumps.
+    ///
+    /// The cursor position hint is double-buffered state, see
+    /// wl_surface.commit.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface_x`: surface-local x coordinate
+    /// - `surface_y`: surface-local y coordinate
+    #[inline]
+    pub fn send_set_cursor_position_hint(
+        &self,
+        surface_x: Fixed,
+        surface_y: Fixed,
+    ) {
+        let res = self.try_send_set_cursor_position_hint(
+            surface_x,
+            surface_y,
+        );
+        if let Err(e) = res {
+            log_send("zwp_locked_pointer_v1.set_cursor_position_hint", &e);
+        }
+    }
+
     /// Since when the set_region message is available.
     pub const MSG__SET_REGION__SINCE: u32 = 1;
 
@@ -187,7 +234,7 @@ impl ZwpLockedPointerV1 {
     ///
     /// - `region`: region of surface
     #[inline]
-    pub fn send_set_region(
+    pub fn try_send_set_region(
         &self,
         region: Option<&Rc<WlRegion>>,
     ) -> Result<(), ObjectError> {
@@ -233,6 +280,30 @@ impl ZwpLockedPointerV1 {
         Ok(())
     }
 
+    /// set a new lock region
+    ///
+    /// Set a new region used to lock the pointer.
+    ///
+    /// The new lock region is double-buffered, see wl_surface.commit.
+    ///
+    /// For details about the lock region, see wp_locked_pointer.
+    ///
+    /// # Arguments
+    ///
+    /// - `region`: region of surface
+    #[inline]
+    pub fn send_set_region(
+        &self,
+        region: Option<&Rc<WlRegion>>,
+    ) {
+        let res = self.try_send_set_region(
+            region,
+        );
+        if let Err(e) = res {
+            log_send("zwp_locked_pointer_v1.set_region", &e);
+        }
+    }
+
     /// Since when the locked message is available.
     pub const MSG__LOCKED__SINCE: u32 = 1;
 
@@ -240,7 +311,7 @@ impl ZwpLockedPointerV1 {
     ///
     /// Notification that the pointer lock of the seat's pointer is activated.
     #[inline]
-    pub fn send_locked(
+    pub fn try_send_locked(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -273,6 +344,20 @@ impl ZwpLockedPointerV1 {
         Ok(())
     }
 
+    /// lock activation event
+    ///
+    /// Notification that the pointer lock of the seat's pointer is activated.
+    #[inline]
+    pub fn send_locked(
+        &self,
+    ) {
+        let res = self.try_send_locked(
+        );
+        if let Err(e) = res {
+            log_send("zwp_locked_pointer_v1.locked", &e);
+        }
+    }
+
     /// Since when the unlocked message is available.
     pub const MSG__UNLOCKED__SINCE: u32 = 1;
 
@@ -285,7 +370,7 @@ impl ZwpLockedPointerV1 {
     /// wp_pointer_constraints.lifetime) this pointer lock may again
     /// reactivate in the future.
     #[inline]
-    pub fn send_unlocked(
+    pub fn try_send_unlocked(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -317,13 +402,32 @@ impl ZwpLockedPointerV1 {
         ]);
         Ok(())
     }
+
+    /// lock deactivation event
+    ///
+    /// Notification that the pointer lock of the seat's pointer is no longer
+    /// active. If this is a oneshot pointer lock (see
+    /// wp_pointer_constraints.lifetime) this object is now defunct and should
+    /// be destroyed. If this is a persistent pointer lock (see
+    /// wp_pointer_constraints.lifetime) this pointer lock may again
+    /// reactivate in the future.
+    #[inline]
+    pub fn send_unlocked(
+        &self,
+    ) {
+        let res = self.try_send_unlocked(
+        );
+        if let Err(e) = res {
+            log_send("zwp_locked_pointer_v1.unlocked", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpLockedPointerV1] proxies.
 pub trait ZwpLockedPointerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpLockedPointerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the locked pointer object
@@ -338,10 +442,10 @@ pub trait ZwpLockedPointerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_locked_pointer_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_locked_pointer_v1.destroy", &e);
         }
     }
 
@@ -372,12 +476,12 @@ pub trait ZwpLockedPointerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_cursor_position_hint(
+        let res = _slf.try_send_set_cursor_position_hint(
             surface_x,
             surface_y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_locked_pointer_v1.set_cursor_position_hint message: {}", Report::new(e));
+            log_forward("zwp_locked_pointer_v1.set_cursor_position_hint", &e);
         }
     }
 
@@ -404,11 +508,11 @@ pub trait ZwpLockedPointerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_region(
+        let res = _slf.try_send_set_region(
             region,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_locked_pointer_v1.set_region message: {}", Report::new(e));
+            log_forward("zwp_locked_pointer_v1.set_region", &e);
         }
     }
 
@@ -423,10 +527,10 @@ pub trait ZwpLockedPointerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_locked(
+        let res = _slf.try_send_locked(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_locked_pointer_v1.locked message: {}", Report::new(e));
+            log_forward("zwp_locked_pointer_v1.locked", &e);
         }
     }
 
@@ -446,10 +550,10 @@ pub trait ZwpLockedPointerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_unlocked(
+        let res = _slf.try_send_unlocked(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_locked_pointer_v1.unlocked message: {}", Report::new(e));
+            log_forward("zwp_locked_pointer_v1.unlocked", &e);
         }
     }
 }
@@ -469,7 +573,7 @@ impl ObjectPrivate for ZwpLockedPointerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

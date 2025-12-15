@@ -60,7 +60,7 @@ impl WpImageDescriptionReferenceV1 {
     /// Destroy this object. This has no effect on the referenced image
     /// description.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -91,13 +91,28 @@ impl WpImageDescriptionReferenceV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the reference
+    ///
+    /// Destroy this object. This has no effect on the referenced image
+    /// description.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_reference_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [WpImageDescriptionReferenceV1] proxies.
 pub trait WpImageDescriptionReferenceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpImageDescriptionReferenceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the reference
@@ -112,10 +127,10 @@ pub trait WpImageDescriptionReferenceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_reference_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_image_description_reference_v1.destroy", &e);
         }
     }
 }
@@ -135,7 +150,7 @@ impl ObjectPrivate for WpImageDescriptionReferenceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

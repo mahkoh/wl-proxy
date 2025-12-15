@@ -58,7 +58,7 @@ impl ZwpPrimarySelectionDeviceV1 {
     /// - `source`:
     /// - `serial`: serial of the event that triggered this request
     #[inline]
-    pub fn send_set_selection(
+    pub fn try_send_set_selection(
         &self,
         source: Option<&Rc<ZwpPrimarySelectionSourceV1>>,
         serial: u32,
@@ -108,6 +108,32 @@ impl ZwpPrimarySelectionDeviceV1 {
         Ok(())
     }
 
+    /// set the primary selection
+    ///
+    /// Replaces the current selection. The previous owner of the primary
+    /// selection will receive a wp_primary_selection_source.cancelled event.
+    ///
+    /// To unset the selection, set the source to NULL.
+    ///
+    /// # Arguments
+    ///
+    /// - `source`:
+    /// - `serial`: serial of the event that triggered this request
+    #[inline]
+    pub fn send_set_selection(
+        &self,
+        source: Option<&Rc<ZwpPrimarySelectionSourceV1>>,
+        serial: u32,
+    ) {
+        let res = self.try_send_set_selection(
+            source,
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("zwp_primary_selection_device_v1.set_selection", &e);
+        }
+    }
+
     /// Since when the data_offer message is available.
     pub const MSG__DATA_OFFER__SINCE: u32 = 1;
 
@@ -119,7 +145,7 @@ impl ZwpPrimarySelectionDeviceV1 {
     /// wp_primary_selection_offer.offer events to describe the offered mime
     /// types.
     #[inline]
-    pub fn send_data_offer(
+    pub fn try_send_data_offer(
         &self,
         offer: &Rc<ZwpPrimarySelectionOfferV1>,
     ) -> Result<(), ObjectError> {
@@ -164,6 +190,26 @@ impl ZwpPrimarySelectionDeviceV1 {
         Ok(())
     }
 
+    /// introduce a new wp_primary_selection_offer
+    ///
+    /// Introduces a new wp_primary_selection_offer object that may be used
+    /// to receive the current primary selection. Immediately following this
+    /// event, the new wp_primary_selection_offer object will send
+    /// wp_primary_selection_offer.offer events to describe the offered mime
+    /// types.
+    #[inline]
+    pub fn send_data_offer(
+        &self,
+        offer: &Rc<ZwpPrimarySelectionOfferV1>,
+    ) {
+        let res = self.try_send_data_offer(
+            offer,
+        );
+        if let Err(e) = res {
+            log_send("zwp_primary_selection_device_v1.data_offer", &e);
+        }
+    }
+
     /// Since when the selection message is available.
     pub const MSG__SELECTION__SINCE: u32 = 1;
 
@@ -183,7 +229,7 @@ impl ZwpPrimarySelectionDeviceV1 {
     ///
     /// - `id`:
     #[inline]
-    pub fn send_selection(
+    pub fn try_send_selection(
         &self,
         id: Option<&Rc<ZwpPrimarySelectionOfferV1>>,
     ) -> Result<(), ObjectError> {
@@ -230,6 +276,34 @@ impl ZwpPrimarySelectionDeviceV1 {
         Ok(())
     }
 
+    /// advertise a new primary selection
+    ///
+    /// The wp_primary_selection_device.selection event is sent to notify the
+    /// client of a new primary selection. This event is sent after the
+    /// wp_primary_selection.data_offer event introducing this object, and after
+    /// the offer has announced its mimetypes through
+    /// wp_primary_selection_offer.offer.
+    ///
+    /// The data_offer is valid until a new offer or NULL is received
+    /// or until the client loses keyboard focus. The client must destroy the
+    /// previous selection data_offer, if any, upon receiving this event.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    #[inline]
+    pub fn send_selection(
+        &self,
+        id: Option<&Rc<ZwpPrimarySelectionOfferV1>>,
+    ) {
+        let res = self.try_send_selection(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("zwp_primary_selection_device_v1.selection", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -237,7 +311,7 @@ impl ZwpPrimarySelectionDeviceV1 {
     ///
     /// Destroy the primary selection device.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -268,13 +342,27 @@ impl ZwpPrimarySelectionDeviceV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the primary selection device
+    ///
+    /// Destroy the primary selection device.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_primary_selection_device_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpPrimarySelectionDeviceV1] proxies.
 pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpPrimarySelectionDeviceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// set the primary selection
@@ -301,12 +389,12 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_selection(
+        let res = _slf.try_send_set_selection(
             source,
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_primary_selection_device_v1.set_selection message: {}", Report::new(e));
+            log_forward("zwp_primary_selection_device_v1.set_selection", &e);
         }
     }
 
@@ -330,11 +418,11 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_data_offer(
+        let res = _slf.try_send_data_offer(
             offer,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_primary_selection_device_v1.data_offer message: {}", Report::new(e));
+            log_forward("zwp_primary_selection_device_v1.data_offer", &e);
         }
     }
 
@@ -374,11 +462,11 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
                 }
             }
         }
-        let res = _slf.send_selection(
+        let res = _slf.try_send_selection(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_primary_selection_device_v1.selection message: {}", Report::new(e));
+            log_forward("zwp_primary_selection_device_v1.selection", &e);
         }
     }
 
@@ -393,10 +481,10 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_primary_selection_device_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_primary_selection_device_v1.destroy", &e);
         }
     }
 }
@@ -416,7 +504,7 @@ impl ObjectPrivate for ZwpPrimarySelectionDeviceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

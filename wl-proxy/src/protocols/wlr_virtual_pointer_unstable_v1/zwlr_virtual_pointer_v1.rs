@@ -63,7 +63,7 @@ impl ZwlrVirtualPointerV1 {
     /// - `dx`: displacement on the x-axis
     /// - `dy`: displacement on the y-axis
     #[inline]
-    pub fn send_motion(
+    pub fn try_send_motion(
         &self,
         time: u32,
         dx: Fixed,
@@ -109,6 +109,34 @@ impl ZwlrVirtualPointerV1 {
         Ok(())
     }
 
+    /// pointer relative motion event
+    ///
+    /// The pointer has moved by a relative amount to the previous request.
+    ///
+    /// Values are in the global compositor space.
+    ///
+    /// # Arguments
+    ///
+    /// - `time`: timestamp with millisecond granularity
+    /// - `dx`: displacement on the x-axis
+    /// - `dy`: displacement on the y-axis
+    #[inline]
+    pub fn send_motion(
+        &self,
+        time: u32,
+        dx: Fixed,
+        dy: Fixed,
+    ) {
+        let res = self.try_send_motion(
+            time,
+            dx,
+            dy,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_virtual_pointer_v1.motion", &e);
+        }
+    }
+
     /// Since when the motion_absolute message is available.
     pub const MSG__MOTION_ABSOLUTE__SINCE: u32 = 1;
 
@@ -127,7 +155,7 @@ impl ZwlrVirtualPointerV1 {
     /// - `x_extent`: extent of the x-axis
     /// - `y_extent`: extent of the y-axis
     #[inline]
-    pub fn send_motion_absolute(
+    pub fn try_send_motion_absolute(
         &self,
         time: u32,
         x: u32,
@@ -181,6 +209,41 @@ impl ZwlrVirtualPointerV1 {
         Ok(())
     }
 
+    /// pointer absolute motion event
+    ///
+    /// The pointer has moved in an absolute coordinate frame.
+    ///
+    /// Value of x can range from 0 to x_extent, value of y can range from 0
+    /// to y_extent.
+    ///
+    /// # Arguments
+    ///
+    /// - `time`: timestamp with millisecond granularity
+    /// - `x`: position on the x-axis
+    /// - `y`: position on the y-axis
+    /// - `x_extent`: extent of the x-axis
+    /// - `y_extent`: extent of the y-axis
+    #[inline]
+    pub fn send_motion_absolute(
+        &self,
+        time: u32,
+        x: u32,
+        y: u32,
+        x_extent: u32,
+        y_extent: u32,
+    ) {
+        let res = self.try_send_motion_absolute(
+            time,
+            x,
+            y,
+            x_extent,
+            y_extent,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_virtual_pointer_v1.motion_absolute", &e);
+        }
+    }
+
     /// Since when the button message is available.
     pub const MSG__BUTTON__SINCE: u32 = 1;
 
@@ -194,7 +257,7 @@ impl ZwlrVirtualPointerV1 {
     /// - `button`: button that produced the event
     /// - `state`: physical state of the button
     #[inline]
-    pub fn send_button(
+    pub fn try_send_button(
         &self,
         time: u32,
         button: u32,
@@ -240,6 +303,32 @@ impl ZwlrVirtualPointerV1 {
         Ok(())
     }
 
+    /// button event
+    ///
+    /// A button was pressed or released.
+    ///
+    /// # Arguments
+    ///
+    /// - `time`: timestamp with millisecond granularity
+    /// - `button`: button that produced the event
+    /// - `state`: physical state of the button
+    #[inline]
+    pub fn send_button(
+        &self,
+        time: u32,
+        button: u32,
+        state: WlPointerButtonState,
+    ) {
+        let res = self.try_send_button(
+            time,
+            button,
+            state,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_virtual_pointer_v1.button", &e);
+        }
+    }
+
     /// Since when the axis message is available.
     pub const MSG__AXIS__SINCE: u32 = 1;
 
@@ -253,7 +342,7 @@ impl ZwlrVirtualPointerV1 {
     /// - `axis`: axis type
     /// - `value`: length of vector in touchpad coordinates
     #[inline]
-    pub fn send_axis(
+    pub fn try_send_axis(
         &self,
         time: u32,
         axis: WlPointerAxis,
@@ -299,6 +388,32 @@ impl ZwlrVirtualPointerV1 {
         Ok(())
     }
 
+    /// axis event
+    ///
+    /// Scroll and other axis requests.
+    ///
+    /// # Arguments
+    ///
+    /// - `time`: timestamp with millisecond granularity
+    /// - `axis`: axis type
+    /// - `value`: length of vector in touchpad coordinates
+    #[inline]
+    pub fn send_axis(
+        &self,
+        time: u32,
+        axis: WlPointerAxis,
+        value: Fixed,
+    ) {
+        let res = self.try_send_axis(
+            time,
+            axis,
+            value,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_virtual_pointer_v1.axis", &e);
+        }
+    }
+
     /// Since when the frame message is available.
     pub const MSG__FRAME__SINCE: u32 = 1;
 
@@ -306,7 +421,7 @@ impl ZwlrVirtualPointerV1 {
     ///
     /// Indicates the set of events that logically belong together.
     #[inline]
-    pub fn send_frame(
+    pub fn try_send_frame(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -337,6 +452,20 @@ impl ZwlrVirtualPointerV1 {
         Ok(())
     }
 
+    /// end of a pointer event sequence
+    ///
+    /// Indicates the set of events that logically belong together.
+    #[inline]
+    pub fn send_frame(
+        &self,
+    ) {
+        let res = self.try_send_frame(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_virtual_pointer_v1.frame", &e);
+        }
+    }
+
     /// Since when the axis_source message is available.
     pub const MSG__AXIS_SOURCE__SINCE: u32 = 1;
 
@@ -348,7 +477,7 @@ impl ZwlrVirtualPointerV1 {
     ///
     /// - `axis_source`: source of the axis event
     #[inline]
-    pub fn send_axis_source(
+    pub fn try_send_axis_source(
         &self,
         axis_source: WlPointerAxisSource,
     ) -> Result<(), ObjectError> {
@@ -386,6 +515,26 @@ impl ZwlrVirtualPointerV1 {
         Ok(())
     }
 
+    /// axis source event
+    ///
+    /// Source information for scroll and other axis.
+    ///
+    /// # Arguments
+    ///
+    /// - `axis_source`: source of the axis event
+    #[inline]
+    pub fn send_axis_source(
+        &self,
+        axis_source: WlPointerAxisSource,
+    ) {
+        let res = self.try_send_axis_source(
+            axis_source,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_virtual_pointer_v1.axis_source", &e);
+        }
+    }
+
     /// Since when the axis_stop message is available.
     pub const MSG__AXIS_STOP__SINCE: u32 = 1;
 
@@ -398,7 +547,7 @@ impl ZwlrVirtualPointerV1 {
     /// - `time`: timestamp with millisecond granularity
     /// - `axis`: the axis stopped with this event
     #[inline]
-    pub fn send_axis_stop(
+    pub fn try_send_axis_stop(
         &self,
         time: u32,
         axis: WlPointerAxis,
@@ -440,6 +589,29 @@ impl ZwlrVirtualPointerV1 {
         Ok(())
     }
 
+    /// axis stop event
+    ///
+    /// Stop notification for scroll and other axes.
+    ///
+    /// # Arguments
+    ///
+    /// - `time`: timestamp with millisecond granularity
+    /// - `axis`: the axis stopped with this event
+    #[inline]
+    pub fn send_axis_stop(
+        &self,
+        time: u32,
+        axis: WlPointerAxis,
+    ) {
+        let res = self.try_send_axis_stop(
+            time,
+            axis,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_virtual_pointer_v1.axis_stop", &e);
+        }
+    }
+
     /// Since when the axis_discrete message is available.
     pub const MSG__AXIS_DISCRETE__SINCE: u32 = 1;
 
@@ -457,7 +629,7 @@ impl ZwlrVirtualPointerV1 {
     /// - `value`: length of vector in touchpad coordinates
     /// - `discrete`: number of steps
     #[inline]
-    pub fn send_axis_discrete(
+    pub fn try_send_axis_discrete(
         &self,
         time: u32,
         axis: WlPointerAxis,
@@ -507,12 +679,44 @@ impl ZwlrVirtualPointerV1 {
         Ok(())
     }
 
+    /// axis click event
+    ///
+    /// Discrete step information for scroll and other axes.
+    ///
+    /// This event allows the client to extend data normally sent using the axis
+    /// event with discrete value.
+    ///
+    /// # Arguments
+    ///
+    /// - `time`: timestamp with millisecond granularity
+    /// - `axis`: axis type
+    /// - `value`: length of vector in touchpad coordinates
+    /// - `discrete`: number of steps
+    #[inline]
+    pub fn send_axis_discrete(
+        &self,
+        time: u32,
+        axis: WlPointerAxis,
+        value: Fixed,
+        discrete: i32,
+    ) {
+        let res = self.try_send_axis_discrete(
+            time,
+            axis,
+            value,
+            discrete,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_virtual_pointer_v1.axis_discrete", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the virtual pointer object
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -543,13 +747,25 @@ impl ZwlrVirtualPointerV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the virtual pointer object
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_virtual_pointer_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrVirtualPointerV1] proxies.
 pub trait ZwlrVirtualPointerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrVirtualPointerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// pointer relative motion event
@@ -574,13 +790,13 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_motion(
+        let res = _slf.try_send_motion(
             time,
             dx,
             dy,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_virtual_pointer_v1.motion message: {}", Report::new(e));
+            log_forward("zwlr_virtual_pointer_v1.motion", &e);
         }
     }
 
@@ -611,7 +827,7 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_motion_absolute(
+        let res = _slf.try_send_motion_absolute(
             time,
             x,
             y,
@@ -619,7 +835,7 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
             y_extent,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_virtual_pointer_v1.motion_absolute message: {}", Report::new(e));
+            log_forward("zwlr_virtual_pointer_v1.motion_absolute", &e);
         }
     }
 
@@ -643,13 +859,13 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_button(
+        let res = _slf.try_send_button(
             time,
             button,
             state,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_virtual_pointer_v1.button message: {}", Report::new(e));
+            log_forward("zwlr_virtual_pointer_v1.button", &e);
         }
     }
 
@@ -673,13 +889,13 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_axis(
+        let res = _slf.try_send_axis(
             time,
             axis,
             value,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_virtual_pointer_v1.axis message: {}", Report::new(e));
+            log_forward("zwlr_virtual_pointer_v1.axis", &e);
         }
     }
 
@@ -694,10 +910,10 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_frame(
+        let res = _slf.try_send_frame(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_virtual_pointer_v1.frame message: {}", Report::new(e));
+            log_forward("zwlr_virtual_pointer_v1.frame", &e);
         }
     }
 
@@ -717,11 +933,11 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_axis_source(
+        let res = _slf.try_send_axis_source(
             axis_source,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_virtual_pointer_v1.axis_source message: {}", Report::new(e));
+            log_forward("zwlr_virtual_pointer_v1.axis_source", &e);
         }
     }
 
@@ -743,12 +959,12 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_axis_stop(
+        let res = _slf.try_send_axis_stop(
             time,
             axis,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_virtual_pointer_v1.axis_stop message: {}", Report::new(e));
+            log_forward("zwlr_virtual_pointer_v1.axis_stop", &e);
         }
     }
 
@@ -777,14 +993,14 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_axis_discrete(
+        let res = _slf.try_send_axis_discrete(
             time,
             axis,
             value,
             discrete,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_virtual_pointer_v1.axis_discrete message: {}", Report::new(e));
+            log_forward("zwlr_virtual_pointer_v1.axis_discrete", &e);
         }
     }
 
@@ -797,10 +1013,10 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_virtual_pointer_v1.destroy message: {}", Report::new(e));
+            log_forward("zwlr_virtual_pointer_v1.destroy", &e);
         }
     }
 }
@@ -820,7 +1036,7 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

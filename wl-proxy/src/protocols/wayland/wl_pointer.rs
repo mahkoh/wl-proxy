@@ -100,7 +100,7 @@ impl WlPointer {
     /// - `hotspot_x`: surface-local x coordinate
     /// - `hotspot_y`: surface-local y coordinate
     #[inline]
-    pub fn send_set_cursor(
+    pub fn try_send_set_cursor(
         &self,
         serial: u32,
         surface: Option<&Rc<WlSurface>>,
@@ -158,6 +158,67 @@ impl WlPointer {
         Ok(())
     }
 
+    /// set the pointer surface
+    ///
+    /// Set the pointer surface, i.e., the surface that contains the
+    /// pointer image (cursor). This request gives the surface the role
+    /// of a cursor. If the surface already has another role, it raises
+    /// a protocol error.
+    ///
+    /// The cursor actually changes only if the pointer
+    /// focus for this device is one of the requesting client's surfaces
+    /// or the surface parameter is the current pointer surface. If
+    /// there was a previous surface set with this request it is
+    /// replaced. If surface is NULL, the pointer image is hidden.
+    ///
+    /// The parameters hotspot_x and hotspot_y define the position of
+    /// the pointer surface relative to the pointer location. Its
+    /// top-left corner is always at (x, y) - (hotspot_x, hotspot_y),
+    /// where (x, y) are the coordinates of the pointer location, in
+    /// surface-local coordinates.
+    ///
+    /// On wl_surface.offset requests to the pointer surface, hotspot_x
+    /// and hotspot_y are decremented by the x and y parameters
+    /// passed to the request. The offset must be applied by
+    /// wl_surface.commit as usual.
+    ///
+    /// The hotspot can also be updated by passing the currently set
+    /// pointer surface to this request with new values for hotspot_x
+    /// and hotspot_y.
+    ///
+    /// The input region is ignored for wl_surfaces with the role of
+    /// a cursor. When the use as a cursor ends, the wl_surface is
+    /// unmapped.
+    ///
+    /// The serial parameter must match the latest wl_pointer.enter
+    /// serial number sent to the client. Otherwise the request will be
+    /// ignored.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the enter event
+    /// - `surface`: pointer surface
+    /// - `hotspot_x`: surface-local x coordinate
+    /// - `hotspot_y`: surface-local y coordinate
+    #[inline]
+    pub fn send_set_cursor(
+        &self,
+        serial: u32,
+        surface: Option<&Rc<WlSurface>>,
+        hotspot_x: i32,
+        hotspot_y: i32,
+    ) {
+        let res = self.try_send_set_cursor(
+            serial,
+            surface,
+            hotspot_x,
+            hotspot_y,
+        );
+        if let Err(e) = res {
+            log_send("wl_pointer.set_cursor", &e);
+        }
+    }
+
     /// Since when the enter message is available.
     pub const MSG__ENTER__SINCE: u32 = 1;
 
@@ -177,7 +238,7 @@ impl WlPointer {
     /// - `surface_x`: surface-local x coordinate
     /// - `surface_y`: surface-local y coordinate
     #[inline]
-    pub fn send_enter(
+    pub fn try_send_enter(
         &self,
         serial: u32,
         surface: &Rc<WlSurface>,
@@ -234,6 +295,40 @@ impl WlPointer {
         Ok(())
     }
 
+    /// enter event
+    ///
+    /// Notification that this seat's pointer is focused on a certain
+    /// surface.
+    ///
+    /// When a seat's focus enters a surface, the pointer image
+    /// is undefined and a client should respond to this event by setting
+    /// an appropriate pointer image with the set_cursor request.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the enter event
+    /// - `surface`: surface entered by the pointer
+    /// - `surface_x`: surface-local x coordinate
+    /// - `surface_y`: surface-local y coordinate
+    #[inline]
+    pub fn send_enter(
+        &self,
+        serial: u32,
+        surface: &Rc<WlSurface>,
+        surface_x: Fixed,
+        surface_y: Fixed,
+    ) {
+        let res = self.try_send_enter(
+            serial,
+            surface,
+            surface_x,
+            surface_y,
+        );
+        if let Err(e) = res {
+            log_send("wl_pointer.enter", &e);
+        }
+    }
+
     /// Since when the leave message is available.
     pub const MSG__LEAVE__SINCE: u32 = 1;
 
@@ -250,7 +345,7 @@ impl WlPointer {
     /// - `serial`: serial number of the leave event
     /// - `surface`: surface left by the pointer
     #[inline]
-    pub fn send_leave(
+    pub fn try_send_leave(
         &self,
         serial: u32,
         surface: &Rc<WlSurface>,
@@ -299,6 +394,33 @@ impl WlPointer {
         Ok(())
     }
 
+    /// leave event
+    ///
+    /// Notification that this seat's pointer is no longer focused on
+    /// a certain surface.
+    ///
+    /// The leave notification is sent before the enter notification
+    /// for the new focus.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the leave event
+    /// - `surface`: surface left by the pointer
+    #[inline]
+    pub fn send_leave(
+        &self,
+        serial: u32,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_leave(
+            serial,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("wl_pointer.leave", &e);
+        }
+    }
+
     /// Since when the motion message is available.
     pub const MSG__MOTION__SINCE: u32 = 1;
 
@@ -314,7 +436,7 @@ impl WlPointer {
     /// - `surface_x`: surface-local x coordinate
     /// - `surface_y`: surface-local y coordinate
     #[inline]
-    pub fn send_motion(
+    pub fn try_send_motion(
         &self,
         time: u32,
         surface_x: Fixed,
@@ -362,6 +484,34 @@ impl WlPointer {
         Ok(())
     }
 
+    /// pointer motion event
+    ///
+    /// Notification of pointer location change. The arguments
+    /// surface_x and surface_y are the location relative to the
+    /// focused surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `time`: timestamp with millisecond granularity
+    /// - `surface_x`: surface-local x coordinate
+    /// - `surface_y`: surface-local y coordinate
+    #[inline]
+    pub fn send_motion(
+        &self,
+        time: u32,
+        surface_x: Fixed,
+        surface_y: Fixed,
+    ) {
+        let res = self.try_send_motion(
+            time,
+            surface_x,
+            surface_y,
+        );
+        if let Err(e) = res {
+            log_send("wl_pointer.motion", &e);
+        }
+    }
+
     /// Since when the button message is available.
     pub const MSG__BUTTON__SINCE: u32 = 1;
 
@@ -389,7 +539,7 @@ impl WlPointer {
     /// - `button`: button that produced the event
     /// - `state`: physical state of the button
     #[inline]
-    pub fn send_button(
+    pub fn try_send_button(
         &self,
         serial: u32,
         time: u32,
@@ -441,6 +591,48 @@ impl WlPointer {
         Ok(())
     }
 
+    /// pointer button event
+    ///
+    /// Mouse button click and release notifications.
+    ///
+    /// The location of the click is given by the last motion or
+    /// enter event.
+    /// The time argument is a timestamp with millisecond
+    /// granularity, with an undefined base.
+    ///
+    /// The button is a button code as defined in the Linux kernel's
+    /// linux/input-event-codes.h header file, e.g. BTN_LEFT.
+    ///
+    /// Any 16-bit button code value is reserved for future additions to the
+    /// kernel's event code list. All other button codes above 0xFFFF are
+    /// currently undefined but may be used in future versions of this
+    /// protocol.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the button event
+    /// - `time`: timestamp with millisecond granularity
+    /// - `button`: button that produced the event
+    /// - `state`: physical state of the button
+    #[inline]
+    pub fn send_button(
+        &self,
+        serial: u32,
+        time: u32,
+        button: u32,
+        state: WlPointerButtonState,
+    ) {
+        let res = self.try_send_button(
+            serial,
+            time,
+            button,
+            state,
+        );
+        if let Err(e) = res {
+            log_send("wl_pointer.button", &e);
+        }
+    }
+
     /// Since when the axis message is available.
     pub const MSG__AXIS__SINCE: u32 = 1;
 
@@ -469,7 +661,7 @@ impl WlPointer {
     /// - `axis`: axis type
     /// - `value`: length of vector in surface-local coordinate space
     #[inline]
-    pub fn send_axis(
+    pub fn try_send_axis(
         &self,
         time: u32,
         axis: WlPointerAxis,
@@ -517,6 +709,47 @@ impl WlPointer {
         Ok(())
     }
 
+    /// axis event
+    ///
+    /// Scroll and other axis notifications.
+    ///
+    /// For scroll events (vertical and horizontal scroll axes), the
+    /// value parameter is the length of a vector along the specified
+    /// axis in a coordinate space identical to those of motion events,
+    /// representing a relative movement along the specified axis.
+    ///
+    /// For devices that support movements non-parallel to axes multiple
+    /// axis events will be emitted.
+    ///
+    /// When applicable, for example for touch pads, the server can
+    /// choose to emit scroll events where the motion vector is
+    /// equivalent to a motion event vector.
+    ///
+    /// When applicable, a client can transform its content relative to the
+    /// scroll distance.
+    ///
+    /// # Arguments
+    ///
+    /// - `time`: timestamp with millisecond granularity
+    /// - `axis`: axis type
+    /// - `value`: length of vector in surface-local coordinate space
+    #[inline]
+    pub fn send_axis(
+        &self,
+        time: u32,
+        axis: WlPointerAxis,
+        value: Fixed,
+    ) {
+        let res = self.try_send_axis(
+            time,
+            axis,
+            value,
+        );
+        if let Err(e) = res {
+            log_send("wl_pointer.axis", &e);
+        }
+    }
+
     /// Since when the release message is available.
     pub const MSG__RELEASE__SINCE: u32 = 3;
 
@@ -528,7 +761,7 @@ impl WlPointer {
     /// This request destroys the pointer proxy object, so clients must not call
     /// wl_pointer_destroy() after using this request.
     #[inline]
-    pub fn send_release(
+    pub fn try_send_release(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -558,6 +791,24 @@ impl WlPointer {
         ]);
         self.core.handle_server_destroy();
         Ok(())
+    }
+
+    /// release the pointer object
+    ///
+    /// Using this request a client can tell the server that it is not going to
+    /// use the pointer object anymore.
+    ///
+    /// This request destroys the pointer proxy object, so clients must not call
+    /// wl_pointer_destroy() after using this request.
+    #[inline]
+    pub fn send_release(
+        &self,
+    ) {
+        let res = self.try_send_release(
+        );
+        if let Err(e) = res {
+            log_send("wl_pointer.release", &e);
+        }
     }
 
     /// Since when the frame message is available.
@@ -600,7 +851,7 @@ impl WlPointer {
     /// wl_pointer.enter event being split across multiple wl_pointer.frame
     /// groups.
     #[inline]
-    pub fn send_frame(
+    pub fn try_send_frame(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -631,6 +882,53 @@ impl WlPointer {
             5,
         ]);
         Ok(())
+    }
+
+    /// end of a pointer event sequence
+    ///
+    /// Indicates the end of a set of events that logically belong together.
+    /// A client is expected to accumulate the data in all events within the
+    /// frame before proceeding.
+    ///
+    /// All wl_pointer events before a wl_pointer.frame event belong
+    /// logically together. For example, in a diagonal scroll motion the
+    /// compositor will send an optional wl_pointer.axis_source event, two
+    /// wl_pointer.axis events (horizontal and vertical) and finally a
+    /// wl_pointer.frame event. The client may use this information to
+    /// calculate a diagonal vector for scrolling.
+    ///
+    /// When multiple wl_pointer.axis events occur within the same frame,
+    /// the motion vector is the combined motion of all events.
+    /// When a wl_pointer.axis and a wl_pointer.axis_stop event occur within
+    /// the same frame, this indicates that axis movement in one axis has
+    /// stopped but continues in the other axis.
+    /// When multiple wl_pointer.axis_stop events occur within the same
+    /// frame, this indicates that these axes stopped in the same instance.
+    ///
+    /// A wl_pointer.frame event is sent for every logical event group,
+    /// even if the group only contains a single wl_pointer event.
+    /// Specifically, a client may get a sequence: motion, frame, button,
+    /// frame, axis, frame, axis_stop, frame.
+    ///
+    /// The wl_pointer.enter and wl_pointer.leave events are logical events
+    /// generated by the compositor and not the hardware. These events are
+    /// also grouped by a wl_pointer.frame. When a pointer moves from one
+    /// surface to another, a compositor should group the
+    /// wl_pointer.leave event within the same wl_pointer.frame.
+    /// However, a client must not rely on wl_pointer.leave and
+    /// wl_pointer.enter being in the same wl_pointer.frame.
+    /// Compositor-specific policies may require the wl_pointer.leave and
+    /// wl_pointer.enter event being split across multiple wl_pointer.frame
+    /// groups.
+    #[inline]
+    pub fn send_frame(
+        &self,
+    ) {
+        let res = self.try_send_frame(
+        );
+        if let Err(e) = res {
+            log_send("wl_pointer.frame", &e);
+        }
     }
 
     /// Since when the axis_source message is available.
@@ -668,7 +966,7 @@ impl WlPointer {
     ///
     /// - `axis_source`: source of the axis event
     #[inline]
-    pub fn send_axis_source(
+    pub fn try_send_axis_source(
         &self,
         axis_source: WlPointerAxisSource,
     ) -> Result<(), ObjectError> {
@@ -708,6 +1006,50 @@ impl WlPointer {
         Ok(())
     }
 
+    /// axis source event
+    ///
+    /// Source information for scroll and other axes.
+    ///
+    /// This event does not occur on its own. It is sent before a
+    /// wl_pointer.frame event and carries the source information for
+    /// all events within that frame.
+    ///
+    /// The source specifies how this event was generated. If the source is
+    /// wl_pointer.axis_source.finger, a wl_pointer.axis_stop event will be
+    /// sent when the user lifts the finger off the device.
+    ///
+    /// If the source is wl_pointer.axis_source.wheel,
+    /// wl_pointer.axis_source.wheel_tilt or
+    /// wl_pointer.axis_source.continuous, a wl_pointer.axis_stop event may
+    /// or may not be sent. Whether a compositor sends an axis_stop event
+    /// for these sources is hardware-specific and implementation-dependent;
+    /// clients must not rely on receiving an axis_stop event for these
+    /// scroll sources and should treat scroll sequences from these scroll
+    /// sources as unterminated by default.
+    ///
+    /// This event is optional. If the source is unknown for a particular
+    /// axis event sequence, no event is sent.
+    /// Only one wl_pointer.axis_source event is permitted per frame.
+    ///
+    /// The order of wl_pointer.axis_discrete and wl_pointer.axis_source is
+    /// not guaranteed.
+    ///
+    /// # Arguments
+    ///
+    /// - `axis_source`: source of the axis event
+    #[inline]
+    pub fn send_axis_source(
+        &self,
+        axis_source: WlPointerAxisSource,
+    ) {
+        let res = self.try_send_axis_source(
+            axis_source,
+        );
+        if let Err(e) = res {
+            log_send("wl_pointer.axis_source", &e);
+        }
+    }
+
     /// Since when the axis_stop message is available.
     pub const MSG__AXIS_STOP__SINCE: u32 = 5;
 
@@ -733,7 +1075,7 @@ impl WlPointer {
     /// - `time`: timestamp with millisecond granularity
     /// - `axis`: the axis stopped with this event
     #[inline]
-    pub fn send_axis_stop(
+    pub fn try_send_axis_stop(
         &self,
         time: u32,
         axis: WlPointerAxis,
@@ -775,6 +1117,42 @@ impl WlPointer {
             arg1.0,
         ]);
         Ok(())
+    }
+
+    /// axis stop event
+    ///
+    /// Stop notification for scroll and other axes.
+    ///
+    /// For some wl_pointer.axis_source types, a wl_pointer.axis_stop event
+    /// is sent to notify a client that the axis sequence has terminated.
+    /// This enables the client to implement kinetic scrolling.
+    /// See the wl_pointer.axis_source documentation for information on when
+    /// this event may be generated.
+    ///
+    /// Any wl_pointer.axis events with the same axis_source after this
+    /// event should be considered as the start of a new axis motion.
+    ///
+    /// The timestamp is to be interpreted identical to the timestamp in the
+    /// wl_pointer.axis event. The timestamp value may be the same as a
+    /// preceding wl_pointer.axis event.
+    ///
+    /// # Arguments
+    ///
+    /// - `time`: timestamp with millisecond granularity
+    /// - `axis`: the axis stopped with this event
+    #[inline]
+    pub fn send_axis_stop(
+        &self,
+        time: u32,
+        axis: WlPointerAxis,
+    ) {
+        let res = self.try_send_axis_stop(
+            time,
+            axis,
+        );
+        if let Err(e) = res {
+            log_send("wl_pointer.axis_stop", &e);
+        }
     }
 
     /// Since when the axis_discrete message is available.
@@ -821,7 +1199,7 @@ impl WlPointer {
     /// - `axis`: axis type
     /// - `discrete`: number of steps
     #[inline]
-    pub fn send_axis_discrete(
+    pub fn try_send_axis_discrete(
         &self,
         axis: WlPointerAxis,
         discrete: i32,
@@ -865,6 +1243,58 @@ impl WlPointer {
         Ok(())
     }
 
+    /// axis click event
+    ///
+    /// Discrete step information for scroll and other axes.
+    ///
+    /// This event carries the axis value of the wl_pointer.axis event in
+    /// discrete steps (e.g. mouse wheel clicks).
+    ///
+    /// This event is deprecated with wl_pointer version 8 - this event is not
+    /// sent to clients supporting version 8 or later.
+    ///
+    /// This event does not occur on its own, it is coupled with a
+    /// wl_pointer.axis event that represents this axis value on a
+    /// continuous scale. The protocol guarantees that each axis_discrete
+    /// event is always followed by exactly one axis event with the same
+    /// axis number within the same wl_pointer.frame. Note that the protocol
+    /// allows for other events to occur between the axis_discrete and
+    /// its coupled axis event, including other axis_discrete or axis
+    /// events. A wl_pointer.frame must not contain more than one axis_discrete
+    /// event per axis type.
+    ///
+    /// This event is optional; continuous scrolling devices
+    /// like two-finger scrolling on touchpads do not have discrete
+    /// steps and do not generate this event.
+    ///
+    /// The discrete value carries the directional information. e.g. a value
+    /// of -2 is two steps towards the negative direction of this axis.
+    ///
+    /// The axis number is identical to the axis number in the associated
+    /// axis event.
+    ///
+    /// The order of wl_pointer.axis_discrete and wl_pointer.axis_source is
+    /// not guaranteed.
+    ///
+    /// # Arguments
+    ///
+    /// - `axis`: axis type
+    /// - `discrete`: number of steps
+    #[inline]
+    pub fn send_axis_discrete(
+        &self,
+        axis: WlPointerAxis,
+        discrete: i32,
+    ) {
+        let res = self.try_send_axis_discrete(
+            axis,
+            discrete,
+        );
+        if let Err(e) = res {
+            log_send("wl_pointer.axis_discrete", &e);
+        }
+    }
+
     /// Since when the axis_value120 message is available.
     pub const MSG__AXIS_VALUE120__SINCE: u32 = 8;
 
@@ -897,7 +1327,7 @@ impl WlPointer {
     /// - `axis`: axis type
     /// - `value120`: scroll distance as fraction of 120
     #[inline]
-    pub fn send_axis_value120(
+    pub fn try_send_axis_value120(
         &self,
         axis: WlPointerAxis,
         value120: i32,
@@ -939,6 +1369,49 @@ impl WlPointer {
             arg1 as u32,
         ]);
         Ok(())
+    }
+
+    /// axis high-resolution scroll event
+    ///
+    /// Discrete high-resolution scroll information.
+    ///
+    /// This event carries high-resolution wheel scroll information,
+    /// with each multiple of 120 representing one logical scroll step
+    /// (a wheel detent). For example, an axis_value120 of 30 is one quarter of
+    /// a logical scroll step in the positive direction, a value120 of
+    /// -240 are two logical scroll steps in the negative direction within the
+    /// same hardware event.
+    /// Clients that rely on discrete scrolling should accumulate the
+    /// value120 to multiples of 120 before processing the event.
+    ///
+    /// The value120 must not be zero.
+    ///
+    /// This event replaces the wl_pointer.axis_discrete event in clients
+    /// supporting wl_pointer version 8 or later.
+    ///
+    /// Where a wl_pointer.axis_source event occurs in the same
+    /// wl_pointer.frame, the axis source applies to this event.
+    ///
+    /// The order of wl_pointer.axis_value120 and wl_pointer.axis_source is
+    /// not guaranteed.
+    ///
+    /// # Arguments
+    ///
+    /// - `axis`: axis type
+    /// - `value120`: scroll distance as fraction of 120
+    #[inline]
+    pub fn send_axis_value120(
+        &self,
+        axis: WlPointerAxis,
+        value120: i32,
+    ) {
+        let res = self.try_send_axis_value120(
+            axis,
+            value120,
+        );
+        if let Err(e) = res {
+            log_send("wl_pointer.axis_value120", &e);
+        }
     }
 
     /// Since when the axis_relative_direction message is available.
@@ -987,7 +1460,7 @@ impl WlPointer {
     /// - `axis`: axis type
     /// - `direction`: physical direction relative to axis motion
     #[inline]
-    pub fn send_axis_relative_direction(
+    pub fn try_send_axis_relative_direction(
         &self,
         axis: WlPointerAxis,
         direction: WlPointerAxisRelativeDirection,
@@ -1030,13 +1503,70 @@ impl WlPointer {
         ]);
         Ok(())
     }
+
+    /// axis relative physical direction event
+    ///
+    /// Relative directional information of the entity causing the axis
+    /// motion.
+    ///
+    /// For a wl_pointer.axis event, the wl_pointer.axis_relative_direction
+    /// event specifies the movement direction of the entity causing the
+    /// wl_pointer.axis event. For example:
+    /// - if a user's fingers on a touchpad move down and this
+    ///   causes a wl_pointer.axis vertical_scroll down event, the physical
+    ///   direction is 'identical'
+    /// - if a user's fingers on a touchpad move down and this causes a
+    ///   wl_pointer.axis vertical_scroll up scroll up event ('natural
+    ///   scrolling'), the physical direction is 'inverted'.
+    ///
+    /// A client may use this information to adjust scroll motion of
+    /// components. Specifically, enabling natural scrolling causes the
+    /// content to change direction compared to traditional scrolling.
+    /// Some widgets like volume control sliders should usually match the
+    /// physical direction regardless of whether natural scrolling is
+    /// active. This event enables clients to match the scroll direction of
+    /// a widget to the physical direction.
+    ///
+    /// This event does not occur on its own, it is coupled with a
+    /// wl_pointer.axis event that represents this axis value.
+    /// The protocol guarantees that each axis_relative_direction event is
+    /// always followed by exactly one axis event with the same
+    /// axis number within the same wl_pointer.frame. Note that the protocol
+    /// allows for other events to occur between the axis_relative_direction
+    /// and its coupled axis event.
+    ///
+    /// The axis number is identical to the axis number in the associated
+    /// axis event.
+    ///
+    /// The order of wl_pointer.axis_relative_direction,
+    /// wl_pointer.axis_discrete and wl_pointer.axis_source is not
+    /// guaranteed.
+    ///
+    /// # Arguments
+    ///
+    /// - `axis`: axis type
+    /// - `direction`: physical direction relative to axis motion
+    #[inline]
+    pub fn send_axis_relative_direction(
+        &self,
+        axis: WlPointerAxis,
+        direction: WlPointerAxisRelativeDirection,
+    ) {
+        let res = self.try_send_axis_relative_direction(
+            axis,
+            direction,
+        );
+        if let Err(e) = res {
+            log_send("wl_pointer.axis_relative_direction", &e);
+        }
+    }
 }
 
 /// A message handler for [WlPointer] proxies.
 pub trait WlPointerHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlPointer>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// set the pointer surface
@@ -1096,14 +1626,14 @@ pub trait WlPointerHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_cursor(
+        let res = _slf.try_send_set_cursor(
             serial,
             surface,
             hotspot_x,
             hotspot_y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_pointer.set_cursor message: {}", Report::new(e));
+            log_forward("wl_pointer.set_cursor", &e);
         }
     }
 
@@ -1144,14 +1674,14 @@ pub trait WlPointerHandler: Any {
                 }
             }
         }
-        let res = _slf.send_enter(
+        let res = _slf.try_send_enter(
             serial,
             surface,
             surface_x,
             surface_y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_pointer.enter message: {}", Report::new(e));
+            log_forward("wl_pointer.enter", &e);
         }
     }
 
@@ -1187,12 +1717,12 @@ pub trait WlPointerHandler: Any {
                 }
             }
         }
-        let res = _slf.send_leave(
+        let res = _slf.try_send_leave(
             serial,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_pointer.leave message: {}", Report::new(e));
+            log_forward("wl_pointer.leave", &e);
         }
     }
 
@@ -1218,13 +1748,13 @@ pub trait WlPointerHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_motion(
+        let res = _slf.try_send_motion(
             time,
             surface_x,
             surface_y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_pointer.motion message: {}", Report::new(e));
+            log_forward("wl_pointer.motion", &e);
         }
     }
 
@@ -1263,14 +1793,14 @@ pub trait WlPointerHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_button(
+        let res = _slf.try_send_button(
             serial,
             time,
             button,
             state,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_pointer.button message: {}", Report::new(e));
+            log_forward("wl_pointer.button", &e);
         }
     }
 
@@ -1309,13 +1839,13 @@ pub trait WlPointerHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_axis(
+        let res = _slf.try_send_axis(
             time,
             axis,
             value,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_pointer.axis message: {}", Report::new(e));
+            log_forward("wl_pointer.axis", &e);
         }
     }
 
@@ -1334,10 +1864,10 @@ pub trait WlPointerHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_release(
+        let res = _slf.try_send_release(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_pointer.release message: {}", Report::new(e));
+            log_forward("wl_pointer.release", &e);
         }
     }
 
@@ -1385,10 +1915,10 @@ pub trait WlPointerHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_frame(
+        let res = _slf.try_send_frame(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_pointer.frame message: {}", Report::new(e));
+            log_forward("wl_pointer.frame", &e);
         }
     }
 
@@ -1432,11 +1962,11 @@ pub trait WlPointerHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_axis_source(
+        let res = _slf.try_send_axis_source(
             axis_source,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_pointer.axis_source message: {}", Report::new(e));
+            log_forward("wl_pointer.axis_source", &e);
         }
     }
 
@@ -1471,12 +2001,12 @@ pub trait WlPointerHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_axis_stop(
+        let res = _slf.try_send_axis_stop(
             time,
             axis,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_pointer.axis_stop message: {}", Report::new(e));
+            log_forward("wl_pointer.axis_stop", &e);
         }
     }
 
@@ -1527,12 +2057,12 @@ pub trait WlPointerHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_axis_discrete(
+        let res = _slf.try_send_axis_discrete(
             axis,
             discrete,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_pointer.axis_discrete message: {}", Report::new(e));
+            log_forward("wl_pointer.axis_discrete", &e);
         }
     }
 
@@ -1574,12 +2104,12 @@ pub trait WlPointerHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_axis_value120(
+        let res = _slf.try_send_axis_value120(
             axis,
             value120,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_pointer.axis_value120 message: {}", Report::new(e));
+            log_forward("wl_pointer.axis_value120", &e);
         }
     }
 
@@ -1635,12 +2165,12 @@ pub trait WlPointerHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_axis_relative_direction(
+        let res = _slf.try_send_axis_relative_direction(
             axis,
             direction,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_pointer.axis_relative_direction message: {}", Report::new(e));
+            log_forward("wl_pointer.axis_relative_direction", &e);
         }
     }
 }
@@ -1660,7 +2190,7 @@ impl ObjectPrivate for WlPointer {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

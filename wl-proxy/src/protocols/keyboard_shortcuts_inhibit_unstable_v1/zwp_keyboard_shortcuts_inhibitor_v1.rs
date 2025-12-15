@@ -86,7 +86,7 @@ impl ZwpKeyboardShortcutsInhibitorV1 {
     ///
     /// Remove the keyboard shortcuts inhibitor from the associated wl_surface.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -118,6 +118,20 @@ impl ZwpKeyboardShortcutsInhibitorV1 {
         Ok(())
     }
 
+    /// destroy the keyboard shortcuts inhibitor object
+    ///
+    /// Remove the keyboard shortcuts inhibitor from the associated wl_surface.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_keyboard_shortcuts_inhibitor_v1.destroy", &e);
+        }
+    }
+
     /// Since when the active message is available.
     pub const MSG__ACTIVE__SINCE: u32 = 1;
 
@@ -135,7 +149,7 @@ impl ZwpKeyboardShortcutsInhibitorV1 {
     /// re-enable and existing shortcuts inhibitor using any mechanism
     /// offered by the compositor.
     #[inline]
-    pub fn send_active(
+    pub fn try_send_active(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -168,6 +182,30 @@ impl ZwpKeyboardShortcutsInhibitorV1 {
         Ok(())
     }
 
+    /// shortcuts are inhibited
+    ///
+    /// This event indicates that the shortcut inhibitor is active.
+    ///
+    /// The compositor sends this event every time compositor shortcuts
+    /// are inhibited on behalf of the surface. When active, the client
+    /// may receive input events normally reserved by the compositor
+    /// (see zwp_keyboard_shortcuts_inhibitor_v1).
+    ///
+    /// This occurs typically when the initial request "inhibit_shortcuts"
+    /// first becomes active or when the user instructs the compositor to
+    /// re-enable and existing shortcuts inhibitor using any mechanism
+    /// offered by the compositor.
+    #[inline]
+    pub fn send_active(
+        &self,
+    ) {
+        let res = self.try_send_active(
+        );
+        if let Err(e) = res {
+            log_send("zwp_keyboard_shortcuts_inhibitor_v1.active", &e);
+        }
+    }
+
     /// Since when the inactive message is available.
     pub const MSG__INACTIVE__SINCE: u32 = 1;
 
@@ -176,7 +214,7 @@ impl ZwpKeyboardShortcutsInhibitorV1 {
     /// This event indicates that the shortcuts inhibitor is inactive,
     /// normal shortcuts processing is restored by the compositor.
     #[inline]
-    pub fn send_inactive(
+    pub fn try_send_inactive(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -208,13 +246,28 @@ impl ZwpKeyboardShortcutsInhibitorV1 {
         ]);
         Ok(())
     }
+
+    /// shortcuts are restored
+    ///
+    /// This event indicates that the shortcuts inhibitor is inactive,
+    /// normal shortcuts processing is restored by the compositor.
+    #[inline]
+    pub fn send_inactive(
+        &self,
+    ) {
+        let res = self.try_send_inactive(
+        );
+        if let Err(e) = res {
+            log_send("zwp_keyboard_shortcuts_inhibitor_v1.inactive", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpKeyboardShortcutsInhibitorV1] proxies.
 pub trait ZwpKeyboardShortcutsInhibitorV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpKeyboardShortcutsInhibitorV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the keyboard shortcuts inhibitor object
@@ -228,10 +281,10 @@ pub trait ZwpKeyboardShortcutsInhibitorV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_keyboard_shortcuts_inhibitor_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_keyboard_shortcuts_inhibitor_v1.destroy", &e);
         }
     }
 
@@ -256,10 +309,10 @@ pub trait ZwpKeyboardShortcutsInhibitorV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_active(
+        let res = _slf.try_send_active(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_keyboard_shortcuts_inhibitor_v1.active message: {}", Report::new(e));
+            log_forward("zwp_keyboard_shortcuts_inhibitor_v1.active", &e);
         }
     }
 
@@ -275,10 +328,10 @@ pub trait ZwpKeyboardShortcutsInhibitorV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_inactive(
+        let res = _slf.try_send_inactive(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_keyboard_shortcuts_inhibitor_v1.inactive message: {}", Report::new(e));
+            log_forward("zwp_keyboard_shortcuts_inhibitor_v1.inactive", &e);
         }
     }
 }
@@ -298,7 +351,7 @@ impl ObjectPrivate for ZwpKeyboardShortcutsInhibitorV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

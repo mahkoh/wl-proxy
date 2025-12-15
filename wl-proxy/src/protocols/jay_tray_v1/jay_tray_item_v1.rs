@@ -73,7 +73,7 @@ impl JayTrayItemV1 {
     /// The client must destroy all popups before this. Otherwise the has_popups
     /// error is emitted.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -105,6 +105,23 @@ impl JayTrayItemV1 {
         Ok(())
     }
 
+    /// destroy this object
+    ///
+    /// Destroy this object. The item is immediately removed from the tray.
+    ///
+    /// The client must destroy all popups before this. Otherwise the has_popups
+    /// error is emitted.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("jay_tray_item_v1.destroy", &e);
+        }
+    }
+
     /// Since when the ack_configure message is available.
     pub const MSG__ACK_CONFIGURE__SINCE: u32 = 1;
 
@@ -118,7 +135,7 @@ impl JayTrayItemV1 {
     ///
     /// - `serial`: the serial
     #[inline]
-    pub fn send_ack_configure(
+    pub fn try_send_ack_configure(
         &self,
         serial: u32,
     ) -> Result<(), ObjectError> {
@@ -156,6 +173,28 @@ impl JayTrayItemV1 {
         Ok(())
     }
 
+    /// ack a configuration sequence
+    ///
+    /// Ack a configuration sequence. The acked configuration sequence is
+    /// double-buffered state, see wl_surface.commit. If the compositor has
+    /// never sent this serial, an invalid_configure_serial error is emitted.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: the serial
+    #[inline]
+    pub fn send_ack_configure(
+        &self,
+        serial: u32,
+    ) {
+        let res = self.try_send_ack_configure(
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("jay_tray_item_v1.ack_configure", &e);
+        }
+    }
+
     /// Since when the get_popup message is available.
     pub const MSG__GET_POPUP__SINCE: u32 = 1;
 
@@ -185,7 +224,7 @@ impl JayTrayItemV1 {
     /// - `serial`: the causal input serial
     /// - `focus_hint`: a hint for keyboard focus handling
     #[inline]
-    pub fn send_get_popup(
+    pub fn try_send_get_popup(
         &self,
         popup: &Rc<XdgPopup>,
         seat: &Rc<WlSeat>,
@@ -245,6 +284,50 @@ impl JayTrayItemV1 {
         Ok(())
     }
 
+    /// create a popup for tray item
+    ///
+    /// Create a popup for a tray item.
+    ///
+    /// The popup should have been created with a null parent. If the popup
+    /// already has a parent, the has_parent error is emitted.
+    ///
+    /// The seat and serial indicate the interaction that causes this popup to
+    /// be shown. If the compositor has never sent this serial, the compositor
+    /// might emit the invalid_seat_serial error. This is compositor policy.
+    /// If the focus_hint is invalid, the invalid_keyboard_focus_hint error is
+    /// emitted.
+    ///
+    /// The focus hint indicates how the client wants keyboard focus to be
+    /// handled for the popup. The compositor may ignore the hint. This hint has
+    /// no effect on nested popups.
+    ///
+    /// The compositor may dismiss the popup at any point.
+    ///
+    /// # Arguments
+    ///
+    /// - `popup`: the popup to be shown
+    /// - `seat`: the causal seat
+    /// - `serial`: the causal input serial
+    /// - `focus_hint`: a hint for keyboard focus handling
+    #[inline]
+    pub fn send_get_popup(
+        &self,
+        popup: &Rc<XdgPopup>,
+        seat: &Rc<WlSeat>,
+        serial: u32,
+        focus_hint: JayTrayItemV1KeyboardFocusHint,
+    ) {
+        let res = self.try_send_get_popup(
+            popup,
+            seat,
+            serial,
+            focus_hint,
+        );
+        if let Err(e) = res {
+            log_send("jay_tray_item_v1.get_popup", &e);
+        }
+    }
+
     /// Since when the configure_size message is available.
     pub const MSG__CONFIGURE_SIZE__SINCE: u32 = 1;
 
@@ -273,7 +356,7 @@ impl JayTrayItemV1 {
     /// - `width`: the optimal width in surface coordinates
     /// - `height`: the optimal height in surface coordinates
     #[inline]
-    pub fn send_configure_size(
+    pub fn try_send_configure_size(
         &self,
         width: i32,
         height: i32,
@@ -317,6 +400,45 @@ impl JayTrayItemV1 {
         Ok(())
     }
 
+    /// optimal tray item size has changed
+    ///
+    /// This event is sent when the optimal size for the item has changed.
+    /// This event is part of a configuration sequence that is terminated with
+    /// a configure event. The client should not act on it immediately but wait
+    /// for the configure event.
+    ///
+    /// When the client receives this event, it should reconfigure the surface
+    /// for the new size, ack the sequence, and commit the surface.
+    ///
+    /// If the surface has a different size, the compositor might crop or
+    /// stretch the surface. If the surface has subsurfaces that extend beyond
+    /// the edges of the surface, the compositor might crop them.
+    ///
+    /// The width and height are at least 1.
+    ///
+    /// If a configuration sequence does not contain this event, the client
+    /// should assume that the value is unchanged. The first configuration
+    /// sequence must contain this event.
+    ///
+    /// # Arguments
+    ///
+    /// - `width`: the optimal width in surface coordinates
+    /// - `height`: the optimal height in surface coordinates
+    #[inline]
+    pub fn send_configure_size(
+        &self,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_configure_size(
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("jay_tray_item_v1.configure_size", &e);
+        }
+    }
+
     /// Since when the preferred_anchor message is available.
     pub const MSG__PREFERRED_ANCHOR__SINCE: u32 = 1;
 
@@ -335,7 +457,7 @@ impl JayTrayItemV1 {
     ///
     /// - `anchor`: the preferred anchor
     #[inline]
-    pub fn send_preferred_anchor(
+    pub fn try_send_preferred_anchor(
         &self,
         anchor: XdgPositionerAnchor,
     ) -> Result<(), ObjectError> {
@@ -375,6 +497,33 @@ impl JayTrayItemV1 {
         Ok(())
     }
 
+    /// preferred anchor has changed
+    ///
+    /// This events is sent when the preferred anchor for popup windows changes.
+    /// This event is part of a configuration sequence that is terminated with
+    /// a configure event. The client should not act on it immediately but wait
+    /// for the configure event.
+    ///
+    /// If a configuration sequence does not contain this event, the client
+    /// should assume that the value is unchanged. The first configuration
+    /// sequence must contain this event.
+    ///
+    /// # Arguments
+    ///
+    /// - `anchor`: the preferred anchor
+    #[inline]
+    pub fn send_preferred_anchor(
+        &self,
+        anchor: XdgPositionerAnchor,
+    ) {
+        let res = self.try_send_preferred_anchor(
+            anchor,
+        );
+        if let Err(e) = res {
+            log_send("jay_tray_item_v1.preferred_anchor", &e);
+        }
+    }
+
     /// Since when the preferred_gravity message is available.
     pub const MSG__PREFERRED_GRAVITY__SINCE: u32 = 1;
 
@@ -393,7 +542,7 @@ impl JayTrayItemV1 {
     ///
     /// - `gravity`: the preferred gravity
     #[inline]
-    pub fn send_preferred_gravity(
+    pub fn try_send_preferred_gravity(
         &self,
         gravity: XdgPositionerGravity,
     ) -> Result<(), ObjectError> {
@@ -433,6 +582,33 @@ impl JayTrayItemV1 {
         Ok(())
     }
 
+    /// preferred gravity has changed
+    ///
+    /// This events is sent when the preferred gravity for popup windows changes.
+    /// This event is part of a configuration sequence that is terminated with
+    /// a configure event. The client should not act on it immediately but wait
+    /// for the configure event.
+    ///
+    /// If a configuration sequence does not contain this event, the client
+    /// should assume that the value is unchanged. The first configuration
+    /// sequence must contain this event.
+    ///
+    /// # Arguments
+    ///
+    /// - `gravity`: the preferred gravity
+    #[inline]
+    pub fn send_preferred_gravity(
+        &self,
+        gravity: XdgPositionerGravity,
+    ) {
+        let res = self.try_send_preferred_gravity(
+            gravity,
+        );
+        if let Err(e) = res {
+            log_send("jay_tray_item_v1.preferred_gravity", &e);
+        }
+    }
+
     /// Since when the configure message is available.
     pub const MSG__CONFIGURE__SINCE: u32 = 1;
 
@@ -448,7 +624,7 @@ impl JayTrayItemV1 {
     ///
     /// - `serial`: the serial
     #[inline]
-    pub fn send_configure(
+    pub fn try_send_configure(
         &self,
         serial: u32,
     ) -> Result<(), ObjectError> {
@@ -487,13 +663,37 @@ impl JayTrayItemV1 {
         ]);
         Ok(())
     }
+
+    /// marks the end of a configuration sequence
+    ///
+    /// This event marks the end of a configuration sequence. The client should
+    /// act on the new parameters, ack the sequence, and commit the surface.
+    ///
+    /// Note that this serial is not related to the wl_seat serial used in
+    /// get_popup requests.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: the serial
+    #[inline]
+    pub fn send_configure(
+        &self,
+        serial: u32,
+    ) {
+        let res = self.try_send_configure(
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("jay_tray_item_v1.configure", &e);
+        }
+    }
 }
 
 /// A message handler for [JayTrayItemV1] proxies.
 pub trait JayTrayItemV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<JayTrayItemV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy this object
@@ -510,10 +710,10 @@ pub trait JayTrayItemV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a jay_tray_item_v1.destroy message: {}", Report::new(e));
+            log_forward("jay_tray_item_v1.destroy", &e);
         }
     }
 
@@ -535,11 +735,11 @@ pub trait JayTrayItemV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_ack_configure(
+        let res = _slf.try_send_ack_configure(
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a jay_tray_item_v1.ack_configure message: {}", Report::new(e));
+            log_forward("jay_tray_item_v1.ack_configure", &e);
         }
     }
 
@@ -583,14 +783,14 @@ pub trait JayTrayItemV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_popup(
+        let res = _slf.try_send_get_popup(
             popup,
             seat,
             serial,
             focus_hint,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a jay_tray_item_v1.get_popup message: {}", Report::new(e));
+            log_forward("jay_tray_item_v1.get_popup", &e);
         }
     }
 
@@ -628,12 +828,12 @@ pub trait JayTrayItemV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_configure_size(
+        let res = _slf.try_send_configure_size(
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a jay_tray_item_v1.configure_size message: {}", Report::new(e));
+            log_forward("jay_tray_item_v1.configure_size", &e);
         }
     }
 
@@ -660,11 +860,11 @@ pub trait JayTrayItemV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_preferred_anchor(
+        let res = _slf.try_send_preferred_anchor(
             anchor,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a jay_tray_item_v1.preferred_anchor message: {}", Report::new(e));
+            log_forward("jay_tray_item_v1.preferred_anchor", &e);
         }
     }
 
@@ -691,11 +891,11 @@ pub trait JayTrayItemV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_preferred_gravity(
+        let res = _slf.try_send_preferred_gravity(
             gravity,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a jay_tray_item_v1.preferred_gravity message: {}", Report::new(e));
+            log_forward("jay_tray_item_v1.preferred_gravity", &e);
         }
     }
 
@@ -719,11 +919,11 @@ pub trait JayTrayItemV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_configure(
+        let res = _slf.try_send_configure(
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a jay_tray_item_v1.configure message: {}", Report::new(e));
+            log_forward("jay_tray_item_v1.configure", &e);
         }
     }
 }
@@ -743,7 +943,7 @@ impl ObjectPrivate for JayTrayItemV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

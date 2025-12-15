@@ -59,7 +59,7 @@ impl ExtBackgroundEffectSurfaceV1 {
     /// Informs the server that the client will no longer be using this protocol
     /// object. The effect regions will be removed on the next commit.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -91,6 +91,21 @@ impl ExtBackgroundEffectSurfaceV1 {
         Ok(())
     }
 
+    /// release the blur object
+    ///
+    /// Informs the server that the client will no longer be using this protocol
+    /// object. The effect regions will be removed on the next commit.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_background_effect_surface_v1.destroy", &e);
+        }
+    }
+
     /// Since when the set_blur_region message is available.
     pub const MSG__SET_BLUR_REGION__SINCE: u32 = 1;
 
@@ -118,7 +133,7 @@ impl ExtBackgroundEffectSurfaceV1 {
     ///
     /// - `region`: blur region of the surface
     #[inline]
-    pub fn send_set_blur_region(
+    pub fn try_send_set_blur_region(
         &self,
         region: Option<&Rc<WlRegion>>,
     ) -> Result<(), ObjectError> {
@@ -163,13 +178,49 @@ impl ExtBackgroundEffectSurfaceV1 {
         ]);
         Ok(())
     }
+
+    /// set blur region
+    ///
+    /// This request sets the region of the surface that will have its
+    /// background blurred.
+    ///
+    /// The blur region is specified in the surface-local coordinates, and
+    /// clipped by the compositor to the surface size.
+    ///
+    /// The initial value for the blur region is empty. Setting the pending
+    /// blur region has copy semantics, and the wl_region object can be
+    /// destroyed immediately. A NULL wl_region removes the effect.
+    ///
+    /// The blur region is double-buffered state, and will be applied on
+    /// the next wl_surface.commit.
+    ///
+    /// The blur algorithm is subject to compositor policies.
+    ///
+    /// If the associated surface has been destroyed, the surface_destroyed
+    /// error will be raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `region`: blur region of the surface
+    #[inline]
+    pub fn send_set_blur_region(
+        &self,
+        region: Option<&Rc<WlRegion>>,
+    ) {
+        let res = self.try_send_set_blur_region(
+            region,
+        );
+        if let Err(e) = res {
+            log_send("ext_background_effect_surface_v1.set_blur_region", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtBackgroundEffectSurfaceV1] proxies.
 pub trait ExtBackgroundEffectSurfaceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtBackgroundEffectSurfaceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// release the blur object
@@ -184,10 +235,10 @@ pub trait ExtBackgroundEffectSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_background_effect_surface_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_background_effect_surface_v1.destroy", &e);
         }
     }
 
@@ -226,11 +277,11 @@ pub trait ExtBackgroundEffectSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_blur_region(
+        let res = _slf.try_send_set_blur_region(
             region,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_background_effect_surface_v1.set_blur_region message: {}", Report::new(e));
+            log_forward("ext_background_effect_surface_v1.set_blur_region", &e);
         }
     }
 }
@@ -250,7 +301,7 @@ impl ObjectPrivate for ExtBackgroundEffectSurfaceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

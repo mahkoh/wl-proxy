@@ -57,7 +57,7 @@ impl ZwpInputPanelSurfaceV1 {
     /// - `output`:
     /// - `position`:
     #[inline]
-    pub fn send_set_toplevel(
+    pub fn try_send_set_toplevel(
         &self,
         output: &Rc<WlOutput>,
         position: u32,
@@ -104,6 +104,31 @@ impl ZwpInputPanelSurfaceV1 {
         Ok(())
     }
 
+    /// set the surface type as a keyboard
+    ///
+    /// Set the input_panel_surface type to keyboard.
+    ///
+    /// A keyboard surface is only shown when a text input is active.
+    ///
+    /// # Arguments
+    ///
+    /// - `output`:
+    /// - `position`:
+    #[inline]
+    pub fn send_set_toplevel(
+        &self,
+        output: &Rc<WlOutput>,
+        position: u32,
+    ) {
+        let res = self.try_send_set_toplevel(
+            output,
+            position,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_panel_surface_v1.set_toplevel", &e);
+        }
+    }
+
     /// Since when the set_overlay_panel message is available.
     pub const MSG__SET_OVERLAY_PANEL__SINCE: u32 = 1;
 
@@ -114,7 +139,7 @@ impl ZwpInputPanelSurfaceV1 {
     /// This is shown near the input cursor above the application window when
     /// a text input is active.
     #[inline]
-    pub fn send_set_overlay_panel(
+    pub fn try_send_set_overlay_panel(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -144,13 +169,30 @@ impl ZwpInputPanelSurfaceV1 {
         ]);
         Ok(())
     }
+
+    /// set the surface type as an overlay panel
+    ///
+    /// Set the input_panel_surface to be an overlay panel.
+    ///
+    /// This is shown near the input cursor above the application window when
+    /// a text input is active.
+    #[inline]
+    pub fn send_set_overlay_panel(
+        &self,
+    ) {
+        let res = self.try_send_set_overlay_panel(
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_panel_surface_v1.set_overlay_panel", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpInputPanelSurfaceV1] proxies.
 pub trait ZwpInputPanelSurfaceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpInputPanelSurfaceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// set the surface type as a keyboard
@@ -176,12 +218,12 @@ pub trait ZwpInputPanelSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_toplevel(
+        let res = _slf.try_send_set_toplevel(
             output,
             position,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_panel_surface_v1.set_toplevel message: {}", Report::new(e));
+            log_forward("zwp_input_panel_surface_v1.set_toplevel", &e);
         }
     }
 
@@ -199,10 +241,10 @@ pub trait ZwpInputPanelSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_overlay_panel(
+        let res = _slf.try_send_set_overlay_panel(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_panel_surface_v1.set_overlay_panel message: {}", Report::new(e));
+            log_forward("zwp_input_panel_surface_v1.set_overlay_panel", &e);
         }
     }
 }
@@ -222,7 +264,7 @@ impl ObjectPrivate for ZwpInputPanelSurfaceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

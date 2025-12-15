@@ -80,7 +80,7 @@ impl ZwpTabletPadDialV2 {
     /// - `description`: dial description
     /// - `serial`: serial of the mode switch event
     #[inline]
-    pub fn send_set_feedback(
+    pub fn try_send_set_feedback(
         &self,
         description: &str,
         serial: u32,
@@ -124,6 +124,47 @@ impl ZwpTabletPadDialV2 {
         Ok(())
     }
 
+    /// set compositor feedback
+    ///
+    /// Requests the compositor to use the provided feedback string
+    /// associated with this dial. This request should be issued immediately
+    /// after a zwp_tablet_pad_group_v2.mode_switch event from the corresponding
+    /// group is received, or whenever the dial is mapped to a different
+    /// action. See zwp_tablet_pad_group_v2.mode_switch for more details.
+    ///
+    /// Clients are encouraged to provide context-aware descriptions for
+    /// the actions associated with the dial, and compositors may use this
+    /// information to offer visual feedback about the button layout
+    /// (eg. on-screen displays).
+    ///
+    /// The provided string 'description' is a UTF-8 encoded string to be
+    /// associated with this ring, and is considered user-visible; general
+    /// internationalization rules apply.
+    ///
+    /// The serial argument will be that of the last
+    /// zwp_tablet_pad_group_v2.mode_switch event received for the group of this
+    /// dial. Requests providing other serials than the most recent one will be
+    /// ignored.
+    ///
+    /// # Arguments
+    ///
+    /// - `description`: dial description
+    /// - `serial`: serial of the mode switch event
+    #[inline]
+    pub fn send_set_feedback(
+        &self,
+        description: &str,
+        serial: u32,
+    ) {
+        let res = self.try_send_set_feedback(
+            description,
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_dial_v2.set_feedback", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -131,7 +172,7 @@ impl ZwpTabletPadDialV2 {
     ///
     /// This destroys the client's resource for this dial object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -163,6 +204,20 @@ impl ZwpTabletPadDialV2 {
         Ok(())
     }
 
+    /// destroy the dial object
+    ///
+    /// This destroys the client's resource for this dial object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_dial_v2.destroy", &e);
+        }
+    }
+
     /// Since when the delta message is available.
     pub const MSG__DELTA__SINCE: u32 = 1;
 
@@ -183,7 +238,7 @@ impl ZwpTabletPadDialV2 {
     ///
     /// - `value120`: rotation distance as fraction of 120
     #[inline]
-    pub fn send_delta(
+    pub fn try_send_delta(
         &self,
         value120: i32,
     ) -> Result<(), ObjectError> {
@@ -223,6 +278,35 @@ impl ZwpTabletPadDialV2 {
         Ok(())
     }
 
+    /// delta movement
+    ///
+    /// Sent whenever the position on a dial changes.
+    ///
+    /// This event carries the wheel delta as multiples or fractions
+    /// of 120 with each multiple of 120 representing one logical wheel detent.
+    /// For example, an axis_value120 of 30 is one quarter of
+    /// a logical wheel step in the positive direction, a value120 of
+    /// -240 are two logical wheel steps in the negative direction within the
+    /// same hardware event. See the wl_pointer.axis_value120 for more details.
+    ///
+    /// The value120 must not be zero.
+    ///
+    /// # Arguments
+    ///
+    /// - `value120`: rotation distance as fraction of 120
+    #[inline]
+    pub fn send_delta(
+        &self,
+        value120: i32,
+    ) {
+        let res = self.try_send_delta(
+            value120,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_dial_v2.delta", &e);
+        }
+    }
+
     /// Since when the frame message is available.
     pub const MSG__FRAME__SINCE: u32 = 1;
 
@@ -244,7 +328,7 @@ impl ZwpTabletPadDialV2 {
     ///
     /// - `time`: timestamp with millisecond granularity
     #[inline]
-    pub fn send_frame(
+    pub fn try_send_frame(
         &self,
         time: u32,
     ) -> Result<(), ObjectError> {
@@ -283,13 +367,43 @@ impl ZwpTabletPadDialV2 {
         ]);
         Ok(())
     }
+
+    /// end of a dial event sequence
+    ///
+    /// Indicates the end of a set of events that represent one logical
+    /// hardware dial event. A client is expected to accumulate the data
+    /// in all events within the frame before proceeding.
+    ///
+    /// All zwp_tablet_pad_dial_v2 events before a zwp_tablet_pad_dial_v2.frame event belong
+    /// logically together.
+    ///
+    /// A zwp_tablet_pad_dial_v2.frame event is sent for every logical event
+    /// group, even if the group only contains a single zwp_tablet_pad_dial_v2
+    /// event. Specifically, a client may get a sequence: delta, frame,
+    /// delta, frame, etc.
+    ///
+    /// # Arguments
+    ///
+    /// - `time`: timestamp with millisecond granularity
+    #[inline]
+    pub fn send_frame(
+        &self,
+        time: u32,
+    ) {
+        let res = self.try_send_frame(
+            time,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_dial_v2.frame", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpTabletPadDialV2] proxies.
 pub trait ZwpTabletPadDialV2Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpTabletPadDialV2>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// set compositor feedback
@@ -328,12 +442,12 @@ pub trait ZwpTabletPadDialV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_feedback(
+        let res = _slf.try_send_set_feedback(
             description,
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_dial_v2.set_feedback message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_dial_v2.set_feedback", &e);
         }
     }
 
@@ -348,10 +462,10 @@ pub trait ZwpTabletPadDialV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_dial_v2.destroy message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_dial_v2.destroy", &e);
         }
     }
 
@@ -380,11 +494,11 @@ pub trait ZwpTabletPadDialV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_delta(
+        let res = _slf.try_send_delta(
             value120,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_dial_v2.delta message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_dial_v2.delta", &e);
         }
     }
 
@@ -414,11 +528,11 @@ pub trait ZwpTabletPadDialV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_frame(
+        let res = _slf.try_send_frame(
             time,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_dial_v2.frame message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_dial_v2.frame", &e);
         }
     }
 }
@@ -438,7 +552,7 @@ impl ObjectPrivate for ZwpTabletPadDialV2 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

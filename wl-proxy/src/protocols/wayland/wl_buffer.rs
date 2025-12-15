@@ -71,7 +71,7 @@ impl WlBuffer {
     ///
     /// For possible side-effects to a surface, see wl_surface.attach.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -103,6 +103,23 @@ impl WlBuffer {
         Ok(())
     }
 
+    /// destroy a buffer
+    ///
+    /// Destroy a buffer. If and how you need to release the backing
+    /// storage is defined by the buffer factory interface.
+    ///
+    /// For possible side-effects to a surface, see wl_surface.attach.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wl_buffer.destroy", &e);
+        }
+    }
+
     /// Since when the release message is available.
     pub const MSG__RELEASE__SINCE: u32 = 1;
 
@@ -123,7 +140,7 @@ impl WlBuffer {
     /// wl_surface contents, e.g. as a GL texture. This is an important
     /// optimization for GL(ES) compositors with wl_shm clients.
     #[inline]
-    pub fn send_release(
+    pub fn try_send_release(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -155,13 +172,40 @@ impl WlBuffer {
         ]);
         Ok(())
     }
+
+    /// compositor releases buffer
+    ///
+    /// Sent when this wl_buffer is no longer used by the compositor.
+    ///
+    /// For more information on when release events may or may not be sent,
+    /// and what consequences it has, please see the description of
+    /// wl_surface.attach.
+    ///
+    /// If a client receives a release event before the frame callback
+    /// requested in the same wl_surface.commit that attaches this
+    /// wl_buffer to a surface, then the client is immediately free to
+    /// reuse the buffer and its backing storage, and does not need a
+    /// second buffer for the next surface content update. Typically
+    /// this is possible, when the compositor maintains a copy of the
+    /// wl_surface contents, e.g. as a GL texture. This is an important
+    /// optimization for GL(ES) compositors with wl_shm clients.
+    #[inline]
+    pub fn send_release(
+        &self,
+    ) {
+        let res = self.try_send_release(
+        );
+        if let Err(e) = res {
+            log_send("wl_buffer.release", &e);
+        }
+    }
 }
 
 /// A message handler for [WlBuffer] proxies.
 pub trait WlBufferHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlBuffer>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy a buffer
@@ -178,10 +222,10 @@ pub trait WlBufferHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_buffer.destroy message: {}", Report::new(e));
+            log_forward("wl_buffer.destroy", &e);
         }
     }
 
@@ -209,10 +253,10 @@ pub trait WlBufferHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_release(
+        let res = _slf.try_send_release(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_buffer.release message: {}", Report::new(e));
+            log_forward("wl_buffer.release", &e);
         }
     }
 }
@@ -232,7 +276,7 @@ impl ObjectPrivate for WlBuffer {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

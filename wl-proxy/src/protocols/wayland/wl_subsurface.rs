@@ -108,7 +108,7 @@ impl WlSubsurface {
     /// wl_subcompositor.get_subsurface request. The wl_surface's association
     /// to the parent is deleted. The wl_surface is unmapped immediately.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -140,6 +140,23 @@ impl WlSubsurface {
         Ok(())
     }
 
+    /// remove sub-surface interface
+    ///
+    /// The sub-surface interface is removed from the wl_surface object
+    /// that was turned into a sub-surface with a
+    /// wl_subcompositor.get_subsurface request. The wl_surface's association
+    /// to the parent is deleted. The wl_surface is unmapped immediately.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wl_subsurface.destroy", &e);
+        }
+    }
+
     /// Since when the set_position message is available.
     pub const MSG__SET_POSITION__SINCE: u32 = 1;
 
@@ -165,7 +182,7 @@ impl WlSubsurface {
     /// - `x`: x coordinate in the parent surface
     /// - `y`: y coordinate in the parent surface
     #[inline]
-    pub fn send_set_position(
+    pub fn try_send_set_position(
         &self,
         x: i32,
         y: i32,
@@ -207,6 +224,42 @@ impl WlSubsurface {
         Ok(())
     }
 
+    /// reposition the sub-surface
+    ///
+    /// This schedules a sub-surface position change.
+    /// The sub-surface will be moved so that its origin (top left
+    /// corner pixel) will be at the location x, y of the parent surface
+    /// coordinate system. The coordinates are not restricted to the parent
+    /// surface area. Negative values are allowed.
+    ///
+    /// The scheduled coordinates will take effect whenever the state of the
+    /// parent surface is applied.
+    ///
+    /// If more than one set_position request is invoked by the client before
+    /// the commit of the parent surface, the position of a new request always
+    /// replaces the scheduled position from any previous request.
+    ///
+    /// The initial position is 0, 0.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: x coordinate in the parent surface
+    /// - `y`: y coordinate in the parent surface
+    #[inline]
+    pub fn send_set_position(
+        &self,
+        x: i32,
+        y: i32,
+    ) {
+        let res = self.try_send_set_position(
+            x,
+            y,
+        );
+        if let Err(e) = res {
+            log_send("wl_subsurface.set_position", &e);
+        }
+    }
+
     /// Since when the place_above message is available.
     pub const MSG__PLACE_ABOVE__SINCE: u32 = 1;
 
@@ -230,7 +283,7 @@ impl WlSubsurface {
     ///
     /// - `sibling`: the reference surface
     #[inline]
-    pub fn send_place_above(
+    pub fn try_send_place_above(
         &self,
         sibling: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
@@ -273,6 +326,38 @@ impl WlSubsurface {
         Ok(())
     }
 
+    /// restack the sub-surface
+    ///
+    /// This sub-surface is taken from the stack, and put back just
+    /// above the reference surface, changing the z-order of the sub-surfaces.
+    /// The reference surface must be one of the sibling surfaces, or the
+    /// parent surface. Using any other surface, including this sub-surface,
+    /// will cause a protocol error.
+    ///
+    /// The z-order is double-buffered. Requests are handled in order and
+    /// applied immediately to a pending state. The final pending state is
+    /// copied to the active state the next time the state of the parent
+    /// surface is applied.
+    ///
+    /// A new sub-surface is initially added as the top-most in the stack
+    /// of its siblings and parent.
+    ///
+    /// # Arguments
+    ///
+    /// - `sibling`: the reference surface
+    #[inline]
+    pub fn send_place_above(
+        &self,
+        sibling: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_place_above(
+            sibling,
+        );
+        if let Err(e) = res {
+            log_send("wl_subsurface.place_above", &e);
+        }
+    }
+
     /// Since when the place_below message is available.
     pub const MSG__PLACE_BELOW__SINCE: u32 = 1;
 
@@ -285,7 +370,7 @@ impl WlSubsurface {
     ///
     /// - `sibling`: the reference surface
     #[inline]
-    pub fn send_place_below(
+    pub fn try_send_place_below(
         &self,
         sibling: &Rc<WlSurface>,
     ) -> Result<(), ObjectError> {
@@ -328,6 +413,27 @@ impl WlSubsurface {
         Ok(())
     }
 
+    /// restack the sub-surface
+    ///
+    /// The sub-surface is placed just below the reference surface.
+    /// See wl_subsurface.place_above.
+    ///
+    /// # Arguments
+    ///
+    /// - `sibling`: the reference surface
+    #[inline]
+    pub fn send_place_below(
+        &self,
+        sibling: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_place_below(
+            sibling,
+        );
+        if let Err(e) = res {
+            log_send("wl_subsurface.place_below", &e);
+        }
+    }
+
     /// Since when the set_sync message is available.
     pub const MSG__SET_SYNC__SINCE: u32 = 1;
 
@@ -347,7 +453,7 @@ impl WlSubsurface {
     ///
     /// See wl_subsurface for the recursive effect of this mode.
     #[inline]
-    pub fn send_set_sync(
+    pub fn try_send_set_sync(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -378,6 +484,32 @@ impl WlSubsurface {
         Ok(())
     }
 
+    /// set sub-surface to synchronized mode
+    ///
+    /// Change the commit behaviour of the sub-surface to synchronized
+    /// mode, also described as the parent dependent mode.
+    ///
+    /// In synchronized mode, wl_surface.commit on a sub-surface will
+    /// accumulate the committed state in a cache, but the state will
+    /// not be applied and hence will not change the compositor output.
+    /// The cached state is applied to the sub-surface immediately after
+    /// the parent surface's state is applied. This ensures atomic
+    /// updates of the parent and all its synchronized sub-surfaces.
+    /// Applying the cached state will invalidate the cache, so further
+    /// parent surface commits do not (re-)apply old state.
+    ///
+    /// See wl_subsurface for the recursive effect of this mode.
+    #[inline]
+    pub fn send_set_sync(
+        &self,
+    ) {
+        let res = self.try_send_set_sync(
+        );
+        if let Err(e) = res {
+            log_send("wl_subsurface.set_sync", &e);
+        }
+    }
+
     /// Since when the set_desync message is available.
     pub const MSG__SET_DESYNC__SINCE: u32 = 1;
 
@@ -403,7 +535,7 @@ impl WlSubsurface {
     /// If a surface's parent surface behaves as desynchronized, then
     /// the cached state is applied on set_desync.
     #[inline]
-    pub fn send_set_desync(
+    pub fn try_send_set_desync(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -433,13 +565,45 @@ impl WlSubsurface {
         ]);
         Ok(())
     }
+
+    /// set sub-surface to desynchronized mode
+    ///
+    /// Change the commit behaviour of the sub-surface to desynchronized
+    /// mode, also described as independent or freely running mode.
+    ///
+    /// In desynchronized mode, wl_surface.commit on a sub-surface will
+    /// apply the pending state directly, without caching, as happens
+    /// normally with a wl_surface. Calling wl_surface.commit on the
+    /// parent surface has no effect on the sub-surface's wl_surface
+    /// state. This mode allows a sub-surface to be updated on its own.
+    ///
+    /// If cached state exists when wl_surface.commit is called in
+    /// desynchronized mode, the pending state is added to the cached
+    /// state, and applied as a whole. This invalidates the cache.
+    ///
+    /// Note: even if a sub-surface is set to desynchronized, a parent
+    /// sub-surface may override it to behave as synchronized. For details,
+    /// see wl_subsurface.
+    ///
+    /// If a surface's parent surface behaves as desynchronized, then
+    /// the cached state is applied on set_desync.
+    #[inline]
+    pub fn send_set_desync(
+        &self,
+    ) {
+        let res = self.try_send_set_desync(
+        );
+        if let Err(e) = res {
+            log_send("wl_subsurface.set_desync", &e);
+        }
+    }
 }
 
 /// A message handler for [WlSubsurface] proxies.
 pub trait WlSubsurfaceHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlSubsurface>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// remove sub-surface interface
@@ -456,10 +620,10 @@ pub trait WlSubsurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_subsurface.destroy message: {}", Report::new(e));
+            log_forward("wl_subsurface.destroy", &e);
         }
     }
 
@@ -494,12 +658,12 @@ pub trait WlSubsurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_position(
+        let res = _slf.try_send_set_position(
             x,
             y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_subsurface.set_position message: {}", Report::new(e));
+            log_forward("wl_subsurface.set_position", &e);
         }
     }
 
@@ -534,11 +698,11 @@ pub trait WlSubsurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_place_above(
+        let res = _slf.try_send_place_above(
             sibling,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_subsurface.place_above message: {}", Report::new(e));
+            log_forward("wl_subsurface.place_above", &e);
         }
     }
 
@@ -562,11 +726,11 @@ pub trait WlSubsurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_place_below(
+        let res = _slf.try_send_place_below(
             sibling,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_subsurface.place_below message: {}", Report::new(e));
+            log_forward("wl_subsurface.place_below", &e);
         }
     }
 
@@ -593,10 +757,10 @@ pub trait WlSubsurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_sync(
+        let res = _slf.try_send_set_sync(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_subsurface.set_sync message: {}", Report::new(e));
+            log_forward("wl_subsurface.set_sync", &e);
         }
     }
 
@@ -629,10 +793,10 @@ pub trait WlSubsurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_desync(
+        let res = _slf.try_send_set_desync(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_subsurface.set_desync message: {}", Report::new(e));
+            log_forward("wl_subsurface.set_desync", &e);
         }
     }
 }
@@ -652,7 +816,7 @@ impl ObjectPrivate for WlSubsurface {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

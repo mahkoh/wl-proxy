@@ -63,7 +63,7 @@ impl TreelandWindowManagementV1 {
     ///
     /// - `state`: requested state
     #[inline]
-    pub fn send_set_desktop(
+    pub fn try_send_set_desktop(
         &self,
         state: u32,
     ) -> Result<(), ObjectError> {
@@ -101,6 +101,26 @@ impl TreelandWindowManagementV1 {
         Ok(())
     }
 
+    /// show/hide the desktop
+    ///
+    /// Tell the compositor to show/hide the desktop.
+    ///
+    /// # Arguments
+    ///
+    /// - `state`: requested state
+    #[inline]
+    pub fn send_set_desktop(
+        &self,
+        state: u32,
+    ) {
+        let res = self.try_send_set_desktop(
+            state,
+        );
+        if let Err(e) = res {
+            log_send("treeland_window_management_v1.set_desktop", &e);
+        }
+    }
+
     /// Since when the show_desktop message is available.
     pub const MSG__SHOW_DESKTOP__SINCE: u32 = 1;
 
@@ -116,7 +136,7 @@ impl TreelandWindowManagementV1 {
     ///
     /// - `state`: new state
     #[inline]
-    pub fn send_show_desktop(
+    pub fn try_send_show_desktop(
         &self,
         state: u32,
     ) -> Result<(), ObjectError> {
@@ -156,12 +176,36 @@ impl TreelandWindowManagementV1 {
         Ok(())
     }
 
+    /// notify the client when the show desktop mode is entered/left
+    ///
+    /// This event will be sent whenever the show desktop mode changes. E.g. when it is
+    /// entered
+    /// or left.
+    ///
+    /// On binding the interface the current state is sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `state`: new state
+    #[inline]
+    pub fn send_show_desktop(
+        &self,
+        state: u32,
+    ) {
+        let res = self.try_send_show_desktop(
+            state,
+        );
+        if let Err(e) = res {
+            log_send("treeland_window_management_v1.show_desktop", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
     /// destroy the window manager object
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -192,13 +236,25 @@ impl TreelandWindowManagementV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the window manager object
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_window_management_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandWindowManagementV1] proxies.
 pub trait TreelandWindowManagementV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandWindowManagementV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// show/hide the desktop
@@ -217,11 +273,11 @@ pub trait TreelandWindowManagementV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_desktop(
+        let res = _slf.try_send_set_desktop(
             state,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_window_management_v1.set_desktop message: {}", Report::new(e));
+            log_forward("treeland_window_management_v1.set_desktop", &e);
         }
     }
 
@@ -245,11 +301,11 @@ pub trait TreelandWindowManagementV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_show_desktop(
+        let res = _slf.try_send_show_desktop(
             state,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_window_management_v1.show_desktop message: {}", Report::new(e));
+            log_forward("treeland_window_management_v1.show_desktop", &e);
         }
     }
 
@@ -262,10 +318,10 @@ pub trait TreelandWindowManagementV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_window_management_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_window_management_v1.destroy", &e);
         }
     }
 }
@@ -285,7 +341,7 @@ impl ObjectPrivate for TreelandWindowManagementV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

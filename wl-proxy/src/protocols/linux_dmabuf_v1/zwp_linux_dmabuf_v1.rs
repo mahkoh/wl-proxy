@@ -116,7 +116,7 @@ impl ZwpLinuxDmabufV1 {
     /// Objects created through this interface, especially wl_buffers, will
     /// remain valid.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -148,6 +148,21 @@ impl ZwpLinuxDmabufV1 {
         Ok(())
     }
 
+    /// unbind the factory
+    ///
+    /// Objects created through this interface, especially wl_buffers, will
+    /// remain valid.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_dmabuf_v1.destroy", &e);
+        }
+    }
+
     /// Since when the create_params message is available.
     pub const MSG__CREATE_PARAMS__SINCE: u32 = 1;
 
@@ -158,7 +173,7 @@ impl ZwpLinuxDmabufV1 {
     /// should be destroyed after a 'created' or 'failed' event has been
     /// received.
     #[inline]
-    pub fn send_create_params(
+    pub fn try_send_create_params(
         &self,
         params_id: &Rc<ZwpLinuxBufferParamsV1>,
     ) -> Result<(), ObjectError> {
@@ -201,6 +216,25 @@ impl ZwpLinuxDmabufV1 {
         Ok(())
     }
 
+    /// create a temporary object for buffer parameters
+    ///
+    /// This temporary object is used to collect multiple dmabuf handles into
+    /// a single batch to create a wl_buffer. It can only be used once and
+    /// should be destroyed after a 'created' or 'failed' event has been
+    /// received.
+    #[inline]
+    pub fn send_create_params(
+        &self,
+        params_id: &Rc<ZwpLinuxBufferParamsV1>,
+    ) {
+        let res = self.try_send_create_params(
+            params_id,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_dmabuf_v1.create_params", &e);
+        }
+    }
+
     /// Since when the format message is available.
     pub const MSG__FORMAT__SINCE: u32 = 1;
 
@@ -225,7 +259,7 @@ impl ZwpLinuxDmabufV1 {
     ///
     /// - `format`: DRM_FORMAT code
     #[inline]
-    pub fn send_format(
+    pub fn try_send_format(
         &self,
         format: u32,
     ) -> Result<(), ObjectError> {
@@ -263,6 +297,36 @@ impl ZwpLinuxDmabufV1 {
             arg0,
         ]);
         Ok(())
+    }
+
+    /// supported buffer format
+    ///
+    /// This event advertises one buffer format that the server supports.
+    /// All the supported formats are advertised once when the client
+    /// binds to this interface. A roundtrip after binding guarantees
+    /// that the client has received all supported formats.
+    ///
+    /// For the definition of the format codes, see the
+    /// zwp_linux_buffer_params_v1::create request.
+    ///
+    /// Starting version 4, the format event is deprecated and must not be
+    /// sent by compositors. Instead, use get_default_feedback or
+    /// get_surface_feedback.
+    ///
+    /// # Arguments
+    ///
+    /// - `format`: DRM_FORMAT code
+    #[inline]
+    pub fn send_format(
+        &self,
+        format: u32,
+    ) {
+        let res = self.try_send_format(
+            format,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_dmabuf_v1.format", &e);
+        }
     }
 
     /// Since when the modifier message is available.
@@ -303,7 +367,7 @@ impl ZwpLinuxDmabufV1 {
     /// - `modifier_hi`: high 32 bits of layout modifier
     /// - `modifier_lo`: low 32 bits of layout modifier
     #[inline]
-    pub fn send_modifier(
+    pub fn try_send_modifier(
         &self,
         format: u32,
         modifier_hi: u32,
@@ -351,6 +415,54 @@ impl ZwpLinuxDmabufV1 {
         Ok(())
     }
 
+    /// supported buffer format modifier
+    ///
+    /// This event advertises the formats that the server supports, along with
+    /// the modifiers supported for each format. All the supported modifiers
+    /// for all the supported formats are advertised once when the client
+    /// binds to this interface. A roundtrip after binding guarantees that
+    /// the client has received all supported format-modifier pairs.
+    ///
+    /// For legacy support, DRM_FORMAT_MOD_INVALID (that is, modifier_hi ==
+    /// 0x00ffffff and modifier_lo == 0xffffffff) is allowed in this event.
+    /// It indicates that the server can support the format with an implicit
+    /// modifier. When a plane has DRM_FORMAT_MOD_INVALID as its modifier, it
+    /// is as if no explicit modifier is specified. The effective modifier
+    /// will be derived from the dmabuf.
+    ///
+    /// A compositor that sends valid modifiers and DRM_FORMAT_MOD_INVALID for
+    /// a given format supports both explicit modifiers and implicit modifiers.
+    ///
+    /// For the definition of the format and modifier codes, see the
+    /// zwp_linux_buffer_params_v1::create and zwp_linux_buffer_params_v1::add
+    /// requests.
+    ///
+    /// Starting version 4, the modifier event is deprecated and must not be
+    /// sent by compositors. Instead, use get_default_feedback or
+    /// get_surface_feedback.
+    ///
+    /// # Arguments
+    ///
+    /// - `format`: DRM_FORMAT code
+    /// - `modifier_hi`: high 32 bits of layout modifier
+    /// - `modifier_lo`: low 32 bits of layout modifier
+    #[inline]
+    pub fn send_modifier(
+        &self,
+        format: u32,
+        modifier_hi: u32,
+        modifier_lo: u32,
+    ) {
+        let res = self.try_send_modifier(
+            format,
+            modifier_hi,
+            modifier_lo,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_dmabuf_v1.modifier", &e);
+        }
+    }
+
     /// Since when the get_default_feedback message is available.
     pub const MSG__GET_DEFAULT_FEEDBACK__SINCE: u32 = 4;
 
@@ -361,7 +473,7 @@ impl ZwpLinuxDmabufV1 {
     /// parameters to use if the client doesn't support per-surface feedback
     /// (see get_surface_feedback).
     #[inline]
-    pub fn send_get_default_feedback(
+    pub fn try_send_get_default_feedback(
         &self,
         id: &Rc<ZwpLinuxDmabufFeedbackV1>,
     ) -> Result<(), ObjectError> {
@@ -404,6 +516,25 @@ impl ZwpLinuxDmabufV1 {
         Ok(())
     }
 
+    /// get default feedback
+    ///
+    /// This request creates a new wp_linux_dmabuf_feedback object not bound
+    /// to a particular surface. This object will deliver feedback about dmabuf
+    /// parameters to use if the client doesn't support per-surface feedback
+    /// (see get_surface_feedback).
+    #[inline]
+    pub fn send_get_default_feedback(
+        &self,
+        id: &Rc<ZwpLinuxDmabufFeedbackV1>,
+    ) {
+        let res = self.try_send_get_default_feedback(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_dmabuf_v1.get_default_feedback", &e);
+        }
+    }
+
     /// Since when the get_surface_feedback message is available.
     pub const MSG__GET_SURFACE_FEEDBACK__SINCE: u32 = 4;
 
@@ -421,7 +552,7 @@ impl ZwpLinuxDmabufV1 {
     /// - `id`:
     /// - `surface`:
     #[inline]
-    pub fn send_get_surface_feedback(
+    pub fn try_send_get_surface_feedback(
         &self,
         id: &Rc<ZwpLinuxDmabufFeedbackV1>,
         surface: &Rc<WlSurface>,
@@ -472,13 +603,41 @@ impl ZwpLinuxDmabufV1 {
         ]);
         Ok(())
     }
+
+    /// get feedback for a surface
+    ///
+    /// This request creates a new wp_linux_dmabuf_feedback object for the
+    /// specified wl_surface. This object will deliver feedback about dmabuf
+    /// parameters to use for buffers attached to this surface.
+    ///
+    /// If the surface is destroyed before the wp_linux_dmabuf_feedback object,
+    /// the feedback object becomes inert.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn send_get_surface_feedback(
+        &self,
+        id: &Rc<ZwpLinuxDmabufFeedbackV1>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_surface_feedback(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_dmabuf_v1.get_surface_feedback", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpLinuxDmabufV1] proxies.
 pub trait ZwpLinuxDmabufV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpLinuxDmabufV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// unbind the factory
@@ -493,10 +652,10 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_dmabuf_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_linux_dmabuf_v1.destroy", &e);
         }
     }
 
@@ -519,11 +678,11 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_params(
+        let res = _slf.try_send_create_params(
             params_id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_dmabuf_v1.create_params message: {}", Report::new(e));
+            log_forward("zwp_linux_dmabuf_v1.create_params", &e);
         }
     }
 
@@ -553,11 +712,11 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_format(
+        let res = _slf.try_send_format(
             format,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_dmabuf_v1.format message: {}", Report::new(e));
+            log_forward("zwp_linux_dmabuf_v1.format", &e);
         }
     }
 
@@ -603,13 +762,13 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_modifier(
+        let res = _slf.try_send_modifier(
             format,
             modifier_hi,
             modifier_lo,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_dmabuf_v1.modifier message: {}", Report::new(e));
+            log_forward("zwp_linux_dmabuf_v1.modifier", &e);
         }
     }
 
@@ -632,11 +791,11 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_default_feedback(
+        let res = _slf.try_send_get_default_feedback(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_dmabuf_v1.get_default_feedback message: {}", Report::new(e));
+            log_forward("zwp_linux_dmabuf_v1.get_default_feedback", &e);
         }
     }
 
@@ -666,12 +825,12 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_surface_feedback(
+        let res = _slf.try_send_get_surface_feedback(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_dmabuf_v1.get_surface_feedback message: {}", Report::new(e));
+            log_forward("zwp_linux_dmabuf_v1.get_surface_feedback", &e);
         }
     }
 }
@@ -691,7 +850,7 @@ impl ObjectPrivate for ZwpLinuxDmabufV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

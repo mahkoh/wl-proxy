@@ -72,7 +72,7 @@ impl XdgPositioner {
     ///
     /// Notify the compositor that the xdg_positioner will no longer be used.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -104,6 +104,20 @@ impl XdgPositioner {
         Ok(())
     }
 
+    /// destroy the xdg_positioner object
+    ///
+    /// Notify the compositor that the xdg_positioner will no longer be used.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("xdg_positioner.destroy", &e);
+        }
+    }
+
     /// Since when the set_size message is available.
     pub const MSG__SET_SIZE__SINCE: u32 = 1;
 
@@ -120,7 +134,7 @@ impl XdgPositioner {
     /// - `width`: width of positioned rectangle
     /// - `height`: height of positioned rectangle
     #[inline]
-    pub fn send_set_size(
+    pub fn try_send_set_size(
         &self,
         width: i32,
         height: i32,
@@ -162,6 +176,33 @@ impl XdgPositioner {
         Ok(())
     }
 
+    /// set the size of the to-be positioned rectangle
+    ///
+    /// Set the size of the surface that is to be positioned with the positioner
+    /// object. The size is in surface-local coordinates and corresponds to the
+    /// window geometry. See xdg_surface.set_window_geometry.
+    ///
+    /// If a zero or negative size is set the invalid_input error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `width`: width of positioned rectangle
+    /// - `height`: height of positioned rectangle
+    #[inline]
+    pub fn send_set_size(
+        &self,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_set_size(
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("xdg_positioner.set_size", &e);
+        }
+    }
+
     /// Since when the set_anchor_rect message is available.
     pub const MSG__SET_ANCHOR_RECT__SINCE: u32 = 1;
 
@@ -185,7 +226,7 @@ impl XdgPositioner {
     /// - `width`: width of anchor rectangle
     /// - `height`: height of anchor rectangle
     #[inline]
-    pub fn send_set_anchor_rect(
+    pub fn try_send_set_anchor_rect(
         &self,
         x: i32,
         y: i32,
@@ -235,6 +276,44 @@ impl XdgPositioner {
         Ok(())
     }
 
+    /// set the anchor rectangle within the parent surface
+    ///
+    /// Specify the anchor rectangle within the parent surface that the child
+    /// surface will be placed relative to. The rectangle is relative to the
+    /// window geometry as defined by xdg_surface.set_window_geometry of the
+    /// parent surface.
+    ///
+    /// When the xdg_positioner object is used to position a child surface, the
+    /// anchor rectangle may not extend outside the window geometry of the
+    /// positioned child's parent surface.
+    ///
+    /// If a negative size is set the invalid_input error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: x position of anchor rectangle
+    /// - `y`: y position of anchor rectangle
+    /// - `width`: width of anchor rectangle
+    /// - `height`: height of anchor rectangle
+    #[inline]
+    pub fn send_set_anchor_rect(
+        &self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_set_anchor_rect(
+            x,
+            y,
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("xdg_positioner.set_anchor_rect", &e);
+        }
+    }
+
     /// Since when the set_anchor message is available.
     pub const MSG__SET_ANCHOR__SINCE: u32 = 1;
 
@@ -251,7 +330,7 @@ impl XdgPositioner {
     ///
     /// - `anchor`: anchor
     #[inline]
-    pub fn send_set_anchor(
+    pub fn try_send_set_anchor(
         &self,
         anchor: XdgPositionerAnchor,
     ) -> Result<(), ObjectError> {
@@ -289,6 +368,31 @@ impl XdgPositioner {
         Ok(())
     }
 
+    /// set anchor rectangle anchor
+    ///
+    /// Defines the anchor point for the anchor rectangle. The specified anchor
+    /// is used derive an anchor point that the child surface will be
+    /// positioned relative to. If a corner anchor is set (e.g. 'top_left' or
+    /// 'bottom_right'), the anchor point will be at the specified corner;
+    /// otherwise, the derived anchor point will be centered on the specified
+    /// edge, or in the center of the anchor rectangle if no edge is specified.
+    ///
+    /// # Arguments
+    ///
+    /// - `anchor`: anchor
+    #[inline]
+    pub fn send_set_anchor(
+        &self,
+        anchor: XdgPositionerAnchor,
+    ) {
+        let res = self.try_send_set_anchor(
+            anchor,
+        );
+        if let Err(e) = res {
+            log_send("xdg_positioner.set_anchor", &e);
+        }
+    }
+
     /// Since when the set_gravity message is available.
     pub const MSG__SET_GRAVITY__SINCE: u32 = 1;
 
@@ -306,7 +410,7 @@ impl XdgPositioner {
     ///
     /// - `gravity`: gravity direction
     #[inline]
-    pub fn send_set_gravity(
+    pub fn try_send_set_gravity(
         &self,
         gravity: XdgPositionerGravity,
     ) -> Result<(), ObjectError> {
@@ -344,6 +448,32 @@ impl XdgPositioner {
         Ok(())
     }
 
+    /// set child surface gravity
+    ///
+    /// Defines in what direction a surface should be positioned, relative to
+    /// the anchor point of the parent surface. If a corner gravity is
+    /// specified (e.g. 'bottom_right' or 'top_left'), then the child surface
+    /// will be placed towards the specified gravity; otherwise, the child
+    /// surface will be centered over the anchor point on any axis that had no
+    /// gravity specified. If the gravity is not in the ‘gravity’ enum, an
+    /// invalid_input error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `gravity`: gravity direction
+    #[inline]
+    pub fn send_set_gravity(
+        &self,
+        gravity: XdgPositionerGravity,
+    ) {
+        let res = self.try_send_set_gravity(
+            gravity,
+        );
+        if let Err(e) = res {
+            log_send("xdg_positioner.set_gravity", &e);
+        }
+    }
+
     /// Since when the set_constraint_adjustment message is available.
     pub const MSG__SET_CONSTRAINT_ADJUSTMENT__SINCE: u32 = 1;
 
@@ -367,7 +497,7 @@ impl XdgPositioner {
     ///
     /// - `constraint_adjustment`: bit mask of constraint adjustments
     #[inline]
-    pub fn send_set_constraint_adjustment(
+    pub fn try_send_set_constraint_adjustment(
         &self,
         constraint_adjustment: XdgPositionerConstraintAdjustment,
     ) -> Result<(), ObjectError> {
@@ -405,6 +535,38 @@ impl XdgPositioner {
         Ok(())
     }
 
+    /// set the adjustment to be done when constrained
+    ///
+    /// Specify how the window should be positioned if the originally intended
+    /// position caused the surface to be constrained, meaning at least
+    /// partially outside positioning boundaries set by the compositor. The
+    /// adjustment is set by constructing a bitmask describing the adjustment to
+    /// be made when the surface is constrained on that axis.
+    ///
+    /// If no bit for one axis is set, the compositor will assume that the child
+    /// surface should not change its position on that axis when constrained.
+    ///
+    /// If more than one bit for one axis is set, the order of how adjustments
+    /// are applied is specified in the corresponding adjustment descriptions.
+    ///
+    /// The default adjustment is none.
+    ///
+    /// # Arguments
+    ///
+    /// - `constraint_adjustment`: bit mask of constraint adjustments
+    #[inline]
+    pub fn send_set_constraint_adjustment(
+        &self,
+        constraint_adjustment: XdgPositionerConstraintAdjustment,
+    ) {
+        let res = self.try_send_set_constraint_adjustment(
+            constraint_adjustment,
+        );
+        if let Err(e) = res {
+            log_send("xdg_positioner.set_constraint_adjustment", &e);
+        }
+    }
+
     /// Since when the set_offset message is available.
     pub const MSG__SET_OFFSET__SINCE: u32 = 1;
 
@@ -427,7 +589,7 @@ impl XdgPositioner {
     /// - `x`: surface position x offset
     /// - `y`: surface position y offset
     #[inline]
-    pub fn send_set_offset(
+    pub fn try_send_set_offset(
         &self,
         x: i32,
         y: i32,
@@ -469,6 +631,39 @@ impl XdgPositioner {
         Ok(())
     }
 
+    /// set surface position offset
+    ///
+    /// Specify the surface position offset relative to the position of the
+    /// anchor on the anchor rectangle and the anchor on the surface. For
+    /// example if the anchor of the anchor rectangle is at (x, y), the surface
+    /// has the gravity bottom|right, and the offset is (ox, oy), the calculated
+    /// surface position will be (x + ox, y + oy). The offset position of the
+    /// surface is the one used for constraint testing. See
+    /// set_constraint_adjustment.
+    ///
+    /// An example use case is placing a popup menu on top of a user interface
+    /// element, while aligning the user interface element of the parent surface
+    /// with some user interface element placed somewhere in the popup surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: surface position x offset
+    /// - `y`: surface position y offset
+    #[inline]
+    pub fn send_set_offset(
+        &self,
+        x: i32,
+        y: i32,
+    ) {
+        let res = self.try_send_set_offset(
+            x,
+            y,
+        );
+        if let Err(e) = res {
+            log_send("xdg_positioner.set_offset", &e);
+        }
+    }
+
     /// Since when the set_reactive message is available.
     pub const MSG__SET_REACTIVE__SINCE: u32 = 3;
 
@@ -481,7 +676,7 @@ impl XdgPositioner {
     /// xdg_popup.configure event is sent with updated geometry, followed by an
     /// xdg_surface.configure event.
     #[inline]
-    pub fn send_set_reactive(
+    pub fn try_send_set_reactive(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -512,6 +707,25 @@ impl XdgPositioner {
         Ok(())
     }
 
+    /// continuously reconstrain the surface
+    ///
+    /// When set reactive, the surface is reconstrained if the conditions used
+    /// for constraining changed, e.g. the parent window moved.
+    ///
+    /// If the conditions changed and the popup was reconstrained, an
+    /// xdg_popup.configure event is sent with updated geometry, followed by an
+    /// xdg_surface.configure event.
+    #[inline]
+    pub fn send_set_reactive(
+        &self,
+    ) {
+        let res = self.try_send_set_reactive(
+        );
+        if let Err(e) = res {
+            log_send("xdg_positioner.set_reactive", &e);
+        }
+    }
+
     /// Since when the set_parent_size message is available.
     pub const MSG__SET_PARENT_SIZE__SINCE: u32 = 3;
 
@@ -529,7 +743,7 @@ impl XdgPositioner {
     /// - `parent_width`: future window geometry width of parent
     /// - `parent_height`: future window geometry height of parent
     #[inline]
-    pub fn send_set_parent_size(
+    pub fn try_send_set_parent_size(
         &self,
         parent_width: i32,
         parent_height: i32,
@@ -571,6 +785,34 @@ impl XdgPositioner {
         Ok(())
     }
 
+    ///
+    /// Set the parent window geometry the compositor should use when
+    /// positioning the popup. The compositor may use this information to
+    /// determine the future state the popup should be constrained using. If
+    /// this doesn't match the dimension of the parent the popup is eventually
+    /// positioned against, the behavior is undefined.
+    ///
+    /// The arguments are given in the surface-local coordinate space.
+    ///
+    /// # Arguments
+    ///
+    /// - `parent_width`: future window geometry width of parent
+    /// - `parent_height`: future window geometry height of parent
+    #[inline]
+    pub fn send_set_parent_size(
+        &self,
+        parent_width: i32,
+        parent_height: i32,
+    ) {
+        let res = self.try_send_set_parent_size(
+            parent_width,
+            parent_height,
+        );
+        if let Err(e) = res {
+            log_send("xdg_positioner.set_parent_size", &e);
+        }
+    }
+
     /// Since when the set_parent_configure message is available.
     pub const MSG__SET_PARENT_CONFIGURE__SINCE: u32 = 3;
 
@@ -585,7 +827,7 @@ impl XdgPositioner {
     ///
     /// - `serial`: serial of parent configure event
     #[inline]
-    pub fn send_set_parent_configure(
+    pub fn try_send_set_parent_configure(
         &self,
         serial: u32,
     ) -> Result<(), ObjectError> {
@@ -622,13 +864,36 @@ impl XdgPositioner {
         ]);
         Ok(())
     }
+
+    /// set parent configure this is a response to
+    ///
+    /// Set the serial of an xdg_surface.configure event this positioner will be
+    /// used in response to. The compositor may use this information together
+    /// with set_parent_size to determine what future state the popup should be
+    /// constrained using.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial of parent configure event
+    #[inline]
+    pub fn send_set_parent_configure(
+        &self,
+        serial: u32,
+    ) {
+        let res = self.try_send_set_parent_configure(
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("xdg_positioner.set_parent_configure", &e);
+        }
+    }
 }
 
 /// A message handler for [XdgPositioner] proxies.
 pub trait XdgPositionerHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgPositioner>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the xdg_positioner object
@@ -642,10 +907,10 @@ pub trait XdgPositionerHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_positioner.destroy message: {}", Report::new(e));
+            log_forward("xdg_positioner.destroy", &e);
         }
     }
 
@@ -671,12 +936,12 @@ pub trait XdgPositionerHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_size(
+        let res = _slf.try_send_set_size(
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_positioner.set_size message: {}", Report::new(e));
+            log_forward("xdg_positioner.set_size", &e);
         }
     }
 
@@ -711,14 +976,14 @@ pub trait XdgPositionerHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_anchor_rect(
+        let res = _slf.try_send_set_anchor_rect(
             x,
             y,
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_positioner.set_anchor_rect message: {}", Report::new(e));
+            log_forward("xdg_positioner.set_anchor_rect", &e);
         }
     }
 
@@ -743,11 +1008,11 @@ pub trait XdgPositionerHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_anchor(
+        let res = _slf.try_send_set_anchor(
             anchor,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_positioner.set_anchor message: {}", Report::new(e));
+            log_forward("xdg_positioner.set_anchor", &e);
         }
     }
 
@@ -773,11 +1038,11 @@ pub trait XdgPositionerHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_gravity(
+        let res = _slf.try_send_set_gravity(
             gravity,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_positioner.set_gravity message: {}", Report::new(e));
+            log_forward("xdg_positioner.set_gravity", &e);
         }
     }
 
@@ -809,11 +1074,11 @@ pub trait XdgPositionerHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_constraint_adjustment(
+        let res = _slf.try_send_set_constraint_adjustment(
             constraint_adjustment,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_positioner.set_constraint_adjustment message: {}", Report::new(e));
+            log_forward("xdg_positioner.set_constraint_adjustment", &e);
         }
     }
 
@@ -845,12 +1110,12 @@ pub trait XdgPositionerHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_offset(
+        let res = _slf.try_send_set_offset(
             x,
             y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_positioner.set_offset message: {}", Report::new(e));
+            log_forward("xdg_positioner.set_offset", &e);
         }
     }
 
@@ -870,10 +1135,10 @@ pub trait XdgPositionerHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_reactive(
+        let res = _slf.try_send_set_reactive(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_positioner.set_reactive message: {}", Report::new(e));
+            log_forward("xdg_positioner.set_reactive", &e);
         }
     }
 
@@ -900,12 +1165,12 @@ pub trait XdgPositionerHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_parent_size(
+        let res = _slf.try_send_set_parent_size(
             parent_width,
             parent_height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_positioner.set_parent_size message: {}", Report::new(e));
+            log_forward("xdg_positioner.set_parent_size", &e);
         }
     }
 
@@ -928,11 +1193,11 @@ pub trait XdgPositionerHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_parent_configure(
+        let res = _slf.try_send_set_parent_configure(
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_positioner.set_parent_configure message: {}", Report::new(e));
+            log_forward("xdg_positioner.set_parent_configure", &e);
         }
     }
 }
@@ -952,7 +1217,7 @@ impl ObjectPrivate for XdgPositioner {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -72,7 +72,7 @@ impl WpSecurityContextManagerV1 {
     /// Destroy the manager. This doesn't destroy objects created with the
     /// manager.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -104,6 +104,21 @@ impl WpSecurityContextManagerV1 {
         Ok(())
     }
 
+    /// destroy the manager object
+    ///
+    /// Destroy the manager. This doesn't destroy objects created with the
+    /// manager.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_security_context_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the create_listener message is available.
     pub const MSG__CREATE_LISTENER__SINCE: u32 = 1;
 
@@ -131,7 +146,7 @@ impl WpSecurityContextManagerV1 {
     /// - `listen_fd`: listening socket FD
     /// - `close_fd`: FD signaling when done
     #[inline]
-    pub fn send_create_listener(
+    pub fn try_send_create_listener(
         &self,
         id: &Rc<WpSecurityContextV1>,
         listen_fd: &Rc<OwnedFd>,
@@ -181,13 +196,53 @@ impl WpSecurityContextManagerV1 {
         ]);
         Ok(())
     }
+
+    /// create a new security context
+    ///
+    /// Creates a new security context with a socket listening FD.
+    ///
+    /// The compositor will accept new client connections on listen_fd.
+    /// listen_fd must be ready to accept new connections when this request is
+    /// sent by the client. In other words, the client must call bind(2) and
+    /// listen(2) before sending the FD.
+    ///
+    /// close_fd is a FD that will signal hangup when the compositor should stop
+    /// accepting new connections on listen_fd.
+    ///
+    /// The compositor must continue to accept connections on listen_fd when
+    /// the Wayland client which created the security context disconnects.
+    ///
+    /// After sending this request, closing listen_fd and close_fd remains the
+    /// only valid operation on them.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `listen_fd`: listening socket FD
+    /// - `close_fd`: FD signaling when done
+    #[inline]
+    pub fn send_create_listener(
+        &self,
+        id: &Rc<WpSecurityContextV1>,
+        listen_fd: &Rc<OwnedFd>,
+        close_fd: &Rc<OwnedFd>,
+    ) {
+        let res = self.try_send_create_listener(
+            id,
+            listen_fd,
+            close_fd,
+        );
+        if let Err(e) = res {
+            log_send("wp_security_context_manager_v1.create_listener", &e);
+        }
+    }
 }
 
 /// A message handler for [WpSecurityContextManagerV1] proxies.
 pub trait WpSecurityContextManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpSecurityContextManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the manager object
@@ -202,10 +257,10 @@ pub trait WpSecurityContextManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_security_context_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_security_context_manager_v1.destroy", &e);
         }
     }
 
@@ -243,13 +298,13 @@ pub trait WpSecurityContextManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_listener(
+        let res = _slf.try_send_create_listener(
             id,
             listen_fd,
             close_fd,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_security_context_manager_v1.create_listener message: {}", Report::new(e));
+            log_forward("wp_security_context_manager_v1.create_listener", &e);
         }
     }
 }
@@ -269,7 +324,7 @@ impl ObjectPrivate for WpSecurityContextManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

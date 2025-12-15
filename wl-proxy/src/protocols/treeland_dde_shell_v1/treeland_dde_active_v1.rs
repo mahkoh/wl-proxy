@@ -52,7 +52,7 @@ impl TreelandDdeActiveV1 {
 
     /// destroy the treeland_dde_active_v1 object
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -84,6 +84,18 @@ impl TreelandDdeActiveV1 {
         Ok(())
     }
 
+    /// destroy the treeland_dde_active_v1 object
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_active_v1.destroy", &e);
+        }
+    }
+
     /// Since when the active_in message is available.
     pub const MSG__ACTIVE_IN__SINCE: u32 = 1;
 
@@ -93,7 +105,7 @@ impl TreelandDdeActiveV1 {
     ///
     /// - `reason`:
     #[inline]
-    pub fn send_active_in(
+    pub fn try_send_active_in(
         &self,
         reason: TreelandDdeActiveV1Reason,
     ) -> Result<(), ObjectError> {
@@ -133,6 +145,24 @@ impl TreelandDdeActiveV1 {
         Ok(())
     }
 
+    /// activeIn event
+    ///
+    /// # Arguments
+    ///
+    /// - `reason`:
+    #[inline]
+    pub fn send_active_in(
+        &self,
+        reason: TreelandDdeActiveV1Reason,
+    ) {
+        let res = self.try_send_active_in(
+            reason,
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_active_v1.active_in", &e);
+        }
+    }
+
     /// Since when the active_out message is available.
     pub const MSG__ACTIVE_OUT__SINCE: u32 = 1;
 
@@ -142,7 +172,7 @@ impl TreelandDdeActiveV1 {
     ///
     /// - `reason`:
     #[inline]
-    pub fn send_active_out(
+    pub fn try_send_active_out(
         &self,
         reason: TreelandDdeActiveV1Reason,
     ) -> Result<(), ObjectError> {
@@ -182,12 +212,30 @@ impl TreelandDdeActiveV1 {
         Ok(())
     }
 
+    /// activeOut event
+    ///
+    /// # Arguments
+    ///
+    /// - `reason`:
+    #[inline]
+    pub fn send_active_out(
+        &self,
+        reason: TreelandDdeActiveV1Reason,
+    ) {
+        let res = self.try_send_active_out(
+            reason,
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_active_v1.active_out", &e);
+        }
+    }
+
     /// Since when the start_drag message is available.
     pub const MSG__START_DRAG__SINCE: u32 = 1;
 
     /// sent when the compositor starts a drag operation
     #[inline]
-    pub fn send_start_drag(
+    pub fn try_send_start_drag(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -220,12 +268,24 @@ impl TreelandDdeActiveV1 {
         Ok(())
     }
 
+    /// sent when the compositor starts a drag operation
+    #[inline]
+    pub fn send_start_drag(
+        &self,
+    ) {
+        let res = self.try_send_start_drag(
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_active_v1.start_drag", &e);
+        }
+    }
+
     /// Since when the drop message is available.
     pub const MSG__DROP__SINCE: u32 = 1;
 
     /// sent when the compositor drop operation
     #[inline]
-    pub fn send_drop(
+    pub fn try_send_drop(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -257,13 +317,25 @@ impl TreelandDdeActiveV1 {
         ]);
         Ok(())
     }
+
+    /// sent when the compositor drop operation
+    #[inline]
+    pub fn send_drop(
+        &self,
+    ) {
+        let res = self.try_send_drop(
+        );
+        if let Err(e) = res {
+            log_send("treeland_dde_active_v1.drop", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandDdeActiveV1] proxies.
 pub trait TreelandDdeActiveV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandDdeActiveV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the treeland_dde_active_v1 object
@@ -275,10 +347,10 @@ pub trait TreelandDdeActiveV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_active_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_dde_active_v1.destroy", &e);
         }
     }
 
@@ -296,11 +368,11 @@ pub trait TreelandDdeActiveV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_active_in(
+        let res = _slf.try_send_active_in(
             reason,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_active_v1.active_in message: {}", Report::new(e));
+            log_forward("treeland_dde_active_v1.active_in", &e);
         }
     }
 
@@ -318,11 +390,11 @@ pub trait TreelandDdeActiveV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_active_out(
+        let res = _slf.try_send_active_out(
             reason,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_active_v1.active_out message: {}", Report::new(e));
+            log_forward("treeland_dde_active_v1.active_out", &e);
         }
     }
 
@@ -335,10 +407,10 @@ pub trait TreelandDdeActiveV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_start_drag(
+        let res = _slf.try_send_start_drag(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_active_v1.start_drag message: {}", Report::new(e));
+            log_forward("treeland_dde_active_v1.start_drag", &e);
         }
     }
 
@@ -351,10 +423,10 @@ pub trait TreelandDdeActiveV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_drop(
+        let res = _slf.try_send_drop(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dde_active_v1.drop message: {}", Report::new(e));
+            log_forward("treeland_dde_active_v1.drop", &e);
         }
     }
 }
@@ -374,7 +446,7 @@ impl ObjectPrivate for TreelandDdeActiveV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

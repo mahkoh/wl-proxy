@@ -76,7 +76,7 @@ impl WlKeyboard {
     /// - `fd`: keymap file descriptor
     /// - `size`: keymap size, in bytes
     #[inline]
-    pub fn send_keymap(
+    pub fn try_send_keymap(
         &self,
         format: WlKeyboardKeymapFormat,
         fd: &Rc<OwnedFd>,
@@ -124,6 +124,37 @@ impl WlKeyboard {
         Ok(())
     }
 
+    /// keyboard mapping
+    ///
+    /// This event provides a file descriptor to the client which can be
+    /// memory-mapped in read-only mode to provide a keyboard mapping
+    /// description.
+    ///
+    /// From version 7 onwards, the fd must be mapped with MAP_PRIVATE by
+    /// the recipient, as MAP_SHARED may fail.
+    ///
+    /// # Arguments
+    ///
+    /// - `format`: keymap format
+    /// - `fd`: keymap file descriptor
+    /// - `size`: keymap size, in bytes
+    #[inline]
+    pub fn send_keymap(
+        &self,
+        format: WlKeyboardKeymapFormat,
+        fd: &Rc<OwnedFd>,
+        size: u32,
+    ) {
+        let res = self.try_send_keymap(
+            format,
+            fd,
+            size,
+        );
+        if let Err(e) = res {
+            log_send("wl_keyboard.keymap", &e);
+        }
+    }
+
     /// Since when the enter message is available.
     pub const MSG__ENTER__SINCE: u32 = 1;
 
@@ -149,7 +180,7 @@ impl WlKeyboard {
     /// - `surface`: surface gaining keyboard focus
     /// - `keys`: the keys currently logically down
     #[inline]
-    pub fn send_enter(
+    pub fn try_send_enter(
         &self,
         serial: u32,
         surface: &Rc<WlSurface>,
@@ -202,6 +233,44 @@ impl WlKeyboard {
         Ok(())
     }
 
+    /// enter event
+    ///
+    /// Notification that this seat's keyboard focus is on a certain
+    /// surface.
+    ///
+    /// The compositor must send the wl_keyboard.modifiers event after this
+    /// event.
+    ///
+    /// In the wl_keyboard logical state, this event sets the active surface to
+    /// the surface argument and the keys currently logically down to the keys
+    /// in the keys argument. The compositor must not send this event if the
+    /// wl_keyboard already had an active surface immediately before this event.
+    ///
+    /// Clients should not use the list of pressed keys to emulate key-press
+    /// events. The order of keys in the list is unspecified.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the enter event
+    /// - `surface`: surface gaining keyboard focus
+    /// - `keys`: the keys currently logically down
+    #[inline]
+    pub fn send_enter(
+        &self,
+        serial: u32,
+        surface: &Rc<WlSurface>,
+        keys: &[u8],
+    ) {
+        let res = self.try_send_enter(
+            serial,
+            surface,
+            keys,
+        );
+        if let Err(e) = res {
+            log_send("wl_keyboard.enter", &e);
+        }
+    }
+
     /// Since when the leave message is available.
     pub const MSG__LEAVE__SINCE: u32 = 1;
 
@@ -223,7 +292,7 @@ impl WlKeyboard {
     /// - `serial`: serial number of the leave event
     /// - `surface`: surface that lost keyboard focus
     #[inline]
-    pub fn send_leave(
+    pub fn try_send_leave(
         &self,
         serial: u32,
         surface: &Rc<WlSurface>,
@@ -272,6 +341,38 @@ impl WlKeyboard {
         Ok(())
     }
 
+    /// leave event
+    ///
+    /// Notification that this seat's keyboard focus is no longer on
+    /// a certain surface.
+    ///
+    /// The leave notification is sent before the enter notification
+    /// for the new focus.
+    ///
+    /// In the wl_keyboard logical state, this event resets all values to their
+    /// defaults. The compositor must not send this event if the active surface
+    /// of the wl_keyboard was not equal to the surface argument immediately
+    /// before this event.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the leave event
+    /// - `surface`: surface that lost keyboard focus
+    #[inline]
+    pub fn send_leave(
+        &self,
+        serial: u32,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_leave(
+            serial,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("wl_keyboard.leave", &e);
+        }
+    }
+
     /// Since when the key message is available.
     pub const MSG__KEY__SINCE: u32 = 1;
 
@@ -308,7 +409,7 @@ impl WlKeyboard {
     /// - `key`: key that produced the event
     /// - `state`: physical state of the key
     #[inline]
-    pub fn send_key(
+    pub fn try_send_key(
         &self,
         serial: u32,
         time: u32,
@@ -360,6 +461,57 @@ impl WlKeyboard {
         Ok(())
     }
 
+    /// key event
+    ///
+    /// A key was pressed or released.
+    /// The time argument is a timestamp with millisecond
+    /// granularity, with an undefined base.
+    ///
+    /// The key is a platform-specific key code that can be interpreted
+    /// by feeding it to the keyboard mapping (see the keymap event).
+    ///
+    /// If this event produces a change in modifiers, then the resulting
+    /// wl_keyboard.modifiers event must be sent after this event.
+    ///
+    /// In the wl_keyboard logical state, this event adds the key to the keys
+    /// currently logically down (if the state argument is pressed) or removes
+    /// the key from the keys currently logically down (if the state argument is
+    /// released). The compositor must not send this event if the wl_keyboard
+    /// did not have an active surface immediately before this event. The
+    /// compositor must not send this event if state is pressed (resp. released)
+    /// and the key was already logically down (resp. was not logically down)
+    /// immediately before this event.
+    ///
+    /// Since version 10, compositors may send key events with the "repeated"
+    /// key state when a wl_keyboard.repeat_info event with a rate argument of
+    /// 0 has been received. This allows the compositor to take over the
+    /// responsibility of key repetition.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the key event
+    /// - `time`: timestamp with millisecond granularity
+    /// - `key`: key that produced the event
+    /// - `state`: physical state of the key
+    #[inline]
+    pub fn send_key(
+        &self,
+        serial: u32,
+        time: u32,
+        key: u32,
+        state: WlKeyboardKeyState,
+    ) {
+        let res = self.try_send_key(
+            serial,
+            time,
+            key,
+            state,
+        );
+        if let Err(e) = res {
+            log_send("wl_keyboard.key", &e);
+        }
+    }
+
     /// Since when the modifiers message is available.
     pub const MSG__MODIFIERS__SINCE: u32 = 1;
 
@@ -387,7 +539,7 @@ impl WlKeyboard {
     /// - `mods_locked`: locked modifiers
     /// - `group`: keyboard layout
     #[inline]
-    pub fn send_modifiers(
+    pub fn try_send_modifiers(
         &self,
         serial: u32,
         mods_depressed: u32,
@@ -443,12 +595,56 @@ impl WlKeyboard {
         Ok(())
     }
 
+    /// modifier and group state
+    ///
+    /// Notifies clients that the modifier and/or group state has
+    /// changed, and it should update its local state.
+    ///
+    /// The compositor may send this event without a surface of the client
+    /// having keyboard focus, for example to tie modifier information to
+    /// pointer focus instead. If a modifier event with pressed modifiers is sent
+    /// without a prior enter event, the client can assume the modifier state is
+    /// valid until it receives the next wl_keyboard.modifiers event. In order to
+    /// reset the modifier state again, the compositor can send a
+    /// wl_keyboard.modifiers event with no pressed modifiers.
+    ///
+    /// In the wl_keyboard logical state, this event updates the modifiers and
+    /// group.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the modifiers event
+    /// - `mods_depressed`: depressed modifiers
+    /// - `mods_latched`: latched modifiers
+    /// - `mods_locked`: locked modifiers
+    /// - `group`: keyboard layout
+    #[inline]
+    pub fn send_modifiers(
+        &self,
+        serial: u32,
+        mods_depressed: u32,
+        mods_latched: u32,
+        mods_locked: u32,
+        group: u32,
+    ) {
+        let res = self.try_send_modifiers(
+            serial,
+            mods_depressed,
+            mods_latched,
+            mods_locked,
+            group,
+        );
+        if let Err(e) = res {
+            log_send("wl_keyboard.modifiers", &e);
+        }
+    }
+
     /// Since when the release message is available.
     pub const MSG__RELEASE__SINCE: u32 = 3;
 
     /// release the keyboard object
     #[inline]
-    pub fn send_release(
+    pub fn try_send_release(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -480,6 +676,18 @@ impl WlKeyboard {
         Ok(())
     }
 
+    /// release the keyboard object
+    #[inline]
+    pub fn send_release(
+        &self,
+    ) {
+        let res = self.try_send_release(
+        );
+        if let Err(e) = res {
+            log_send("wl_keyboard.release", &e);
+        }
+    }
+
     /// Since when the repeat_info message is available.
     pub const MSG__REPEAT_INFO__SINCE: u32 = 4;
 
@@ -503,7 +711,7 @@ impl WlKeyboard {
     /// - `rate`: the rate of repeating keys in characters per second
     /// - `delay`: delay in milliseconds since key down until repeating starts
     #[inline]
-    pub fn send_repeat_info(
+    pub fn try_send_repeat_info(
         &self,
         rate: i32,
         delay: i32,
@@ -546,13 +754,47 @@ impl WlKeyboard {
         ]);
         Ok(())
     }
+
+    /// repeat rate and delay
+    ///
+    /// Informs the client about the keyboard's repeat rate and delay.
+    ///
+    /// This event is sent as soon as the wl_keyboard object has been created,
+    /// and is guaranteed to be received by the client before any key press
+    /// event.
+    ///
+    /// Negative values for either rate or delay are illegal. A rate of zero
+    /// will disable any repeating (regardless of the value of delay).
+    ///
+    /// This event can be sent later on as well with a new value if necessary,
+    /// so clients should continue listening for the event past the creation
+    /// of wl_keyboard.
+    ///
+    /// # Arguments
+    ///
+    /// - `rate`: the rate of repeating keys in characters per second
+    /// - `delay`: delay in milliseconds since key down until repeating starts
+    #[inline]
+    pub fn send_repeat_info(
+        &self,
+        rate: i32,
+        delay: i32,
+    ) {
+        let res = self.try_send_repeat_info(
+            rate,
+            delay,
+        );
+        if let Err(e) = res {
+            log_send("wl_keyboard.repeat_info", &e);
+        }
+    }
 }
 
 /// A message handler for [WlKeyboard] proxies.
 pub trait WlKeyboardHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlKeyboard>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// keyboard mapping
@@ -580,13 +822,13 @@ pub trait WlKeyboardHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_keymap(
+        let res = _slf.try_send_keymap(
             format,
             fd,
             size,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_keyboard.keymap message: {}", Report::new(e));
+            log_forward("wl_keyboard.keymap", &e);
         }
     }
 
@@ -632,13 +874,13 @@ pub trait WlKeyboardHandler: Any {
                 }
             }
         }
-        let res = _slf.send_enter(
+        let res = _slf.try_send_enter(
             serial,
             surface,
             keys,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_keyboard.enter message: {}", Report::new(e));
+            log_forward("wl_keyboard.enter", &e);
         }
     }
 
@@ -679,12 +921,12 @@ pub trait WlKeyboardHandler: Any {
                 }
             }
         }
-        let res = _slf.send_leave(
+        let res = _slf.try_send_leave(
             serial,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_keyboard.leave message: {}", Report::new(e));
+            log_forward("wl_keyboard.leave", &e);
         }
     }
 
@@ -732,14 +974,14 @@ pub trait WlKeyboardHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_key(
+        let res = _slf.try_send_key(
             serial,
             time,
             key,
             state,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_keyboard.key message: {}", Report::new(e));
+            log_forward("wl_keyboard.key", &e);
         }
     }
 
@@ -779,7 +1021,7 @@ pub trait WlKeyboardHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_modifiers(
+        let res = _slf.try_send_modifiers(
             serial,
             mods_depressed,
             mods_latched,
@@ -787,7 +1029,7 @@ pub trait WlKeyboardHandler: Any {
             group,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_keyboard.modifiers message: {}", Report::new(e));
+            log_forward("wl_keyboard.modifiers", &e);
         }
     }
 
@@ -800,10 +1042,10 @@ pub trait WlKeyboardHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_release(
+        let res = _slf.try_send_release(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_keyboard.release message: {}", Report::new(e));
+            log_forward("wl_keyboard.release", &e);
         }
     }
 
@@ -836,12 +1078,12 @@ pub trait WlKeyboardHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_repeat_info(
+        let res = _slf.try_send_repeat_info(
             rate,
             delay,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_keyboard.repeat_info message: {}", Report::new(e));
+            log_forward("wl_keyboard.repeat_info", &e);
         }
     }
 }
@@ -861,7 +1103,7 @@ impl ObjectPrivate for WlKeyboard {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

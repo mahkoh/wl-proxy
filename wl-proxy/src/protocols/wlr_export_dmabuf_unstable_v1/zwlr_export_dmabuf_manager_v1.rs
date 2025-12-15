@@ -60,7 +60,7 @@ impl ZwlrExportDmabufManagerV1 {
     /// - `overlay_cursor`: include custom client hardware cursor on top of the frame
     /// - `output`:
     #[inline]
-    pub fn send_capture_output(
+    pub fn try_send_capture_output(
         &self,
         frame: &Rc<ZwlrExportDmabufFrameV1>,
         overlay_cursor: i32,
@@ -116,6 +116,32 @@ impl ZwlrExportDmabufManagerV1 {
         Ok(())
     }
 
+    /// capture a frame from an output
+    ///
+    /// Capture the next frame of an entire output.
+    ///
+    /// # Arguments
+    ///
+    /// - `frame`:
+    /// - `overlay_cursor`: include custom client hardware cursor on top of the frame
+    /// - `output`:
+    #[inline]
+    pub fn send_capture_output(
+        &self,
+        frame: &Rc<ZwlrExportDmabufFrameV1>,
+        overlay_cursor: i32,
+        output: &Rc<WlOutput>,
+    ) {
+        let res = self.try_send_capture_output(
+            frame,
+            overlay_cursor,
+            output,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_export_dmabuf_manager_v1.capture_output", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -124,7 +150,7 @@ impl ZwlrExportDmabufManagerV1 {
     /// All objects created by the manager will still remain valid, until their
     /// appropriate destroy request has been called.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -155,13 +181,28 @@ impl ZwlrExportDmabufManagerV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the manager
+    ///
+    /// All objects created by the manager will still remain valid, until their
+    /// appropriate destroy request has been called.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_export_dmabuf_manager_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrExportDmabufManagerV1] proxies.
 pub trait ZwlrExportDmabufManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrExportDmabufManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// capture a frame from an output
@@ -187,13 +228,13 @@ pub trait ZwlrExportDmabufManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_capture_output(
+        let res = _slf.try_send_capture_output(
             frame,
             overlay_cursor,
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_export_dmabuf_manager_v1.capture_output message: {}", Report::new(e));
+            log_forward("zwlr_export_dmabuf_manager_v1.capture_output", &e);
         }
     }
 
@@ -209,10 +250,10 @@ pub trait ZwlrExportDmabufManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_export_dmabuf_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("zwlr_export_dmabuf_manager_v1.destroy", &e);
         }
     }
 }
@@ -232,7 +273,7 @@ impl ObjectPrivate for ZwlrExportDmabufManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -76,7 +76,7 @@ impl ZxdgDecorationManagerV1 {
     /// Destroy the decoration manager. This doesn't destroy objects created
     /// with the manager.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -108,6 +108,21 @@ impl ZxdgDecorationManagerV1 {
         Ok(())
     }
 
+    /// destroy the decoration manager object
+    ///
+    /// Destroy the decoration manager. This doesn't destroy objects created
+    /// with the manager.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zxdg_decoration_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_toplevel_decoration message is available.
     pub const MSG__GET_TOPLEVEL_DECORATION__SINCE: u32 = 1;
 
@@ -126,7 +141,7 @@ impl ZxdgDecorationManagerV1 {
     /// - `id`:
     /// - `toplevel`:
     #[inline]
-    pub fn send_get_toplevel_decoration(
+    pub fn try_send_get_toplevel_decoration(
         &self,
         id: &Rc<ZxdgToplevelDecorationV1>,
         toplevel: &Rc<XdgToplevel>,
@@ -177,13 +192,42 @@ impl ZxdgDecorationManagerV1 {
         ]);
         Ok(())
     }
+
+    /// create a new toplevel decoration object
+    ///
+    /// Create a new decoration object associated with the given toplevel.
+    ///
+    /// Creating an xdg_toplevel_decoration from an xdg_toplevel which has a
+    /// buffer attached or committed is a client error, and any attempts by a
+    /// client to attach or manipulate a buffer prior to the first
+    /// xdg_toplevel_decoration.configure event must also be treated as
+    /// errors.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `toplevel`:
+    #[inline]
+    pub fn send_get_toplevel_decoration(
+        &self,
+        id: &Rc<ZxdgToplevelDecorationV1>,
+        toplevel: &Rc<XdgToplevel>,
+    ) {
+        let res = self.try_send_get_toplevel_decoration(
+            id,
+            toplevel,
+        );
+        if let Err(e) = res {
+            log_send("zxdg_decoration_manager_v1.get_toplevel_decoration", &e);
+        }
+    }
 }
 
 /// A message handler for [ZxdgDecorationManagerV1] proxies.
 pub trait ZxdgDecorationManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZxdgDecorationManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the decoration manager object
@@ -198,10 +242,10 @@ pub trait ZxdgDecorationManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zxdg_decoration_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("zxdg_decoration_manager_v1.destroy", &e);
         }
     }
 
@@ -232,12 +276,12 @@ pub trait ZxdgDecorationManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_toplevel_decoration(
+        let res = _slf.try_send_get_toplevel_decoration(
             id,
             toplevel,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zxdg_decoration_manager_v1.get_toplevel_decoration message: {}", Report::new(e));
+            log_forward("zxdg_decoration_manager_v1.get_toplevel_decoration", &e);
         }
     }
 }
@@ -257,7 +301,7 @@ impl ObjectPrivate for ZxdgDecorationManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

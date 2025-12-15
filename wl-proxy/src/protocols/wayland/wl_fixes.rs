@@ -53,7 +53,7 @@ impl WlFixes {
 
     /// destroys this object
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -85,6 +85,18 @@ impl WlFixes {
         Ok(())
     }
 
+    /// destroys this object
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wl_fixes.destroy", &e);
+        }
+    }
+
     /// Since when the destroy_registry message is available.
     pub const MSG__DESTROY_REGISTRY__SINCE: u32 = 1;
 
@@ -104,7 +116,7 @@ impl WlFixes {
     ///
     /// - `registry`: the registry to destroy
     #[inline]
-    pub fn send_destroy_registry(
+    pub fn try_send_destroy_registry(
         &self,
         registry: &Rc<WlRegistry>,
     ) -> Result<(), ObjectError> {
@@ -147,13 +159,41 @@ impl WlFixes {
         arg0.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy a wl_registry
+    ///
+    /// This request destroys a wl_registry object.
+    ///
+    /// The client should no longer use the wl_registry after making this
+    /// request.
+    ///
+    /// The compositor will emit a wl_display.delete_id event with the object ID
+    /// of the registry and will no longer emit any events on the registry. The
+    /// client should re-use the object ID once it receives the
+    /// wl_display.delete_id event.
+    ///
+    /// # Arguments
+    ///
+    /// - `registry`: the registry to destroy
+    #[inline]
+    pub fn send_destroy_registry(
+        &self,
+        registry: &Rc<WlRegistry>,
+    ) {
+        let res = self.try_send_destroy_registry(
+            registry,
+        );
+        if let Err(e) = res {
+            log_send("wl_fixes.destroy_registry", &e);
+        }
+    }
 }
 
 /// A message handler for [WlFixes] proxies.
 pub trait WlFixesHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlFixes>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroys this object
@@ -165,10 +205,10 @@ pub trait WlFixesHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_fixes.destroy message: {}", Report::new(e));
+            log_forward("wl_fixes.destroy", &e);
         }
     }
 
@@ -199,11 +239,11 @@ pub trait WlFixesHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy_registry(
+        let res = _slf.try_send_destroy_registry(
             registry,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_fixes.destroy_registry message: {}", Report::new(e));
+            log_forward("wl_fixes.destroy_registry", &e);
         }
     }
 }
@@ -223,7 +263,7 @@ impl ObjectPrivate for WlFixes {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

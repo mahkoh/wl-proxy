@@ -75,7 +75,7 @@ impl WpPresentationFeedback {
     ///
     /// - `output`: presentation output
     #[inline]
-    pub fn send_sync_output(
+    pub fn try_send_sync_output(
         &self,
         output: &Rc<WlOutput>,
     ) -> Result<(), ObjectError> {
@@ -118,6 +118,33 @@ impl WpPresentationFeedback {
             arg0_id,
         ]);
         Ok(())
+    }
+
+    /// presentation synchronized to this output
+    ///
+    /// As presentation can be synchronized to only one output at a
+    /// time, this event tells which output it was. This event is only
+    /// sent prior to the presented event.
+    ///
+    /// As clients may bind to the same global wl_output multiple
+    /// times, this event is sent for each bound instance that matches
+    /// the synchronized output. If a client has not bound to the
+    /// right wl_output global at all, this event is not sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `output`: presentation output
+    #[inline]
+    pub fn send_sync_output(
+        &self,
+        output: &Rc<WlOutput>,
+    ) {
+        let res = self.try_send_sync_output(
+            output,
+        );
+        if let Err(e) = res {
+            log_send("wp_presentation_feedback.sync_output", &e);
+        }
     }
 
     /// Since when the presented message is available.
@@ -180,7 +207,7 @@ impl WpPresentationFeedback {
     /// - `seq_lo`: low 32 bits of refresh counter
     /// - `flags`: combination of 'kind' values
     #[inline]
-    pub fn send_presented(
+    pub fn try_send_presented(
         &self,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
@@ -248,6 +275,87 @@ impl WpPresentationFeedback {
         Ok(())
     }
 
+    /// the content update was displayed
+    ///
+    /// The associated content update was displayed to the user at the
+    /// indicated time (tv_sec_hi/lo, tv_nsec). For the interpretation of
+    /// the timestamp, see presentation.clock_id event.
+    ///
+    /// The timestamp corresponds to the time when the content update
+    /// turned into light the first time on the surface's main output.
+    /// Compositors may approximate this from the framebuffer flip
+    /// completion events from the system, and the latency of the
+    /// physical display path if known.
+    ///
+    /// This event is preceded by all related sync_output events
+    /// telling which output's refresh cycle the feedback corresponds
+    /// to, i.e. the main output for the surface. Compositors are
+    /// recommended to choose the output containing the largest part
+    /// of the wl_surface, or keeping the output they previously
+    /// chose. Having a stable presentation output association helps
+    /// clients predict future output refreshes (vblank).
+    ///
+    /// The 'refresh' argument gives the compositor's prediction of how
+    /// many nanoseconds after tv_sec, tv_nsec the very next output
+    /// refresh may occur. This is to further aid clients in
+    /// predicting future refreshes, i.e., estimating the timestamps
+    /// targeting the next few vblanks. If such prediction cannot
+    /// usefully be done, the argument is zero.
+    ///
+    /// For version 2 and later, if the output does not have a constant
+    /// refresh rate, explicit video mode switches excluded, then the
+    /// refresh argument must be either an appropriate rate picked by the
+    /// compositor (e.g. fastest rate), or 0 if no such rate exists.
+    /// For version 1, if the output does not have a constant refresh rate,
+    /// the refresh argument must be zero.
+    ///
+    /// The 64-bit value combined from seq_hi and seq_lo is the value
+    /// of the output's vertical retrace counter when the content
+    /// update was first scanned out to the display. This value must
+    /// be compatible with the definition of MSC in
+    /// GLX_OML_sync_control specification. Note, that if the display
+    /// path has a non-zero latency, the time instant specified by
+    /// this counter may differ from the timestamp's.
+    ///
+    /// If the output does not have a concept of vertical retrace or a
+    /// refresh cycle, or the output device is self-refreshing without
+    /// a way to query the refresh count, then the arguments seq_hi
+    /// and seq_lo must be zero.
+    ///
+    /// # Arguments
+    ///
+    /// - `tv_sec_hi`: high 32 bits of the seconds part of the presentation timestamp
+    /// - `tv_sec_lo`: low 32 bits of the seconds part of the presentation timestamp
+    /// - `tv_nsec`: nanoseconds part of the presentation timestamp
+    /// - `refresh`: nanoseconds till next refresh
+    /// - `seq_hi`: high 32 bits of refresh counter
+    /// - `seq_lo`: low 32 bits of refresh counter
+    /// - `flags`: combination of 'kind' values
+    #[inline]
+    pub fn send_presented(
+        &self,
+        tv_sec_hi: u32,
+        tv_sec_lo: u32,
+        tv_nsec: u32,
+        refresh: u32,
+        seq_hi: u32,
+        seq_lo: u32,
+        flags: WpPresentationFeedbackKind,
+    ) {
+        let res = self.try_send_presented(
+            tv_sec_hi,
+            tv_sec_lo,
+            tv_nsec,
+            refresh,
+            seq_hi,
+            seq_lo,
+            flags,
+        );
+        if let Err(e) = res {
+            log_send("wp_presentation_feedback.presented", &e);
+        }
+    }
+
     /// Since when the discarded message is available.
     pub const MSG__DISCARDED__SINCE: u32 = 1;
 
@@ -255,7 +363,7 @@ impl WpPresentationFeedback {
     ///
     /// The content update was never displayed to the user.
     #[inline]
-    pub fn send_discarded(
+    pub fn try_send_discarded(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -291,13 +399,27 @@ impl WpPresentationFeedback {
         self.core.handle_client_destroy();
         Ok(())
     }
+
+    /// the content update was not displayed
+    ///
+    /// The content update was never displayed to the user.
+    #[inline]
+    pub fn send_discarded(
+        &self,
+    ) {
+        let res = self.try_send_discarded(
+        );
+        if let Err(e) = res {
+            log_send("wp_presentation_feedback.discarded", &e);
+        }
+    }
 }
 
 /// A message handler for [WpPresentationFeedback] proxies.
 pub trait WpPresentationFeedbackHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpPresentationFeedback>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// presentation synchronized to this output
@@ -333,11 +455,11 @@ pub trait WpPresentationFeedbackHandler: Any {
                 }
             }
         }
-        let res = _slf.send_sync_output(
+        let res = _slf.try_send_sync_output(
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_presentation_feedback.sync_output message: {}", Report::new(e));
+            log_forward("wp_presentation_feedback.sync_output", &e);
         }
     }
 
@@ -412,7 +534,7 @@ pub trait WpPresentationFeedbackHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_presented(
+        let res = _slf.try_send_presented(
             tv_sec_hi,
             tv_sec_lo,
             tv_nsec,
@@ -422,7 +544,7 @@ pub trait WpPresentationFeedbackHandler: Any {
             flags,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_presentation_feedback.presented message: {}", Report::new(e));
+            log_forward("wp_presentation_feedback.presented", &e);
         }
     }
 
@@ -437,10 +559,10 @@ pub trait WpPresentationFeedbackHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_discarded(
+        let res = _slf.try_send_discarded(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_presentation_feedback.discarded message: {}", Report::new(e));
+            log_forward("wp_presentation_feedback.discarded", &e);
         }
     }
 }
@@ -460,7 +582,7 @@ impl ObjectPrivate for WpPresentationFeedback {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

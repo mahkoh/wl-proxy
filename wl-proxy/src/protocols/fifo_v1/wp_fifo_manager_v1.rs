@@ -66,7 +66,7 @@ impl WpFifoManagerV1 {
     /// this protocol object. Existing objects created by this object
     /// are not affected.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -98,6 +98,22 @@ impl WpFifoManagerV1 {
         Ok(())
     }
 
+    /// unbind from the manager interface
+    ///
+    /// Informs the server that the client will no longer be using
+    /// this protocol object. Existing objects created by this object
+    /// are not affected.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_fifo_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_fifo message is available.
     pub const MSG__GET_FIFO__SINCE: u32 = 1;
 
@@ -117,7 +133,7 @@ impl WpFifoManagerV1 {
     /// - `id`:
     /// - `surface`:
     #[inline]
-    pub fn send_get_fifo(
+    pub fn try_send_get_fifo(
         &self,
         id: &Rc<WpFifoV1>,
         surface: &Rc<WlSurface>,
@@ -168,13 +184,43 @@ impl WpFifoManagerV1 {
         ]);
         Ok(())
     }
+
+    /// request fifo interface for surface
+    ///
+    /// Establish a fifo object for a surface that may be used to add
+    /// display refresh constraints to content updates.
+    ///
+    /// Only one such object may exist for a surface and attempting
+    /// to create more than one will result in an already_exists
+    /// protocol error. If a surface is acted on by multiple software
+    /// components, general best practice is that only the component
+    /// performing wl_surface.attach operations should use this protocol.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn send_get_fifo(
+        &self,
+        id: &Rc<WpFifoV1>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_fifo(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("wp_fifo_manager_v1.get_fifo", &e);
+        }
+    }
 }
 
 /// A message handler for [WpFifoManagerV1] proxies.
 pub trait WpFifoManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpFifoManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// unbind from the manager interface
@@ -190,10 +236,10 @@ pub trait WpFifoManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_fifo_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_fifo_manager_v1.destroy", &e);
         }
     }
 
@@ -225,12 +271,12 @@ pub trait WpFifoManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_fifo(
+        let res = _slf.try_send_get_fifo(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_fifo_manager_v1.get_fifo message: {}", Report::new(e));
+            log_forward("wp_fifo_manager_v1.get_fifo", &e);
         }
     }
 }
@@ -250,7 +296,7 @@ impl ObjectPrivate for WpFifoManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -68,7 +68,7 @@ impl ZwpPointerGestureHoldV1 {
 
     /// destroy the hold gesture object
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -100,6 +100,18 @@ impl ZwpPointerGestureHoldV1 {
         Ok(())
     }
 
+    /// destroy the hold gesture object
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_pointer_gesture_hold_v1.destroy", &e);
+        }
+    }
+
     /// Since when the begin message is available.
     pub const MSG__BEGIN__SINCE: u32 = 3;
 
@@ -114,7 +126,7 @@ impl ZwpPointerGestureHoldV1 {
     /// - `surface`:
     /// - `fingers`: number of fingers
     #[inline]
-    pub fn send_begin(
+    pub fn try_send_begin(
         &self,
         serial: u32,
         time: u32,
@@ -171,6 +183,35 @@ impl ZwpPointerGestureHoldV1 {
         Ok(())
     }
 
+    /// multi-finger hold begin
+    ///
+    /// This event is sent when a hold gesture is detected on the device.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`:
+    /// - `time`: timestamp with millisecond granularity
+    /// - `surface`:
+    /// - `fingers`: number of fingers
+    #[inline]
+    pub fn send_begin(
+        &self,
+        serial: u32,
+        time: u32,
+        surface: &Rc<WlSurface>,
+        fingers: u32,
+    ) {
+        let res = self.try_send_begin(
+            serial,
+            time,
+            surface,
+            fingers,
+        );
+        if let Err(e) = res {
+            log_send("zwp_pointer_gesture_hold_v1.begin", &e);
+        }
+    }
+
     /// Since when the end message is available.
     pub const MSG__END__SINCE: u32 = 3;
 
@@ -192,7 +233,7 @@ impl ZwpPointerGestureHoldV1 {
     /// - `time`: timestamp with millisecond granularity
     /// - `cancelled`: 1 if the gesture was cancelled, 0 otherwise
     #[inline]
-    pub fn send_end(
+    pub fn try_send_end(
         &self,
         serial: u32,
         time: u32,
@@ -239,13 +280,47 @@ impl ZwpPointerGestureHoldV1 {
         ]);
         Ok(())
     }
+
+    /// multi-finger hold end
+    ///
+    /// This event is sent when a hold gesture ceases to
+    /// be valid. This may happen when the holding fingers are lifted or
+    /// the gesture is cancelled, for example if the fingers move past an
+    /// implementation-defined threshold, the finger count changes or the hold
+    /// gesture changes into a different type of gesture.
+    ///
+    /// When a gesture is cancelled, the client may need to undo state changes
+    /// caused by this gesture. What causes a gesture to be cancelled is
+    /// implementation-dependent.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`:
+    /// - `time`: timestamp with millisecond granularity
+    /// - `cancelled`: 1 if the gesture was cancelled, 0 otherwise
+    #[inline]
+    pub fn send_end(
+        &self,
+        serial: u32,
+        time: u32,
+        cancelled: i32,
+    ) {
+        let res = self.try_send_end(
+            serial,
+            time,
+            cancelled,
+        );
+        if let Err(e) = res {
+            log_send("zwp_pointer_gesture_hold_v1.end", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpPointerGestureHoldV1] proxies.
 pub trait ZwpPointerGestureHoldV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpPointerGestureHoldV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the hold gesture object
@@ -257,10 +332,10 @@ pub trait ZwpPointerGestureHoldV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_pointer_gesture_hold_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_pointer_gesture_hold_v1.destroy", &e);
         }
     }
 
@@ -296,14 +371,14 @@ pub trait ZwpPointerGestureHoldV1Handler: Any {
                 }
             }
         }
-        let res = _slf.send_begin(
+        let res = _slf.try_send_begin(
             serial,
             time,
             surface,
             fingers,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_pointer_gesture_hold_v1.begin message: {}", Report::new(e));
+            log_forward("zwp_pointer_gesture_hold_v1.begin", &e);
         }
     }
 
@@ -335,13 +410,13 @@ pub trait ZwpPointerGestureHoldV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_end(
+        let res = _slf.try_send_end(
             serial,
             time,
             cancelled,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_pointer_gesture_hold_v1.end message: {}", Report::new(e));
+            log_forward("zwp_pointer_gesture_hold_v1.end", &e);
         }
     }
 }
@@ -361,7 +436,7 @@ impl ObjectPrivate for ZwpPointerGestureHoldV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

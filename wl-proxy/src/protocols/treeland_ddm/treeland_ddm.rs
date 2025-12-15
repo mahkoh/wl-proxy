@@ -55,7 +55,7 @@ impl TreelandDdm {
     ///
     /// Send treeland to Greeter mode.
     #[inline]
-    pub fn send_switch_to_greeter(
+    pub fn try_send_switch_to_greeter(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -86,6 +86,20 @@ impl TreelandDdm {
         Ok(())
     }
 
+    /// send treeland to greeter mode
+    ///
+    /// Send treeland to Greeter mode.
+    #[inline]
+    pub fn send_switch_to_greeter(
+        &self,
+    ) {
+        let res = self.try_send_switch_to_greeter(
+        );
+        if let Err(e) = res {
+            log_send("treeland_ddm.switch_to_greeter", &e);
+        }
+    }
+
     /// Since when the switch_to_user message is available.
     pub const MSG__SWITCH_TO_USER__SINCE: u32 = 1;
 
@@ -97,7 +111,7 @@ impl TreelandDdm {
     ///
     /// - `username`:
     #[inline]
-    pub fn send_switch_to_user(
+    pub fn try_send_switch_to_user(
         &self,
         username: &str,
     ) -> Result<(), ObjectError> {
@@ -135,6 +149,26 @@ impl TreelandDdm {
         Ok(())
     }
 
+    /// call treeland to switch lockscreen user
+    ///
+    /// Set lockscreen user to username. Ignore when username is "ddm".
+    ///
+    /// # Arguments
+    ///
+    /// - `username`:
+    #[inline]
+    pub fn send_switch_to_user(
+        &self,
+        username: &str,
+    ) {
+        let res = self.try_send_switch_to_user(
+            username,
+        );
+        if let Err(e) = res {
+            log_send("treeland_ddm.switch_to_user", &e);
+        }
+    }
+
     /// Since when the activate_session message is available.
     pub const MSG__ACTIVATE_SESSION__SINCE: u32 = 1;
 
@@ -143,7 +177,7 @@ impl TreelandDdm {
     /// Activate treeland session. This will makes treeland try to take
     /// control of screen.
     #[inline]
-    pub fn send_activate_session(
+    pub fn try_send_activate_session(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -174,6 +208,21 @@ impl TreelandDdm {
         Ok(())
     }
 
+    /// activate wayland session
+    ///
+    /// Activate treeland session. This will makes treeland try to take
+    /// control of screen.
+    #[inline]
+    pub fn send_activate_session(
+        &self,
+    ) {
+        let res = self.try_send_activate_session(
+        );
+        if let Err(e) = res {
+            log_send("treeland_ddm.activate_session", &e);
+        }
+    }
+
     /// Since when the deactivate_session message is available.
     pub const MSG__DEACTIVATE_SESSION__SINCE: u32 = 1;
 
@@ -182,7 +231,7 @@ impl TreelandDdm {
     /// Deactivate treeland session. This will release control of the
     /// screen, but not to close the current seats.
     #[inline]
-    pub fn send_deactivate_session(
+    pub fn try_send_deactivate_session(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -213,6 +262,21 @@ impl TreelandDdm {
         Ok(())
     }
 
+    /// deactivate wayland session
+    ///
+    /// Deactivate treeland session. This will release control of the
+    /// screen, but not to close the current seats.
+    #[inline]
+    pub fn send_deactivate_session(
+        &self,
+    ) {
+        let res = self.try_send_deactivate_session(
+        );
+        if let Err(e) = res {
+            log_send("treeland_ddm.deactivate_session", &e);
+        }
+    }
+
     /// Since when the enable_render message is available.
     pub const MSG__ENABLE_RENDER__SINCE: u32 = 1;
 
@@ -221,7 +285,7 @@ impl TreelandDdm {
     /// Enable treeland rendering. This is primarily called after
     /// disable_render to resume treeland.
     #[inline]
-    pub fn send_enable_render(
+    pub fn try_send_enable_render(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -252,6 +316,21 @@ impl TreelandDdm {
         Ok(())
     }
 
+    /// start treeland rendering
+    ///
+    /// Enable treeland rendering. This is primarily called after
+    /// disable_render to resume treeland.
+    #[inline]
+    pub fn send_enable_render(
+        &self,
+    ) {
+        let res = self.try_send_enable_render(
+        );
+        if let Err(e) = res {
+            log_send("treeland_ddm.enable_render", &e);
+        }
+    }
+
     /// Since when the disable_render message is available.
     pub const MSG__DISABLE_RENDER__SINCE: u32 = 1;
 
@@ -260,7 +339,7 @@ impl TreelandDdm {
     /// Disable treeland rendering. This will prevent treeland from
     /// output to DRM device.
     #[inline]
-    pub fn send_disable_render(
+    pub fn try_send_disable_render(
         &self,
         callback: &Rc<WlCallback>,
     ) -> Result<(), ObjectError> {
@@ -303,6 +382,23 @@ impl TreelandDdm {
         Ok(())
     }
 
+    /// stop treeland rendering
+    ///
+    /// Disable treeland rendering. This will prevent treeland from
+    /// output to DRM device.
+    #[inline]
+    pub fn send_disable_render(
+        &self,
+        callback: &Rc<WlCallback>,
+    ) {
+        let res = self.try_send_disable_render(
+            callback,
+        );
+        if let Err(e) = res {
+            log_send("treeland_ddm.disable_render", &e);
+        }
+    }
+
     /// Since when the switch_to_vt message is available.
     pub const MSG__SWITCH_TO_VT__SINCE: u32 = 1;
 
@@ -315,7 +411,7 @@ impl TreelandDdm {
     ///
     /// - `vtnr`:
     #[inline]
-    pub fn send_switch_to_vt(
+    pub fn try_send_switch_to_vt(
         &self,
         vtnr: i32,
     ) -> Result<(), ObjectError> {
@@ -355,6 +451,27 @@ impl TreelandDdm {
         Ok(())
     }
 
+    /// switch to virtual terminal
+    ///
+    /// Call ddm to switch current virtual terminal to vtnr. ddm should
+    /// take care of the switch and call ioctl respectively.
+    ///
+    /// # Arguments
+    ///
+    /// - `vtnr`:
+    #[inline]
+    pub fn send_switch_to_vt(
+        &self,
+        vtnr: i32,
+    ) {
+        let res = self.try_send_switch_to_vt(
+            vtnr,
+        );
+        if let Err(e) = res {
+            log_send("treeland_ddm.switch_to_vt", &e);
+        }
+    }
+
     /// Since when the acquire_vt message is available.
     pub const MSG__ACQUIRE_VT__SINCE: u32 = 1;
 
@@ -367,7 +484,7 @@ impl TreelandDdm {
     ///
     /// - `vtnr`:
     #[inline]
-    pub fn send_acquire_vt(
+    pub fn try_send_acquire_vt(
         &self,
         vtnr: i32,
     ) -> Result<(), ObjectError> {
@@ -406,13 +523,34 @@ impl TreelandDdm {
         ]);
         Ok(())
     }
+
+    /// acquire control of virtual terminal
+    ///
+    /// Call ddm to acquire control of VT at vtnr. ddm should call
+    /// VT_SETMODE respectively.
+    ///
+    /// # Arguments
+    ///
+    /// - `vtnr`:
+    #[inline]
+    pub fn send_acquire_vt(
+        &self,
+        vtnr: i32,
+    ) {
+        let res = self.try_send_acquire_vt(
+            vtnr,
+        );
+        if let Err(e) = res {
+            log_send("treeland_ddm.acquire_vt", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandDdm] proxies.
 pub trait TreelandDdmHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandDdm>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// send treeland to greeter mode
@@ -426,10 +564,10 @@ pub trait TreelandDdmHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_switch_to_greeter(
+        let res = _slf.try_send_switch_to_greeter(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_ddm.switch_to_greeter message: {}", Report::new(e));
+            log_forward("treeland_ddm.switch_to_greeter", &e);
         }
     }
 
@@ -449,11 +587,11 @@ pub trait TreelandDdmHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_switch_to_user(
+        let res = _slf.try_send_switch_to_user(
             username,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_ddm.switch_to_user message: {}", Report::new(e));
+            log_forward("treeland_ddm.switch_to_user", &e);
         }
     }
 
@@ -469,10 +607,10 @@ pub trait TreelandDdmHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_activate_session(
+        let res = _slf.try_send_activate_session(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_ddm.activate_session message: {}", Report::new(e));
+            log_forward("treeland_ddm.activate_session", &e);
         }
     }
 
@@ -488,10 +626,10 @@ pub trait TreelandDdmHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_deactivate_session(
+        let res = _slf.try_send_deactivate_session(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_ddm.deactivate_session message: {}", Report::new(e));
+            log_forward("treeland_ddm.deactivate_session", &e);
         }
     }
 
@@ -507,10 +645,10 @@ pub trait TreelandDdmHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_enable_render(
+        let res = _slf.try_send_enable_render(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_ddm.enable_render message: {}", Report::new(e));
+            log_forward("treeland_ddm.enable_render", &e);
         }
     }
 
@@ -531,11 +669,11 @@ pub trait TreelandDdmHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_disable_render(
+        let res = _slf.try_send_disable_render(
             callback,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_ddm.disable_render message: {}", Report::new(e));
+            log_forward("treeland_ddm.disable_render", &e);
         }
     }
 
@@ -556,11 +694,11 @@ pub trait TreelandDdmHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_switch_to_vt(
+        let res = _slf.try_send_switch_to_vt(
             vtnr,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_ddm.switch_to_vt message: {}", Report::new(e));
+            log_forward("treeland_ddm.switch_to_vt", &e);
         }
     }
 
@@ -581,11 +719,11 @@ pub trait TreelandDdmHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_acquire_vt(
+        let res = _slf.try_send_acquire_vt(
             vtnr,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_ddm.acquire_vt message: {}", Report::new(e));
+            log_forward("treeland_ddm.acquire_vt", &e);
         }
     }
 }
@@ -605,7 +743,7 @@ impl ObjectPrivate for TreelandDdm {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

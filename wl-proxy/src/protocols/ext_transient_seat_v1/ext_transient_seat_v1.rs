@@ -64,7 +64,7 @@ impl ExtTransientSeatV1 {
     ///
     /// - `global_name`:
     #[inline]
-    pub fn send_ready(
+    pub fn try_send_ready(
         &self,
         global_name: u32,
     ) -> Result<(), ObjectError> {
@@ -104,6 +104,31 @@ impl ExtTransientSeatV1 {
         Ok(())
     }
 
+    /// transient seat is ready
+    ///
+    /// This event advertises the global name for the wl_seat to be used with
+    /// wl_registry_bind.
+    ///
+    /// It is sent exactly once, immediately after the transient seat is created
+    /// and the new "wl_seat" global is advertised, if and only if the creation
+    /// of the transient seat was allowed.
+    ///
+    /// # Arguments
+    ///
+    /// - `global_name`:
+    #[inline]
+    pub fn send_ready(
+        &self,
+        global_name: u32,
+    ) {
+        let res = self.try_send_ready(
+            global_name,
+        );
+        if let Err(e) = res {
+            log_send("ext_transient_seat_v1.ready", &e);
+        }
+    }
+
     /// Since when the denied message is available.
     pub const MSG__DENIED__SINCE: u32 = 1;
 
@@ -117,7 +142,7 @@ impl ExtTransientSeatV1 {
     ///
     /// After receiving this event, the client should destroy the object.
     #[inline]
-    pub fn send_denied(
+    pub fn try_send_denied(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -150,6 +175,26 @@ impl ExtTransientSeatV1 {
         Ok(())
     }
 
+    /// transient seat creation denied
+    ///
+    /// The event informs the client that the compositor denied its request to
+    /// create a transient seat.
+    ///
+    /// It is sent exactly once, immediately after the transient seat object is
+    /// created, if and only if the creation of the transient seat was denied.
+    ///
+    /// After receiving this event, the client should destroy the object.
+    #[inline]
+    pub fn send_denied(
+        &self,
+    ) {
+        let res = self.try_send_denied(
+        );
+        if let Err(e) = res {
+            log_send("ext_transient_seat_v1.denied", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -158,7 +203,7 @@ impl ExtTransientSeatV1 {
     /// When the transient seat object is destroyed by the client, the
     /// associated seat created by the compositor is also destroyed.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -189,13 +234,28 @@ impl ExtTransientSeatV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy transient seat
+    ///
+    /// When the transient seat object is destroyed by the client, the
+    /// associated seat created by the compositor is also destroyed.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_transient_seat_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtTransientSeatV1] proxies.
 pub trait ExtTransientSeatV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtTransientSeatV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// transient seat is ready
@@ -219,11 +279,11 @@ pub trait ExtTransientSeatV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_ready(
+        let res = _slf.try_send_ready(
             global_name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_transient_seat_v1.ready message: {}", Report::new(e));
+            log_forward("ext_transient_seat_v1.ready", &e);
         }
     }
 
@@ -244,10 +304,10 @@ pub trait ExtTransientSeatV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_denied(
+        let res = _slf.try_send_denied(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_transient_seat_v1.denied message: {}", Report::new(e));
+            log_forward("ext_transient_seat_v1.denied", &e);
         }
     }
 
@@ -263,10 +323,10 @@ pub trait ExtTransientSeatV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_transient_seat_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_transient_seat_v1.destroy", &e);
         }
     }
 }
@@ -286,7 +346,7 @@ impl ObjectPrivate for ExtTransientSeatV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

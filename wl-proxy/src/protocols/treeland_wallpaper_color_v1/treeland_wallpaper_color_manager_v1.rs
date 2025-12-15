@@ -54,7 +54,7 @@ impl TreelandWallpaperColorManagerV1 {
     ///
     /// - `output`: system output name
     #[inline]
-    pub fn send_watch(
+    pub fn try_send_watch(
         &self,
         output: &str,
     ) -> Result<(), ObjectError> {
@@ -92,6 +92,26 @@ impl TreelandWallpaperColorManagerV1 {
         Ok(())
     }
 
+    /// watch wallpaper color
+    ///
+    /// Monitor the wallpaper color of a given screen.
+    ///
+    /// # Arguments
+    ///
+    /// - `output`: system output name
+    #[inline]
+    pub fn send_watch(
+        &self,
+        output: &str,
+    ) {
+        let res = self.try_send_watch(
+            output,
+        );
+        if let Err(e) = res {
+            log_send("treeland_wallpaper_color_manager_v1.watch", &e);
+        }
+    }
+
     /// Since when the unwatch message is available.
     pub const MSG__UNWATCH__SINCE: u32 = 1;
 
@@ -103,7 +123,7 @@ impl TreelandWallpaperColorManagerV1 {
     ///
     /// - `output`: system output name
     #[inline]
-    pub fn send_unwatch(
+    pub fn try_send_unwatch(
         &self,
         output: &str,
     ) -> Result<(), ObjectError> {
@@ -141,6 +161,26 @@ impl TreelandWallpaperColorManagerV1 {
         Ok(())
     }
 
+    /// unwatch wallpaper color
+    ///
+    /// Stop monitor the wallpaper color for the given screen.
+    ///
+    /// # Arguments
+    ///
+    /// - `output`: system output name
+    #[inline]
+    pub fn send_unwatch(
+        &self,
+        output: &str,
+    ) {
+        let res = self.try_send_unwatch(
+            output,
+        );
+        if let Err(e) = res {
+            log_send("treeland_wallpaper_color_manager_v1.unwatch", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -148,7 +188,7 @@ impl TreelandWallpaperColorManagerV1 {
     ///
     /// The client no longer cares about wallpaper_color.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -180,6 +220,20 @@ impl TreelandWallpaperColorManagerV1 {
         Ok(())
     }
 
+    /// destroy the context object
+    ///
+    /// The client no longer cares about wallpaper_color.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_wallpaper_color_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the output_color message is available.
     pub const MSG__OUTPUT_COLOR__SINCE: u32 = 1;
 
@@ -193,7 +247,7 @@ impl TreelandWallpaperColorManagerV1 {
     /// - `output`: system output name
     /// - `isdark`:
     #[inline]
-    pub fn send_output_color(
+    pub fn try_send_output_color(
         &self,
         output: &str,
         isdark: u32,
@@ -238,13 +292,37 @@ impl TreelandWallpaperColorManagerV1 {
         ]);
         Ok(())
     }
+
+    /// output color changed
+    ///
+    /// Tell the client that the wallpaper color of the screen it is monitoring has changed.
+    /// This event will also be sent immediately when the client requests a watch.
+    ///
+    /// # Arguments
+    ///
+    /// - `output`: system output name
+    /// - `isdark`:
+    #[inline]
+    pub fn send_output_color(
+        &self,
+        output: &str,
+        isdark: u32,
+    ) {
+        let res = self.try_send_output_color(
+            output,
+            isdark,
+        );
+        if let Err(e) = res {
+            log_send("treeland_wallpaper_color_manager_v1.output_color", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandWallpaperColorManagerV1] proxies.
 pub trait TreelandWallpaperColorManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandWallpaperColorManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// watch wallpaper color
@@ -263,11 +341,11 @@ pub trait TreelandWallpaperColorManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_watch(
+        let res = _slf.try_send_watch(
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_wallpaper_color_manager_v1.watch message: {}", Report::new(e));
+            log_forward("treeland_wallpaper_color_manager_v1.watch", &e);
         }
     }
 
@@ -287,11 +365,11 @@ pub trait TreelandWallpaperColorManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_unwatch(
+        let res = _slf.try_send_unwatch(
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_wallpaper_color_manager_v1.unwatch message: {}", Report::new(e));
+            log_forward("treeland_wallpaper_color_manager_v1.unwatch", &e);
         }
     }
 
@@ -306,10 +384,10 @@ pub trait TreelandWallpaperColorManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_wallpaper_color_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_wallpaper_color_manager_v1.destroy", &e);
         }
     }
 
@@ -332,12 +410,12 @@ pub trait TreelandWallpaperColorManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_output_color(
+        let res = _slf.try_send_output_color(
             output,
             isdark,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_wallpaper_color_manager_v1.output_color message: {}", Report::new(e));
+            log_forward("treeland_wallpaper_color_manager_v1.output_color", &e);
         }
     }
 }
@@ -357,7 +435,7 @@ impl ObjectPrivate for TreelandWallpaperColorManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

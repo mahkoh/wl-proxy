@@ -62,7 +62,7 @@ impl HyprlandGlobalShortcutV1 {
     /// - `tv_sec_lo`: low 32 bits of the seconds part of the timestamp
     /// - `tv_nsec`: nanoseconds part of the timestamp
     #[inline]
-    pub fn send_pressed(
+    pub fn try_send_pressed(
         &self,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
@@ -110,6 +110,34 @@ impl HyprlandGlobalShortcutV1 {
         Ok(())
     }
 
+    /// keystroke pressed
+    ///
+    /// The keystroke was pressed.
+    ///
+    /// tv_ values hold the timestamp of the occurrence.
+    ///
+    /// # Arguments
+    ///
+    /// - `tv_sec_hi`: high 32 bits of the seconds part of the timestamp
+    /// - `tv_sec_lo`: low 32 bits of the seconds part of the timestamp
+    /// - `tv_nsec`: nanoseconds part of the timestamp
+    #[inline]
+    pub fn send_pressed(
+        &self,
+        tv_sec_hi: u32,
+        tv_sec_lo: u32,
+        tv_nsec: u32,
+    ) {
+        let res = self.try_send_pressed(
+            tv_sec_hi,
+            tv_sec_lo,
+            tv_nsec,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_global_shortcut_v1.pressed", &e);
+        }
+    }
+
     /// Since when the released message is available.
     pub const MSG__RELEASED__SINCE: u32 = 1;
 
@@ -125,7 +153,7 @@ impl HyprlandGlobalShortcutV1 {
     /// - `tv_sec_lo`: low 32 bits of the seconds part of the timestamp
     /// - `tv_nsec`: nanoseconds part of the timestamp
     #[inline]
-    pub fn send_released(
+    pub fn try_send_released(
         &self,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
@@ -173,6 +201,34 @@ impl HyprlandGlobalShortcutV1 {
         Ok(())
     }
 
+    /// keystroke released
+    ///
+    /// The keystroke was released.
+    ///
+    /// tv_ values hold the timestamp of the occurrence.
+    ///
+    /// # Arguments
+    ///
+    /// - `tv_sec_hi`: high 32 bits of the seconds part of the timestamp
+    /// - `tv_sec_lo`: low 32 bits of the seconds part of the timestamp
+    /// - `tv_nsec`: nanoseconds part of the timestamp
+    #[inline]
+    pub fn send_released(
+        &self,
+        tv_sec_hi: u32,
+        tv_sec_lo: u32,
+        tv_nsec: u32,
+    ) {
+        let res = self.try_send_released(
+            tv_sec_hi,
+            tv_sec_lo,
+            tv_nsec,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_global_shortcut_v1.released", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -180,7 +236,7 @@ impl HyprlandGlobalShortcutV1 {
     ///
     /// Destroys the shortcut. Can be sent at any time by the client.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -211,13 +267,27 @@ impl HyprlandGlobalShortcutV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// delete this object, used or not
+    ///
+    /// Destroys the shortcut. Can be sent at any time by the client.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_global_shortcut_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [HyprlandGlobalShortcutV1] proxies.
 pub trait HyprlandGlobalShortcutV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandGlobalShortcutV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// keystroke pressed
@@ -242,13 +312,13 @@ pub trait HyprlandGlobalShortcutV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_pressed(
+        let res = _slf.try_send_pressed(
             tv_sec_hi,
             tv_sec_lo,
             tv_nsec,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_global_shortcut_v1.pressed message: {}", Report::new(e));
+            log_forward("hyprland_global_shortcut_v1.pressed", &e);
         }
     }
 
@@ -274,13 +344,13 @@ pub trait HyprlandGlobalShortcutV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_released(
+        let res = _slf.try_send_released(
             tv_sec_hi,
             tv_sec_lo,
             tv_nsec,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_global_shortcut_v1.released message: {}", Report::new(e));
+            log_forward("hyprland_global_shortcut_v1.released", &e);
         }
     }
 
@@ -295,10 +365,10 @@ pub trait HyprlandGlobalShortcutV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_global_shortcut_v1.destroy message: {}", Report::new(e));
+            log_forward("hyprland_global_shortcut_v1.destroy", &e);
         }
     }
 }
@@ -318,7 +388,7 @@ impl ObjectPrivate for HyprlandGlobalShortcutV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

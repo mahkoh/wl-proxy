@@ -56,7 +56,7 @@ impl ZxdgExporterV2 {
     /// Notify the compositor that the xdg_exporter object will no longer be
     /// used.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -88,6 +88,21 @@ impl ZxdgExporterV2 {
         Ok(())
     }
 
+    /// destroy the xdg_exporter object
+    ///
+    /// Notify the compositor that the xdg_exporter object will no longer be
+    /// used.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zxdg_exporter_v2.destroy", &e);
+        }
+    }
+
     /// Since when the export_toplevel message is available.
     pub const MSG__EXPORT_TOPLEVEL__SINCE: u32 = 1;
 
@@ -108,7 +123,7 @@ impl ZxdgExporterV2 {
     /// - `id`: the new xdg_exported object
     /// - `surface`: the surface to export
     #[inline]
-    pub fn send_export_toplevel(
+    pub fn try_send_export_toplevel(
         &self,
         id: &Rc<ZxdgExportedV2>,
         surface: &Rc<WlSurface>,
@@ -159,13 +174,44 @@ impl ZxdgExporterV2 {
         ]);
         Ok(())
     }
+
+    /// export a toplevel surface
+    ///
+    /// The export_toplevel request exports the passed surface so that it can later be
+    /// imported via xdg_importer. When called, a new xdg_exported object will
+    /// be created and xdg_exported.handle will be sent immediately. See the
+    /// corresponding interface and event for details.
+    ///
+    /// A surface may be exported multiple times, and each exported handle may
+    /// be used to create an xdg_imported multiple times. Only xdg_toplevel
+    ///         equivalent surfaces may be exported, otherwise an invalid_surface
+    ///         protocol error is sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new xdg_exported object
+    /// - `surface`: the surface to export
+    #[inline]
+    pub fn send_export_toplevel(
+        &self,
+        id: &Rc<ZxdgExportedV2>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_export_toplevel(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("zxdg_exporter_v2.export_toplevel", &e);
+        }
+    }
 }
 
 /// A message handler for [ZxdgExporterV2] proxies.
 pub trait ZxdgExporterV2Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZxdgExporterV2>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the xdg_exporter object
@@ -180,10 +226,10 @@ pub trait ZxdgExporterV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zxdg_exporter_v2.destroy message: {}", Report::new(e));
+            log_forward("zxdg_exporter_v2.destroy", &e);
         }
     }
 
@@ -216,12 +262,12 @@ pub trait ZxdgExporterV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_export_toplevel(
+        let res = _slf.try_send_export_toplevel(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zxdg_exporter_v2.export_toplevel message: {}", Report::new(e));
+            log_forward("zxdg_exporter_v2.export_toplevel", &e);
         }
     }
 }
@@ -241,7 +287,7 @@ impl ObjectPrivate for ZxdgExporterV2 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

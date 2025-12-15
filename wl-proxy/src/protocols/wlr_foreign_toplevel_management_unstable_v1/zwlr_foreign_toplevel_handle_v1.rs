@@ -62,7 +62,7 @@ impl ZwlrForeignToplevelHandleV1 {
     ///
     /// - `title`:
     #[inline]
-    pub fn send_title(
+    pub fn try_send_title(
         &self,
         title: &str,
     ) -> Result<(), ObjectError> {
@@ -102,6 +102,26 @@ impl ZwlrForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// title change
+    ///
+    /// This event is emitted whenever the title of the toplevel changes.
+    ///
+    /// # Arguments
+    ///
+    /// - `title`:
+    #[inline]
+    pub fn send_title(
+        &self,
+        title: &str,
+    ) {
+        let res = self.try_send_title(
+            title,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.title", &e);
+        }
+    }
+
     /// Since when the app_id message is available.
     pub const MSG__APP_ID__SINCE: u32 = 1;
 
@@ -113,7 +133,7 @@ impl ZwlrForeignToplevelHandleV1 {
     ///
     /// - `app_id`:
     #[inline]
-    pub fn send_app_id(
+    pub fn try_send_app_id(
         &self,
         app_id: &str,
     ) -> Result<(), ObjectError> {
@@ -153,6 +173,26 @@ impl ZwlrForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// app-id change
+    ///
+    /// This event is emitted whenever the app-id of the toplevel changes.
+    ///
+    /// # Arguments
+    ///
+    /// - `app_id`:
+    #[inline]
+    pub fn send_app_id(
+        &self,
+        app_id: &str,
+    ) {
+        let res = self.try_send_app_id(
+            app_id,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.app_id", &e);
+        }
+    }
+
     /// Since when the output_enter message is available.
     pub const MSG__OUTPUT_ENTER__SINCE: u32 = 1;
 
@@ -165,7 +205,7 @@ impl ZwlrForeignToplevelHandleV1 {
     ///
     /// - `output`:
     #[inline]
-    pub fn send_output_enter(
+    pub fn try_send_output_enter(
         &self,
         output: &Rc<WlOutput>,
     ) -> Result<(), ObjectError> {
@@ -210,6 +250,27 @@ impl ZwlrForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// toplevel entered an output
+    ///
+    /// This event is emitted whenever the toplevel becomes visible on
+    /// the given output. A toplevel may be visible on multiple outputs.
+    ///
+    /// # Arguments
+    ///
+    /// - `output`:
+    #[inline]
+    pub fn send_output_enter(
+        &self,
+        output: &Rc<WlOutput>,
+    ) {
+        let res = self.try_send_output_enter(
+            output,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.output_enter", &e);
+        }
+    }
+
     /// Since when the output_leave message is available.
     pub const MSG__OUTPUT_LEAVE__SINCE: u32 = 1;
 
@@ -223,7 +284,7 @@ impl ZwlrForeignToplevelHandleV1 {
     ///
     /// - `output`:
     #[inline]
-    pub fn send_output_leave(
+    pub fn try_send_output_leave(
         &self,
         output: &Rc<WlOutput>,
     ) -> Result<(), ObjectError> {
@@ -268,6 +329,28 @@ impl ZwlrForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// toplevel left an output
+    ///
+    /// This event is emitted whenever the toplevel stops being visible on
+    /// the given output. It is guaranteed that an entered-output event
+    /// with the same output has been emitted before this event.
+    ///
+    /// # Arguments
+    ///
+    /// - `output`:
+    #[inline]
+    pub fn send_output_leave(
+        &self,
+        output: &Rc<WlOutput>,
+    ) {
+        let res = self.try_send_output_leave(
+            output,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.output_leave", &e);
+        }
+    }
+
     /// Since when the set_maximized message is available.
     pub const MSG__SET_MAXIMIZED__SINCE: u32 = 1;
 
@@ -276,7 +359,7 @@ impl ZwlrForeignToplevelHandleV1 {
     /// Requests that the toplevel be maximized. If the maximized state actually
     /// changes, this will be indicated by the state event.
     #[inline]
-    pub fn send_set_maximized(
+    pub fn try_send_set_maximized(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -307,6 +390,21 @@ impl ZwlrForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// requests that the toplevel be maximized
+    ///
+    /// Requests that the toplevel be maximized. If the maximized state actually
+    /// changes, this will be indicated by the state event.
+    #[inline]
+    pub fn send_set_maximized(
+        &self,
+    ) {
+        let res = self.try_send_set_maximized(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.set_maximized", &e);
+        }
+    }
+
     /// Since when the unset_maximized message is available.
     pub const MSG__UNSET_MAXIMIZED__SINCE: u32 = 1;
 
@@ -315,7 +413,7 @@ impl ZwlrForeignToplevelHandleV1 {
     /// Requests that the toplevel be unmaximized. If the maximized state actually
     /// changes, this will be indicated by the state event.
     #[inline]
-    pub fn send_unset_maximized(
+    pub fn try_send_unset_maximized(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -346,6 +444,21 @@ impl ZwlrForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// requests that the toplevel be unmaximized
+    ///
+    /// Requests that the toplevel be unmaximized. If the maximized state actually
+    /// changes, this will be indicated by the state event.
+    #[inline]
+    pub fn send_unset_maximized(
+        &self,
+    ) {
+        let res = self.try_send_unset_maximized(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.unset_maximized", &e);
+        }
+    }
+
     /// Since when the set_minimized message is available.
     pub const MSG__SET_MINIMIZED__SINCE: u32 = 1;
 
@@ -354,7 +467,7 @@ impl ZwlrForeignToplevelHandleV1 {
     /// Requests that the toplevel be minimized. If the minimized state actually
     /// changes, this will be indicated by the state event.
     #[inline]
-    pub fn send_set_minimized(
+    pub fn try_send_set_minimized(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -385,6 +498,21 @@ impl ZwlrForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// requests that the toplevel be minimized
+    ///
+    /// Requests that the toplevel be minimized. If the minimized state actually
+    /// changes, this will be indicated by the state event.
+    #[inline]
+    pub fn send_set_minimized(
+        &self,
+    ) {
+        let res = self.try_send_set_minimized(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.set_minimized", &e);
+        }
+    }
+
     /// Since when the unset_minimized message is available.
     pub const MSG__UNSET_MINIMIZED__SINCE: u32 = 1;
 
@@ -393,7 +521,7 @@ impl ZwlrForeignToplevelHandleV1 {
     /// Requests that the toplevel be unminimized. If the minimized state actually
     /// changes, this will be indicated by the state event.
     #[inline]
-    pub fn send_unset_minimized(
+    pub fn try_send_unset_minimized(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -424,6 +552,21 @@ impl ZwlrForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// requests that the toplevel be unminimized
+    ///
+    /// Requests that the toplevel be unminimized. If the minimized state actually
+    /// changes, this will be indicated by the state event.
+    #[inline]
+    pub fn send_unset_minimized(
+        &self,
+    ) {
+        let res = self.try_send_unset_minimized(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.unset_minimized", &e);
+        }
+    }
+
     /// Since when the activate message is available.
     pub const MSG__ACTIVATE__SINCE: u32 = 1;
 
@@ -436,7 +579,7 @@ impl ZwlrForeignToplevelHandleV1 {
     ///
     /// - `seat`:
     #[inline]
-    pub fn send_activate(
+    pub fn try_send_activate(
         &self,
         seat: &Rc<WlSeat>,
     ) -> Result<(), ObjectError> {
@@ -479,6 +622,27 @@ impl ZwlrForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// activate the toplevel
+    ///
+    /// Request that this toplevel be activated on the given seat.
+    /// There is no guarantee the toplevel will be actually activated.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`:
+    #[inline]
+    pub fn send_activate(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) {
+        let res = self.try_send_activate(
+            seat,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.activate", &e);
+        }
+    }
+
     /// Since when the state message is available.
     pub const MSG__STATE__SINCE: u32 = 1;
 
@@ -492,7 +656,7 @@ impl ZwlrForeignToplevelHandleV1 {
     ///
     /// - `state`:
     #[inline]
-    pub fn send_state(
+    pub fn try_send_state(
         &self,
         state: &[u8],
     ) -> Result<(), ObjectError> {
@@ -532,6 +696,28 @@ impl ZwlrForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// the toplevel state changed
+    ///
+    /// This event is emitted immediately after the zlw_foreign_toplevel_handle_v1
+    /// is created and each time the toplevel state changes, either because of a
+    /// compositor action or because of a request in this protocol.
+    ///
+    /// # Arguments
+    ///
+    /// - `state`:
+    #[inline]
+    pub fn send_state(
+        &self,
+        state: &[u8],
+    ) {
+        let res = self.try_send_state(
+            state,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.state", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -543,7 +729,7 @@ impl ZwlrForeignToplevelHandleV1 {
     /// This allows changes to the zwlr_foreign_toplevel_handle_v1 properties
     /// to be seen as atomic, even if they happen via multiple events.
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -576,6 +762,24 @@ impl ZwlrForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// all information about the toplevel has been sent
+    ///
+    /// This event is sent after all changes in the toplevel state have been
+    /// sent.
+    ///
+    /// This allows changes to the zwlr_foreign_toplevel_handle_v1 properties
+    /// to be seen as atomic, even if they happen via multiple events.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) {
+        let res = self.try_send_done(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.done", &e);
+        }
+    }
+
     /// Since when the close message is available.
     pub const MSG__CLOSE__SINCE: u32 = 1;
 
@@ -588,7 +792,7 @@ impl ZwlrForeignToplevelHandleV1 {
     /// this happens, the zwlr_foreign_toplevel_handle_v1.closed event will
     /// be emitted.
     #[inline]
-    pub fn send_close(
+    pub fn try_send_close(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -619,6 +823,25 @@ impl ZwlrForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// request that the toplevel be closed
+    ///
+    /// Send a request to the toplevel to close itself. The compositor would
+    /// typically use a shell-specific method to carry out this request, for
+    /// example by sending the xdg_toplevel.close event. However, this gives
+    /// no guarantees the toplevel will actually be destroyed. If and when
+    /// this happens, the zwlr_foreign_toplevel_handle_v1.closed event will
+    /// be emitted.
+    #[inline]
+    pub fn send_close(
+        &self,
+    ) {
+        let res = self.try_send_close(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.close", &e);
+        }
+    }
+
     /// Since when the set_rectangle message is available.
     pub const MSG__SET_RECTANGLE__SINCE: u32 = 1;
 
@@ -644,7 +867,7 @@ impl ZwlrForeignToplevelHandleV1 {
     /// - `width`:
     /// - `height`:
     #[inline]
-    pub fn send_set_rectangle(
+    pub fn try_send_set_rectangle(
         &self,
         surface: &Rc<WlSurface>,
         x: i32,
@@ -703,6 +926,48 @@ impl ZwlrForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// the rectangle which represents the toplevel
+    ///
+    /// The rectangle of the surface specified in this request corresponds to
+    /// the place where the app using this protocol represents the given toplevel.
+    /// It can be used by the compositor as a hint for some operations, e.g
+    /// minimizing. The client is however not required to set this, in which
+    /// case the compositor is free to decide some default value.
+    ///
+    /// If the client specifies more than one rectangle, only the last one is
+    /// considered.
+    ///
+    /// The dimensions are given in surface-local coordinates.
+    /// Setting width=height=0 removes the already-set rectangle.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`:
+    /// - `x`:
+    /// - `y`:
+    /// - `width`:
+    /// - `height`:
+    #[inline]
+    pub fn send_set_rectangle(
+        &self,
+        surface: &Rc<WlSurface>,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_set_rectangle(
+            surface,
+            x,
+            y,
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.set_rectangle", &e);
+        }
+    }
+
     /// Since when the closed message is available.
     pub const MSG__CLOSED__SINCE: u32 = 1;
 
@@ -713,7 +978,7 @@ impl ZwlrForeignToplevelHandleV1 {
     /// toplevel itself becomes inert so any requests will be ignored except the
     /// destroy request.
     #[inline]
-    pub fn send_closed(
+    pub fn try_send_closed(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -746,6 +1011,23 @@ impl ZwlrForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// this toplevel has been destroyed
+    ///
+    /// This event means the toplevel has been destroyed. It is guaranteed there
+    /// won't be any more events for this zwlr_foreign_toplevel_handle_v1. The
+    /// toplevel itself becomes inert so any requests will be ignored except the
+    /// destroy request.
+    #[inline]
+    pub fn send_closed(
+        &self,
+    ) {
+        let res = self.try_send_closed(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.closed", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -757,7 +1039,7 @@ impl ZwlrForeignToplevelHandleV1 {
     /// use the toplevel anymore or after the closed event to finalize the
     /// destruction of the object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -789,6 +1071,24 @@ impl ZwlrForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// destroy the zwlr_foreign_toplevel_handle_v1 object
+    ///
+    /// Destroys the zwlr_foreign_toplevel_handle_v1 object.
+    ///
+    /// This request should be called either when the client does not want to
+    /// use the toplevel anymore or after the closed event to finalize the
+    /// destruction of the object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.destroy", &e);
+        }
+    }
+
     /// Since when the set_fullscreen message is available.
     pub const MSG__SET_FULLSCREEN__SINCE: u32 = 2;
 
@@ -807,7 +1107,7 @@ impl ZwlrForeignToplevelHandleV1 {
     ///
     /// - `output`:
     #[inline]
-    pub fn send_set_fullscreen(
+    pub fn try_send_set_fullscreen(
         &self,
         output: Option<&Rc<WlOutput>>,
     ) -> Result<(), ObjectError> {
@@ -853,6 +1153,33 @@ impl ZwlrForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// request that the toplevel be fullscreened
+    ///
+    /// Requests that the toplevel be fullscreened on the given output. If the
+    /// fullscreen state and/or the outputs the toplevel is visible on actually
+    /// change, this will be indicated by the state and output_enter/leave
+    /// events.
+    ///
+    /// The output parameter is only a hint to the compositor. Also, if output
+    /// is NULL, the compositor should decide which output the toplevel will be
+    /// fullscreened on, if at all.
+    ///
+    /// # Arguments
+    ///
+    /// - `output`:
+    #[inline]
+    pub fn send_set_fullscreen(
+        &self,
+        output: Option<&Rc<WlOutput>>,
+    ) {
+        let res = self.try_send_set_fullscreen(
+            output,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.set_fullscreen", &e);
+        }
+    }
+
     /// Since when the unset_fullscreen message is available.
     pub const MSG__UNSET_FULLSCREEN__SINCE: u32 = 2;
 
@@ -861,7 +1188,7 @@ impl ZwlrForeignToplevelHandleV1 {
     /// Requests that the toplevel be unfullscreened. If the fullscreen state
     /// actually changes, this will be indicated by the state event.
     #[inline]
-    pub fn send_unset_fullscreen(
+    pub fn try_send_unset_fullscreen(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -892,6 +1219,21 @@ impl ZwlrForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// request that the toplevel be unfullscreened
+    ///
+    /// Requests that the toplevel be unfullscreened. If the fullscreen state
+    /// actually changes, this will be indicated by the state event.
+    #[inline]
+    pub fn send_unset_fullscreen(
+        &self,
+    ) {
+        let res = self.try_send_unset_fullscreen(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.unset_fullscreen", &e);
+        }
+    }
+
     /// Since when the parent message is available.
     pub const MSG__PARENT__SINCE: u32 = 3;
 
@@ -905,7 +1247,7 @@ impl ZwlrForeignToplevelHandleV1 {
     ///
     /// - `parent`:
     #[inline]
-    pub fn send_parent(
+    pub fn try_send_parent(
         &self,
         parent: Option<&Rc<ZwlrForeignToplevelHandleV1>>,
     ) -> Result<(), ObjectError> {
@@ -951,13 +1293,35 @@ impl ZwlrForeignToplevelHandleV1 {
         ]);
         Ok(())
     }
+
+    /// parent change
+    ///
+    /// This event is emitted whenever the parent of the toplevel changes.
+    ///
+    /// No event is emitted when the parent handle is destroyed by the client.
+    ///
+    /// # Arguments
+    ///
+    /// - `parent`:
+    #[inline]
+    pub fn send_parent(
+        &self,
+        parent: Option<&Rc<ZwlrForeignToplevelHandleV1>>,
+    ) {
+        let res = self.try_send_parent(
+            parent,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_handle_v1.parent", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrForeignToplevelHandleV1] proxies.
 pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrForeignToplevelHandleV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// title change
@@ -976,11 +1340,11 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_title(
+        let res = _slf.try_send_title(
             title,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.title message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.title", &e);
         }
     }
 
@@ -1000,11 +1364,11 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_app_id(
+        let res = _slf.try_send_app_id(
             app_id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.app_id message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.app_id", &e);
         }
     }
 
@@ -1035,11 +1399,11 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
                 }
             }
         }
-        let res = _slf.send_output_enter(
+        let res = _slf.try_send_output_enter(
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.output_enter message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.output_enter", &e);
         }
     }
 
@@ -1071,11 +1435,11 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
                 }
             }
         }
-        let res = _slf.send_output_leave(
+        let res = _slf.try_send_output_leave(
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.output_leave message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.output_leave", &e);
         }
     }
 
@@ -1091,10 +1455,10 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_maximized(
+        let res = _slf.try_send_set_maximized(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.set_maximized message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.set_maximized", &e);
         }
     }
 
@@ -1110,10 +1474,10 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_unset_maximized(
+        let res = _slf.try_send_unset_maximized(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.unset_maximized message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.unset_maximized", &e);
         }
     }
 
@@ -1129,10 +1493,10 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_minimized(
+        let res = _slf.try_send_set_minimized(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.set_minimized message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.set_minimized", &e);
         }
     }
 
@@ -1148,10 +1512,10 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_unset_minimized(
+        let res = _slf.try_send_unset_minimized(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.unset_minimized message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.unset_minimized", &e);
         }
     }
 
@@ -1175,11 +1539,11 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_activate(
+        let res = _slf.try_send_activate(
             seat,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.activate message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.activate", &e);
         }
     }
 
@@ -1201,11 +1565,11 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_state(
+        let res = _slf.try_send_state(
             state,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.state message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.state", &e);
         }
     }
 
@@ -1224,10 +1588,10 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.done message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.done", &e);
         }
     }
 
@@ -1247,10 +1611,10 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_close(
+        let res = _slf.try_send_close(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.close message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.close", &e);
         }
     }
 
@@ -1291,7 +1655,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_rectangle(
+        let res = _slf.try_send_set_rectangle(
             surface,
             x,
             y,
@@ -1299,7 +1663,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.set_rectangle message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.set_rectangle", &e);
         }
     }
 
@@ -1317,10 +1681,10 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_closed(
+        let res = _slf.try_send_closed(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.closed message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.closed", &e);
         }
     }
 
@@ -1339,10 +1703,10 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.destroy message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.destroy", &e);
         }
     }
 
@@ -1372,11 +1736,11 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_fullscreen(
+        let res = _slf.try_send_set_fullscreen(
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.set_fullscreen message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.set_fullscreen", &e);
         }
     }
 
@@ -1392,10 +1756,10 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_unset_fullscreen(
+        let res = _slf.try_send_unset_fullscreen(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.unset_fullscreen message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.unset_fullscreen", &e);
         }
     }
 
@@ -1429,11 +1793,11 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
                 }
             }
         }
-        let res = _slf.send_parent(
+        let res = _slf.try_send_parent(
             parent,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_handle_v1.parent message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_handle_v1.parent", &e);
         }
     }
 }
@@ -1453,7 +1817,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

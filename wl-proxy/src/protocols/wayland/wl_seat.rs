@@ -85,7 +85,7 @@ impl WlSeat {
     ///
     /// - `capabilities`: capabilities of the seat
     #[inline]
-    pub fn send_capabilities(
+    pub fn try_send_capabilities(
         &self,
         capabilities: WlSeatCapability,
     ) -> Result<(), ObjectError> {
@@ -125,6 +125,50 @@ impl WlSeat {
         Ok(())
     }
 
+    /// seat capabilities changed
+    ///
+    /// This is sent on binding to the seat global or whenever a seat gains
+    /// or loses the pointer, keyboard or touch capabilities.
+    /// The argument is a capability enum containing the complete set of
+    /// capabilities this seat has.
+    ///
+    /// When the pointer capability is added, a client may create a
+    /// wl_pointer object using the wl_seat.get_pointer request. This object
+    /// will receive pointer events until the capability is removed in the
+    /// future.
+    ///
+    /// When the pointer capability is removed, a client should destroy the
+    /// wl_pointer objects associated with the seat where the capability was
+    /// removed, using the wl_pointer.release request. No further pointer
+    /// events will be received on these objects.
+    ///
+    /// In some compositors, if a seat regains the pointer capability and a
+    /// client has a previously obtained wl_pointer object of version 4 or
+    /// less, that object may start sending pointer events again. This
+    /// behavior is considered a misinterpretation of the intended behavior
+    /// and must not be relied upon by the client. wl_pointer objects of
+    /// version 5 or later must not send events if created before the most
+    /// recent event notifying the client of an added pointer capability.
+    ///
+    /// The above behavior also applies to wl_keyboard and wl_touch with the
+    /// keyboard and touch capabilities, respectively.
+    ///
+    /// # Arguments
+    ///
+    /// - `capabilities`: capabilities of the seat
+    #[inline]
+    pub fn send_capabilities(
+        &self,
+        capabilities: WlSeatCapability,
+    ) {
+        let res = self.try_send_capabilities(
+            capabilities,
+        );
+        if let Err(e) = res {
+            log_send("wl_seat.capabilities", &e);
+        }
+    }
+
     /// Since when the get_pointer message is available.
     pub const MSG__GET_POINTER__SINCE: u32 = 1;
 
@@ -139,7 +183,7 @@ impl WlSeat {
     /// never had the pointer capability. The missing_capability error will
     /// be sent in this case.
     #[inline]
-    pub fn send_get_pointer(
+    pub fn try_send_get_pointer(
         &self,
         id: &Rc<WlPointer>,
     ) -> Result<(), ObjectError> {
@@ -182,6 +226,29 @@ impl WlSeat {
         Ok(())
     }
 
+    /// return pointer object
+    ///
+    /// The ID provided will be initialized to the wl_pointer interface
+    /// for this seat.
+    ///
+    /// This request only takes effect if the seat has the pointer
+    /// capability, or has had the pointer capability in the past.
+    /// It is a protocol violation to issue this request on a seat that has
+    /// never had the pointer capability. The missing_capability error will
+    /// be sent in this case.
+    #[inline]
+    pub fn send_get_pointer(
+        &self,
+        id: &Rc<WlPointer>,
+    ) {
+        let res = self.try_send_get_pointer(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("wl_seat.get_pointer", &e);
+        }
+    }
+
     /// Since when the get_keyboard message is available.
     pub const MSG__GET_KEYBOARD__SINCE: u32 = 1;
 
@@ -196,7 +263,7 @@ impl WlSeat {
     /// never had the keyboard capability. The missing_capability error will
     /// be sent in this case.
     #[inline]
-    pub fn send_get_keyboard(
+    pub fn try_send_get_keyboard(
         &self,
         id: &Rc<WlKeyboard>,
     ) -> Result<(), ObjectError> {
@@ -239,6 +306,29 @@ impl WlSeat {
         Ok(())
     }
 
+    /// return keyboard object
+    ///
+    /// The ID provided will be initialized to the wl_keyboard interface
+    /// for this seat.
+    ///
+    /// This request only takes effect if the seat has the keyboard
+    /// capability, or has had the keyboard capability in the past.
+    /// It is a protocol violation to issue this request on a seat that has
+    /// never had the keyboard capability. The missing_capability error will
+    /// be sent in this case.
+    #[inline]
+    pub fn send_get_keyboard(
+        &self,
+        id: &Rc<WlKeyboard>,
+    ) {
+        let res = self.try_send_get_keyboard(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("wl_seat.get_keyboard", &e);
+        }
+    }
+
     /// Since when the get_touch message is available.
     pub const MSG__GET_TOUCH__SINCE: u32 = 1;
 
@@ -253,7 +343,7 @@ impl WlSeat {
     /// never had the touch capability. The missing_capability error will
     /// be sent in this case.
     #[inline]
-    pub fn send_get_touch(
+    pub fn try_send_get_touch(
         &self,
         id: &Rc<WlTouch>,
     ) -> Result<(), ObjectError> {
@@ -296,6 +386,29 @@ impl WlSeat {
         Ok(())
     }
 
+    /// return touch object
+    ///
+    /// The ID provided will be initialized to the wl_touch interface
+    /// for this seat.
+    ///
+    /// This request only takes effect if the seat has the touch
+    /// capability, or has had the touch capability in the past.
+    /// It is a protocol violation to issue this request on a seat that has
+    /// never had the touch capability. The missing_capability error will
+    /// be sent in this case.
+    #[inline]
+    pub fn send_get_touch(
+        &self,
+        id: &Rc<WlTouch>,
+    ) {
+        let res = self.try_send_get_touch(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("wl_seat.get_touch", &e);
+        }
+    }
+
     /// Since when the name message is available.
     pub const MSG__NAME__SINCE: u32 = 2;
 
@@ -322,7 +435,7 @@ impl WlSeat {
     ///
     /// - `name`: seat identifier
     #[inline]
-    pub fn send_name(
+    pub fn try_send_name(
         &self,
         name: &str,
     ) -> Result<(), ObjectError> {
@@ -362,6 +475,41 @@ impl WlSeat {
         Ok(())
     }
 
+    /// unique identifier for this seat
+    ///
+    /// In a multi-seat configuration the seat name can be used by clients to
+    /// help identify which physical devices the seat represents.
+    ///
+    /// The seat name is a UTF-8 string with no convention defined for its
+    /// contents. Each name is unique among all wl_seat globals. The name is
+    /// only guaranteed to be unique for the current compositor instance.
+    ///
+    /// The same seat names are used for all clients. Thus, the name can be
+    /// shared across processes to refer to a specific wl_seat global.
+    ///
+    /// The name event is sent after binding to the seat global, and should be sent
+    /// before announcing capabilities. This event only sent once per seat object,
+    /// and the name does not change over the lifetime of the wl_seat global.
+    ///
+    /// Compositors may re-use the same seat name if the wl_seat global is
+    /// destroyed and re-created later.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: seat identifier
+    #[inline]
+    pub fn send_name(
+        &self,
+        name: &str,
+    ) {
+        let res = self.try_send_name(
+            name,
+        );
+        if let Err(e) = res {
+            log_send("wl_seat.name", &e);
+        }
+    }
+
     /// Since when the release message is available.
     pub const MSG__RELEASE__SINCE: u32 = 5;
 
@@ -370,7 +518,7 @@ impl WlSeat {
     /// Using this request a client can tell the server that it is not going to
     /// use the seat object anymore.
     #[inline]
-    pub fn send_release(
+    pub fn try_send_release(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -401,13 +549,28 @@ impl WlSeat {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// release the seat object
+    ///
+    /// Using this request a client can tell the server that it is not going to
+    /// use the seat object anymore.
+    #[inline]
+    pub fn send_release(
+        &self,
+    ) {
+        let res = self.try_send_release(
+        );
+        if let Err(e) = res {
+            log_send("wl_seat.release", &e);
+        }
+    }
 }
 
 /// A message handler for [WlSeat] proxies.
 pub trait WlSeatHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlSeat>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// seat capabilities changed
@@ -450,11 +613,11 @@ pub trait WlSeatHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_capabilities(
+        let res = _slf.try_send_capabilities(
             capabilities,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_seat.capabilities message: {}", Report::new(e));
+            log_forward("wl_seat.capabilities", &e);
         }
     }
 
@@ -481,11 +644,11 @@ pub trait WlSeatHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_pointer(
+        let res = _slf.try_send_get_pointer(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_seat.get_pointer message: {}", Report::new(e));
+            log_forward("wl_seat.get_pointer", &e);
         }
     }
 
@@ -512,11 +675,11 @@ pub trait WlSeatHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_keyboard(
+        let res = _slf.try_send_get_keyboard(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_seat.get_keyboard message: {}", Report::new(e));
+            log_forward("wl_seat.get_keyboard", &e);
         }
     }
 
@@ -543,11 +706,11 @@ pub trait WlSeatHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_touch(
+        let res = _slf.try_send_get_touch(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_seat.get_touch message: {}", Report::new(e));
+            log_forward("wl_seat.get_touch", &e);
         }
     }
 
@@ -582,11 +745,11 @@ pub trait WlSeatHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_name(
+        let res = _slf.try_send_name(
             name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_seat.name message: {}", Report::new(e));
+            log_forward("wl_seat.name", &e);
         }
     }
 
@@ -602,10 +765,10 @@ pub trait WlSeatHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_release(
+        let res = _slf.try_send_release(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_seat.release message: {}", Report::new(e));
+            log_forward("wl_seat.release", &e);
         }
     }
 }
@@ -625,7 +788,7 @@ impl ObjectPrivate for WlSeat {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

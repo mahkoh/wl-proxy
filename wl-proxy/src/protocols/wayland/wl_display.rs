@@ -65,7 +65,7 @@ impl WlDisplay {
     ///
     /// The callback_data passed in the callback is undefined and should be ignored.
     #[inline]
-    pub fn send_sync(
+    pub fn try_send_sync(
         &self,
         callback: &Rc<WlCallback>,
     ) -> Result<(), ObjectError> {
@@ -108,6 +108,32 @@ impl WlDisplay {
         Ok(())
     }
 
+    /// asynchronous roundtrip
+    ///
+    /// The sync request asks the server to emit the 'done' event
+    /// on the returned wl_callback object.  Since requests are
+    /// handled in-order and events are delivered in-order, this can
+    /// be used as a barrier to ensure all previous requests and the
+    /// resulting events have been handled.
+    ///
+    /// The object returned by this request will be destroyed by the
+    /// compositor after the callback is fired and as such the client must not
+    /// attempt to use it after that point.
+    ///
+    /// The callback_data passed in the callback is undefined and should be ignored.
+    #[inline]
+    pub fn send_sync(
+        &self,
+        callback: &Rc<WlCallback>,
+    ) {
+        let res = self.try_send_sync(
+            callback,
+        );
+        if let Err(e) = res {
+            log_send("wl_display.sync", &e);
+        }
+    }
+
     /// Since when the get_registry message is available.
     pub const MSG__GET_REGISTRY__SINCE: u32 = 1;
 
@@ -123,7 +149,7 @@ impl WlDisplay {
     /// Therefore, clients should invoke get_registry as infrequently as
     /// possible to avoid wasting memory.
     #[inline]
-    pub fn send_get_registry(
+    pub fn try_send_get_registry(
         &self,
         registry: &Rc<WlRegistry>,
     ) -> Result<(), ObjectError> {
@@ -166,6 +192,30 @@ impl WlDisplay {
         Ok(())
     }
 
+    /// get global registry object
+    ///
+    /// This request creates a registry object that allows the client
+    /// to list and bind the global objects available from the
+    /// compositor.
+    ///
+    /// It should be noted that the server side resources consumed in
+    /// response to a get_registry request can only be released when the
+    /// client disconnects, not when the client side proxy is destroyed.
+    /// Therefore, clients should invoke get_registry as infrequently as
+    /// possible to avoid wasting memory.
+    #[inline]
+    pub fn send_get_registry(
+        &self,
+        registry: &Rc<WlRegistry>,
+    ) {
+        let res = self.try_send_get_registry(
+            registry,
+        );
+        if let Err(e) = res {
+            log_send("wl_display.get_registry", &e);
+        }
+    }
+
     /// Since when the error message is available.
     pub const MSG__ERROR__SINCE: u32 = 1;
 
@@ -185,7 +235,7 @@ impl WlDisplay {
     /// - `code`: error code
     /// - `message`: error description
     #[inline]
-    pub fn send_error(
+    pub fn try_send_error(
         &self,
         object_id: Rc<dyn Object>,
         code: u32,
@@ -238,6 +288,38 @@ impl WlDisplay {
         Ok(())
     }
 
+    /// fatal error event
+    ///
+    /// The error event is sent out when a fatal (non-recoverable)
+    /// error has occurred.  The object_id argument is the object
+    /// where the error occurred, most often in response to a request
+    /// to that object.  The code identifies the error and is defined
+    /// by the object interface.  As such, each interface defines its
+    /// own set of error codes.  The message is a brief description
+    /// of the error, for (debugging) convenience.
+    ///
+    /// # Arguments
+    ///
+    /// - `object_id`: object where the error occurred
+    /// - `code`: error code
+    /// - `message`: error description
+    #[inline]
+    pub fn send_error(
+        &self,
+        object_id: Rc<dyn Object>,
+        code: u32,
+        message: &str,
+    ) {
+        let res = self.try_send_error(
+            object_id,
+            code,
+            message,
+        );
+        if let Err(e) = res {
+            log_send("wl_display.error", &e);
+        }
+    }
+
     /// Since when the delete_id message is available.
     pub const MSG__DELETE_ID__SINCE: u32 = 1;
 
@@ -253,7 +335,7 @@ impl WlDisplay {
     ///
     /// - `id`: deleted object ID
     #[inline]
-    pub fn send_delete_id(
+    pub fn try_send_delete_id(
         &self,
         id: u32,
     ) -> Result<(), ObjectError> {
@@ -292,13 +374,37 @@ impl WlDisplay {
         ]);
         Ok(())
     }
+
+    /// acknowledge object ID deletion
+    ///
+    /// This event is used internally by the object ID management
+    /// logic. When a client deletes an object that it had created,
+    /// the server will send this event to acknowledge that it has
+    /// seen the delete request. When the client receives this event,
+    /// it will know that it can safely reuse the object ID.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: deleted object ID
+    #[inline]
+    pub fn send_delete_id(
+        &self,
+        id: u32,
+    ) {
+        let res = self.try_send_delete_id(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("wl_display.delete_id", &e);
+        }
+    }
 }
 
 /// A message handler for [WlDisplay] proxies.
 pub trait WlDisplayHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlDisplay>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// asynchronous roundtrip
@@ -327,11 +433,11 @@ pub trait WlDisplayHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_sync(
+        let res = _slf.try_send_sync(
             callback,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_display.sync message: {}", Report::new(e));
+            log_forward("wl_display.sync", &e);
         }
     }
 
@@ -359,11 +465,11 @@ pub trait WlDisplayHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_registry(
+        let res = _slf.try_send_get_registry(
             registry,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_display.get_registry message: {}", Report::new(e));
+            log_forward("wl_display.get_registry", &e);
         }
     }
 
@@ -403,13 +509,13 @@ pub trait WlDisplayHandler: Any {
                 }
             }
         }
-        let res = _slf.send_error(
+        let res = _slf.try_send_error(
             object_id,
             code,
             message,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_display.error message: {}", Report::new(e));
+            log_forward("wl_display.error", &e);
         }
     }
 
@@ -433,11 +539,11 @@ pub trait WlDisplayHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_delete_id(
+        let res = _slf.try_send_delete_id(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_display.delete_id message: {}", Report::new(e));
+            log_forward("wl_display.delete_id", &e);
         }
     }
 }
@@ -457,7 +563,7 @@ impl ObjectPrivate for WlDisplay {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

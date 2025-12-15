@@ -68,7 +68,7 @@ impl TreelandVirtualOutputV1 {
     /// - `name`: The name of the user readable virtual output
     /// - `outputs`: Screen name array
     #[inline]
-    pub fn send_outputs(
+    pub fn try_send_outputs(
         &self,
         name: &str,
         outputs: &[u8],
@@ -112,6 +112,38 @@ impl TreelandVirtualOutputV1 {
         Ok(())
     }
 
+    /// screen output changes
+    ///
+    /// This event is sent to the client when any screen in the array changes.
+    ///
+    /// The element of the array is the name of the screen.
+    ///
+    /// The first element of the array outputs is the screen to be copied, and
+    /// the subsequent elements are the screens to be mirrored.
+    ///
+    /// When the primary screen (the screen being copied) is removed, a successor
+    /// is selected from the queue as the primary screen, and the queue information
+    /// is updated.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: The name of the user readable virtual output
+    /// - `outputs`: Screen name array
+    #[inline]
+    pub fn send_outputs(
+        &self,
+        name: &str,
+        outputs: &[u8],
+    ) {
+        let res = self.try_send_outputs(
+            name,
+            outputs,
+        );
+        if let Err(e) = res {
+            log_send("treeland_virtual_output_v1.outputs", &e);
+        }
+    }
+
     /// Since when the error message is available.
     pub const MSG__ERROR__SINCE: u32 = 1;
 
@@ -125,7 +157,7 @@ impl TreelandVirtualOutputV1 {
     /// - `code`: error code
     /// - `message`: error description
     #[inline]
-    pub fn send_error(
+    pub fn try_send_error(
         &self,
         code: u32,
         message: &str,
@@ -169,6 +201,30 @@ impl TreelandVirtualOutputV1 {
         Ok(())
     }
 
+    /// Screen copy mode error event
+    ///
+    /// When an error occurs, an error event is emitted, terminating the replication
+    /// mode request issued by the client.
+    ///
+    /// # Arguments
+    ///
+    /// - `code`: error code
+    /// - `message`: error description
+    #[inline]
+    pub fn send_error(
+        &self,
+        code: u32,
+        message: &str,
+    ) {
+        let res = self.try_send_error(
+            code,
+            message,
+        );
+        if let Err(e) = res {
+            log_send("treeland_virtual_output_v1.error", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -176,7 +232,7 @@ impl TreelandVirtualOutputV1 {
     ///
     /// Destroy the output.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -207,13 +263,27 @@ impl TreelandVirtualOutputV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the output
+    ///
+    /// Destroy the output.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_virtual_output_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandVirtualOutputV1] proxies.
 pub trait TreelandVirtualOutputV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandVirtualOutputV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// screen output changes
@@ -243,12 +313,12 @@ pub trait TreelandVirtualOutputV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_outputs(
+        let res = _slf.try_send_outputs(
             name,
             outputs,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_virtual_output_v1.outputs message: {}", Report::new(e));
+            log_forward("treeland_virtual_output_v1.outputs", &e);
         }
     }
 
@@ -271,12 +341,12 @@ pub trait TreelandVirtualOutputV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_error(
+        let res = _slf.try_send_error(
             code,
             message,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_virtual_output_v1.error message: {}", Report::new(e));
+            log_forward("treeland_virtual_output_v1.error", &e);
         }
     }
 
@@ -291,10 +361,10 @@ pub trait TreelandVirtualOutputV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_virtual_output_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_virtual_output_v1.destroy", &e);
         }
     }
 }
@@ -314,7 +384,7 @@ impl ObjectPrivate for TreelandVirtualOutputV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

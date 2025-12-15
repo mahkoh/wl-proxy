@@ -62,7 +62,7 @@ impl WpAlphaModifierSurfaceV1 {
     /// a value of UINT32_MAX, with the same double-buffered semantics as
     /// set_multiplier.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -94,6 +94,22 @@ impl WpAlphaModifierSurfaceV1 {
         Ok(())
     }
 
+    /// destroy the alpha modifier object
+    ///
+    /// This destroys the object, and is equivalent to set_multiplier with
+    /// a value of UINT32_MAX, with the same double-buffered semantics as
+    /// set_multiplier.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_alpha_modifier_surface_v1.destroy", &e);
+        }
+    }
+
     /// Since when the set_multiplier message is available.
     pub const MSG__SET_MULTIPLIER__SINCE: u32 = 1;
 
@@ -117,7 +133,7 @@ impl WpAlphaModifierSurfaceV1 {
     ///
     /// - `factor`:
     #[inline]
-    pub fn send_set_multiplier(
+    pub fn try_send_set_multiplier(
         &self,
         factor: u32,
     ) -> Result<(), ObjectError> {
@@ -154,13 +170,45 @@ impl WpAlphaModifierSurfaceV1 {
         ]);
         Ok(())
     }
+
+    /// specify the alpha multiplier
+    ///
+    /// Sets the alpha multiplier for the surface. The alpha multiplier is
+    /// double-buffered state, see wl_surface.commit for details.
+    ///
+    /// This factor is applied in the compositor's blending space, as an
+    /// additional step after the processing of per-pixel alpha values for the
+    /// wl_surface. The exact meaning of the factor is thus undefined, unless
+    /// the blending space is specified in a different extension.
+    ///
+    /// This multiplier is applied even if the buffer attached to the
+    /// wl_surface doesn't have an alpha channel; in that case an alpha value
+    /// of one is used instead.
+    ///
+    /// Zero means completely transparent, UINT32_MAX means completely opaque.
+    ///
+    /// # Arguments
+    ///
+    /// - `factor`:
+    #[inline]
+    pub fn send_set_multiplier(
+        &self,
+        factor: u32,
+    ) {
+        let res = self.try_send_set_multiplier(
+            factor,
+        );
+        if let Err(e) = res {
+            log_send("wp_alpha_modifier_surface_v1.set_multiplier", &e);
+        }
+    }
 }
 
 /// A message handler for [WpAlphaModifierSurfaceV1] proxies.
 pub trait WpAlphaModifierSurfaceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpAlphaModifierSurfaceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the alpha modifier object
@@ -176,10 +224,10 @@ pub trait WpAlphaModifierSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_alpha_modifier_surface_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_alpha_modifier_surface_v1.destroy", &e);
         }
     }
 
@@ -211,11 +259,11 @@ pub trait WpAlphaModifierSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_multiplier(
+        let res = _slf.try_send_set_multiplier(
             factor,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_alpha_modifier_surface_v1.set_multiplier message: {}", Report::new(e));
+            log_forward("wp_alpha_modifier_surface_v1.set_multiplier", &e);
         }
     }
 }
@@ -235,7 +283,7 @@ impl ObjectPrivate for WpAlphaModifierSurfaceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

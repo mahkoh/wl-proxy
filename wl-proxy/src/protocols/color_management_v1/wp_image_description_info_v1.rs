@@ -75,7 +75,7 @@ impl WpImageDescriptionInfoV1 {
     ///
     /// Signals the end of information events and destroys the object.
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -112,6 +112,20 @@ impl WpImageDescriptionInfoV1 {
         Ok(())
     }
 
+    /// end of information
+    ///
+    /// Signals the end of information events and destroys the object.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) {
+        let res = self.try_send_done(
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_info_v1.done", &e);
+        }
+    }
+
     /// Since when the icc_file message is available.
     pub const MSG__ICC_FILE__SINCE: u32 = 1;
 
@@ -131,7 +145,7 @@ impl WpImageDescriptionInfoV1 {
     /// - `icc`: ICC profile file descriptor
     /// - `icc_size`: ICC profile size, in bytes
     #[inline]
-    pub fn send_icc_file(
+    pub fn try_send_icc_file(
         &self,
         icc: &Rc<OwnedFd>,
         icc_size: u32,
@@ -175,6 +189,36 @@ impl WpImageDescriptionInfoV1 {
         Ok(())
     }
 
+    /// ICC profile matching the image description
+    ///
+    /// The icc argument provides a file descriptor to the client which may be
+    /// memory-mapped to provide the ICC profile matching the image description.
+    /// The fd is read-only, and if mapped then it must be mapped with
+    /// MAP_PRIVATE by the client.
+    ///
+    /// The ICC profile version and other details are determined by the
+    /// compositor. There is no provision for a client to ask for a specific
+    /// kind of a profile.
+    ///
+    /// # Arguments
+    ///
+    /// - `icc`: ICC profile file descriptor
+    /// - `icc_size`: ICC profile size, in bytes
+    #[inline]
+    pub fn send_icc_file(
+        &self,
+        icc: &Rc<OwnedFd>,
+        icc_size: u32,
+    ) {
+        let res = self.try_send_icc_file(
+            icc,
+            icc_size,
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_info_v1.icc_file", &e);
+        }
+    }
+
     /// Since when the primaries message is available.
     pub const MSG__PRIMARIES__SINCE: u32 = 1;
 
@@ -197,7 +241,7 @@ impl WpImageDescriptionInfoV1 {
     /// - `w_x`: White x * 1M
     /// - `w_y`: White y * 1M
     #[inline]
-    pub fn send_primaries(
+    pub fn try_send_primaries(
         &self,
         r_x: i32,
         r_y: i32,
@@ -265,6 +309,51 @@ impl WpImageDescriptionInfoV1 {
         Ok(())
     }
 
+    /// primaries as chromaticity coordinates
+    ///
+    /// Delivers the primary color volume primaries and white point using CIE
+    /// 1931 xy chromaticity coordinates.
+    ///
+    /// Each coordinate value is multiplied by 1 million to get the argument
+    /// value to carry precision of 6 decimals.
+    ///
+    /// # Arguments
+    ///
+    /// - `r_x`: Red x * 1M
+    /// - `r_y`: Red y * 1M
+    /// - `g_x`: Green x * 1M
+    /// - `g_y`: Green y * 1M
+    /// - `b_x`: Blue x * 1M
+    /// - `b_y`: Blue y * 1M
+    /// - `w_x`: White x * 1M
+    /// - `w_y`: White y * 1M
+    #[inline]
+    pub fn send_primaries(
+        &self,
+        r_x: i32,
+        r_y: i32,
+        g_x: i32,
+        g_y: i32,
+        b_x: i32,
+        b_y: i32,
+        w_x: i32,
+        w_y: i32,
+    ) {
+        let res = self.try_send_primaries(
+            r_x,
+            r_y,
+            g_x,
+            g_y,
+            b_x,
+            b_y,
+            w_x,
+            w_y,
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_info_v1.primaries", &e);
+        }
+    }
+
     /// Since when the primaries_named message is available.
     pub const MSG__PRIMARIES_NAMED__SINCE: u32 = 1;
 
@@ -277,7 +366,7 @@ impl WpImageDescriptionInfoV1 {
     ///
     /// - `primaries`: named primaries
     #[inline]
-    pub fn send_primaries_named(
+    pub fn try_send_primaries_named(
         &self,
         primaries: WpColorManagerV1Primaries,
     ) -> Result<(), ObjectError> {
@@ -317,6 +406,27 @@ impl WpImageDescriptionInfoV1 {
         Ok(())
     }
 
+    /// named primaries
+    ///
+    /// Delivers the primary color volume primaries and white point using an
+    /// explicitly enumerated named set.
+    ///
+    /// # Arguments
+    ///
+    /// - `primaries`: named primaries
+    #[inline]
+    pub fn send_primaries_named(
+        &self,
+        primaries: WpColorManagerV1Primaries,
+    ) {
+        let res = self.try_send_primaries_named(
+            primaries,
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_info_v1.primaries_named", &e);
+        }
+    }
+
     /// Since when the tf_power message is available.
     pub const MSG__TF_POWER__SINCE: u32 = 1;
 
@@ -334,7 +444,7 @@ impl WpImageDescriptionInfoV1 {
     ///
     /// - `eexp`: the exponent * 10000
     #[inline]
-    pub fn send_tf_power(
+    pub fn try_send_tf_power(
         &self,
         eexp: u32,
     ) -> Result<(), ObjectError> {
@@ -374,6 +484,32 @@ impl WpImageDescriptionInfoV1 {
         Ok(())
     }
 
+    /// transfer characteristic as a power curve
+    ///
+    /// The color component transfer characteristic of this image description is
+    /// a pure power curve. This event provides the exponent of the power
+    /// function. This curve represents the conversion from electrical to
+    /// optical pixel or color values.
+    ///
+    /// The curve exponent has been multiplied by 10000 to get the argument eexp
+    /// value to carry the precision of 4 decimals.
+    ///
+    /// # Arguments
+    ///
+    /// - `eexp`: the exponent * 10000
+    #[inline]
+    pub fn send_tf_power(
+        &self,
+        eexp: u32,
+    ) {
+        let res = self.try_send_tf_power(
+            eexp,
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_info_v1.tf_power", &e);
+        }
+    }
+
     /// Since when the tf_named message is available.
     pub const MSG__TF_NAMED__SINCE: u32 = 1;
 
@@ -386,7 +522,7 @@ impl WpImageDescriptionInfoV1 {
     ///
     /// - `tf`: named transfer function
     #[inline]
-    pub fn send_tf_named(
+    pub fn try_send_tf_named(
         &self,
         tf: WpColorManagerV1TransferFunction,
     ) -> Result<(), ObjectError> {
@@ -426,6 +562,27 @@ impl WpImageDescriptionInfoV1 {
         Ok(())
     }
 
+    /// named transfer characteristic
+    ///
+    /// Delivers the transfer characteristic using an explicitly enumerated
+    /// named function.
+    ///
+    /// # Arguments
+    ///
+    /// - `tf`: named transfer function
+    #[inline]
+    pub fn send_tf_named(
+        &self,
+        tf: WpColorManagerV1TransferFunction,
+    ) {
+        let res = self.try_send_tf_named(
+            tf,
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_info_v1.tf_named", &e);
+        }
+    }
+
     /// Since when the luminances message is available.
     pub const MSG__LUMINANCES__SINCE: u32 = 1;
 
@@ -446,7 +603,7 @@ impl WpImageDescriptionInfoV1 {
     /// - `max_lum`: maximum luminance (cd/m²)
     /// - `reference_lum`: reference white luminance (cd/m²)
     #[inline]
-    pub fn send_luminances(
+    pub fn try_send_luminances(
         &self,
         min_lum: u32,
         max_lum: u32,
@@ -494,6 +651,39 @@ impl WpImageDescriptionInfoV1 {
         Ok(())
     }
 
+    /// primary color volume luminance range and reference white
+    ///
+    /// Delivers the primary color volume luminance range and the reference
+    /// white luminance level. These values include the minimum display emission
+    /// and ambient flare luminances, assumed to be optically additive and have
+    /// the chromaticity of the primary color volume white point.
+    ///
+    /// The minimum luminance is multiplied by 10000 to get the argument
+    /// 'min_lum' value and carries precision of 4 decimals. The maximum
+    /// luminance and reference white luminance values are unscaled.
+    ///
+    /// # Arguments
+    ///
+    /// - `min_lum`: minimum luminance (cd/m²) * 10000
+    /// - `max_lum`: maximum luminance (cd/m²)
+    /// - `reference_lum`: reference white luminance (cd/m²)
+    #[inline]
+    pub fn send_luminances(
+        &self,
+        min_lum: u32,
+        max_lum: u32,
+        reference_lum: u32,
+    ) {
+        let res = self.try_send_luminances(
+            min_lum,
+            max_lum,
+            reference_lum,
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_info_v1.luminances", &e);
+        }
+    }
+
     /// Since when the target_primaries message is available.
     pub const MSG__TARGET_PRIMARIES__SINCE: u32 = 1;
 
@@ -522,7 +712,7 @@ impl WpImageDescriptionInfoV1 {
     /// - `w_x`: White x * 1M
     /// - `w_y`: White y * 1M
     #[inline]
-    pub fn send_target_primaries(
+    pub fn try_send_target_primaries(
         &self,
         r_x: i32,
         r_y: i32,
@@ -590,6 +780,57 @@ impl WpImageDescriptionInfoV1 {
         Ok(())
     }
 
+    /// target primaries as chromaticity coordinates
+    ///
+    /// Provides the color primaries and white point of the target color volume
+    /// using CIE 1931 xy chromaticity coordinates. This is compatible with the
+    /// SMPTE ST 2086 definition of HDR static metadata for mastering displays.
+    ///
+    /// While primary color volume is about how color is encoded, the target
+    /// color volume is the actually displayable color volume. If target color
+    /// volume is equal to the primary color volume, then this event is not
+    /// sent.
+    ///
+    /// Each coordinate value is multiplied by 1 million to get the argument
+    /// value to carry precision of 6 decimals.
+    ///
+    /// # Arguments
+    ///
+    /// - `r_x`: Red x * 1M
+    /// - `r_y`: Red y * 1M
+    /// - `g_x`: Green x * 1M
+    /// - `g_y`: Green y * 1M
+    /// - `b_x`: Blue x * 1M
+    /// - `b_y`: Blue y * 1M
+    /// - `w_x`: White x * 1M
+    /// - `w_y`: White y * 1M
+    #[inline]
+    pub fn send_target_primaries(
+        &self,
+        r_x: i32,
+        r_y: i32,
+        g_x: i32,
+        g_y: i32,
+        b_x: i32,
+        b_y: i32,
+        w_x: i32,
+        w_y: i32,
+    ) {
+        let res = self.try_send_target_primaries(
+            r_x,
+            r_y,
+            g_x,
+            g_y,
+            b_x,
+            b_y,
+            w_x,
+            w_y,
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_info_v1.target_primaries", &e);
+        }
+    }
+
     /// Since when the target_luminance message is available.
     pub const MSG__TARGET_LUMINANCE__SINCE: u32 = 1;
 
@@ -613,7 +854,7 @@ impl WpImageDescriptionInfoV1 {
     /// - `min_lum`: min L (cd/m²) * 10000
     /// - `max_lum`: max L (cd/m²)
     #[inline]
-    pub fn send_target_luminance(
+    pub fn try_send_target_luminance(
         &self,
         min_lum: u32,
         max_lum: u32,
@@ -657,6 +898,40 @@ impl WpImageDescriptionInfoV1 {
         Ok(())
     }
 
+    /// target luminance range
+    ///
+    /// Provides the luminance range that the image description is targeting as
+    /// the minimum and maximum absolute luminance L. These values include the
+    /// minimum display emission and ambient flare luminances, assumed to be
+    /// optically additive and have the chromaticity of the primary color
+    /// volume white point. This should be compatible with the SMPTE ST 2086
+    /// definition of HDR static metadata.
+    ///
+    /// This luminance range is only theoretical and may not correspond to the
+    /// luminance of light emitted on an actual display.
+    ///
+    /// Min L value is multiplied by 10000 to get the argument min_lum value and
+    /// carry precision of 4 decimals. Max L value is unscaled for max_lum.
+    ///
+    /// # Arguments
+    ///
+    /// - `min_lum`: min L (cd/m²) * 10000
+    /// - `max_lum`: max L (cd/m²)
+    #[inline]
+    pub fn send_target_luminance(
+        &self,
+        min_lum: u32,
+        max_lum: u32,
+    ) {
+        let res = self.try_send_target_luminance(
+            min_lum,
+            max_lum,
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_info_v1.target_luminance", &e);
+        }
+    }
+
     /// Since when the target_max_cll message is available.
     pub const MSG__TARGET_MAX_CLL__SINCE: u32 = 1;
 
@@ -672,7 +947,7 @@ impl WpImageDescriptionInfoV1 {
     ///
     /// - `max_cll`: Maximum content light-level (cd/m²)
     #[inline]
-    pub fn send_target_max_cll(
+    pub fn try_send_target_max_cll(
         &self,
         max_cll: u32,
     ) -> Result<(), ObjectError> {
@@ -712,6 +987,30 @@ impl WpImageDescriptionInfoV1 {
         Ok(())
     }
 
+    /// target maximum content light level
+    ///
+    /// Provides the targeted max_cll of the image description. max_cll is
+    /// defined by CTA-861-H.
+    ///
+    /// This luminance is only theoretical and may not correspond to the
+    /// luminance of light emitted on an actual display.
+    ///
+    /// # Arguments
+    ///
+    /// - `max_cll`: Maximum content light-level (cd/m²)
+    #[inline]
+    pub fn send_target_max_cll(
+        &self,
+        max_cll: u32,
+    ) {
+        let res = self.try_send_target_max_cll(
+            max_cll,
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_info_v1.target_max_cll", &e);
+        }
+    }
+
     /// Since when the target_max_fall message is available.
     pub const MSG__TARGET_MAX_FALL__SINCE: u32 = 1;
 
@@ -727,7 +1026,7 @@ impl WpImageDescriptionInfoV1 {
     ///
     /// - `max_fall`: Maximum frame-average light level (cd/m²)
     #[inline]
-    pub fn send_target_max_fall(
+    pub fn try_send_target_max_fall(
         &self,
         max_fall: u32,
     ) -> Result<(), ObjectError> {
@@ -766,13 +1065,37 @@ impl WpImageDescriptionInfoV1 {
         ]);
         Ok(())
     }
+
+    /// target maximum frame-average light level
+    ///
+    /// Provides the targeted max_fall of the image description. max_fall is
+    /// defined by CTA-861-H.
+    ///
+    /// This luminance is only theoretical and may not correspond to the
+    /// luminance of light emitted on an actual display.
+    ///
+    /// # Arguments
+    ///
+    /// - `max_fall`: Maximum frame-average light level (cd/m²)
+    #[inline]
+    pub fn send_target_max_fall(
+        &self,
+        max_fall: u32,
+    ) {
+        let res = self.try_send_target_max_fall(
+            max_fall,
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_info_v1.target_max_fall", &e);
+        }
+    }
 }
 
 /// A message handler for [WpImageDescriptionInfoV1] proxies.
 pub trait WpImageDescriptionInfoV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpImageDescriptionInfoV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// end of information
@@ -786,10 +1109,10 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_info_v1.done message: {}", Report::new(e));
+            log_forward("wp_image_description_info_v1.done", &e);
         }
     }
 
@@ -818,12 +1141,12 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_icc_file(
+        let res = _slf.try_send_icc_file(
             icc,
             icc_size,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_info_v1.icc_file message: {}", Report::new(e));
+            log_forward("wp_image_description_info_v1.icc_file", &e);
         }
     }
 
@@ -861,7 +1184,7 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_primaries(
+        let res = _slf.try_send_primaries(
             r_x,
             r_y,
             g_x,
@@ -872,7 +1195,7 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
             w_y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_info_v1.primaries message: {}", Report::new(e));
+            log_forward("wp_image_description_info_v1.primaries", &e);
         }
     }
 
@@ -893,11 +1216,11 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_primaries_named(
+        let res = _slf.try_send_primaries_named(
             primaries,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_info_v1.primaries_named message: {}", Report::new(e));
+            log_forward("wp_image_description_info_v1.primaries_named", &e);
         }
     }
 
@@ -923,11 +1246,11 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_tf_power(
+        let res = _slf.try_send_tf_power(
             eexp,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_info_v1.tf_power message: {}", Report::new(e));
+            log_forward("wp_image_description_info_v1.tf_power", &e);
         }
     }
 
@@ -948,11 +1271,11 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_tf_named(
+        let res = _slf.try_send_tf_named(
             tf,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_info_v1.tf_named message: {}", Report::new(e));
+            log_forward("wp_image_description_info_v1.tf_named", &e);
         }
     }
 
@@ -983,13 +1306,13 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_luminances(
+        let res = _slf.try_send_luminances(
             min_lum,
             max_lum,
             reference_lum,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_info_v1.luminances message: {}", Report::new(e));
+            log_forward("wp_image_description_info_v1.luminances", &e);
         }
     }
 
@@ -1033,7 +1356,7 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_target_primaries(
+        let res = _slf.try_send_target_primaries(
             r_x,
             r_y,
             g_x,
@@ -1044,7 +1367,7 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
             w_y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_info_v1.target_primaries message: {}", Report::new(e));
+            log_forward("wp_image_description_info_v1.target_primaries", &e);
         }
     }
 
@@ -1077,12 +1400,12 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_target_luminance(
+        let res = _slf.try_send_target_luminance(
             min_lum,
             max_lum,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_info_v1.target_luminance message: {}", Report::new(e));
+            log_forward("wp_image_description_info_v1.target_luminance", &e);
         }
     }
 
@@ -1106,11 +1429,11 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_target_max_cll(
+        let res = _slf.try_send_target_max_cll(
             max_cll,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_info_v1.target_max_cll message: {}", Report::new(e));
+            log_forward("wp_image_description_info_v1.target_max_cll", &e);
         }
     }
 
@@ -1134,11 +1457,11 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_target_max_fall(
+        let res = _slf.try_send_target_max_fall(
             max_fall,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_info_v1.target_max_fall message: {}", Report::new(e));
+            log_forward("wp_image_description_info_v1.target_max_fall", &e);
         }
     }
 }
@@ -1158,7 +1481,7 @@ impl ObjectPrivate for WpImageDescriptionInfoV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

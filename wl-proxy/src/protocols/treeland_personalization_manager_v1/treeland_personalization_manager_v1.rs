@@ -64,7 +64,7 @@ impl TreelandPersonalizationManagerV1 {
     /// - `id`:
     /// - `surface`:
     #[inline]
-    pub fn send_get_window_context(
+    pub fn try_send_get_window_context(
         &self,
         id: &Rc<TreelandPersonalizationWindowContextV1>,
         surface: &Rc<WlSurface>,
@@ -116,6 +116,29 @@ impl TreelandPersonalizationManagerV1 {
         Ok(())
     }
 
+    /// get personalization window context
+    ///
+    /// set window background, shadow based on context
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn send_get_window_context(
+        &self,
+        id: &Rc<TreelandPersonalizationWindowContextV1>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_window_context(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_manager_v1.get_window_context", &e);
+        }
+    }
+
     /// Since when the get_wallpaper_context message is available.
     pub const MSG__GET_WALLPAPER_CONTEXT__SINCE: u32 = 1;
 
@@ -123,7 +146,7 @@ impl TreelandPersonalizationManagerV1 {
     ///
     /// custom user wallpaper
     #[inline]
-    pub fn send_get_wallpaper_context(
+    pub fn try_send_get_wallpaper_context(
         &self,
         id: &Rc<TreelandPersonalizationWallpaperContextV1>,
     ) -> Result<(), ObjectError> {
@@ -166,6 +189,22 @@ impl TreelandPersonalizationManagerV1 {
         Ok(())
     }
 
+    /// custom wallpaper context
+    ///
+    /// custom user wallpaper
+    #[inline]
+    pub fn send_get_wallpaper_context(
+        &self,
+        id: &Rc<TreelandPersonalizationWallpaperContextV1>,
+    ) {
+        let res = self.try_send_get_wallpaper_context(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_manager_v1.get_wallpaper_context", &e);
+        }
+    }
+
     /// Since when the get_cursor_context message is available.
     pub const MSG__GET_CURSOR_CONTEXT__SINCE: u32 = 1;
 
@@ -173,7 +212,7 @@ impl TreelandPersonalizationManagerV1 {
     ///
     /// custom user cursor
     #[inline]
-    pub fn send_get_cursor_context(
+    pub fn try_send_get_cursor_context(
         &self,
         id: &Rc<TreelandPersonalizationCursorContextV1>,
     ) -> Result<(), ObjectError> {
@@ -216,6 +255,22 @@ impl TreelandPersonalizationManagerV1 {
         Ok(())
     }
 
+    /// custom wallpaper context
+    ///
+    /// custom user cursor
+    #[inline]
+    pub fn send_get_cursor_context(
+        &self,
+        id: &Rc<TreelandPersonalizationCursorContextV1>,
+    ) {
+        let res = self.try_send_get_cursor_context(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_manager_v1.get_cursor_context", &e);
+        }
+    }
+
     /// Since when the get_font_context message is available.
     pub const MSG__GET_FONT_CONTEXT__SINCE: u32 = 1;
 
@@ -223,7 +278,7 @@ impl TreelandPersonalizationManagerV1 {
     ///
     /// custom treeland and window global font context
     #[inline]
-    pub fn send_get_font_context(
+    pub fn try_send_get_font_context(
         &self,
         id: &Rc<TreelandPersonalizationFontContextV1>,
     ) -> Result<(), ObjectError> {
@@ -266,6 +321,22 @@ impl TreelandPersonalizationManagerV1 {
         Ok(())
     }
 
+    /// custom treeland and window global font context
+    ///
+    /// custom treeland and window global font context
+    #[inline]
+    pub fn send_get_font_context(
+        &self,
+        id: &Rc<TreelandPersonalizationFontContextV1>,
+    ) {
+        let res = self.try_send_get_font_context(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_manager_v1.get_font_context", &e);
+        }
+    }
+
     /// Since when the get_appearance_context message is available.
     pub const MSG__GET_APPEARANCE_CONTEXT__SINCE: u32 = 1;
 
@@ -273,7 +344,7 @@ impl TreelandPersonalizationManagerV1 {
     ///
     /// custom user treeland window appearance global
     #[inline]
-    pub fn send_get_appearance_context(
+    pub fn try_send_get_appearance_context(
         &self,
         id: &Rc<TreelandPersonalizationAppearanceContextV1>,
     ) -> Result<(), ObjectError> {
@@ -315,13 +386,29 @@ impl TreelandPersonalizationManagerV1 {
         ]);
         Ok(())
     }
+
+    /// custom treeland window global settings context
+    ///
+    /// custom user treeland window appearance global
+    #[inline]
+    pub fn send_get_appearance_context(
+        &self,
+        id: &Rc<TreelandPersonalizationAppearanceContextV1>,
+    ) {
+        let res = self.try_send_get_appearance_context(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_manager_v1.get_appearance_context", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandPersonalizationManagerV1] proxies.
 pub trait TreelandPersonalizationManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandPersonalizationManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// get personalization window context
@@ -345,12 +432,12 @@ pub trait TreelandPersonalizationManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_window_context(
+        let res = _slf.try_send_get_window_context(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_manager_v1.get_window_context message: {}", Report::new(e));
+            log_forward("treeland_personalization_manager_v1.get_window_context", &e);
         }
     }
 
@@ -370,11 +457,11 @@ pub trait TreelandPersonalizationManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_wallpaper_context(
+        let res = _slf.try_send_get_wallpaper_context(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_manager_v1.get_wallpaper_context message: {}", Report::new(e));
+            log_forward("treeland_personalization_manager_v1.get_wallpaper_context", &e);
         }
     }
 
@@ -394,11 +481,11 @@ pub trait TreelandPersonalizationManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_cursor_context(
+        let res = _slf.try_send_get_cursor_context(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_manager_v1.get_cursor_context message: {}", Report::new(e));
+            log_forward("treeland_personalization_manager_v1.get_cursor_context", &e);
         }
     }
 
@@ -418,11 +505,11 @@ pub trait TreelandPersonalizationManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_font_context(
+        let res = _slf.try_send_get_font_context(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_manager_v1.get_font_context message: {}", Report::new(e));
+            log_forward("treeland_personalization_manager_v1.get_font_context", &e);
         }
     }
 
@@ -442,11 +529,11 @@ pub trait TreelandPersonalizationManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_appearance_context(
+        let res = _slf.try_send_get_appearance_context(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_manager_v1.get_appearance_context message: {}", Report::new(e));
+            log_forward("treeland_personalization_manager_v1.get_appearance_context", &e);
         }
     }
 }
@@ -466,7 +553,7 @@ impl ObjectPrivate for TreelandPersonalizationManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

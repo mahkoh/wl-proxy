@@ -54,7 +54,7 @@ impl ZwpTextInputManagerV3 {
     ///
     /// Destroy the wp_text_input_manager object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -86,6 +86,20 @@ impl ZwpTextInputManagerV3 {
         Ok(())
     }
 
+    /// Destroy the wp_text_input_manager
+    ///
+    /// Destroy the wp_text_input_manager object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_manager_v3.destroy", &e);
+        }
+    }
+
     /// Since when the get_text_input message is available.
     pub const MSG__GET_TEXT_INPUT__SINCE: u32 = 1;
 
@@ -98,7 +112,7 @@ impl ZwpTextInputManagerV3 {
     /// - `id`:
     /// - `seat`:
     #[inline]
-    pub fn send_get_text_input(
+    pub fn try_send_get_text_input(
         &self,
         id: &Rc<ZwpTextInputV3>,
         seat: &Rc<WlSeat>,
@@ -149,13 +163,36 @@ impl ZwpTextInputManagerV3 {
         ]);
         Ok(())
     }
+
+    /// create a new text input object
+    ///
+    /// Creates a new text-input object for a given seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `seat`:
+    #[inline]
+    pub fn send_get_text_input(
+        &self,
+        id: &Rc<ZwpTextInputV3>,
+        seat: &Rc<WlSeat>,
+    ) {
+        let res = self.try_send_get_text_input(
+            id,
+            seat,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_manager_v3.get_text_input", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpTextInputManagerV3] proxies.
 pub trait ZwpTextInputManagerV3Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpTextInputManagerV3>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// Destroy the wp_text_input_manager
@@ -169,10 +206,10 @@ pub trait ZwpTextInputManagerV3Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_manager_v3.destroy message: {}", Report::new(e));
+            log_forward("zwp_text_input_manager_v3.destroy", &e);
         }
     }
 
@@ -197,12 +234,12 @@ pub trait ZwpTextInputManagerV3Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_text_input(
+        let res = _slf.try_send_get_text_input(
             id,
             seat,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_text_input_manager_v3.get_text_input message: {}", Report::new(e));
+            log_forward("zwp_text_input_manager_v3.get_text_input", &e);
         }
     }
 }
@@ -222,7 +259,7 @@ impl ObjectPrivate for ZwpTextInputManagerV3 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -70,7 +70,7 @@ impl XwaylandShellV1 {
     ///
     /// The child objects created via this interface are unaffected.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -102,6 +102,22 @@ impl XwaylandShellV1 {
         Ok(())
     }
 
+    /// destroy the Xwayland shell object
+    ///
+    /// Destroy the xwayland_shell_v1 object.
+    ///
+    /// The child objects created via this interface are unaffected.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("xwayland_shell_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_xwayland_surface message is available.
     pub const MSG__GET_XWAYLAND_SURFACE__SINCE: u32 = 1;
 
@@ -122,7 +138,7 @@ impl XwaylandShellV1 {
     /// - `id`:
     /// - `surface`:
     #[inline]
-    pub fn send_get_xwayland_surface(
+    pub fn try_send_get_xwayland_surface(
         &self,
         id: &Rc<XwaylandSurfaceV1>,
         surface: &Rc<WlSurface>,
@@ -173,13 +189,44 @@ impl XwaylandShellV1 {
         ]);
         Ok(())
     }
+
+    /// assign the xwayland_surface surface role
+    ///
+    /// Create an xwayland_surface_v1 interface for a given wl_surface
+    /// object and gives it the xwayland_surface role.
+    ///
+    /// It is illegal to create an xwayland_surface_v1 for a wl_surface
+    /// which already has an assigned role and this will result in the
+    /// `role` protocol error.
+    ///
+    /// See the documentation of xwayland_surface_v1 for more details
+    /// about what an xwayland_surface_v1 is and how it is used.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn send_get_xwayland_surface(
+        &self,
+        id: &Rc<XwaylandSurfaceV1>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_xwayland_surface(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("xwayland_shell_v1.get_xwayland_surface", &e);
+        }
+    }
 }
 
 /// A message handler for [XwaylandShellV1] proxies.
 pub trait XwaylandShellV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XwaylandShellV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the Xwayland shell object
@@ -195,10 +242,10 @@ pub trait XwaylandShellV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xwayland_shell_v1.destroy message: {}", Report::new(e));
+            log_forward("xwayland_shell_v1.destroy", &e);
         }
     }
 
@@ -231,12 +278,12 @@ pub trait XwaylandShellV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_xwayland_surface(
+        let res = _slf.try_send_get_xwayland_surface(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xwayland_shell_v1.get_xwayland_surface message: {}", Report::new(e));
+            log_forward("xwayland_shell_v1.get_xwayland_surface", &e);
         }
     }
 }
@@ -256,7 +303,7 @@ impl ObjectPrivate for XwaylandShellV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

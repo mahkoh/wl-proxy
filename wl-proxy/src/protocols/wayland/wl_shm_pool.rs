@@ -79,7 +79,7 @@ impl WlShmPool {
     /// - `stride`: number of bytes from the beginning of one row to the beginning of the next row
     /// - `format`: buffer pixel format
     #[inline]
-    pub fn send_create_buffer(
+    pub fn try_send_create_buffer(
         &self,
         id: &Rc<WlBuffer>,
         offset: i32,
@@ -142,6 +142,51 @@ impl WlShmPool {
         Ok(())
     }
 
+    /// create a buffer from the pool
+    ///
+    /// Create a wl_buffer object from the pool.
+    ///
+    /// The buffer is created offset bytes into the pool and has
+    /// width and height as specified.  The stride argument specifies
+    /// the number of bytes from the beginning of one row to the beginning
+    /// of the next.  The format is the pixel format of the buffer and
+    /// must be one of those advertised through the wl_shm.format event.
+    ///
+    /// A buffer will keep a reference to the pool it was created from
+    /// so it is valid to destroy the pool immediately after creating
+    /// a buffer from it.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: buffer to create
+    /// - `offset`: buffer byte offset within the pool
+    /// - `width`: buffer width, in pixels
+    /// - `height`: buffer height, in pixels
+    /// - `stride`: number of bytes from the beginning of one row to the beginning of the next row
+    /// - `format`: buffer pixel format
+    #[inline]
+    pub fn send_create_buffer(
+        &self,
+        id: &Rc<WlBuffer>,
+        offset: i32,
+        width: i32,
+        height: i32,
+        stride: i32,
+        format: WlShmFormat,
+    ) {
+        let res = self.try_send_create_buffer(
+            id,
+            offset,
+            width,
+            height,
+            stride,
+            format,
+        );
+        if let Err(e) = res {
+            log_send("wl_shm_pool.create_buffer", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -153,7 +198,7 @@ impl WlShmPool {
     /// buffers that have been created from this pool
     /// are gone.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -185,6 +230,24 @@ impl WlShmPool {
         Ok(())
     }
 
+    /// destroy the pool
+    ///
+    /// Destroy the shared memory pool.
+    ///
+    /// The mmapped memory will be released when all
+    /// buffers that have been created from this pool
+    /// are gone.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wl_shm_pool.destroy", &e);
+        }
+    }
+
     /// Since when the resize message is available.
     pub const MSG__RESIZE__SINCE: u32 = 1;
 
@@ -205,7 +268,7 @@ impl WlShmPool {
     ///
     /// - `size`: new size of the pool, in bytes
     #[inline]
-    pub fn send_resize(
+    pub fn try_send_resize(
         &self,
         size: i32,
     ) -> Result<(), ObjectError> {
@@ -242,13 +305,42 @@ impl WlShmPool {
         ]);
         Ok(())
     }
+
+    /// change the size of the pool mapping
+    ///
+    /// This request will cause the server to remap the backing memory
+    /// for the pool from the file descriptor passed when the pool was
+    /// created, but using the new size.  This request can only be
+    /// used to make the pool bigger.
+    ///
+    /// This request only changes the amount of bytes that are mmapped
+    /// by the server and does not touch the file corresponding to the
+    /// file descriptor passed at creation time. It is the client's
+    /// responsibility to ensure that the file is at least as big as
+    /// the new pool size.
+    ///
+    /// # Arguments
+    ///
+    /// - `size`: new size of the pool, in bytes
+    #[inline]
+    pub fn send_resize(
+        &self,
+        size: i32,
+    ) {
+        let res = self.try_send_resize(
+            size,
+        );
+        if let Err(e) = res {
+            log_send("wl_shm_pool.resize", &e);
+        }
+    }
 }
 
 /// A message handler for [WlShmPool] proxies.
 pub trait WlShmPoolHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlShmPool>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// create a buffer from the pool
@@ -287,7 +379,7 @@ pub trait WlShmPoolHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_buffer(
+        let res = _slf.try_send_create_buffer(
             id,
             offset,
             width,
@@ -296,7 +388,7 @@ pub trait WlShmPoolHandler: Any {
             format,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shm_pool.create_buffer message: {}", Report::new(e));
+            log_forward("wl_shm_pool.create_buffer", &e);
         }
     }
 
@@ -315,10 +407,10 @@ pub trait WlShmPoolHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shm_pool.destroy message: {}", Report::new(e));
+            log_forward("wl_shm_pool.destroy", &e);
         }
     }
 
@@ -347,11 +439,11 @@ pub trait WlShmPoolHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_resize(
+        let res = _slf.try_send_resize(
             size,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shm_pool.resize message: {}", Report::new(e));
+            log_forward("wl_shm_pool.resize", &e);
         }
     }
 }
@@ -371,7 +463,7 @@ impl ObjectPrivate for WlShmPool {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

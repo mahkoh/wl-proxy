@@ -63,7 +63,7 @@ impl TreelandPersonalizationFontContextV1 {
     ///
     /// - `font_name`: font name
     #[inline]
-    pub fn send_font(
+    pub fn try_send_font(
         &self,
         font_name: &str,
     ) -> Result<(), ObjectError> {
@@ -103,6 +103,26 @@ impl TreelandPersonalizationFontContextV1 {
         Ok(())
     }
 
+    /// font event
+    ///
+    /// Send this signal after setting the system font.
+    ///
+    /// # Arguments
+    ///
+    /// - `font_name`: font name
+    #[inline]
+    pub fn send_font(
+        &self,
+        font_name: &str,
+    ) {
+        let res = self.try_send_font(
+            font_name,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_font_context_v1.font", &e);
+        }
+    }
+
     /// Since when the monospace_font message is available.
     pub const MSG__MONOSPACE_FONT__SINCE: u32 = 1;
 
@@ -114,7 +134,7 @@ impl TreelandPersonalizationFontContextV1 {
     ///
     /// - `font_name`: monospace font name
     #[inline]
-    pub fn send_monospace_font(
+    pub fn try_send_monospace_font(
         &self,
         font_name: &str,
     ) -> Result<(), ObjectError> {
@@ -154,6 +174,26 @@ impl TreelandPersonalizationFontContextV1 {
         Ok(())
     }
 
+    /// monospace font event
+    ///
+    /// Send this signal after setting the system monospace font.
+    ///
+    /// # Arguments
+    ///
+    /// - `font_name`: monospace font name
+    #[inline]
+    pub fn send_monospace_font(
+        &self,
+        font_name: &str,
+    ) {
+        let res = self.try_send_monospace_font(
+            font_name,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_font_context_v1.monospace_font", &e);
+        }
+    }
+
     /// Since when the font_size message is available.
     pub const MSG__FONT_SIZE__SINCE: u32 = 1;
 
@@ -165,7 +205,7 @@ impl TreelandPersonalizationFontContextV1 {
     ///
     /// - `font_size`: font size
     #[inline]
-    pub fn send_font_size(
+    pub fn try_send_font_size(
         &self,
         font_size: u32,
     ) -> Result<(), ObjectError> {
@@ -205,6 +245,26 @@ impl TreelandPersonalizationFontContextV1 {
         Ok(())
     }
 
+    /// font size
+    ///
+    /// Send this signal after setting the system font size.
+    ///
+    /// # Arguments
+    ///
+    /// - `font_size`: font size
+    #[inline]
+    pub fn send_font_size(
+        &self,
+        font_size: u32,
+    ) {
+        let res = self.try_send_font_size(
+            font_size,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_font_context_v1.font_size", &e);
+        }
+    }
+
     /// Since when the set_font_size message is available.
     pub const MSG__SET_FONT_SIZE__SINCE: u32 = 1;
 
@@ -216,7 +276,7 @@ impl TreelandPersonalizationFontContextV1 {
     ///
     /// - `size`: font size
     #[inline]
-    pub fn send_set_font_size(
+    pub fn try_send_set_font_size(
         &self,
         size: u32,
     ) -> Result<(), ObjectError> {
@@ -254,6 +314,26 @@ impl TreelandPersonalizationFontContextV1 {
         Ok(())
     }
 
+    /// set system font size
+    ///
+    /// Set the system font size
+    ///
+    /// # Arguments
+    ///
+    /// - `size`: font size
+    #[inline]
+    pub fn send_set_font_size(
+        &self,
+        size: u32,
+    ) {
+        let res = self.try_send_set_font_size(
+            size,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_font_context_v1.set_font_size", &e);
+        }
+    }
+
     /// Since when the get_font_size message is available.
     pub const MSG__GET_FONT_SIZE__SINCE: u32 = 1;
 
@@ -261,7 +341,7 @@ impl TreelandPersonalizationFontContextV1 {
     ///
     /// Get the system font size
     #[inline]
-    pub fn send_get_font_size(
+    pub fn try_send_get_font_size(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -292,6 +372,20 @@ impl TreelandPersonalizationFontContextV1 {
         Ok(())
     }
 
+    /// get system font size
+    ///
+    /// Get the system font size
+    #[inline]
+    pub fn send_get_font_size(
+        &self,
+    ) {
+        let res = self.try_send_get_font_size(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_font_context_v1.get_font_size", &e);
+        }
+    }
+
     /// Since when the set_font message is available.
     pub const MSG__SET_FONT__SINCE: u32 = 1;
 
@@ -303,7 +397,7 @@ impl TreelandPersonalizationFontContextV1 {
     ///
     /// - `font_name`: font name
     #[inline]
-    pub fn send_set_font(
+    pub fn try_send_set_font(
         &self,
         font_name: &str,
     ) -> Result<(), ObjectError> {
@@ -341,6 +435,26 @@ impl TreelandPersonalizationFontContextV1 {
         Ok(())
     }
 
+    /// set system font
+    ///
+    /// Set the system font
+    ///
+    /// # Arguments
+    ///
+    /// - `font_name`: font name
+    #[inline]
+    pub fn send_set_font(
+        &self,
+        font_name: &str,
+    ) {
+        let res = self.try_send_set_font(
+            font_name,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_font_context_v1.set_font", &e);
+        }
+    }
+
     /// Since when the get_font message is available.
     pub const MSG__GET_FONT__SINCE: u32 = 1;
 
@@ -348,7 +462,7 @@ impl TreelandPersonalizationFontContextV1 {
     ///
     /// Get the system font
     #[inline]
-    pub fn send_get_font(
+    pub fn try_send_get_font(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -379,6 +493,20 @@ impl TreelandPersonalizationFontContextV1 {
         Ok(())
     }
 
+    /// get system font
+    ///
+    /// Get the system font
+    #[inline]
+    pub fn send_get_font(
+        &self,
+    ) {
+        let res = self.try_send_get_font(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_font_context_v1.get_font", &e);
+        }
+    }
+
     /// Since when the set_monospace_font message is available.
     pub const MSG__SET_MONOSPACE_FONT__SINCE: u32 = 1;
 
@@ -390,7 +518,7 @@ impl TreelandPersonalizationFontContextV1 {
     ///
     /// - `font_name`: monospace font name
     #[inline]
-    pub fn send_set_monospace_font(
+    pub fn try_send_set_monospace_font(
         &self,
         font_name: &str,
     ) -> Result<(), ObjectError> {
@@ -428,6 +556,26 @@ impl TreelandPersonalizationFontContextV1 {
         Ok(())
     }
 
+    /// set system monospace font
+    ///
+    /// Set the system monospace font
+    ///
+    /// # Arguments
+    ///
+    /// - `font_name`: monospace font name
+    #[inline]
+    pub fn send_set_monospace_font(
+        &self,
+        font_name: &str,
+    ) {
+        let res = self.try_send_set_monospace_font(
+            font_name,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_font_context_v1.set_monospace_font", &e);
+        }
+    }
+
     /// Since when the get_monospace_font message is available.
     pub const MSG__GET_MONOSPACE_FONT__SINCE: u32 = 1;
 
@@ -435,7 +583,7 @@ impl TreelandPersonalizationFontContextV1 {
     ///
     /// Get the system monospace font
     #[inline]
-    pub fn send_get_monospace_font(
+    pub fn try_send_get_monospace_font(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -466,6 +614,20 @@ impl TreelandPersonalizationFontContextV1 {
         Ok(())
     }
 
+    /// get system monospace font
+    ///
+    /// Get the system monospace font
+    #[inline]
+    pub fn send_get_monospace_font(
+        &self,
+    ) {
+        let res = self.try_send_get_monospace_font(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_font_context_v1.get_monospace_font", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -473,7 +635,7 @@ impl TreelandPersonalizationFontContextV1 {
     ///
     /// Destroy the context object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -504,13 +666,27 @@ impl TreelandPersonalizationFontContextV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the context object
+    ///
+    /// Destroy the context object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_font_context_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandPersonalizationFontContextV1] proxies.
 pub trait TreelandPersonalizationFontContextV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandPersonalizationFontContextV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// font event
@@ -529,11 +705,11 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_font(
+        let res = _slf.try_send_font(
             font_name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_font_context_v1.font message: {}", Report::new(e));
+            log_forward("treeland_personalization_font_context_v1.font", &e);
         }
     }
 
@@ -553,11 +729,11 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_monospace_font(
+        let res = _slf.try_send_monospace_font(
             font_name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_font_context_v1.monospace_font message: {}", Report::new(e));
+            log_forward("treeland_personalization_font_context_v1.monospace_font", &e);
         }
     }
 
@@ -577,11 +753,11 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_font_size(
+        let res = _slf.try_send_font_size(
             font_size,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_font_context_v1.font_size message: {}", Report::new(e));
+            log_forward("treeland_personalization_font_context_v1.font_size", &e);
         }
     }
 
@@ -601,11 +777,11 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_font_size(
+        let res = _slf.try_send_set_font_size(
             size,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_font_context_v1.set_font_size message: {}", Report::new(e));
+            log_forward("treeland_personalization_font_context_v1.set_font_size", &e);
         }
     }
 
@@ -620,10 +796,10 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_font_size(
+        let res = _slf.try_send_get_font_size(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_font_context_v1.get_font_size message: {}", Report::new(e));
+            log_forward("treeland_personalization_font_context_v1.get_font_size", &e);
         }
     }
 
@@ -643,11 +819,11 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_font(
+        let res = _slf.try_send_set_font(
             font_name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_font_context_v1.set_font message: {}", Report::new(e));
+            log_forward("treeland_personalization_font_context_v1.set_font", &e);
         }
     }
 
@@ -662,10 +838,10 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_font(
+        let res = _slf.try_send_get_font(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_font_context_v1.get_font message: {}", Report::new(e));
+            log_forward("treeland_personalization_font_context_v1.get_font", &e);
         }
     }
 
@@ -685,11 +861,11 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_monospace_font(
+        let res = _slf.try_send_set_monospace_font(
             font_name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_font_context_v1.set_monospace_font message: {}", Report::new(e));
+            log_forward("treeland_personalization_font_context_v1.set_monospace_font", &e);
         }
     }
 
@@ -704,10 +880,10 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_monospace_font(
+        let res = _slf.try_send_get_monospace_font(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_font_context_v1.get_monospace_font message: {}", Report::new(e));
+            log_forward("treeland_personalization_font_context_v1.get_monospace_font", &e);
         }
     }
 
@@ -722,10 +898,10 @@ pub trait TreelandPersonalizationFontContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_font_context_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_personalization_font_context_v1.destroy", &e);
         }
     }
 }
@@ -745,7 +921,7 @@ impl ObjectPrivate for TreelandPersonalizationFontContextV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

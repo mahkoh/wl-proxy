@@ -89,7 +89,7 @@ impl WpImageDescriptionCreatorIccV1 {
     /// The resulting image description object does not allow get_information
     /// request.
     #[inline]
-    pub fn send_create(
+    pub fn try_send_create(
         &self,
         image_description: &Rc<WpImageDescriptionV1>,
     ) -> Result<(), ObjectError> {
@@ -133,8 +133,136 @@ impl WpImageDescriptionCreatorIccV1 {
         Ok(())
     }
 
+    /// Create the image description object from ICC data
+    ///
+    /// Create an image description object based on the ICC information
+    /// previously set on this object. A compositor must parse the ICC data in
+    /// some undefined but finite amount of time.
+    ///
+    /// The completeness of the parameter set is verified. If the set is not
+    /// complete, the protocol error incomplete_set is raised. For the
+    /// definition of a complete set, see the description of this interface.
+    ///
+    /// If the particular combination of the information is not supported
+    /// by the compositor, the resulting image description object shall
+    /// immediately deliver the wp_image_description_v1.failed event with the
+    /// 'unsupported' cause. If a valid image description was created from the
+    /// information, the wp_image_description_v1.ready event will eventually
+    /// be sent instead.
+    ///
+    /// This request destroys the wp_image_description_creator_icc_v1 object.
+    ///
+    /// The resulting image description object does not allow get_information
+    /// request.
+    #[inline]
+    pub fn send_create(
+        &self,
+        image_description: &Rc<WpImageDescriptionV1>,
+    ) {
+        let res = self.try_send_create(
+            image_description,
+        );
+        if let Err(e) = res {
+            log_send("wp_image_description_creator_icc_v1.create", &e);
+        }
+    }
+
     /// Since when the set_icc_file message is available.
     pub const MSG__SET_ICC_FILE__SINCE: u32 = 1;
+
+    /// set the ICC profile file
+    ///
+    /// Sets the ICC profile file to be used as the basis of the image
+    /// description.
+    ///
+    /// The data shall be found through the given fd at the given offset, having
+    /// the given length. The fd must be seekable and readable. Violating these
+    /// requirements raises the bad_fd protocol error.
+    ///
+    /// If reading the data fails due to an error independent of the client, the
+    /// compositor shall send the wp_image_description_v1.failed event on the
+    /// created wp_image_description_v1 with the 'operating_system' cause.
+    ///
+    /// The maximum size of the ICC profile is 32 MB. If length is greater than
+    /// that or zero, the protocol error bad_size is raised. If offset + length
+    /// exceeds the file size, the protocol error out_of_file is raised.
+    ///
+    /// A compositor may read the file at any time starting from this request
+    /// and only until whichever happens first:
+    /// - If create request was issued, the wp_image_description_v1 object
+    ///   delivers either failed or ready event; or
+    /// - if create request was not issued, this
+    ///   wp_image_description_creator_icc_v1 object is destroyed.
+    ///
+    /// A compositor shall not modify the contents of the file, and the fd may
+    /// be sealed for writes and size changes. The client must ensure to its
+    /// best ability that the data does not change while the compositor is
+    /// reading it.
+    ///
+    /// The data must represent a valid ICC profile. The ICC profile version
+    /// must be 2 or 4, it must be a 3 channel profile and the class must be
+    /// Display or ColorSpace. Violating these requirements will not result in a
+    /// protocol error, but will eventually send the
+    /// wp_image_description_v1.failed event on the created
+    /// wp_image_description_v1 with the 'unsupported' cause.
+    ///
+    /// See the International Color Consortium specification ICC.1:2022 for more
+    /// details about ICC profiles.
+    ///
+    /// If ICC file has already been set on this object, the protocol error
+    /// already_set is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `icc_profile`: ICC profile
+    /// - `offset`: byte offset in fd to start of ICC data
+    /// - `length`: length of ICC data in bytes
+    #[inline]
+    pub fn try_send_set_icc_file(
+        &self,
+        icc_profile: &Rc<OwnedFd>,
+        offset: u32,
+        length: u32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+            arg2,
+        ) = (
+            icc_profile,
+            offset,
+            length,
+        );
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError::ReceiverNoServerId);
+        };
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: i32, arg1: u32, arg2: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_icc_v1#{}.set_icc_file(icc_profile: {}, offset: {}, length: {})\n", id, arg0, arg1, arg2);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0.as_raw_fd(), arg1, arg2);
+        }
+        let endpoint = &self.core.state.server;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.fds.push_back(arg0.clone());
+        fmt.words([
+            id,
+            1,
+            arg1,
+            arg2,
+        ]);
+        Ok(())
+    }
 
     /// set the ICC profile file
     ///
@@ -189,45 +317,15 @@ impl WpImageDescriptionCreatorIccV1 {
         icc_profile: &Rc<OwnedFd>,
         offset: u32,
         length: u32,
-    ) -> Result<(), ObjectError> {
-        let (
-            arg0,
-            arg1,
-            arg2,
-        ) = (
+    ) {
+        let res = self.try_send_set_icc_file(
             icc_profile,
             offset,
             length,
         );
-        let core = self.core();
-        let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
-        };
-        if self.core.state.log {
-            #[cold]
-            fn log(state: &State, id: u32, arg0: i32, arg1: u32, arg2: u32) {
-                let (millis, micros) = time_since_epoch();
-                let prefix = &state.log_prefix;
-                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_image_description_creator_icc_v1#{}.set_icc_file(icc_profile: {}, offset: {}, length: {})\n", id, arg0, arg1, arg2);
-                state.log(args);
-            }
-            log(&self.core.state, id, arg0.as_raw_fd(), arg1, arg2);
+        if let Err(e) = res {
+            log_send("wp_image_description_creator_icc_v1.set_icc_file", &e);
         }
-        let endpoint = &self.core.state.server;
-        if !endpoint.flush_queued.replace(true) {
-            self.core.state.add_flushable_endpoint(endpoint, None);
-        }
-        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
-        let outgoing = &mut *outgoing_ref;
-        let mut fmt = outgoing.formatter();
-        fmt.fds.push_back(arg0.clone());
-        fmt.words([
-            id,
-            1,
-            arg1,
-            arg2,
-        ]);
-        Ok(())
     }
 }
 
@@ -235,7 +333,7 @@ impl WpImageDescriptionCreatorIccV1 {
 pub trait WpImageDescriptionCreatorIccV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpImageDescriptionCreatorIccV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// Create the image description object from ICC data
@@ -272,11 +370,11 @@ pub trait WpImageDescriptionCreatorIccV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create(
+        let res = _slf.try_send_create(
             image_description,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_creator_icc_v1.create message: {}", Report::new(e));
+            log_forward("wp_image_description_creator_icc_v1.create", &e);
         }
     }
 
@@ -338,13 +436,13 @@ pub trait WpImageDescriptionCreatorIccV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_icc_file(
+        let res = _slf.try_send_set_icc_file(
             icc_profile,
             offset,
             length,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_image_description_creator_icc_v1.set_icc_file message: {}", Report::new(e));
+            log_forward("wp_image_description_creator_icc_v1.set_icc_file", &e);
         }
     }
 }
@@ -364,7 +462,7 @@ impl ObjectPrivate for WpImageDescriptionCreatorIccV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

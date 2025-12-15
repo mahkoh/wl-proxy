@@ -81,7 +81,7 @@ impl ZwpTabletPadRingV2 {
     /// - `description`: ring description
     /// - `serial`: serial of the mode switch event
     #[inline]
-    pub fn send_set_feedback(
+    pub fn try_send_set_feedback(
         &self,
         description: &str,
         serial: u32,
@@ -125,6 +125,47 @@ impl ZwpTabletPadRingV2 {
         Ok(())
     }
 
+    /// set compositor feedback
+    ///
+    /// Request that the compositor use the provided feedback string
+    /// associated with this ring. This request should be issued immediately
+    /// after a zwp_tablet_pad_group_v2.mode_switch event from the corresponding
+    /// group is received, or whenever the ring is mapped to a different
+    /// action. See zwp_tablet_pad_group_v2.mode_switch for more details.
+    ///
+    /// Clients are encouraged to provide context-aware descriptions for
+    /// the actions associated with the ring; compositors may use this
+    /// information to offer visual feedback about the button layout
+    /// (eg. on-screen displays).
+    ///
+    /// The provided string 'description' is a UTF-8 encoded string to be
+    /// associated with this ring, and is considered user-visible; general
+    /// internationalization rules apply.
+    ///
+    /// The serial argument will be that of the last
+    /// zwp_tablet_pad_group_v2.mode_switch event received for the group of this
+    /// ring. Requests providing other serials than the most recent one will be
+    /// ignored.
+    ///
+    /// # Arguments
+    ///
+    /// - `description`: ring description
+    /// - `serial`: serial of the mode switch event
+    #[inline]
+    pub fn send_set_feedback(
+        &self,
+        description: &str,
+        serial: u32,
+    ) {
+        let res = self.try_send_set_feedback(
+            description,
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_ring_v2.set_feedback", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -132,7 +173,7 @@ impl ZwpTabletPadRingV2 {
     ///
     /// This destroys the client's resource for this ring object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -164,6 +205,20 @@ impl ZwpTabletPadRingV2 {
         Ok(())
     }
 
+    /// destroy the ring object
+    ///
+    /// This destroys the client's resource for this ring object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_ring_v2.destroy", &e);
+        }
+    }
+
     /// Since when the source message is available.
     pub const MSG__SOURCE__SINCE: u32 = 1;
 
@@ -186,7 +241,7 @@ impl ZwpTabletPadRingV2 {
     ///
     /// - `source`: the event source
     #[inline]
-    pub fn send_source(
+    pub fn try_send_source(
         &self,
         source: ZwpTabletPadRingV2Source,
     ) -> Result<(), ObjectError> {
@@ -226,6 +281,37 @@ impl ZwpTabletPadRingV2 {
         Ok(())
     }
 
+    /// ring event source
+    ///
+    /// Source information for ring events.
+    ///
+    /// This event does not occur on its own. It is sent before a
+    /// zwp_tablet_pad_ring_v2.frame event and carries the source information
+    /// for all events within that frame.
+    ///
+    /// The source specifies how this event was generated. If the source is
+    /// zwp_tablet_pad_ring_v2.source.finger, a zwp_tablet_pad_ring_v2.stop event
+    /// will be sent when the user lifts the finger off the device.
+    ///
+    /// This event is optional. If the source is unknown for an interaction,
+    /// no event is sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `source`: the event source
+    #[inline]
+    pub fn send_source(
+        &self,
+        source: ZwpTabletPadRingV2Source,
+    ) {
+        let res = self.try_send_source(
+            source,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_ring_v2.source", &e);
+        }
+    }
+
     /// Since when the angle message is available.
     pub const MSG__ANGLE__SINCE: u32 = 1;
 
@@ -240,7 +326,7 @@ impl ZwpTabletPadRingV2 {
     ///
     /// - `degrees`: the current angle in degrees
     #[inline]
-    pub fn send_angle(
+    pub fn try_send_angle(
         &self,
         degrees: Fixed,
     ) -> Result<(), ObjectError> {
@@ -280,6 +366,29 @@ impl ZwpTabletPadRingV2 {
         Ok(())
     }
 
+    /// angle changed
+    ///
+    /// Sent whenever the angle on a ring changes.
+    ///
+    /// The angle is provided in degrees clockwise from the logical
+    /// north of the ring in the pad's current rotation.
+    ///
+    /// # Arguments
+    ///
+    /// - `degrees`: the current angle in degrees
+    #[inline]
+    pub fn send_angle(
+        &self,
+        degrees: Fixed,
+    ) {
+        let res = self.try_send_angle(
+            degrees,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_ring_v2.angle", &e);
+        }
+    }
+
     /// Since when the stop message is available.
     pub const MSG__STOP__SINCE: u32 = 1;
 
@@ -296,7 +405,7 @@ impl ZwpTabletPadRingV2 {
     /// Any zwp_tablet_pad_ring_v2.angle events with the same source after this
     /// event should be considered as the start of a new interaction.
     #[inline]
-    pub fn send_stop(
+    pub fn try_send_stop(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -329,6 +438,29 @@ impl ZwpTabletPadRingV2 {
         Ok(())
     }
 
+    /// interaction stopped
+    ///
+    /// Stop notification for ring events.
+    ///
+    /// For some zwp_tablet_pad_ring_v2.source types, a zwp_tablet_pad_ring_v2.stop
+    /// event is sent to notify a client that the interaction with the ring
+    /// has terminated. This enables the client to implement kinetic scrolling.
+    /// See the zwp_tablet_pad_ring_v2.source documentation for information on
+    /// when this event may be generated.
+    ///
+    /// Any zwp_tablet_pad_ring_v2.angle events with the same source after this
+    /// event should be considered as the start of a new interaction.
+    #[inline]
+    pub fn send_stop(
+        &self,
+    ) {
+        let res = self.try_send_stop(
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_ring_v2.stop", &e);
+        }
+    }
+
     /// Since when the frame message is available.
     pub const MSG__FRAME__SINCE: u32 = 1;
 
@@ -352,7 +484,7 @@ impl ZwpTabletPadRingV2 {
     ///
     /// - `time`: timestamp with millisecond granularity
     #[inline]
-    pub fn send_frame(
+    pub fn try_send_frame(
         &self,
         time: u32,
     ) -> Result<(), ObjectError> {
@@ -391,13 +523,45 @@ impl ZwpTabletPadRingV2 {
         ]);
         Ok(())
     }
+
+    /// end of a ring event sequence
+    ///
+    /// Indicates the end of a set of ring events that logically belong
+    /// together. A client is expected to accumulate the data in all events
+    /// within the frame before proceeding.
+    ///
+    /// All zwp_tablet_pad_ring_v2 events before a zwp_tablet_pad_ring_v2.frame event belong
+    /// logically together. For example, on termination of a finger interaction
+    /// on a ring the compositor will send a zwp_tablet_pad_ring_v2.source event,
+    /// a zwp_tablet_pad_ring_v2.stop event and a zwp_tablet_pad_ring_v2.frame event.
+    ///
+    /// A zwp_tablet_pad_ring_v2.frame event is sent for every logical event
+    /// group, even if the group only contains a single zwp_tablet_pad_ring_v2
+    /// event. Specifically, a client may get a sequence: angle, frame,
+    /// angle, frame, etc.
+    ///
+    /// # Arguments
+    ///
+    /// - `time`: timestamp with millisecond granularity
+    #[inline]
+    pub fn send_frame(
+        &self,
+        time: u32,
+    ) {
+        let res = self.try_send_frame(
+            time,
+        );
+        if let Err(e) = res {
+            log_send("zwp_tablet_pad_ring_v2.frame", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpTabletPadRingV2] proxies.
 pub trait ZwpTabletPadRingV2Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpTabletPadRingV2>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// set compositor feedback
@@ -436,12 +600,12 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_feedback(
+        let res = _slf.try_send_set_feedback(
             description,
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_ring_v2.set_feedback message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_ring_v2.set_feedback", &e);
         }
     }
 
@@ -456,10 +620,10 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_ring_v2.destroy message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_ring_v2.destroy", &e);
         }
     }
 
@@ -490,11 +654,11 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_source(
+        let res = _slf.try_send_source(
             source,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_ring_v2.source message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_ring_v2.source", &e);
         }
     }
 
@@ -517,11 +681,11 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_angle(
+        let res = _slf.try_send_angle(
             degrees,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_ring_v2.angle message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_ring_v2.angle", &e);
         }
     }
 
@@ -545,10 +709,10 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_stop(
+        let res = _slf.try_send_stop(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_ring_v2.stop message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_ring_v2.stop", &e);
         }
     }
 
@@ -580,11 +744,11 @@ pub trait ZwpTabletPadRingV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_frame(
+        let res = _slf.try_send_frame(
             time,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_tablet_pad_ring_v2.frame message: {}", Report::new(e));
+            log_forward("zwp_tablet_pad_ring_v2.frame", &e);
         }
     }
 }
@@ -604,7 +768,7 @@ impl ObjectPrivate for ZwpTabletPadRingV2 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

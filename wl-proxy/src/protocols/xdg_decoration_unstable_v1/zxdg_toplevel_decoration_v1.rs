@@ -60,7 +60,7 @@ impl ZxdgToplevelDecorationV1 {
     /// Switch back to a mode without any server-side decorations at the next
     /// commit.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -90,6 +90,21 @@ impl ZxdgToplevelDecorationV1 {
         ]);
         self.core.handle_server_destroy();
         Ok(())
+    }
+
+    /// destroy the decoration object
+    ///
+    /// Switch back to a mode without any server-side decorations at the next
+    /// commit.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zxdg_toplevel_decoration_v1.destroy", &e);
+        }
     }
 
     /// Since when the set_mode message is available.
@@ -123,7 +138,7 @@ impl ZxdgToplevelDecorationV1 {
     ///
     /// - `mode`: the decoration mode
     #[inline]
-    pub fn send_set_mode(
+    pub fn try_send_set_mode(
         &self,
         mode: ZxdgToplevelDecorationV1Mode,
     ) -> Result<(), ObjectError> {
@@ -161,6 +176,46 @@ impl ZxdgToplevelDecorationV1 {
         Ok(())
     }
 
+    /// set the decoration mode
+    ///
+    /// Set the toplevel surface decoration mode. This informs the compositor
+    /// that the client prefers the provided decoration mode.
+    ///
+    /// After requesting a decoration mode, the compositor will respond by
+    /// emitting an xdg_surface.configure event. The client should then update
+    /// its content, drawing it without decorations if the received mode is
+    /// server-side decorations. The client must also acknowledge the configure
+    /// when committing the new content (see xdg_surface.ack_configure).
+    ///
+    /// The compositor can decide not to use the client's mode and enforce a
+    /// different mode instead.
+    ///
+    /// Clients whose decoration mode depend on the xdg_toplevel state may send
+    /// a set_mode request in response to an xdg_surface.configure event and wait
+    /// for the next xdg_surface.configure event to prevent unwanted state.
+    /// Such clients are responsible for preventing configure loops and must
+    /// make sure not to send multiple successive set_mode requests with the
+    /// same decoration mode.
+    ///
+    /// If an invalid mode is supplied by the client, the invalid_mode protocol
+    /// error is raised by the compositor.
+    ///
+    /// # Arguments
+    ///
+    /// - `mode`: the decoration mode
+    #[inline]
+    pub fn send_set_mode(
+        &self,
+        mode: ZxdgToplevelDecorationV1Mode,
+    ) {
+        let res = self.try_send_set_mode(
+            mode,
+        );
+        if let Err(e) = res {
+            log_send("zxdg_toplevel_decoration_v1.set_mode", &e);
+        }
+    }
+
     /// Since when the unset_mode message is available.
     pub const MSG__UNSET_MODE__SINCE: u32 = 1;
 
@@ -171,7 +226,7 @@ impl ZxdgToplevelDecorationV1 {
     ///
     /// This request has the same semantics as set_mode.
     #[inline]
-    pub fn send_unset_mode(
+    pub fn try_send_unset_mode(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -202,6 +257,23 @@ impl ZxdgToplevelDecorationV1 {
         Ok(())
     }
 
+    /// unset the decoration mode
+    ///
+    /// Unset the toplevel surface decoration mode. This informs the compositor
+    /// that the client doesn't prefer a particular decoration mode.
+    ///
+    /// This request has the same semantics as set_mode.
+    #[inline]
+    pub fn send_unset_mode(
+        &self,
+    ) {
+        let res = self.try_send_unset_mode(
+        );
+        if let Err(e) = res {
+            log_send("zxdg_toplevel_decoration_v1.unset_mode", &e);
+        }
+    }
+
     /// Since when the configure message is available.
     pub const MSG__CONFIGURE__SINCE: u32 = 1;
 
@@ -219,7 +291,7 @@ impl ZxdgToplevelDecorationV1 {
     ///
     /// - `mode`: the decoration mode
     #[inline]
-    pub fn send_configure(
+    pub fn try_send_configure(
         &self,
         mode: ZxdgToplevelDecorationV1Mode,
     ) -> Result<(), ObjectError> {
@@ -258,13 +330,39 @@ impl ZxdgToplevelDecorationV1 {
         ]);
         Ok(())
     }
+
+    /// notify a decoration mode change
+    ///
+    /// The configure event configures the effective decoration mode. The
+    /// configured state should not be applied immediately. Clients must send an
+    /// ack_configure in response to this event. See xdg_surface.configure and
+    /// xdg_surface.ack_configure for details.
+    ///
+    /// A configure event can be sent at any time. The specified mode must be
+    /// obeyed by the client.
+    ///
+    /// # Arguments
+    ///
+    /// - `mode`: the decoration mode
+    #[inline]
+    pub fn send_configure(
+        &self,
+        mode: ZxdgToplevelDecorationV1Mode,
+    ) {
+        let res = self.try_send_configure(
+            mode,
+        );
+        if let Err(e) = res {
+            log_send("zxdg_toplevel_decoration_v1.configure", &e);
+        }
+    }
 }
 
 /// A message handler for [ZxdgToplevelDecorationV1] proxies.
 pub trait ZxdgToplevelDecorationV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZxdgToplevelDecorationV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the decoration object
@@ -279,10 +377,10 @@ pub trait ZxdgToplevelDecorationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zxdg_toplevel_decoration_v1.destroy message: {}", Report::new(e));
+            log_forward("zxdg_toplevel_decoration_v1.destroy", &e);
         }
     }
 
@@ -322,11 +420,11 @@ pub trait ZxdgToplevelDecorationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_mode(
+        let res = _slf.try_send_set_mode(
             mode,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zxdg_toplevel_decoration_v1.set_mode message: {}", Report::new(e));
+            log_forward("zxdg_toplevel_decoration_v1.set_mode", &e);
         }
     }
 
@@ -344,10 +442,10 @@ pub trait ZxdgToplevelDecorationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_unset_mode(
+        let res = _slf.try_send_unset_mode(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zxdg_toplevel_decoration_v1.unset_mode message: {}", Report::new(e));
+            log_forward("zxdg_toplevel_decoration_v1.unset_mode", &e);
         }
     }
 
@@ -373,11 +471,11 @@ pub trait ZxdgToplevelDecorationV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_configure(
+        let res = _slf.try_send_configure(
             mode,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zxdg_toplevel_decoration_v1.configure message: {}", Report::new(e));
+            log_forward("zxdg_toplevel_decoration_v1.configure", &e);
         }
     }
 }
@@ -397,7 +495,7 @@ impl ObjectPrivate for ZxdgToplevelDecorationV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

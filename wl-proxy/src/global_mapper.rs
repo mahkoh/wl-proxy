@@ -35,7 +35,7 @@ impl GlobalMapper {
     ) -> Result<u32, ObjectError> {
         let name = self.client_to_server.len() as u32;
         self.client_to_server.push(None);
-        registry.send_global(name, interface, version)?;
+        registry.try_send_global(name, interface, version)?;
         Ok(name)
     }
 
@@ -44,7 +44,7 @@ impl GlobalMapper {
         registry: &WlRegistry,
         name: u32,
     ) -> Result<(), ObjectError> {
-        registry.send_global_remove(name)
+        registry.try_send_global_remove(name)
     }
 
     pub fn handle_server_global(
@@ -57,7 +57,7 @@ impl GlobalMapper {
         let client_name = self.client_to_server.len() as u32;
         self.client_to_server.push(Some(server_name));
         self.server_to_client.insert(server_name, Some(client_name));
-        registry.send_global(client_name, interface, version)
+        registry.try_send_global(client_name, interface, version)
     }
 
     pub fn ignore_server_global(&mut self, name: u32) {
@@ -78,7 +78,7 @@ impl GlobalMapper {
         let Some(client_name) = client_name else {
             return Ok(());
         };
-        registry.send_global_remove(client_name)
+        registry.try_send_global_remove(client_name)
     }
 
     pub fn handle_client_bind(
@@ -96,6 +96,6 @@ impl GlobalMapper {
         let Some(server_name) = server_name else {
             return Ok(());
         };
-        registry.send_bind(*server_name, proxy.clone())
+        registry.try_send_bind(*server_name, proxy.clone())
     }
 }

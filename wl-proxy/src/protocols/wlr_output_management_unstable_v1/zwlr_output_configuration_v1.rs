@@ -69,7 +69,7 @@ impl ZwlrOutputConfigurationV1 {
     /// - `id`: a new object to configure the head
     /// - `head`: the head to be enabled
     #[inline]
-    pub fn send_enable_head(
+    pub fn try_send_enable_head(
         &self,
         id: &Rc<ZwlrOutputConfigurationHeadV1>,
         head: &Rc<ZwlrOutputHeadV1>,
@@ -121,6 +121,30 @@ impl ZwlrOutputConfigurationV1 {
         Ok(())
     }
 
+    /// enable and configure a head
+    ///
+    /// Enable a head. This request creates a head configuration object that can
+    /// be used to change the head's properties.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: a new object to configure the head
+    /// - `head`: the head to be enabled
+    #[inline]
+    pub fn send_enable_head(
+        &self,
+        id: &Rc<ZwlrOutputConfigurationHeadV1>,
+        head: &Rc<ZwlrOutputHeadV1>,
+    ) {
+        let res = self.try_send_enable_head(
+            id,
+            head,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_configuration_v1.enable_head", &e);
+        }
+    }
+
     /// Since when the disable_head message is available.
     pub const MSG__DISABLE_HEAD__SINCE: u32 = 1;
 
@@ -132,7 +156,7 @@ impl ZwlrOutputConfigurationV1 {
     ///
     /// - `head`: the head to be disabled
     #[inline]
-    pub fn send_disable_head(
+    pub fn try_send_disable_head(
         &self,
         head: &Rc<ZwlrOutputHeadV1>,
     ) -> Result<(), ObjectError> {
@@ -175,6 +199,26 @@ impl ZwlrOutputConfigurationV1 {
         Ok(())
     }
 
+    /// disable a head
+    ///
+    /// Disable a head.
+    ///
+    /// # Arguments
+    ///
+    /// - `head`: the head to be disabled
+    #[inline]
+    pub fn send_disable_head(
+        &self,
+        head: &Rc<ZwlrOutputHeadV1>,
+    ) {
+        let res = self.try_send_disable_head(
+            head,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_configuration_v1.disable_head", &e);
+        }
+    }
+
     /// Since when the apply message is available.
     pub const MSG__APPLY__SINCE: u32 = 1;
 
@@ -191,7 +235,7 @@ impl ZwlrOutputConfigurationV1 {
     /// succeeded, failed or cancelled event. Sending a request that isn't the
     /// destructor is a protocol error.
     #[inline]
-    pub fn send_apply(
+    pub fn try_send_apply(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -222,6 +266,29 @@ impl ZwlrOutputConfigurationV1 {
         Ok(())
     }
 
+    /// apply the configuration
+    ///
+    /// Apply the new output configuration.
+    ///
+    /// In case the configuration is successfully applied, there is no guarantee
+    /// that the new output state matches completely the requested
+    /// configuration. For instance, a compositor might round the scale if it
+    /// doesn't support fractional scaling.
+    ///
+    /// After this request has been sent, the compositor must respond with an
+    /// succeeded, failed or cancelled event. Sending a request that isn't the
+    /// destructor is a protocol error.
+    #[inline]
+    pub fn send_apply(
+        &self,
+    ) {
+        let res = self.try_send_apply(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_configuration_v1.apply", &e);
+        }
+    }
+
     /// Since when the test message is available.
     pub const MSG__TEST__SINCE: u32 = 1;
 
@@ -237,7 +304,7 @@ impl ZwlrOutputConfigurationV1 {
     /// succeeded, failed or cancelled event. Sending a request that isn't the
     /// destructor is a protocol error.
     #[inline]
-    pub fn send_test(
+    pub fn try_send_test(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -268,6 +335,28 @@ impl ZwlrOutputConfigurationV1 {
         Ok(())
     }
 
+    /// test the configuration
+    ///
+    /// Test the new output configuration. The configuration won't be applied,
+    /// but will only be validated.
+    ///
+    /// Even if the compositor succeeds to test a configuration, applying it may
+    /// fail.
+    ///
+    /// After this request has been sent, the compositor must respond with an
+    /// succeeded, failed or cancelled event. Sending a request that isn't the
+    /// destructor is a protocol error.
+    #[inline]
+    pub fn send_test(
+        &self,
+    ) {
+        let res = self.try_send_test(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_configuration_v1.test", &e);
+        }
+    }
+
     /// Since when the succeeded message is available.
     pub const MSG__SUCCEEDED__SINCE: u32 = 1;
 
@@ -281,7 +370,7 @@ impl ZwlrOutputConfigurationV1 {
     /// If the current configuration has changed, events to describe the changes
     /// will be sent followed by a wlr_output_manager.done event.
     #[inline]
-    pub fn send_succeeded(
+    pub fn try_send_succeeded(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -314,6 +403,26 @@ impl ZwlrOutputConfigurationV1 {
         Ok(())
     }
 
+    /// configuration changes succeeded
+    ///
+    /// Sent after the compositor has successfully applied the changes or
+    /// tested them.
+    ///
+    /// Upon receiving this event, the client should destroy this object.
+    ///
+    /// If the current configuration has changed, events to describe the changes
+    /// will be sent followed by a wlr_output_manager.done event.
+    #[inline]
+    pub fn send_succeeded(
+        &self,
+    ) {
+        let res = self.try_send_succeeded(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_configuration_v1.succeeded", &e);
+        }
+    }
+
     /// Since when the failed message is available.
     pub const MSG__FAILED__SINCE: u32 = 1;
 
@@ -325,7 +434,7 @@ impl ZwlrOutputConfigurationV1 {
     ///
     /// Upon receiving this event, the client should destroy this object.
     #[inline]
-    pub fn send_failed(
+    pub fn try_send_failed(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -358,6 +467,24 @@ impl ZwlrOutputConfigurationV1 {
         Ok(())
     }
 
+    /// configuration changes failed
+    ///
+    /// Sent if the compositor rejects the changes or failed to apply them. The
+    /// compositor should revert any changes made by the apply request that
+    /// triggered this event.
+    ///
+    /// Upon receiving this event, the client should destroy this object.
+    #[inline]
+    pub fn send_failed(
+        &self,
+    ) {
+        let res = self.try_send_failed(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_configuration_v1.failed", &e);
+        }
+    }
+
     /// Since when the cancelled message is available.
     pub const MSG__CANCELLED__SINCE: u32 = 1;
 
@@ -372,7 +499,7 @@ impl ZwlrOutputConfigurationV1 {
     ///
     /// Upon receiving this event, the client should destroy this object.
     #[inline]
-    pub fn send_cancelled(
+    pub fn try_send_cancelled(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -405,6 +532,27 @@ impl ZwlrOutputConfigurationV1 {
         Ok(())
     }
 
+    /// configuration has been cancelled
+    ///
+    /// Sent if the compositor cancels the configuration because the state of an
+    /// output changed and the client has outdated information (e.g. after an
+    /// output has been hotplugged).
+    ///
+    /// The client can create a new configuration with a newer serial and try
+    /// again.
+    ///
+    /// Upon receiving this event, the client should destroy this object.
+    #[inline]
+    pub fn send_cancelled(
+        &self,
+    ) {
+        let res = self.try_send_cancelled(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_configuration_v1.cancelled", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -417,7 +565,7 @@ impl ZwlrOutputConfigurationV1 {
     /// This request also destroys wlr_output_configuration_head objects created
     /// via this object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -448,13 +596,32 @@ impl ZwlrOutputConfigurationV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the output configuration
+    ///
+    /// Using this request a client can tell the compositor that it is not going
+    /// to use the configuration object anymore. Any changes to the outputs
+    /// that have not been applied will be discarded.
+    ///
+    /// This request also destroys wlr_output_configuration_head objects created
+    /// via this object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_configuration_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrOutputConfigurationV1] proxies.
 pub trait ZwlrOutputConfigurationV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrOutputConfigurationV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// enable and configure a head
@@ -479,12 +646,12 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_enable_head(
+        let res = _slf.try_send_enable_head(
             id,
             head,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_configuration_v1.enable_head message: {}", Report::new(e));
+            log_forward("zwlr_output_configuration_v1.enable_head", &e);
         }
     }
 
@@ -507,11 +674,11 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_disable_head(
+        let res = _slf.try_send_disable_head(
             head,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_configuration_v1.disable_head message: {}", Report::new(e));
+            log_forward("zwlr_output_configuration_v1.disable_head", &e);
         }
     }
 
@@ -535,10 +702,10 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_apply(
+        let res = _slf.try_send_apply(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_configuration_v1.apply message: {}", Report::new(e));
+            log_forward("zwlr_output_configuration_v1.apply", &e);
         }
     }
 
@@ -561,10 +728,10 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_test(
+        let res = _slf.try_send_test(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_configuration_v1.test message: {}", Report::new(e));
+            log_forward("zwlr_output_configuration_v1.test", &e);
         }
     }
 
@@ -585,10 +752,10 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_succeeded(
+        let res = _slf.try_send_succeeded(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_configuration_v1.succeeded message: {}", Report::new(e));
+            log_forward("zwlr_output_configuration_v1.succeeded", &e);
         }
     }
 
@@ -607,10 +774,10 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_failed(
+        let res = _slf.try_send_failed(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_configuration_v1.failed message: {}", Report::new(e));
+            log_forward("zwlr_output_configuration_v1.failed", &e);
         }
     }
 
@@ -632,10 +799,10 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_cancelled(
+        let res = _slf.try_send_cancelled(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_configuration_v1.cancelled message: {}", Report::new(e));
+            log_forward("zwlr_output_configuration_v1.cancelled", &e);
         }
     }
 
@@ -655,10 +822,10 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_configuration_v1.destroy message: {}", Report::new(e));
+            log_forward("zwlr_output_configuration_v1.destroy", &e);
         }
     }
 }
@@ -678,7 +845,7 @@ impl ObjectPrivate for ZwlrOutputConfigurationV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

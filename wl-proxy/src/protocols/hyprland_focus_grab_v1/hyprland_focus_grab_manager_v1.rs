@@ -54,7 +54,7 @@ impl HyprlandFocusGrabManagerV1 {
     ///
     /// Create a surface grab object.
     #[inline]
-    pub fn send_create_grab(
+    pub fn try_send_create_grab(
         &self,
         grab: &Rc<HyprlandFocusGrabV1>,
     ) -> Result<(), ObjectError> {
@@ -97,6 +97,22 @@ impl HyprlandFocusGrabManagerV1 {
         Ok(())
     }
 
+    /// create a focus grab object
+    ///
+    /// Create a surface grab object.
+    #[inline]
+    pub fn send_create_grab(
+        &self,
+        grab: &Rc<HyprlandFocusGrabV1>,
+    ) {
+        let res = self.try_send_create_grab(
+            grab,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_focus_grab_manager_v1.create_grab", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -105,7 +121,7 @@ impl HyprlandFocusGrabManagerV1 {
     /// Destroy the focus grab manager.
     /// This doesn't destroy existing focus grab objects.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -136,13 +152,28 @@ impl HyprlandFocusGrabManagerV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the focus grab manager
+    ///
+    /// Destroy the focus grab manager.
+    /// This doesn't destroy existing focus grab objects.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_focus_grab_manager_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [HyprlandFocusGrabManagerV1] proxies.
 pub trait HyprlandFocusGrabManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandFocusGrabManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// create a focus grab object
@@ -161,11 +192,11 @@ pub trait HyprlandFocusGrabManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_grab(
+        let res = _slf.try_send_create_grab(
             grab,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_focus_grab_manager_v1.create_grab message: {}", Report::new(e));
+            log_forward("hyprland_focus_grab_manager_v1.create_grab", &e);
         }
     }
 
@@ -181,10 +212,10 @@ pub trait HyprlandFocusGrabManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_focus_grab_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("hyprland_focus_grab_manager_v1.destroy", &e);
         }
     }
 }
@@ -204,7 +235,7 @@ impl ObjectPrivate for HyprlandFocusGrabManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

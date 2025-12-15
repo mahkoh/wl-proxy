@@ -62,7 +62,7 @@ impl XdgWmBase {
     /// still alive created by this xdg_wm_base object instance is illegal
     /// and will result in a defunct_surfaces error.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -94,6 +94,24 @@ impl XdgWmBase {
         Ok(())
     }
 
+    /// destroy xdg_wm_base
+    ///
+    /// Destroy this xdg_wm_base object.
+    ///
+    /// Destroying a bound xdg_wm_base object while there are surfaces
+    /// still alive created by this xdg_wm_base object instance is illegal
+    /// and will result in a defunct_surfaces error.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("xdg_wm_base.destroy", &e);
+        }
+    }
+
     /// Since when the create_positioner message is available.
     pub const MSG__CREATE_POSITIONER__SINCE: u32 = 1;
 
@@ -103,7 +121,7 @@ impl XdgWmBase {
     /// surfaces relative to some parent surface. See the interface description
     /// and xdg_surface.get_popup for details.
     #[inline]
-    pub fn send_create_positioner(
+    pub fn try_send_create_positioner(
         &self,
         id: &Rc<XdgPositioner>,
     ) -> Result<(), ObjectError> {
@@ -146,6 +164,24 @@ impl XdgWmBase {
         Ok(())
     }
 
+    /// create a positioner object
+    ///
+    /// Create a positioner object. A positioner object is used to position
+    /// surfaces relative to some parent surface. See the interface description
+    /// and xdg_surface.get_popup for details.
+    #[inline]
+    pub fn send_create_positioner(
+        &self,
+        id: &Rc<XdgPositioner>,
+    ) {
+        let res = self.try_send_create_positioner(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("xdg_wm_base.create_positioner", &e);
+        }
+    }
+
     /// Since when the get_xdg_surface message is available.
     pub const MSG__GET_XDG_SURFACE__SINCE: u32 = 1;
 
@@ -170,7 +206,7 @@ impl XdgWmBase {
     /// - `id`:
     /// - `surface`:
     #[inline]
-    pub fn send_get_xdg_surface(
+    pub fn try_send_get_xdg_surface(
         &self,
         id: &Rc<XdgSurface>,
         surface: &Rc<WlSurface>,
@@ -222,6 +258,41 @@ impl XdgWmBase {
         Ok(())
     }
 
+    /// create a shell surface from a surface
+    ///
+    /// This creates an xdg_surface for the given surface. While xdg_surface
+    /// itself is not a role, the corresponding surface may only be assigned
+    /// a role extending xdg_surface, such as xdg_toplevel or xdg_popup. It is
+    /// illegal to create an xdg_surface for a wl_surface which already has an
+    /// assigned role and this will result in a role error.
+    ///
+    /// This creates an xdg_surface for the given surface. An xdg_surface is
+    /// used as basis to define a role to a given surface, such as xdg_toplevel
+    /// or xdg_popup. It also manages functionality shared between xdg_surface
+    /// based surface roles.
+    ///
+    /// See the documentation of xdg_surface for more details about what an
+    /// xdg_surface is and how it is used.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn send_get_xdg_surface(
+        &self,
+        id: &Rc<XdgSurface>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_xdg_surface(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("xdg_wm_base.get_xdg_surface", &e);
+        }
+    }
+
     /// Since when the pong message is available.
     pub const MSG__PONG__SINCE: u32 = 1;
 
@@ -235,7 +306,7 @@ impl XdgWmBase {
     ///
     /// - `serial`: serial of the ping event
     #[inline]
-    pub fn send_pong(
+    pub fn try_send_pong(
         &self,
         serial: u32,
     ) -> Result<(), ObjectError> {
@@ -273,6 +344,28 @@ impl XdgWmBase {
         Ok(())
     }
 
+    /// respond to a ping event
+    ///
+    /// A client must respond to a ping event with a pong request or
+    /// the client may be deemed unresponsive. See xdg_wm_base.ping
+    /// and xdg_wm_base.error.unresponsive.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial of the ping event
+    #[inline]
+    pub fn send_pong(
+        &self,
+        serial: u32,
+    ) {
+        let res = self.try_send_pong(
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("xdg_wm_base.pong", &e);
+        }
+    }
+
     /// Since when the ping message is available.
     pub const MSG__PING__SINCE: u32 = 1;
 
@@ -296,7 +389,7 @@ impl XdgWmBase {
     ///
     /// - `serial`: pass this to the pong request
     #[inline]
-    pub fn send_ping(
+    pub fn try_send_ping(
         &self,
         serial: u32,
     ) -> Result<(), ObjectError> {
@@ -335,13 +428,45 @@ impl XdgWmBase {
         ]);
         Ok(())
     }
+
+    /// check if the client is alive
+    ///
+    /// The ping event asks the client if it's still alive. Pass the
+    /// serial specified in the event back to the compositor by sending
+    /// a "pong" request back with the specified serial. See xdg_wm_base.pong.
+    ///
+    /// Compositors can use this to determine if the client is still
+    /// alive. It's unspecified what will happen if the client doesn't
+    /// respond to the ping request, or in what timeframe. Clients should
+    /// try to respond in a reasonable amount of time. The “unresponsive”
+    /// error is provided for compositors that wish to disconnect unresponsive
+    /// clients.
+    ///
+    /// A compositor is free to ping in any way it wants, but a client must
+    /// always respond to any xdg_wm_base object it created.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: pass this to the pong request
+    #[inline]
+    pub fn send_ping(
+        &self,
+        serial: u32,
+    ) {
+        let res = self.try_send_ping(
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("xdg_wm_base.ping", &e);
+        }
+    }
 }
 
 /// A message handler for [XdgWmBase] proxies.
 pub trait XdgWmBaseHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgWmBase>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy xdg_wm_base
@@ -359,10 +484,10 @@ pub trait XdgWmBaseHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_wm_base.destroy message: {}", Report::new(e));
+            log_forward("xdg_wm_base.destroy", &e);
         }
     }
 
@@ -384,11 +509,11 @@ pub trait XdgWmBaseHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_positioner(
+        let res = _slf.try_send_create_positioner(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_wm_base.create_positioner message: {}", Report::new(e));
+            log_forward("xdg_wm_base.create_positioner", &e);
         }
     }
 
@@ -425,12 +550,12 @@ pub trait XdgWmBaseHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_xdg_surface(
+        let res = _slf.try_send_get_xdg_surface(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_wm_base.get_xdg_surface message: {}", Report::new(e));
+            log_forward("xdg_wm_base.get_xdg_surface", &e);
         }
     }
 
@@ -452,11 +577,11 @@ pub trait XdgWmBaseHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_pong(
+        let res = _slf.try_send_pong(
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_wm_base.pong message: {}", Report::new(e));
+            log_forward("xdg_wm_base.pong", &e);
         }
     }
 
@@ -488,11 +613,11 @@ pub trait XdgWmBaseHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_ping(
+        let res = _slf.try_send_ping(
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_wm_base.ping message: {}", Report::new(e));
+            log_forward("xdg_wm_base.ping", &e);
         }
     }
 }
@@ -512,7 +637,7 @@ impl ObjectPrivate for XdgWmBase {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -61,7 +61,7 @@ impl WpViewporter {
     /// protocol object anymore. This does not affect any other objects,
     /// wp_viewport objects included.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -93,6 +93,22 @@ impl WpViewporter {
         Ok(())
     }
 
+    /// unbind from the cropping and scaling interface
+    ///
+    /// Informs the server that the client will not be using this
+    /// protocol object anymore. This does not affect any other objects,
+    /// wp_viewport objects included.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_viewporter.destroy", &e);
+        }
+    }
+
     /// Since when the get_viewport message is available.
     pub const MSG__GET_VIEWPORT__SINCE: u32 = 1;
 
@@ -108,7 +124,7 @@ impl WpViewporter {
     /// - `id`: the new viewport interface id
     /// - `surface`: the surface
     #[inline]
-    pub fn send_get_viewport(
+    pub fn try_send_get_viewport(
         &self,
         id: &Rc<WpViewport>,
         surface: &Rc<WlSurface>,
@@ -159,13 +175,39 @@ impl WpViewporter {
         ]);
         Ok(())
     }
+
+    /// extend surface interface for crop and scale
+    ///
+    /// Instantiate an interface extension for the given wl_surface to
+    /// crop and scale its content. If the given wl_surface already has
+    /// a wp_viewport object associated, the viewport_exists
+    /// protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new viewport interface id
+    /// - `surface`: the surface
+    #[inline]
+    pub fn send_get_viewport(
+        &self,
+        id: &Rc<WpViewport>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_viewport(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("wp_viewporter.get_viewport", &e);
+        }
+    }
 }
 
 /// A message handler for [WpViewporter] proxies.
 pub trait WpViewporterHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpViewporter>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// unbind from the cropping and scaling interface
@@ -181,10 +223,10 @@ pub trait WpViewporterHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_viewporter.destroy message: {}", Report::new(e));
+            log_forward("wp_viewporter.destroy", &e);
         }
     }
 
@@ -212,12 +254,12 @@ pub trait WpViewporterHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_viewport(
+        let res = _slf.try_send_get_viewport(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_viewporter.get_viewport message: {}", Report::new(e));
+            log_forward("wp_viewporter.get_viewport", &e);
         }
     }
 }
@@ -237,7 +279,7 @@ impl ObjectPrivate for WpViewporter {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

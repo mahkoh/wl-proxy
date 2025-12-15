@@ -63,7 +63,7 @@ impl TreelandPersonalizationWindowContextV1 {
     ///
     /// - `mode`:
     #[inline]
-    pub fn send_set_blend_mode(
+    pub fn try_send_set_blend_mode(
         &self,
         mode: TreelandPersonalizationWindowContextV1BlendMode,
     ) -> Result<(), ObjectError> {
@@ -101,6 +101,26 @@ impl TreelandPersonalizationWindowContextV1 {
         Ok(())
     }
 
+    /// set window background blend mode
+    ///
+    /// Set window background blend mode
+    ///
+    /// # Arguments
+    ///
+    /// - `mode`:
+    #[inline]
+    pub fn send_set_blend_mode(
+        &self,
+        mode: TreelandPersonalizationWindowContextV1BlendMode,
+    ) {
+        let res = self.try_send_set_blend_mode(
+            mode,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_window_context_v1.set_blend_mode", &e);
+        }
+    }
+
     /// Since when the set_round_corner_radius message is available.
     pub const MSG__SET_ROUND_CORNER_RADIUS__SINCE: u32 = 1;
 
@@ -116,7 +136,7 @@ impl TreelandPersonalizationWindowContextV1 {
     ///
     /// - `radius`:
     #[inline]
-    pub fn send_set_round_corner_radius(
+    pub fn try_send_set_round_corner_radius(
         &self,
         radius: i32,
     ) -> Result<(), ObjectError> {
@@ -154,6 +174,30 @@ impl TreelandPersonalizationWindowContextV1 {
         Ok(())
     }
 
+    /// set window round corner radius
+    ///
+    /// This request will set window round corner radius, invoking this request means user
+    /// want to
+    /// manage window round corner radius by itself. If not invoked, window round corner
+    /// radius will
+    /// be decided by compositor.
+    ///
+    /// # Arguments
+    ///
+    /// - `radius`:
+    #[inline]
+    pub fn send_set_round_corner_radius(
+        &self,
+        radius: i32,
+    ) {
+        let res = self.try_send_set_round_corner_radius(
+            radius,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_window_context_v1.set_round_corner_radius", &e);
+        }
+    }
+
     /// Since when the set_shadow message is available.
     pub const MSG__SET_SHADOW__SINCE: u32 = 1;
 
@@ -174,7 +218,7 @@ impl TreelandPersonalizationWindowContextV1 {
     /// - `b`:
     /// - `a`:
     #[inline]
-    pub fn send_set_shadow(
+    pub fn try_send_set_shadow(
         &self,
         radius: i32,
         offset_x: i32,
@@ -236,6 +280,47 @@ impl TreelandPersonalizationWindowContextV1 {
         Ok(())
     }
 
+    /// set window shadow
+    ///
+    /// Set window shadow's radius, offset and color, invoking this request indicates that
+    /// client want to manage
+    /// the window shadow by itself. If not invoked, window shadow will be decided by the
+    /// compositor
+    ///
+    /// # Arguments
+    ///
+    /// - `radius`:
+    /// - `offset_x`:
+    /// - `offset_y`:
+    /// - `r`:
+    /// - `g`:
+    /// - `b`:
+    /// - `a`:
+    #[inline]
+    pub fn send_set_shadow(
+        &self,
+        radius: i32,
+        offset_x: i32,
+        offset_y: i32,
+        r: i32,
+        g: i32,
+        b: i32,
+        a: i32,
+    ) {
+        let res = self.try_send_set_shadow(
+            radius,
+            offset_x,
+            offset_y,
+            r,
+            g,
+            b,
+            a,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_window_context_v1.set_shadow", &e);
+        }
+    }
+
     /// Since when the set_border message is available.
     pub const MSG__SET_BORDER__SINCE: u32 = 1;
 
@@ -251,7 +336,7 @@ impl TreelandPersonalizationWindowContextV1 {
     /// - `b`:
     /// - `a`:
     #[inline]
-    pub fn send_set_border(
+    pub fn try_send_set_border(
         &self,
         width: i32,
         r: i32,
@@ -305,6 +390,38 @@ impl TreelandPersonalizationWindowContextV1 {
         Ok(())
     }
 
+    /// set window border
+    ///
+    /// Set window border width and color
+    ///
+    /// # Arguments
+    ///
+    /// - `width`:
+    /// - `r`:
+    /// - `g`:
+    /// - `b`:
+    /// - `a`:
+    #[inline]
+    pub fn send_set_border(
+        &self,
+        width: i32,
+        r: i32,
+        g: i32,
+        b: i32,
+        a: i32,
+    ) {
+        let res = self.try_send_set_border(
+            width,
+            r,
+            g,
+            b,
+            a,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_window_context_v1.set_border", &e);
+        }
+    }
+
     /// Since when the set_titlebar message is available.
     pub const MSG__SET_TITLEBAR__SINCE: u32 = 1;
 
@@ -316,7 +433,7 @@ impl TreelandPersonalizationWindowContextV1 {
     ///
     /// - `mode`:
     #[inline]
-    pub fn send_set_titlebar(
+    pub fn try_send_set_titlebar(
         &self,
         mode: TreelandPersonalizationWindowContextV1EnableMode,
     ) -> Result<(), ObjectError> {
@@ -354,6 +471,26 @@ impl TreelandPersonalizationWindowContextV1 {
         Ok(())
     }
 
+    /// set if system titlebar is enabled
+    ///
+    /// Set if system titlebar is enabled
+    ///
+    /// # Arguments
+    ///
+    /// - `mode`:
+    #[inline]
+    pub fn send_set_titlebar(
+        &self,
+        mode: TreelandPersonalizationWindowContextV1EnableMode,
+    ) {
+        let res = self.try_send_set_titlebar(
+            mode,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_window_context_v1.set_titlebar", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -361,7 +498,7 @@ impl TreelandPersonalizationWindowContextV1 {
     ///
     /// Destroy the context object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -392,13 +529,27 @@ impl TreelandPersonalizationWindowContextV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the context object
+    ///
+    /// Destroy the context object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_window_context_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandPersonalizationWindowContextV1] proxies.
 pub trait TreelandPersonalizationWindowContextV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandPersonalizationWindowContextV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// set window background blend mode
@@ -417,11 +568,11 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_blend_mode(
+        let res = _slf.try_send_set_blend_mode(
             mode,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_window_context_v1.set_blend_mode message: {}", Report::new(e));
+            log_forward("treeland_personalization_window_context_v1.set_blend_mode", &e);
         }
     }
 
@@ -445,11 +596,11 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_round_corner_radius(
+        let res = _slf.try_send_set_round_corner_radius(
             radius,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_window_context_v1.set_round_corner_radius message: {}", Report::new(e));
+            log_forward("treeland_personalization_window_context_v1.set_round_corner_radius", &e);
         }
     }
 
@@ -484,7 +635,7 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_shadow(
+        let res = _slf.try_send_set_shadow(
             radius,
             offset_x,
             offset_y,
@@ -494,7 +645,7 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
             a,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_window_context_v1.set_shadow message: {}", Report::new(e));
+            log_forward("treeland_personalization_window_context_v1.set_shadow", &e);
         }
     }
 
@@ -522,7 +673,7 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_border(
+        let res = _slf.try_send_set_border(
             width,
             r,
             g,
@@ -530,7 +681,7 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
             a,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_window_context_v1.set_border message: {}", Report::new(e));
+            log_forward("treeland_personalization_window_context_v1.set_border", &e);
         }
     }
 
@@ -550,11 +701,11 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_titlebar(
+        let res = _slf.try_send_set_titlebar(
             mode,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_window_context_v1.set_titlebar message: {}", Report::new(e));
+            log_forward("treeland_personalization_window_context_v1.set_titlebar", &e);
         }
     }
 
@@ -569,10 +720,10 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_window_context_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_personalization_window_context_v1.destroy", &e);
         }
     }
 }
@@ -592,7 +743,7 @@ impl ObjectPrivate for TreelandPersonalizationWindowContextV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

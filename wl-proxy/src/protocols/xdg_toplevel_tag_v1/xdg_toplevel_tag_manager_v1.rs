@@ -65,7 +65,7 @@ impl XdgToplevelTagManagerV1 {
     /// Destroy this toplevel tag manager object. This request has no other
     /// effects.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -97,6 +97,21 @@ impl XdgToplevelTagManagerV1 {
         Ok(())
     }
 
+    /// destroy toplevel tag object
+    ///
+    /// Destroy this toplevel tag manager object. This request has no other
+    /// effects.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel_tag_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the set_toplevel_tag message is available.
     pub const MSG__SET_TOPLEVEL_TAG__SINCE: u32 = 1;
 
@@ -122,7 +137,7 @@ impl XdgToplevelTagManagerV1 {
     /// - `toplevel`:
     /// - `tag`: untranslated tag
     #[inline]
-    pub fn send_set_toplevel_tag(
+    pub fn try_send_set_toplevel_tag(
         &self,
         toplevel: &Rc<XdgToplevel>,
         tag: &str,
@@ -169,6 +184,42 @@ impl XdgToplevelTagManagerV1 {
         Ok(())
     }
 
+    /// set tag
+    ///
+    /// Set a tag for a toplevel. The tag may be shown to the user in UI, so
+    /// it's preferable for it to be human readable, but it must be suitable
+    /// for configuration files and should not be translated.
+    /// Suitable tags would for example be "main window", "settings",
+    /// "e-mail composer" or similar.
+    ///
+    /// The tag does not need to be unique across applications, and the client
+    /// may set the same tag for multiple windows, for example if the user has
+    /// opened the same UI twice. How the potentially resulting conflicts are
+    /// handled is compositor policy.
+    ///
+    /// The client should set the tag as part of the initial commit on the
+    /// associated toplevel, but it may set it at any time afterwards as well,
+    /// for example if the purpose of the toplevel changes.
+    ///
+    /// # Arguments
+    ///
+    /// - `toplevel`:
+    /// - `tag`: untranslated tag
+    #[inline]
+    pub fn send_set_toplevel_tag(
+        &self,
+        toplevel: &Rc<XdgToplevel>,
+        tag: &str,
+    ) {
+        let res = self.try_send_set_toplevel_tag(
+            toplevel,
+            tag,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel_tag_manager_v1.set_toplevel_tag", &e);
+        }
+    }
+
     /// Since when the set_toplevel_description message is available.
     pub const MSG__SET_TOPLEVEL_DESCRIPTION__SINCE: u32 = 1;
 
@@ -188,7 +239,7 @@ impl XdgToplevelTagManagerV1 {
     /// - `toplevel`:
     /// - `description`: translated description
     #[inline]
-    pub fn send_set_toplevel_description(
+    pub fn try_send_set_toplevel_description(
         &self,
         toplevel: &Rc<XdgToplevel>,
         description: &str,
@@ -234,13 +285,43 @@ impl XdgToplevelTagManagerV1 {
         fmt.string(arg1);
         Ok(())
     }
+
+    /// set description
+    ///
+    /// Set a description for a toplevel. This description may be shown to the
+    /// user in UI or read by a screen reader for accessibility purposes, and
+    /// should be translated.
+    /// It is recommended to make the description the translation of the tag.
+    ///
+    /// The client should set the description as part of the initial commit on
+    /// the associated toplevel, but it may set it at any time afterwards as
+    /// well, for example if the purpose of the toplevel changes.
+    ///
+    /// # Arguments
+    ///
+    /// - `toplevel`:
+    /// - `description`: translated description
+    #[inline]
+    pub fn send_set_toplevel_description(
+        &self,
+        toplevel: &Rc<XdgToplevel>,
+        description: &str,
+    ) {
+        let res = self.try_send_set_toplevel_description(
+            toplevel,
+            description,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel_tag_manager_v1.set_toplevel_description", &e);
+        }
+    }
 }
 
 /// A message handler for [XdgToplevelTagManagerV1] proxies.
 pub trait XdgToplevelTagManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgToplevelTagManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy toplevel tag object
@@ -255,10 +336,10 @@ pub trait XdgToplevelTagManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel_tag_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("xdg_toplevel_tag_manager_v1.destroy", &e);
         }
     }
 
@@ -296,12 +377,12 @@ pub trait XdgToplevelTagManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_toplevel_tag(
+        let res = _slf.try_send_set_toplevel_tag(
             toplevel,
             tag,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel_tag_manager_v1.set_toplevel_tag message: {}", Report::new(e));
+            log_forward("xdg_toplevel_tag_manager_v1.set_toplevel_tag", &e);
         }
     }
 
@@ -333,12 +414,12 @@ pub trait XdgToplevelTagManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_toplevel_description(
+        let res = _slf.try_send_set_toplevel_description(
             toplevel,
             description,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel_tag_manager_v1.set_toplevel_description message: {}", Report::new(e));
+            log_forward("xdg_toplevel_tag_manager_v1.set_toplevel_description", &e);
         }
     }
 }
@@ -358,7 +439,7 @@ impl ObjectPrivate for XdgToplevelTagManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

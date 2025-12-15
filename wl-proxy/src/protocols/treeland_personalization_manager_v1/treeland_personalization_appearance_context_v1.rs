@@ -63,7 +63,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// - `radius`: round corner radius
     #[inline]
-    pub fn send_round_corner_radius(
+    pub fn try_send_round_corner_radius(
         &self,
         radius: i32,
     ) -> Result<(), ObjectError> {
@@ -103,6 +103,26 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// round corner radius event
+    ///
+    /// Send this signal after setting the round corner radius.
+    ///
+    /// # Arguments
+    ///
+    /// - `radius`: round corner radius
+    #[inline]
+    pub fn send_round_corner_radius(
+        &self,
+        radius: i32,
+    ) {
+        let res = self.try_send_round_corner_radius(
+            radius,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.round_corner_radius", &e);
+        }
+    }
+
     /// Since when the icon_theme message is available.
     pub const MSG__ICON_THEME__SINCE: u32 = 1;
 
@@ -114,7 +134,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// - `theme_name`: icon theme name
     #[inline]
-    pub fn send_icon_theme(
+    pub fn try_send_icon_theme(
         &self,
         theme_name: &str,
     ) -> Result<(), ObjectError> {
@@ -154,6 +174,26 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// icon theme event
+    ///
+    /// Send this signal after setting the system icon theme.
+    ///
+    /// # Arguments
+    ///
+    /// - `theme_name`: icon theme name
+    #[inline]
+    pub fn send_icon_theme(
+        &self,
+        theme_name: &str,
+    ) {
+        let res = self.try_send_icon_theme(
+            theme_name,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.icon_theme", &e);
+        }
+    }
+
     /// Since when the active_color message is available.
     pub const MSG__ACTIVE_COLOR__SINCE: u32 = 1;
 
@@ -165,7 +205,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// - `active_color`: active color
     #[inline]
-    pub fn send_active_color(
+    pub fn try_send_active_color(
         &self,
         active_color: &str,
     ) -> Result<(), ObjectError> {
@@ -205,6 +245,26 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// active color
+    ///
+    /// Send this signal after setting the system active color
+    ///
+    /// # Arguments
+    ///
+    /// - `active_color`: active color
+    #[inline]
+    pub fn send_active_color(
+        &self,
+        active_color: &str,
+    ) {
+        let res = self.try_send_active_color(
+            active_color,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.active_color", &e);
+        }
+    }
+
     /// Since when the window_opacity message is available.
     pub const MSG__WINDOW_OPACITY__SINCE: u32 = 1;
 
@@ -216,7 +276,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// - `opacity`: window opacity
     #[inline]
-    pub fn send_window_opacity(
+    pub fn try_send_window_opacity(
         &self,
         opacity: u32,
     ) -> Result<(), ObjectError> {
@@ -256,6 +316,26 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// window opacity
+    ///
+    /// Send this signal after setting the system active color
+    ///
+    /// # Arguments
+    ///
+    /// - `opacity`: window opacity
+    #[inline]
+    pub fn send_window_opacity(
+        &self,
+        opacity: u32,
+    ) {
+        let res = self.try_send_window_opacity(
+            opacity,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.window_opacity", &e);
+        }
+    }
+
     /// Since when the window_theme_type message is available.
     pub const MSG__WINDOW_THEME_TYPE__SINCE: u32 = 1;
 
@@ -267,7 +347,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// - `r#type`: window theme type
     #[inline]
-    pub fn send_window_theme_type(
+    pub fn try_send_window_theme_type(
         &self,
         r#type: TreelandPersonalizationAppearanceContextV1ThemeType,
     ) -> Result<(), ObjectError> {
@@ -307,6 +387,26 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// window theme
+    ///
+    /// Send this signal after setting the system theme
+    ///
+    /// # Arguments
+    ///
+    /// - `r#type`: window theme type
+    #[inline]
+    pub fn send_window_theme_type(
+        &self,
+        r#type: TreelandPersonalizationAppearanceContextV1ThemeType,
+    ) {
+        let res = self.try_send_window_theme_type(
+            r#type,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.window_theme_type", &e);
+        }
+    }
+
     /// Since when the window_titlebar_height message is available.
     pub const MSG__WINDOW_TITLEBAR_HEIGHT__SINCE: u32 = 1;
 
@@ -318,7 +418,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// - `height`: window titlebar height
     #[inline]
-    pub fn send_window_titlebar_height(
+    pub fn try_send_window_titlebar_height(
         &self,
         height: u32,
     ) -> Result<(), ObjectError> {
@@ -358,6 +458,26 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// window titlebar height
+    ///
+    /// Send this signal after setting the window titlebar height
+    ///
+    /// # Arguments
+    ///
+    /// - `height`: window titlebar height
+    #[inline]
+    pub fn send_window_titlebar_height(
+        &self,
+        height: u32,
+    ) {
+        let res = self.try_send_window_titlebar_height(
+            height,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.window_titlebar_height", &e);
+        }
+    }
+
     /// Since when the set_round_corner_radius message is available.
     pub const MSG__SET_ROUND_CORNER_RADIUS__SINCE: u32 = 1;
 
@@ -369,7 +489,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// - `radius`:
     #[inline]
-    pub fn send_set_round_corner_radius(
+    pub fn try_send_set_round_corner_radius(
         &self,
         radius: i32,
     ) -> Result<(), ObjectError> {
@@ -407,6 +527,26 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// set window round corner radius
+    ///
+    /// Set window round corner radius
+    ///
+    /// # Arguments
+    ///
+    /// - `radius`:
+    #[inline]
+    pub fn send_set_round_corner_radius(
+        &self,
+        radius: i32,
+    ) {
+        let res = self.try_send_set_round_corner_radius(
+            radius,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.set_round_corner_radius", &e);
+        }
+    }
+
     /// Since when the get_round_corner_radius message is available.
     pub const MSG__GET_ROUND_CORNER_RADIUS__SINCE: u32 = 1;
 
@@ -414,7 +554,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// Get window round corner radius
     #[inline]
-    pub fn send_get_round_corner_radius(
+    pub fn try_send_get_round_corner_radius(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -445,6 +585,20 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// get window round corner radius
+    ///
+    /// Get window round corner radius
+    #[inline]
+    pub fn send_get_round_corner_radius(
+        &self,
+    ) {
+        let res = self.try_send_get_round_corner_radius(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.get_round_corner_radius", &e);
+        }
+    }
+
     /// Since when the set_icon_theme message is available.
     pub const MSG__SET_ICON_THEME__SINCE: u32 = 1;
 
@@ -456,7 +610,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// - `theme`: icon theme
     #[inline]
-    pub fn send_set_icon_theme(
+    pub fn try_send_set_icon_theme(
         &self,
         theme: &str,
     ) -> Result<(), ObjectError> {
@@ -494,6 +648,26 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// set system icon theme
+    ///
+    /// Set the system icon theme
+    ///
+    /// # Arguments
+    ///
+    /// - `theme`: icon theme
+    #[inline]
+    pub fn send_set_icon_theme(
+        &self,
+        theme: &str,
+    ) {
+        let res = self.try_send_set_icon_theme(
+            theme,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.set_icon_theme", &e);
+        }
+    }
+
     /// Since when the get_icon_theme message is available.
     pub const MSG__GET_ICON_THEME__SINCE: u32 = 1;
 
@@ -501,7 +675,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// Get the system icon theme
     #[inline]
-    pub fn send_get_icon_theme(
+    pub fn try_send_get_icon_theme(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -532,6 +706,20 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// get system icon theme
+    ///
+    /// Get the system icon theme
+    #[inline]
+    pub fn send_get_icon_theme(
+        &self,
+    ) {
+        let res = self.try_send_get_icon_theme(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.get_icon_theme", &e);
+        }
+    }
+
     /// Since when the set_active_color message is available.
     pub const MSG__SET_ACTIVE_COLOR__SINCE: u32 = 1;
 
@@ -543,7 +731,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// - `color`: rgb
     #[inline]
-    pub fn send_set_active_color(
+    pub fn try_send_set_active_color(
         &self,
         color: &str,
     ) -> Result<(), ObjectError> {
@@ -581,6 +769,26 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// set system active color
+    ///
+    /// Set the system active color
+    ///
+    /// # Arguments
+    ///
+    /// - `color`: rgb
+    #[inline]
+    pub fn send_set_active_color(
+        &self,
+        color: &str,
+    ) {
+        let res = self.try_send_set_active_color(
+            color,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.set_active_color", &e);
+        }
+    }
+
     /// Since when the get_active_color message is available.
     pub const MSG__GET_ACTIVE_COLOR__SINCE: u32 = 1;
 
@@ -588,7 +796,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// Get the system active color
     #[inline]
-    pub fn send_get_active_color(
+    pub fn try_send_get_active_color(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -619,6 +827,20 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// get system active color
+    ///
+    /// Get the system active color
+    #[inline]
+    pub fn send_get_active_color(
+        &self,
+    ) {
+        let res = self.try_send_get_active_color(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.get_active_color", &e);
+        }
+    }
+
     /// Since when the set_window_opacity message is available.
     pub const MSG__SET_WINDOW_OPACITY__SINCE: u32 = 1;
 
@@ -630,7 +852,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// - `opacity`: opacity
     #[inline]
-    pub fn send_set_window_opacity(
+    pub fn try_send_set_window_opacity(
         &self,
         opacity: u32,
     ) -> Result<(), ObjectError> {
@@ -668,6 +890,26 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// set window window opacity
+    ///
+    /// Set the window window opacity
+    ///
+    /// # Arguments
+    ///
+    /// - `opacity`: opacity
+    #[inline]
+    pub fn send_set_window_opacity(
+        &self,
+        opacity: u32,
+    ) {
+        let res = self.try_send_set_window_opacity(
+            opacity,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.set_window_opacity", &e);
+        }
+    }
+
     /// Since when the get_window_opacity message is available.
     pub const MSG__GET_WINDOW_OPACITY__SINCE: u32 = 1;
 
@@ -675,7 +917,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// Get the window window opacity
     #[inline]
-    pub fn send_get_window_opacity(
+    pub fn try_send_get_window_opacity(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -706,6 +948,20 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// get window window opacity
+    ///
+    /// Get the window window opacity
+    #[inline]
+    pub fn send_get_window_opacity(
+        &self,
+    ) {
+        let res = self.try_send_get_window_opacity(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.get_window_opacity", &e);
+        }
+    }
+
     /// Since when the set_window_theme_type message is available.
     pub const MSG__SET_WINDOW_THEME_TYPE__SINCE: u32 = 1;
 
@@ -717,7 +973,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// - `r#type`: window theme type
     #[inline]
-    pub fn send_set_window_theme_type(
+    pub fn try_send_set_window_theme_type(
         &self,
         r#type: TreelandPersonalizationAppearanceContextV1ThemeType,
     ) -> Result<(), ObjectError> {
@@ -755,6 +1011,26 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// set window theme type
+    ///
+    /// Set the window theme.
+    ///
+    /// # Arguments
+    ///
+    /// - `r#type`: window theme type
+    #[inline]
+    pub fn send_set_window_theme_type(
+        &self,
+        r#type: TreelandPersonalizationAppearanceContextV1ThemeType,
+    ) {
+        let res = self.try_send_set_window_theme_type(
+            r#type,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.set_window_theme_type", &e);
+        }
+    }
+
     /// Since when the get_window_theme_type message is available.
     pub const MSG__GET_WINDOW_THEME_TYPE__SINCE: u32 = 1;
 
@@ -762,7 +1038,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// Get the window theme type
     #[inline]
-    pub fn send_get_window_theme_type(
+    pub fn try_send_get_window_theme_type(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -793,6 +1069,20 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// get window theme type
+    ///
+    /// Get the window theme type
+    #[inline]
+    pub fn send_get_window_theme_type(
+        &self,
+    ) {
+        let res = self.try_send_get_window_theme_type(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.get_window_theme_type", &e);
+        }
+    }
+
     /// Since when the set_window_titlebar_height message is available.
     pub const MSG__SET_WINDOW_TITLEBAR_HEIGHT__SINCE: u32 = 1;
 
@@ -804,7 +1094,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// - `height`: window titlebar height
     #[inline]
-    pub fn send_set_window_titlebar_height(
+    pub fn try_send_set_window_titlebar_height(
         &self,
         height: u32,
     ) -> Result<(), ObjectError> {
@@ -842,6 +1132,26 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// set window titlebar height
+    ///
+    /// Set the window titlebar height
+    ///
+    /// # Arguments
+    ///
+    /// - `height`: window titlebar height
+    #[inline]
+    pub fn send_set_window_titlebar_height(
+        &self,
+        height: u32,
+    ) {
+        let res = self.try_send_set_window_titlebar_height(
+            height,
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.set_window_titlebar_height", &e);
+        }
+    }
+
     /// Since when the get_window_titlebar_height message is available.
     pub const MSG__GET_WINDOW_TITLEBAR_HEIGHT__SINCE: u32 = 1;
 
@@ -849,7 +1159,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// Get the window titlebar height
     #[inline]
-    pub fn send_get_window_titlebar_height(
+    pub fn try_send_get_window_titlebar_height(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -880,6 +1190,20 @@ impl TreelandPersonalizationAppearanceContextV1 {
         Ok(())
     }
 
+    /// get window titlebar height
+    ///
+    /// Get the window titlebar height
+    #[inline]
+    pub fn send_get_window_titlebar_height(
+        &self,
+    ) {
+        let res = self.try_send_get_window_titlebar_height(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.get_window_titlebar_height", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -887,7 +1211,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ///
     /// Destroy the context object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -918,13 +1242,27 @@ impl TreelandPersonalizationAppearanceContextV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the context object
+    ///
+    /// Destroy the context object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_personalization_appearance_context_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandPersonalizationAppearanceContextV1] proxies.
 pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandPersonalizationAppearanceContextV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// round corner radius event
@@ -943,11 +1281,11 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_round_corner_radius(
+        let res = _slf.try_send_round_corner_radius(
             radius,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.round_corner_radius message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.round_corner_radius", &e);
         }
     }
 
@@ -967,11 +1305,11 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_icon_theme(
+        let res = _slf.try_send_icon_theme(
             theme_name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.icon_theme message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.icon_theme", &e);
         }
     }
 
@@ -991,11 +1329,11 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_active_color(
+        let res = _slf.try_send_active_color(
             active_color,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.active_color message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.active_color", &e);
         }
     }
 
@@ -1015,11 +1353,11 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_window_opacity(
+        let res = _slf.try_send_window_opacity(
             opacity,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.window_opacity message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.window_opacity", &e);
         }
     }
 
@@ -1039,11 +1377,11 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_window_theme_type(
+        let res = _slf.try_send_window_theme_type(
             r#type,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.window_theme_type message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.window_theme_type", &e);
         }
     }
 
@@ -1063,11 +1401,11 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_window_titlebar_height(
+        let res = _slf.try_send_window_titlebar_height(
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.window_titlebar_height message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.window_titlebar_height", &e);
         }
     }
 
@@ -1087,11 +1425,11 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_round_corner_radius(
+        let res = _slf.try_send_set_round_corner_radius(
             radius,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.set_round_corner_radius message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.set_round_corner_radius", &e);
         }
     }
 
@@ -1106,10 +1444,10 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_round_corner_radius(
+        let res = _slf.try_send_get_round_corner_radius(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.get_round_corner_radius message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.get_round_corner_radius", &e);
         }
     }
 
@@ -1129,11 +1467,11 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_icon_theme(
+        let res = _slf.try_send_set_icon_theme(
             theme,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.set_icon_theme message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.set_icon_theme", &e);
         }
     }
 
@@ -1148,10 +1486,10 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_icon_theme(
+        let res = _slf.try_send_get_icon_theme(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.get_icon_theme message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.get_icon_theme", &e);
         }
     }
 
@@ -1171,11 +1509,11 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_active_color(
+        let res = _slf.try_send_set_active_color(
             color,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.set_active_color message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.set_active_color", &e);
         }
     }
 
@@ -1190,10 +1528,10 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_active_color(
+        let res = _slf.try_send_get_active_color(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.get_active_color message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.get_active_color", &e);
         }
     }
 
@@ -1213,11 +1551,11 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_window_opacity(
+        let res = _slf.try_send_set_window_opacity(
             opacity,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.set_window_opacity message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.set_window_opacity", &e);
         }
     }
 
@@ -1232,10 +1570,10 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_window_opacity(
+        let res = _slf.try_send_get_window_opacity(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.get_window_opacity message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.get_window_opacity", &e);
         }
     }
 
@@ -1255,11 +1593,11 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_window_theme_type(
+        let res = _slf.try_send_set_window_theme_type(
             r#type,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.set_window_theme_type message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.set_window_theme_type", &e);
         }
     }
 
@@ -1274,10 +1612,10 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_window_theme_type(
+        let res = _slf.try_send_get_window_theme_type(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.get_window_theme_type message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.get_window_theme_type", &e);
         }
     }
 
@@ -1297,11 +1635,11 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_window_titlebar_height(
+        let res = _slf.try_send_set_window_titlebar_height(
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.set_window_titlebar_height message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.set_window_titlebar_height", &e);
         }
     }
 
@@ -1316,10 +1654,10 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_window_titlebar_height(
+        let res = _slf.try_send_get_window_titlebar_height(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.get_window_titlebar_height message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.get_window_titlebar_height", &e);
         }
     }
 
@@ -1334,10 +1672,10 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_personalization_appearance_context_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_personalization_appearance_context_v1.destroy", &e);
         }
     }
 }
@@ -1357,7 +1695,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -48,7 +48,7 @@ impl OrgKdeKwinServerDecoration {
 
     /// release the server decoration object
     #[inline]
-    pub fn send_release(
+    pub fn try_send_release(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -80,6 +80,18 @@ impl OrgKdeKwinServerDecoration {
         Ok(())
     }
 
+    /// release the server decoration object
+    #[inline]
+    pub fn send_release(
+        &self,
+    ) {
+        let res = self.try_send_release(
+        );
+        if let Err(e) = res {
+            log_send("org_kde_kwin_server_decoration.release", &e);
+        }
+    }
+
     /// Since when the request_mode message is available.
     pub const MSG__REQUEST_MODE__SINCE: u32 = 1;
 
@@ -89,7 +101,7 @@ impl OrgKdeKwinServerDecoration {
     ///
     /// - `mode`: The mode this surface wants to use.
     #[inline]
-    pub fn send_request_mode(
+    pub fn try_send_request_mode(
         &self,
         mode: u32,
     ) -> Result<(), ObjectError> {
@@ -127,6 +139,24 @@ impl OrgKdeKwinServerDecoration {
         Ok(())
     }
 
+    /// The decoration mode the surface wants to use.
+    ///
+    /// # Arguments
+    ///
+    /// - `mode`: The mode this surface wants to use.
+    #[inline]
+    pub fn send_request_mode(
+        &self,
+        mode: u32,
+    ) {
+        let res = self.try_send_request_mode(
+            mode,
+        );
+        if let Err(e) = res {
+            log_send("org_kde_kwin_server_decoration.request_mode", &e);
+        }
+    }
+
     /// Since when the mode message is available.
     pub const MSG__MODE__SINCE: u32 = 1;
 
@@ -150,7 +180,7 @@ impl OrgKdeKwinServerDecoration {
     ///
     /// - `mode`: The decoration mode applied to the surface by the server.
     #[inline]
-    pub fn send_mode(
+    pub fn try_send_mode(
         &self,
         mode: u32,
     ) -> Result<(), ObjectError> {
@@ -189,13 +219,45 @@ impl OrgKdeKwinServerDecoration {
         ]);
         Ok(())
     }
+
+    /// The new decoration mode applied by the server
+    ///
+    /// This event is emitted directly after the decoration is created and
+    /// represents the base decoration policy by the server. E.g. a server
+    /// which wants all surfaces to be client-side decorated will send Client,
+    /// a server which wants server-side decoration will send Server.
+    ///
+    /// The client can request a different mode through the decoration request.
+    /// The server will acknowledge this by another event with the same mode. So
+    /// even if a server prefers server-side decoration it's possible to force a
+    /// client-side decoration.
+    ///
+    /// The server may emit this event at any time. In this case the client can
+    /// again request a different mode. It's the responsibility of the server to
+    /// prevent a feedback loop.
+    ///
+    /// # Arguments
+    ///
+    /// - `mode`: The decoration mode applied to the surface by the server.
+    #[inline]
+    pub fn send_mode(
+        &self,
+        mode: u32,
+    ) {
+        let res = self.try_send_mode(
+            mode,
+        );
+        if let Err(e) = res {
+            log_send("org_kde_kwin_server_decoration.mode", &e);
+        }
+    }
 }
 
 /// A message handler for [OrgKdeKwinServerDecoration] proxies.
 pub trait OrgKdeKwinServerDecorationHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<OrgKdeKwinServerDecoration>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// release the server decoration object
@@ -207,10 +269,10 @@ pub trait OrgKdeKwinServerDecorationHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_release(
+        let res = _slf.try_send_release(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a org_kde_kwin_server_decoration.release message: {}", Report::new(e));
+            log_forward("org_kde_kwin_server_decoration.release", &e);
         }
     }
 
@@ -228,11 +290,11 @@ pub trait OrgKdeKwinServerDecorationHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_request_mode(
+        let res = _slf.try_send_request_mode(
             mode,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a org_kde_kwin_server_decoration.request_mode message: {}", Report::new(e));
+            log_forward("org_kde_kwin_server_decoration.request_mode", &e);
         }
     }
 
@@ -264,11 +326,11 @@ pub trait OrgKdeKwinServerDecorationHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_mode(
+        let res = _slf.try_send_mode(
             mode,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a org_kde_kwin_server_decoration.mode message: {}", Report::new(e));
+            log_forward("org_kde_kwin_server_decoration.mode", &e);
         }
     }
 }
@@ -288,7 +350,7 @@ impl ObjectPrivate for OrgKdeKwinServerDecoration {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

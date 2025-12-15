@@ -85,7 +85,7 @@ impl ExtWorkspaceHandleV1 {
     ///
     /// - `id`:
     #[inline]
-    pub fn send_id(
+    pub fn try_send_id(
         &self,
         id: &str,
     ) -> Result<(), ObjectError> {
@@ -125,6 +125,38 @@ impl ExtWorkspaceHandleV1 {
         Ok(())
     }
 
+    /// workspace id
+    ///
+    /// If this event is emitted, it will be send immediately after the
+    /// ext_workspace_handle_v1 is created or when an id is assigned to
+    /// a workspace (at most once during it's lifetime).
+    ///
+    /// An id will never change during the lifetime of the `ext_workspace_handle_v1`
+    /// and is guaranteed to be unique during it's lifetime.
+    ///
+    /// Ids are not human-readable and shouldn't be displayed, use `name` for that purpose.
+    ///
+    /// Compositors are expected to only send ids for workspaces likely stable across multiple
+    /// sessions and can be used by clients to store preferences for workspaces. Workspaces without
+    /// ids should be considered temporary and any data associated with them should be deleted once
+    /// the respective object is lost.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    #[inline]
+    pub fn send_id(
+        &self,
+        id: &str,
+    ) {
+        let res = self.try_send_id(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("ext_workspace_handle_v1.id", &e);
+        }
+    }
+
     /// Since when the name message is available.
     pub const MSG__NAME__SINCE: u32 = 1;
 
@@ -140,7 +172,7 @@ impl ExtWorkspaceHandleV1 {
     ///
     /// - `name`:
     #[inline]
-    pub fn send_name(
+    pub fn try_send_name(
         &self,
         name: &str,
     ) -> Result<(), ObjectError> {
@@ -180,6 +212,30 @@ impl ExtWorkspaceHandleV1 {
         Ok(())
     }
 
+    /// workspace name changed
+    ///
+    /// This event is emitted immediately after the ext_workspace_handle_v1 is
+    /// created and whenever the name of the workspace changes.
+    ///
+    /// A name is meant to be human-readable and can be displayed to a user.
+    /// Unlike the id it is neither stable nor unique.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`:
+    #[inline]
+    pub fn send_name(
+        &self,
+        name: &str,
+    ) {
+        let res = self.try_send_name(
+            name,
+        );
+        if let Err(e) = res {
+            log_send("ext_workspace_handle_v1.name", &e);
+        }
+    }
+
     /// Since when the coordinates message is available.
     pub const MSG__COORDINATES__SINCE: u32 = 1;
 
@@ -208,7 +264,7 @@ impl ExtWorkspaceHandleV1 {
     ///
     /// - `coordinates`:
     #[inline]
-    pub fn send_coordinates(
+    pub fn try_send_coordinates(
         &self,
         coordinates: &[u8],
     ) -> Result<(), ObjectError> {
@@ -248,6 +304,43 @@ impl ExtWorkspaceHandleV1 {
         Ok(())
     }
 
+    /// workspace coordinates changed
+    ///
+    /// This event is used to organize workspaces into an N-dimensional grid
+    /// within a workspace group, and if supported, is emitted immediately after
+    /// the ext_workspace_handle_v1 is created and whenever the coordinates of
+    /// the workspace change. Compositors may not send this event if they do not
+    /// conceptually arrange workspaces in this way. If compositors simply
+    /// number workspaces, without any geometric interpretation, they may send
+    /// 1D coordinates, which clients should not interpret as implying any
+    /// geometry. Sending an empty array means that the compositor no longer
+    /// orders the workspace geometrically.
+    ///
+    /// Coordinates have an arbitrary number of dimensions N with an uint32
+    /// position along each dimension. By convention if N > 1, the first
+    /// dimension is X, the second Y, the third Z, and so on. The compositor may
+    /// chose to utilize these events for a more novel workspace layout
+    /// convention, however. No guarantee is made about the grid being filled or
+    /// bounded; there may be a workspace at coordinate 1 and another at
+    /// coordinate 1000 and none in between. Within a workspace group, however,
+    /// workspaces must have unique coordinates of equal dimensionality.
+    ///
+    /// # Arguments
+    ///
+    /// - `coordinates`:
+    #[inline]
+    pub fn send_coordinates(
+        &self,
+        coordinates: &[u8],
+    ) {
+        let res = self.try_send_coordinates(
+            coordinates,
+        );
+        if let Err(e) = res {
+            log_send("ext_workspace_handle_v1.coordinates", &e);
+        }
+    }
+
     /// Since when the state message is available.
     pub const MSG__STATE__SINCE: u32 = 1;
 
@@ -264,7 +357,7 @@ impl ExtWorkspaceHandleV1 {
     ///
     /// - `state`:
     #[inline]
-    pub fn send_state(
+    pub fn try_send_state(
         &self,
         state: ExtWorkspaceHandleV1State,
     ) -> Result<(), ObjectError> {
@@ -304,6 +397,31 @@ impl ExtWorkspaceHandleV1 {
         Ok(())
     }
 
+    /// the state of the workspace changed
+    ///
+    /// This event is emitted immediately after the ext_workspace_handle_v1 is
+    /// created and each time the workspace state changes, either because of a
+    /// compositor action or because of a request in this protocol.
+    ///
+    /// Missing states convey the opposite meaning, e.g. an unset active bit
+    /// means the workspace is currently inactive.
+    ///
+    /// # Arguments
+    ///
+    /// - `state`:
+    #[inline]
+    pub fn send_state(
+        &self,
+        state: ExtWorkspaceHandleV1State,
+    ) {
+        let res = self.try_send_state(
+            state,
+        );
+        if let Err(e) = res {
+            log_send("ext_workspace_handle_v1.state", &e);
+        }
+    }
+
     /// Since when the capabilities message is available.
     pub const MSG__CAPABILITIES__SINCE: u32 = 1;
 
@@ -327,7 +445,7 @@ impl ExtWorkspaceHandleV1 {
     ///
     /// - `capabilities`: capabilities
     #[inline]
-    pub fn send_capabilities(
+    pub fn try_send_capabilities(
         &self,
         capabilities: ExtWorkspaceHandleV1WorkspaceCapabilities,
     ) -> Result<(), ObjectError> {
@@ -367,6 +485,38 @@ impl ExtWorkspaceHandleV1 {
         Ok(())
     }
 
+    /// compositor capabilities
+    ///
+    /// This event advertises the capabilities supported by the compositor. If
+    /// a capability isn't supported, clients should hide or disable the UI
+    /// elements that expose this functionality. For instance, if the
+    /// compositor doesn't advertise support for removing workspaces, a button
+    /// triggering the remove request should not be displayed.
+    ///
+    /// The compositor will ignore requests it doesn't support. For instance,
+    /// a compositor which doesn't advertise support for remove will ignore
+    /// remove requests.
+    ///
+    /// Compositors must send this event once after creation of an
+    /// ext_workspace_handle_v1 . When the capabilities change, compositors
+    /// must send this event again.
+    ///
+    /// # Arguments
+    ///
+    /// - `capabilities`: capabilities
+    #[inline]
+    pub fn send_capabilities(
+        &self,
+        capabilities: ExtWorkspaceHandleV1WorkspaceCapabilities,
+    ) {
+        let res = self.try_send_capabilities(
+            capabilities,
+        );
+        if let Err(e) = res {
+            log_send("ext_workspace_handle_v1.capabilities", &e);
+        }
+    }
+
     /// Since when the removed message is available.
     pub const MSG__REMOVED__SINCE: u32 = 1;
 
@@ -382,7 +532,7 @@ impl ExtWorkspaceHandleV1 {
     /// The compositor must only remove a workspaces not currently belonging to any
     /// workspace_group.
     #[inline]
-    pub fn send_removed(
+    pub fn try_send_removed(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -415,6 +565,28 @@ impl ExtWorkspaceHandleV1 {
         Ok(())
     }
 
+    /// this workspace has been removed
+    ///
+    /// This event is send when the workspace associated with the ext_workspace_handle_v1
+    /// has been removed. After sending this request, the compositor will immediately consider
+    /// the object inert. Any requests will be ignored except the destroy request.
+    ///
+    /// It is guaranteed there won't be any more events referencing this
+    /// ext_workspace_handle_v1.
+    ///
+    /// The compositor must only remove a workspaces not currently belonging to any
+    /// workspace_group.
+    #[inline]
+    pub fn send_removed(
+        &self,
+    ) {
+        let res = self.try_send_removed(
+        );
+        if let Err(e) = res {
+            log_send("ext_workspace_handle_v1.removed", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -426,7 +598,7 @@ impl ExtWorkspaceHandleV1 {
     /// use the workspace object any more or after the remove event to finalize
     /// the destruction of the object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -458,6 +630,24 @@ impl ExtWorkspaceHandleV1 {
         Ok(())
     }
 
+    /// destroy the ext_workspace_handle_v1 object
+    ///
+    /// Destroys the ext_workspace_handle_v1 object.
+    ///
+    /// This request should be made either when the client does not want to
+    /// use the workspace object any more or after the remove event to finalize
+    /// the destruction of the object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_workspace_handle_v1.destroy", &e);
+        }
+    }
+
     /// Since when the activate message is available.
     pub const MSG__ACTIVATE__SINCE: u32 = 1;
 
@@ -470,7 +660,7 @@ impl ExtWorkspaceHandleV1 {
     /// workspace may or may not deactivate all other workspaces in the same
     /// group.
     #[inline]
-    pub fn send_activate(
+    pub fn try_send_activate(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -501,6 +691,25 @@ impl ExtWorkspaceHandleV1 {
         Ok(())
     }
 
+    /// activate the workspace
+    ///
+    /// Request that this workspace be activated.
+    ///
+    /// There is no guarantee the workspace will be actually activated, and
+    /// behaviour may be compositor-dependent. For example, activating a
+    /// workspace may or may not deactivate all other workspaces in the same
+    /// group.
+    #[inline]
+    pub fn send_activate(
+        &self,
+    ) {
+        let res = self.try_send_activate(
+        );
+        if let Err(e) = res {
+            log_send("ext_workspace_handle_v1.activate", &e);
+        }
+    }
+
     /// Since when the deactivate message is available.
     pub const MSG__DEACTIVATE__SINCE: u32 = 1;
 
@@ -510,7 +719,7 @@ impl ExtWorkspaceHandleV1 {
     ///
     /// There is no guarantee the workspace will be actually deactivated.
     #[inline]
-    pub fn send_deactivate(
+    pub fn try_send_deactivate(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -541,6 +750,22 @@ impl ExtWorkspaceHandleV1 {
         Ok(())
     }
 
+    /// deactivate the workspace
+    ///
+    /// Request that this workspace be deactivated.
+    ///
+    /// There is no guarantee the workspace will be actually deactivated.
+    #[inline]
+    pub fn send_deactivate(
+        &self,
+    ) {
+        let res = self.try_send_deactivate(
+        );
+        if let Err(e) = res {
+            log_send("ext_workspace_handle_v1.deactivate", &e);
+        }
+    }
+
     /// Since when the assign message is available.
     pub const MSG__ASSIGN__SINCE: u32 = 1;
 
@@ -554,7 +779,7 @@ impl ExtWorkspaceHandleV1 {
     ///
     /// - `workspace_group`:
     #[inline]
-    pub fn send_assign(
+    pub fn try_send_assign(
         &self,
         workspace_group: &Rc<ExtWorkspaceGroupHandleV1>,
     ) -> Result<(), ObjectError> {
@@ -597,6 +822,28 @@ impl ExtWorkspaceHandleV1 {
         Ok(())
     }
 
+    /// assign workspace to group
+    ///
+    /// Requests that this workspace is assigned to the given workspace group.
+    ///
+    /// There is no guarantee the workspace will be assigned.
+    ///
+    /// # Arguments
+    ///
+    /// - `workspace_group`:
+    #[inline]
+    pub fn send_assign(
+        &self,
+        workspace_group: &Rc<ExtWorkspaceGroupHandleV1>,
+    ) {
+        let res = self.try_send_assign(
+            workspace_group,
+        );
+        if let Err(e) = res {
+            log_send("ext_workspace_handle_v1.assign", &e);
+        }
+    }
+
     /// Since when the remove message is available.
     pub const MSG__REMOVE__SINCE: u32 = 1;
 
@@ -606,7 +853,7 @@ impl ExtWorkspaceHandleV1 {
     ///
     /// There is no guarantee the workspace will be actually removed.
     #[inline]
-    pub fn send_remove(
+    pub fn try_send_remove(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -636,13 +883,29 @@ impl ExtWorkspaceHandleV1 {
         ]);
         Ok(())
     }
+
+    /// remove the workspace
+    ///
+    /// Request that this workspace be removed.
+    ///
+    /// There is no guarantee the workspace will be actually removed.
+    #[inline]
+    pub fn send_remove(
+        &self,
+    ) {
+        let res = self.try_send_remove(
+        );
+        if let Err(e) = res {
+            log_send("ext_workspace_handle_v1.remove", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtWorkspaceHandleV1] proxies.
 pub trait ExtWorkspaceHandleV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtWorkspaceHandleV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// workspace id
@@ -673,11 +936,11 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_id(
+        let res = _slf.try_send_id(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_workspace_handle_v1.id message: {}", Report::new(e));
+            log_forward("ext_workspace_handle_v1.id", &e);
         }
     }
 
@@ -701,11 +964,11 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_name(
+        let res = _slf.try_send_name(
             name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_workspace_handle_v1.name message: {}", Report::new(e));
+            log_forward("ext_workspace_handle_v1.name", &e);
         }
     }
 
@@ -742,11 +1005,11 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_coordinates(
+        let res = _slf.try_send_coordinates(
             coordinates,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_workspace_handle_v1.coordinates message: {}", Report::new(e));
+            log_forward("ext_workspace_handle_v1.coordinates", &e);
         }
     }
 
@@ -771,11 +1034,11 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_state(
+        let res = _slf.try_send_state(
             state,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_workspace_handle_v1.state message: {}", Report::new(e));
+            log_forward("ext_workspace_handle_v1.state", &e);
         }
     }
 
@@ -807,11 +1070,11 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_capabilities(
+        let res = _slf.try_send_capabilities(
             capabilities,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_workspace_handle_v1.capabilities message: {}", Report::new(e));
+            log_forward("ext_workspace_handle_v1.capabilities", &e);
         }
     }
 
@@ -834,10 +1097,10 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_removed(
+        let res = _slf.try_send_removed(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_workspace_handle_v1.removed message: {}", Report::new(e));
+            log_forward("ext_workspace_handle_v1.removed", &e);
         }
     }
 
@@ -856,10 +1119,10 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_workspace_handle_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_workspace_handle_v1.destroy", &e);
         }
     }
 
@@ -879,10 +1142,10 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_activate(
+        let res = _slf.try_send_activate(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_workspace_handle_v1.activate message: {}", Report::new(e));
+            log_forward("ext_workspace_handle_v1.activate", &e);
         }
     }
 
@@ -899,10 +1162,10 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_deactivate(
+        let res = _slf.try_send_deactivate(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_workspace_handle_v1.deactivate message: {}", Report::new(e));
+            log_forward("ext_workspace_handle_v1.deactivate", &e);
         }
     }
 
@@ -927,11 +1190,11 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_assign(
+        let res = _slf.try_send_assign(
             workspace_group,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_workspace_handle_v1.assign message: {}", Report::new(e));
+            log_forward("ext_workspace_handle_v1.assign", &e);
         }
     }
 
@@ -948,10 +1211,10 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_remove(
+        let res = _slf.try_send_remove(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_workspace_handle_v1.remove message: {}", Report::new(e));
+            log_forward("ext_workspace_handle_v1.remove", &e);
         }
     }
 }
@@ -971,7 +1234,7 @@ impl ObjectPrivate for ExtWorkspaceHandleV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -55,7 +55,7 @@ impl WlproxySyncV1 {
 
     /// destroy this object
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -87,6 +87,18 @@ impl WlproxySyncV1 {
         Ok(())
     }
 
+    /// destroy this object
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wlproxy_sync_v1.destroy", &e);
+        }
+    }
+
     /// Since when the sync_with_proxy message is available.
     pub const MSG__SYNC_WITH_PROXY__SINCE: u32 = 1;
 
@@ -102,7 +114,7 @@ impl WlproxySyncV1 {
     /// - `id_hi`: upper 32 bits of the id
     /// - `id_lo`: lower 32 bits of the id
     #[inline]
-    pub fn send_sync_with_proxy(
+    pub fn try_send_sync_with_proxy(
         &self,
         id_hi: u32,
         id_lo: u32,
@@ -144,6 +156,32 @@ impl WlproxySyncV1 {
         Ok(())
     }
 
+    /// synchronize from the client to the proxy
+    ///
+    /// This request can be used to synchronize messages between the client
+    /// and the proxy.
+    ///
+    /// The id_hi and id_lo arguments form an opaque 64-bit number.
+    ///
+    /// # Arguments
+    ///
+    /// - `id_hi`: upper 32 bits of the id
+    /// - `id_lo`: lower 32 bits of the id
+    #[inline]
+    pub fn send_sync_with_proxy(
+        &self,
+        id_hi: u32,
+        id_lo: u32,
+    ) {
+        let res = self.try_send_sync_with_proxy(
+            id_hi,
+            id_lo,
+        );
+        if let Err(e) = res {
+            log_send("wlproxy_sync_v1.sync_with_proxy", &e);
+        }
+    }
+
     /// Since when the sync_with_client message is available.
     pub const MSG__SYNC_WITH_CLIENT__SINCE: u32 = 1;
 
@@ -159,7 +197,7 @@ impl WlproxySyncV1 {
     /// - `id_hi`: upper 32 bits of the id
     /// - `id_lo`: lower 32 bits of the id
     #[inline]
-    pub fn send_sync_with_client(
+    pub fn try_send_sync_with_client(
         &self,
         id_hi: u32,
         id_lo: u32,
@@ -202,13 +240,39 @@ impl WlproxySyncV1 {
         ]);
         Ok(())
     }
+
+    /// synchronize from the proxy to the client
+    ///
+    /// This event can be used to synchronize messages between the client
+    /// and the proxy.
+    ///
+    /// The id_hi and id_lo arguments form an opaque 64-bit number.
+    ///
+    /// # Arguments
+    ///
+    /// - `id_hi`: upper 32 bits of the id
+    /// - `id_lo`: lower 32 bits of the id
+    #[inline]
+    pub fn send_sync_with_client(
+        &self,
+        id_hi: u32,
+        id_lo: u32,
+    ) {
+        let res = self.try_send_sync_with_client(
+            id_hi,
+            id_lo,
+        );
+        if let Err(e) = res {
+            log_send("wlproxy_sync_v1.sync_with_client", &e);
+        }
+    }
 }
 
 /// A message handler for [WlproxySyncV1] proxies.
 pub trait WlproxySyncV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlproxySyncV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy this object
@@ -220,10 +284,10 @@ pub trait WlproxySyncV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wlproxy_sync_v1.destroy message: {}", Report::new(e));
+            log_forward("wlproxy_sync_v1.destroy", &e);
         }
     }
 
@@ -248,12 +312,12 @@ pub trait WlproxySyncV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_sync_with_proxy(
+        let res = _slf.try_send_sync_with_proxy(
             id_hi,
             id_lo,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wlproxy_sync_v1.sync_with_proxy message: {}", Report::new(e));
+            log_forward("wlproxy_sync_v1.sync_with_proxy", &e);
         }
     }
 
@@ -278,12 +342,12 @@ pub trait WlproxySyncV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_sync_with_client(
+        let res = _slf.try_send_sync_with_client(
             id_hi,
             id_lo,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wlproxy_sync_v1.sync_with_client message: {}", Report::new(e));
+            log_forward("wlproxy_sync_v1.sync_with_client", &e);
         }
     }
 }
@@ -303,7 +367,7 @@ impl ObjectPrivate for WlproxySyncV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

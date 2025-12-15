@@ -84,7 +84,7 @@ impl ZwpLinuxBufferReleaseV1 {
     ///
     /// - `fence`: fence for last operation on buffer
     #[inline]
-    pub fn send_fenced_release(
+    pub fn try_send_fenced_release(
         &self,
         fence: &Rc<OwnedFd>,
     ) -> Result<(), ObjectError> {
@@ -128,6 +128,36 @@ impl ZwpLinuxBufferReleaseV1 {
         Ok(())
     }
 
+    /// release buffer with fence
+    ///
+    /// Sent when the compositor has finalised its usage of the associated
+    /// buffer for the relevant commit, providing a dma_fence which will be
+    /// signaled when all operations by the compositor on that buffer for that
+    /// commit have finished.
+    ///
+    /// Once the fence has signaled, and assuming the associated buffer is not
+    /// pending release from other wl_surface.commit requests, no additional
+    /// explicit or implicit synchronization is required to safely reuse or
+    /// destroy the buffer.
+    ///
+    /// This event destroys the zwp_linux_buffer_release_v1 object.
+    ///
+    /// # Arguments
+    ///
+    /// - `fence`: fence for last operation on buffer
+    #[inline]
+    pub fn send_fenced_release(
+        &self,
+        fence: &Rc<OwnedFd>,
+    ) {
+        let res = self.try_send_fenced_release(
+            fence,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_buffer_release_v1.fenced_release", &e);
+        }
+    }
+
     /// Since when the immediate_release message is available.
     pub const MSG__IMMEDIATE_RELEASE__SINCE: u32 = 1;
 
@@ -145,7 +175,7 @@ impl ZwpLinuxBufferReleaseV1 {
     ///
     /// This event destroys the zwp_linux_buffer_release_v1 object.
     #[inline]
-    pub fn send_immediate_release(
+    pub fn try_send_immediate_release(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -181,13 +211,37 @@ impl ZwpLinuxBufferReleaseV1 {
         self.core.handle_client_destroy();
         Ok(())
     }
+
+    /// release buffer immediately
+    ///
+    /// Sent when the compositor has finalised its usage of the associated
+    /// buffer for the relevant commit, and either performed no operations
+    /// using it, or has a guarantee that all its operations on that buffer for
+    /// that commit have finished.
+    ///
+    /// Once this event is received, and assuming the associated buffer is not
+    /// pending release from other wl_surface.commit requests, no additional
+    /// explicit or implicit synchronization is required to safely reuse or
+    /// destroy the buffer.
+    ///
+    /// This event destroys the zwp_linux_buffer_release_v1 object.
+    #[inline]
+    pub fn send_immediate_release(
+        &self,
+    ) {
+        let res = self.try_send_immediate_release(
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_buffer_release_v1.immediate_release", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpLinuxBufferReleaseV1] proxies.
 pub trait ZwpLinuxBufferReleaseV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpLinuxBufferReleaseV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// release buffer with fence
@@ -216,11 +270,11 @@ pub trait ZwpLinuxBufferReleaseV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_fenced_release(
+        let res = _slf.try_send_fenced_release(
             fence,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_buffer_release_v1.fenced_release message: {}", Report::new(e));
+            log_forward("zwp_linux_buffer_release_v1.fenced_release", &e);
         }
     }
 
@@ -245,10 +299,10 @@ pub trait ZwpLinuxBufferReleaseV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_immediate_release(
+        let res = _slf.try_send_immediate_release(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_buffer_release_v1.immediate_release message: {}", Report::new(e));
+            log_forward("zwp_linux_buffer_release_v1.immediate_release", &e);
         }
     }
 }
@@ -268,7 +322,7 @@ impl ObjectPrivate for ZwpLinuxBufferReleaseV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

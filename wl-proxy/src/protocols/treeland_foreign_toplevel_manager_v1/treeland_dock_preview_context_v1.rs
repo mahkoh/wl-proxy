@@ -59,7 +59,7 @@ impl TreelandDockPreviewContextV1 {
     ///
     /// This event is sent after mouse enter preview box.
     #[inline]
-    pub fn send_enter(
+    pub fn try_send_enter(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -92,6 +92,20 @@ impl TreelandDockPreviewContextV1 {
         Ok(())
     }
 
+    /// enter preview box
+    ///
+    /// This event is sent after mouse enter preview box.
+    #[inline]
+    pub fn send_enter(
+        &self,
+    ) {
+        let res = self.try_send_enter(
+        );
+        if let Err(e) = res {
+            log_send("treeland_dock_preview_context_v1.enter", &e);
+        }
+    }
+
     /// Since when the leave message is available.
     pub const MSG__LEAVE__SINCE: u32 = 1;
 
@@ -99,7 +113,7 @@ impl TreelandDockPreviewContextV1 {
     ///
     /// This event is sent after mouse leave preview box.
     #[inline]
-    pub fn send_leave(
+    pub fn try_send_leave(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -132,6 +146,20 @@ impl TreelandDockPreviewContextV1 {
         Ok(())
     }
 
+    /// leave preview box
+    ///
+    /// This event is sent after mouse leave preview box.
+    #[inline]
+    pub fn send_leave(
+        &self,
+    ) {
+        let res = self.try_send_leave(
+        );
+        if let Err(e) = res {
+            log_send("treeland_dock_preview_context_v1.leave", &e);
+        }
+    }
+
     /// Since when the show message is available.
     pub const MSG__SHOW__SINCE: u32 = 1;
 
@@ -147,7 +175,7 @@ impl TreelandDockPreviewContextV1 {
     /// - `y`:
     /// - `direction`:
     #[inline]
-    pub fn send_show(
+    pub fn try_send_show(
         &self,
         surfaces: &[u8],
         x: i32,
@@ -199,6 +227,36 @@ impl TreelandDockPreviewContextV1 {
         Ok(())
     }
 
+    /// set preview surfaces
+    ///
+    /// X and Y are relative to the relative_surface.
+    /// surfaces wl_array is identifiers.
+    ///
+    /// # Arguments
+    ///
+    /// - `surfaces`:
+    /// - `x`:
+    /// - `y`:
+    /// - `direction`:
+    #[inline]
+    pub fn send_show(
+        &self,
+        surfaces: &[u8],
+        x: i32,
+        y: i32,
+        direction: u32,
+    ) {
+        let res = self.try_send_show(
+            surfaces,
+            x,
+            y,
+            direction,
+        );
+        if let Err(e) = res {
+            log_send("treeland_dock_preview_context_v1.show", &e);
+        }
+    }
+
     /// Since when the show_tooltip message is available.
     pub const MSG__SHOW_TOOLTIP__SINCE: u32 = 1;
 
@@ -209,7 +267,7 @@ impl TreelandDockPreviewContextV1 {
     /// - `y`:
     /// - `direction`:
     #[inline]
-    pub fn send_show_tooltip(
+    pub fn try_send_show_tooltip(
         &self,
         tooltip: &str,
         x: i32,
@@ -261,6 +319,31 @@ impl TreelandDockPreviewContextV1 {
         Ok(())
     }
 
+    /// # Arguments
+    ///
+    /// - `tooltip`:
+    /// - `x`:
+    /// - `y`:
+    /// - `direction`:
+    #[inline]
+    pub fn send_show_tooltip(
+        &self,
+        tooltip: &str,
+        x: i32,
+        y: i32,
+        direction: u32,
+    ) {
+        let res = self.try_send_show_tooltip(
+            tooltip,
+            x,
+            y,
+            direction,
+        );
+        if let Err(e) = res {
+            log_send("treeland_dock_preview_context_v1.show_tooltip", &e);
+        }
+    }
+
     /// Since when the close message is available.
     pub const MSG__CLOSE__SINCE: u32 = 1;
 
@@ -268,7 +351,7 @@ impl TreelandDockPreviewContextV1 {
     ///
     /// close preview box
     #[inline]
-    pub fn send_close(
+    pub fn try_send_close(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -299,6 +382,20 @@ impl TreelandDockPreviewContextV1 {
         Ok(())
     }
 
+    /// close preview box
+    ///
+    /// close preview box
+    #[inline]
+    pub fn send_close(
+        &self,
+    ) {
+        let res = self.try_send_close(
+        );
+        if let Err(e) = res {
+            log_send("treeland_dock_preview_context_v1.close", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -306,7 +403,7 @@ impl TreelandDockPreviewContextV1 {
     ///
     /// Destroy the context object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -337,13 +434,27 @@ impl TreelandDockPreviewContextV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the context object
+    ///
+    /// Destroy the context object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_dock_preview_context_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandDockPreviewContextV1] proxies.
 pub trait TreelandDockPreviewContextV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandDockPreviewContextV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// enter preview box
@@ -357,10 +468,10 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_enter(
+        let res = _slf.try_send_enter(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dock_preview_context_v1.enter message: {}", Report::new(e));
+            log_forward("treeland_dock_preview_context_v1.enter", &e);
         }
     }
 
@@ -375,10 +486,10 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_leave(
+        let res = _slf.try_send_leave(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dock_preview_context_v1.leave message: {}", Report::new(e));
+            log_forward("treeland_dock_preview_context_v1.leave", &e);
         }
     }
 
@@ -405,14 +516,14 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_show(
+        let res = _slf.try_send_show(
             surfaces,
             x,
             y,
             direction,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dock_preview_context_v1.show message: {}", Report::new(e));
+            log_forward("treeland_dock_preview_context_v1.show", &e);
         }
     }
 
@@ -434,14 +545,14 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_show_tooltip(
+        let res = _slf.try_send_show_tooltip(
             tooltip,
             x,
             y,
             direction,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dock_preview_context_v1.show_tooltip message: {}", Report::new(e));
+            log_forward("treeland_dock_preview_context_v1.show_tooltip", &e);
         }
     }
 
@@ -456,10 +567,10 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_close(
+        let res = _slf.try_send_close(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dock_preview_context_v1.close message: {}", Report::new(e));
+            log_forward("treeland_dock_preview_context_v1.close", &e);
         }
     }
 
@@ -474,10 +585,10 @@ pub trait TreelandDockPreviewContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_dock_preview_context_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_dock_preview_context_v1.destroy", &e);
         }
     }
 }
@@ -497,7 +608,7 @@ impl ObjectPrivate for TreelandDockPreviewContextV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

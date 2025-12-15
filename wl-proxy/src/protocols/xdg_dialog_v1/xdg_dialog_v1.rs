@@ -64,7 +64,7 @@ impl XdgDialogV1 {
     /// before the related xdg_toplevel, the compositor should unapply its
     /// effects.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -96,6 +96,22 @@ impl XdgDialogV1 {
         Ok(())
     }
 
+    /// destroy the dialog object
+    ///
+    /// Destroys the xdg_dialog_v1 object. If this object is destroyed
+    /// before the related xdg_toplevel, the compositor should unapply its
+    /// effects.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("xdg_dialog_v1.destroy", &e);
+        }
+    }
+
     /// Since when the set_modal message is available.
     pub const MSG__SET_MODAL__SINCE: u32 = 1;
 
@@ -113,7 +129,7 @@ impl XdgDialogV1 {
     /// toplevel, from delivering all events unfiltered to using them for
     /// internal consumption.
     #[inline]
-    pub fn send_set_modal(
+    pub fn try_send_set_modal(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -144,6 +160,30 @@ impl XdgDialogV1 {
         Ok(())
     }
 
+    /// mark dialog as modal
+    ///
+    /// Hints that the dialog has "modal" behavior. Modal dialogs typically
+    /// require to be fully addressed by the user (i.e. closed) before resuming
+    /// interaction with the parent toplevel, and may require a distinct
+    /// presentation.
+    ///
+    /// Clients must implement the logic to filter events in the parent
+    /// toplevel on their own.
+    ///
+    /// Compositors may choose any policy in event delivery to the parent
+    /// toplevel, from delivering all events unfiltered to using them for
+    /// internal consumption.
+    #[inline]
+    pub fn send_set_modal(
+        &self,
+    ) {
+        let res = self.try_send_set_modal(
+        );
+        if let Err(e) = res {
+            log_send("xdg_dialog_v1.set_modal", &e);
+        }
+    }
+
     /// Since when the unset_modal message is available.
     pub const MSG__UNSET_MODAL__SINCE: u32 = 1;
 
@@ -152,7 +192,7 @@ impl XdgDialogV1 {
     /// Drops the hint that this dialog has "modal" behavior. See
     /// xdg_dialog_v1.set_modal for more details.
     #[inline]
-    pub fn send_unset_modal(
+    pub fn try_send_unset_modal(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -182,13 +222,28 @@ impl XdgDialogV1 {
         ]);
         Ok(())
     }
+
+    /// mark dialog as not modal
+    ///
+    /// Drops the hint that this dialog has "modal" behavior. See
+    /// xdg_dialog_v1.set_modal for more details.
+    #[inline]
+    pub fn send_unset_modal(
+        &self,
+    ) {
+        let res = self.try_send_unset_modal(
+        );
+        if let Err(e) = res {
+            log_send("xdg_dialog_v1.unset_modal", &e);
+        }
+    }
 }
 
 /// A message handler for [XdgDialogV1] proxies.
 pub trait XdgDialogV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgDialogV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the dialog object
@@ -204,10 +259,10 @@ pub trait XdgDialogV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_dialog_v1.destroy message: {}", Report::new(e));
+            log_forward("xdg_dialog_v1.destroy", &e);
         }
     }
 
@@ -232,10 +287,10 @@ pub trait XdgDialogV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_modal(
+        let res = _slf.try_send_set_modal(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_dialog_v1.set_modal message: {}", Report::new(e));
+            log_forward("xdg_dialog_v1.set_modal", &e);
         }
     }
 
@@ -251,10 +306,10 @@ pub trait XdgDialogV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_unset_modal(
+        let res = _slf.try_send_unset_modal(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_dialog_v1.unset_modal message: {}", Report::new(e));
+            log_forward("xdg_dialog_v1.unset_modal", &e);
         }
     }
 }
@@ -274,7 +329,7 @@ impl ObjectPrivate for XdgDialogV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

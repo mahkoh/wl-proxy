@@ -56,7 +56,7 @@ impl HyprlandLockNotifierV1 {
     /// Destroy the manager object. All objects created via this interface
     /// remain valid.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -88,6 +88,21 @@ impl HyprlandLockNotifierV1 {
         Ok(())
     }
 
+    /// destroy the manager
+    ///
+    /// Destroy the manager object. All objects created via this interface
+    /// remain valid.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_lock_notifier_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_lock_notification message is available.
     pub const MSG__GET_LOCK_NOTIFICATION__SINCE: u32 = 1;
 
@@ -98,7 +113,7 @@ impl HyprlandLockNotifierV1 {
     /// If the session is already locked when calling this method,
     /// the locked event shall be sent immediately.
     #[inline]
-    pub fn send_get_lock_notification(
+    pub fn try_send_get_lock_notification(
         &self,
         id: &Rc<HyprlandLockNotificationV1>,
     ) -> Result<(), ObjectError> {
@@ -140,13 +155,32 @@ impl HyprlandLockNotifierV1 {
         ]);
         Ok(())
     }
+
+    /// create a notification object
+    ///
+    /// Create a new lock notification object.
+    ///
+    /// If the session is already locked when calling this method,
+    /// the locked event shall be sent immediately.
+    #[inline]
+    pub fn send_get_lock_notification(
+        &self,
+        id: &Rc<HyprlandLockNotificationV1>,
+    ) {
+        let res = self.try_send_get_lock_notification(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_lock_notifier_v1.get_lock_notification", &e);
+        }
+    }
 }
 
 /// A message handler for [HyprlandLockNotifierV1] proxies.
 pub trait HyprlandLockNotifierV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandLockNotifierV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the manager
@@ -161,10 +195,10 @@ pub trait HyprlandLockNotifierV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_lock_notifier_v1.destroy message: {}", Report::new(e));
+            log_forward("hyprland_lock_notifier_v1.destroy", &e);
         }
     }
 
@@ -187,11 +221,11 @@ pub trait HyprlandLockNotifierV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_lock_notification(
+        let res = _slf.try_send_get_lock_notification(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_lock_notifier_v1.get_lock_notification message: {}", Report::new(e));
+            log_forward("hyprland_lock_notifier_v1.get_lock_notification", &e);
         }
     }
 }
@@ -211,7 +245,7 @@ impl ObjectPrivate for HyprlandLockNotifierV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

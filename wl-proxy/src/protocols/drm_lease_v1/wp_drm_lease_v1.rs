@@ -74,7 +74,7 @@ impl WpDrmLeaseV1 {
     ///
     /// - `leased_fd`: leased DRM file descriptor
     #[inline]
-    pub fn send_lease_fd(
+    pub fn try_send_lease_fd(
         &self,
         leased_fd: &Rc<OwnedFd>,
     ) -> Result<(), ObjectError> {
@@ -114,6 +114,35 @@ impl WpDrmLeaseV1 {
         Ok(())
     }
 
+    /// shares the DRM file descriptor
+    ///
+    /// This event returns a file descriptor suitable for use with DRM-related
+    /// ioctls. The client should use drmModeGetLease to enumerate the DRM
+    /// objects which have been leased to them. The compositor guarantees it
+    /// will not use the leased DRM objects itself until it sends the finished
+    /// event. If the compositor cannot or will not grant a lease for the
+    /// requested connectors, it will not send this event, instead sending the
+    /// finished event.
+    ///
+    /// The compositor will send this event at most once during this objects
+    /// lifetime.
+    ///
+    /// # Arguments
+    ///
+    /// - `leased_fd`: leased DRM file descriptor
+    #[inline]
+    pub fn send_lease_fd(
+        &self,
+        leased_fd: &Rc<OwnedFd>,
+    ) {
+        let res = self.try_send_lease_fd(
+            leased_fd,
+        );
+        if let Err(e) = res {
+            log_send("wp_drm_lease_v1.lease_fd", &e);
+        }
+    }
+
     /// Since when the finished message is available.
     pub const MSG__FINISHED__SINCE: u32 = 1;
 
@@ -130,7 +159,7 @@ impl WpDrmLeaseV1 {
     /// for leasing again, if the resource is available, by sending the
     /// connector event through the wp_drm_lease_device_v1 interface.
     #[inline]
-    pub fn send_finished(
+    pub fn try_send_finished(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -163,6 +192,29 @@ impl WpDrmLeaseV1 {
         Ok(())
     }
 
+    /// sent when the lease has been revoked
+    ///
+    /// The compositor uses this event to either reject a lease request, or if
+    /// it previously sent a lease_fd, to notify the client that the lease has
+    /// been revoked. If the client requires a new lease, they should destroy
+    /// this object and submit a new lease request. The compositor will send
+    /// no further events for this object after sending the finish event.
+    /// Compositors should revoke the lease when any of the leased resources
+    /// become unavailable, namely when a hot-unplug occurs or when the
+    /// compositor loses DRM master. Compositors may advertise the connector
+    /// for leasing again, if the resource is available, by sending the
+    /// connector event through the wp_drm_lease_device_v1 interface.
+    #[inline]
+    pub fn send_finished(
+        &self,
+    ) {
+        let res = self.try_send_finished(
+        );
+        if let Err(e) = res {
+            log_send("wp_drm_lease_v1.finished", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -176,7 +228,7 @@ impl WpDrmLeaseV1 {
     /// leasing again by sending the connector event through the
     /// wp_drm_lease_device_v1 interface.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -207,13 +259,33 @@ impl WpDrmLeaseV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroys the lease object
+    ///
+    /// The client should send this to indicate that it no longer wishes to use
+    /// this lease. The compositor should use drmModeRevokeLease on the
+    /// appropriate file descriptor, if necessary.
+    ///
+    /// Upon destruction, the compositor should advertise the connector for
+    /// leasing again by sending the connector event through the
+    /// wp_drm_lease_device_v1 interface.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_drm_lease_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [WpDrmLeaseV1] proxies.
 pub trait WpDrmLeaseV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpDrmLeaseV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// shares the DRM file descriptor
@@ -241,11 +313,11 @@ pub trait WpDrmLeaseV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_lease_fd(
+        let res = _slf.try_send_lease_fd(
             leased_fd,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_drm_lease_v1.lease_fd message: {}", Report::new(e));
+            log_forward("wp_drm_lease_v1.lease_fd", &e);
         }
     }
 
@@ -269,10 +341,10 @@ pub trait WpDrmLeaseV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_finished(
+        let res = _slf.try_send_finished(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_drm_lease_v1.finished message: {}", Report::new(e));
+            log_forward("wp_drm_lease_v1.finished", &e);
         }
     }
 
@@ -293,10 +365,10 @@ pub trait WpDrmLeaseV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_drm_lease_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_drm_lease_v1.destroy", &e);
         }
     }
 }
@@ -316,7 +388,7 @@ impl ObjectPrivate for WpDrmLeaseV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

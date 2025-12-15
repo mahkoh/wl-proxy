@@ -79,7 +79,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
     /// Using this request a client can tell the server that it is not going to
     /// use the wp_linux_dmabuf_feedback object anymore.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -111,6 +111,21 @@ impl ZwpLinuxDmabufFeedbackV1 {
         Ok(())
     }
 
+    /// destroy the feedback object
+    ///
+    /// Using this request a client can tell the server that it is not going to
+    /// use the wp_linux_dmabuf_feedback object anymore.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_dmabuf_feedback_v1.destroy", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -122,7 +137,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
     /// This allows changes to the wp_linux_dmabuf_feedback parameters to be
     /// seen as atomic, even if they happen via multiple events.
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -155,6 +170,24 @@ impl ZwpLinuxDmabufFeedbackV1 {
         Ok(())
     }
 
+    /// all feedback has been sent
+    ///
+    /// This event is sent after all parameters of a wp_linux_dmabuf_feedback
+    /// object have been sent.
+    ///
+    /// This allows changes to the wp_linux_dmabuf_feedback parameters to be
+    /// seen as atomic, even if they happen via multiple events.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) {
+        let res = self.try_send_done(
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_dmabuf_feedback_v1.done", &e);
+        }
+    }
+
     /// Since when the format_table message is available.
     pub const MSG__FORMAT_TABLE__SINCE: u32 = 1;
 
@@ -180,7 +213,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
     /// - `fd`: table file descriptor
     /// - `size`: table size, in bytes
     #[inline]
-    pub fn send_format_table(
+    pub fn try_send_format_table(
         &self,
         fd: &Rc<OwnedFd>,
         size: u32,
@@ -224,6 +257,42 @@ impl ZwpLinuxDmabufFeedbackV1 {
         Ok(())
     }
 
+    /// format and modifier table
+    ///
+    /// This event provides a file descriptor which can be memory-mapped to
+    /// access the format and modifier table.
+    ///
+    /// The table contains a tightly packed array of consecutive format +
+    /// modifier pairs. Each pair is 16 bytes wide. It contains a format as a
+    /// 32-bit unsigned integer, followed by 4 bytes of unused padding, and a
+    /// modifier as a 64-bit unsigned integer. The native endianness is used.
+    ///
+    /// The client must map the file descriptor in read-only private mode.
+    ///
+    /// Compositors are not allowed to mutate the table file contents once this
+    /// event has been sent. Instead, compositors must create a new, separate
+    /// table file and re-send feedback parameters. Compositors are allowed to
+    /// store duplicate format + modifier pairs in the table.
+    ///
+    /// # Arguments
+    ///
+    /// - `fd`: table file descriptor
+    /// - `size`: table size, in bytes
+    #[inline]
+    pub fn send_format_table(
+        &self,
+        fd: &Rc<OwnedFd>,
+        size: u32,
+    ) {
+        let res = self.try_send_format_table(
+            fd,
+            size,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_dmabuf_feedback_v1.format_table", &e);
+        }
+    }
+
     /// Since when the main_device message is available.
     pub const MSG__MAIN_DEVICE__SINCE: u32 = 1;
 
@@ -257,7 +326,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
     ///
     /// - `device`: device dev_t value
     #[inline]
-    pub fn send_main_device(
+    pub fn try_send_main_device(
         &self,
         device: &[u8],
     ) -> Result<(), ObjectError> {
@@ -297,6 +366,48 @@ impl ZwpLinuxDmabufFeedbackV1 {
         Ok(())
     }
 
+    /// preferred main device
+    ///
+    /// This event advertises the main device that the server prefers to use
+    /// when direct scan-out to the target device isn't possible. The
+    /// advertised main device may be different for each
+    /// wp_linux_dmabuf_feedback object, and may change over time.
+    ///
+    /// There is exactly one main device. The compositor must send at least
+    /// one preference tranche with tranche_target_device equal to main_device.
+    ///
+    /// Clients need to create buffers that the main device can import and
+    /// read from, otherwise creating the dmabuf wl_buffer will fail (see the
+    /// wp_linux_buffer_params.create and create_immed requests for details).
+    /// The main device will also likely be kept active by the compositor,
+    /// so clients can use it instead of waking up another device for power
+    /// savings.
+    ///
+    /// In general the device is a DRM node. The DRM node type (primary vs.
+    /// render) is unspecified. Clients must not rely on the compositor sending
+    /// a particular node type. Clients cannot check two devices for equality
+    /// by comparing the dev_t value.
+    ///
+    /// If explicit modifiers are not supported and the client performs buffer
+    /// allocations on a different device than the main device, then the client
+    /// must force the buffer to have a linear layout.
+    ///
+    /// # Arguments
+    ///
+    /// - `device`: device dev_t value
+    #[inline]
+    pub fn send_main_device(
+        &self,
+        device: &[u8],
+    ) {
+        let res = self.try_send_main_device(
+            device,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_dmabuf_feedback_v1.main_device", &e);
+        }
+    }
+
     /// Since when the tranche_done message is available.
     pub const MSG__TRANCHE_DONE__SINCE: u32 = 1;
 
@@ -307,7 +418,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
     /// and tranche_formats events; it represents the end of a tranche. The
     /// next tranche will have a lower preference.
     #[inline]
-    pub fn send_tranche_done(
+    pub fn try_send_tranche_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -338,6 +449,23 @@ impl ZwpLinuxDmabufFeedbackV1 {
             3,
         ]);
         Ok(())
+    }
+
+    /// a preference tranche has been sent
+    ///
+    /// This event splits tranche_target_device and tranche_formats events in
+    /// preference tranches. It is sent after a set of tranche_target_device
+    /// and tranche_formats events; it represents the end of a tranche. The
+    /// next tranche will have a lower preference.
+    #[inline]
+    pub fn send_tranche_done(
+        &self,
+    ) {
+        let res = self.try_send_tranche_done(
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_dmabuf_feedback_v1.tranche_done", &e);
+        }
     }
 
     /// Since when the tranche_target_device message is available.
@@ -376,7 +504,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
     ///
     /// - `device`: device dev_t value
     #[inline]
-    pub fn send_tranche_target_device(
+    pub fn try_send_tranche_target_device(
         &self,
         device: &[u8],
     ) -> Result<(), ObjectError> {
@@ -416,6 +544,51 @@ impl ZwpLinuxDmabufFeedbackV1 {
         Ok(())
     }
 
+    /// target device
+    ///
+    /// This event advertises the target device that the server prefers to use
+    /// for a buffer created given this tranche. The advertised target device
+    /// may be different for each preference tranche, and may change over time.
+    ///
+    /// There is exactly one target device per tranche.
+    ///
+    /// The target device may be a scan-out device, for example if the
+    /// compositor prefers to directly scan-out a buffer created given this
+    /// tranche. The target device may be a rendering device, for example if
+    /// the compositor prefers to texture from said buffer.
+    ///
+    /// The client can use this hint to allocate the buffer in a way that makes
+    /// it accessible from the target device, ideally directly. The buffer must
+    /// still be accessible from the main device, either through direct import
+    /// or through a potentially more expensive fallback path. If the buffer
+    /// can't be directly imported from the main device then clients must be
+    /// prepared for the compositor changing the tranche priority or making
+    /// wl_buffer creation fail (see the wp_linux_buffer_params.create and
+    /// create_immed requests for details).
+    ///
+    /// If the device is a DRM node, the DRM node type (primary vs. render) is
+    /// unspecified. Clients must not rely on the compositor sending a
+    /// particular node type. Clients cannot check two devices for equality by
+    /// comparing the dev_t value.
+    ///
+    /// This event is tied to a preference tranche, see the tranche_done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `device`: device dev_t value
+    #[inline]
+    pub fn send_tranche_target_device(
+        &self,
+        device: &[u8],
+    ) {
+        let res = self.try_send_tranche_target_device(
+            device,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_dmabuf_feedback_v1.tranche_target_device", &e);
+        }
+    }
+
     /// Since when the tranche_formats message is available.
     pub const MSG__TRANCHE_FORMATS__SINCE: u32 = 1;
 
@@ -450,7 +623,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
     ///
     /// - `indices`: array of 16-bit indexes
     #[inline]
-    pub fn send_tranche_formats(
+    pub fn try_send_tranche_formats(
         &self,
         indices: &[u8],
     ) -> Result<(), ObjectError> {
@@ -490,6 +663,49 @@ impl ZwpLinuxDmabufFeedbackV1 {
         Ok(())
     }
 
+    /// supported buffer format modifier
+    ///
+    /// This event advertises the format + modifier combinations that the
+    /// compositor supports.
+    ///
+    /// It carries an array of indices, each referring to a format + modifier
+    /// pair in the last received format table (see the format_table event).
+    /// Each index is a 16-bit unsigned integer in native endianness.
+    ///
+    /// For legacy support, DRM_FORMAT_MOD_INVALID is an allowed modifier.
+    /// It indicates that the server can support the format with an implicit
+    /// modifier. When a buffer has DRM_FORMAT_MOD_INVALID as its modifier, it
+    /// is as if no explicit modifier is specified. The effective modifier
+    /// will be derived from the dmabuf.
+    ///
+    /// A compositor that sends valid modifiers and DRM_FORMAT_MOD_INVALID for
+    /// a given format supports both explicit modifiers and implicit modifiers.
+    ///
+    /// Compositors must not send duplicate format + modifier pairs within the
+    /// same tranche or across two different tranches with the same target
+    /// device and flags.
+    ///
+    /// This event is tied to a preference tranche, see the tranche_done event.
+    ///
+    /// For the definition of the format and modifier codes, see the
+    /// wp_linux_buffer_params.create request.
+    ///
+    /// # Arguments
+    ///
+    /// - `indices`: array of 16-bit indexes
+    #[inline]
+    pub fn send_tranche_formats(
+        &self,
+        indices: &[u8],
+    ) {
+        let res = self.try_send_tranche_formats(
+            indices,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_dmabuf_feedback_v1.tranche_formats", &e);
+        }
+    }
+
     /// Since when the tranche_flags message is available.
     pub const MSG__TRANCHE_FLAGS__SINCE: u32 = 1;
 
@@ -508,7 +724,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
     ///
     /// - `flags`: tranche flags
     #[inline]
-    pub fn send_tranche_flags(
+    pub fn try_send_tranche_flags(
         &self,
         flags: ZwpLinuxDmabufFeedbackV1TrancheFlags,
     ) -> Result<(), ObjectError> {
@@ -547,13 +763,40 @@ impl ZwpLinuxDmabufFeedbackV1 {
         ]);
         Ok(())
     }
+
+    /// tranche flags
+    ///
+    /// This event sets tranche-specific flags.
+    ///
+    /// The scanout flag is a hint that direct scan-out may be attempted by the
+    /// compositor on the target device if the client appropriately allocates a
+    /// buffer. How to allocate a buffer that can be scanned out on the target
+    /// device is implementation-defined.
+    ///
+    /// This event is tied to a preference tranche, see the tranche_done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `flags`: tranche flags
+    #[inline]
+    pub fn send_tranche_flags(
+        &self,
+        flags: ZwpLinuxDmabufFeedbackV1TrancheFlags,
+    ) {
+        let res = self.try_send_tranche_flags(
+            flags,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_dmabuf_feedback_v1.tranche_flags", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpLinuxDmabufFeedbackV1] proxies.
 pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpLinuxDmabufFeedbackV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the feedback object
@@ -568,10 +811,10 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_dmabuf_feedback_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_linux_dmabuf_feedback_v1.destroy", &e);
         }
     }
 
@@ -590,10 +833,10 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_dmabuf_feedback_v1.done message: {}", Report::new(e));
+            log_forward("zwp_linux_dmabuf_feedback_v1.done", &e);
         }
     }
 
@@ -628,12 +871,12 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_format_table(
+        let res = _slf.try_send_format_table(
             fd,
             size,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_dmabuf_feedback_v1.format_table message: {}", Report::new(e));
+            log_forward("zwp_linux_dmabuf_feedback_v1.format_table", &e);
         }
     }
 
@@ -675,11 +918,11 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_main_device(
+        let res = _slf.try_send_main_device(
             device,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_dmabuf_feedback_v1.main_device message: {}", Report::new(e));
+            log_forward("zwp_linux_dmabuf_feedback_v1.main_device", &e);
         }
     }
 
@@ -697,10 +940,10 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_tranche_done(
+        let res = _slf.try_send_tranche_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_dmabuf_feedback_v1.tranche_done message: {}", Report::new(e));
+            log_forward("zwp_linux_dmabuf_feedback_v1.tranche_done", &e);
         }
     }
 
@@ -745,11 +988,11 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_tranche_target_device(
+        let res = _slf.try_send_tranche_target_device(
             device,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_dmabuf_feedback_v1.tranche_target_device message: {}", Report::new(e));
+            log_forward("zwp_linux_dmabuf_feedback_v1.tranche_target_device", &e);
         }
     }
 
@@ -792,11 +1035,11 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_tranche_formats(
+        let res = _slf.try_send_tranche_formats(
             indices,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_dmabuf_feedback_v1.tranche_formats message: {}", Report::new(e));
+            log_forward("zwp_linux_dmabuf_feedback_v1.tranche_formats", &e);
         }
     }
 
@@ -823,11 +1066,11 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_tranche_flags(
+        let res = _slf.try_send_tranche_flags(
             flags,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_dmabuf_feedback_v1.tranche_flags message: {}", Report::new(e));
+            log_forward("zwp_linux_dmabuf_feedback_v1.tranche_flags", &e);
         }
     }
 }
@@ -847,7 +1090,7 @@ impl ObjectPrivate for ZwpLinuxDmabufFeedbackV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -70,7 +70,7 @@ impl WpTearingControlManagerV1 {
     /// wp_tearing_control_v1 objects created by this factory, are not affected
     /// by this request.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -102,6 +102,22 @@ impl WpTearingControlManagerV1 {
         Ok(())
     }
 
+    /// destroy tearing control factory object
+    ///
+    /// Destroy this tearing control factory object. Other objects, including
+    /// wp_tearing_control_v1 objects created by this factory, are not affected
+    /// by this request.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_tearing_control_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_tearing_control message is available.
     pub const MSG__GET_TEARING_CONTROL__SINCE: u32 = 1;
 
@@ -118,7 +134,7 @@ impl WpTearingControlManagerV1 {
     /// - `id`:
     /// - `surface`:
     #[inline]
-    pub fn send_get_tearing_control(
+    pub fn try_send_get_tearing_control(
         &self,
         id: &Rc<WpTearingControlV1>,
         surface: &Rc<WlSurface>,
@@ -169,13 +185,40 @@ impl WpTearingControlManagerV1 {
         ]);
         Ok(())
     }
+
+    /// extend surface interface for tearing control
+    ///
+    /// Instantiate an interface extension for the given wl_surface to request
+    /// asynchronous page flips for presentation.
+    ///
+    /// If the given wl_surface already has a wp_tearing_control_v1 object
+    /// associated, the tearing_control_exists protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn send_get_tearing_control(
+        &self,
+        id: &Rc<WpTearingControlV1>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_tearing_control(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("wp_tearing_control_manager_v1.get_tearing_control", &e);
+        }
+    }
 }
 
 /// A message handler for [WpTearingControlManagerV1] proxies.
 pub trait WpTearingControlManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpTearingControlManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy tearing control factory object
@@ -191,10 +234,10 @@ pub trait WpTearingControlManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_tearing_control_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_tearing_control_manager_v1.destroy", &e);
         }
     }
 
@@ -223,12 +266,12 @@ pub trait WpTearingControlManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_tearing_control(
+        let res = _slf.try_send_get_tearing_control(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_tearing_control_manager_v1.get_tearing_control message: {}", Report::new(e));
+            log_forward("wp_tearing_control_manager_v1.get_tearing_control", &e);
         }
     }
 }
@@ -248,7 +291,7 @@ impl ObjectPrivate for WpTearingControlManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

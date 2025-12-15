@@ -69,7 +69,7 @@ impl ZwlrOutputModeV1 {
     /// - `width`: width of the mode in hardware units
     /// - `height`: height of the mode in hardware units
     #[inline]
-    pub fn send_size(
+    pub fn try_send_size(
         &self,
         width: i32,
         height: i32,
@@ -113,6 +113,32 @@ impl ZwlrOutputModeV1 {
         Ok(())
     }
 
+    /// mode size
+    ///
+    /// This event describes the mode size. The size is given in physical
+    /// hardware units of the output device. This is not necessarily the same as
+    /// the output size in the global compositor space. For instance, the output
+    /// may be scaled or transformed.
+    ///
+    /// # Arguments
+    ///
+    /// - `width`: width of the mode in hardware units
+    /// - `height`: height of the mode in hardware units
+    #[inline]
+    pub fn send_size(
+        &self,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_size(
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_mode_v1.size", &e);
+        }
+    }
+
     /// Since when the refresh message is available.
     pub const MSG__REFRESH__SINCE: u32 = 1;
 
@@ -125,7 +151,7 @@ impl ZwlrOutputModeV1 {
     ///
     /// - `refresh`: vertical refresh rate in mHz
     #[inline]
-    pub fn send_refresh(
+    pub fn try_send_refresh(
         &self,
         refresh: i32,
     ) -> Result<(), ObjectError> {
@@ -165,6 +191,27 @@ impl ZwlrOutputModeV1 {
         Ok(())
     }
 
+    /// mode refresh rate
+    ///
+    /// This event describes the mode's fixed vertical refresh rate. It is only
+    /// sent if the mode has a fixed refresh rate.
+    ///
+    /// # Arguments
+    ///
+    /// - `refresh`: vertical refresh rate in mHz
+    #[inline]
+    pub fn send_refresh(
+        &self,
+        refresh: i32,
+    ) {
+        let res = self.try_send_refresh(
+            refresh,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_mode_v1.refresh", &e);
+        }
+    }
+
     /// Since when the preferred message is available.
     pub const MSG__PREFERRED__SINCE: u32 = 1;
 
@@ -172,7 +219,7 @@ impl ZwlrOutputModeV1 {
     ///
     /// This event advertises this mode as preferred.
     #[inline]
-    pub fn send_preferred(
+    pub fn try_send_preferred(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -205,6 +252,20 @@ impl ZwlrOutputModeV1 {
         Ok(())
     }
 
+    /// mode is preferred
+    ///
+    /// This event advertises this mode as preferred.
+    #[inline]
+    pub fn send_preferred(
+        &self,
+    ) {
+        let res = self.try_send_preferred(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_mode_v1.preferred", &e);
+        }
+    }
+
     /// Since when the finished message is available.
     pub const MSG__FINISHED__SINCE: u32 = 1;
 
@@ -214,7 +275,7 @@ impl ZwlrOutputModeV1 {
     /// object becomes inert. Clients should send a destroy request and release
     /// any resources associated with it.
     #[inline]
-    pub fn send_finished(
+    pub fn try_send_finished(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -247,6 +308,22 @@ impl ZwlrOutputModeV1 {
         Ok(())
     }
 
+    /// the mode has disappeared
+    ///
+    /// This event indicates that the mode is no longer available. The mode
+    /// object becomes inert. Clients should send a destroy request and release
+    /// any resources associated with it.
+    #[inline]
+    pub fn send_finished(
+        &self,
+    ) {
+        let res = self.try_send_finished(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_mode_v1.finished", &e);
+        }
+    }
+
     /// Since when the release message is available.
     pub const MSG__RELEASE__SINCE: u32 = 3;
 
@@ -255,7 +332,7 @@ impl ZwlrOutputModeV1 {
     /// This request indicates that the client will no longer use this mode
     /// object.
     #[inline]
-    pub fn send_release(
+    pub fn try_send_release(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -286,13 +363,28 @@ impl ZwlrOutputModeV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the mode object
+    ///
+    /// This request indicates that the client will no longer use this mode
+    /// object.
+    #[inline]
+    pub fn send_release(
+        &self,
+    ) {
+        let res = self.try_send_release(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_output_mode_v1.release", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrOutputModeV1] proxies.
 pub trait ZwlrOutputModeV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrOutputModeV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// mode size
@@ -316,12 +408,12 @@ pub trait ZwlrOutputModeV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_size(
+        let res = _slf.try_send_size(
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_mode_v1.size message: {}", Report::new(e));
+            log_forward("zwlr_output_mode_v1.size", &e);
         }
     }
 
@@ -342,11 +434,11 @@ pub trait ZwlrOutputModeV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_refresh(
+        let res = _slf.try_send_refresh(
             refresh,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_mode_v1.refresh message: {}", Report::new(e));
+            log_forward("zwlr_output_mode_v1.refresh", &e);
         }
     }
 
@@ -361,10 +453,10 @@ pub trait ZwlrOutputModeV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_preferred(
+        let res = _slf.try_send_preferred(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_mode_v1.preferred message: {}", Report::new(e));
+            log_forward("zwlr_output_mode_v1.preferred", &e);
         }
     }
 
@@ -381,10 +473,10 @@ pub trait ZwlrOutputModeV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_finished(
+        let res = _slf.try_send_finished(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_mode_v1.finished message: {}", Report::new(e));
+            log_forward("zwlr_output_mode_v1.finished", &e);
         }
     }
 
@@ -400,10 +492,10 @@ pub trait ZwlrOutputModeV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_release(
+        let res = _slf.try_send_release(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_output_mode_v1.release message: {}", Report::new(e));
+            log_forward("zwlr_output_mode_v1.release", &e);
         }
     }
 }
@@ -423,7 +515,7 @@ impl ObjectPrivate for ZwlrOutputModeV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

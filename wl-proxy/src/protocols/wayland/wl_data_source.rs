@@ -63,7 +63,7 @@ impl WlDataSource {
     ///
     /// - `mime_type`: mime type offered by the data source
     #[inline]
-    pub fn send_offer(
+    pub fn try_send_offer(
         &self,
         mime_type: &str,
     ) -> Result<(), ObjectError> {
@@ -101,6 +101,28 @@ impl WlDataSource {
         Ok(())
     }
 
+    /// add an offered mime type
+    ///
+    /// This request adds a mime type to the set of mime types
+    /// advertised to targets.  Can be called several times to offer
+    /// multiple types.
+    ///
+    /// # Arguments
+    ///
+    /// - `mime_type`: mime type offered by the data source
+    #[inline]
+    pub fn send_offer(
+        &self,
+        mime_type: &str,
+    ) {
+        let res = self.try_send_offer(
+            mime_type,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_source.offer", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -108,7 +130,7 @@ impl WlDataSource {
     ///
     /// Destroy the data source.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -140,6 +162,20 @@ impl WlDataSource {
         Ok(())
     }
 
+    /// destroy the data source
+    ///
+    /// Destroy the data source.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wl_data_source.destroy", &e);
+        }
+    }
+
     /// Since when the target message is available.
     pub const MSG__TARGET__SINCE: u32 = 1;
 
@@ -154,7 +190,7 @@ impl WlDataSource {
     ///
     /// - `mime_type`: mime type accepted by the target
     #[inline]
-    pub fn send_target(
+    pub fn try_send_target(
         &self,
         mime_type: Option<&str>,
     ) -> Result<(), ObjectError> {
@@ -198,6 +234,29 @@ impl WlDataSource {
         Ok(())
     }
 
+    /// a target accepts an offered mime type
+    ///
+    /// Sent when a target accepts pointer_focus or motion events.  If
+    /// a target does not accept any of the offered types, type is NULL.
+    ///
+    /// Used for feedback during drag-and-drop.
+    ///
+    /// # Arguments
+    ///
+    /// - `mime_type`: mime type accepted by the target
+    #[inline]
+    pub fn send_target(
+        &self,
+        mime_type: Option<&str>,
+    ) {
+        let res = self.try_send_target(
+            mime_type,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_source.target", &e);
+        }
+    }
+
     /// Since when the send message is available.
     pub const MSG__SEND__SINCE: u32 = 1;
 
@@ -212,7 +271,7 @@ impl WlDataSource {
     /// - `mime_type`: mime type for the data
     /// - `fd`: file descriptor for the data
     #[inline]
-    pub fn send_send(
+    pub fn try_send_send(
         &self,
         mime_type: &str,
         fd: &Rc<OwnedFd>,
@@ -256,6 +315,31 @@ impl WlDataSource {
         Ok(())
     }
 
+    /// send the data
+    ///
+    /// Request for data from the client.  Send the data as the
+    /// specified mime type over the passed file descriptor, then
+    /// close it.
+    ///
+    /// # Arguments
+    ///
+    /// - `mime_type`: mime type for the data
+    /// - `fd`: file descriptor for the data
+    #[inline]
+    pub fn send_send(
+        &self,
+        mime_type: &str,
+        fd: &Rc<OwnedFd>,
+    ) {
+        let res = self.try_send_send(
+            mime_type,
+            fd,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_source.send", &e);
+        }
+    }
+
     /// Since when the cancelled message is available.
     pub const MSG__CANCELLED__SINCE: u32 = 1;
 
@@ -282,7 +366,7 @@ impl WlDataSource {
     /// only be emitted if the data source was replaced by another data
     /// source.
     #[inline]
-    pub fn send_cancelled(
+    pub fn try_send_cancelled(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -315,6 +399,39 @@ impl WlDataSource {
         Ok(())
     }
 
+    /// selection was cancelled
+    ///
+    /// This data source is no longer valid. There are several reasons why
+    /// this could happen:
+    ///
+    /// - The data source has been replaced by another data source.
+    /// - The drag-and-drop operation was performed, but the drop destination
+    ///   did not accept any of the mime types offered through
+    ///   wl_data_source.target.
+    /// - The drag-and-drop operation was performed, but the drop destination
+    ///   did not select any of the actions present in the mask offered through
+    ///   wl_data_source.action.
+    /// - The drag-and-drop operation was performed but didn't happen over a
+    ///   surface.
+    /// - The compositor cancelled the drag-and-drop operation (e.g. compositor
+    ///   dependent timeouts to avoid stale drag-and-drop transfers).
+    ///
+    /// The client should clean up and destroy this data source.
+    ///
+    /// For objects of version 2 or older, wl_data_source.cancelled will
+    /// only be emitted if the data source was replaced by another data
+    /// source.
+    #[inline]
+    pub fn send_cancelled(
+        &self,
+    ) {
+        let res = self.try_send_cancelled(
+        );
+        if let Err(e) = res {
+            log_send("wl_data_source.cancelled", &e);
+        }
+    }
+
     /// Since when the set_actions message is available.
     pub const MSG__SET_ACTIONS__SINCE: u32 = 3;
 
@@ -338,7 +455,7 @@ impl WlDataSource {
     ///
     /// - `dnd_actions`: actions supported by the data source
     #[inline]
-    pub fn send_set_actions(
+    pub fn try_send_set_actions(
         &self,
         dnd_actions: WlDataDeviceManagerDndAction,
     ) -> Result<(), ObjectError> {
@@ -376,6 +493,38 @@ impl WlDataSource {
         Ok(())
     }
 
+    /// set the available drag-and-drop actions
+    ///
+    /// Sets the actions that the source side client supports for this
+    /// operation. This request may trigger wl_data_source.action and
+    /// wl_data_offer.action events if the compositor needs to change the
+    /// selected action.
+    ///
+    /// The dnd_actions argument must contain only values expressed in the
+    /// wl_data_device_manager.dnd_actions enum, otherwise it will result
+    /// in a protocol error.
+    ///
+    /// This request must be made once only, and can only be made on sources
+    /// used in drag-and-drop, so it must be performed before
+    /// wl_data_device.start_drag. Attempting to use the source other than
+    /// for drag-and-drop will raise a protocol error.
+    ///
+    /// # Arguments
+    ///
+    /// - `dnd_actions`: actions supported by the data source
+    #[inline]
+    pub fn send_set_actions(
+        &self,
+        dnd_actions: WlDataDeviceManagerDndAction,
+    ) {
+        let res = self.try_send_set_actions(
+            dnd_actions,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_source.set_actions", &e);
+        }
+    }
+
     /// Since when the dnd_drop_performed message is available.
     pub const MSG__DND_DROP_PERFORMED__SINCE: u32 = 3;
 
@@ -391,7 +540,7 @@ impl WlDataSource {
     /// Note that the data_source may still be used in the future and should
     /// not be destroyed here.
     #[inline]
-    pub fn send_dnd_drop_performed(
+    pub fn try_send_dnd_drop_performed(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -424,6 +573,28 @@ impl WlDataSource {
         Ok(())
     }
 
+    /// the drag-and-drop operation physically finished
+    ///
+    /// The user performed the drop action. This event does not indicate
+    /// acceptance, wl_data_source.cancelled may still be emitted afterwards
+    /// if the drop destination does not accept any mime type.
+    ///
+    /// However, this event might however not be received if the compositor
+    /// cancelled the drag-and-drop operation before this event could happen.
+    ///
+    /// Note that the data_source may still be used in the future and should
+    /// not be destroyed here.
+    #[inline]
+    pub fn send_dnd_drop_performed(
+        &self,
+    ) {
+        let res = self.try_send_dnd_drop_performed(
+        );
+        if let Err(e) = res {
+            log_send("wl_data_source.dnd_drop_performed", &e);
+        }
+    }
+
     /// Since when the dnd_finished message is available.
     pub const MSG__DND_FINISHED__SINCE: u32 = 3;
 
@@ -436,7 +607,7 @@ impl WlDataSource {
     /// If the action used to perform the operation was "move", the
     /// source can now delete the transferred data.
     #[inline]
-    pub fn send_dnd_finished(
+    pub fn try_send_dnd_finished(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -467,6 +638,25 @@ impl WlDataSource {
             4,
         ]);
         Ok(())
+    }
+
+    /// the drag-and-drop operation concluded
+    ///
+    /// The drop destination finished interoperating with this data
+    /// source, so the client is now free to destroy this data source and
+    /// free all associated data.
+    ///
+    /// If the action used to perform the operation was "move", the
+    /// source can now delete the transferred data.
+    #[inline]
+    pub fn send_dnd_finished(
+        &self,
+    ) {
+        let res = self.try_send_dnd_finished(
+        );
+        if let Err(e) = res {
+            log_send("wl_data_source.dnd_finished", &e);
+        }
     }
 
     /// Since when the action message is available.
@@ -504,7 +694,7 @@ impl WlDataSource {
     ///
     /// - `dnd_action`: action selected by the compositor
     #[inline]
-    pub fn send_action(
+    pub fn try_send_action(
         &self,
         dnd_action: WlDataDeviceManagerDndAction,
     ) -> Result<(), ObjectError> {
@@ -543,13 +733,57 @@ impl WlDataSource {
         ]);
         Ok(())
     }
+
+    /// notify the selected action
+    ///
+    /// This event indicates the action selected by the compositor after
+    /// matching the source/destination side actions. Only one action (or
+    /// none) will be offered here.
+    ///
+    /// This event can be emitted multiple times during the drag-and-drop
+    /// operation, mainly in response to destination side changes through
+    /// wl_data_offer.set_actions, and as the data device enters/leaves
+    /// surfaces.
+    ///
+    /// It is only possible to receive this event after
+    /// wl_data_source.dnd_drop_performed if the drag-and-drop operation
+    /// ended in an "ask" action, in which case the final wl_data_source.action
+    /// event will happen immediately before wl_data_source.dnd_finished.
+    ///
+    /// Compositors may also change the selected action on the fly, mainly
+    /// in response to keyboard modifier changes during the drag-and-drop
+    /// operation.
+    ///
+    /// The most recent action received is always the valid one. The chosen
+    /// action may change alongside negotiation (e.g. an "ask" action can turn
+    /// into a "move" operation), so the effects of the final action must
+    /// always be applied in wl_data_offer.dnd_finished.
+    ///
+    /// Clients can trigger cursor surface changes from this point, so
+    /// they reflect the current action.
+    ///
+    /// # Arguments
+    ///
+    /// - `dnd_action`: action selected by the compositor
+    #[inline]
+    pub fn send_action(
+        &self,
+        dnd_action: WlDataDeviceManagerDndAction,
+    ) {
+        let res = self.try_send_action(
+            dnd_action,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_source.action", &e);
+        }
+    }
 }
 
 /// A message handler for [WlDataSource] proxies.
 pub trait WlDataSourceHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlDataSource>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// add an offered mime type
@@ -570,11 +804,11 @@ pub trait WlDataSourceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_offer(
+        let res = _slf.try_send_offer(
             mime_type,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_source.offer message: {}", Report::new(e));
+            log_forward("wl_data_source.offer", &e);
         }
     }
 
@@ -589,10 +823,10 @@ pub trait WlDataSourceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_source.destroy message: {}", Report::new(e));
+            log_forward("wl_data_source.destroy", &e);
         }
     }
 
@@ -615,11 +849,11 @@ pub trait WlDataSourceHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_target(
+        let res = _slf.try_send_target(
             mime_type,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_source.target message: {}", Report::new(e));
+            log_forward("wl_data_source.target", &e);
         }
     }
 
@@ -643,12 +877,12 @@ pub trait WlDataSourceHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_send(
+        let res = _slf.try_send_send(
             mime_type,
             fd,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_source.send message: {}", Report::new(e));
+            log_forward("wl_data_source.send", &e);
         }
     }
 
@@ -682,10 +916,10 @@ pub trait WlDataSourceHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_cancelled(
+        let res = _slf.try_send_cancelled(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_source.cancelled message: {}", Report::new(e));
+            log_forward("wl_data_source.cancelled", &e);
         }
     }
 
@@ -717,11 +951,11 @@ pub trait WlDataSourceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_actions(
+        let res = _slf.try_send_set_actions(
             dnd_actions,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_source.set_actions message: {}", Report::new(e));
+            log_forward("wl_data_source.set_actions", &e);
         }
     }
 
@@ -744,10 +978,10 @@ pub trait WlDataSourceHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_dnd_drop_performed(
+        let res = _slf.try_send_dnd_drop_performed(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_source.dnd_drop_performed message: {}", Report::new(e));
+            log_forward("wl_data_source.dnd_drop_performed", &e);
         }
     }
 
@@ -767,10 +1001,10 @@ pub trait WlDataSourceHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_dnd_finished(
+        let res = _slf.try_send_dnd_finished(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_source.dnd_finished message: {}", Report::new(e));
+            log_forward("wl_data_source.dnd_finished", &e);
         }
     }
 
@@ -814,11 +1048,11 @@ pub trait WlDataSourceHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_action(
+        let res = _slf.try_send_action(
             dnd_action,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_source.action message: {}", Report::new(e));
+            log_forward("wl_data_source.action", &e);
         }
     }
 }
@@ -838,7 +1072,7 @@ impl ObjectPrivate for WlDataSource {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

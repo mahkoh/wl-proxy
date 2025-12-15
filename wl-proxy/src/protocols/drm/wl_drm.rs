@@ -50,7 +50,7 @@ impl WlDrm {
     ///
     /// - `id`:
     #[inline]
-    pub fn send_authenticate(
+    pub fn try_send_authenticate(
         &self,
         id: u32,
     ) -> Result<(), ObjectError> {
@@ -88,6 +88,22 @@ impl WlDrm {
         Ok(())
     }
 
+    /// # Arguments
+    ///
+    /// - `id`:
+    #[inline]
+    pub fn send_authenticate(
+        &self,
+        id: u32,
+    ) {
+        let res = self.try_send_authenticate(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("wl_drm.authenticate", &e);
+        }
+    }
+
     /// Since when the create_buffer message is available.
     pub const MSG__CREATE_BUFFER__SINCE: u32 = 1;
 
@@ -100,7 +116,7 @@ impl WlDrm {
     /// - `stride`:
     /// - `format`:
     #[inline]
-    pub fn send_create_buffer(
+    pub fn try_send_create_buffer(
         &self,
         id: &Rc<WlBuffer>,
         name: u32,
@@ -163,6 +179,37 @@ impl WlDrm {
         Ok(())
     }
 
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `name`:
+    /// - `width`:
+    /// - `height`:
+    /// - `stride`:
+    /// - `format`:
+    #[inline]
+    pub fn send_create_buffer(
+        &self,
+        id: &Rc<WlBuffer>,
+        name: u32,
+        width: i32,
+        height: i32,
+        stride: u32,
+        format: u32,
+    ) {
+        let res = self.try_send_create_buffer(
+            id,
+            name,
+            width,
+            height,
+            stride,
+            format,
+        );
+        if let Err(e) = res {
+            log_send("wl_drm.create_buffer", &e);
+        }
+    }
+
     /// Since when the create_planar_buffer message is available.
     pub const MSG__CREATE_PLANAR_BUFFER__SINCE: u32 = 1;
 
@@ -180,7 +227,7 @@ impl WlDrm {
     /// - `offset2`:
     /// - `stride2`:
     #[inline]
-    pub fn send_create_planar_buffer(
+    pub fn try_send_create_planar_buffer(
         &self,
         id: &Rc<WlBuffer>,
         name: u32,
@@ -263,6 +310,52 @@ impl WlDrm {
         Ok(())
     }
 
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `name`:
+    /// - `width`:
+    /// - `height`:
+    /// - `format`:
+    /// - `offset0`:
+    /// - `stride0`:
+    /// - `offset1`:
+    /// - `stride1`:
+    /// - `offset2`:
+    /// - `stride2`:
+    #[inline]
+    pub fn send_create_planar_buffer(
+        &self,
+        id: &Rc<WlBuffer>,
+        name: u32,
+        width: i32,
+        height: i32,
+        format: u32,
+        offset0: i32,
+        stride0: i32,
+        offset1: i32,
+        stride1: i32,
+        offset2: i32,
+        stride2: i32,
+    ) {
+        let res = self.try_send_create_planar_buffer(
+            id,
+            name,
+            width,
+            height,
+            format,
+            offset0,
+            stride0,
+            offset1,
+            stride1,
+            offset2,
+            stride2,
+        );
+        if let Err(e) = res {
+            log_send("wl_drm.create_planar_buffer", &e);
+        }
+    }
+
     /// Since when the device message is available.
     pub const MSG__DEVICE__SINCE: u32 = 1;
 
@@ -270,7 +363,7 @@ impl WlDrm {
     ///
     /// - `name`:
     #[inline]
-    pub fn send_device(
+    pub fn try_send_device(
         &self,
         name: &str,
     ) -> Result<(), ObjectError> {
@@ -310,6 +403,22 @@ impl WlDrm {
         Ok(())
     }
 
+    /// # Arguments
+    ///
+    /// - `name`:
+    #[inline]
+    pub fn send_device(
+        &self,
+        name: &str,
+    ) {
+        let res = self.try_send_device(
+            name,
+        );
+        if let Err(e) = res {
+            log_send("wl_drm.device", &e);
+        }
+    }
+
     /// Since when the format message is available.
     pub const MSG__FORMAT__SINCE: u32 = 1;
 
@@ -317,7 +426,7 @@ impl WlDrm {
     ///
     /// - `format`:
     #[inline]
-    pub fn send_format(
+    pub fn try_send_format(
         &self,
         format: u32,
     ) -> Result<(), ObjectError> {
@@ -357,11 +466,27 @@ impl WlDrm {
         Ok(())
     }
 
+    /// # Arguments
+    ///
+    /// - `format`:
+    #[inline]
+    pub fn send_format(
+        &self,
+        format: u32,
+    ) {
+        let res = self.try_send_format(
+            format,
+        );
+        if let Err(e) = res {
+            log_send("wl_drm.format", &e);
+        }
+    }
+
     /// Since when the authenticated message is available.
     pub const MSG__AUTHENTICATED__SINCE: u32 = 1;
 
     #[inline]
-    pub fn send_authenticated(
+    pub fn try_send_authenticated(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -394,6 +519,17 @@ impl WlDrm {
         Ok(())
     }
 
+    #[inline]
+    pub fn send_authenticated(
+        &self,
+    ) {
+        let res = self.try_send_authenticated(
+        );
+        if let Err(e) = res {
+            log_send("wl_drm.authenticated", &e);
+        }
+    }
+
     /// Since when the capabilities message is available.
     pub const MSG__CAPABILITIES__SINCE: u32 = 1;
 
@@ -401,7 +537,7 @@ impl WlDrm {
     ///
     /// - `value`:
     #[inline]
-    pub fn send_capabilities(
+    pub fn try_send_capabilities(
         &self,
         value: u32,
     ) -> Result<(), ObjectError> {
@@ -441,6 +577,22 @@ impl WlDrm {
         Ok(())
     }
 
+    /// # Arguments
+    ///
+    /// - `value`:
+    #[inline]
+    pub fn send_capabilities(
+        &self,
+        value: u32,
+    ) {
+        let res = self.try_send_capabilities(
+            value,
+        );
+        if let Err(e) = res {
+            log_send("wl_drm.capabilities", &e);
+        }
+    }
+
     /// Since when the create_prime_buffer message is available.
     pub const MSG__CREATE_PRIME_BUFFER__SINCE: u32 = 2;
 
@@ -458,7 +610,7 @@ impl WlDrm {
     /// - `offset2`:
     /// - `stride2`:
     #[inline]
-    pub fn send_create_prime_buffer(
+    pub fn try_send_create_prime_buffer(
         &self,
         id: &Rc<WlBuffer>,
         name: &Rc<OwnedFd>,
@@ -540,13 +692,59 @@ impl WlDrm {
         ]);
         Ok(())
     }
+
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `name`:
+    /// - `width`:
+    /// - `height`:
+    /// - `format`:
+    /// - `offset0`:
+    /// - `stride0`:
+    /// - `offset1`:
+    /// - `stride1`:
+    /// - `offset2`:
+    /// - `stride2`:
+    #[inline]
+    pub fn send_create_prime_buffer(
+        &self,
+        id: &Rc<WlBuffer>,
+        name: &Rc<OwnedFd>,
+        width: i32,
+        height: i32,
+        format: u32,
+        offset0: i32,
+        stride0: i32,
+        offset1: i32,
+        stride1: i32,
+        offset2: i32,
+        stride2: i32,
+    ) {
+        let res = self.try_send_create_prime_buffer(
+            id,
+            name,
+            width,
+            height,
+            format,
+            offset0,
+            stride0,
+            offset1,
+            stride1,
+            offset2,
+            stride2,
+        );
+        if let Err(e) = res {
+            log_send("wl_drm.create_prime_buffer", &e);
+        }
+    }
 }
 
 /// A message handler for [WlDrm] proxies.
 pub trait WlDrmHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlDrm>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// # Arguments
@@ -561,11 +759,11 @@ pub trait WlDrmHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_authenticate(
+        let res = _slf.try_send_authenticate(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_drm.authenticate message: {}", Report::new(e));
+            log_forward("wl_drm.authenticate", &e);
         }
     }
 
@@ -591,7 +789,7 @@ pub trait WlDrmHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_buffer(
+        let res = _slf.try_send_create_buffer(
             id,
             name,
             width,
@@ -600,7 +798,7 @@ pub trait WlDrmHandler: Any {
             format,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_drm.create_buffer message: {}", Report::new(e));
+            log_forward("wl_drm.create_buffer", &e);
         }
     }
 
@@ -636,7 +834,7 @@ pub trait WlDrmHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_planar_buffer(
+        let res = _slf.try_send_create_planar_buffer(
             id,
             name,
             width,
@@ -650,7 +848,7 @@ pub trait WlDrmHandler: Any {
             stride2,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_drm.create_planar_buffer message: {}", Report::new(e));
+            log_forward("wl_drm.create_planar_buffer", &e);
         }
     }
 
@@ -666,11 +864,11 @@ pub trait WlDrmHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_device(
+        let res = _slf.try_send_device(
             name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_drm.device message: {}", Report::new(e));
+            log_forward("wl_drm.device", &e);
         }
     }
 
@@ -686,11 +884,11 @@ pub trait WlDrmHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_format(
+        let res = _slf.try_send_format(
             format,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_drm.format message: {}", Report::new(e));
+            log_forward("wl_drm.format", &e);
         }
     }
 
@@ -702,10 +900,10 @@ pub trait WlDrmHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_authenticated(
+        let res = _slf.try_send_authenticated(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_drm.authenticated message: {}", Report::new(e));
+            log_forward("wl_drm.authenticated", &e);
         }
     }
 
@@ -721,11 +919,11 @@ pub trait WlDrmHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_capabilities(
+        let res = _slf.try_send_capabilities(
             value,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_drm.capabilities message: {}", Report::new(e));
+            log_forward("wl_drm.capabilities", &e);
         }
     }
 
@@ -761,7 +959,7 @@ pub trait WlDrmHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_prime_buffer(
+        let res = _slf.try_send_create_prime_buffer(
             id,
             name,
             width,
@@ -775,7 +973,7 @@ pub trait WlDrmHandler: Any {
             stride2,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_drm.create_prime_buffer message: {}", Report::new(e));
+            log_forward("wl_drm.create_prime_buffer", &e);
         }
     }
 }
@@ -795,7 +993,7 @@ impl ObjectPrivate for WlDrm {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

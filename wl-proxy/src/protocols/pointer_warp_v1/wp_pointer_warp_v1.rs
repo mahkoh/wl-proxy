@@ -65,7 +65,7 @@ impl WpPointerWarpV1 {
     ///
     /// Destroy the pointer warp manager.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -97,6 +97,20 @@ impl WpPointerWarpV1 {
         Ok(())
     }
 
+    /// destroy the warp manager
+    ///
+    /// Destroy the pointer warp manager.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_pointer_warp_v1.destroy", &e);
+        }
+    }
+
     /// Since when the warp_pointer message is available.
     pub const MSG__WARP_POINTER__SINCE: u32 = 1;
 
@@ -121,7 +135,7 @@ impl WpPointerWarpV1 {
     /// - `y`:
     /// - `serial`: serial number of the enter event
     #[inline]
-    pub fn send_warp_pointer(
+    pub fn try_send_warp_pointer(
         &self,
         surface: &Rc<WlSurface>,
         pointer: &Rc<WlPointer>,
@@ -184,13 +198,54 @@ impl WpPointerWarpV1 {
         ]);
         Ok(())
     }
+
+    /// reposition the pointer
+    ///
+    /// Request the compositor to move the pointer to a surface-local position.
+    /// Whether or not the compositor honors the request is implementation defined,
+    /// but it should
+    /// - honor it if the surface has pointer focus, including
+    ///   when it has an implicit pointer grab
+    /// - reject it if the enter serial is incorrect
+    /// - reject it if the requested position is outside of the surface
+    ///
+    /// Note that the enter serial is valid for any surface of the client,
+    /// and does not have to be from the surface the pointer is warped to.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`: surface to position the pointer on
+    /// - `pointer`: the pointer that should be repositioned
+    /// - `x`:
+    /// - `y`:
+    /// - `serial`: serial number of the enter event
+    #[inline]
+    pub fn send_warp_pointer(
+        &self,
+        surface: &Rc<WlSurface>,
+        pointer: &Rc<WlPointer>,
+        x: Fixed,
+        y: Fixed,
+        serial: u32,
+    ) {
+        let res = self.try_send_warp_pointer(
+            surface,
+            pointer,
+            x,
+            y,
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("wp_pointer_warp_v1.warp_pointer", &e);
+        }
+    }
 }
 
 /// A message handler for [WpPointerWarpV1] proxies.
 pub trait WpPointerWarpV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpPointerWarpV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the warp manager
@@ -204,10 +259,10 @@ pub trait WpPointerWarpV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_pointer_warp_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_pointer_warp_v1.destroy", &e);
         }
     }
 
@@ -247,7 +302,7 @@ pub trait WpPointerWarpV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_warp_pointer(
+        let res = _slf.try_send_warp_pointer(
             surface,
             pointer,
             x,
@@ -255,7 +310,7 @@ pub trait WpPointerWarpV1Handler: Any {
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_pointer_warp_v1.warp_pointer message: {}", Report::new(e));
+            log_forward("wp_pointer_warp_v1.warp_pointer", &e);
         }
     }
 }
@@ -275,7 +330,7 @@ impl ObjectPrivate for WpPointerWarpV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

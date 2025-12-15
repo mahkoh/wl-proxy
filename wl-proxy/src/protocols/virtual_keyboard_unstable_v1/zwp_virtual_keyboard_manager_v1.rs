@@ -64,7 +64,7 @@ impl ZwpVirtualKeyboardManagerV1 {
     /// - `seat`:
     /// - `id`:
     #[inline]
-    pub fn send_create_virtual_keyboard(
+    pub fn try_send_create_virtual_keyboard(
         &self,
         seat: &Rc<WlSeat>,
         id: &Rc<ZwpVirtualKeyboardV1>,
@@ -115,13 +115,40 @@ impl ZwpVirtualKeyboardManagerV1 {
         ]);
         Ok(())
     }
+
+    /// Create a new virtual keyboard
+    ///
+    /// Creates a new virtual keyboard associated to a seat.
+    ///
+    /// If the compositor enables a keyboard to perform arbitrary actions, it
+    /// should present an error when an untrusted client requests a new
+    /// keyboard.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`:
+    /// - `id`:
+    #[inline]
+    pub fn send_create_virtual_keyboard(
+        &self,
+        seat: &Rc<WlSeat>,
+        id: &Rc<ZwpVirtualKeyboardV1>,
+    ) {
+        let res = self.try_send_create_virtual_keyboard(
+            seat,
+            id,
+        );
+        if let Err(e) = res {
+            log_send("zwp_virtual_keyboard_manager_v1.create_virtual_keyboard", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpVirtualKeyboardManagerV1] proxies.
 pub trait ZwpVirtualKeyboardManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpVirtualKeyboardManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// Create a new virtual keyboard
@@ -149,12 +176,12 @@ pub trait ZwpVirtualKeyboardManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_virtual_keyboard(
+        let res = _slf.try_send_create_virtual_keyboard(
             seat,
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_virtual_keyboard_manager_v1.create_virtual_keyboard message: {}", Report::new(e));
+            log_forward("zwp_virtual_keyboard_manager_v1.create_virtual_keyboard", &e);
         }
     }
 }
@@ -174,7 +201,7 @@ impl ObjectPrivate for ZwpVirtualKeyboardManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

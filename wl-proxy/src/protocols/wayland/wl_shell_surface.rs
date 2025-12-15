@@ -69,7 +69,7 @@ impl WlShellSurface {
     ///
     /// - `serial`: serial number of the ping event
     #[inline]
-    pub fn send_pong(
+    pub fn try_send_pong(
         &self,
         serial: u32,
     ) -> Result<(), ObjectError> {
@@ -107,6 +107,27 @@ impl WlShellSurface {
         Ok(())
     }
 
+    /// respond to a ping event
+    ///
+    /// A client must respond to a ping event with a pong request or
+    /// the client may be deemed unresponsive.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the ping event
+    #[inline]
+    pub fn send_pong(
+        &self,
+        serial: u32,
+    ) {
+        let res = self.try_send_pong(
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("wl_shell_surface.pong", &e);
+        }
+    }
+
     /// Since when the move message is available.
     pub const MSG__MOVE__SINCE: u32 = 1;
 
@@ -123,7 +144,7 @@ impl WlShellSurface {
     /// - `seat`: seat whose pointer is used
     /// - `serial`: serial number of the implicit grab on the pointer
     #[inline]
-    pub fn send_move(
+    pub fn try_send_move(
         &self,
         seat: &Rc<WlSeat>,
         serial: u32,
@@ -170,6 +191,33 @@ impl WlShellSurface {
         Ok(())
     }
 
+    /// start an interactive move
+    ///
+    /// Start a pointer-driven move of the surface.
+    ///
+    /// This request must be used in response to a button press event.
+    /// The server may ignore move requests depending on the state of
+    /// the surface (e.g. fullscreen or maximized).
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`: seat whose pointer is used
+    /// - `serial`: serial number of the implicit grab on the pointer
+    #[inline]
+    pub fn send_move(
+        &self,
+        seat: &Rc<WlSeat>,
+        serial: u32,
+    ) {
+        let res = self.try_send_move(
+            seat,
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("wl_shell_surface.move", &e);
+        }
+    }
+
     /// Since when the resize message is available.
     pub const MSG__RESIZE__SINCE: u32 = 1;
 
@@ -187,7 +235,7 @@ impl WlShellSurface {
     /// - `serial`: serial number of the implicit grab on the pointer
     /// - `edges`: which edge or corner is being dragged
     #[inline]
-    pub fn send_resize(
+    pub fn try_send_resize(
         &self,
         seat: &Rc<WlSeat>,
         serial: u32,
@@ -238,6 +286,36 @@ impl WlShellSurface {
         Ok(())
     }
 
+    /// start an interactive resize
+    ///
+    /// Start a pointer-driven resizing of the surface.
+    ///
+    /// This request must be used in response to a button press event.
+    /// The server may ignore resize requests depending on the state of
+    /// the surface (e.g. fullscreen or maximized).
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`: seat whose pointer is used
+    /// - `serial`: serial number of the implicit grab on the pointer
+    /// - `edges`: which edge or corner is being dragged
+    #[inline]
+    pub fn send_resize(
+        &self,
+        seat: &Rc<WlSeat>,
+        serial: u32,
+        edges: WlShellSurfaceResize,
+    ) {
+        let res = self.try_send_resize(
+            seat,
+            serial,
+            edges,
+        );
+        if let Err(e) = res {
+            log_send("wl_shell_surface.resize", &e);
+        }
+    }
+
     /// Since when the set_toplevel message is available.
     pub const MSG__SET_TOPLEVEL__SINCE: u32 = 1;
 
@@ -247,7 +325,7 @@ impl WlShellSurface {
     ///
     /// A toplevel surface is not fullscreen, maximized or transient.
     #[inline]
-    pub fn send_set_toplevel(
+    pub fn try_send_set_toplevel(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -278,6 +356,22 @@ impl WlShellSurface {
         Ok(())
     }
 
+    /// make the surface a toplevel surface
+    ///
+    /// Map the surface as a toplevel surface.
+    ///
+    /// A toplevel surface is not fullscreen, maximized or transient.
+    #[inline]
+    pub fn send_set_toplevel(
+        &self,
+    ) {
+        let res = self.try_send_set_toplevel(
+        );
+        if let Err(e) = res {
+            log_send("wl_shell_surface.set_toplevel", &e);
+        }
+    }
+
     /// Since when the set_transient message is available.
     pub const MSG__SET_TRANSIENT__SINCE: u32 = 1;
 
@@ -298,7 +392,7 @@ impl WlShellSurface {
     /// - `y`: surface-local y coordinate
     /// - `flags`: transient surface behavior
     #[inline]
-    pub fn send_set_transient(
+    pub fn try_send_set_transient(
         &self,
         parent: &Rc<WlSurface>,
         x: i32,
@@ -353,6 +447,41 @@ impl WlShellSurface {
         Ok(())
     }
 
+    /// make the surface a transient surface
+    ///
+    /// Map the surface relative to an existing surface.
+    ///
+    /// The x and y arguments specify the location of the upper left
+    /// corner of the surface relative to the upper left corner of the
+    /// parent surface, in surface-local coordinates.
+    ///
+    /// The flags argument controls details of the transient behaviour.
+    ///
+    /// # Arguments
+    ///
+    /// - `parent`: parent surface
+    /// - `x`: surface-local x coordinate
+    /// - `y`: surface-local y coordinate
+    /// - `flags`: transient surface behavior
+    #[inline]
+    pub fn send_set_transient(
+        &self,
+        parent: &Rc<WlSurface>,
+        x: i32,
+        y: i32,
+        flags: WlShellSurfaceTransient,
+    ) {
+        let res = self.try_send_set_transient(
+            parent,
+            x,
+            y,
+            flags,
+        );
+        if let Err(e) = res {
+            log_send("wl_shell_surface.set_transient", &e);
+        }
+    }
+
     /// Since when the set_fullscreen message is available.
     pub const MSG__SET_FULLSCREEN__SINCE: u32 = 1;
 
@@ -398,7 +527,7 @@ impl WlShellSurface {
     /// - `framerate`: framerate in mHz
     /// - `output`: output on which the surface is to be fullscreen
     #[inline]
-    pub fn send_set_fullscreen(
+    pub fn try_send_set_fullscreen(
         &self,
         method: WlShellSurfaceFullscreenMethod,
         framerate: u32,
@@ -452,6 +581,64 @@ impl WlShellSurface {
         Ok(())
     }
 
+    /// make the surface a fullscreen surface
+    ///
+    /// Map the surface as a fullscreen surface.
+    ///
+    /// If an output parameter is given then the surface will be made
+    /// fullscreen on that output. If the client does not specify the
+    /// output then the compositor will apply its policy - usually
+    /// choosing the output on which the surface has the biggest surface
+    /// area.
+    ///
+    /// The client may specify a method to resolve a size conflict
+    /// between the output size and the surface size - this is provided
+    /// through the method parameter.
+    ///
+    /// The framerate parameter is used only when the method is set
+    /// to "driver", to indicate the preferred framerate. A value of 0
+    /// indicates that the client does not care about framerate.  The
+    /// framerate is specified in mHz, that is framerate of 60000 is 60Hz.
+    ///
+    /// A method of "scale" or "driver" implies a scaling operation of
+    /// the surface, either via a direct scaling operation or a change of
+    /// the output mode. This will override any kind of output scaling, so
+    /// that mapping a surface with a buffer size equal to the mode can
+    /// fill the screen independent of buffer_scale.
+    ///
+    /// A method of "fill" means we don't scale up the buffer, however
+    /// any output scale is applied. This means that you may run into
+    /// an edge case where the application maps a buffer with the same
+    /// size of the output mode but buffer_scale 1 (thus making a
+    /// surface larger than the output). In this case it is allowed to
+    /// downscale the results to fit the screen.
+    ///
+    /// The compositor must reply to this request with a configure event
+    /// with the dimensions for the output on which the surface will
+    /// be made fullscreen.
+    ///
+    /// # Arguments
+    ///
+    /// - `method`: method for resolving size conflict
+    /// - `framerate`: framerate in mHz
+    /// - `output`: output on which the surface is to be fullscreen
+    #[inline]
+    pub fn send_set_fullscreen(
+        &self,
+        method: WlShellSurfaceFullscreenMethod,
+        framerate: u32,
+        output: Option<&Rc<WlOutput>>,
+    ) {
+        let res = self.try_send_set_fullscreen(
+            method,
+            framerate,
+            output,
+        );
+        if let Err(e) = res {
+            log_send("wl_shell_surface.set_fullscreen", &e);
+        }
+    }
+
     /// Since when the set_popup message is available.
     pub const MSG__SET_POPUP__SINCE: u32 = 1;
 
@@ -486,7 +673,7 @@ impl WlShellSurface {
     /// - `y`: surface-local y coordinate
     /// - `flags`: transient surface behavior
     #[inline]
-    pub fn send_set_popup(
+    pub fn try_send_set_popup(
         &self,
         seat: &Rc<WlSeat>,
         serial: u32,
@@ -554,6 +741,59 @@ impl WlShellSurface {
         Ok(())
     }
 
+    /// make the surface a popup surface
+    ///
+    /// Map the surface as a popup.
+    ///
+    /// A popup surface is a transient surface with an added pointer
+    /// grab.
+    ///
+    /// An existing implicit grab will be changed to owner-events mode,
+    /// and the popup grab will continue after the implicit grab ends
+    /// (i.e. releasing the mouse button does not cause the popup to
+    /// be unmapped).
+    ///
+    /// The popup grab continues until the window is destroyed or a
+    /// mouse button is pressed in any other client's window. A click
+    /// in any of the client's surfaces is reported as normal, however,
+    /// clicks in other clients' surfaces will be discarded and trigger
+    /// the callback.
+    ///
+    /// The x and y arguments specify the location of the upper left
+    /// corner of the surface relative to the upper left corner of the
+    /// parent surface, in surface-local coordinates.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`: seat whose pointer is used
+    /// - `serial`: serial number of the implicit grab on the pointer
+    /// - `parent`: parent surface
+    /// - `x`: surface-local x coordinate
+    /// - `y`: surface-local y coordinate
+    /// - `flags`: transient surface behavior
+    #[inline]
+    pub fn send_set_popup(
+        &self,
+        seat: &Rc<WlSeat>,
+        serial: u32,
+        parent: &Rc<WlSurface>,
+        x: i32,
+        y: i32,
+        flags: WlShellSurfaceTransient,
+    ) {
+        let res = self.try_send_set_popup(
+            seat,
+            serial,
+            parent,
+            x,
+            y,
+            flags,
+        );
+        if let Err(e) = res {
+            log_send("wl_shell_surface.set_popup", &e);
+        }
+    }
+
     /// Since when the set_maximized message is available.
     pub const MSG__SET_MAXIMIZED__SINCE: u32 = 1;
 
@@ -582,7 +822,7 @@ impl WlShellSurface {
     ///
     /// - `output`: output on which the surface is to be maximized
     #[inline]
-    pub fn send_set_maximized(
+    pub fn try_send_set_maximized(
         &self,
         output: Option<&Rc<WlOutput>>,
     ) -> Result<(), ObjectError> {
@@ -628,6 +868,43 @@ impl WlShellSurface {
         Ok(())
     }
 
+    /// make the surface a maximized surface
+    ///
+    /// Map the surface as a maximized surface.
+    ///
+    /// If an output parameter is given then the surface will be
+    /// maximized on that output. If the client does not specify the
+    /// output then the compositor will apply its policy - usually
+    /// choosing the output on which the surface has the biggest surface
+    /// area.
+    ///
+    /// The compositor will reply with a configure event telling
+    /// the expected new surface size. The operation is completed
+    /// on the next buffer attach to this surface.
+    ///
+    /// A maximized surface typically fills the entire output it is
+    /// bound to, except for desktop elements such as panels. This is
+    /// the main difference between a maximized shell surface and a
+    /// fullscreen shell surface.
+    ///
+    /// The details depend on the compositor implementation.
+    ///
+    /// # Arguments
+    ///
+    /// - `output`: output on which the surface is to be maximized
+    #[inline]
+    pub fn send_set_maximized(
+        &self,
+        output: Option<&Rc<WlOutput>>,
+    ) {
+        let res = self.try_send_set_maximized(
+            output,
+        );
+        if let Err(e) = res {
+            log_send("wl_shell_surface.set_maximized", &e);
+        }
+    }
+
     /// Since when the set_title message is available.
     pub const MSG__SET_TITLE__SINCE: u32 = 1;
 
@@ -645,7 +922,7 @@ impl WlShellSurface {
     ///
     /// - `title`: surface title
     #[inline]
-    pub fn send_set_title(
+    pub fn try_send_set_title(
         &self,
         title: &str,
     ) -> Result<(), ObjectError> {
@@ -683,6 +960,32 @@ impl WlShellSurface {
         Ok(())
     }
 
+    /// set surface title
+    ///
+    /// Set a short title for the surface.
+    ///
+    /// This string may be used to identify the surface in a task bar,
+    /// window list, or other user interface elements provided by the
+    /// compositor.
+    ///
+    /// The string must be encoded in UTF-8.
+    ///
+    /// # Arguments
+    ///
+    /// - `title`: surface title
+    #[inline]
+    pub fn send_set_title(
+        &self,
+        title: &str,
+    ) {
+        let res = self.try_send_set_title(
+            title,
+        );
+        if let Err(e) = res {
+            log_send("wl_shell_surface.set_title", &e);
+        }
+    }
+
     /// Since when the set_class message is available.
     pub const MSG__SET_CLASS__SINCE: u32 = 1;
 
@@ -699,7 +1002,7 @@ impl WlShellSurface {
     ///
     /// - `class_`: surface class
     #[inline]
-    pub fn send_set_class(
+    pub fn try_send_set_class(
         &self,
         class_: &str,
     ) -> Result<(), ObjectError> {
@@ -737,6 +1040,31 @@ impl WlShellSurface {
         Ok(())
     }
 
+    /// set surface class
+    ///
+    /// Set a class for the surface.
+    ///
+    /// The surface class identifies the general class of applications
+    /// to which the surface belongs. A common convention is to use the
+    /// file name (or the full path if it is a non-standard location) of
+    /// the application's .desktop file as the class.
+    ///
+    /// # Arguments
+    ///
+    /// - `class_`: surface class
+    #[inline]
+    pub fn send_set_class(
+        &self,
+        class_: &str,
+    ) {
+        let res = self.try_send_set_class(
+            class_,
+        );
+        if let Err(e) = res {
+            log_send("wl_shell_surface.set_class", &e);
+        }
+    }
+
     /// Since when the ping message is available.
     pub const MSG__PING__SINCE: u32 = 1;
 
@@ -749,7 +1077,7 @@ impl WlShellSurface {
     ///
     /// - `serial`: serial number of the ping
     #[inline]
-    pub fn send_ping(
+    pub fn try_send_ping(
         &self,
         serial: u32,
     ) -> Result<(), ObjectError> {
@@ -789,6 +1117,27 @@ impl WlShellSurface {
         Ok(())
     }
 
+    /// ping client
+    ///
+    /// Ping a client to check if it is receiving events and sending
+    /// requests. A client is expected to reply with a pong request.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the ping
+    #[inline]
+    pub fn send_ping(
+        &self,
+        serial: u32,
+    ) {
+        let res = self.try_send_ping(
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("wl_shell_surface.ping", &e);
+        }
+    }
+
     /// Since when the configure message is available.
     pub const MSG__CONFIGURE__SINCE: u32 = 1;
 
@@ -818,7 +1167,7 @@ impl WlShellSurface {
     /// - `width`: new width of the surface
     /// - `height`: new height of the surface
     #[inline]
-    pub fn send_configure(
+    pub fn try_send_configure(
         &self,
         edges: WlShellSurfaceResize,
         width: i32,
@@ -866,6 +1215,48 @@ impl WlShellSurface {
         Ok(())
     }
 
+    /// suggest resize
+    ///
+    /// The configure event asks the client to resize its surface.
+    ///
+    /// The size is a hint, in the sense that the client is free to
+    /// ignore it if it doesn't resize, pick a smaller size (to
+    /// satisfy aspect ratio or resize in steps of NxM pixels).
+    ///
+    /// The edges parameter provides a hint about how the surface
+    /// was resized. The client may use this information to decide
+    /// how to adjust its content to the new size (e.g. a scrolling
+    /// area might adjust its content position to leave the viewable
+    /// content unmoved).
+    ///
+    /// The client is free to dismiss all but the last configure
+    /// event it received.
+    ///
+    /// The width and height arguments specify the size of the window
+    /// in surface-local coordinates.
+    ///
+    /// # Arguments
+    ///
+    /// - `edges`: how the surface was resized
+    /// - `width`: new width of the surface
+    /// - `height`: new height of the surface
+    #[inline]
+    pub fn send_configure(
+        &self,
+        edges: WlShellSurfaceResize,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_configure(
+            edges,
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("wl_shell_surface.configure", &e);
+        }
+    }
+
     /// Since when the popup_done message is available.
     pub const MSG__POPUP_DONE__SINCE: u32 = 1;
 
@@ -875,7 +1266,7 @@ impl WlShellSurface {
     /// that is, when the user clicks a surface that doesn't belong
     /// to the client owning the popup surface.
     #[inline]
-    pub fn send_popup_done(
+    pub fn try_send_popup_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -907,13 +1298,29 @@ impl WlShellSurface {
         ]);
         Ok(())
     }
+
+    /// popup interaction is done
+    ///
+    /// The popup_done event is sent out when a popup grab is broken,
+    /// that is, when the user clicks a surface that doesn't belong
+    /// to the client owning the popup surface.
+    #[inline]
+    pub fn send_popup_done(
+        &self,
+    ) {
+        let res = self.try_send_popup_done(
+        );
+        if let Err(e) = res {
+            log_send("wl_shell_surface.popup_done", &e);
+        }
+    }
 }
 
 /// A message handler for [WlShellSurface] proxies.
 pub trait WlShellSurfaceHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlShellSurface>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// respond to a ping event
@@ -933,11 +1340,11 @@ pub trait WlShellSurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_pong(
+        let res = _slf.try_send_pong(
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shell_surface.pong message: {}", Report::new(e));
+            log_forward("wl_shell_surface.pong", &e);
         }
     }
 
@@ -966,12 +1373,12 @@ pub trait WlShellSurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_move(
+        let res = _slf.try_send_move(
             seat,
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shell_surface.move message: {}", Report::new(e));
+            log_forward("wl_shell_surface.move", &e);
         }
     }
 
@@ -1002,13 +1409,13 @@ pub trait WlShellSurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_resize(
+        let res = _slf.try_send_resize(
             seat,
             serial,
             edges,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shell_surface.resize message: {}", Report::new(e));
+            log_forward("wl_shell_surface.resize", &e);
         }
     }
 
@@ -1025,10 +1432,10 @@ pub trait WlShellSurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_toplevel(
+        let res = _slf.try_send_set_toplevel(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shell_surface.set_toplevel message: {}", Report::new(e));
+            log_forward("wl_shell_surface.set_toplevel", &e);
         }
     }
 
@@ -1063,14 +1470,14 @@ pub trait WlShellSurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_transient(
+        let res = _slf.try_send_set_transient(
             parent,
             x,
             y,
             flags,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shell_surface.set_transient message: {}", Report::new(e));
+            log_forward("wl_shell_surface.set_transient", &e);
         }
     }
 
@@ -1129,13 +1536,13 @@ pub trait WlShellSurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_fullscreen(
+        let res = _slf.try_send_set_fullscreen(
             method,
             framerate,
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shell_surface.set_fullscreen message: {}", Report::new(e));
+            log_forward("wl_shell_surface.set_fullscreen", &e);
         }
     }
 
@@ -1186,7 +1593,7 @@ pub trait WlShellSurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_popup(
+        let res = _slf.try_send_set_popup(
             seat,
             serial,
             parent,
@@ -1195,7 +1602,7 @@ pub trait WlShellSurfaceHandler: Any {
             flags,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shell_surface.set_popup message: {}", Report::new(e));
+            log_forward("wl_shell_surface.set_popup", &e);
         }
     }
 
@@ -1235,11 +1642,11 @@ pub trait WlShellSurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_maximized(
+        let res = _slf.try_send_set_maximized(
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shell_surface.set_maximized message: {}", Report::new(e));
+            log_forward("wl_shell_surface.set_maximized", &e);
         }
     }
 
@@ -1265,11 +1672,11 @@ pub trait WlShellSurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_title(
+        let res = _slf.try_send_set_title(
             title,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shell_surface.set_title message: {}", Report::new(e));
+            log_forward("wl_shell_surface.set_title", &e);
         }
     }
 
@@ -1294,11 +1701,11 @@ pub trait WlShellSurfaceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_class(
+        let res = _slf.try_send_set_class(
             class_,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shell_surface.set_class message: {}", Report::new(e));
+            log_forward("wl_shell_surface.set_class", &e);
         }
     }
 
@@ -1319,11 +1726,11 @@ pub trait WlShellSurfaceHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_ping(
+        let res = _slf.try_send_ping(
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shell_surface.ping message: {}", Report::new(e));
+            log_forward("wl_shell_surface.ping", &e);
         }
     }
 
@@ -1363,13 +1770,13 @@ pub trait WlShellSurfaceHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_configure(
+        let res = _slf.try_send_configure(
             edges,
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shell_surface.configure message: {}", Report::new(e));
+            log_forward("wl_shell_surface.configure", &e);
         }
     }
 
@@ -1386,10 +1793,10 @@ pub trait WlShellSurfaceHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_popup_done(
+        let res = _slf.try_send_popup_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_shell_surface.popup_done message: {}", Report::new(e));
+            log_forward("wl_shell_surface.popup_done", &e);
         }
     }
 }
@@ -1409,7 +1816,7 @@ impl ObjectPrivate for WlShellSurface {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

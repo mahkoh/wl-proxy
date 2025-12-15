@@ -78,8 +78,12 @@ pub trait ObjectUtils: Object {
         self.core().unique_id()
     }
 
-    fn delete_id(&self) -> Result<(), ObjectError> {
+    fn delete_id(&self) {
         self.core().delete_id()
+    }
+
+    fn try_delete_id(&self) -> Result<(), ObjectError> {
+        self.core().try_delete_id()
     }
 
     fn set_forward_to_client(&self, enabled: bool) {
@@ -348,7 +352,13 @@ impl ObjectCore {
         let _proxy = self.state.server.objects.borrow_mut().remove(&id);
     }
 
-    pub fn delete_id(&self) -> Result<(), ObjectError> {
+    pub fn delete_id(&self) {
+        if let Err(e) = self.try_delete_id() {
+            log::warn!("Could not release a client id: {}", Report::new(e));
+        }
+    }
+
+    pub fn try_delete_id(&self) -> Result<(), ObjectError> {
         if !self.awaiting_delete_id.replace(false) {
             return Err(ObjectError::NotAwaitingDeleteId);
         }
@@ -361,7 +371,7 @@ impl ObjectCore {
         };
         let proxy = client.endpoint.objects.borrow_mut().remove(&id);
         drop(proxy);
-        client.display.send_delete_id(id)
+        client.display.try_send_delete_id(id)
     }
 
     pub fn create_child<P>(&self) -> Rc<P>

@@ -61,7 +61,7 @@ impl WpCursorShapeManagerV1 {
     ///
     /// Destroy the cursor shape manager.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -93,6 +93,20 @@ impl WpCursorShapeManagerV1 {
         Ok(())
     }
 
+    /// destroy the manager
+    ///
+    /// Destroy the cursor shape manager.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_cursor_shape_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_pointer message is available.
     pub const MSG__GET_POINTER__SINCE: u32 = 1;
 
@@ -108,7 +122,7 @@ impl WpCursorShapeManagerV1 {
     /// - `cursor_shape_device`:
     /// - `pointer`:
     #[inline]
-    pub fn send_get_pointer(
+    pub fn try_send_get_pointer(
         &self,
         cursor_shape_device: &Rc<WpCursorShapeDeviceV1>,
         pointer: &Rc<WlPointer>,
@@ -160,6 +174,32 @@ impl WpCursorShapeManagerV1 {
         Ok(())
     }
 
+    /// manage the cursor shape of a pointer device
+    ///
+    /// Obtain a wp_cursor_shape_device_v1 for a wl_pointer object.
+    ///
+    /// When the pointer capability is removed from the wl_seat, the
+    /// wp_cursor_shape_device_v1 object becomes inert.
+    ///
+    /// # Arguments
+    ///
+    /// - `cursor_shape_device`:
+    /// - `pointer`:
+    #[inline]
+    pub fn send_get_pointer(
+        &self,
+        cursor_shape_device: &Rc<WpCursorShapeDeviceV1>,
+        pointer: &Rc<WlPointer>,
+    ) {
+        let res = self.try_send_get_pointer(
+            cursor_shape_device,
+            pointer,
+        );
+        if let Err(e) = res {
+            log_send("wp_cursor_shape_manager_v1.get_pointer", &e);
+        }
+    }
+
     /// Since when the get_tablet_tool_v2 message is available.
     pub const MSG__GET_TABLET_TOOL_V2__SINCE: u32 = 1;
 
@@ -175,7 +215,7 @@ impl WpCursorShapeManagerV1 {
     /// - `cursor_shape_device`:
     /// - `tablet_tool`:
     #[inline]
-    pub fn send_get_tablet_tool_v2(
+    pub fn try_send_get_tablet_tool_v2(
         &self,
         cursor_shape_device: &Rc<WpCursorShapeDeviceV1>,
         tablet_tool: &Rc<ZwpTabletToolV2>,
@@ -226,13 +266,39 @@ impl WpCursorShapeManagerV1 {
         ]);
         Ok(())
     }
+
+    /// manage the cursor shape of a tablet tool device
+    ///
+    /// Obtain a wp_cursor_shape_device_v1 for a zwp_tablet_tool_v2 object.
+    ///
+    /// When the zwp_tablet_tool_v2 is removed, the wp_cursor_shape_device_v1
+    /// object becomes inert.
+    ///
+    /// # Arguments
+    ///
+    /// - `cursor_shape_device`:
+    /// - `tablet_tool`:
+    #[inline]
+    pub fn send_get_tablet_tool_v2(
+        &self,
+        cursor_shape_device: &Rc<WpCursorShapeDeviceV1>,
+        tablet_tool: &Rc<ZwpTabletToolV2>,
+    ) {
+        let res = self.try_send_get_tablet_tool_v2(
+            cursor_shape_device,
+            tablet_tool,
+        );
+        if let Err(e) = res {
+            log_send("wp_cursor_shape_manager_v1.get_tablet_tool_v2", &e);
+        }
+    }
 }
 
 /// A message handler for [WpCursorShapeManagerV1] proxies.
 pub trait WpCursorShapeManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpCursorShapeManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the manager
@@ -246,10 +312,10 @@ pub trait WpCursorShapeManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_cursor_shape_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_cursor_shape_manager_v1.destroy", &e);
         }
     }
 
@@ -277,12 +343,12 @@ pub trait WpCursorShapeManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_pointer(
+        let res = _slf.try_send_get_pointer(
             cursor_shape_device,
             pointer,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_cursor_shape_manager_v1.get_pointer message: {}", Report::new(e));
+            log_forward("wp_cursor_shape_manager_v1.get_pointer", &e);
         }
     }
 
@@ -310,12 +376,12 @@ pub trait WpCursorShapeManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_tablet_tool_v2(
+        let res = _slf.try_send_get_tablet_tool_v2(
             cursor_shape_device,
             tablet_tool,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_cursor_shape_manager_v1.get_tablet_tool_v2 message: {}", Report::new(e));
+            log_forward("wp_cursor_shape_manager_v1.get_tablet_tool_v2", &e);
         }
     }
 }
@@ -335,7 +401,7 @@ impl ObjectPrivate for WpCursorShapeManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

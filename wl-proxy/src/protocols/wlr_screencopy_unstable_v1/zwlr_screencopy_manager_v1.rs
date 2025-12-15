@@ -61,7 +61,7 @@ impl ZwlrScreencopyManagerV1 {
     /// - `overlay_cursor`: composite cursor onto the frame
     /// - `output`:
     #[inline]
-    pub fn send_capture_output(
+    pub fn try_send_capture_output(
         &self,
         frame: &Rc<ZwlrScreencopyFrameV1>,
         overlay_cursor: i32,
@@ -117,6 +117,32 @@ impl ZwlrScreencopyManagerV1 {
         Ok(())
     }
 
+    /// capture an output
+    ///
+    /// Capture the next frame of an entire output.
+    ///
+    /// # Arguments
+    ///
+    /// - `frame`:
+    /// - `overlay_cursor`: composite cursor onto the frame
+    /// - `output`:
+    #[inline]
+    pub fn send_capture_output(
+        &self,
+        frame: &Rc<ZwlrScreencopyFrameV1>,
+        overlay_cursor: i32,
+        output: &Rc<WlOutput>,
+    ) {
+        let res = self.try_send_capture_output(
+            frame,
+            overlay_cursor,
+            output,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_screencopy_manager_v1.capture_output", &e);
+        }
+    }
+
     /// Since when the capture_output_region message is available.
     pub const MSG__CAPTURE_OUTPUT_REGION__SINCE: u32 = 1;
 
@@ -138,7 +164,7 @@ impl ZwlrScreencopyManagerV1 {
     /// - `width`:
     /// - `height`:
     #[inline]
-    pub fn send_capture_output_region(
+    pub fn try_send_capture_output_region(
         &self,
         frame: &Rc<ZwlrScreencopyFrameV1>,
         overlay_cursor: i32,
@@ -210,6 +236,48 @@ impl ZwlrScreencopyManagerV1 {
         Ok(())
     }
 
+    /// capture an output's region
+    ///
+    /// Capture the next frame of an output's region.
+    ///
+    /// The region is given in output logical coordinates, see
+    /// xdg_output.logical_size. The region will be clipped to the output's
+    /// extents.
+    ///
+    /// # Arguments
+    ///
+    /// - `frame`:
+    /// - `overlay_cursor`: composite cursor onto the frame
+    /// - `output`:
+    /// - `x`:
+    /// - `y`:
+    /// - `width`:
+    /// - `height`:
+    #[inline]
+    pub fn send_capture_output_region(
+        &self,
+        frame: &Rc<ZwlrScreencopyFrameV1>,
+        overlay_cursor: i32,
+        output: &Rc<WlOutput>,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_capture_output_region(
+            frame,
+            overlay_cursor,
+            output,
+            x,
+            y,
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_screencopy_manager_v1.capture_output_region", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -218,7 +286,7 @@ impl ZwlrScreencopyManagerV1 {
     /// All objects created by the manager will still remain valid, until their
     /// appropriate destroy request has been called.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -249,13 +317,28 @@ impl ZwlrScreencopyManagerV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the manager
+    ///
+    /// All objects created by the manager will still remain valid, until their
+    /// appropriate destroy request has been called.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_screencopy_manager_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrScreencopyManagerV1] proxies.
 pub trait ZwlrScreencopyManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrScreencopyManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// capture an output
@@ -281,13 +364,13 @@ pub trait ZwlrScreencopyManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_capture_output(
+        let res = _slf.try_send_capture_output(
             frame,
             overlay_cursor,
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_screencopy_manager_v1.capture_output message: {}", Report::new(e));
+            log_forward("zwlr_screencopy_manager_v1.capture_output", &e);
         }
     }
 
@@ -326,7 +409,7 @@ pub trait ZwlrScreencopyManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_capture_output_region(
+        let res = _slf.try_send_capture_output_region(
             frame,
             overlay_cursor,
             output,
@@ -336,7 +419,7 @@ pub trait ZwlrScreencopyManagerV1Handler: Any {
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_screencopy_manager_v1.capture_output_region message: {}", Report::new(e));
+            log_forward("zwlr_screencopy_manager_v1.capture_output_region", &e);
         }
     }
 
@@ -352,10 +435,10 @@ pub trait ZwlrScreencopyManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_screencopy_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("zwlr_screencopy_manager_v1.destroy", &e);
         }
     }
 }
@@ -375,7 +458,7 @@ impl ObjectPrivate for ZwlrScreencopyManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

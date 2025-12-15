@@ -75,7 +75,7 @@ impl XdgToplevel {
     /// This request destroys the role surface and unmaps the surface;
     /// see "Unmapping" behavior in interface section for details.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -105,6 +105,21 @@ impl XdgToplevel {
         ]);
         self.core.handle_server_destroy();
         Ok(())
+    }
+
+    /// destroy the xdg_toplevel
+    ///
+    /// This request destroys the role surface and unmaps the surface;
+    /// see "Unmapping" behavior in interface section for details.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel.destroy", &e);
+        }
     }
 
     /// Since when the set_parent message is available.
@@ -137,7 +152,7 @@ impl XdgToplevel {
     ///
     /// - `parent`:
     #[inline]
-    pub fn send_set_parent(
+    pub fn try_send_set_parent(
         &self,
         parent: Option<&Rc<XdgToplevel>>,
     ) -> Result<(), ObjectError> {
@@ -183,6 +198,45 @@ impl XdgToplevel {
         Ok(())
     }
 
+    /// set the parent of this surface
+    ///
+    /// Set the "parent" of this surface. This surface should be stacked
+    /// above the parent surface and all other ancestor surfaces.
+    ///
+    /// Parent surfaces should be set on dialogs, toolboxes, or other
+    /// "auxiliary" surfaces, so that the parent is raised when the dialog
+    /// is raised.
+    ///
+    /// Setting a null parent for a child surface unsets its parent. Setting
+    /// a null parent for a surface which currently has no parent is a no-op.
+    ///
+    /// Only mapped surfaces can have child surfaces. Setting a parent which
+    /// is not mapped is equivalent to setting a null parent. If a surface
+    /// becomes unmapped, its children's parent is set to the parent of
+    /// the now-unmapped surface. If the now-unmapped surface has no parent,
+    /// its children's parent is unset. If the now-unmapped surface becomes
+    /// mapped again, its parent-child relationship is not restored.
+    ///
+    /// The parent toplevel must not be one of the child toplevel's
+    /// descendants, and the parent must be different from the child toplevel,
+    /// otherwise the invalid_parent protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `parent`:
+    #[inline]
+    pub fn send_set_parent(
+        &self,
+        parent: Option<&Rc<XdgToplevel>>,
+    ) {
+        let res = self.try_send_set_parent(
+            parent,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel.set_parent", &e);
+        }
+    }
+
     /// Since when the set_title message is available.
     pub const MSG__SET_TITLE__SINCE: u32 = 1;
 
@@ -200,7 +254,7 @@ impl XdgToplevel {
     ///
     /// - `title`:
     #[inline]
-    pub fn send_set_title(
+    pub fn try_send_set_title(
         &self,
         title: &str,
     ) -> Result<(), ObjectError> {
@@ -238,6 +292,32 @@ impl XdgToplevel {
         Ok(())
     }
 
+    /// set surface title
+    ///
+    /// Set a short title for the surface.
+    ///
+    /// This string may be used to identify the surface in a task bar,
+    /// window list, or other user interface elements provided by the
+    /// compositor.
+    ///
+    /// The string must be encoded in UTF-8.
+    ///
+    /// # Arguments
+    ///
+    /// - `title`:
+    #[inline]
+    pub fn send_set_title(
+        &self,
+        title: &str,
+    ) {
+        let res = self.try_send_set_title(
+            title,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel.set_title", &e);
+        }
+    }
+
     /// Since when the set_app_id message is available.
     pub const MSG__SET_APP_ID__SINCE: u32 = 1;
 
@@ -271,7 +351,7 @@ impl XdgToplevel {
     ///
     /// - `app_id`:
     #[inline]
-    pub fn send_set_app_id(
+    pub fn try_send_set_app_id(
         &self,
         app_id: &str,
     ) -> Result<(), ObjectError> {
@@ -309,6 +389,48 @@ impl XdgToplevel {
         Ok(())
     }
 
+    /// set application ID
+    ///
+    /// Set an application identifier for the surface.
+    ///
+    /// The app ID identifies the general class of applications to which
+    /// the surface belongs. The compositor can use this to group multiple
+    /// surfaces together, or to determine how to launch a new application.
+    ///
+    /// For D-Bus activatable applications, the app ID is used as the D-Bus
+    /// service name.
+    ///
+    /// The compositor shell will try to group application surfaces together
+    /// by their app ID. As a best practice, it is suggested to select app
+    /// ID's that match the basename of the application's .desktop file.
+    /// For example, "org.freedesktop.FooViewer" where the .desktop file is
+    /// "org.freedesktop.FooViewer.desktop".
+    ///
+    /// Like other properties, a set_app_id request can be sent after the
+    /// xdg_toplevel has been mapped to update the property.
+    ///
+    /// See the desktop-entry specification [0] for more details on
+    /// application identifiers and how they relate to well-known D-Bus
+    /// names and .desktop files.
+    ///
+    /// [0] https://standards.freedesktop.org/desktop-entry-spec/
+    ///
+    /// # Arguments
+    ///
+    /// - `app_id`:
+    #[inline]
+    pub fn send_set_app_id(
+        &self,
+        app_id: &str,
+    ) {
+        let res = self.try_send_set_app_id(
+            app_id,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel.set_app_id", &e);
+        }
+    }
+
     /// Since when the show_window_menu message is available.
     pub const MSG__SHOW_WINDOW_MENU__SINCE: u32 = 1;
 
@@ -334,7 +456,7 @@ impl XdgToplevel {
     /// - `x`: the x position to pop up the window menu at
     /// - `y`: the y position to pop up the window menu at
     #[inline]
-    pub fn send_show_window_menu(
+    pub fn try_send_show_window_menu(
         &self,
         seat: &Rc<WlSeat>,
         serial: u32,
@@ -389,6 +511,46 @@ impl XdgToplevel {
         Ok(())
     }
 
+    /// show the window menu
+    ///
+    /// Clients implementing client-side decorations might want to show
+    /// a context menu when right-clicking on the decorations, giving the
+    /// user a menu that they can use to maximize or minimize the window.
+    ///
+    /// This request asks the compositor to pop up such a window menu at
+    /// the given position, relative to the local surface coordinates of
+    /// the parent surface. There are no guarantees as to what menu items
+    /// the window menu contains, or even if a window menu will be drawn
+    /// at all.
+    ///
+    /// This request must be used in response to some sort of user action
+    /// like a button press, key press, or touch down event.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`: the wl_seat of the user event
+    /// - `serial`: the serial of the user event
+    /// - `x`: the x position to pop up the window menu at
+    /// - `y`: the y position to pop up the window menu at
+    #[inline]
+    pub fn send_show_window_menu(
+        &self,
+        seat: &Rc<WlSeat>,
+        serial: u32,
+        x: i32,
+        y: i32,
+    ) {
+        let res = self.try_send_show_window_menu(
+            seat,
+            serial,
+            x,
+            y,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel.show_window_menu", &e);
+        }
+    }
+
     /// Since when the move message is available.
     pub const MSG__MOVE__SINCE: u32 = 1;
 
@@ -416,7 +578,7 @@ impl XdgToplevel {
     /// - `seat`: the wl_seat of the user event
     /// - `serial`: the serial of the user event
     #[inline]
-    pub fn send_move(
+    pub fn try_send_move(
         &self,
         seat: &Rc<WlSeat>,
         serial: u32,
@@ -463,6 +625,44 @@ impl XdgToplevel {
         Ok(())
     }
 
+    /// start an interactive move
+    ///
+    /// Start an interactive, user-driven move of the surface.
+    ///
+    /// This request must be used in response to some sort of user action
+    /// like a button press, key press, or touch down event. The passed
+    /// serial is used to determine the type of interactive move (touch,
+    /// pointer, etc).
+    ///
+    /// The server may ignore move requests depending on the state of
+    /// the surface (e.g. fullscreen or maximized), or if the passed serial
+    /// is no longer valid.
+    ///
+    /// If triggered, the surface will lose the focus of the device
+    /// (wl_pointer, wl_touch, etc) used for the move. It is up to the
+    /// compositor to visually indicate that the move is taking place, such as
+    /// updating a pointer cursor, during the move. There is no guarantee
+    /// that the device focus will return when the move is completed.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`: the wl_seat of the user event
+    /// - `serial`: the serial of the user event
+    #[inline]
+    pub fn send_move(
+        &self,
+        seat: &Rc<WlSeat>,
+        serial: u32,
+    ) {
+        let res = self.try_send_move(
+            seat,
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel.move", &e);
+        }
+    }
+
     /// Since when the resize message is available.
     pub const MSG__RESIZE__SINCE: u32 = 1;
 
@@ -506,7 +706,7 @@ impl XdgToplevel {
     /// - `serial`: the serial of the user event
     /// - `edges`: which edge or corner is being dragged
     #[inline]
-    pub fn send_resize(
+    pub fn try_send_resize(
         &self,
         seat: &Rc<WlSeat>,
         serial: u32,
@@ -557,8 +757,147 @@ impl XdgToplevel {
         Ok(())
     }
 
+    /// start an interactive resize
+    ///
+    /// Start a user-driven, interactive resize of the surface.
+    ///
+    /// This request must be used in response to some sort of user action
+    /// like a button press, key press, or touch down event. The passed
+    /// serial is used to determine the type of interactive resize (touch,
+    /// pointer, etc).
+    ///
+    /// The server may ignore resize requests depending on the state of
+    /// the surface (e.g. fullscreen or maximized).
+    ///
+    /// If triggered, the client will receive configure events with the
+    /// "resize" state enum value and the expected sizes. See the "resize"
+    /// enum value for more details about what is required. The client
+    /// must also acknowledge configure events using "ack_configure". After
+    /// the resize is completed, the client will receive another "configure"
+    /// event without the resize state.
+    ///
+    /// If triggered, the surface also will lose the focus of the device
+    /// (wl_pointer, wl_touch, etc) used for the resize. It is up to the
+    /// compositor to visually indicate that the resize is taking place,
+    /// such as updating a pointer cursor, during the resize. There is no
+    /// guarantee that the device focus will return when the resize is
+    /// completed.
+    ///
+    /// The edges parameter specifies how the surface should be resized, and
+    /// is one of the values of the resize_edge enum. Values not matching
+    /// a variant of the enum will cause the invalid_resize_edge protocol error.
+    /// The compositor may use this information to update the surface position
+    /// for example when dragging the top left corner. The compositor may also
+    /// use this information to adapt its behavior, e.g. choose an appropriate
+    /// cursor image.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`: the wl_seat of the user event
+    /// - `serial`: the serial of the user event
+    /// - `edges`: which edge or corner is being dragged
+    #[inline]
+    pub fn send_resize(
+        &self,
+        seat: &Rc<WlSeat>,
+        serial: u32,
+        edges: XdgToplevelResizeEdge,
+    ) {
+        let res = self.try_send_resize(
+            seat,
+            serial,
+            edges,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel.resize", &e);
+        }
+    }
+
     /// Since when the set_max_size message is available.
     pub const MSG__SET_MAX_SIZE__SINCE: u32 = 1;
+
+    /// set the maximum size
+    ///
+    /// Set a maximum size for the window.
+    ///
+    /// The client can specify a maximum size so that the compositor does
+    /// not try to configure the window beyond this size.
+    ///
+    /// The width and height arguments are in window geometry coordinates.
+    /// See xdg_surface.set_window_geometry.
+    ///
+    /// Values set in this way are double-buffered, see wl_surface.commit.
+    ///
+    /// The compositor can use this information to allow or disallow
+    /// different states like maximize or fullscreen and draw accurate
+    /// animations.
+    ///
+    /// Similarly, a tiling window manager may use this information to
+    /// place and resize client windows in a more effective way.
+    ///
+    /// The client should not rely on the compositor to obey the maximum
+    /// size. The compositor may decide to ignore the values set by the
+    /// client and request a larger size.
+    ///
+    /// If never set, or a value of zero in the request, means that the
+    /// client has no expected maximum size in the given dimension.
+    /// As a result, a client wishing to reset the maximum size
+    /// to an unspecified state can use zero for width and height in the
+    /// request.
+    ///
+    /// Requesting a maximum size to be smaller than the minimum size of
+    /// a surface is illegal and will result in an invalid_size error.
+    ///
+    /// The width and height must be greater than or equal to zero. Using
+    /// strictly negative values for width or height will result in a
+    /// invalid_size error.
+    ///
+    /// # Arguments
+    ///
+    /// - `width`:
+    /// - `height`:
+    #[inline]
+    pub fn try_send_set_max_size(
+        &self,
+        width: i32,
+        height: i32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            width,
+            height,
+        );
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError::ReceiverNoServerId);
+        };
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: i32, arg1: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel#{}.set_max_size(width: {}, height: {})\n", id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0, arg1);
+        }
+        let endpoint = &self.core.state.server;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            7,
+            arg0 as u32,
+            arg1 as u32,
+        ]);
+        Ok(())
+    }
 
     /// set the maximum size
     ///
@@ -605,42 +944,14 @@ impl XdgToplevel {
         &self,
         width: i32,
         height: i32,
-    ) -> Result<(), ObjectError> {
-        let (
-            arg0,
-            arg1,
-        ) = (
+    ) {
+        let res = self.try_send_set_max_size(
             width,
             height,
         );
-        let core = self.core();
-        let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
-        };
-        if self.core.state.log {
-            #[cold]
-            fn log(state: &State, id: u32, arg0: i32, arg1: i32) {
-                let (millis, micros) = time_since_epoch();
-                let prefix = &state.log_prefix;
-                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= xdg_toplevel#{}.set_max_size(width: {}, height: {})\n", id, arg0, arg1);
-                state.log(args);
-            }
-            log(&self.core.state, id, arg0, arg1);
+        if let Err(e) = res {
+            log_send("xdg_toplevel.set_max_size", &e);
         }
-        let endpoint = &self.core.state.server;
-        if !endpoint.flush_queued.replace(true) {
-            self.core.state.add_flushable_endpoint(endpoint, None);
-        }
-        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
-        let outgoing = &mut *outgoing_ref;
-        let mut fmt = outgoing.formatter();
-        fmt.words([
-            id,
-            7,
-            arg0 as u32,
-            arg1 as u32,
-        ]);
-        Ok(())
     }
 
     /// Since when the set_min_size message is available.
@@ -687,7 +998,7 @@ impl XdgToplevel {
     /// - `width`:
     /// - `height`:
     #[inline]
-    pub fn send_set_min_size(
+    pub fn try_send_set_min_size(
         &self,
         width: i32,
         height: i32,
@@ -729,6 +1040,61 @@ impl XdgToplevel {
         Ok(())
     }
 
+    /// set the minimum size
+    ///
+    /// Set a minimum size for the window.
+    ///
+    /// The client can specify a minimum size so that the compositor does
+    /// not try to configure the window below this size.
+    ///
+    /// The width and height arguments are in window geometry coordinates.
+    /// See xdg_surface.set_window_geometry.
+    ///
+    /// Values set in this way are double-buffered, see wl_surface.commit.
+    ///
+    /// The compositor can use this information to allow or disallow
+    /// different states like maximize or fullscreen and draw accurate
+    /// animations.
+    ///
+    /// Similarly, a tiling window manager may use this information to
+    /// place and resize client windows in a more effective way.
+    ///
+    /// The client should not rely on the compositor to obey the minimum
+    /// size. The compositor may decide to ignore the values set by the
+    /// client and request a smaller size.
+    ///
+    /// If never set, or a value of zero in the request, means that the
+    /// client has no expected minimum size in the given dimension.
+    /// As a result, a client wishing to reset the minimum size
+    /// to an unspecified state can use zero for width and height in the
+    /// request.
+    ///
+    /// Requesting a minimum size to be larger than the maximum size of
+    /// a surface is illegal and will result in an invalid_size error.
+    ///
+    /// The width and height must be greater than or equal to zero. Using
+    /// strictly negative values for width and height will result in a
+    /// invalid_size error.
+    ///
+    /// # Arguments
+    ///
+    /// - `width`:
+    /// - `height`:
+    #[inline]
+    pub fn send_set_min_size(
+        &self,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_set_min_size(
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel.set_min_size", &e);
+        }
+    }
+
     /// Since when the set_maximized message is available.
     pub const MSG__SET_MAXIMIZED__SINCE: u32 = 1;
 
@@ -754,7 +1120,7 @@ impl XdgToplevel {
     /// effect. It may alter the state the surface is returned to when
     /// unmaximized unless overridden by the compositor.
     #[inline]
-    pub fn send_set_maximized(
+    pub fn try_send_set_maximized(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -785,6 +1151,38 @@ impl XdgToplevel {
         Ok(())
     }
 
+    /// maximize the window
+    ///
+    /// Maximize the surface.
+    ///
+    /// After requesting that the surface should be maximized, the compositor
+    /// will respond by emitting a configure event. Whether this configure
+    /// actually sets the window maximized is subject to compositor policies.
+    /// The client must then update its content, drawing in the configured
+    /// state. The client must also acknowledge the configure when committing
+    /// the new content (see ack_configure).
+    ///
+    /// It is up to the compositor to decide how and where to maximize the
+    /// surface, for example which output and what region of the screen should
+    /// be used.
+    ///
+    /// If the surface was already maximized, the compositor will still emit
+    /// a configure event with the "maximized" state.
+    ///
+    /// If the surface is in a fullscreen state, this request has no direct
+    /// effect. It may alter the state the surface is returned to when
+    /// unmaximized unless overridden by the compositor.
+    #[inline]
+    pub fn send_set_maximized(
+        &self,
+    ) {
+        let res = self.try_send_set_maximized(
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel.set_maximized", &e);
+        }
+    }
+
     /// Since when the unset_maximized message is available.
     pub const MSG__UNSET_MAXIMIZED__SINCE: u32 = 1;
 
@@ -812,7 +1210,7 @@ impl XdgToplevel {
     /// effect. It may alter the state the surface is returned to when
     /// unmaximized unless overridden by the compositor.
     #[inline]
-    pub fn send_unset_maximized(
+    pub fn try_send_unset_maximized(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -841,6 +1239,40 @@ impl XdgToplevel {
             10,
         ]);
         Ok(())
+    }
+
+    /// unmaximize the window
+    ///
+    /// Unmaximize the surface.
+    ///
+    /// After requesting that the surface should be unmaximized, the compositor
+    /// will respond by emitting a configure event. Whether this actually
+    /// un-maximizes the window is subject to compositor policies.
+    /// If available and applicable, the compositor will include the window
+    /// geometry dimensions the window had prior to being maximized in the
+    /// configure event. The client must then update its content, drawing it in
+    /// the configured state. The client must also acknowledge the configure
+    /// when committing the new content (see ack_configure).
+    ///
+    /// It is up to the compositor to position the surface after it was
+    /// unmaximized; usually the position the surface had before maximizing, if
+    /// applicable.
+    ///
+    /// If the surface was already not maximized, the compositor will still
+    /// emit a configure event without the "maximized" state.
+    ///
+    /// If the surface is in a fullscreen state, this request has no direct
+    /// effect. It may alter the state the surface is returned to when
+    /// unmaximized unless overridden by the compositor.
+    #[inline]
+    pub fn send_unset_maximized(
+        &self,
+    ) {
+        let res = self.try_send_unset_maximized(
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel.unset_maximized", &e);
+        }
     }
 
     /// Since when the set_fullscreen message is available.
@@ -876,7 +1308,7 @@ impl XdgToplevel {
     ///
     /// - `output`:
     #[inline]
-    pub fn send_set_fullscreen(
+    pub fn try_send_set_fullscreen(
         &self,
         output: Option<&Rc<WlOutput>>,
     ) -> Result<(), ObjectError> {
@@ -922,6 +1354,48 @@ impl XdgToplevel {
         Ok(())
     }
 
+    /// set the window as fullscreen on an output
+    ///
+    /// Make the surface fullscreen.
+    ///
+    /// After requesting that the surface should be fullscreened, the
+    /// compositor will respond by emitting a configure event. Whether the
+    /// client is actually put into a fullscreen state is subject to compositor
+    /// policies. The client must also acknowledge the configure when
+    /// committing the new content (see ack_configure).
+    ///
+    /// The output passed by the request indicates the client's preference as
+    /// to which display it should be set fullscreen on. If this value is NULL,
+    /// it's up to the compositor to choose which display will be used to map
+    /// this surface.
+    ///
+    /// If the surface doesn't cover the whole output, the compositor will
+    /// position the surface in the center of the output and compensate with
+    /// with border fill covering the rest of the output. The content of the
+    /// border fill is undefined, but should be assumed to be in some way that
+    /// attempts to blend into the surrounding area (e.g. solid black).
+    ///
+    /// If the fullscreened surface is not opaque, the compositor must make
+    /// sure that other screen content not part of the same surface tree (made
+    /// up of subsurfaces, popups or similarly coupled surfaces) are not
+    /// visible below the fullscreened surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `output`:
+    #[inline]
+    pub fn send_set_fullscreen(
+        &self,
+        output: Option<&Rc<WlOutput>>,
+    ) {
+        let res = self.try_send_set_fullscreen(
+            output,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel.set_fullscreen", &e);
+        }
+    }
+
     /// Since when the unset_fullscreen message is available.
     pub const MSG__UNSET_FULLSCREEN__SINCE: u32 = 1;
 
@@ -945,7 +1419,7 @@ impl XdgToplevel {
     /// The client must also acknowledge the configure when committing the new
     /// content (see ack_configure).
     #[inline]
-    pub fn send_unset_fullscreen(
+    pub fn try_send_unset_fullscreen(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -976,6 +1450,36 @@ impl XdgToplevel {
         Ok(())
     }
 
+    /// unset the window as fullscreen
+    ///
+    /// Make the surface no longer fullscreen.
+    ///
+    /// After requesting that the surface should be unfullscreened, the
+    /// compositor will respond by emitting a configure event.
+    /// Whether this actually removes the fullscreen state of the client is
+    /// subject to compositor policies.
+    ///
+    /// Making a surface unfullscreen sets states for the surface based on the following:
+    /// * the state(s) it may have had before becoming fullscreen
+    /// * any state(s) decided by the compositor
+    /// * any state(s) requested by the client while the surface was fullscreen
+    ///
+    /// The compositor may include the previous window geometry dimensions in
+    /// the configure event, if applicable.
+    ///
+    /// The client must also acknowledge the configure when committing the new
+    /// content (see ack_configure).
+    #[inline]
+    pub fn send_unset_fullscreen(
+        &self,
+    ) {
+        let res = self.try_send_unset_fullscreen(
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel.unset_fullscreen", &e);
+        }
+    }
+
     /// Since when the set_minimized message is available.
     pub const MSG__SET_MINIMIZED__SINCE: u32 = 1;
 
@@ -990,7 +1494,7 @@ impl XdgToplevel {
     /// also work with live previews on windows in Alt-Tab, Expose or
     /// similar compositor features.
     #[inline]
-    pub fn send_set_minimized(
+    pub fn try_send_set_minimized(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -1019,6 +1523,27 @@ impl XdgToplevel {
             13,
         ]);
         Ok(())
+    }
+
+    /// set the window as minimized
+    ///
+    /// Request that the compositor minimize your surface. There is no
+    /// way to know if the surface is currently minimized, nor is there
+    /// any way to unset minimization on this surface.
+    ///
+    /// If you are looking to throttle redrawing when minimized, please
+    /// instead use the wl_surface.frame event for this, as this will
+    /// also work with live previews on windows in Alt-Tab, Expose or
+    /// similar compositor features.
+    #[inline]
+    pub fn send_set_minimized(
+        &self,
+    ) {
+        let res = self.try_send_set_minimized(
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel.set_minimized", &e);
+        }
     }
 
     /// Since when the configure message is available.
@@ -1052,7 +1577,7 @@ impl XdgToplevel {
     /// - `height`:
     /// - `states`:
     #[inline]
-    pub fn send_configure(
+    pub fn try_send_configure(
         &self,
         width: i32,
         height: i32,
@@ -1100,6 +1625,50 @@ impl XdgToplevel {
         Ok(())
     }
 
+    /// suggest a surface change
+    ///
+    /// This configure event asks the client to resize its toplevel surface or
+    /// to change its state. The configured state should not be applied
+    /// immediately. See xdg_surface.configure for details.
+    ///
+    /// The width and height arguments specify a hint to the window
+    /// about how its surface should be resized in window geometry
+    /// coordinates. See set_window_geometry.
+    ///
+    /// If the width or height arguments are zero, it means the client
+    /// should decide its own window dimension. This may happen when the
+    /// compositor needs to configure the state of the surface but doesn't
+    /// have any information about any previous or expected dimension.
+    ///
+    /// The states listed in the event specify how the width/height
+    /// arguments should be interpreted, and possibly how it should be
+    /// drawn.
+    ///
+    /// Clients must send an ack_configure in response to this event. See
+    /// xdg_surface.configure and xdg_surface.ack_configure for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `width`:
+    /// - `height`:
+    /// - `states`:
+    #[inline]
+    pub fn send_configure(
+        &self,
+        width: i32,
+        height: i32,
+        states: &[u8],
+    ) {
+        let res = self.try_send_configure(
+            width,
+            height,
+            states,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel.configure", &e);
+        }
+    }
+
     /// Since when the close message is available.
     pub const MSG__CLOSE__SINCE: u32 = 1;
 
@@ -1114,7 +1683,7 @@ impl XdgToplevel {
     /// window. The client may choose to ignore this request, or show
     /// a dialog to ask the user to save their data, etc.
     #[inline]
-    pub fn send_close(
+    pub fn try_send_close(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -1147,6 +1716,27 @@ impl XdgToplevel {
         Ok(())
     }
 
+    /// surface wants to be closed
+    ///
+    /// The close event is sent by the compositor when the user
+    /// wants the surface to be closed. This should be equivalent to
+    /// the user clicking the close button in client-side decorations,
+    /// if your application has any.
+    ///
+    /// This is only a request that the user intends to close the
+    /// window. The client may choose to ignore this request, or show
+    /// a dialog to ask the user to save their data, etc.
+    #[inline]
+    pub fn send_close(
+        &self,
+    ) {
+        let res = self.try_send_close(
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel.close", &e);
+        }
+    }
+
     /// Since when the configure_bounds message is available.
     pub const MSG__CONFIGURE_BOUNDS__SINCE: u32 = 4;
 
@@ -1173,7 +1763,7 @@ impl XdgToplevel {
     /// - `width`:
     /// - `height`:
     #[inline]
-    pub fn send_configure_bounds(
+    pub fn try_send_configure_bounds(
         &self,
         width: i32,
         height: i32,
@@ -1217,6 +1807,43 @@ impl XdgToplevel {
         Ok(())
     }
 
+    /// recommended window geometry bounds
+    ///
+    /// The configure_bounds event may be sent prior to a xdg_toplevel.configure
+    /// event to communicate the bounds a window geometry size is recommended
+    /// to constrain to.
+    ///
+    /// The passed width and height are in surface coordinate space. If width
+    /// and height are 0, it means bounds is unknown and equivalent to as if no
+    /// configure_bounds event was ever sent for this surface.
+    ///
+    /// The bounds can for example correspond to the size of a monitor excluding
+    /// any panels or other shell components, so that a surface isn't created in
+    /// a way that it cannot fit.
+    ///
+    /// The bounds may change at any point, and in such a case, a new
+    /// xdg_toplevel.configure_bounds will be sent, followed by
+    /// xdg_toplevel.configure and xdg_surface.configure.
+    ///
+    /// # Arguments
+    ///
+    /// - `width`:
+    /// - `height`:
+    #[inline]
+    pub fn send_configure_bounds(
+        &self,
+        width: i32,
+        height: i32,
+    ) {
+        let res = self.try_send_configure_bounds(
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel.configure_bounds", &e);
+        }
+    }
+
     /// Since when the wm_capabilities message is available.
     pub const MSG__WM_CAPABILITIES__SINCE: u32 = 5;
 
@@ -1247,7 +1874,7 @@ impl XdgToplevel {
     ///
     /// - `capabilities`: array of 32-bit capabilities
     #[inline]
-    pub fn send_wm_capabilities(
+    pub fn try_send_wm_capabilities(
         &self,
         capabilities: &[u8],
     ) -> Result<(), ObjectError> {
@@ -1286,13 +1913,52 @@ impl XdgToplevel {
         fmt.array(arg0);
         Ok(())
     }
+
+    /// compositor capabilities
+    ///
+    /// This event advertises the capabilities supported by the compositor. If
+    /// a capability isn't supported, clients should hide or disable the UI
+    /// elements that expose this functionality. For instance, if the
+    /// compositor doesn't advertise support for minimized toplevels, a button
+    /// triggering the set_minimized request should not be displayed.
+    ///
+    /// The compositor will ignore requests it doesn't support. For instance,
+    /// a compositor which doesn't advertise support for minimized will ignore
+    /// set_minimized requests.
+    ///
+    /// Compositors must send this event once before the first
+    /// xdg_surface.configure event. When the capabilities change, compositors
+    /// must send this event again and then send an xdg_surface.configure
+    /// event.
+    ///
+    /// The configured state should not be applied immediately. See
+    /// xdg_surface.configure for details.
+    ///
+    /// The capabilities are sent as an array of 32-bit unsigned integers in
+    /// native endianness.
+    ///
+    /// # Arguments
+    ///
+    /// - `capabilities`: array of 32-bit capabilities
+    #[inline]
+    pub fn send_wm_capabilities(
+        &self,
+        capabilities: &[u8],
+    ) {
+        let res = self.try_send_wm_capabilities(
+            capabilities,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel.wm_capabilities", &e);
+        }
+    }
 }
 
 /// A message handler for [XdgToplevel] proxies.
 pub trait XdgToplevelHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgToplevel>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the xdg_toplevel
@@ -1307,10 +1973,10 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.destroy message: {}", Report::new(e));
+            log_forward("xdg_toplevel.destroy", &e);
         }
     }
 
@@ -1352,11 +2018,11 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_parent(
+        let res = _slf.try_send_set_parent(
             parent,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.set_parent message: {}", Report::new(e));
+            log_forward("xdg_toplevel.set_parent", &e);
         }
     }
 
@@ -1382,11 +2048,11 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_title(
+        let res = _slf.try_send_set_title(
             title,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.set_title message: {}", Report::new(e));
+            log_forward("xdg_toplevel.set_title", &e);
         }
     }
 
@@ -1428,11 +2094,11 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_app_id(
+        let res = _slf.try_send_set_app_id(
             app_id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.set_app_id message: {}", Report::new(e));
+            log_forward("xdg_toplevel.set_app_id", &e);
         }
     }
 
@@ -1472,14 +2138,14 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_show_window_menu(
+        let res = _slf.try_send_show_window_menu(
             seat,
             serial,
             x,
             y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.show_window_menu message: {}", Report::new(e));
+            log_forward("xdg_toplevel.show_window_menu", &e);
         }
     }
 
@@ -1519,12 +2185,12 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_move(
+        let res = _slf.try_send_move(
             seat,
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.move message: {}", Report::new(e));
+            log_forward("xdg_toplevel.move", &e);
         }
     }
 
@@ -1581,13 +2247,13 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_resize(
+        let res = _slf.try_send_resize(
             seat,
             serial,
             edges,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.resize message: {}", Report::new(e));
+            log_forward("xdg_toplevel.resize", &e);
         }
     }
 
@@ -1641,12 +2307,12 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_max_size(
+        let res = _slf.try_send_set_max_size(
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.set_max_size message: {}", Report::new(e));
+            log_forward("xdg_toplevel.set_max_size", &e);
         }
     }
 
@@ -1700,12 +2366,12 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_min_size(
+        let res = _slf.try_send_set_min_size(
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.set_min_size message: {}", Report::new(e));
+            log_forward("xdg_toplevel.set_min_size", &e);
         }
     }
 
@@ -1738,10 +2404,10 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_maximized(
+        let res = _slf.try_send_set_maximized(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.set_maximized message: {}", Report::new(e));
+            log_forward("xdg_toplevel.set_maximized", &e);
         }
     }
 
@@ -1776,10 +2442,10 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_unset_maximized(
+        let res = _slf.try_send_unset_maximized(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.unset_maximized message: {}", Report::new(e));
+            log_forward("xdg_toplevel.unset_maximized", &e);
         }
     }
 
@@ -1824,11 +2490,11 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_fullscreen(
+        let res = _slf.try_send_set_fullscreen(
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.set_fullscreen message: {}", Report::new(e));
+            log_forward("xdg_toplevel.set_fullscreen", &e);
         }
     }
 
@@ -1859,10 +2525,10 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_unset_fullscreen(
+        let res = _slf.try_send_unset_fullscreen(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.unset_fullscreen message: {}", Report::new(e));
+            log_forward("xdg_toplevel.unset_fullscreen", &e);
         }
     }
 
@@ -1884,10 +2550,10 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_minimized(
+        let res = _slf.try_send_set_minimized(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.set_minimized message: {}", Report::new(e));
+            log_forward("xdg_toplevel.set_minimized", &e);
         }
     }
 
@@ -1929,13 +2595,13 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_configure(
+        let res = _slf.try_send_configure(
             width,
             height,
             states,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.configure message: {}", Report::new(e));
+            log_forward("xdg_toplevel.configure", &e);
         }
     }
 
@@ -1957,10 +2623,10 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_close(
+        let res = _slf.try_send_close(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.close message: {}", Report::new(e));
+            log_forward("xdg_toplevel.close", &e);
         }
     }
 
@@ -1996,12 +2662,12 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_configure_bounds(
+        let res = _slf.try_send_configure_bounds(
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.configure_bounds message: {}", Report::new(e));
+            log_forward("xdg_toplevel.configure_bounds", &e);
         }
     }
 
@@ -2040,11 +2706,11 @@ pub trait XdgToplevelHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_wm_capabilities(
+        let res = _slf.try_send_wm_capabilities(
             capabilities,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel.wm_capabilities message: {}", Report::new(e));
+            log_forward("xdg_toplevel.wm_capabilities", &e);
         }
     }
 }
@@ -2064,7 +2730,7 @@ impl ObjectPrivate for XdgToplevel {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

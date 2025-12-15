@@ -57,7 +57,7 @@ impl TreelandOutputManagerV1 {
     ///
     /// - `output`:
     #[inline]
-    pub fn send_set_primary_output(
+    pub fn try_send_set_primary_output(
         &self,
         output: &str,
     ) -> Result<(), ObjectError> {
@@ -95,6 +95,24 @@ impl TreelandOutputManagerV1 {
         Ok(())
     }
 
+    /// Select which primary output to use
+    ///
+    /// # Arguments
+    ///
+    /// - `output`:
+    #[inline]
+    pub fn send_set_primary_output(
+        &self,
+        output: &str,
+    ) {
+        let res = self.try_send_set_primary_output(
+            output,
+        );
+        if let Err(e) = res {
+            log_send("treeland_output_manager_v1.set_primary_output", &e);
+        }
+    }
+
     /// Since when the primary_output message is available.
     pub const MSG__PRIMARY_OUTPUT__SINCE: u32 = 1;
 
@@ -106,7 +124,7 @@ impl TreelandOutputManagerV1 {
     ///
     /// - `output_name`: the name of the output
     #[inline]
-    pub fn send_primary_output(
+    pub fn try_send_primary_output(
         &self,
         output_name: &str,
     ) -> Result<(), ObjectError> {
@@ -146,6 +164,26 @@ impl TreelandOutputManagerV1 {
         Ok(())
     }
 
+    /// Provide the current primary output's name
+    ///
+    /// Specifies which output is the primary one identified by their name.
+    ///
+    /// # Arguments
+    ///
+    /// - `output_name`: the name of the output
+    #[inline]
+    pub fn send_primary_output(
+        &self,
+        output_name: &str,
+    ) {
+        let res = self.try_send_primary_output(
+            output_name,
+        );
+        if let Err(e) = res {
+            log_send("treeland_output_manager_v1.primary_output", &e);
+        }
+    }
+
     /// Since when the get_color_control message is available.
     pub const MSG__GET_COLOR_CONTROL__SINCE: u32 = 2;
 
@@ -156,7 +194,7 @@ impl TreelandOutputManagerV1 {
     /// - `id`:
     /// - `output`:
     #[inline]
-    pub fn send_get_color_control(
+    pub fn try_send_get_color_control(
         &self,
         id: &Rc<TreelandOutputColorControlV1>,
         output: &Rc<WlOutput>,
@@ -208,12 +246,33 @@ impl TreelandOutputManagerV1 {
         Ok(())
     }
 
+    /// Get color control interface for output.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `output`:
+    #[inline]
+    pub fn send_get_color_control(
+        &self,
+        id: &Rc<TreelandOutputColorControlV1>,
+        output: &Rc<WlOutput>,
+    ) {
+        let res = self.try_send_get_color_control(
+            id,
+            output,
+        );
+        if let Err(e) = res {
+            log_send("treeland_output_manager_v1.get_color_control", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 2;
 
     /// Destroy the primary output notifier.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -244,13 +303,25 @@ impl TreelandOutputManagerV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// Destroy the primary output notifier.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_output_manager_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandOutputManagerV1] proxies.
 pub trait TreelandOutputManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandOutputManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// Select which primary output to use
@@ -267,11 +338,11 @@ pub trait TreelandOutputManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_primary_output(
+        let res = _slf.try_send_set_primary_output(
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_output_manager_v1.set_primary_output message: {}", Report::new(e));
+            log_forward("treeland_output_manager_v1.set_primary_output", &e);
         }
     }
 
@@ -291,11 +362,11 @@ pub trait TreelandOutputManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_primary_output(
+        let res = _slf.try_send_primary_output(
             output_name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_output_manager_v1.primary_output message: {}", Report::new(e));
+            log_forward("treeland_output_manager_v1.primary_output", &e);
         }
     }
 
@@ -318,12 +389,12 @@ pub trait TreelandOutputManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_color_control(
+        let res = _slf.try_send_get_color_control(
             id,
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_output_manager_v1.get_color_control message: {}", Report::new(e));
+            log_forward("treeland_output_manager_v1.get_color_control", &e);
         }
     }
 
@@ -336,10 +407,10 @@ pub trait TreelandOutputManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_output_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_output_manager_v1.destroy", &e);
         }
     }
 }
@@ -359,7 +430,7 @@ impl ObjectPrivate for TreelandOutputManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

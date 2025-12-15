@@ -76,7 +76,7 @@ impl ExtWorkspaceManagerV1 {
     /// sent immediately after this event via the corresponding events in
     /// ext_workspace_group_handle_v1 and ext_workspace_handle_v1.
     #[inline]
-    pub fn send_workspace_group(
+    pub fn try_send_workspace_group(
         &self,
         workspace_group: &Rc<ExtWorkspaceGroupHandleV1>,
     ) -> Result<(), ObjectError> {
@@ -121,6 +121,26 @@ impl ExtWorkspaceManagerV1 {
         Ok(())
     }
 
+    /// a workspace group has been created
+    ///
+    /// This event is emitted whenever a new workspace group has been created.
+    ///
+    /// All initial details of the workspace group (outputs) will be
+    /// sent immediately after this event via the corresponding events in
+    /// ext_workspace_group_handle_v1 and ext_workspace_handle_v1.
+    #[inline]
+    pub fn send_workspace_group(
+        &self,
+        workspace_group: &Rc<ExtWorkspaceGroupHandleV1>,
+    ) {
+        let res = self.try_send_workspace_group(
+            workspace_group,
+        );
+        if let Err(e) = res {
+            log_send("ext_workspace_manager_v1.workspace_group", &e);
+        }
+    }
+
     /// Since when the workspace message is available.
     pub const MSG__WORKSPACE__SINCE: u32 = 1;
 
@@ -134,7 +154,7 @@ impl ExtWorkspaceManagerV1 {
     ///
     /// Workspaces start off unassigned to any workspace group.
     #[inline]
-    pub fn send_workspace(
+    pub fn try_send_workspace(
         &self,
         workspace: &Rc<ExtWorkspaceHandleV1>,
     ) -> Result<(), ObjectError> {
@@ -179,6 +199,28 @@ impl ExtWorkspaceManagerV1 {
         Ok(())
     }
 
+    /// workspace has been created
+    ///
+    /// This event is emitted whenever a new workspace has been created.
+    ///
+    /// All initial details of the workspace (name, coordinates, state) will
+    /// be sent immediately after this event via the corresponding events in
+    /// ext_workspace_handle_v1.
+    ///
+    /// Workspaces start off unassigned to any workspace group.
+    #[inline]
+    pub fn send_workspace(
+        &self,
+        workspace: &Rc<ExtWorkspaceHandleV1>,
+    ) {
+        let res = self.try_send_workspace(
+            workspace,
+        );
+        if let Err(e) = res {
+            log_send("ext_workspace_manager_v1.workspace", &e);
+        }
+    }
+
     /// Since when the commit message is available.
     pub const MSG__COMMIT__SINCE: u32 = 1;
 
@@ -193,7 +235,7 @@ impl ExtWorkspaceManagerV1 {
     /// multiple ext_workspace_handle_v1 objects, for example, deactivating one
     /// workspace and activating another.
     #[inline]
-    pub fn send_commit(
+    pub fn try_send_commit(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -224,6 +266,27 @@ impl ExtWorkspaceManagerV1 {
         Ok(())
     }
 
+    /// all requests about the workspaces have been sent
+    ///
+    /// The client must send this request after it has finished sending other
+    /// requests. The compositor must process a series of requests preceding a
+    /// commit request atomically.
+    ///
+    /// This allows changes to the workspace properties to be seen as atomic,
+    /// even if they happen via multiple events, and even if they involve
+    /// multiple ext_workspace_handle_v1 objects, for example, deactivating one
+    /// workspace and activating another.
+    #[inline]
+    pub fn send_commit(
+        &self,
+    ) {
+        let res = self.try_send_commit(
+        );
+        if let Err(e) = res {
+            log_send("ext_workspace_manager_v1.commit", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -241,7 +304,7 @@ impl ExtWorkspaceManagerV1 {
     /// the done event only after updating the output information in both
     /// workspace groups.
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -274,6 +337,30 @@ impl ExtWorkspaceManagerV1 {
         Ok(())
     }
 
+    /// all information about the workspaces and workspace groups has been sent
+    ///
+    /// This event is sent after all changes in all workspaces and workspace groups have been
+    /// sent.
+    ///
+    /// This allows changes to one or more ext_workspace_group_handle_v1
+    /// properties and ext_workspace_handle_v1 properties
+    /// to be seen as atomic, even if they happen via multiple events.
+    /// In particular, an output moving from one workspace group to
+    /// another sends an output_enter event and an output_leave event to the two
+    /// ext_workspace_group_handle_v1 objects in question. The compositor sends
+    /// the done event only after updating the output information in both
+    /// workspace groups.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) {
+        let res = self.try_send_done(
+        );
+        if let Err(e) = res {
+            log_send("ext_workspace_manager_v1.done", &e);
+        }
+    }
+
     /// Since when the finished message is available.
     pub const MSG__FINISHED__SINCE: u32 = 1;
 
@@ -283,7 +370,7 @@ impl ExtWorkspaceManagerV1 {
     /// ext_workspace_manager_v1. The server will destroy the object
     /// immediately after sending this request.
     #[inline]
-    pub fn send_finished(
+    pub fn try_send_finished(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -320,6 +407,22 @@ impl ExtWorkspaceManagerV1 {
         Ok(())
     }
 
+    /// the compositor has finished with the workspace_manager
+    ///
+    /// This event indicates that the compositor is done sending events to the
+    /// ext_workspace_manager_v1. The server will destroy the object
+    /// immediately after sending this request.
+    #[inline]
+    pub fn send_finished(
+        &self,
+    ) {
+        let res = self.try_send_finished(
+        );
+        if let Err(e) = res {
+            log_send("ext_workspace_manager_v1.finished", &e);
+        }
+    }
+
     /// Since when the stop message is available.
     pub const MSG__STOP__SINCE: u32 = 1;
 
@@ -333,7 +436,7 @@ impl ExtWorkspaceManagerV1 {
     /// The client must not send any requests after this one, doing so will raise a wl_display
     /// invalid_object error.
     #[inline]
-    pub fn send_stop(
+    pub fn try_send_stop(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -363,13 +466,33 @@ impl ExtWorkspaceManagerV1 {
         ]);
         Ok(())
     }
+
+    /// stop sending events
+    ///
+    /// Indicates the client no longer wishes to receive events for new
+    /// workspace groups. However the compositor may emit further workspace
+    /// events, until the finished event is emitted. The compositor is expected
+    /// to send the finished event eventually once the stop request has been processed.
+    ///
+    /// The client must not send any requests after this one, doing so will raise a wl_display
+    /// invalid_object error.
+    #[inline]
+    pub fn send_stop(
+        &self,
+    ) {
+        let res = self.try_send_stop(
+        );
+        if let Err(e) = res {
+            log_send("ext_workspace_manager_v1.stop", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtWorkspaceManagerV1] proxies.
 pub trait ExtWorkspaceManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtWorkspaceManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// a workspace group has been created
@@ -392,11 +515,11 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_workspace_group(
+        let res = _slf.try_send_workspace_group(
             workspace_group,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_workspace_manager_v1.workspace_group message: {}", Report::new(e));
+            log_forward("ext_workspace_manager_v1.workspace_group", &e);
         }
     }
 
@@ -422,11 +545,11 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_workspace(
+        let res = _slf.try_send_workspace(
             workspace,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_workspace_manager_v1.workspace message: {}", Report::new(e));
+            log_forward("ext_workspace_manager_v1.workspace", &e);
         }
     }
 
@@ -448,10 +571,10 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_commit(
+        let res = _slf.try_send_commit(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_workspace_manager_v1.commit message: {}", Report::new(e));
+            log_forward("ext_workspace_manager_v1.commit", &e);
         }
     }
 
@@ -476,10 +599,10 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_workspace_manager_v1.done message: {}", Report::new(e));
+            log_forward("ext_workspace_manager_v1.done", &e);
         }
     }
 
@@ -496,10 +619,10 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_finished(
+        let res = _slf.try_send_finished(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_workspace_manager_v1.finished message: {}", Report::new(e));
+            log_forward("ext_workspace_manager_v1.finished", &e);
         }
     }
 
@@ -520,10 +643,10 @@ pub trait ExtWorkspaceManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_stop(
+        let res = _slf.try_send_stop(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_workspace_manager_v1.stop message: {}", Report::new(e));
+            log_forward("ext_workspace_manager_v1.stop", &e);
         }
     }
 }
@@ -543,7 +666,7 @@ impl ObjectPrivate for ExtWorkspaceManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

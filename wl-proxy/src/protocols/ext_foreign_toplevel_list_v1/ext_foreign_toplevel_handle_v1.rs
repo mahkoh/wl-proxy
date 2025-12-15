@@ -67,7 +67,7 @@ impl ExtForeignToplevelHandleV1 {
     /// interface should require destructors for extension interfaces be
     /// called before allowing the toplevel handle to be destroyed.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -99,6 +99,32 @@ impl ExtForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// destroy the ext_foreign_toplevel_handle_v1 object
+    ///
+    /// This request should be used when the client will no longer use the handle
+    /// or after the closed event has been received to allow destruction of the
+    /// object.
+    ///
+    /// When a handle is destroyed, a new handle may not be created by the server
+    /// until the toplevel is unmapped and then remapped. Destroying a toplevel handle
+    /// is not recommended unless the client is cleaning up child objects
+    /// before destroying the ext_foreign_toplevel_list_v1 object, the toplevel
+    /// was closed or the toplevel handle will not be used in the future.
+    ///
+    /// Other protocols which extend the ext_foreign_toplevel_handle_v1
+    /// interface should require destructors for extension interfaces be
+    /// called before allowing the toplevel handle to be destroyed.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_foreign_toplevel_handle_v1.destroy", &e);
+        }
+    }
+
     /// Since when the closed message is available.
     pub const MSG__CLOSED__SINCE: u32 = 1;
 
@@ -111,7 +137,7 @@ impl ExtForeignToplevelHandleV1 {
     /// Other protocols which extend the ext_foreign_toplevel_handle_v1
     /// interface must also ignore requests other than destructors.
     #[inline]
-    pub fn send_closed(
+    pub fn try_send_closed(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -144,6 +170,25 @@ impl ExtForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// the toplevel has been closed
+    ///
+    /// The server will emit no further events on the ext_foreign_toplevel_handle_v1
+    /// after this event. Any requests received aside from the destroy request must
+    /// be ignored. Upon receiving this event, the client should destroy the handle.
+    ///
+    /// Other protocols which extend the ext_foreign_toplevel_handle_v1
+    /// interface must also ignore requests other than destructors.
+    #[inline]
+    pub fn send_closed(
+        &self,
+    ) {
+        let res = self.try_send_closed(
+        );
+        if let Err(e) = res {
+            log_send("ext_foreign_toplevel_handle_v1.closed", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -160,7 +205,7 @@ impl ExtForeignToplevelHandleV1 {
     /// This event must not be sent after the ext_foreign_toplevel_handle_v1.closed
     /// event.
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -193,6 +238,29 @@ impl ExtForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// all information about the toplevel has been sent
+    ///
+    /// This event is sent after all changes in the toplevel state have
+    /// been sent.
+    ///
+    /// This allows changes to the ext_foreign_toplevel_handle_v1 properties
+    /// to be atomically applied. Other protocols which extend the
+    /// ext_foreign_toplevel_handle_v1 interface may use this event to also
+    /// atomically apply any pending state.
+    ///
+    /// This event must not be sent after the ext_foreign_toplevel_handle_v1.closed
+    /// event.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) {
+        let res = self.try_send_done(
+        );
+        if let Err(e) = res {
+            log_send("ext_foreign_toplevel_handle_v1.done", &e);
+        }
+    }
+
     /// Since when the title message is available.
     pub const MSG__TITLE__SINCE: u32 = 1;
 
@@ -207,7 +275,7 @@ impl ExtForeignToplevelHandleV1 {
     ///
     /// - `title`:
     #[inline]
-    pub fn send_title(
+    pub fn try_send_title(
         &self,
         title: &str,
     ) -> Result<(), ObjectError> {
@@ -247,6 +315,29 @@ impl ExtForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// title change
+    ///
+    /// The title of the toplevel has changed.
+    ///
+    /// The configured state must not be applied immediately. See
+    /// ext_foreign_toplevel_handle_v1.done for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `title`:
+    #[inline]
+    pub fn send_title(
+        &self,
+        title: &str,
+    ) {
+        let res = self.try_send_title(
+            title,
+        );
+        if let Err(e) = res {
+            log_send("ext_foreign_toplevel_handle_v1.title", &e);
+        }
+    }
+
     /// Since when the app_id message is available.
     pub const MSG__APP_ID__SINCE: u32 = 1;
 
@@ -261,7 +352,7 @@ impl ExtForeignToplevelHandleV1 {
     ///
     /// - `app_id`:
     #[inline]
-    pub fn send_app_id(
+    pub fn try_send_app_id(
         &self,
         app_id: &str,
     ) -> Result<(), ObjectError> {
@@ -301,6 +392,29 @@ impl ExtForeignToplevelHandleV1 {
         Ok(())
     }
 
+    /// app_id change
+    ///
+    /// The app id of the toplevel has changed.
+    ///
+    /// The configured state must not be applied immediately. See
+    /// ext_foreign_toplevel_handle_v1.done for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `app_id`:
+    #[inline]
+    pub fn send_app_id(
+        &self,
+        app_id: &str,
+    ) {
+        let res = self.try_send_app_id(
+            app_id,
+        );
+        if let Err(e) = res {
+            log_send("ext_foreign_toplevel_handle_v1.app_id", &e);
+        }
+    }
+
     /// Since when the identifier message is available.
     pub const MSG__IDENTIFIER__SINCE: u32 = 1;
 
@@ -331,7 +445,7 @@ impl ExtForeignToplevelHandleV1 {
     ///
     /// - `identifier`:
     #[inline]
-    pub fn send_identifier(
+    pub fn try_send_identifier(
         &self,
         identifier: &str,
     ) -> Result<(), ObjectError> {
@@ -370,13 +484,52 @@ impl ExtForeignToplevelHandleV1 {
         fmt.string(arg0);
         Ok(())
     }
+
+    /// a stable identifier for a toplevel
+    ///
+    /// This identifier is used to check if two or more toplevel handles belong
+    /// to the same toplevel.
+    ///
+    /// The identifier is useful for command line tools or privileged clients
+    /// which may need to reference an exact toplevel across processes or
+    /// instances of the ext_foreign_toplevel_list_v1 global.
+    ///
+    /// The compositor must only send this event when the handle is created.
+    ///
+    /// The identifier must be unique per toplevel and it's handles. Two different
+    /// toplevels must not have the same identifier. The identifier is only valid
+    /// as long as the toplevel is mapped. If the toplevel is unmapped the identifier
+    /// must not be reused. An identifier must not be reused by the compositor to
+    /// ensure there are no races when sharing identifiers between processes.
+    ///
+    /// An identifier is a string that contains up to 32 printable ASCII bytes.
+    /// An identifier must not be an empty string. It is recommended that a
+    /// compositor includes an opaque generation value in identifiers. How the
+    /// generation value is used when generating the identifier is implementation
+    /// dependent.
+    ///
+    /// # Arguments
+    ///
+    /// - `identifier`:
+    #[inline]
+    pub fn send_identifier(
+        &self,
+        identifier: &str,
+    ) {
+        let res = self.try_send_identifier(
+            identifier,
+        );
+        if let Err(e) = res {
+            log_send("ext_foreign_toplevel_handle_v1.identifier", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtForeignToplevelHandleV1] proxies.
 pub trait ExtForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtForeignToplevelHandleV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the ext_foreign_toplevel_handle_v1 object
@@ -402,10 +555,10 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_foreign_toplevel_handle_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_foreign_toplevel_handle_v1.destroy", &e);
         }
     }
 
@@ -425,10 +578,10 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_closed(
+        let res = _slf.try_send_closed(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_foreign_toplevel_handle_v1.closed message: {}", Report::new(e));
+            log_forward("ext_foreign_toplevel_handle_v1.closed", &e);
         }
     }
 
@@ -452,10 +605,10 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_foreign_toplevel_handle_v1.done message: {}", Report::new(e));
+            log_forward("ext_foreign_toplevel_handle_v1.done", &e);
         }
     }
 
@@ -478,11 +631,11 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_title(
+        let res = _slf.try_send_title(
             title,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_foreign_toplevel_handle_v1.title message: {}", Report::new(e));
+            log_forward("ext_foreign_toplevel_handle_v1.title", &e);
         }
     }
 
@@ -505,11 +658,11 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_app_id(
+        let res = _slf.try_send_app_id(
             app_id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_foreign_toplevel_handle_v1.app_id message: {}", Report::new(e));
+            log_forward("ext_foreign_toplevel_handle_v1.app_id", &e);
         }
     }
 
@@ -548,11 +701,11 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_identifier(
+        let res = _slf.try_send_identifier(
             identifier,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_foreign_toplevel_handle_v1.identifier message: {}", Report::new(e));
+            log_forward("ext_foreign_toplevel_handle_v1.identifier", &e);
         }
     }
 }
@@ -572,7 +725,7 @@ impl ObjectPrivate for ExtForeignToplevelHandleV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

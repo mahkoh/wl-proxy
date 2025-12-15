@@ -67,7 +67,7 @@ impl TreelandShortcutManagerV2 {
     /// Destroy the shortcut manager.
     /// Existing shortcuts created through this interface remain valid.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -99,6 +99,21 @@ impl TreelandShortcutManagerV2 {
         Ok(())
     }
 
+    /// destroy the shortcut manager
+    ///
+    /// Destroy the shortcut manager.
+    /// Existing shortcuts created through this interface remain valid.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_shortcut_manager_v2.destroy", &e);
+        }
+    }
+
     /// Since when the acquire message is available.
     pub const MSG__ACQUIRE__SINCE: u32 = 1;
 
@@ -112,7 +127,7 @@ impl TreelandShortcutManagerV2 {
     /// for a given session.
     /// If the shortcut manager is already acquired by another client, an protocol error
     #[inline]
-    pub fn send_acquire(
+    pub fn try_send_acquire(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -141,6 +156,26 @@ impl TreelandShortcutManagerV2 {
             1,
         ]);
         Ok(())
+    }
+
+    /// acquire the shortcut manager
+    ///
+    /// Acquire the shortcut manager for the current client.
+    ///
+    /// This request must be sent before any bind/unbind request can be performed.
+    ///
+    /// Only one client hold exclusive control of the shortcut manager at a time,
+    /// for a given session.
+    /// If the shortcut manager is already acquired by another client, an protocol error
+    #[inline]
+    pub fn send_acquire(
+        &self,
+    ) {
+        let res = self.try_send_acquire(
+        );
+        if let Err(e) = res {
+            log_send("treeland_shortcut_manager_v2.acquire", &e);
+        }
     }
 
     /// Since when the bind_key message is available.
@@ -180,7 +215,7 @@ impl TreelandShortcutManagerV2 {
     /// - `mode`: mode for the keybinding
     /// - `action`: compositor action to be executed
     #[inline]
-    pub fn send_bind_key(
+    pub fn try_send_bind_key(
         &self,
         name: &str,
         key: &str,
@@ -232,6 +267,58 @@ impl TreelandShortcutManagerV2 {
         Ok(())
     }
 
+    /// bind a key sequence to a compositor action
+    ///
+    /// Bind a key sequence to a compositor action.
+    ///
+    /// The key sequence is specified in the string format used by QKeySequence,
+    /// see https://doc.qt.io/qt-6/qkeysequence.html#toString for details.
+    ///
+    /// Sending this request without first acquiring the shortcut manager
+    /// will result in a `not_acquired` protocol error.
+    ///
+    /// The name argument must be unique among all existing bindings.
+    /// If a binding with the same name already exists, the bind_key request will fail.
+    ///
+    /// The action argument specifies the compositor action to be executed
+    /// when the key sequence is activated.
+    ///
+    /// The protocol provides three keybinding modes:
+    /// - key_release: the action is triggered when the key sequence is released.
+    /// - key_press: the action is triggered when the key sequence is pressed.
+    /// - key_press_repeat: the action is triggered when the key sequence is pressed,
+    ///   and repeatedly triggered if the key sequence is held down.
+    ///
+    /// If a binding with the same key sequence and action already exists,
+    /// the bind_key request will fail.
+    ///
+    /// Note that the binding will not take effect until a commit request is sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: unique name for the keybinding
+    /// - `key`: key sequence for the keybinding
+    /// - `mode`: mode for the keybinding
+    /// - `action`: compositor action to be executed
+    #[inline]
+    pub fn send_bind_key(
+        &self,
+        name: &str,
+        key: &str,
+        mode: TreelandShortcutManagerV2KeybindMode,
+        action: TreelandShortcutManagerV2Action,
+    ) {
+        let res = self.try_send_bind_key(
+            name,
+            key,
+            mode,
+            action,
+        );
+        if let Err(e) = res {
+            log_send("treeland_shortcut_manager_v2.bind_key", &e);
+        }
+    }
+
     /// Since when the bind_swipe_gesture message is available.
     pub const MSG__BIND_SWIPE_GESTURE__SINCE: u32 = 1;
 
@@ -262,7 +349,7 @@ impl TreelandShortcutManagerV2 {
     /// - `direction`: direction of the swipe gesture
     /// - `action`: compositor action to be executed
     #[inline]
-    pub fn send_bind_swipe_gesture(
+    pub fn try_send_bind_swipe_gesture(
         &self,
         name: &str,
         finger: u32,
@@ -314,6 +401,51 @@ impl TreelandShortcutManagerV2 {
         Ok(())
     }
 
+    /// bind a swipe gesture to a compositor action
+    ///
+    /// Bind a swipe gesture to a compositor action.
+    ///
+    /// Sending this request without first acquiring the shortcut manager
+    /// will result in a `not_acquired` protocol error.
+    ///
+    /// The name argument must be unique among all existing bindings.
+    /// If a binding with the same name already exists, the bind_swipe_gesture request will fail.
+    ///
+    /// The direction argument specifies the direction towards which the swipe gesture must be performed.
+    /// If this argument is not one of the defined enum values, the bind_swipe_gesture request will fail.
+    ///
+    /// The action argument specifies the compositor action to be executed
+    /// when the swipe gesture is activated.
+    /// If a binding with the same gesture and action already exists,
+    /// the bind_swipe_gesture request will fail.
+    ///
+    /// Note that the binding will not take effect until a commit request is sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: unique name for the swipe gesture
+    /// - `finger`: number of fingers required for the swipe gesture
+    /// - `direction`: direction of the swipe gesture
+    /// - `action`: compositor action to be executed
+    #[inline]
+    pub fn send_bind_swipe_gesture(
+        &self,
+        name: &str,
+        finger: u32,
+        direction: TreelandShortcutManagerV2Direction,
+        action: TreelandShortcutManagerV2Action,
+    ) {
+        let res = self.try_send_bind_swipe_gesture(
+            name,
+            finger,
+            direction,
+            action,
+        );
+        if let Err(e) = res {
+            log_send("treeland_shortcut_manager_v2.bind_swipe_gesture", &e);
+        }
+    }
+
     /// Since when the bind_hold_gesture message is available.
     pub const MSG__BIND_HOLD_GESTURE__SINCE: u32 = 1;
 
@@ -340,7 +472,7 @@ impl TreelandShortcutManagerV2 {
     /// - `finger`: number of fingers required for the hold gesture
     /// - `action`: compositor action to be executed
     #[inline]
-    pub fn send_bind_hold_gesture(
+    pub fn try_send_bind_hold_gesture(
         &self,
         name: &str,
         finger: u32,
@@ -388,6 +520,45 @@ impl TreelandShortcutManagerV2 {
         Ok(())
     }
 
+    /// bind a hold gesture to a compositor action
+    ///
+    /// Bind a hold gesture to a compositor action.
+    ///
+    /// Sending this request without first acquiring the shortcut manager
+    /// will result in a `not_acquired` protocol error.
+    ///
+    /// The name argument must be unique among all existing bindings.
+    /// If a binding with the same name already exists, the bind_hold_gesture request will fail.
+    ///
+    /// The action argument specifies the compositor action to be executed
+    /// when the hold gesture is activated.
+    /// If a binding with the same gesture and action already exists,
+    /// the bind_hold_gesture request will fail.
+    ///
+    /// Note that the binding will not take effect until a commit request is sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: unique name for the hold gesture
+    /// - `finger`: number of fingers required for the hold gesture
+    /// - `action`: compositor action to be executed
+    #[inline]
+    pub fn send_bind_hold_gesture(
+        &self,
+        name: &str,
+        finger: u32,
+        action: TreelandShortcutManagerV2Action,
+    ) {
+        let res = self.try_send_bind_hold_gesture(
+            name,
+            finger,
+            action,
+        );
+        if let Err(e) = res {
+            log_send("treeland_shortcut_manager_v2.bind_hold_gesture", &e);
+        }
+    }
+
     /// Since when the commit message is available.
     pub const MSG__COMMIT__SINCE: u32 = 1;
 
@@ -410,7 +581,7 @@ impl TreelandShortcutManagerV2 {
     /// Sending further commit requests before `commit_success` or `commit_failure`
     /// is sent is a protocol error.
     #[inline]
-    pub fn send_commit(
+    pub fn try_send_commit(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -441,6 +612,35 @@ impl TreelandShortcutManagerV2 {
         Ok(())
     }
 
+    /// commit the pending bindings
+    ///
+    /// Commit the pending bindings.
+    ///
+    /// This request applies all the bind_key, bind_swipe_gesture and bind_hold_gesture
+    /// requests sent since the last commit.
+    ///
+    /// After processing this request, the compositor will emit a `commit_status` event
+    /// if the commit was successful or `commit_failure` event if the commit failed.
+    ///
+    /// On a successful commit, all the pending bindings will take effect.
+    /// On a failed commit, none of the pending bindings will take effect.
+    ///
+    /// Sending this request without first acquiring the shortcut manager
+    /// will result in a `not_acquired` protocol error.
+    ///
+    /// Sending further commit requests before `commit_success` or `commit_failure`
+    /// is sent is a protocol error.
+    #[inline]
+    pub fn send_commit(
+        &self,
+    ) {
+        let res = self.try_send_commit(
+        );
+        if let Err(e) = res {
+            log_send("treeland_shortcut_manager_v2.commit", &e);
+        }
+    }
+
     /// Since when the unbind message is available.
     pub const MSG__UNBIND__SINCE: u32 = 1;
 
@@ -455,7 +655,7 @@ impl TreelandShortcutManagerV2 {
     ///
     /// - `name`: unique name of the binding to be removed
     #[inline]
-    pub fn send_unbind(
+    pub fn try_send_unbind(
         &self,
         name: &str,
     ) -> Result<(), ObjectError> {
@@ -493,6 +693,29 @@ impl TreelandShortcutManagerV2 {
         Ok(())
     }
 
+    /// remove an existing binding
+    ///
+    /// Remove an existing binding.
+    ///
+    /// The binding to be removed is identified by its unique name.
+    /// If no binding with the specified name exists, the unbind request has no effect.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: unique name of the binding to be removed
+    #[inline]
+    pub fn send_unbind(
+        &self,
+        name: &str,
+    ) {
+        let res = self.try_send_unbind(
+            name,
+        );
+        if let Err(e) = res {
+            log_send("treeland_shortcut_manager_v2.unbind", &e);
+        }
+    }
+
     /// Since when the activated message is available.
     pub const MSG__ACTIVATED__SINCE: u32 = 1;
 
@@ -507,7 +730,7 @@ impl TreelandShortcutManagerV2 {
     /// - `name`: binding id of the activated shortcut
     /// - `repeat`: indicates whether the shortcut activation is due to auto-repeat
     #[inline]
-    pub fn send_activated(
+    pub fn try_send_activated(
         &self,
         name: &str,
         repeat: u32,
@@ -553,6 +776,31 @@ impl TreelandShortcutManagerV2 {
         Ok(())
     }
 
+    /// a shortcut has been activated
+    ///
+    /// This event is emitted when a binding registered with action `notify` is activated.
+    ///
+    /// If the binding is activated due to auto-repeat, the repeat argument will be non-zero.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: binding id of the activated shortcut
+    /// - `repeat`: indicates whether the shortcut activation is due to auto-repeat
+    #[inline]
+    pub fn send_activated(
+        &self,
+        name: &str,
+        repeat: u32,
+    ) {
+        let res = self.try_send_activated(
+            name,
+            repeat,
+        );
+        if let Err(e) = res {
+            log_send("treeland_shortcut_manager_v2.activated", &e);
+        }
+    }
+
     /// Since when the commit_success message is available.
     pub const MSG__COMMIT_SUCCESS__SINCE: u32 = 1;
 
@@ -561,7 +809,7 @@ impl TreelandShortcutManagerV2 {
     /// This event is emitted in response to a commit request,
     /// indicating that the commit was successful.
     #[inline]
-    pub fn send_commit_success(
+    pub fn try_send_commit_success(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -594,6 +842,21 @@ impl TreelandShortcutManagerV2 {
         Ok(())
     }
 
+    /// the last commit was successful
+    ///
+    /// This event is emitted in response to a commit request,
+    /// indicating that the commit was successful.
+    #[inline]
+    pub fn send_commit_success(
+        &self,
+    ) {
+        let res = self.try_send_commit_success(
+        );
+        if let Err(e) = res {
+            log_send("treeland_shortcut_manager_v2.commit_success", &e);
+        }
+    }
+
     /// Since when the commit_failure message is available.
     pub const MSG__COMMIT_FAILURE__SINCE: u32 = 1;
 
@@ -609,7 +872,7 @@ impl TreelandShortcutManagerV2 {
     /// - `name`: binding name that caused the failure
     /// - `error`: error code indicating the reason of the failure
     #[inline]
-    pub fn send_commit_failure(
+    pub fn try_send_commit_failure(
         &self,
         name: &str,
         error: TreelandShortcutManagerV2BindError,
@@ -654,13 +917,39 @@ impl TreelandShortcutManagerV2 {
         ]);
         Ok(())
     }
+
+    /// the last commit has failed
+    ///
+    /// This event is emitted in response to a commit request,
+    /// indicating that the commit has failed.
+    ///
+    /// The error argument indicates the first error that caused the commit to fail.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: binding name that caused the failure
+    /// - `error`: error code indicating the reason of the failure
+    #[inline]
+    pub fn send_commit_failure(
+        &self,
+        name: &str,
+        error: TreelandShortcutManagerV2BindError,
+    ) {
+        let res = self.try_send_commit_failure(
+            name,
+            error,
+        );
+        if let Err(e) = res {
+            log_send("treeland_shortcut_manager_v2.commit_failure", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandShortcutManagerV2] proxies.
 pub trait TreelandShortcutManagerV2Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandShortcutManagerV2>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the shortcut manager
@@ -675,10 +964,10 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_shortcut_manager_v2.destroy message: {}", Report::new(e));
+            log_forward("treeland_shortcut_manager_v2.destroy", &e);
         }
     }
 
@@ -699,10 +988,10 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_acquire(
+        let res = _slf.try_send_acquire(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_shortcut_manager_v2.acquire message: {}", Report::new(e));
+            log_forward("treeland_shortcut_manager_v2.acquire", &e);
         }
     }
 
@@ -751,14 +1040,14 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_bind_key(
+        let res = _slf.try_send_bind_key(
             name,
             key,
             mode,
             action,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_shortcut_manager_v2.bind_key message: {}", Report::new(e));
+            log_forward("treeland_shortcut_manager_v2.bind_key", &e);
         }
     }
 
@@ -800,14 +1089,14 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_bind_swipe_gesture(
+        let res = _slf.try_send_bind_swipe_gesture(
             name,
             finger,
             direction,
             action,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_shortcut_manager_v2.bind_swipe_gesture message: {}", Report::new(e));
+            log_forward("treeland_shortcut_manager_v2.bind_swipe_gesture", &e);
         }
     }
 
@@ -844,13 +1133,13 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_bind_hold_gesture(
+        let res = _slf.try_send_bind_hold_gesture(
             name,
             finger,
             action,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_shortcut_manager_v2.bind_hold_gesture message: {}", Report::new(e));
+            log_forward("treeland_shortcut_manager_v2.bind_hold_gesture", &e);
         }
     }
 
@@ -880,10 +1169,10 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_commit(
+        let res = _slf.try_send_commit(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_shortcut_manager_v2.commit message: {}", Report::new(e));
+            log_forward("treeland_shortcut_manager_v2.commit", &e);
         }
     }
 
@@ -906,11 +1195,11 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_unbind(
+        let res = _slf.try_send_unbind(
             name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_shortcut_manager_v2.unbind message: {}", Report::new(e));
+            log_forward("treeland_shortcut_manager_v2.unbind", &e);
         }
     }
 
@@ -934,12 +1223,12 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_activated(
+        let res = _slf.try_send_activated(
             name,
             repeat,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_shortcut_manager_v2.activated message: {}", Report::new(e));
+            log_forward("treeland_shortcut_manager_v2.activated", &e);
         }
     }
 
@@ -955,10 +1244,10 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_commit_success(
+        let res = _slf.try_send_commit_success(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_shortcut_manager_v2.commit_success message: {}", Report::new(e));
+            log_forward("treeland_shortcut_manager_v2.commit_success", &e);
         }
     }
 
@@ -983,12 +1272,12 @@ pub trait TreelandShortcutManagerV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_commit_failure(
+        let res = _slf.try_send_commit_failure(
             name,
             error,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_shortcut_manager_v2.commit_failure message: {}", Report::new(e));
+            log_forward("treeland_shortcut_manager_v2.commit_failure", &e);
         }
     }
 }
@@ -1008,7 +1297,7 @@ impl ObjectPrivate for TreelandShortcutManagerV2 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

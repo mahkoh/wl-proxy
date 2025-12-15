@@ -79,7 +79,7 @@ impl WlRegistry {
     /// - `name`: unique numeric name of the object
     /// - `id`: bounded object
     #[inline]
-    pub fn send_bind(
+    pub fn try_send_bind(
         &self,
         name: u32,
         id: Rc<dyn Object>,
@@ -130,6 +130,30 @@ impl WlRegistry {
         Ok(())
     }
 
+    /// bind an object to the display
+    ///
+    /// Binds a new, client-created object to the server using the
+    /// specified name as the identifier.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: unique numeric name of the object
+    /// - `id`: bounded object
+    #[inline]
+    pub fn send_bind(
+        &self,
+        name: u32,
+        id: Rc<dyn Object>,
+    ) {
+        let res = self.try_send_bind(
+            name,
+            id,
+        );
+        if let Err(e) = res {
+            log_send("wl_registry.bind", &e);
+        }
+    }
+
     /// Since when the global message is available.
     pub const MSG__GLOBAL__SINCE: u32 = 1;
 
@@ -147,7 +171,7 @@ impl WlRegistry {
     /// - `interface`: interface implemented by the object
     /// - `version`: interface version
     #[inline]
-    pub fn send_global(
+    pub fn try_send_global(
         &self,
         name: u32,
         interface: ObjectInterface,
@@ -198,6 +222,36 @@ impl WlRegistry {
         Ok(())
     }
 
+    /// announce global object
+    ///
+    /// Notify the client of global objects.
+    ///
+    /// The event notifies the client that a global object with
+    /// the given name is now available, and it implements the
+    /// given version of the given interface.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: numeric name of the global object
+    /// - `interface`: interface implemented by the object
+    /// - `version`: interface version
+    #[inline]
+    pub fn send_global(
+        &self,
+        name: u32,
+        interface: ObjectInterface,
+        version: u32,
+    ) {
+        let res = self.try_send_global(
+            name,
+            interface,
+            version,
+        );
+        if let Err(e) = res {
+            log_send("wl_registry.global", &e);
+        }
+    }
+
     /// Since when the global_remove message is available.
     pub const MSG__GLOBAL_REMOVE__SINCE: u32 = 1;
 
@@ -218,7 +272,7 @@ impl WlRegistry {
     ///
     /// - `name`: numeric name of the global object
     #[inline]
-    pub fn send_global_remove(
+    pub fn try_send_global_remove(
         &self,
         name: u32,
     ) -> Result<(), ObjectError> {
@@ -257,13 +311,42 @@ impl WlRegistry {
         ]);
         Ok(())
     }
+
+    /// announce removal of global object
+    ///
+    /// Notify the client of removed global objects.
+    ///
+    /// This event notifies the client that the global identified
+    /// by name is no longer available.  If the client bound to
+    /// the global using the bind request, the client should now
+    /// destroy that object.
+    ///
+    /// The object remains valid and requests to the object will be
+    /// ignored until the client destroys it, to avoid races between
+    /// the global going away and a client sending a request to it.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: numeric name of the global object
+    #[inline]
+    pub fn send_global_remove(
+        &self,
+        name: u32,
+    ) {
+        let res = self.try_send_global_remove(
+            name,
+        );
+        if let Err(e) = res {
+            log_send("wl_registry.global_remove", &e);
+        }
+    }
 }
 
 /// A message handler for [WlRegistry] proxies.
 pub trait WlRegistryHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlRegistry>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// bind an object to the display
@@ -285,12 +368,12 @@ pub trait WlRegistryHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_bind(
+        let res = _slf.try_send_bind(
             name,
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_registry.bind message: {}", Report::new(e));
+            log_forward("wl_registry.bind", &e);
         }
     }
 
@@ -318,13 +401,13 @@ pub trait WlRegistryHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_global(
+        let res = _slf.try_send_global(
             name,
             interface,
             version,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_registry.global message: {}", Report::new(e));
+            log_forward("wl_registry.global", &e);
         }
     }
 
@@ -353,11 +436,11 @@ pub trait WlRegistryHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_global_remove(
+        let res = _slf.try_send_global_remove(
             name,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_registry.global_remove message: {}", Report::new(e));
+            log_forward("wl_registry.global_remove", &e);
         }
     }
 }
@@ -377,7 +460,7 @@ impl ObjectPrivate for WlRegistry {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

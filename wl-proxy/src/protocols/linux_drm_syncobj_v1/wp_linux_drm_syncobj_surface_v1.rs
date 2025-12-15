@@ -83,7 +83,7 @@ impl WpLinuxDrmSyncobjSurfaceV1 {
     /// compositor. Any timeline point set by this object before the last
     /// commit will not be affected.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -113,6 +113,25 @@ impl WpLinuxDrmSyncobjSurfaceV1 {
         ]);
         self.core.handle_server_destroy();
         Ok(())
+    }
+
+    /// destroy the surface synchronization object
+    ///
+    /// Destroy this surface synchronization object.
+    ///
+    /// Any timeline point set by this object with set_acquire_point or
+    /// set_release_point since the last commit may be discarded by the
+    /// compositor. Any timeline point set by this object before the last
+    /// commit will not be affected.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_linux_drm_syncobj_surface_v1.destroy", &e);
+        }
     }
 
     /// Since when the set_acquire_point message is available.
@@ -149,7 +168,7 @@ impl WpLinuxDrmSyncobjSurfaceV1 {
     /// - `point_hi`: high 32 bits of the point value
     /// - `point_lo`: low 32 bits of the point value
     #[inline]
-    pub fn send_set_acquire_point(
+    pub fn try_send_set_acquire_point(
         &self,
         timeline: &Rc<WpLinuxDrmSyncobjTimelineV1>,
         point_hi: u32,
@@ -200,8 +219,158 @@ impl WpLinuxDrmSyncobjSurfaceV1 {
         Ok(())
     }
 
+    /// set the acquire timeline point
+    ///
+    /// Set the timeline point that must be signalled before the compositor may
+    /// sample from the buffer attached with wl_surface.attach.
+    ///
+    /// The 64-bit unsigned value combined from point_hi and point_lo is the
+    /// point value.
+    ///
+    /// The acquire point is double-buffered state, and will be applied on the
+    /// next wl_surface.commit request for the associated surface. Thus, it
+    /// applies only to the buffer that is attached to the surface at commit
+    /// time.
+    ///
+    /// If an acquire point has already been attached during the same commit
+    /// cycle, the new point replaces the old one.
+    ///
+    /// If the associated wl_surface was destroyed, a no_surface error is
+    /// raised.
+    ///
+    /// If at surface commit time there is a pending acquire timeline point set
+    /// but no pending buffer attached, a no_buffer error is raised. If at
+    /// surface commit time there is a pending buffer attached but no pending
+    /// acquire timeline point set, the no_acquire_point protocol error is
+    /// raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `timeline`:
+    /// - `point_hi`: high 32 bits of the point value
+    /// - `point_lo`: low 32 bits of the point value
+    #[inline]
+    pub fn send_set_acquire_point(
+        &self,
+        timeline: &Rc<WpLinuxDrmSyncobjTimelineV1>,
+        point_hi: u32,
+        point_lo: u32,
+    ) {
+        let res = self.try_send_set_acquire_point(
+            timeline,
+            point_hi,
+            point_lo,
+        );
+        if let Err(e) = res {
+            log_send("wp_linux_drm_syncobj_surface_v1.set_acquire_point", &e);
+        }
+    }
+
     /// Since when the set_release_point message is available.
     pub const MSG__SET_RELEASE_POINT__SINCE: u32 = 1;
+
+    /// set the release timeline point
+    ///
+    /// Set the timeline point that must be signalled by the compositor when it
+    /// has finished its usage of the buffer attached with wl_surface.attach
+    /// for the relevant commit.
+    ///
+    /// Once the timeline point is signaled, and assuming the associated buffer
+    /// is not pending release from other wl_surface.commit requests, no
+    /// additional explicit or implicit synchronization with the compositor is
+    /// required to safely re-use the buffer.
+    ///
+    /// Note that clients cannot rely on the release point being always
+    /// signaled after the acquire point: compositors may release buffers
+    /// without ever reading from them. In addition, the compositor may use
+    /// different presentation paths for different commits, which may have
+    /// different release behavior. As a result, the compositor may signal the
+    /// release points in a different order than the client committed them.
+    ///
+    /// Because signaling a timeline point also signals every previous point,
+    /// it is generally not safe to use the same timeline object for the
+    /// release points of multiple buffers. The out-of-order signaling
+    /// described above may lead to a release point being signaled before the
+    /// compositor has finished reading. To avoid this, it is strongly
+    /// recommended that each buffer should use a separate timeline for its
+    /// release points.
+    ///
+    /// The 64-bit unsigned value combined from point_hi and point_lo is the
+    /// point value.
+    ///
+    /// The release point is double-buffered state, and will be applied on the
+    /// next wl_surface.commit request for the associated surface. Thus, it
+    /// applies only to the buffer that is attached to the surface at commit
+    /// time.
+    ///
+    /// If a release point has already been attached during the same commit
+    /// cycle, the new point replaces the old one.
+    ///
+    /// If the associated wl_surface was destroyed, a no_surface error is
+    /// raised.
+    ///
+    /// If at surface commit time there is a pending release timeline point set
+    /// but no pending buffer attached, a no_buffer error is raised. If at
+    /// surface commit time there is a pending buffer attached but no pending
+    /// release timeline point set, the no_release_point protocol error is
+    /// raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `timeline`:
+    /// - `point_hi`: high 32 bits of the point value
+    /// - `point_lo`: low 32 bits of the point value
+    #[inline]
+    pub fn try_send_set_release_point(
+        &self,
+        timeline: &Rc<WpLinuxDrmSyncobjTimelineV1>,
+        point_hi: u32,
+        point_lo: u32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+            arg2,
+        ) = (
+            timeline,
+            point_hi,
+            point_lo,
+        );
+        let arg0 = arg0.core();
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError::ReceiverNoServerId);
+        };
+        let arg0_id = match arg0.server_obj_id.get() {
+            None => return Err(ObjectError::ArgNoServerId("timeline")),
+            Some(id) => id,
+        };
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: u32, arg2: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_linux_drm_syncobj_surface_v1#{}.set_release_point(timeline: wp_linux_drm_syncobj_timeline_v1#{}, point_hi: {}, point_lo: {})\n", id, arg0, arg1, arg2);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id, arg1, arg2);
+        }
+        let endpoint = &self.core.state.server;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            2,
+            arg0_id,
+            arg1,
+            arg2,
+        ]);
+        Ok(())
+    }
 
     /// set the release timeline point
     ///
@@ -260,50 +429,15 @@ impl WpLinuxDrmSyncobjSurfaceV1 {
         timeline: &Rc<WpLinuxDrmSyncobjTimelineV1>,
         point_hi: u32,
         point_lo: u32,
-    ) -> Result<(), ObjectError> {
-        let (
-            arg0,
-            arg1,
-            arg2,
-        ) = (
+    ) {
+        let res = self.try_send_set_release_point(
             timeline,
             point_hi,
             point_lo,
         );
-        let arg0 = arg0.core();
-        let core = self.core();
-        let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
-        };
-        let arg0_id = match arg0.server_obj_id.get() {
-            None => return Err(ObjectError::ArgNoServerId("timeline")),
-            Some(id) => id,
-        };
-        if self.core.state.log {
-            #[cold]
-            fn log(state: &State, id: u32, arg0: u32, arg1: u32, arg2: u32) {
-                let (millis, micros) = time_since_epoch();
-                let prefix = &state.log_prefix;
-                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_linux_drm_syncobj_surface_v1#{}.set_release_point(timeline: wp_linux_drm_syncobj_timeline_v1#{}, point_hi: {}, point_lo: {})\n", id, arg0, arg1, arg2);
-                state.log(args);
-            }
-            log(&self.core.state, id, arg0_id, arg1, arg2);
+        if let Err(e) = res {
+            log_send("wp_linux_drm_syncobj_surface_v1.set_release_point", &e);
         }
-        let endpoint = &self.core.state.server;
-        if !endpoint.flush_queued.replace(true) {
-            self.core.state.add_flushable_endpoint(endpoint, None);
-        }
-        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
-        let outgoing = &mut *outgoing_ref;
-        let mut fmt = outgoing.formatter();
-        fmt.words([
-            id,
-            2,
-            arg0_id,
-            arg1,
-            arg2,
-        ]);
-        Ok(())
     }
 }
 
@@ -311,7 +445,7 @@ impl WpLinuxDrmSyncobjSurfaceV1 {
 pub trait WpLinuxDrmSyncobjSurfaceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpLinuxDrmSyncobjSurfaceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the surface synchronization object
@@ -330,10 +464,10 @@ pub trait WpLinuxDrmSyncobjSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_linux_drm_syncobj_surface_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_linux_drm_syncobj_surface_v1.destroy", &e);
         }
     }
 
@@ -381,13 +515,13 @@ pub trait WpLinuxDrmSyncobjSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_acquire_point(
+        let res = _slf.try_send_set_acquire_point(
             timeline,
             point_hi,
             point_lo,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_linux_drm_syncobj_surface_v1.set_acquire_point message: {}", Report::new(e));
+            log_forward("wp_linux_drm_syncobj_surface_v1.set_acquire_point", &e);
         }
     }
 
@@ -456,13 +590,13 @@ pub trait WpLinuxDrmSyncobjSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_release_point(
+        let res = _slf.try_send_set_release_point(
             timeline,
             point_hi,
             point_lo,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_linux_drm_syncobj_surface_v1.set_release_point message: {}", Report::new(e));
+            log_forward("wp_linux_drm_syncobj_surface_v1.set_release_point", &e);
         }
     }
 }
@@ -482,7 +616,7 @@ impl ObjectPrivate for WpLinuxDrmSyncobjSurfaceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

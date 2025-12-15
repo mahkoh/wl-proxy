@@ -56,7 +56,7 @@ impl ZwpRelativePointerManagerV1 {
     /// Used by the client to notify the server that it will no longer use this
     /// relative pointer manager object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -88,6 +88,21 @@ impl ZwpRelativePointerManagerV1 {
         Ok(())
     }
 
+    /// destroy the relative pointer manager object
+    ///
+    /// Used by the client to notify the server that it will no longer use this
+    /// relative pointer manager object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_relative_pointer_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_relative_pointer message is available.
     pub const MSG__GET_RELATIVE_POINTER__SINCE: u32 = 1;
 
@@ -101,7 +116,7 @@ impl ZwpRelativePointerManagerV1 {
     /// - `id`:
     /// - `pointer`:
     #[inline]
-    pub fn send_get_relative_pointer(
+    pub fn try_send_get_relative_pointer(
         &self,
         id: &Rc<ZwpRelativePointerV1>,
         pointer: &Rc<WlPointer>,
@@ -152,13 +167,37 @@ impl ZwpRelativePointerManagerV1 {
         ]);
         Ok(())
     }
+
+    /// get a relative pointer object
+    ///
+    /// Create a relative pointer interface given a wl_pointer object. See the
+    /// wp_relative_pointer interface for more details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `pointer`:
+    #[inline]
+    pub fn send_get_relative_pointer(
+        &self,
+        id: &Rc<ZwpRelativePointerV1>,
+        pointer: &Rc<WlPointer>,
+    ) {
+        let res = self.try_send_get_relative_pointer(
+            id,
+            pointer,
+        );
+        if let Err(e) = res {
+            log_send("zwp_relative_pointer_manager_v1.get_relative_pointer", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpRelativePointerManagerV1] proxies.
 pub trait ZwpRelativePointerManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpRelativePointerManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the relative pointer manager object
@@ -173,10 +212,10 @@ pub trait ZwpRelativePointerManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_relative_pointer_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_relative_pointer_manager_v1.destroy", &e);
         }
     }
 
@@ -202,12 +241,12 @@ pub trait ZwpRelativePointerManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_relative_pointer(
+        let res = _slf.try_send_get_relative_pointer(
             id,
             pointer,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_relative_pointer_manager_v1.get_relative_pointer message: {}", Report::new(e));
+            log_forward("zwp_relative_pointer_manager_v1.get_relative_pointer", &e);
         }
     }
 }
@@ -227,7 +266,7 @@ impl ObjectPrivate for ZwpRelativePointerManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -57,7 +57,7 @@ impl ZwpPrimarySelectionDeviceManagerV1 {
     ///
     /// Create a new primary selection source.
     #[inline]
-    pub fn send_create_source(
+    pub fn try_send_create_source(
         &self,
         id: &Rc<ZwpPrimarySelectionSourceV1>,
     ) -> Result<(), ObjectError> {
@@ -100,6 +100,22 @@ impl ZwpPrimarySelectionDeviceManagerV1 {
         Ok(())
     }
 
+    /// create a new primary selection source
+    ///
+    /// Create a new primary selection source.
+    #[inline]
+    pub fn send_create_source(
+        &self,
+        id: &Rc<ZwpPrimarySelectionSourceV1>,
+    ) {
+        let res = self.try_send_create_source(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("zwp_primary_selection_device_manager_v1.create_source", &e);
+        }
+    }
+
     /// Since when the get_device message is available.
     pub const MSG__GET_DEVICE__SINCE: u32 = 1;
 
@@ -112,7 +128,7 @@ impl ZwpPrimarySelectionDeviceManagerV1 {
     /// - `id`:
     /// - `seat`:
     #[inline]
-    pub fn send_get_device(
+    pub fn try_send_get_device(
         &self,
         id: &Rc<ZwpPrimarySelectionDeviceV1>,
         seat: &Rc<WlSeat>,
@@ -164,6 +180,29 @@ impl ZwpPrimarySelectionDeviceManagerV1 {
         Ok(())
     }
 
+    /// create a new primary selection device
+    ///
+    /// Create a new data device for a given seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `seat`:
+    #[inline]
+    pub fn send_get_device(
+        &self,
+        id: &Rc<ZwpPrimarySelectionDeviceV1>,
+        seat: &Rc<WlSeat>,
+    ) {
+        let res = self.try_send_get_device(
+            id,
+            seat,
+        );
+        if let Err(e) = res {
+            log_send("zwp_primary_selection_device_manager_v1.get_device", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -171,7 +210,7 @@ impl ZwpPrimarySelectionDeviceManagerV1 {
     ///
     /// Destroy the primary selection device manager.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -202,13 +241,27 @@ impl ZwpPrimarySelectionDeviceManagerV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the primary selection device manager
+    ///
+    /// Destroy the primary selection device manager.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_primary_selection_device_manager_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpPrimarySelectionDeviceManagerV1] proxies.
 pub trait ZwpPrimarySelectionDeviceManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpPrimarySelectionDeviceManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// create a new primary selection source
@@ -227,11 +280,11 @@ pub trait ZwpPrimarySelectionDeviceManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_source(
+        let res = _slf.try_send_create_source(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_primary_selection_device_manager_v1.create_source message: {}", Report::new(e));
+            log_forward("zwp_primary_selection_device_manager_v1.create_source", &e);
         }
     }
 
@@ -256,12 +309,12 @@ pub trait ZwpPrimarySelectionDeviceManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_device(
+        let res = _slf.try_send_get_device(
             id,
             seat,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_primary_selection_device_manager_v1.get_device message: {}", Report::new(e));
+            log_forward("zwp_primary_selection_device_manager_v1.get_device", &e);
         }
     }
 
@@ -276,10 +329,10 @@ pub trait ZwpPrimarySelectionDeviceManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_primary_selection_device_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_primary_selection_device_manager_v1.destroy", &e);
         }
     }
 }
@@ -299,7 +352,7 @@ impl ObjectPrivate for ZwpPrimarySelectionDeviceManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

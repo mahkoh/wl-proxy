@@ -76,7 +76,7 @@ impl ExtSessionLockSurfaceV1 {
     /// ext_session_lock_v1.unlock_and_destroy event is sent, the compositor
     /// must fall back to rendering a solid color.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -106,6 +106,28 @@ impl ExtSessionLockSurfaceV1 {
         ]);
         self.core.handle_server_destroy();
         Ok(())
+    }
+
+    /// destroy the lock surface object
+    ///
+    /// This informs the compositor that the lock surface object will no
+    /// longer be used.
+    ///
+    /// It is recommended for a lock client to destroy lock surfaces if
+    /// their corresponding wl_output global is removed.
+    ///
+    /// If a lock surface on an active output is destroyed before the
+    /// ext_session_lock_v1.unlock_and_destroy event is sent, the compositor
+    /// must fall back to rendering a solid color.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_session_lock_surface_v1.destroy", &e);
+        }
     }
 
     /// Since when the ack_configure message is available.
@@ -142,7 +164,7 @@ impl ExtSessionLockSurfaceV1 {
     ///
     /// - `serial`: serial from the configure event
     #[inline]
-    pub fn send_ack_configure(
+    pub fn try_send_ack_configure(
         &self,
         serial: u32,
     ) -> Result<(), ObjectError> {
@@ -180,6 +202,49 @@ impl ExtSessionLockSurfaceV1 {
         Ok(())
     }
 
+    /// ack a configure event
+    ///
+    /// When a configure event is received, if a client commits the surface
+    /// in response to the configure event, then the client must make an
+    /// ack_configure request sometime before the commit request, passing
+    /// along the serial of the configure event.
+    ///
+    /// If the client receives multiple configure events before it can
+    /// respond to one, it only has to ack the last configure event.
+    ///
+    /// A client is not required to commit immediately after sending an
+    /// ack_configure request - it may even ack_configure several times
+    /// before its next surface commit.
+    ///
+    /// A client may send multiple ack_configure requests before committing,
+    /// but only the last request sent before a commit indicates which
+    /// configure event the client really is responding to.
+    ///
+    /// Sending an ack_configure request consumes the configure event
+    /// referenced by the given serial, as well as all older configure events
+    /// sent on this object.
+    ///
+    /// It is a protocol error to issue multiple ack_configure requests
+    /// referencing the same configure event or to issue an ack_configure
+    /// request referencing a configure event older than the last configure
+    /// event acked for a given lock surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial from the configure event
+    #[inline]
+    pub fn send_ack_configure(
+        &self,
+        serial: u32,
+    ) {
+        let res = self.try_send_ack_configure(
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("ext_session_lock_surface_v1.ack_configure", &e);
+        }
+    }
+
     /// Since when the configure message is available.
     pub const MSG__CONFIGURE__SINCE: u32 = 1;
 
@@ -198,7 +263,7 @@ impl ExtSessionLockSurfaceV1 {
     /// - `width`:
     /// - `height`:
     #[inline]
-    pub fn send_configure(
+    pub fn try_send_configure(
         &self,
         serial: u32,
         width: u32,
@@ -245,13 +310,44 @@ impl ExtSessionLockSurfaceV1 {
         ]);
         Ok(())
     }
+
+    /// the client should resize its surface
+    ///
+    /// This event is sent once on binding the interface and may be sent again
+    /// at the compositor's discretion, for example if output geometry changes.
+    ///
+    /// The width and height are in surface-local coordinates and are exact
+    /// requirements. Failing to match these surface dimensions in the next
+    /// commit after acking a configure is a protocol error.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial for use in ack_configure
+    /// - `width`:
+    /// - `height`:
+    #[inline]
+    pub fn send_configure(
+        &self,
+        serial: u32,
+        width: u32,
+        height: u32,
+    ) {
+        let res = self.try_send_configure(
+            serial,
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("ext_session_lock_surface_v1.configure", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtSessionLockSurfaceV1] proxies.
 pub trait ExtSessionLockSurfaceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtSessionLockSurfaceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the lock surface object
@@ -273,10 +369,10 @@ pub trait ExtSessionLockSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_session_lock_surface_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_session_lock_surface_v1.destroy", &e);
         }
     }
 
@@ -319,11 +415,11 @@ pub trait ExtSessionLockSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_ack_configure(
+        let res = _slf.try_send_ack_configure(
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_session_lock_surface_v1.ack_configure message: {}", Report::new(e));
+            log_forward("ext_session_lock_surface_v1.ack_configure", &e);
         }
     }
 
@@ -352,13 +448,13 @@ pub trait ExtSessionLockSurfaceV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_configure(
+        let res = _slf.try_send_configure(
             serial,
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_session_lock_surface_v1.configure message: {}", Report::new(e));
+            log_forward("ext_session_lock_surface_v1.configure", &e);
         }
     }
 }
@@ -378,7 +474,7 @@ impl ObjectPrivate for ExtSessionLockSurfaceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -93,7 +93,7 @@ impl WlDataDevice {
     /// - `icon`: drag-and-drop icon surface
     /// - `serial`: serial number of the implicit grab on the origin
     #[inline]
-    pub fn send_start_drag(
+    pub fn try_send_start_drag(
         &self,
         source: Option<&Rc<WlDataSource>>,
         origin: &Rc<WlSurface>,
@@ -164,6 +164,63 @@ impl WlDataDevice {
         Ok(())
     }
 
+    /// start drag-and-drop operation
+    ///
+    /// This request asks the compositor to start a drag-and-drop
+    /// operation on behalf of the client.
+    ///
+    /// The source argument is the data source that provides the data
+    /// for the eventual data transfer. If source is NULL, enter, leave
+    /// and motion events are sent only to the client that initiated the
+    /// drag and the client is expected to handle the data passing
+    /// internally. If source is destroyed, the drag-and-drop session will be
+    /// cancelled.
+    ///
+    /// The origin surface is the surface where the drag originates and
+    /// the client must have an active implicit grab that matches the
+    /// serial.
+    ///
+    /// The icon surface is an optional (can be NULL) surface that
+    /// provides an icon to be moved around with the cursor.  Initially,
+    /// the top-left corner of the icon surface is placed at the cursor
+    /// hotspot, but subsequent wl_surface.offset requests can move the
+    /// relative position. Attach requests must be confirmed with
+    /// wl_surface.commit as usual. The icon surface is given the role of
+    /// a drag-and-drop icon. If the icon surface already has another role,
+    /// it raises a protocol error.
+    ///
+    /// The input region is ignored for wl_surfaces with the role of a
+    /// drag-and-drop icon.
+    ///
+    /// The given source may not be used in any further set_selection or
+    /// start_drag requests. Attempting to reuse a previously-used source
+    /// may send a used_source error.
+    ///
+    /// # Arguments
+    ///
+    /// - `source`: data source for the eventual transfer
+    /// - `origin`: surface where the drag originates
+    /// - `icon`: drag-and-drop icon surface
+    /// - `serial`: serial number of the implicit grab on the origin
+    #[inline]
+    pub fn send_start_drag(
+        &self,
+        source: Option<&Rc<WlDataSource>>,
+        origin: &Rc<WlSurface>,
+        icon: Option<&Rc<WlSurface>>,
+        serial: u32,
+    ) {
+        let res = self.try_send_start_drag(
+            source,
+            origin,
+            icon,
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_device.start_drag", &e);
+        }
+    }
+
     /// Since when the set_selection message is available.
     pub const MSG__SET_SELECTION__SINCE: u32 = 1;
 
@@ -183,7 +240,7 @@ impl WlDataDevice {
     /// - `source`: data source for the selection
     /// - `serial`: serial number of the event that triggered this request
     #[inline]
-    pub fn send_set_selection(
+    pub fn try_send_set_selection(
         &self,
         source: Option<&Rc<WlDataSource>>,
         serial: u32,
@@ -233,6 +290,36 @@ impl WlDataDevice {
         Ok(())
     }
 
+    /// copy data to the selection
+    ///
+    /// This request asks the compositor to set the selection
+    /// to the data from the source on behalf of the client.
+    ///
+    /// To unset the selection, set the source to NULL.
+    ///
+    /// The given source may not be used in any further set_selection or
+    /// start_drag requests. Attempting to reuse a previously-used source
+    /// may send a used_source error.
+    ///
+    /// # Arguments
+    ///
+    /// - `source`: data source for the selection
+    /// - `serial`: serial number of the event that triggered this request
+    #[inline]
+    pub fn send_set_selection(
+        &self,
+        source: Option<&Rc<WlDataSource>>,
+        serial: u32,
+    ) {
+        let res = self.try_send_set_selection(
+            source,
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_device.set_selection", &e);
+        }
+    }
+
     /// Since when the data_offer message is available.
     pub const MSG__DATA_OFFER__SINCE: u32 = 1;
 
@@ -246,7 +333,7 @@ impl WlDataDevice {
     /// object will send out data_offer.offer events to describe the
     /// mime types it offers.
     #[inline]
-    pub fn send_data_offer(
+    pub fn try_send_data_offer(
         &self,
         id: &Rc<WlDataOffer>,
     ) -> Result<(), ObjectError> {
@@ -291,6 +378,28 @@ impl WlDataDevice {
         Ok(())
     }
 
+    /// introduce a new wl_data_offer
+    ///
+    /// The data_offer event introduces a new wl_data_offer object,
+    /// which will subsequently be used in either the
+    /// data_device.enter event (for drag-and-drop) or the
+    /// data_device.selection event (for selections).  Immediately
+    /// following the data_device.data_offer event, the new data_offer
+    /// object will send out data_offer.offer events to describe the
+    /// mime types it offers.
+    #[inline]
+    pub fn send_data_offer(
+        &self,
+        id: &Rc<WlDataOffer>,
+    ) {
+        let res = self.try_send_data_offer(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_device.data_offer", &e);
+        }
+    }
+
     /// Since when the enter message is available.
     pub const MSG__ENTER__SINCE: u32 = 1;
 
@@ -309,7 +418,7 @@ impl WlDataDevice {
     /// - `y`: surface-local y coordinate
     /// - `id`: source data_offer object
     #[inline]
-    pub fn send_enter(
+    pub fn try_send_enter(
         &self,
         serial: u32,
         surface: &Rc<WlSurface>,
@@ -377,6 +486,41 @@ impl WlDataDevice {
         Ok(())
     }
 
+    /// initiate drag-and-drop session
+    ///
+    /// This event is sent when an active drag-and-drop pointer enters
+    /// a surface owned by the client.  The position of the pointer at
+    /// enter time is provided by the x and y arguments, in surface-local
+    /// coordinates.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the enter event
+    /// - `surface`: client surface entered
+    /// - `x`: surface-local x coordinate
+    /// - `y`: surface-local y coordinate
+    /// - `id`: source data_offer object
+    #[inline]
+    pub fn send_enter(
+        &self,
+        serial: u32,
+        surface: &Rc<WlSurface>,
+        x: Fixed,
+        y: Fixed,
+        id: Option<&Rc<WlDataOffer>>,
+    ) {
+        let res = self.try_send_enter(
+            serial,
+            surface,
+            x,
+            y,
+            id,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_device.enter", &e);
+        }
+    }
+
     /// Since when the leave message is available.
     pub const MSG__LEAVE__SINCE: u32 = 1;
 
@@ -386,7 +530,7 @@ impl WlDataDevice {
     /// surface and the session ends.  The client must destroy the
     /// wl_data_offer introduced at enter time at this point.
     #[inline]
-    pub fn send_leave(
+    pub fn try_send_leave(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -419,6 +563,22 @@ impl WlDataDevice {
         Ok(())
     }
 
+    /// end drag-and-drop session
+    ///
+    /// This event is sent when the drag-and-drop pointer leaves the
+    /// surface and the session ends.  The client must destroy the
+    /// wl_data_offer introduced at enter time at this point.
+    #[inline]
+    pub fn send_leave(
+        &self,
+    ) {
+        let res = self.try_send_leave(
+        );
+        if let Err(e) = res {
+            log_send("wl_data_device.leave", &e);
+        }
+    }
+
     /// Since when the motion message is available.
     pub const MSG__MOTION__SINCE: u32 = 1;
 
@@ -435,7 +595,7 @@ impl WlDataDevice {
     /// - `x`: surface-local x coordinate
     /// - `y`: surface-local y coordinate
     #[inline]
-    pub fn send_motion(
+    pub fn try_send_motion(
         &self,
         time: u32,
         x: Fixed,
@@ -483,6 +643,35 @@ impl WlDataDevice {
         Ok(())
     }
 
+    /// drag-and-drop session motion
+    ///
+    /// This event is sent when the drag-and-drop pointer moves within
+    /// the currently focused surface. The new position of the pointer
+    /// is provided by the x and y arguments, in surface-local
+    /// coordinates.
+    ///
+    /// # Arguments
+    ///
+    /// - `time`: timestamp with millisecond granularity
+    /// - `x`: surface-local x coordinate
+    /// - `y`: surface-local y coordinate
+    #[inline]
+    pub fn send_motion(
+        &self,
+        time: u32,
+        x: Fixed,
+        y: Fixed,
+    ) {
+        let res = self.try_send_motion(
+            time,
+            x,
+            y,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_device.motion", &e);
+        }
+    }
+
     /// Since when the drop message is available.
     pub const MSG__DROP__SINCE: u32 = 1;
 
@@ -502,7 +691,7 @@ impl WlDataDevice {
     /// wl_data_offer.set_actions request, or wl_data_offer.destroy in order
     /// to cancel the operation.
     #[inline]
-    pub fn send_drop(
+    pub fn try_send_drop(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -535,6 +724,32 @@ impl WlDataDevice {
         Ok(())
     }
 
+    /// end drag-and-drop session successfully
+    ///
+    /// The event is sent when a drag-and-drop operation is ended
+    /// because the implicit grab is removed.
+    ///
+    /// The drag-and-drop destination is expected to honor the last action
+    /// received through wl_data_offer.action, if the resulting action is
+    /// "copy" or "move", the destination can still perform
+    /// wl_data_offer.receive requests, and is expected to end all
+    /// transfers with a wl_data_offer.finish request.
+    ///
+    /// If the resulting action is "ask", the action will not be considered
+    /// final. The drag-and-drop destination is expected to perform one last
+    /// wl_data_offer.set_actions request, or wl_data_offer.destroy in order
+    /// to cancel the operation.
+    #[inline]
+    pub fn send_drop(
+        &self,
+    ) {
+        let res = self.try_send_drop(
+        );
+        if let Err(e) = res {
+            log_send("wl_data_device.drop", &e);
+        }
+    }
+
     /// Since when the selection message is available.
     pub const MSG__SELECTION__SINCE: u32 = 1;
 
@@ -557,7 +772,7 @@ impl WlDataDevice {
     ///
     /// - `id`: selection data_offer object
     #[inline]
-    pub fn send_selection(
+    pub fn try_send_selection(
         &self,
         id: Option<&Rc<WlDataOffer>>,
     ) -> Result<(), ObjectError> {
@@ -604,6 +819,37 @@ impl WlDataDevice {
         Ok(())
     }
 
+    /// advertise new selection
+    ///
+    /// The selection event is sent out to notify the client of a new
+    /// wl_data_offer for the selection for this device.  The
+    /// data_device.data_offer and the data_offer.offer events are
+    /// sent out immediately before this event to introduce the data
+    /// offer object.  The selection event is sent to a client
+    /// immediately before receiving keyboard focus and when a new
+    /// selection is set while the client has keyboard focus.  The
+    /// data_offer is valid until a new data_offer or NULL is received
+    /// or until the client loses keyboard focus.  Switching surface with
+    /// keyboard focus within the same client doesn't mean a new selection
+    /// will be sent.  The client must destroy the previous selection
+    /// data_offer, if any, upon receiving this event.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: selection data_offer object
+    #[inline]
+    pub fn send_selection(
+        &self,
+        id: Option<&Rc<WlDataOffer>>,
+    ) {
+        let res = self.try_send_selection(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("wl_data_device.selection", &e);
+        }
+    }
+
     /// Since when the release message is available.
     pub const MSG__RELEASE__SINCE: u32 = 2;
 
@@ -611,7 +857,7 @@ impl WlDataDevice {
     ///
     /// This request destroys the data device.
     #[inline]
-    pub fn send_release(
+    pub fn try_send_release(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -642,13 +888,27 @@ impl WlDataDevice {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy data device
+    ///
+    /// This request destroys the data device.
+    #[inline]
+    pub fn send_release(
+        &self,
+    ) {
+        let res = self.try_send_release(
+        );
+        if let Err(e) = res {
+            log_send("wl_data_device.release", &e);
+        }
+    }
 }
 
 /// A message handler for [WlDataDevice] proxies.
 pub trait WlDataDeviceHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlDataDevice>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// start drag-and-drop operation
@@ -704,14 +964,14 @@ pub trait WlDataDeviceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_start_drag(
+        let res = _slf.try_send_start_drag(
             source,
             origin,
             icon,
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_device.start_drag message: {}", Report::new(e));
+            log_forward("wl_data_device.start_drag", &e);
         }
     }
 
@@ -743,12 +1003,12 @@ pub trait WlDataDeviceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_selection(
+        let res = _slf.try_send_set_selection(
             source,
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_device.set_selection message: {}", Report::new(e));
+            log_forward("wl_data_device.set_selection", &e);
         }
     }
 
@@ -774,11 +1034,11 @@ pub trait WlDataDeviceHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_data_offer(
+        let res = _slf.try_send_data_offer(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_device.data_offer message: {}", Report::new(e));
+            log_forward("wl_data_device.data_offer", &e);
         }
     }
 
@@ -826,7 +1086,7 @@ pub trait WlDataDeviceHandler: Any {
                 }
             }
         }
-        let res = _slf.send_enter(
+        let res = _slf.try_send_enter(
             serial,
             surface,
             x,
@@ -834,7 +1094,7 @@ pub trait WlDataDeviceHandler: Any {
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_device.enter message: {}", Report::new(e));
+            log_forward("wl_data_device.enter", &e);
         }
     }
 
@@ -851,10 +1111,10 @@ pub trait WlDataDeviceHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_leave(
+        let res = _slf.try_send_leave(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_device.leave message: {}", Report::new(e));
+            log_forward("wl_data_device.leave", &e);
         }
     }
 
@@ -881,13 +1141,13 @@ pub trait WlDataDeviceHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_motion(
+        let res = _slf.try_send_motion(
             time,
             x,
             y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_device.motion message: {}", Report::new(e));
+            log_forward("wl_data_device.motion", &e);
         }
     }
 
@@ -914,10 +1174,10 @@ pub trait WlDataDeviceHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_drop(
+        let res = _slf.try_send_drop(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_device.drop message: {}", Report::new(e));
+            log_forward("wl_data_device.drop", &e);
         }
     }
 
@@ -960,11 +1220,11 @@ pub trait WlDataDeviceHandler: Any {
                 }
             }
         }
-        let res = _slf.send_selection(
+        let res = _slf.try_send_selection(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_device.selection message: {}", Report::new(e));
+            log_forward("wl_data_device.selection", &e);
         }
     }
 
@@ -979,10 +1239,10 @@ pub trait WlDataDeviceHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_release(
+        let res = _slf.try_send_release(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wl_data_device.release message: {}", Report::new(e));
+            log_forward("wl_data_device.release", &e);
         }
     }
 }
@@ -1002,7 +1262,7 @@ impl ObjectPrivate for WlDataDevice {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

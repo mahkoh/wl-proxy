@@ -55,7 +55,7 @@ impl ZwpRelativePointerV1 {
 
     /// release the relative pointer object
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -85,6 +85,18 @@ impl ZwpRelativePointerV1 {
         ]);
         self.core.handle_server_destroy();
         Ok(())
+    }
+
+    /// release the relative pointer object
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_relative_pointer_v1.destroy", &e);
+        }
     }
 
     /// Since when the relative_motion message is available.
@@ -132,7 +144,7 @@ impl ZwpRelativePointerV1 {
     /// - `dx_unaccel`: the x component of the unaccelerated motion vector
     /// - `dy_unaccel`: the y component of the unaccelerated motion vector
     #[inline]
-    pub fn send_relative_motion(
+    pub fn try_send_relative_motion(
         &self,
         utime_hi: u32,
         utime_lo: u32,
@@ -191,13 +203,77 @@ impl ZwpRelativePointerV1 {
         ]);
         Ok(())
     }
+
+    /// relative pointer motion
+    ///
+    /// Relative x/y pointer motion from the pointer of the seat associated with
+    /// this object.
+    ///
+    /// A relative motion is in the same dimension as regular wl_pointer motion
+    /// events, except they do not represent an absolute position. For example,
+    /// moving a pointer from (x, y) to (x', y') would have the equivalent
+    /// relative motion (x' - x, y' - y). If a pointer motion caused the
+    /// absolute pointer position to be clipped by for example the edge of the
+    /// monitor, the relative motion is unaffected by the clipping and will
+    /// represent the unclipped motion.
+    ///
+    /// This event also contains non-accelerated motion deltas. The
+    /// non-accelerated delta is, when applicable, the regular pointer motion
+    /// delta as it was before having applied motion acceleration and other
+    /// transformations such as normalization.
+    ///
+    /// Note that the non-accelerated delta does not represent 'raw' events as
+    /// they were read from some device. Pointer motion acceleration is device-
+    /// and configuration-specific and non-accelerated deltas and accelerated
+    /// deltas may have the same value on some devices.
+    ///
+    /// Relative motions are not coupled to wl_pointer.motion events, and can be
+    /// sent in combination with such events, but also independently. There may
+    /// also be scenarios where wl_pointer.motion is sent, but there is no
+    /// relative motion. The order of an absolute and relative motion event
+    /// originating from the same physical motion is not guaranteed.
+    ///
+    /// If the client needs button events or focus state, it can receive them
+    /// from a wl_pointer object of the same seat that the wp_relative_pointer
+    /// object is associated with.
+    ///
+    /// # Arguments
+    ///
+    /// - `utime_hi`: high 32 bits of a 64 bit timestamp with microsecond granularity
+    /// - `utime_lo`: low 32 bits of a 64 bit timestamp with microsecond granularity
+    /// - `dx`: the x component of the motion vector
+    /// - `dy`: the y component of the motion vector
+    /// - `dx_unaccel`: the x component of the unaccelerated motion vector
+    /// - `dy_unaccel`: the y component of the unaccelerated motion vector
+    #[inline]
+    pub fn send_relative_motion(
+        &self,
+        utime_hi: u32,
+        utime_lo: u32,
+        dx: Fixed,
+        dy: Fixed,
+        dx_unaccel: Fixed,
+        dy_unaccel: Fixed,
+    ) {
+        let res = self.try_send_relative_motion(
+            utime_hi,
+            utime_lo,
+            dx,
+            dy,
+            dx_unaccel,
+            dy_unaccel,
+        );
+        if let Err(e) = res {
+            log_send("zwp_relative_pointer_v1.relative_motion", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpRelativePointerV1] proxies.
 pub trait ZwpRelativePointerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpRelativePointerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// release the relative pointer object
@@ -209,10 +285,10 @@ pub trait ZwpRelativePointerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_relative_pointer_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_relative_pointer_v1.destroy", &e);
         }
     }
 
@@ -271,7 +347,7 @@ pub trait ZwpRelativePointerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_relative_motion(
+        let res = _slf.try_send_relative_motion(
             utime_hi,
             utime_lo,
             dx,
@@ -280,7 +356,7 @@ pub trait ZwpRelativePointerV1Handler: Any {
             dy_unaccel,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_relative_pointer_v1.relative_motion message: {}", Report::new(e));
+            log_forward("zwp_relative_pointer_v1.relative_motion", &e);
         }
     }
 }
@@ -300,7 +376,7 @@ impl ObjectPrivate for ZwpRelativePointerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

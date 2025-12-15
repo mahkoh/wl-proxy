@@ -59,7 +59,7 @@ impl WpColorManagementSurfaceV1 {
     /// Destroy the wp_color_management_surface_v1 object and do the same as
     /// unset_image_description.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -89,6 +89,21 @@ impl WpColorManagementSurfaceV1 {
         ]);
         self.core.handle_server_destroy();
         Ok(())
+    }
+
+    /// destroy the color management interface for a surface
+    ///
+    /// Destroy the wp_color_management_surface_v1 object and do the same as
+    /// unset_image_description.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_color_management_surface_v1.destroy", &e);
+        }
     }
 
     /// Since when the set_image_description message is available.
@@ -141,7 +156,7 @@ impl WpColorManagementSurfaceV1 {
     /// - `image_description`:
     /// - `render_intent`: rendering intent
     #[inline]
-    pub fn send_set_image_description(
+    pub fn try_send_set_image_description(
         &self,
         image_description: &Rc<WpImageDescriptionV1>,
         render_intent: WpColorManagerV1RenderIntent,
@@ -188,6 +203,67 @@ impl WpColorManagementSurfaceV1 {
         Ok(())
     }
 
+    /// set the surface image description
+    ///
+    /// If this protocol object is inert, the protocol error inert is raised.
+    ///
+    /// Set the image description of the underlying surface. The image
+    /// description and rendering intent are double-buffered state, see
+    /// wl_surface.commit.
+    ///
+    /// It is the client's responsibility to understand the image description
+    /// it sets on a surface, and to provide content that matches that image
+    /// description. Compositors might convert images to match their own or any
+    /// other image descriptions.
+    ///
+    /// Image descriptions which are not ready (see wp_image_description_v1)
+    /// are forbidden in this request, and in such case the protocol error
+    /// image_description is raised.
+    ///
+    /// All image descriptions which are ready (see wp_image_description_v1)
+    /// are allowed and must always be accepted by the compositor.
+    ///
+    /// When an image description is set on a surface, it establishes an
+    /// explicit link between surface pixel values and surface colorimetry.
+    /// This link may be undefined for some pixel values, see the image
+    /// description creator interfaces for the conditions. Non-finite
+    /// floating-point values (NaN, Inf) always have an undefined colorimetry.
+    ///
+    /// A rendering intent provides the client's preference on how surface
+    /// colorimetry should be mapped to each output. The render_intent value
+    /// must be one advertised by the compositor with
+    /// wp_color_manager_v1.render_intent event, otherwise the protocol error
+    /// render_intent is raised.
+    ///
+    /// By default, a surface does not have an associated image description
+    /// nor a rendering intent. The handling of color on such surfaces is
+    /// compositor implementation defined. Compositors should handle such
+    /// surfaces as sRGB, but may handle them differently if they have specific
+    /// requirements.
+    ///
+    /// Setting the image description has copy semantics; after this request,
+    /// the image description can be immediately destroyed without affecting
+    /// the pending state of the surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `image_description`:
+    /// - `render_intent`: rendering intent
+    #[inline]
+    pub fn send_set_image_description(
+        &self,
+        image_description: &Rc<WpImageDescriptionV1>,
+        render_intent: WpColorManagerV1RenderIntent,
+    ) {
+        let res = self.try_send_set_image_description(
+            image_description,
+            render_intent,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_management_surface_v1.set_image_description", &e);
+        }
+    }
+
     /// Since when the unset_image_description message is available.
     pub const MSG__UNSET_IMAGE_DESCRIPTION__SINCE: u32 = 1;
 
@@ -200,7 +276,7 @@ impl WpColorManagementSurfaceV1 {
     /// an image description. This is double-buffered state, see
     /// wl_surface.commit.
     #[inline]
-    pub fn send_unset_image_description(
+    pub fn try_send_unset_image_description(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -230,13 +306,32 @@ impl WpColorManagementSurfaceV1 {
         ]);
         Ok(())
     }
+
+    /// remove the surface image description
+    ///
+    /// If this protocol object is inert, the protocol error inert is raised.
+    ///
+    /// This request removes any image description from the surface. See
+    /// set_image_description for how a compositor handles a surface without
+    /// an image description. This is double-buffered state, see
+    /// wl_surface.commit.
+    #[inline]
+    pub fn send_unset_image_description(
+        &self,
+    ) {
+        let res = self.try_send_unset_image_description(
+        );
+        if let Err(e) = res {
+            log_send("wp_color_management_surface_v1.unset_image_description", &e);
+        }
+    }
 }
 
 /// A message handler for [WpColorManagementSurfaceV1] proxies.
 pub trait WpColorManagementSurfaceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpColorManagementSurfaceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the color management interface for a surface
@@ -251,10 +346,10 @@ pub trait WpColorManagementSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_management_surface_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_color_management_surface_v1.destroy", &e);
         }
     }
 
@@ -317,12 +412,12 @@ pub trait WpColorManagementSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_image_description(
+        let res = _slf.try_send_set_image_description(
             image_description,
             render_intent,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_management_surface_v1.set_image_description message: {}", Report::new(e));
+            log_forward("wp_color_management_surface_v1.set_image_description", &e);
         }
     }
 
@@ -342,10 +437,10 @@ pub trait WpColorManagementSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_unset_image_description(
+        let res = _slf.try_send_unset_image_description(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_color_management_surface_v1.unset_image_description message: {}", Report::new(e));
+            log_forward("wp_color_management_surface_v1.unset_image_description", &e);
         }
     }
 }
@@ -365,7 +460,7 @@ impl ObjectPrivate for WpColorManagementSurfaceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -55,7 +55,7 @@ impl ZwpInputPanelV1 {
     /// - `id`:
     /// - `surface`:
     #[inline]
-    pub fn send_get_input_panel_surface(
+    pub fn try_send_get_input_panel_surface(
         &self,
         id: &Rc<ZwpInputPanelSurfaceV1>,
         surface: &Rc<WlSurface>,
@@ -106,13 +106,32 @@ impl ZwpInputPanelV1 {
         ]);
         Ok(())
     }
+
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn send_get_input_panel_surface(
+        &self,
+        id: &Rc<ZwpInputPanelSurfaceV1>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_input_panel_surface(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_panel_v1.get_input_panel_surface", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpInputPanelV1] proxies.
 pub trait ZwpInputPanelV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpInputPanelV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// # Arguments
@@ -132,12 +151,12 @@ pub trait ZwpInputPanelV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_input_panel_surface(
+        let res = _slf.try_send_get_input_panel_surface(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_panel_v1.get_input_panel_surface message: {}", Report::new(e));
+            log_forward("zwp_input_panel_v1.get_input_panel_surface", &e);
         }
     }
 }
@@ -157,7 +176,7 @@ impl ObjectPrivate for ZwpInputPanelV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -87,7 +87,7 @@ impl ZwpInputMethodV2 {
     /// State set with this event is double-buffered. It will get applied on
     /// the next zwp_input_method_v2.done event, and stay valid until changed.
     #[inline]
-    pub fn send_activate(
+    pub fn try_send_activate(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -120,6 +120,38 @@ impl ZwpInputMethodV2 {
         Ok(())
     }
 
+    /// input method has been requested
+    ///
+    /// Notification that a text input focused on this seat requested the input
+    /// method to be activated.
+    ///
+    /// This event serves the purpose of providing the compositor with an
+    /// active input method.
+    ///
+    /// This event resets all state associated with previous enable, disable,
+    /// surrounding_text, text_change_cause, and content_type events, as well
+    /// as the state associated with set_preedit_string, commit_string, and
+    /// delete_surrounding_text requests. In addition, it marks the
+    /// zwp_input_method_v2 object as active, and makes any existing
+    /// zwp_input_popup_surface_v2 objects visible.
+    ///
+    /// The surrounding_text, and content_type events must follow before the
+    /// next done event if the text input supports the respective
+    /// functionality.
+    ///
+    /// State set with this event is double-buffered. It will get applied on
+    /// the next zwp_input_method_v2.done event, and stay valid until changed.
+    #[inline]
+    pub fn send_activate(
+        &self,
+    ) {
+        let res = self.try_send_activate(
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_v2.activate", &e);
+        }
+    }
+
     /// Since when the deactivate message is available.
     pub const MSG__DEACTIVATE__SINCE: u32 = 1;
 
@@ -135,7 +167,7 @@ impl ZwpInputMethodV2 {
     /// State set with this event is double-buffered. It will get applied on
     /// the next zwp_input_method_v2.done event, and stay valid until changed.
     #[inline]
-    pub fn send_deactivate(
+    pub fn try_send_deactivate(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -166,6 +198,28 @@ impl ZwpInputMethodV2 {
             1,
         ]);
         Ok(())
+    }
+
+    /// deactivate event
+    ///
+    /// Notification that no focused text input currently needs an active 
+    /// input method on this seat.
+    ///
+    /// This event marks the zwp_input_method_v2 object as inactive. The
+    /// compositor must make all existing zwp_input_popup_surface_v2 objects
+    /// invisible until the next activate event.
+    ///
+    /// State set with this event is double-buffered. It will get applied on
+    /// the next zwp_input_method_v2.done event, and stay valid until changed.
+    #[inline]
+    pub fn send_deactivate(
+        &self,
+    ) {
+        let res = self.try_send_deactivate(
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_v2.deactivate", &e);
+        }
     }
 
     /// Since when the surrounding_text message is available.
@@ -209,7 +263,7 @@ impl ZwpInputMethodV2 {
     /// - `cursor`:
     /// - `anchor`:
     #[inline]
-    pub fn send_surrounding_text(
+    pub fn try_send_surrounding_text(
         &self,
         text: &str,
         cursor: u32,
@@ -259,6 +313,60 @@ impl ZwpInputMethodV2 {
         Ok(())
     }
 
+    /// surrounding text event
+    ///
+    /// Updates the surrounding plain text around the cursor, excluding the
+    /// preedit text.
+    ///
+    /// If any preedit text is present, it is replaced with the cursor for the
+    /// purpose of this event.
+    ///
+    /// The argument text is a buffer containing the preedit string, and must
+    /// include the cursor position, and the complete selection. It should
+    /// contain additional characters before and after these. There is a
+    /// maximum length of wayland messages, so text can not be longer than 4000
+    /// bytes.
+    ///
+    /// cursor is the byte offset of the cursor within the text buffer.
+    ///
+    /// anchor is the byte offset of the selection anchor within the text
+    /// buffer. If there is no selected text, anchor must be the same as
+    /// cursor.
+    ///
+    /// If this event does not arrive before the first done event, the input
+    /// method may assume that the text input does not support this
+    /// functionality and ignore following surrounding_text events.
+    ///
+    /// Values set with this event are double-buffered. They will get applied
+    /// and set to initial values on the next zwp_input_method_v2.done
+    /// event.
+    ///
+    /// The initial state for affected fields is empty, meaning that the text
+    /// input does not support sending surrounding text. If the empty values
+    /// get applied, subsequent attempts to change them may have no effect.
+    ///
+    /// # Arguments
+    ///
+    /// - `text`:
+    /// - `cursor`:
+    /// - `anchor`:
+    #[inline]
+    pub fn send_surrounding_text(
+        &self,
+        text: &str,
+        cursor: u32,
+        anchor: u32,
+    ) {
+        let res = self.try_send_surrounding_text(
+            text,
+            cursor,
+            anchor,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_v2.surrounding_text", &e);
+        }
+    }
+
     /// Since when the text_change_cause message is available.
     pub const MSG__TEXT_CHANGE_CAUSE__SINCE: u32 = 1;
 
@@ -284,7 +392,7 @@ impl ZwpInputMethodV2 {
     ///
     /// - `cause`:
     #[inline]
-    pub fn send_text_change_cause(
+    pub fn try_send_text_change_cause(
         &self,
         cause: ZwpTextInputV3ChangeCause,
     ) -> Result<(), ObjectError> {
@@ -324,6 +432,40 @@ impl ZwpInputMethodV2 {
         Ok(())
     }
 
+    /// indicates the cause of surrounding text change
+    ///
+    /// Tells the input method why the text surrounding the cursor changed.
+    ///
+    /// Whenever the client detects an external change in text, cursor, or
+    /// anchor position, it must issue this request to the compositor. This
+    /// request is intended to give the input method a chance to update the
+    /// preedit text in an appropriate way, e.g. by removing it when the user
+    /// starts typing with a keyboard.
+    ///
+    /// cause describes the source of the change.
+    ///
+    /// The value set with this event is double-buffered. It will get applied
+    /// and set to its initial value on the next zwp_input_method_v2.done
+    /// event.
+    ///
+    /// The initial value of cause is input_method.
+    ///
+    /// # Arguments
+    ///
+    /// - `cause`:
+    #[inline]
+    pub fn send_text_change_cause(
+        &self,
+        cause: ZwpTextInputV3ChangeCause,
+    ) {
+        let res = self.try_send_text_change_cause(
+            cause,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_v2.text_change_cause", &e);
+        }
+    }
+
     /// Since when the content_type message is available.
     pub const MSG__CONTENT_TYPE__SINCE: u32 = 1;
 
@@ -343,7 +485,7 @@ impl ZwpInputMethodV2 {
     /// - `hint`:
     /// - `purpose`:
     #[inline]
-    pub fn send_content_type(
+    pub fn try_send_content_type(
         &self,
         hint: ZwpTextInputV3ContentHint,
         purpose: ZwpTextInputV3ContentPurpose,
@@ -387,6 +529,36 @@ impl ZwpInputMethodV2 {
         Ok(())
     }
 
+    /// content purpose and hint
+    ///
+    /// Indicates the content type and hint for the current
+    /// zwp_input_method_v2 instance.
+    ///
+    /// Values set with this event are double-buffered. They will get applied
+    /// on the next zwp_input_method_v2.done event.
+    ///
+    /// The initial value for hint is none, and the initial value for purpose
+    /// is normal.
+    ///
+    /// # Arguments
+    ///
+    /// - `hint`:
+    /// - `purpose`:
+    #[inline]
+    pub fn send_content_type(
+        &self,
+        hint: ZwpTextInputV3ContentHint,
+        purpose: ZwpTextInputV3ContentPurpose,
+    ) {
+        let res = self.try_send_content_type(
+            hint,
+            purpose,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_v2.content_type", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -410,7 +582,7 @@ impl ZwpInputMethodV2 {
     ///
     /// Neither current nor pending state are modified unless noted otherwise.
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -443,6 +615,36 @@ impl ZwpInputMethodV2 {
         Ok(())
     }
 
+    /// apply state
+    ///
+    /// Atomically applies state changes recently sent to the client.
+    ///
+    /// The done event establishes and updates the state of the client, and
+    /// must be issued after any changes to apply them.
+    ///
+    /// Text input state (content purpose, content hint, surrounding text, and
+    /// change cause) is conceptually double-buffered within an input method
+    /// context.
+    ///
+    /// Events modify the pending state, as opposed to the current state in use
+    /// by the input method. A done event atomically applies all pending state,
+    /// replacing the current state. After done, the new pending state is as
+    /// documented for each related request.
+    ///
+    /// Events must be applied in the order of arrival.
+    ///
+    /// Neither current nor pending state are modified unless noted otherwise.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) {
+        let res = self.try_send_done(
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_v2.done", &e);
+        }
+    }
+
     /// Since when the commit_string message is available.
     pub const MSG__COMMIT_STRING__SINCE: u32 = 1;
 
@@ -467,7 +669,7 @@ impl ZwpInputMethodV2 {
     ///
     /// - `text`:
     #[inline]
-    pub fn send_commit_string(
+    pub fn try_send_commit_string(
         &self,
         text: &str,
     ) -> Result<(), ObjectError> {
@@ -503,6 +705,39 @@ impl ZwpInputMethodV2 {
         ]);
         fmt.string(arg0);
         Ok(())
+    }
+
+    /// commit string
+    ///
+    /// Send the commit string text for insertion to the application.
+    ///
+    /// Inserts a string at current cursor position (see commit event
+    /// sequence). The string to commit could be either just a single character
+    /// after a key press or the result of some composing.
+    ///
+    /// The argument text is a buffer containing the string to insert. There is
+    /// a maximum length of wayland messages, so text can not be longer than
+    /// 4000 bytes.
+    ///
+    /// Values set with this event are double-buffered. They must be applied
+    /// and reset to initial on the next zwp_text_input_v3.commit request.
+    ///
+    /// The initial value of text is an empty string.
+    ///
+    /// # Arguments
+    ///
+    /// - `text`:
+    #[inline]
+    pub fn send_commit_string(
+        &self,
+        text: &str,
+    ) {
+        let res = self.try_send_commit_string(
+            text,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_v2.commit_string", &e);
+        }
     }
 
     /// Since when the set_preedit_string message is available.
@@ -541,7 +776,7 @@ impl ZwpInputMethodV2 {
     /// - `cursor_begin`:
     /// - `cursor_end`:
     #[inline]
-    pub fn send_set_preedit_string(
+    pub fn try_send_set_preedit_string(
         &self,
         text: &str,
         cursor_begin: i32,
@@ -589,6 +824,55 @@ impl ZwpInputMethodV2 {
         Ok(())
     }
 
+    /// pre-edit string
+    ///
+    /// Send the pre-edit string text to the application text input.
+    ///
+    /// Place a new composing text (pre-edit) at the current cursor position.
+    /// Any previously set composing text must be removed. Any previously
+    /// existing selected text must be removed. The cursor is moved to a new
+    /// position within the preedit string.
+    ///
+    /// The argument text is a buffer containing the preedit string. There is
+    /// a maximum length of wayland messages, so text can not be longer than
+    /// 4000 bytes.
+    ///
+    /// The arguments cursor_begin and cursor_end are counted in bytes relative
+    /// to the beginning of the submitted string buffer. Cursor should be
+    /// hidden by the text input when both are equal to -1.
+    ///
+    /// cursor_begin indicates the beginning of the cursor. cursor_end
+    /// indicates the end of the cursor. It may be equal or different than
+    /// cursor_begin.
+    ///
+    /// Values set with this event are double-buffered. They must be applied on
+    /// the next zwp_input_method_v2.commit event.
+    ///
+    /// The initial value of text is an empty string. The initial value of
+    /// cursor_begin, and cursor_end are both 0.
+    ///
+    /// # Arguments
+    ///
+    /// - `text`:
+    /// - `cursor_begin`:
+    /// - `cursor_end`:
+    #[inline]
+    pub fn send_set_preedit_string(
+        &self,
+        text: &str,
+        cursor_begin: i32,
+        cursor_end: i32,
+    ) {
+        let res = self.try_send_set_preedit_string(
+            text,
+            cursor_begin,
+            cursor_end,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_v2.set_preedit_string", &e);
+        }
+    }
+
     /// Since when the delete_surrounding_text message is available.
     pub const MSG__DELETE_SURROUNDING_TEXT__SINCE: u32 = 1;
 
@@ -614,7 +898,7 @@ impl ZwpInputMethodV2 {
     /// - `before_length`:
     /// - `after_length`:
     #[inline]
-    pub fn send_delete_surrounding_text(
+    pub fn try_send_delete_surrounding_text(
         &self,
         before_length: u32,
         after_length: u32,
@@ -656,6 +940,42 @@ impl ZwpInputMethodV2 {
         Ok(())
     }
 
+    /// delete text
+    ///
+    /// Remove the surrounding text.
+    ///
+    /// before_length and after_length are the number of bytes before and after
+    /// the current cursor index (excluding the preedit text) to delete.
+    ///
+    /// If any preedit text is present, it is replaced with the cursor for the
+    /// purpose of this event. In effect before_length is counted from the
+    /// beginning of preedit text, and after_length from its end (see commit
+    /// event sequence).
+    ///
+    /// Values set with this event are double-buffered. They must be applied
+    /// and reset to initial on the next zwp_input_method_v2.commit request.
+    ///
+    /// The initial values of both before_length and after_length are 0.
+    ///
+    /// # Arguments
+    ///
+    /// - `before_length`:
+    /// - `after_length`:
+    #[inline]
+    pub fn send_delete_surrounding_text(
+        &self,
+        before_length: u32,
+        after_length: u32,
+    ) {
+        let res = self.try_send_delete_surrounding_text(
+            before_length,
+            after_length,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_v2.delete_surrounding_text", &e);
+        }
+    }
+
     /// Since when the commit message is available.
     pub const MSG__COMMIT__SINCE: u32 = 1;
 
@@ -689,7 +1009,7 @@ impl ZwpInputMethodV2 {
     ///
     /// - `serial`:
     #[inline]
-    pub fn send_commit(
+    pub fn try_send_commit(
         &self,
         serial: u32,
     ) -> Result<(), ObjectError> {
@@ -727,6 +1047,48 @@ impl ZwpInputMethodV2 {
         Ok(())
     }
 
+    /// apply state
+    ///
+    /// Apply state changes from commit_string, set_preedit_string and
+    /// delete_surrounding_text requests.
+    ///
+    /// The state relating to these events is double-buffered, and each one
+    /// modifies the pending state. This request replaces the current state
+    /// with the pending state.
+    ///
+    /// The connected text input is expected to proceed by evaluating the
+    /// changes in the following order:
+    ///
+    /// 1. Replace existing preedit string with the cursor.
+    /// 2. Delete requested surrounding text.
+    /// 3. Insert commit string with the cursor at its end.
+    /// 4. Calculate surrounding text to send.
+    /// 5. Insert new preedit text in cursor position.
+    /// 6. Place cursor inside preedit text.
+    ///
+    /// The serial number reflects the last state of the zwp_input_method_v2
+    /// object known to the client. The value of the serial argument must be
+    /// equal to the number of done events already issued by that object. When
+    /// the compositor receives a commit request with a serial different than
+    /// the number of past done events, it must proceed as normal, except it
+    /// should not change the current state of the zwp_input_method_v2 object.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`:
+    #[inline]
+    pub fn send_commit(
+        &self,
+        serial: u32,
+    ) {
+        let res = self.try_send_commit(
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_v2.commit", &e);
+        }
+    }
+
     /// Since when the get_input_popup_surface message is available.
     pub const MSG__GET_INPUT_POPUP_SURFACE__SINCE: u32 = 1;
 
@@ -744,7 +1106,7 @@ impl ZwpInputMethodV2 {
     /// - `id`:
     /// - `surface`:
     #[inline]
-    pub fn send_get_input_popup_surface(
+    pub fn try_send_get_input_popup_surface(
         &self,
         id: &Rc<ZwpInputPopupSurfaceV2>,
         surface: &Rc<WlSurface>,
@@ -796,6 +1158,34 @@ impl ZwpInputMethodV2 {
         Ok(())
     }
 
+    /// create popup surface
+    ///
+    /// Creates a new zwp_input_popup_surface_v2 object wrapping a given
+    /// surface.
+    ///
+    /// The surface gets assigned the "input_popup" role. If the surface
+    /// already has an assigned role, the compositor must issue a protocol
+    /// error.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn send_get_input_popup_surface(
+        &self,
+        id: &Rc<ZwpInputPopupSurfaceV2>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_input_popup_surface(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_v2.get_input_popup_surface", &e);
+        }
+    }
+
     /// Since when the grab_keyboard message is available.
     pub const MSG__GRAB_KEYBOARD__SINCE: u32 = 1;
 
@@ -814,7 +1204,7 @@ impl ZwpInputMethodV2 {
     ///
     /// Releasing the resulting wl_keyboard object releases the grab.
     #[inline]
-    pub fn send_grab_keyboard(
+    pub fn try_send_grab_keyboard(
         &self,
         keyboard: &Rc<ZwpInputMethodKeyboardGrabV2>,
     ) -> Result<(), ObjectError> {
@@ -857,6 +1247,33 @@ impl ZwpInputMethodV2 {
         Ok(())
     }
 
+    /// grab hardware keyboard
+    ///
+    /// Allow an input method to receive hardware keyboard input and process
+    /// key events to generate text events (with pre-edit) over the wire. This
+    /// allows input methods which compose multiple key events for inputting
+    /// text like it is done for CJK languages.
+    ///
+    /// The compositor should send all keyboard events on the seat to the grab
+    /// holder via the returned wl_keyboard object. Nevertheless, the
+    /// compositor may decide not to forward any particular event. The
+    /// compositor must not further process any event after it has been
+    /// forwarded to the grab holder.
+    ///
+    /// Releasing the resulting wl_keyboard object releases the grab.
+    #[inline]
+    pub fn send_grab_keyboard(
+        &self,
+        keyboard: &Rc<ZwpInputMethodKeyboardGrabV2>,
+    ) {
+        let res = self.try_send_grab_keyboard(
+            keyboard,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_v2.grab_keyboard", &e);
+        }
+    }
+
     /// Since when the unavailable message is available.
     pub const MSG__UNAVAILABLE__SINCE: u32 = 1;
 
@@ -875,7 +1292,7 @@ impl ZwpInputMethodV2 {
     /// deactivation is handled. Any further requests and events except for the
     /// destroy request must be ignored.
     #[inline]
-    pub fn send_unavailable(
+    pub fn try_send_unavailable(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -908,6 +1325,31 @@ impl ZwpInputMethodV2 {
         Ok(())
     }
 
+    /// input method unavailable
+    ///
+    /// The input method ceased to be available.
+    ///
+    /// The compositor must issue this event as the only event on the object if
+    /// there was another input_method object associated with the same seat at
+    /// the time of its creation.
+    ///
+    /// The compositor must issue this request when the object is no longer
+    /// usable, e.g. due to seat removal.
+    ///
+    /// The input method context becomes inert and should be destroyed after
+    /// deactivation is handled. Any further requests and events except for the
+    /// destroy request must be ignored.
+    #[inline]
+    pub fn send_unavailable(
+        &self,
+    ) {
+        let res = self.try_send_unavailable(
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_v2.unavailable", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -917,7 +1359,7 @@ impl ZwpInputMethodV2 {
     /// objects, i.e. zwp_input_popup_surface_v2 and
     /// zwp_input_method_keyboard_grab_v2.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -948,13 +1390,29 @@ impl ZwpInputMethodV2 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the text input
+    ///
+    /// Destroys the zwp_text_input_v2 object and any associated child
+    /// objects, i.e. zwp_input_popup_surface_v2 and
+    /// zwp_input_method_keyboard_grab_v2.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_v2.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpInputMethodV2] proxies.
 pub trait ZwpInputMethodV2Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpInputMethodV2>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// input method has been requested
@@ -986,10 +1444,10 @@ pub trait ZwpInputMethodV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_activate(
+        let res = _slf.try_send_activate(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_v2.activate message: {}", Report::new(e));
+            log_forward("zwp_input_method_v2.activate", &e);
         }
     }
 
@@ -1012,10 +1470,10 @@ pub trait ZwpInputMethodV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_deactivate(
+        let res = _slf.try_send_deactivate(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_v2.deactivate message: {}", Report::new(e));
+            log_forward("zwp_input_method_v2.deactivate", &e);
         }
     }
 
@@ -1067,13 +1525,13 @@ pub trait ZwpInputMethodV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_surrounding_text(
+        let res = _slf.try_send_surrounding_text(
             text,
             cursor,
             anchor,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_v2.surrounding_text message: {}", Report::new(e));
+            log_forward("zwp_input_method_v2.surrounding_text", &e);
         }
     }
 
@@ -1107,11 +1565,11 @@ pub trait ZwpInputMethodV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_text_change_cause(
+        let res = _slf.try_send_text_change_cause(
             cause,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_v2.text_change_cause message: {}", Report::new(e));
+            log_forward("zwp_input_method_v2.text_change_cause", &e);
         }
     }
 
@@ -1140,12 +1598,12 @@ pub trait ZwpInputMethodV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_content_type(
+        let res = _slf.try_send_content_type(
             hint,
             purpose,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_v2.content_type message: {}", Report::new(e));
+            log_forward("zwp_input_method_v2.content_type", &e);
         }
     }
 
@@ -1176,10 +1634,10 @@ pub trait ZwpInputMethodV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_v2.done message: {}", Report::new(e));
+            log_forward("zwp_input_method_v2.done", &e);
         }
     }
 
@@ -1212,11 +1670,11 @@ pub trait ZwpInputMethodV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_commit_string(
+        let res = _slf.try_send_commit_string(
             text,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_v2.commit_string message: {}", Report::new(e));
+            log_forward("zwp_input_method_v2.commit_string", &e);
         }
     }
 
@@ -1263,13 +1721,13 @@ pub trait ZwpInputMethodV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_preedit_string(
+        let res = _slf.try_send_set_preedit_string(
             text,
             cursor_begin,
             cursor_end,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_v2.set_preedit_string message: {}", Report::new(e));
+            log_forward("zwp_input_method_v2.set_preedit_string", &e);
         }
     }
 
@@ -1304,12 +1762,12 @@ pub trait ZwpInputMethodV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_delete_surrounding_text(
+        let res = _slf.try_send_delete_surrounding_text(
             before_length,
             after_length,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_v2.delete_surrounding_text message: {}", Report::new(e));
+            log_forward("zwp_input_method_v2.delete_surrounding_text", &e);
         }
     }
 
@@ -1351,11 +1809,11 @@ pub trait ZwpInputMethodV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_commit(
+        let res = _slf.try_send_commit(
             serial,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_v2.commit message: {}", Report::new(e));
+            log_forward("zwp_input_method_v2.commit", &e);
         }
     }
 
@@ -1385,12 +1843,12 @@ pub trait ZwpInputMethodV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_input_popup_surface(
+        let res = _slf.try_send_get_input_popup_surface(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_v2.get_input_popup_surface message: {}", Report::new(e));
+            log_forward("zwp_input_method_v2.get_input_popup_surface", &e);
         }
     }
 
@@ -1421,11 +1879,11 @@ pub trait ZwpInputMethodV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_grab_keyboard(
+        let res = _slf.try_send_grab_keyboard(
             keyboard,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_v2.grab_keyboard message: {}", Report::new(e));
+            log_forward("zwp_input_method_v2.grab_keyboard", &e);
         }
     }
 
@@ -1451,10 +1909,10 @@ pub trait ZwpInputMethodV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_unavailable(
+        let res = _slf.try_send_unavailable(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_v2.unavailable message: {}", Report::new(e));
+            log_forward("zwp_input_method_v2.unavailable", &e);
         }
     }
 
@@ -1471,10 +1929,10 @@ pub trait ZwpInputMethodV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_v2.destroy message: {}", Report::new(e));
+            log_forward("zwp_input_method_v2.destroy", &e);
         }
     }
 }
@@ -1494,7 +1952,7 @@ impl ObjectPrivate for ZwpInputMethodV2 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

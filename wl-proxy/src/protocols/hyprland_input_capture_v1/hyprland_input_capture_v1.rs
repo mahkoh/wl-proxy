@@ -56,7 +56,7 @@ impl HyprlandInputCaptureV1 {
     ///
     /// Remove every barriers from the session, new barriers need to be send before calling enable again.
     #[inline]
-    pub fn send_clear_barriers(
+    pub fn try_send_clear_barriers(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -87,6 +87,20 @@ impl HyprlandInputCaptureV1 {
         Ok(())
     }
 
+    /// clear every barriers registered
+    ///
+    /// Remove every barriers from the session, new barriers need to be send before calling enable again.
+    #[inline]
+    pub fn send_clear_barriers(
+        &self,
+    ) {
+        let res = self.try_send_clear_barriers(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_input_capture_v1.clear_barriers", &e);
+        }
+    }
+
     /// Since when the add_barrier message is available.
     pub const MSG__ADD_BARRIER__SINCE: u32 = 1;
 
@@ -103,7 +117,7 @@ impl HyprlandInputCaptureV1 {
     /// - `x2`:
     /// - `y2`:
     #[inline]
-    pub fn send_add_barrier(
+    pub fn try_send_add_barrier(
         &self,
         zone_set: u32,
         id: u32,
@@ -161,6 +175,41 @@ impl HyprlandInputCaptureV1 {
         Ok(())
     }
 
+    /// add one barrier
+    ///
+    /// Add one barrier to the current session, the barrier need to a line placed on the edge of the screen, and is a straight line from one corner to another.
+    ///
+    /// # Arguments
+    ///
+    /// - `zone_set`: The current zone_set
+    /// - `id`: The zone id
+    /// - `x1`:
+    /// - `y1`:
+    /// - `x2`:
+    /// - `y2`:
+    #[inline]
+    pub fn send_add_barrier(
+        &self,
+        zone_set: u32,
+        id: u32,
+        x1: u32,
+        y1: u32,
+        x2: u32,
+        y2: u32,
+    ) {
+        let res = self.try_send_add_barrier(
+            zone_set,
+            id,
+            x1,
+            y1,
+            x2,
+            y2,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_input_capture_v1.add_barrier", &e);
+        }
+    }
+
     /// Since when the enable message is available.
     pub const MSG__ENABLE__SINCE: u32 = 1;
 
@@ -168,7 +217,7 @@ impl HyprlandInputCaptureV1 {
     ///
     /// Enable the input capturing to be triggered by the cursor crossing a barrier.
     #[inline]
-    pub fn send_enable(
+    pub fn try_send_enable(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -199,6 +248,20 @@ impl HyprlandInputCaptureV1 {
         Ok(())
     }
 
+    /// enable input capturing
+    ///
+    /// Enable the input capturing to be triggered by the cursor crossing a barrier.
+    #[inline]
+    pub fn send_enable(
+        &self,
+    ) {
+        let res = self.try_send_enable(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_input_capture_v1.enable", &e);
+        }
+    }
+
     /// Since when the disable message is available.
     pub const MSG__DISABLE__SINCE: u32 = 1;
 
@@ -206,7 +269,7 @@ impl HyprlandInputCaptureV1 {
     ///
     /// Disable input capturing, the crossing of a barrier will not trigger anymore input capture.
     #[inline]
-    pub fn send_disable(
+    pub fn try_send_disable(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -237,6 +300,20 @@ impl HyprlandInputCaptureV1 {
         Ok(())
     }
 
+    /// disable input capturing
+    ///
+    /// Disable input capturing, the crossing of a barrier will not trigger anymore input capture.
+    #[inline]
+    pub fn send_disable(
+        &self,
+    ) {
+        let res = self.try_send_disable(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_input_capture_v1.disable", &e);
+        }
+    }
+
     /// Since when the release message is available.
     pub const MSG__RELEASE__SINCE: u32 = 1;
 
@@ -251,7 +328,7 @@ impl HyprlandInputCaptureV1 {
     /// - `x`: the x position of the cursor
     /// - `y`: the y position of the cursor
     #[inline]
-    pub fn send_release(
+    pub fn try_send_release(
         &self,
         activation_id: u32,
         x: Fixed,
@@ -297,6 +374,33 @@ impl HyprlandInputCaptureV1 {
         Ok(())
     }
 
+    /// release input capturing
+    ///
+    /// Release input capturing, the input are not intercepted anymore and barrier crossing will activate it again.
+    /// 		If x != -1 and y != -1 then the cursor is warped to the x and y coordinates.
+    ///
+    /// # Arguments
+    ///
+    /// - `activation_id`: The activation id provided when activated is called
+    /// - `x`: the x position of the cursor
+    /// - `y`: the y position of the cursor
+    #[inline]
+    pub fn send_release(
+        &self,
+        activation_id: u32,
+        x: Fixed,
+        y: Fixed,
+    ) {
+        let res = self.try_send_release(
+            activation_id,
+            x,
+            y,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_input_capture_v1.release", &e);
+        }
+    }
+
     /// Since when the eis_fd message is available.
     pub const MSG__EIS_FD__SINCE: u32 = 1;
 
@@ -308,7 +412,7 @@ impl HyprlandInputCaptureV1 {
     ///
     /// - `fd`: eis socket file descriptor
     #[inline]
-    pub fn send_eis_fd(
+    pub fn try_send_eis_fd(
         &self,
         fd: &Rc<OwnedFd>,
     ) -> Result<(), ObjectError> {
@@ -348,6 +452,26 @@ impl HyprlandInputCaptureV1 {
         Ok(())
     }
 
+    /// eis file descriptor
+    ///
+    /// This event provide the file descriptor of an eis socket where inputs will be sent when input capturing is active
+    ///
+    /// # Arguments
+    ///
+    /// - `fd`: eis socket file descriptor
+    #[inline]
+    pub fn send_eis_fd(
+        &self,
+        fd: &Rc<OwnedFd>,
+    ) {
+        let res = self.try_send_eis_fd(
+            fd,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_input_capture_v1.eis_fd", &e);
+        }
+    }
+
     /// Since when the disabled message is available.
     pub const MSG__DISABLED__SINCE: u32 = 1;
 
@@ -355,7 +479,7 @@ impl HyprlandInputCaptureV1 {
     ///
     /// Called when the application will not receive captured input. The application can call enable to request future input capturing
     #[inline]
-    pub fn send_disabled(
+    pub fn try_send_disabled(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -388,6 +512,20 @@ impl HyprlandInputCaptureV1 {
         Ok(())
     }
 
+    /// disable the session
+    ///
+    /// Called when the application will not receive captured input. The application can call enable to request future input capturing
+    #[inline]
+    pub fn send_disabled(
+        &self,
+    ) {
+        let res = self.try_send_disabled(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_input_capture_v1.disabled", &e);
+        }
+    }
+
     /// Since when the activated message is available.
     pub const MSG__ACTIVATED__SINCE: u32 = 1;
 
@@ -402,7 +540,7 @@ impl HyprlandInputCaptureV1 {
     /// - `y`: the y position of the cursor
     /// - `barrier_id`: the is of the barrier that have been triggered
     #[inline]
-    pub fn send_activated(
+    pub fn try_send_activated(
         &self,
         activation_id: u32,
         x: Fixed,
@@ -454,6 +592,35 @@ impl HyprlandInputCaptureV1 {
         Ok(())
     }
 
+    /// inputs has been captured
+    ///
+    /// Called when the application is about to receive inputs
+    ///
+    /// # Arguments
+    ///
+    /// - `activation_id`: Same number used in eis start_emulating to allow synchronisation
+    /// - `x`: the x position of the cursor
+    /// - `y`: the y position of the cursor
+    /// - `barrier_id`: the is of the barrier that have been triggered
+    #[inline]
+    pub fn send_activated(
+        &self,
+        activation_id: u32,
+        x: Fixed,
+        y: Fixed,
+        barrier_id: u32,
+    ) {
+        let res = self.try_send_activated(
+            activation_id,
+            x,
+            y,
+            barrier_id,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_input_capture_v1.activated", &e);
+        }
+    }
+
     /// Since when the deactivated message is available.
     pub const MSG__DEACTIVATED__SINCE: u32 = 1;
 
@@ -465,7 +632,7 @@ impl HyprlandInputCaptureV1 {
     ///
     /// - `activation_id`: same activation id of the latest activated event
     #[inline]
-    pub fn send_deactivated(
+    pub fn try_send_deactivated(
         &self,
         activation_id: u32,
     ) -> Result<(), ObjectError> {
@@ -504,13 +671,33 @@ impl HyprlandInputCaptureV1 {
         ]);
         Ok(())
     }
+
+    /// pointer motion
+    ///
+    /// Called when input capture is stopped, and inputs are no longer sent to the application
+    ///
+    /// # Arguments
+    ///
+    /// - `activation_id`: same activation id of the latest activated event
+    #[inline]
+    pub fn send_deactivated(
+        &self,
+        activation_id: u32,
+    ) {
+        let res = self.try_send_deactivated(
+            activation_id,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_input_capture_v1.deactivated", &e);
+        }
+    }
 }
 
 /// A message handler for [HyprlandInputCaptureV1] proxies.
 pub trait HyprlandInputCaptureV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandInputCaptureV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// clear every barriers registered
@@ -524,10 +711,10 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_clear_barriers(
+        let res = _slf.try_send_clear_barriers(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_input_capture_v1.clear_barriers message: {}", Report::new(e));
+            log_forward("hyprland_input_capture_v1.clear_barriers", &e);
         }
     }
 
@@ -557,7 +744,7 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_add_barrier(
+        let res = _slf.try_send_add_barrier(
             zone_set,
             id,
             x1,
@@ -566,7 +753,7 @@ pub trait HyprlandInputCaptureV1Handler: Any {
             y2,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_input_capture_v1.add_barrier message: {}", Report::new(e));
+            log_forward("hyprland_input_capture_v1.add_barrier", &e);
         }
     }
 
@@ -581,10 +768,10 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_enable(
+        let res = _slf.try_send_enable(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_input_capture_v1.enable message: {}", Report::new(e));
+            log_forward("hyprland_input_capture_v1.enable", &e);
         }
     }
 
@@ -599,10 +786,10 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_disable(
+        let res = _slf.try_send_disable(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_input_capture_v1.disable message: {}", Report::new(e));
+            log_forward("hyprland_input_capture_v1.disable", &e);
         }
     }
 
@@ -627,13 +814,13 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_release(
+        let res = _slf.try_send_release(
             activation_id,
             x,
             y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_input_capture_v1.release message: {}", Report::new(e));
+            log_forward("hyprland_input_capture_v1.release", &e);
         }
     }
 
@@ -653,11 +840,11 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_eis_fd(
+        let res = _slf.try_send_eis_fd(
             fd,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_input_capture_v1.eis_fd message: {}", Report::new(e));
+            log_forward("hyprland_input_capture_v1.eis_fd", &e);
         }
     }
 
@@ -672,10 +859,10 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_disabled(
+        let res = _slf.try_send_disabled(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_input_capture_v1.disabled message: {}", Report::new(e));
+            log_forward("hyprland_input_capture_v1.disabled", &e);
         }
     }
 
@@ -701,14 +888,14 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_activated(
+        let res = _slf.try_send_activated(
             activation_id,
             x,
             y,
             barrier_id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_input_capture_v1.activated message: {}", Report::new(e));
+            log_forward("hyprland_input_capture_v1.activated", &e);
         }
     }
 
@@ -728,11 +915,11 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_deactivated(
+        let res = _slf.try_send_deactivated(
             activation_id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_input_capture_v1.deactivated message: {}", Report::new(e));
+            log_forward("hyprland_input_capture_v1.deactivated", &e);
         }
     }
 }
@@ -752,7 +939,7 @@ impl ObjectPrivate for HyprlandInputCaptureV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

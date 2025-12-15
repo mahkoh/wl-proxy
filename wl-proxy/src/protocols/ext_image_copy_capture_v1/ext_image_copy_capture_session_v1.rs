@@ -76,7 +76,7 @@ impl ExtImageCopyCaptureSessionV1 {
     /// - `width`: buffer width
     /// - `height`: buffer height
     #[inline]
-    pub fn send_buffer_size(
+    pub fn try_send_buffer_size(
         &self,
         width: u32,
         height: u32,
@@ -120,6 +120,31 @@ impl ExtImageCopyCaptureSessionV1 {
         Ok(())
     }
 
+    /// image capture source dimensions
+    ///
+    /// Provides the dimensions of the source image in buffer pixel coordinates.
+    ///
+    /// The client must attach buffers that match this size.
+    ///
+    /// # Arguments
+    ///
+    /// - `width`: buffer width
+    /// - `height`: buffer height
+    #[inline]
+    pub fn send_buffer_size(
+        &self,
+        width: u32,
+        height: u32,
+    ) {
+        let res = self.try_send_buffer_size(
+            width,
+            height,
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_session_v1.buffer_size", &e);
+        }
+    }
+
     /// Since when the shm_format message is available.
     pub const MSG__SHM_FORMAT__SINCE: u32 = 1;
 
@@ -134,7 +159,7 @@ impl ExtImageCopyCaptureSessionV1 {
     ///
     /// - `format`: shm format
     #[inline]
-    pub fn send_shm_format(
+    pub fn try_send_shm_format(
         &self,
         format: WlShmFormat,
     ) -> Result<(), ObjectError> {
@@ -174,6 +199,29 @@ impl ExtImageCopyCaptureSessionV1 {
         Ok(())
     }
 
+    /// shm buffer format
+    ///
+    /// Provides the format that must be used for shared-memory buffers.
+    ///
+    /// This event may be emitted multiple times, in which case the client may
+    /// choose any given format.
+    ///
+    /// # Arguments
+    ///
+    /// - `format`: shm format
+    #[inline]
+    pub fn send_shm_format(
+        &self,
+        format: WlShmFormat,
+    ) {
+        let res = self.try_send_shm_format(
+            format,
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_session_v1.shm_format", &e);
+        }
+    }
+
     /// Since when the dmabuf_device message is available.
     pub const MSG__DMABUF_DEVICE__SINCE: u32 = 1;
 
@@ -191,7 +239,7 @@ impl ExtImageCopyCaptureSessionV1 {
     ///
     /// - `device`: device dev_t value
     #[inline]
-    pub fn send_dmabuf_device(
+    pub fn try_send_dmabuf_device(
         &self,
         device: &[u8],
     ) -> Result<(), ObjectError> {
@@ -231,6 +279,32 @@ impl ExtImageCopyCaptureSessionV1 {
         Ok(())
     }
 
+    /// dma-buf device
+    ///
+    /// This event advertises the device buffers must be allocated on for
+    /// dma-buf buffers.
+    ///
+    /// In general the device is a DRM node. The DRM node type (primary vs.
+    /// render) is unspecified. Clients must not rely on the compositor sending
+    /// a particular node type. Clients cannot check two devices for equality
+    /// by comparing the dev_t value.
+    ///
+    /// # Arguments
+    ///
+    /// - `device`: device dev_t value
+    #[inline]
+    pub fn send_dmabuf_device(
+        &self,
+        device: &[u8],
+    ) {
+        let res = self.try_send_dmabuf_device(
+            device,
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_session_v1.dmabuf_device", &e);
+        }
+    }
+
     /// Since when the dmabuf_format message is available.
     pub const MSG__DMABUF_FORMAT__SINCE: u32 = 1;
 
@@ -249,7 +323,7 @@ impl ExtImageCopyCaptureSessionV1 {
     /// - `format`: drm format code
     /// - `modifiers`: drm format modifiers
     #[inline]
-    pub fn send_dmabuf_format(
+    pub fn try_send_dmabuf_format(
         &self,
         format: u32,
         modifiers: &[u8],
@@ -293,6 +367,35 @@ impl ExtImageCopyCaptureSessionV1 {
         Ok(())
     }
 
+    /// dma-buf format
+    ///
+    /// Provides the format that must be used for dma-buf buffers.
+    ///
+    /// The client may choose any of the modifiers advertised in the array of
+    /// 64-bit unsigned integers.
+    ///
+    /// This event may be emitted multiple times, in which case the client may
+    /// choose any given format.
+    ///
+    /// # Arguments
+    ///
+    /// - `format`: drm format code
+    /// - `modifiers`: drm format modifiers
+    #[inline]
+    pub fn send_dmabuf_format(
+        &self,
+        format: u32,
+        modifiers: &[u8],
+    ) {
+        let res = self.try_send_dmabuf_format(
+            format,
+            modifiers,
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_session_v1.dmabuf_format", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -305,7 +408,7 @@ impl ExtImageCopyCaptureSessionV1 {
     /// this event, regardless of whether it sends the initial constraints or
     /// an update.
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -338,6 +441,25 @@ impl ExtImageCopyCaptureSessionV1 {
         Ok(())
     }
 
+    /// all constraints have been sent
+    ///
+    /// This event is sent once when all buffer constraint events have been
+    /// sent.
+    ///
+    /// The compositor must always end a batch of buffer constraint events with
+    /// this event, regardless of whether it sends the initial constraints or
+    /// an update.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) {
+        let res = self.try_send_done(
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_session_v1.done", &e);
+        }
+    }
+
     /// Since when the stopped message is available.
     pub const MSG__STOPPED__SINCE: u32 = 1;
 
@@ -350,7 +472,7 @@ impl ExtImageCopyCaptureSessionV1 {
     ///
     /// The client should destroy the session after receiving this event.
     #[inline]
-    pub fn send_stopped(
+    pub fn try_send_stopped(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -383,6 +505,25 @@ impl ExtImageCopyCaptureSessionV1 {
         Ok(())
     }
 
+    /// session is no longer available
+    ///
+    /// This event indicates that the capture session has stopped and is no
+    /// longer available. This can happen in a number of cases, e.g. when the
+    /// underlying source is destroyed, if the user decides to end the image
+    /// capture, or if an unrecoverable runtime error has occurred.
+    ///
+    /// The client should destroy the session after receiving this event.
+    #[inline]
+    pub fn send_stopped(
+        &self,
+    ) {
+        let res = self.try_send_stopped(
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_session_v1.stopped", &e);
+        }
+    }
+
     /// Since when the create_frame message is available.
     pub const MSG__CREATE_FRAME__SINCE: u32 = 1;
 
@@ -394,7 +535,7 @@ impl ExtImageCopyCaptureSessionV1 {
     /// a client sends a create_frame request before a previous frame object
     /// has been destroyed, the duplicate_frame protocol error is raised.
     #[inline]
-    pub fn send_create_frame(
+    pub fn try_send_create_frame(
         &self,
         frame: &Rc<ExtImageCopyCaptureFrameV1>,
     ) -> Result<(), ObjectError> {
@@ -437,6 +578,26 @@ impl ExtImageCopyCaptureSessionV1 {
         Ok(())
     }
 
+    /// create a frame
+    ///
+    /// Create a capture frame for this session.
+    ///
+    /// At most one frame object can exist for a given session at any time. If
+    /// a client sends a create_frame request before a previous frame object
+    /// has been destroyed, the duplicate_frame protocol error is raised.
+    #[inline]
+    pub fn send_create_frame(
+        &self,
+        frame: &Rc<ExtImageCopyCaptureFrameV1>,
+    ) {
+        let res = self.try_send_create_frame(
+            frame,
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_session_v1.create_frame", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -448,7 +609,7 @@ impl ExtImageCopyCaptureSessionV1 {
     /// This request doesn't affect ext_image_copy_capture_frame_v1 objects created by
     /// this object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -479,13 +640,31 @@ impl ExtImageCopyCaptureSessionV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// delete this object
+    ///
+    /// Destroys the session. This request can be sent at any time by the
+    /// client.
+    ///
+    /// This request doesn't affect ext_image_copy_capture_frame_v1 objects created by
+    /// this object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_session_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtImageCopyCaptureSessionV1] proxies.
 pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtImageCopyCaptureSessionV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// image capture source dimensions
@@ -508,12 +687,12 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_buffer_size(
+        let res = _slf.try_send_buffer_size(
             width,
             height,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_session_v1.buffer_size message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_session_v1.buffer_size", &e);
         }
     }
 
@@ -536,11 +715,11 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_shm_format(
+        let res = _slf.try_send_shm_format(
             format,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_session_v1.shm_format message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_session_v1.shm_format", &e);
         }
     }
 
@@ -566,11 +745,11 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_dmabuf_device(
+        let res = _slf.try_send_dmabuf_device(
             device,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_session_v1.dmabuf_device message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_session_v1.dmabuf_device", &e);
         }
     }
 
@@ -598,12 +777,12 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_dmabuf_format(
+        let res = _slf.try_send_dmabuf_format(
             format,
             modifiers,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_session_v1.dmabuf_format message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_session_v1.dmabuf_format", &e);
         }
     }
 
@@ -623,10 +802,10 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_session_v1.done message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_session_v1.done", &e);
         }
     }
 
@@ -646,10 +825,10 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_stopped(
+        let res = _slf.try_send_stopped(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_session_v1.stopped message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_session_v1.stopped", &e);
         }
     }
 
@@ -673,11 +852,11 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_frame(
+        let res = _slf.try_send_create_frame(
             frame,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_session_v1.create_frame message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_session_v1.create_frame", &e);
         }
     }
 
@@ -696,10 +875,10 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_session_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_session_v1.destroy", &e);
         }
     }
 }
@@ -719,7 +898,7 @@ impl ObjectPrivate for ExtImageCopyCaptureSessionV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

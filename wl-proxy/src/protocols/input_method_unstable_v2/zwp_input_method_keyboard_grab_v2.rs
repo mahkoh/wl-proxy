@@ -62,7 +62,7 @@ impl ZwpInputMethodKeyboardGrabV2 {
     /// - `fd`: keymap file descriptor
     /// - `size`: keymap size, in bytes
     #[inline]
-    pub fn send_keymap(
+    pub fn try_send_keymap(
         &self,
         format: WlKeyboardKeymapFormat,
         fd: &Rc<OwnedFd>,
@@ -110,6 +110,33 @@ impl ZwpInputMethodKeyboardGrabV2 {
         Ok(())
     }
 
+    /// keyboard mapping
+    ///
+    /// This event provides a file descriptor to the client which can be
+    /// memory-mapped to provide a keyboard mapping description.
+    ///
+    /// # Arguments
+    ///
+    /// - `format`: keymap format
+    /// - `fd`: keymap file descriptor
+    /// - `size`: keymap size, in bytes
+    #[inline]
+    pub fn send_keymap(
+        &self,
+        format: WlKeyboardKeymapFormat,
+        fd: &Rc<OwnedFd>,
+        size: u32,
+    ) {
+        let res = self.try_send_keymap(
+            format,
+            fd,
+            size,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_keyboard_grab_v2.keymap", &e);
+        }
+    }
+
     /// Since when the key message is available.
     pub const MSG__KEY__SINCE: u32 = 1;
 
@@ -126,7 +153,7 @@ impl ZwpInputMethodKeyboardGrabV2 {
     /// - `key`: key that produced the event
     /// - `state`: physical state of the key
     #[inline]
-    pub fn send_key(
+    pub fn try_send_key(
         &self,
         serial: u32,
         time: u32,
@@ -178,6 +205,37 @@ impl ZwpInputMethodKeyboardGrabV2 {
         Ok(())
     }
 
+    /// key event
+    ///
+    /// A key was pressed or released.
+    /// The time argument is a timestamp with millisecond granularity, with an
+    /// undefined base.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the key event
+    /// - `time`: timestamp with millisecond granularity
+    /// - `key`: key that produced the event
+    /// - `state`: physical state of the key
+    #[inline]
+    pub fn send_key(
+        &self,
+        serial: u32,
+        time: u32,
+        key: u32,
+        state: WlKeyboardKeyState,
+    ) {
+        let res = self.try_send_key(
+            serial,
+            time,
+            key,
+            state,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_keyboard_grab_v2.key", &e);
+        }
+    }
+
     /// Since when the modifiers message is available.
     pub const MSG__MODIFIERS__SINCE: u32 = 1;
 
@@ -194,7 +252,7 @@ impl ZwpInputMethodKeyboardGrabV2 {
     /// - `mods_locked`: locked modifiers
     /// - `group`: keyboard layout
     #[inline]
-    pub fn send_modifiers(
+    pub fn try_send_modifiers(
         &self,
         serial: u32,
         mods_depressed: u32,
@@ -250,12 +308,45 @@ impl ZwpInputMethodKeyboardGrabV2 {
         Ok(())
     }
 
+    /// modifier and group state
+    ///
+    /// Notifies clients that the modifier and/or group state has changed, and
+    /// it should update its local state.
+    ///
+    /// # Arguments
+    ///
+    /// - `serial`: serial number of the modifiers event
+    /// - `mods_depressed`: depressed modifiers
+    /// - `mods_latched`: latched modifiers
+    /// - `mods_locked`: locked modifiers
+    /// - `group`: keyboard layout
+    #[inline]
+    pub fn send_modifiers(
+        &self,
+        serial: u32,
+        mods_depressed: u32,
+        mods_latched: u32,
+        mods_locked: u32,
+        group: u32,
+    ) {
+        let res = self.try_send_modifiers(
+            serial,
+            mods_depressed,
+            mods_latched,
+            mods_locked,
+            group,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_keyboard_grab_v2.modifiers", &e);
+        }
+    }
+
     /// Since when the release message is available.
     pub const MSG__RELEASE__SINCE: u32 = 1;
 
     /// release the grab object
     #[inline]
-    pub fn send_release(
+    pub fn try_send_release(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -287,6 +378,18 @@ impl ZwpInputMethodKeyboardGrabV2 {
         Ok(())
     }
 
+    /// release the grab object
+    #[inline]
+    pub fn send_release(
+        &self,
+    ) {
+        let res = self.try_send_release(
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_keyboard_grab_v2.release", &e);
+        }
+    }
+
     /// Since when the repeat_info message is available.
     pub const MSG__REPEAT_INFO__SINCE: u32 = 1;
 
@@ -310,7 +413,7 @@ impl ZwpInputMethodKeyboardGrabV2 {
     /// - `rate`: the rate of repeating keys in characters per second
     /// - `delay`: delay in milliseconds since key down until repeating starts
     #[inline]
-    pub fn send_repeat_info(
+    pub fn try_send_repeat_info(
         &self,
         rate: i32,
         delay: i32,
@@ -353,13 +456,47 @@ impl ZwpInputMethodKeyboardGrabV2 {
         ]);
         Ok(())
     }
+
+    /// repeat rate and delay
+    ///
+    /// Informs the client about the keyboard's repeat rate and delay.
+    ///
+    /// This event is sent as soon as the zwp_input_method_keyboard_grab_v2
+    /// object has been created, and is guaranteed to be received by the
+    /// client before any key press event.
+    ///
+    /// Negative values for either rate or delay are illegal. A rate of zero
+    /// will disable any repeating (regardless of the value of delay).
+    ///
+    /// This event can be sent later on as well with a new value if necessary,
+    /// so clients should continue listening for the event past the creation
+    /// of zwp_input_method_keyboard_grab_v2.
+    ///
+    /// # Arguments
+    ///
+    /// - `rate`: the rate of repeating keys in characters per second
+    /// - `delay`: delay in milliseconds since key down until repeating starts
+    #[inline]
+    pub fn send_repeat_info(
+        &self,
+        rate: i32,
+        delay: i32,
+    ) {
+        let res = self.try_send_repeat_info(
+            rate,
+            delay,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_method_keyboard_grab_v2.repeat_info", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpInputMethodKeyboardGrabV2] proxies.
 pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpInputMethodKeyboardGrabV2>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// keyboard mapping
@@ -383,13 +520,13 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_keymap(
+        let res = _slf.try_send_keymap(
             format,
             fd,
             size,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_keyboard_grab_v2.keymap message: {}", Report::new(e));
+            log_forward("zwp_input_method_keyboard_grab_v2.keymap", &e);
         }
     }
 
@@ -417,14 +554,14 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_key(
+        let res = _slf.try_send_key(
             serial,
             time,
             key,
             state,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_keyboard_grab_v2.key message: {}", Report::new(e));
+            log_forward("zwp_input_method_keyboard_grab_v2.key", &e);
         }
     }
 
@@ -453,7 +590,7 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_modifiers(
+        let res = _slf.try_send_modifiers(
             serial,
             mods_depressed,
             mods_latched,
@@ -461,7 +598,7 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
             group,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_keyboard_grab_v2.modifiers message: {}", Report::new(e));
+            log_forward("zwp_input_method_keyboard_grab_v2.modifiers", &e);
         }
     }
 
@@ -474,10 +611,10 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_release(
+        let res = _slf.try_send_release(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_keyboard_grab_v2.release message: {}", Report::new(e));
+            log_forward("zwp_input_method_keyboard_grab_v2.release", &e);
         }
     }
 
@@ -510,12 +647,12 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_repeat_info(
+        let res = _slf.try_send_repeat_info(
             rate,
             delay,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_method_keyboard_grab_v2.repeat_info message: {}", Report::new(e));
+            log_forward("zwp_input_method_keyboard_grab_v2.repeat_info", &e);
         }
     }
 }
@@ -535,7 +672,7 @@ impl ObjectPrivate for ZwpInputMethodKeyboardGrabV2 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

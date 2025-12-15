@@ -57,7 +57,7 @@ impl ZxdgImporterV2 {
     /// Notify the compositor that the xdg_importer object will no longer be
     /// used.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -89,6 +89,21 @@ impl ZxdgImporterV2 {
         Ok(())
     }
 
+    /// destroy the xdg_importer object
+    ///
+    /// Notify the compositor that the xdg_importer object will no longer be
+    /// used.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zxdg_importer_v2.destroy", &e);
+        }
+    }
+
     /// Since when the import_toplevel message is available.
     pub const MSG__IMPORT_TOPLEVEL__SINCE: u32 = 1;
 
@@ -105,7 +120,7 @@ impl ZxdgImporterV2 {
     /// - `id`: the new xdg_imported object
     /// - `handle`: the exported surface handle
     #[inline]
-    pub fn send_import_toplevel(
+    pub fn try_send_import_toplevel(
         &self,
         id: &Rc<ZxdgImportedV2>,
         handle: &str,
@@ -151,13 +166,40 @@ impl ZxdgImporterV2 {
         fmt.string(arg1);
         Ok(())
     }
+
+    /// import a toplevel surface
+    ///
+    /// The import_toplevel request imports a surface from any client given a handle
+    /// retrieved by exporting said surface using xdg_exporter.export_toplevel.
+    /// When called, a new xdg_imported object will be created. This new object
+    /// represents the imported surface, and the importing client can
+    /// manipulate its relationship using it. See xdg_imported for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new xdg_imported object
+    /// - `handle`: the exported surface handle
+    #[inline]
+    pub fn send_import_toplevel(
+        &self,
+        id: &Rc<ZxdgImportedV2>,
+        handle: &str,
+    ) {
+        let res = self.try_send_import_toplevel(
+            id,
+            handle,
+        );
+        if let Err(e) = res {
+            log_send("zxdg_importer_v2.import_toplevel", &e);
+        }
+    }
 }
 
 /// A message handler for [ZxdgImporterV2] proxies.
 pub trait ZxdgImporterV2Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZxdgImporterV2>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the xdg_importer object
@@ -172,10 +214,10 @@ pub trait ZxdgImporterV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zxdg_importer_v2.destroy message: {}", Report::new(e));
+            log_forward("zxdg_importer_v2.destroy", &e);
         }
     }
 
@@ -201,12 +243,12 @@ pub trait ZxdgImporterV2Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_import_toplevel(
+        let res = _slf.try_send_import_toplevel(
             id,
             handle,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zxdg_importer_v2.import_toplevel message: {}", Report::new(e));
+            log_forward("zxdg_importer_v2.import_toplevel", &e);
         }
     }
 }
@@ -226,7 +268,7 @@ impl ObjectPrivate for ZxdgImporterV2 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

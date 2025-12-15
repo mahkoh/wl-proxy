@@ -73,7 +73,7 @@ impl ZwpLinuxExplicitSynchronizationV1 {
     /// including zwp_linux_surface_synchronization_v1 objects created by this
     /// factory, shall not be affected by this request.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -105,6 +105,22 @@ impl ZwpLinuxExplicitSynchronizationV1 {
         Ok(())
     }
 
+    /// destroy explicit synchronization factory object
+    ///
+    /// Destroy this explicit synchronization factory object. Other objects,
+    /// including zwp_linux_surface_synchronization_v1 objects created by this
+    /// factory, shall not be affected by this request.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_explicit_synchronization_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_synchronization message is available.
     pub const MSG__GET_SYNCHRONIZATION__SINCE: u32 = 1;
 
@@ -127,7 +143,7 @@ impl ZwpLinuxExplicitSynchronizationV1 {
     /// - `id`: the new synchronization interface id
     /// - `surface`: the surface
     #[inline]
-    pub fn send_get_synchronization(
+    pub fn try_send_get_synchronization(
         &self,
         id: &Rc<ZwpLinuxSurfaceSynchronizationV1>,
         surface: &Rc<WlSurface>,
@@ -178,13 +194,46 @@ impl ZwpLinuxExplicitSynchronizationV1 {
         ]);
         Ok(())
     }
+
+    /// extend surface interface for explicit synchronization
+    ///
+    /// Instantiate an interface extension for the given wl_surface to provide
+    /// explicit synchronization.
+    ///
+    /// If the given wl_surface already has an explicit synchronization object
+    /// associated, the synchronization_exists protocol error is raised.
+    ///
+    /// Graphics APIs, like EGL or Vulkan, that manage the buffer queue and
+    /// commits of a wl_surface themselves, are likely to be using this
+    /// extension internally. If a client is using such an API for a
+    /// wl_surface, it should not directly use this extension on that surface,
+    /// to avoid raising a synchronization_exists protocol error.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new synchronization interface id
+    /// - `surface`: the surface
+    #[inline]
+    pub fn send_get_synchronization(
+        &self,
+        id: &Rc<ZwpLinuxSurfaceSynchronizationV1>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_synchronization(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_explicit_synchronization_v1.get_synchronization", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpLinuxExplicitSynchronizationV1] proxies.
 pub trait ZwpLinuxExplicitSynchronizationV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpLinuxExplicitSynchronizationV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy explicit synchronization factory object
@@ -200,10 +249,10 @@ pub trait ZwpLinuxExplicitSynchronizationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_explicit_synchronization_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_linux_explicit_synchronization_v1.destroy", &e);
         }
     }
 
@@ -238,12 +287,12 @@ pub trait ZwpLinuxExplicitSynchronizationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_synchronization(
+        let res = _slf.try_send_get_synchronization(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_explicit_synchronization_v1.get_synchronization message: {}", Report::new(e));
+            log_forward("zwp_linux_explicit_synchronization_v1.get_synchronization", &e);
         }
     }
 }
@@ -263,7 +312,7 @@ impl ObjectPrivate for ZwpLinuxExplicitSynchronizationV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

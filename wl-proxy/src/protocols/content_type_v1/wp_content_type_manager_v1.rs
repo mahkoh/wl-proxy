@@ -61,7 +61,7 @@ impl WpContentTypeManagerV1 {
     /// Destroy the content type manager. This doesn't destroy objects created
     /// with the manager.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -93,6 +93,21 @@ impl WpContentTypeManagerV1 {
         Ok(())
     }
 
+    /// destroy the content type manager object
+    ///
+    /// Destroy the content type manager. This doesn't destroy objects created
+    /// with the manager.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_content_type_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_surface_content_type message is available.
     pub const MSG__GET_SURFACE_CONTENT_TYPE__SINCE: u32 = 1;
 
@@ -108,7 +123,7 @@ impl WpContentTypeManagerV1 {
     /// - `id`:
     /// - `surface`:
     #[inline]
-    pub fn send_get_surface_content_type(
+    pub fn try_send_get_surface_content_type(
         &self,
         id: &Rc<WpContentTypeV1>,
         surface: &Rc<WlSurface>,
@@ -159,13 +174,39 @@ impl WpContentTypeManagerV1 {
         ]);
         Ok(())
     }
+
+    /// create a new content type object
+    ///
+    /// Create a new content type object associated with the given surface.
+    ///
+    /// Creating a wp_content_type_v1 from a wl_surface which already has one
+    /// attached is a client error: already_constructed.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn send_get_surface_content_type(
+        &self,
+        id: &Rc<WpContentTypeV1>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_surface_content_type(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("wp_content_type_manager_v1.get_surface_content_type", &e);
+        }
+    }
 }
 
 /// A message handler for [WpContentTypeManagerV1] proxies.
 pub trait WpContentTypeManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpContentTypeManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the content type manager object
@@ -180,10 +221,10 @@ pub trait WpContentTypeManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_content_type_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_content_type_manager_v1.destroy", &e);
         }
     }
 
@@ -211,12 +252,12 @@ pub trait WpContentTypeManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_surface_content_type(
+        let res = _slf.try_send_get_surface_content_type(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_content_type_manager_v1.get_surface_content_type message: {}", Report::new(e));
+            log_forward("wp_content_type_manager_v1.get_surface_content_type", &e);
         }
     }
 }
@@ -236,7 +277,7 @@ impl ObjectPrivate for WpContentTypeManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

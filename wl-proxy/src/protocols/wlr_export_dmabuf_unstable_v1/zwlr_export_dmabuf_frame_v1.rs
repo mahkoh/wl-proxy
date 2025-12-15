@@ -86,7 +86,7 @@ impl ZwlrExportDmabufFrameV1 {
     /// - `mod_low`: drm format modifier, low
     /// - `num_objects`: indicates how many objects (FDs) the frame has (max 4)
     #[inline]
-    pub fn send_frame(
+    pub fn try_send_frame(
         &self,
         width: u32,
         height: u32,
@@ -162,6 +162,59 @@ impl ZwlrExportDmabufFrameV1 {
         Ok(())
     }
 
+    /// a frame description
+    ///
+    /// Main event supplying the client with information about the frame. If the
+    /// capture didn't fail, this event is always emitted first before any other
+    /// events.
+    ///
+    /// This event is followed by a number of "object" as specified by the
+    /// "num_objects" argument.
+    ///
+    /// # Arguments
+    ///
+    /// - `width`: frame width in pixels
+    /// - `height`: frame height in pixels
+    /// - `offset_x`: crop offset for the x axis
+    /// - `offset_y`: crop offset for the y axis
+    /// - `buffer_flags`: flags which indicate properties (invert, interlacing),
+    ///                                       has the same values as zwp_linux_buffer_params_v1:flags
+    /// - `flags`: indicates special frame features
+    /// - `format`: format of the frame (DRM_FORMAT_*)
+    /// - `mod_high`: drm format modifier, high
+    /// - `mod_low`: drm format modifier, low
+    /// - `num_objects`: indicates how many objects (FDs) the frame has (max 4)
+    #[inline]
+    pub fn send_frame(
+        &self,
+        width: u32,
+        height: u32,
+        offset_x: u32,
+        offset_y: u32,
+        buffer_flags: u32,
+        flags: ZwlrExportDmabufFrameV1Flags,
+        format: u32,
+        mod_high: u32,
+        mod_low: u32,
+        num_objects: u32,
+    ) {
+        let res = self.try_send_frame(
+            width,
+            height,
+            offset_x,
+            offset_y,
+            buffer_flags,
+            flags,
+            format,
+            mod_high,
+            mod_low,
+            num_objects,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_export_dmabuf_frame_v1.frame", &e);
+        }
+    }
+
     /// Since when the object message is available.
     pub const MSG__OBJECT__SINCE: u32 = 1;
 
@@ -182,7 +235,7 @@ impl ZwlrExportDmabufFrameV1 {
     /// - `stride`: line size in bytes
     /// - `plane_index`: index of the plane the data in the object applies to
     #[inline]
-    pub fn send_object(
+    pub fn try_send_object(
         &self,
         index: u32,
         fd: &Rc<OwnedFd>,
@@ -242,6 +295,45 @@ impl ZwlrExportDmabufFrameV1 {
         Ok(())
     }
 
+    /// an object description
+    ///
+    /// Event which serves to supply the client with the file descriptors
+    /// containing the data for each object.
+    ///
+    /// After receiving this event, the client must always close the file
+    /// descriptor as soon as they're done with it and even if the frame fails.
+    ///
+    /// # Arguments
+    ///
+    /// - `index`: index of the current object
+    /// - `fd`: fd of the current object
+    /// - `size`: size in bytes for the current object
+    /// - `offset`: starting point for the data in the object's fd
+    /// - `stride`: line size in bytes
+    /// - `plane_index`: index of the plane the data in the object applies to
+    #[inline]
+    pub fn send_object(
+        &self,
+        index: u32,
+        fd: &Rc<OwnedFd>,
+        size: u32,
+        offset: u32,
+        stride: u32,
+        plane_index: u32,
+    ) {
+        let res = self.try_send_object(
+            index,
+            fd,
+            size,
+            offset,
+            stride,
+            plane_index,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_export_dmabuf_frame_v1.object", &e);
+        }
+    }
+
     /// Since when the ready message is available.
     pub const MSG__READY__SINCE: u32 = 1;
 
@@ -266,7 +358,7 @@ impl ZwlrExportDmabufFrameV1 {
     /// - `tv_sec_lo`: low 32 bits of the seconds part of the timestamp
     /// - `tv_nsec`: nanoseconds part of the timestamp
     #[inline]
-    pub fn send_ready(
+    pub fn try_send_ready(
         &self,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
@@ -314,6 +406,43 @@ impl ZwlrExportDmabufFrameV1 {
         Ok(())
     }
 
+    /// indicates frame is available for reading
+    ///
+    /// This event is sent as soon as the frame is presented, indicating it is
+    /// available for reading. This event includes the time at which
+    /// presentation happened at.
+    ///
+    /// The timestamp is expressed as tv_sec_hi, tv_sec_lo, tv_nsec triples,
+    /// each component being an unsigned 32-bit value. Whole seconds are in
+    /// tv_sec which is a 64-bit value combined from tv_sec_hi and tv_sec_lo,
+    /// and the additional fractional part in tv_nsec as nanoseconds. Hence,
+    /// for valid timestamps tv_nsec must be in [0, 999999999]. The seconds part
+    /// may have an arbitrary offset at start.
+    ///
+    /// After receiving this event, the client should destroy this object.
+    ///
+    /// # Arguments
+    ///
+    /// - `tv_sec_hi`: high 32 bits of the seconds part of the timestamp
+    /// - `tv_sec_lo`: low 32 bits of the seconds part of the timestamp
+    /// - `tv_nsec`: nanoseconds part of the timestamp
+    #[inline]
+    pub fn send_ready(
+        &self,
+        tv_sec_hi: u32,
+        tv_sec_lo: u32,
+        tv_nsec: u32,
+    ) {
+        let res = self.try_send_ready(
+            tv_sec_hi,
+            tv_sec_lo,
+            tv_nsec,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_export_dmabuf_frame_v1.ready", &e);
+        }
+    }
+
     /// Since when the cancel message is available.
     pub const MSG__CANCEL__SINCE: u32 = 1;
 
@@ -333,7 +462,7 @@ impl ZwlrExportDmabufFrameV1 {
     ///
     /// - `reason`: indicates a reason for cancelling this frame capture
     #[inline]
-    pub fn send_cancel(
+    pub fn try_send_cancel(
         &self,
         reason: ZwlrExportDmabufFrameV1CancelReason,
     ) -> Result<(), ObjectError> {
@@ -373,6 +502,34 @@ impl ZwlrExportDmabufFrameV1 {
         Ok(())
     }
 
+    /// indicates the frame is no longer valid
+    ///
+    /// If the capture failed or if the frame is no longer valid after the
+    /// "frame" event has been emitted, this event will be used to inform the
+    /// client to scrap the frame.
+    ///
+    /// If the failure is temporary, the client may capture again the same
+    /// source. If the failure is permanent, any further attempts to capture the
+    /// same source will fail again.
+    ///
+    /// After receiving this event, the client should destroy this object.
+    ///
+    /// # Arguments
+    ///
+    /// - `reason`: indicates a reason for cancelling this frame capture
+    #[inline]
+    pub fn send_cancel(
+        &self,
+        reason: ZwlrExportDmabufFrameV1CancelReason,
+    ) {
+        let res = self.try_send_cancel(
+            reason,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_export_dmabuf_frame_v1.cancel", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -384,7 +541,7 @@ impl ZwlrExportDmabufFrameV1 {
     /// It can be called at any time by the client. The client will still have
     /// to close any FDs it has been given.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -415,13 +572,31 @@ impl ZwlrExportDmabufFrameV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// delete this object, used or not
+    ///
+    /// Unreferences the frame. This request must be called as soon as its no
+    /// longer used.
+    ///
+    /// It can be called at any time by the client. The client will still have
+    /// to close any FDs it has been given.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_export_dmabuf_frame_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrExportDmabufFrameV1] proxies.
 pub trait ZwlrExportDmabufFrameV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrExportDmabufFrameV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// a frame description
@@ -464,7 +639,7 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_frame(
+        let res = _slf.try_send_frame(
             width,
             height,
             offset_x,
@@ -477,7 +652,7 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
             num_objects,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_export_dmabuf_frame_v1.frame message: {}", Report::new(e));
+            log_forward("zwlr_export_dmabuf_frame_v1.frame", &e);
         }
     }
 
@@ -511,7 +686,7 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_object(
+        let res = _slf.try_send_object(
             index,
             fd,
             size,
@@ -520,7 +695,7 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
             plane_index,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_export_dmabuf_frame_v1.object message: {}", Report::new(e));
+            log_forward("zwlr_export_dmabuf_frame_v1.object", &e);
         }
     }
 
@@ -555,13 +730,13 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_ready(
+        let res = _slf.try_send_ready(
             tv_sec_hi,
             tv_sec_lo,
             tv_nsec,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_export_dmabuf_frame_v1.ready message: {}", Report::new(e));
+            log_forward("zwlr_export_dmabuf_frame_v1.ready", &e);
         }
     }
 
@@ -589,11 +764,11 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_cancel(
+        let res = _slf.try_send_cancel(
             reason,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_export_dmabuf_frame_v1.cancel message: {}", Report::new(e));
+            log_forward("zwlr_export_dmabuf_frame_v1.cancel", &e);
         }
     }
 
@@ -612,10 +787,10 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_export_dmabuf_frame_v1.destroy message: {}", Report::new(e));
+            log_forward("zwlr_export_dmabuf_frame_v1.destroy", &e);
         }
     }
 }
@@ -635,7 +810,7 @@ impl ObjectPrivate for ZwlrExportDmabufFrameV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

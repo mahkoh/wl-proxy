@@ -90,7 +90,7 @@ impl ZwpLinuxSurfaceSynchronizationV1 {
     /// zwp_linux_buffer_release_v1 objects created by this object are not
     /// affected by this request.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -120,6 +120,27 @@ impl ZwpLinuxSurfaceSynchronizationV1 {
         ]);
         self.core.handle_server_destroy();
         Ok(())
+    }
+
+    /// destroy synchronization object
+    ///
+    /// Destroy this explicit synchronization object.
+    ///
+    /// Any fence set by this object with set_acquire_fence since the last
+    /// commit will be discarded by the server. Any fences set by this object
+    /// before the last commit are not affected.
+    ///
+    /// zwp_linux_buffer_release_v1 objects created by this object are not
+    /// affected by this request.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_surface_synchronization_v1.destroy", &e);
+        }
     }
 
     /// Since when the set_acquire_fence message is available.
@@ -155,7 +176,7 @@ impl ZwpLinuxSurfaceSynchronizationV1 {
     ///
     /// - `fd`: acquire fence fd
     #[inline]
-    pub fn send_set_acquire_fence(
+    pub fn try_send_set_acquire_fence(
         &self,
         fd: &Rc<OwnedFd>,
     ) -> Result<(), ObjectError> {
@@ -193,6 +214,48 @@ impl ZwpLinuxSurfaceSynchronizationV1 {
         Ok(())
     }
 
+    /// set the acquire fence
+    ///
+    /// Set the acquire fence that must be signaled before the compositor
+    /// may sample from the buffer attached with wl_surface.attach. The fence
+    /// is a dma_fence kernel object.
+    ///
+    /// The acquire fence is double-buffered state, and will be applied on the
+    /// next wl_surface.commit request for the associated surface. Thus, it
+    /// applies only to the buffer that is attached to the surface at commit
+    /// time.
+    ///
+    /// If the provided fd is not a valid dma_fence fd, then an INVALID_FENCE
+    /// error is raised.
+    ///
+    /// If a fence has already been attached during the same commit cycle, a
+    /// DUPLICATE_FENCE error is raised.
+    ///
+    /// If the associated wl_surface was destroyed, a NO_SURFACE error is
+    /// raised.
+    ///
+    /// If at surface commit time the attached buffer does not support explicit
+    /// synchronization, an UNSUPPORTED_BUFFER error is raised.
+    ///
+    /// If at surface commit time there is no buffer attached, a NO_BUFFER
+    /// error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `fd`: acquire fence fd
+    #[inline]
+    pub fn send_set_acquire_fence(
+        &self,
+        fd: &Rc<OwnedFd>,
+    ) {
+        let res = self.try_send_set_acquire_fence(
+            fd,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_surface_synchronization_v1.set_acquire_fence", &e);
+        }
+    }
+
     /// Since when the get_release message is available.
     pub const MSG__GET_RELEASE__SINCE: u32 = 1;
 
@@ -216,7 +279,7 @@ impl ZwpLinuxSurfaceSynchronizationV1 {
     /// If at surface commit time there is no buffer attached, a NO_BUFFER
     /// error is raised.
     #[inline]
-    pub fn send_get_release(
+    pub fn try_send_get_release(
         &self,
         release: &Rc<ZwpLinuxBufferReleaseV1>,
     ) -> Result<(), ObjectError> {
@@ -258,13 +321,45 @@ impl ZwpLinuxSurfaceSynchronizationV1 {
         ]);
         Ok(())
     }
+
+    /// release fence for last-attached buffer
+    ///
+    /// Create a listener for the release of the buffer attached by the
+    /// client with wl_surface.attach. See zwp_linux_buffer_release_v1
+    /// documentation for more information.
+    ///
+    /// The release object is double-buffered state, and will be associated
+    /// with the buffer that is attached to the surface at wl_surface.commit
+    /// time.
+    ///
+    /// If a zwp_linux_buffer_release_v1 object has already been requested for
+    /// the surface in the same commit cycle, a DUPLICATE_RELEASE error is
+    /// raised.
+    ///
+    /// If the associated wl_surface was destroyed, a NO_SURFACE error
+    /// is raised.
+    ///
+    /// If at surface commit time there is no buffer attached, a NO_BUFFER
+    /// error is raised.
+    #[inline]
+    pub fn send_get_release(
+        &self,
+        release: &Rc<ZwpLinuxBufferReleaseV1>,
+    ) {
+        let res = self.try_send_get_release(
+            release,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_surface_synchronization_v1.get_release", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpLinuxSurfaceSynchronizationV1] proxies.
 pub trait ZwpLinuxSurfaceSynchronizationV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpLinuxSurfaceSynchronizationV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy synchronization object
@@ -285,10 +380,10 @@ pub trait ZwpLinuxSurfaceSynchronizationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_surface_synchronization_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_linux_surface_synchronization_v1.destroy", &e);
         }
     }
 
@@ -330,11 +425,11 @@ pub trait ZwpLinuxSurfaceSynchronizationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_acquire_fence(
+        let res = _slf.try_send_set_acquire_fence(
             fd,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_surface_synchronization_v1.set_acquire_fence message: {}", Report::new(e));
+            log_forward("zwp_linux_surface_synchronization_v1.set_acquire_fence", &e);
         }
     }
 
@@ -370,11 +465,11 @@ pub trait ZwpLinuxSurfaceSynchronizationV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_release(
+        let res = _slf.try_send_get_release(
             release,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_linux_surface_synchronization_v1.get_release message: {}", Report::new(e));
+            log_forward("zwp_linux_surface_synchronization_v1.get_release", &e);
         }
     }
 }
@@ -394,7 +489,7 @@ impl ObjectPrivate for ZwpLinuxSurfaceSynchronizationV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

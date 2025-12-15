@@ -65,7 +65,7 @@ impl ZwpIdleInhibitorV1 {
     ///
     /// Remove the inhibitor effect from the associated wl_surface.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -96,13 +96,27 @@ impl ZwpIdleInhibitorV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the idle inhibitor object
+    ///
+    /// Remove the inhibitor effect from the associated wl_surface.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_idle_inhibitor_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpIdleInhibitorV1] proxies.
 pub trait ZwpIdleInhibitorV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpIdleInhibitorV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the idle inhibitor object
@@ -116,10 +130,10 @@ pub trait ZwpIdleInhibitorV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_idle_inhibitor_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_idle_inhibitor_v1.destroy", &e);
         }
     }
 }
@@ -139,7 +153,7 @@ impl ObjectPrivate for ZwpIdleInhibitorV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

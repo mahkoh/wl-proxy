@@ -67,7 +67,7 @@ impl HyprlandSurfaceV1 {
     ///
     /// - `opacity`:
     #[inline]
-    pub fn send_set_opacity(
+    pub fn try_send_set_opacity(
         &self,
         opacity: Fixed,
     ) -> Result<(), ObjectError> {
@@ -105,6 +105,32 @@ impl HyprlandSurfaceV1 {
         Ok(())
     }
 
+    /// set the overall opacity of the surface
+    ///
+    /// Sets a multiplier for the overall opacity of the surface.
+    /// This multiplier applies to visual effects such as blur behind the surface
+    /// in addition to the surface's content.
+    ///
+    /// The default value is 1.0.
+    /// Setting a value outside of the range 0.0 - 1.0 (inclusive) is a protocol error.
+    /// Does not take effect until wl_surface.commit is called.
+    ///
+    /// # Arguments
+    ///
+    /// - `opacity`:
+    #[inline]
+    pub fn send_set_opacity(
+        &self,
+        opacity: Fixed,
+    ) {
+        let res = self.try_send_set_opacity(
+            opacity,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_surface_v1.set_opacity", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -113,7 +139,7 @@ impl HyprlandSurfaceV1 {
     /// Destroy the hyprland surface object, resetting properties provided
     /// by this interface to their default values on the next wl_surface.commit.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -145,6 +171,21 @@ impl HyprlandSurfaceV1 {
         Ok(())
     }
 
+    /// destroy the hyprland surface interface
+    ///
+    /// Destroy the hyprland surface object, resetting properties provided
+    /// by this interface to their default values on the next wl_surface.commit.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("hyprland_surface_v1.destroy", &e);
+        }
+    }
+
     /// Since when the set_visible_region message is available.
     pub const MSG__SET_VISIBLE_REGION__SINCE: u32 = 2;
 
@@ -174,7 +215,7 @@ impl HyprlandSurfaceV1 {
     ///
     /// - `region`:
     #[inline]
-    pub fn send_set_visible_region(
+    pub fn try_send_set_visible_region(
         &self,
         region: Option<&Rc<WlRegion>>,
     ) -> Result<(), ObjectError> {
@@ -219,13 +260,51 @@ impl HyprlandSurfaceV1 {
         ]);
         Ok(())
     }
+
+    /// set the visible region of the surface
+    ///
+    /// This request sets the region of the surface that contains visible content.
+    /// Visible content refers to content that has an alpha value greater than zero.
+    ///
+    /// The visible region is an optimization hint for the compositor that lets it
+    /// avoid drawing parts of the surface that are not visible. Setting a visible region
+    /// that does not contain all content in the surface may result in missing content
+    /// not being drawn.
+    ///
+    /// The visible region is specified in buffer-local coordinates.
+    ///
+    /// The compositor ignores the parts of the visible region that fall outside of the surface.
+    /// When all parts of the region fall outside of the buffer geometry, the compositor may
+    /// avoid rendering the surface entirely.
+    ///
+    /// The initial value for the visible region is empty. Setting the
+    /// visible region has copy semantics, and the wl_region object can be destroyed immediately.
+    /// A NULL wl_region causes the visible region to be set to empty.
+    ///
+    /// Does not take effect until wl_surface.commit is called.
+    ///
+    /// # Arguments
+    ///
+    /// - `region`:
+    #[inline]
+    pub fn send_set_visible_region(
+        &self,
+        region: Option<&Rc<WlRegion>>,
+    ) {
+        let res = self.try_send_set_visible_region(
+            region,
+        );
+        if let Err(e) = res {
+            log_send("hyprland_surface_v1.set_visible_region", &e);
+        }
+    }
 }
 
 /// A message handler for [HyprlandSurfaceV1] proxies.
 pub trait HyprlandSurfaceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandSurfaceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// set the overall opacity of the surface
@@ -250,11 +329,11 @@ pub trait HyprlandSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_opacity(
+        let res = _slf.try_send_set_opacity(
             opacity,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_surface_v1.set_opacity message: {}", Report::new(e));
+            log_forward("hyprland_surface_v1.set_opacity", &e);
         }
     }
 
@@ -270,10 +349,10 @@ pub trait HyprlandSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_surface_v1.destroy message: {}", Report::new(e));
+            log_forward("hyprland_surface_v1.destroy", &e);
         }
     }
 
@@ -314,11 +393,11 @@ pub trait HyprlandSurfaceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_visible_region(
+        let res = _slf.try_send_set_visible_region(
             region,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a hyprland_surface_v1.set_visible_region message: {}", Report::new(e));
+            log_forward("hyprland_surface_v1.set_visible_region", &e);
         }
     }
 }
@@ -338,7 +417,7 @@ impl ObjectPrivate for HyprlandSurfaceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

@@ -56,7 +56,7 @@ impl XdgToplevelIconManagerV1 {
     /// Destroy the toplevel icon manager.
     /// This does not destroy objects created with the manager.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -88,6 +88,21 @@ impl XdgToplevelIconManagerV1 {
         Ok(())
     }
 
+    /// destroy the toplevel icon manager
+    ///
+    /// Destroy the toplevel icon manager.
+    /// This does not destroy objects created with the manager.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel_icon_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the create_icon message is available.
     pub const MSG__CREATE_ICON__SINCE: u32 = 1;
 
@@ -96,7 +111,7 @@ impl XdgToplevelIconManagerV1 {
     /// Creates a new icon object. This icon can then be attached to a
     /// xdg_toplevel via the 'set_icon' request.
     #[inline]
-    pub fn send_create_icon(
+    pub fn try_send_create_icon(
         &self,
         id: &Rc<XdgToplevelIconV1>,
     ) -> Result<(), ObjectError> {
@@ -139,6 +154,23 @@ impl XdgToplevelIconManagerV1 {
         Ok(())
     }
 
+    /// create a new icon instance
+    ///
+    /// Creates a new icon object. This icon can then be attached to a
+    /// xdg_toplevel via the 'set_icon' request.
+    #[inline]
+    pub fn send_create_icon(
+        &self,
+        id: &Rc<XdgToplevelIconV1>,
+    ) {
+        let res = self.try_send_create_icon(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel_icon_manager_v1.create_icon", &e);
+        }
+    }
+
     /// Since when the set_icon message is available.
     pub const MSG__SET_ICON__SINCE: u32 = 1;
 
@@ -170,7 +202,7 @@ impl XdgToplevelIconManagerV1 {
     /// - `toplevel`: the toplevel to act on
     /// - `icon`:
     #[inline]
-    pub fn send_set_icon(
+    pub fn try_send_set_icon(
         &self,
         toplevel: &Rc<XdgToplevel>,
         icon: Option<&Rc<XdgToplevelIconV1>>,
@@ -225,6 +257,48 @@ impl XdgToplevelIconManagerV1 {
         Ok(())
     }
 
+    /// set an icon on a toplevel window
+    ///
+    /// This request assigns the icon 'icon' to 'toplevel', or clears the
+    /// toplevel icon if 'icon' was null.
+    /// This state is double-buffered and is applied on the next
+    /// wl_surface.commit of the toplevel.
+    ///
+    /// After making this call, the xdg_toplevel_icon_v1 provided as 'icon'
+    /// can be destroyed by the client without 'toplevel' losing its icon.
+    /// The xdg_toplevel_icon_v1 is immutable from this point, and any
+    /// future attempts to change it must raise the
+    /// 'xdg_toplevel_icon_v1.immutable' protocol error.
+    ///
+    /// The compositor must set the toplevel icon from either the pixel data
+    /// the icon provides, or by loading a stock icon using the icon name.
+    /// See the description of 'xdg_toplevel_icon_v1' for details.
+    ///
+    /// If 'icon' is set to null, the icon of the respective toplevel is reset
+    /// to its default icon (usually the icon of the application, derived from
+    /// its desktop-entry file, or a placeholder icon).
+    /// If this request is passed an icon with no pixel buffers or icon name
+    /// assigned, the icon must be reset just like if 'icon' was null.
+    ///
+    /// # Arguments
+    ///
+    /// - `toplevel`: the toplevel to act on
+    /// - `icon`:
+    #[inline]
+    pub fn send_set_icon(
+        &self,
+        toplevel: &Rc<XdgToplevel>,
+        icon: Option<&Rc<XdgToplevelIconV1>>,
+    ) {
+        let res = self.try_send_set_icon(
+            toplevel,
+            icon,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel_icon_manager_v1.set_icon", &e);
+        }
+    }
+
     /// Since when the icon_size message is available.
     pub const MSG__ICON_SIZE__SINCE: u32 = 1;
 
@@ -247,7 +321,7 @@ impl XdgToplevelIconManagerV1 {
     ///
     /// - `size`: the edge size of the square icon in surface-local coordinates, e.g. 64
     #[inline]
-    pub fn send_icon_size(
+    pub fn try_send_icon_size(
         &self,
         size: i32,
     ) -> Result<(), ObjectError> {
@@ -287,6 +361,37 @@ impl XdgToplevelIconManagerV1 {
         Ok(())
     }
 
+    /// describes a supported & preferred icon size
+    ///
+    /// This event indicates an icon size the compositor prefers to be
+    /// available if the client has scalable icons and can render to any size.
+    ///
+    /// When the 'xdg_toplevel_icon_manager_v1' object is created, the
+    /// compositor may send one or more 'icon_size' events to describe the list
+    /// of preferred icon sizes. If the compositor has no size preference, it
+    /// may not send any 'icon_size' event, and it is up to the client to
+    /// decide a suitable icon size.
+    ///
+    /// A sequence of 'icon_size' events must be finished with a 'done' event.
+    /// If the compositor has no size preferences, it must still send the
+    /// 'done' event, without any preceding 'icon_size' events.
+    ///
+    /// # Arguments
+    ///
+    /// - `size`: the edge size of the square icon in surface-local coordinates, e.g. 64
+    #[inline]
+    pub fn send_icon_size(
+        &self,
+        size: i32,
+    ) {
+        let res = self.try_send_icon_size(
+            size,
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel_icon_manager_v1.icon_size", &e);
+        }
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -294,7 +399,7 @@ impl XdgToplevelIconManagerV1 {
     ///
     /// This event is sent after all 'icon_size' events have been sent.
     #[inline]
-    pub fn send_done(
+    pub fn try_send_done(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -326,13 +431,27 @@ impl XdgToplevelIconManagerV1 {
         ]);
         Ok(())
     }
+
+    /// all information has been sent
+    ///
+    /// This event is sent after all 'icon_size' events have been sent.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) {
+        let res = self.try_send_done(
+        );
+        if let Err(e) = res {
+            log_send("xdg_toplevel_icon_manager_v1.done", &e);
+        }
+    }
 }
 
 /// A message handler for [XdgToplevelIconManagerV1] proxies.
 pub trait XdgToplevelIconManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgToplevelIconManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the toplevel icon manager
@@ -347,10 +466,10 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel_icon_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("xdg_toplevel_icon_manager_v1.destroy", &e);
         }
     }
 
@@ -371,11 +490,11 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_create_icon(
+        let res = _slf.try_send_create_icon(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel_icon_manager_v1.create_icon message: {}", Report::new(e));
+            log_forward("xdg_toplevel_icon_manager_v1.create_icon", &e);
         }
     }
 
@@ -419,12 +538,12 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_icon(
+        let res = _slf.try_send_set_icon(
             toplevel,
             icon,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel_icon_manager_v1.set_icon message: {}", Report::new(e));
+            log_forward("xdg_toplevel_icon_manager_v1.set_icon", &e);
         }
     }
 
@@ -455,11 +574,11 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_icon_size(
+        let res = _slf.try_send_icon_size(
             size,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel_icon_manager_v1.icon_size message: {}", Report::new(e));
+            log_forward("xdg_toplevel_icon_manager_v1.icon_size", &e);
         }
     }
 
@@ -474,10 +593,10 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_done(
+        let res = _slf.try_send_done(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a xdg_toplevel_icon_manager_v1.done message: {}", Report::new(e));
+            log_forward("xdg_toplevel_icon_manager_v1.done", &e);
         }
     }
 }
@@ -497,7 +616,7 @@ impl ObjectPrivate for XdgToplevelIconManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

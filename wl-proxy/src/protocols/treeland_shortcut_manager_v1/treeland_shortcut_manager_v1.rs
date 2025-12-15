@@ -67,7 +67,7 @@ impl TreelandShortcutManagerV1 {
     /// - `key`:
     /// - `id`:
     #[inline]
-    pub fn send_register_shortcut_context(
+    pub fn try_send_register_shortcut_context(
         &self,
         key: &str,
         id: &Rc<TreelandShortcutContextV1>,
@@ -115,13 +115,39 @@ impl TreelandShortcutManagerV1 {
         ]);
         Ok(())
     }
+
+    /// register shortcut key
+    ///
+    /// The format of the shortcut key is 'Modify+Key', such as 'Ctrl+Alt+T'.
+    /// If the format is wrong, the synthesizer will give a "format error". If the shortcut
+    /// key is already registered,
+    /// the compositor will give a "register error" and issue a destruction to the context.
+    ///
+    /// # Arguments
+    ///
+    /// - `key`:
+    /// - `id`:
+    #[inline]
+    pub fn send_register_shortcut_context(
+        &self,
+        key: &str,
+        id: &Rc<TreelandShortcutContextV1>,
+    ) {
+        let res = self.try_send_register_shortcut_context(
+            key,
+            id,
+        );
+        if let Err(e) = res {
+            log_send("treeland_shortcut_manager_v1.register_shortcut_context", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandShortcutManagerV1] proxies.
 pub trait TreelandShortcutManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandShortcutManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// register shortcut key
@@ -145,12 +171,12 @@ pub trait TreelandShortcutManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_register_shortcut_context(
+        let res = _slf.try_send_register_shortcut_context(
             key,
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_shortcut_manager_v1.register_shortcut_context message: {}", Report::new(e));
+            log_forward("treeland_shortcut_manager_v1.register_shortcut_context", &e);
         }
     }
 }
@@ -170,7 +196,7 @@ impl ObjectPrivate for TreelandShortcutManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

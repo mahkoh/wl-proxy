@@ -65,7 +65,7 @@ impl ZwlrForeignToplevelManagerV1 {
     /// be sent immediately after this event via the corresponding events in
     /// zwlr_foreign_toplevel_handle_v1.
     #[inline]
-    pub fn send_toplevel(
+    pub fn try_send_toplevel(
         &self,
         toplevel: &Rc<ZwlrForeignToplevelHandleV1>,
     ) -> Result<(), ObjectError> {
@@ -110,6 +110,28 @@ impl ZwlrForeignToplevelManagerV1 {
         Ok(())
     }
 
+    /// a toplevel has been created
+    ///
+    /// This event is emitted whenever a new toplevel window is created. It
+    /// is emitted for all toplevels, regardless of the app that has created
+    /// them.
+    ///
+    /// All initial details of the toplevel(title, app_id, states, etc.) will
+    /// be sent immediately after this event via the corresponding events in
+    /// zwlr_foreign_toplevel_handle_v1.
+    #[inline]
+    pub fn send_toplevel(
+        &self,
+        toplevel: &Rc<ZwlrForeignToplevelHandleV1>,
+    ) {
+        let res = self.try_send_toplevel(
+            toplevel,
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_manager_v1.toplevel", &e);
+        }
+    }
+
     /// Since when the stop message is available.
     pub const MSG__STOP__SINCE: u32 = 1;
 
@@ -121,7 +143,7 @@ impl ZwlrForeignToplevelManagerV1 {
     ///
     /// The client must not send any more requests after this one.
     #[inline]
-    pub fn send_stop(
+    pub fn try_send_stop(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -152,6 +174,24 @@ impl ZwlrForeignToplevelManagerV1 {
         Ok(())
     }
 
+    /// stop sending events
+    ///
+    /// Indicates the client no longer wishes to receive events for new toplevels.
+    /// However the compositor may emit further toplevel_created events, until
+    /// the finished event is emitted.
+    ///
+    /// The client must not send any more requests after this one.
+    #[inline]
+    pub fn send_stop(
+        &self,
+    ) {
+        let res = self.try_send_stop(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_manager_v1.stop", &e);
+        }
+    }
+
     /// Since when the finished message is available.
     pub const MSG__FINISHED__SINCE: u32 = 1;
 
@@ -162,7 +202,7 @@ impl ZwlrForeignToplevelManagerV1 {
     /// immediately after sending this request, so it will become invalid and
     /// the client should free any resources associated with it.
     #[inline]
-    pub fn send_finished(
+    pub fn try_send_finished(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -198,13 +238,30 @@ impl ZwlrForeignToplevelManagerV1 {
         self.core.handle_client_destroy();
         Ok(())
     }
+
+    /// the compositor has finished with the toplevel manager
+    ///
+    /// This event indicates that the compositor is done sending events to the
+    /// zwlr_foreign_toplevel_manager_v1. The server will destroy the object
+    /// immediately after sending this request, so it will become invalid and
+    /// the client should free any resources associated with it.
+    #[inline]
+    pub fn send_finished(
+        &self,
+    ) {
+        let res = self.try_send_finished(
+        );
+        if let Err(e) = res {
+            log_send("zwlr_foreign_toplevel_manager_v1.finished", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwlrForeignToplevelManagerV1] proxies.
 pub trait ZwlrForeignToplevelManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrForeignToplevelManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// a toplevel has been created
@@ -229,11 +286,11 @@ pub trait ZwlrForeignToplevelManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_toplevel(
+        let res = _slf.try_send_toplevel(
             toplevel,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_manager_v1.toplevel message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_manager_v1.toplevel", &e);
         }
     }
 
@@ -252,10 +309,10 @@ pub trait ZwlrForeignToplevelManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_stop(
+        let res = _slf.try_send_stop(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_manager_v1.stop message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_manager_v1.stop", &e);
         }
     }
 
@@ -273,10 +330,10 @@ pub trait ZwlrForeignToplevelManagerV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_finished(
+        let res = _slf.try_send_finished(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwlr_foreign_toplevel_manager_v1.finished message: {}", Report::new(e));
+            log_forward("zwlr_foreign_toplevel_manager_v1.finished", &e);
         }
     }
 }
@@ -296,7 +353,7 @@ impl ObjectPrivate for ZwlrForeignToplevelManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

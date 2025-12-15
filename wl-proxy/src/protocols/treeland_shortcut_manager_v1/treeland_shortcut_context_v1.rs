@@ -56,7 +56,7 @@ impl TreelandShortcutContextV1 {
     pub const MSG__SHORTCUT__SINCE: u32 = 1;
 
     #[inline]
-    pub fn send_shortcut(
+    pub fn try_send_shortcut(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -89,6 +89,17 @@ impl TreelandShortcutContextV1 {
         Ok(())
     }
 
+    #[inline]
+    pub fn send_shortcut(
+        &self,
+    ) {
+        let res = self.try_send_shortcut(
+        );
+        if let Err(e) = res {
+            log_send("treeland_shortcut_context_v1.shortcut", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -96,7 +107,7 @@ impl TreelandShortcutContextV1 {
     ///
     /// Destroy the context object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -127,13 +138,27 @@ impl TreelandShortcutContextV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the context object
+    ///
+    /// Destroy the context object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_shortcut_context_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandShortcutContextV1] proxies.
 pub trait TreelandShortcutContextV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandShortcutContextV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     #[inline]
@@ -144,10 +169,10 @@ pub trait TreelandShortcutContextV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_shortcut(
+        let res = _slf.try_send_shortcut(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_shortcut_context_v1.shortcut message: {}", Report::new(e));
+            log_forward("treeland_shortcut_context_v1.shortcut", &e);
         }
     }
 
@@ -162,10 +187,10 @@ pub trait TreelandShortcutContextV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_shortcut_context_v1.destroy message: {}", Report::new(e));
+            log_forward("treeland_shortcut_context_v1.destroy", &e);
         }
     }
 }
@@ -185,7 +210,7 @@ impl ObjectPrivate for TreelandShortcutContextV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

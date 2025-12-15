@@ -57,7 +57,7 @@ impl ZwpInputTimestampsManagerV1 {
     /// protocol object. Existing objects created by this object are not
     /// affected.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -89,6 +89,22 @@ impl ZwpInputTimestampsManagerV1 {
         Ok(())
     }
 
+    /// destroy the input timestamps manager object
+    ///
+    /// Informs the server that the client will no longer be using this
+    /// protocol object. Existing objects created by this object are not
+    /// affected.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_timestamps_manager_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_keyboard_timestamps message is available.
     pub const MSG__GET_KEYBOARD_TIMESTAMPS__SINCE: u32 = 1;
 
@@ -108,7 +124,7 @@ impl ZwpInputTimestampsManagerV1 {
     /// - `id`:
     /// - `keyboard`: the wl_keyboard object for which to get timestamp events
     #[inline]
-    pub fn send_get_keyboard_timestamps(
+    pub fn try_send_get_keyboard_timestamps(
         &self,
         id: &Rc<ZwpInputTimestampsV1>,
         keyboard: &Rc<WlKeyboard>,
@@ -160,6 +176,36 @@ impl ZwpInputTimestampsManagerV1 {
         Ok(())
     }
 
+    /// subscribe to high-resolution keyboard timestamp events
+    ///
+    /// Creates a new input timestamps object that represents a subscription
+    /// to high-resolution timestamp events for all wl_keyboard events that
+    /// carry a timestamp.
+    ///
+    /// If the associated wl_keyboard object is invalidated, either through
+    /// client action (e.g. release) or server-side changes, the input
+    /// timestamps object becomes inert and the client should destroy it
+    /// by calling zwp_input_timestamps_v1.destroy.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `keyboard`: the wl_keyboard object for which to get timestamp events
+    #[inline]
+    pub fn send_get_keyboard_timestamps(
+        &self,
+        id: &Rc<ZwpInputTimestampsV1>,
+        keyboard: &Rc<WlKeyboard>,
+    ) {
+        let res = self.try_send_get_keyboard_timestamps(
+            id,
+            keyboard,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_timestamps_manager_v1.get_keyboard_timestamps", &e);
+        }
+    }
+
     /// Since when the get_pointer_timestamps message is available.
     pub const MSG__GET_POINTER_TIMESTAMPS__SINCE: u32 = 1;
 
@@ -179,7 +225,7 @@ impl ZwpInputTimestampsManagerV1 {
     /// - `id`:
     /// - `pointer`: the wl_pointer object for which to get timestamp events
     #[inline]
-    pub fn send_get_pointer_timestamps(
+    pub fn try_send_get_pointer_timestamps(
         &self,
         id: &Rc<ZwpInputTimestampsV1>,
         pointer: &Rc<WlPointer>,
@@ -231,6 +277,36 @@ impl ZwpInputTimestampsManagerV1 {
         Ok(())
     }
 
+    /// subscribe to high-resolution pointer timestamp events
+    ///
+    /// Creates a new input timestamps object that represents a subscription
+    /// to high-resolution timestamp events for all wl_pointer events that
+    /// carry a timestamp.
+    ///
+    /// If the associated wl_pointer object is invalidated, either through
+    /// client action (e.g. release) or server-side changes, the input
+    /// timestamps object becomes inert and the client should destroy it
+    /// by calling zwp_input_timestamps_v1.destroy.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `pointer`: the wl_pointer object for which to get timestamp events
+    #[inline]
+    pub fn send_get_pointer_timestamps(
+        &self,
+        id: &Rc<ZwpInputTimestampsV1>,
+        pointer: &Rc<WlPointer>,
+    ) {
+        let res = self.try_send_get_pointer_timestamps(
+            id,
+            pointer,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_timestamps_manager_v1.get_pointer_timestamps", &e);
+        }
+    }
+
     /// Since when the get_touch_timestamps message is available.
     pub const MSG__GET_TOUCH_TIMESTAMPS__SINCE: u32 = 1;
 
@@ -250,7 +326,7 @@ impl ZwpInputTimestampsManagerV1 {
     /// - `id`:
     /// - `touch`: the wl_touch object for which to get timestamp events
     #[inline]
-    pub fn send_get_touch_timestamps(
+    pub fn try_send_get_touch_timestamps(
         &self,
         id: &Rc<ZwpInputTimestampsV1>,
         touch: &Rc<WlTouch>,
@@ -301,13 +377,43 @@ impl ZwpInputTimestampsManagerV1 {
         ]);
         Ok(())
     }
+
+    /// subscribe to high-resolution touch timestamp events
+    ///
+    /// Creates a new input timestamps object that represents a subscription
+    /// to high-resolution timestamp events for all wl_touch events that
+    /// carry a timestamp.
+    ///
+    /// If the associated wl_touch object becomes invalid, either through
+    /// client action (e.g. release) or server-side changes, the input
+    /// timestamps object becomes inert and the client should destroy it
+    /// by calling zwp_input_timestamps_v1.destroy.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `touch`: the wl_touch object for which to get timestamp events
+    #[inline]
+    pub fn send_get_touch_timestamps(
+        &self,
+        id: &Rc<ZwpInputTimestampsV1>,
+        touch: &Rc<WlTouch>,
+    ) {
+        let res = self.try_send_get_touch_timestamps(
+            id,
+            touch,
+        );
+        if let Err(e) = res {
+            log_send("zwp_input_timestamps_manager_v1.get_touch_timestamps", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpInputTimestampsManagerV1] proxies.
 pub trait ZwpInputTimestampsManagerV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpInputTimestampsManagerV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the input timestamps manager object
@@ -323,10 +429,10 @@ pub trait ZwpInputTimestampsManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_timestamps_manager_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_input_timestamps_manager_v1.destroy", &e);
         }
     }
 
@@ -358,12 +464,12 @@ pub trait ZwpInputTimestampsManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_keyboard_timestamps(
+        let res = _slf.try_send_get_keyboard_timestamps(
             id,
             keyboard,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_timestamps_manager_v1.get_keyboard_timestamps message: {}", Report::new(e));
+            log_forward("zwp_input_timestamps_manager_v1.get_keyboard_timestamps", &e);
         }
     }
 
@@ -395,12 +501,12 @@ pub trait ZwpInputTimestampsManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_pointer_timestamps(
+        let res = _slf.try_send_get_pointer_timestamps(
             id,
             pointer,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_timestamps_manager_v1.get_pointer_timestamps message: {}", Report::new(e));
+            log_forward("zwp_input_timestamps_manager_v1.get_pointer_timestamps", &e);
         }
     }
 
@@ -432,12 +538,12 @@ pub trait ZwpInputTimestampsManagerV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_touch_timestamps(
+        let res = _slf.try_send_get_touch_timestamps(
             id,
             touch,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_input_timestamps_manager_v1.get_touch_timestamps message: {}", Report::new(e));
+            log_forward("zwp_input_timestamps_manager_v1.get_touch_timestamps", &e);
         }
     }
 }
@@ -457,7 +563,7 @@ impl ObjectPrivate for ZwpInputTimestampsManagerV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

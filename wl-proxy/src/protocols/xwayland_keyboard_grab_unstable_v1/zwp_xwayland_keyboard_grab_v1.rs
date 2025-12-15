@@ -55,7 +55,7 @@ impl ZwpXwaylandKeyboardGrabV1 {
     /// Destroy the grabbed keyboard object. If applicable, the compositor
     /// will ungrab the keyboard.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -86,13 +86,28 @@ impl ZwpXwaylandKeyboardGrabV1 {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the grabbed keyboard object
+    ///
+    /// Destroy the grabbed keyboard object. If applicable, the compositor
+    /// will ungrab the keyboard.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("zwp_xwayland_keyboard_grab_v1.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpXwaylandKeyboardGrabV1] proxies.
 pub trait ZwpXwaylandKeyboardGrabV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpXwaylandKeyboardGrabV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the grabbed keyboard object
@@ -107,10 +122,10 @@ pub trait ZwpXwaylandKeyboardGrabV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_xwayland_keyboard_grab_v1.destroy message: {}", Report::new(e));
+            log_forward("zwp_xwayland_keyboard_grab_v1.destroy", &e);
         }
     }
 }
@@ -130,7 +145,7 @@ impl ObjectPrivate for ZwpXwaylandKeyboardGrabV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

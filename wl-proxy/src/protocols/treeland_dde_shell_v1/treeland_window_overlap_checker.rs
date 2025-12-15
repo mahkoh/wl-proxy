@@ -61,7 +61,7 @@ impl TreelandWindowOverlapChecker {
     /// This event is sent when windows overlapped.
     /// This event is sent only once.
     #[inline]
-    pub fn send_enter(
+    pub fn try_send_enter(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -94,6 +94,21 @@ impl TreelandWindowOverlapChecker {
         Ok(())
     }
 
+    /// Window has overlapped
+    ///
+    /// This event is sent when windows overlapped.
+    /// This event is sent only once.
+    #[inline]
+    pub fn send_enter(
+        &self,
+    ) {
+        let res = self.try_send_enter(
+        );
+        if let Err(e) = res {
+            log_send("treeland_window_overlap_checker.enter", &e);
+        }
+    }
+
     /// Since when the leave message is available.
     pub const MSG__LEAVE__SINCE: u32 = 1;
 
@@ -102,7 +117,7 @@ impl TreelandWindowOverlapChecker {
     /// This event is sent when windows not overlapped.
     /// This event is sent only once.
     #[inline]
-    pub fn send_leave(
+    pub fn try_send_leave(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -135,6 +150,21 @@ impl TreelandWindowOverlapChecker {
         Ok(())
     }
 
+    /// Window not has overlapped
+    ///
+    /// This event is sent when windows not overlapped.
+    /// This event is sent only once.
+    #[inline]
+    pub fn send_leave(
+        &self,
+    ) {
+        let res = self.try_send_leave(
+        );
+        if let Err(e) = res {
+            log_send("treeland_window_overlap_checker.leave", &e);
+        }
+    }
+
     /// Since when the update message is available.
     pub const MSG__UPDATE__SINCE: u32 = 1;
 
@@ -153,7 +183,7 @@ impl TreelandWindowOverlapChecker {
     /// - `anchor`:
     /// - `output`:
     #[inline]
-    pub fn send_update(
+    pub fn try_send_update(
         &self,
         width: i32,
         height: i32,
@@ -208,6 +238,39 @@ impl TreelandWindowOverlapChecker {
         Ok(())
     }
 
+    /// Register the detected surface
+    ///
+    /// This interface is used to receive the detected surface.
+    /// When the xdgshell window in the workspace overlaps with the detected window,
+    /// an event will be sent to notify the client to process it.
+    /// The window position will only be recorded when this interface is called.
+    /// If the window moves, this interface needs to be called again.
+    ///
+    /// # Arguments
+    ///
+    /// - `width`:
+    /// - `height`:
+    /// - `anchor`:
+    /// - `output`:
+    #[inline]
+    pub fn send_update(
+        &self,
+        width: i32,
+        height: i32,
+        anchor: TreelandWindowOverlapCheckerAnchor,
+        output: &Rc<WlOutput>,
+    ) {
+        let res = self.try_send_update(
+            width,
+            height,
+            anchor,
+            output,
+        );
+        if let Err(e) = res {
+            log_send("treeland_window_overlap_checker.update", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -219,7 +282,7 @@ impl TreelandWindowOverlapChecker {
     /// use the toplevel anymore or after the closed event to finalize the
     /// destruction of the object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -250,13 +313,31 @@ impl TreelandWindowOverlapChecker {
         self.core.handle_server_destroy();
         Ok(())
     }
+
+    /// destroy the treeland_window_overlap_checker object
+    ///
+    /// Destroys the treeland_window_overlap_checker object.
+    ///
+    /// This request should be called either when the client does not want to
+    /// use the toplevel anymore or after the closed event to finalize the
+    /// destruction of the object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("treeland_window_overlap_checker.destroy", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandWindowOverlapChecker] proxies.
 pub trait TreelandWindowOverlapCheckerHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandWindowOverlapChecker>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// Window has overlapped
@@ -271,10 +352,10 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_enter(
+        let res = _slf.try_send_enter(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_window_overlap_checker.enter message: {}", Report::new(e));
+            log_forward("treeland_window_overlap_checker.enter", &e);
         }
     }
 
@@ -290,10 +371,10 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_leave(
+        let res = _slf.try_send_leave(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_window_overlap_checker.leave message: {}", Report::new(e));
+            log_forward("treeland_window_overlap_checker.leave", &e);
         }
     }
 
@@ -326,14 +407,14 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_update(
+        let res = _slf.try_send_update(
             width,
             height,
             anchor,
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_window_overlap_checker.update message: {}", Report::new(e));
+            log_forward("treeland_window_overlap_checker.update", &e);
         }
     }
 
@@ -352,10 +433,10 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_window_overlap_checker.destroy message: {}", Report::new(e));
+            log_forward("treeland_window_overlap_checker.destroy", &e);
         }
     }
 }
@@ -375,7 +456,7 @@ impl ObjectPrivate for TreelandWindowOverlapChecker {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

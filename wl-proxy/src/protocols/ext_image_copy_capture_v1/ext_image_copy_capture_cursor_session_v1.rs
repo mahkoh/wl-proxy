@@ -59,7 +59,7 @@ impl ExtImageCopyCaptureCursorSessionV1 {
     /// This request doesn't affect ext_image_copy_capture_frame_v1 objects created by
     /// this object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -91,6 +91,24 @@ impl ExtImageCopyCaptureCursorSessionV1 {
         Ok(())
     }
 
+    /// delete this object
+    ///
+    /// Destroys the session. This request can be sent at any time by the
+    /// client.
+    ///
+    /// This request doesn't affect ext_image_copy_capture_frame_v1 objects created by
+    /// this object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_cursor_session_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_capture_session message is available.
     pub const MSG__GET_CAPTURE_SESSION__SINCE: u32 = 1;
 
@@ -104,7 +122,7 @@ impl ExtImageCopyCaptureCursorSessionV1 {
     /// This request must not be sent more than once, or else the
     /// duplicate_session protocol error is raised.
     #[inline]
-    pub fn send_get_capture_session(
+    pub fn try_send_get_capture_session(
         &self,
         session: &Rc<ExtImageCopyCaptureSessionV1>,
     ) -> Result<(), ObjectError> {
@@ -147,6 +165,28 @@ impl ExtImageCopyCaptureCursorSessionV1 {
         Ok(())
     }
 
+    /// get image copy capturer session
+    ///
+    /// Gets the image copy capture session for this cursor session.
+    ///
+    /// The session will produce frames of the cursor image. The compositor may
+    /// pause the session when the cursor leaves the captured area.
+    ///
+    /// This request must not be sent more than once, or else the
+    /// duplicate_session protocol error is raised.
+    #[inline]
+    pub fn send_get_capture_session(
+        &self,
+        session: &Rc<ExtImageCopyCaptureSessionV1>,
+    ) {
+        let res = self.try_send_get_capture_session(
+            session,
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_cursor_session_v1.get_capture_session", &e);
+        }
+    }
+
     /// Since when the enter message is available.
     pub const MSG__ENTER__SINCE: u32 = 1;
 
@@ -160,7 +200,7 @@ impl ExtImageCopyCaptureCursorSessionV1 {
     /// with the captured area. Note, this is different from e.g.
     /// wl_pointer.enter.
     #[inline]
-    pub fn send_enter(
+    pub fn try_send_enter(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -193,6 +233,26 @@ impl ExtImageCopyCaptureCursorSessionV1 {
         Ok(())
     }
 
+    /// cursor entered captured area
+    ///
+    /// Sent when a cursor enters the captured area. It shall be generated
+    /// before the "position" and "hotspot" events when and only when a cursor
+    /// enters the area.
+    ///
+    /// The cursor enters the captured area when the cursor image intersects
+    /// with the captured area. Note, this is different from e.g.
+    /// wl_pointer.enter.
+    #[inline]
+    pub fn send_enter(
+        &self,
+    ) {
+        let res = self.try_send_enter(
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_cursor_session_v1.enter", &e);
+        }
+    }
+
     /// Since when the leave message is available.
     pub const MSG__LEAVE__SINCE: u32 = 1;
 
@@ -202,7 +262,7 @@ impl ExtImageCopyCaptureCursorSessionV1 {
     /// event is generated for the cursor until the cursor enters the captured
     /// area again.
     #[inline]
-    pub fn send_leave(
+    pub fn try_send_leave(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -235,6 +295,22 @@ impl ExtImageCopyCaptureCursorSessionV1 {
         Ok(())
     }
 
+    /// cursor left captured area
+    ///
+    /// Sent when a cursor leaves the captured area. No "position" or "hotspot"
+    /// event is generated for the cursor until the cursor enters the captured
+    /// area again.
+    #[inline]
+    pub fn send_leave(
+        &self,
+    ) {
+        let res = self.try_send_leave(
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_cursor_session_v1.leave", &e);
+        }
+    }
+
     /// Since when the position message is available.
     pub const MSG__POSITION__SINCE: u32 = 1;
 
@@ -253,7 +329,7 @@ impl ExtImageCopyCaptureCursorSessionV1 {
     /// - `x`: position x coordinates
     /// - `y`: position y coordinates
     #[inline]
-    pub fn send_position(
+    pub fn try_send_position(
         &self,
         x: i32,
         y: i32,
@@ -297,6 +373,35 @@ impl ExtImageCopyCaptureCursorSessionV1 {
         Ok(())
     }
 
+    /// position changed
+    ///
+    /// Cursors outside the image capture source do not get captured and no
+    /// event will be generated for them.
+    ///
+    /// The given position is the position of the cursor's hotspot and it is
+    /// relative to the main buffer's top left corner in transformed buffer
+    /// pixel coordinates. The coordinates may be negative or greater than the
+    /// main buffer size.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: position x coordinates
+    /// - `y`: position y coordinates
+    #[inline]
+    pub fn send_position(
+        &self,
+        x: i32,
+        y: i32,
+    ) {
+        let res = self.try_send_position(
+            x,
+            y,
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_cursor_session_v1.position", &e);
+        }
+    }
+
     /// Since when the hotspot message is available.
     pub const MSG__HOTSPOT__SINCE: u32 = 1;
 
@@ -318,7 +423,7 @@ impl ExtImageCopyCaptureCursorSessionV1 {
     /// - `x`: hotspot x coordinates
     /// - `y`: hotspot y coordinates
     #[inline]
-    pub fn send_hotspot(
+    pub fn try_send_hotspot(
         &self,
         x: i32,
         y: i32,
@@ -361,13 +466,45 @@ impl ExtImageCopyCaptureCursorSessionV1 {
         ]);
         Ok(())
     }
+
+    /// hotspot changed
+    ///
+    /// The hotspot describes the offset between the cursor image and the
+    /// position of the input device.
+    ///
+    /// The given coordinates are the hotspot's offset from the origin in
+    /// buffer coordinates.
+    ///
+    /// Clients should not apply the hotspot immediately: the hotspot becomes
+    /// effective when the next ext_image_copy_capture_frame_v1.ready event is received.
+    ///
+    /// Compositors may delay this event until the client captures a new frame.
+    ///
+    /// # Arguments
+    ///
+    /// - `x`: hotspot x coordinates
+    /// - `y`: hotspot y coordinates
+    #[inline]
+    pub fn send_hotspot(
+        &self,
+        x: i32,
+        y: i32,
+    ) {
+        let res = self.try_send_hotspot(
+            x,
+            y,
+        );
+        if let Err(e) = res {
+            log_send("ext_image_copy_capture_cursor_session_v1.hotspot", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtImageCopyCaptureCursorSessionV1] proxies.
 pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtImageCopyCaptureCursorSessionV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// delete this object
@@ -385,10 +522,10 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_cursor_session_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_cursor_session_v1.destroy", &e);
         }
     }
 
@@ -414,11 +551,11 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_capture_session(
+        let res = _slf.try_send_get_capture_session(
             session,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_cursor_session_v1.get_capture_session message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_cursor_session_v1.get_capture_session", &e);
         }
     }
 
@@ -439,10 +576,10 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_enter(
+        let res = _slf.try_send_enter(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_cursor_session_v1.enter message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_cursor_session_v1.enter", &e);
         }
     }
 
@@ -459,10 +596,10 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_leave(
+        let res = _slf.try_send_leave(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_cursor_session_v1.leave message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_cursor_session_v1.leave", &e);
         }
     }
 
@@ -490,12 +627,12 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_position(
+        let res = _slf.try_send_position(
             x,
             y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_cursor_session_v1.position message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_cursor_session_v1.position", &e);
         }
     }
 
@@ -526,12 +663,12 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_hotspot(
+        let res = _slf.try_send_hotspot(
             x,
             y,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_image_copy_capture_cursor_session_v1.hotspot message: {}", Report::new(e));
+            log_forward("ext_image_copy_capture_cursor_session_v1.hotspot", &e);
         }
     }
 }
@@ -551,7 +688,7 @@ impl ObjectPrivate for ExtImageCopyCaptureCursorSessionV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

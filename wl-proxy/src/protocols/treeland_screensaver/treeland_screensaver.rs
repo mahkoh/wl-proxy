@@ -77,7 +77,7 @@ impl TreelandScreensaver {
     /// - `application_name`:
     /// - `reason_for_inhibit`:
     #[inline]
-    pub fn send_inhibit(
+    pub fn try_send_inhibit(
         &self,
         application_name: &str,
         reason_for_inhibit: &str,
@@ -119,6 +119,29 @@ impl TreelandScreensaver {
         Ok(())
     }
 
+    /// Inhibit idleness
+    ///
+    /// Inhibit idleness with given application_name and reason_for_inhibit.
+    ///
+    /// # Arguments
+    ///
+    /// - `application_name`:
+    /// - `reason_for_inhibit`:
+    #[inline]
+    pub fn send_inhibit(
+        &self,
+        application_name: &str,
+        reason_for_inhibit: &str,
+    ) {
+        let res = self.try_send_inhibit(
+            application_name,
+            reason_for_inhibit,
+        );
+        if let Err(e) = res {
+            log_send("treeland_screensaver.inhibit", &e);
+        }
+    }
+
     /// Since when the uninhibit message is available.
     pub const MSG__UNINHIBIT__SINCE: u32 = 1;
 
@@ -126,7 +149,7 @@ impl TreelandScreensaver {
     ///
     /// Uninhibit idleness previously inhibited by inhibit request.
     #[inline]
-    pub fn send_uninhibit(
+    pub fn try_send_uninhibit(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -156,13 +179,27 @@ impl TreelandScreensaver {
         ]);
         Ok(())
     }
+
+    /// Uninhibit idleness
+    ///
+    /// Uninhibit idleness previously inhibited by inhibit request.
+    #[inline]
+    pub fn send_uninhibit(
+        &self,
+    ) {
+        let res = self.try_send_uninhibit(
+        );
+        if let Err(e) = res {
+            log_send("treeland_screensaver.uninhibit", &e);
+        }
+    }
 }
 
 /// A message handler for [TreelandScreensaver] proxies.
 pub trait TreelandScreensaverHandler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandScreensaver>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// Inhibit idleness
@@ -183,12 +220,12 @@ pub trait TreelandScreensaverHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_inhibit(
+        let res = _slf.try_send_inhibit(
             application_name,
             reason_for_inhibit,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_screensaver.inhibit message: {}", Report::new(e));
+            log_forward("treeland_screensaver.inhibit", &e);
         }
     }
 
@@ -203,10 +240,10 @@ pub trait TreelandScreensaverHandler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_uninhibit(
+        let res = _slf.try_send_uninhibit(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a treeland_screensaver.uninhibit message: {}", Report::new(e));
+            log_forward("treeland_screensaver.uninhibit", &e);
         }
     }
 }
@@ -226,7 +263,7 @@ impl ObjectPrivate for TreelandScreensaver {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

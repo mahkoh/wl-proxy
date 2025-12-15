@@ -62,7 +62,7 @@ impl WpAlphaModifierV1 {
     /// Destroy the alpha modifier manager. This doesn't destroy objects
     /// created with the manager.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -94,6 +94,21 @@ impl WpAlphaModifierV1 {
         Ok(())
     }
 
+    /// destroy the alpha modifier manager object
+    ///
+    /// Destroy the alpha modifier manager. This doesn't destroy objects
+    /// created with the manager.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("wp_alpha_modifier_v1.destroy", &e);
+        }
+    }
+
     /// Since when the get_surface message is available.
     pub const MSG__GET_SURFACE__SINCE: u32 = 1;
 
@@ -108,7 +123,7 @@ impl WpAlphaModifierV1 {
     /// - `id`:
     /// - `surface`:
     #[inline]
-    pub fn send_get_surface(
+    pub fn try_send_get_surface(
         &self,
         id: &Rc<WpAlphaModifierSurfaceV1>,
         surface: &Rc<WlSurface>,
@@ -159,13 +174,38 @@ impl WpAlphaModifierV1 {
         ]);
         Ok(())
     }
+
+    /// create a new alpha modifier surface object
+    ///
+    /// Create a new alpha modifier surface object associated with the
+    /// given wl_surface. If there is already such an object associated with
+    /// the wl_surface, the already_constructed error will be raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn send_get_surface(
+        &self,
+        id: &Rc<WpAlphaModifierSurfaceV1>,
+        surface: &Rc<WlSurface>,
+    ) {
+        let res = self.try_send_get_surface(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("wp_alpha_modifier_v1.get_surface", &e);
+        }
+    }
 }
 
 /// A message handler for [WpAlphaModifierV1] proxies.
 pub trait WpAlphaModifierV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpAlphaModifierV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// destroy the alpha modifier manager object
@@ -180,10 +220,10 @@ pub trait WpAlphaModifierV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_alpha_modifier_v1.destroy message: {}", Report::new(e));
+            log_forward("wp_alpha_modifier_v1.destroy", &e);
         }
     }
 
@@ -210,12 +250,12 @@ pub trait WpAlphaModifierV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_get_surface(
+        let res = _slf.try_send_get_surface(
             id,
             surface,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a wp_alpha_modifier_v1.get_surface message: {}", Report::new(e));
+            log_forward("wp_alpha_modifier_v1.get_surface", &e);
         }
     }
 }
@@ -235,7 +275,7 @@ impl ObjectPrivate for WpAlphaModifierV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

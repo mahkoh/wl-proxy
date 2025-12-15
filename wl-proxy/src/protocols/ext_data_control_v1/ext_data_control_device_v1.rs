@@ -67,7 +67,7 @@ impl ExtDataControlDeviceV1 {
     ///
     /// - `source`:
     #[inline]
-    pub fn send_set_selection(
+    pub fn try_send_set_selection(
         &self,
         source: Option<&Rc<ExtDataControlSourceV1>>,
     ) -> Result<(), ObjectError> {
@@ -113,6 +113,33 @@ impl ExtDataControlDeviceV1 {
         Ok(())
     }
 
+    /// copy data to the selection
+    ///
+    /// This request asks the compositor to set the selection to the data from
+    /// the source on behalf of the client.
+    ///
+    /// The given source may not be used in any further set_selection or
+    /// set_primary_selection requests. Attempting to use a previously used
+    /// source triggers the used_source protocol error.
+    ///
+    /// To unset the selection, set the source to NULL.
+    ///
+    /// # Arguments
+    ///
+    /// - `source`:
+    #[inline]
+    pub fn send_set_selection(
+        &self,
+        source: Option<&Rc<ExtDataControlSourceV1>>,
+    ) {
+        let res = self.try_send_set_selection(
+            source,
+        );
+        if let Err(e) = res {
+            log_send("ext_data_control_device_v1.set_selection", &e);
+        }
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -120,7 +147,7 @@ impl ExtDataControlDeviceV1 {
     ///
     /// Destroys the data device object.
     #[inline]
-    pub fn send_destroy(
+    pub fn try_send_destroy(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -152,6 +179,20 @@ impl ExtDataControlDeviceV1 {
         Ok(())
     }
 
+    /// destroy this data device
+    ///
+    /// Destroys the data device object.
+    #[inline]
+    pub fn send_destroy(
+        &self,
+    ) {
+        let res = self.try_send_destroy(
+        );
+        if let Err(e) = res {
+            log_send("ext_data_control_device_v1.destroy", &e);
+        }
+    }
+
     /// Since when the data_offer message is available.
     pub const MSG__DATA_OFFER__SINCE: u32 = 1;
 
@@ -166,7 +207,7 @@ impl ExtDataControlDeviceV1 {
     /// will send out ext_data_control_offer.offer events to describe the MIME
     /// types it offers.
     #[inline]
-    pub fn send_data_offer(
+    pub fn try_send_data_offer(
         &self,
         id: &Rc<ExtDataControlOfferV1>,
     ) -> Result<(), ObjectError> {
@@ -211,6 +252,29 @@ impl ExtDataControlDeviceV1 {
         Ok(())
     }
 
+    /// introduce a new ext_data_control_offer
+    ///
+    /// The data_offer event introduces a new ext_data_control_offer object,
+    /// which will subsequently be used in either the
+    /// ext_data_control_device.selection event (for the regular clipboard
+    /// selections) or the ext_data_control_device.primary_selection event (for
+    /// the primary clipboard selections). Immediately following the
+    /// ext_data_control_device.data_offer event, the new data_offer object
+    /// will send out ext_data_control_offer.offer events to describe the MIME
+    /// types it offers.
+    #[inline]
+    pub fn send_data_offer(
+        &self,
+        id: &Rc<ExtDataControlOfferV1>,
+    ) {
+        let res = self.try_send_data_offer(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("ext_data_control_device_v1.data_offer", &e);
+        }
+    }
+
     /// Since when the selection message is available.
     pub const MSG__SELECTION__SINCE: u32 = 1;
 
@@ -234,7 +298,7 @@ impl ExtDataControlDeviceV1 {
     ///
     /// - `id`:
     #[inline]
-    pub fn send_selection(
+    pub fn try_send_selection(
         &self,
         id: Option<&Rc<ExtDataControlOfferV1>>,
     ) -> Result<(), ObjectError> {
@@ -281,6 +345,38 @@ impl ExtDataControlDeviceV1 {
         Ok(())
     }
 
+    /// advertise new selection
+    ///
+    /// The selection event is sent out to notify the client of a new
+    /// ext_data_control_offer for the selection for this device. The
+    /// ext_data_control_device.data_offer and the ext_data_control_offer.offer
+    /// events are sent out immediately before this event to introduce the data
+    /// offer object. The selection event is sent to a client when a new
+    /// selection is set. The ext_data_control_offer is valid until a new
+    /// ext_data_control_offer or NULL is received. The client must destroy the
+    /// previous selection ext_data_control_offer, if any, upon receiving this
+    /// event. Regardless, the previous selection will be ignored once a new
+    /// selection ext_data_control_offer is received.
+    ///
+    /// The first selection event is sent upon binding the
+    /// ext_data_control_device object.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    #[inline]
+    pub fn send_selection(
+        &self,
+        id: Option<&Rc<ExtDataControlOfferV1>>,
+    ) {
+        let res = self.try_send_selection(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("ext_data_control_device_v1.selection", &e);
+        }
+    }
+
     /// Since when the finished message is available.
     pub const MSG__FINISHED__SINCE: u32 = 1;
 
@@ -289,7 +385,7 @@ impl ExtDataControlDeviceV1 {
     /// This data control object is no longer valid and should be destroyed by
     /// the client.
     #[inline]
-    pub fn send_finished(
+    pub fn try_send_finished(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -322,6 +418,21 @@ impl ExtDataControlDeviceV1 {
         Ok(())
     }
 
+    /// this data control is no longer valid
+    ///
+    /// This data control object is no longer valid and should be destroyed by
+    /// the client.
+    #[inline]
+    pub fn send_finished(
+        &self,
+    ) {
+        let res = self.try_send_finished(
+        );
+        if let Err(e) = res {
+            log_send("ext_data_control_device_v1.finished", &e);
+        }
+    }
+
     /// Since when the primary_selection message is available.
     pub const MSG__PRIMARY_SELECTION__SINCE: u32 = 1;
 
@@ -347,7 +458,7 @@ impl ExtDataControlDeviceV1 {
     ///
     /// - `id`:
     #[inline]
-    pub fn send_primary_selection(
+    pub fn try_send_primary_selection(
         &self,
         id: Option<&Rc<ExtDataControlOfferV1>>,
     ) -> Result<(), ObjectError> {
@@ -394,6 +505,40 @@ impl ExtDataControlDeviceV1 {
         Ok(())
     }
 
+    /// advertise new primary selection
+    ///
+    /// The primary_selection event is sent out to notify the client of a new
+    /// ext_data_control_offer for the primary selection for this device. The
+    /// ext_data_control_device.data_offer and the ext_data_control_offer.offer
+    /// events are sent out immediately before this event to introduce the data
+    /// offer object. The primary_selection event is sent to a client when a
+    /// new primary selection is set. The ext_data_control_offer is valid until
+    /// a new ext_data_control_offer or NULL is received. The client must
+    /// destroy the previous primary selection ext_data_control_offer, if any,
+    /// upon receiving this event. Regardless, the previous primary selection
+    /// will be ignored once a new primary selection ext_data_control_offer is
+    /// received.
+    ///
+    /// If the compositor supports primary selection, the first
+    /// primary_selection event is sent upon binding the
+    /// ext_data_control_device object.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    #[inline]
+    pub fn send_primary_selection(
+        &self,
+        id: Option<&Rc<ExtDataControlOfferV1>>,
+    ) {
+        let res = self.try_send_primary_selection(
+            id,
+        );
+        if let Err(e) = res {
+            log_send("ext_data_control_device_v1.primary_selection", &e);
+        }
+    }
+
     /// Since when the set_primary_selection message is available.
     pub const MSG__SET_PRIMARY_SELECTION__SINCE: u32 = 1;
 
@@ -415,7 +560,7 @@ impl ExtDataControlDeviceV1 {
     ///
     /// - `source`:
     #[inline]
-    pub fn send_set_primary_selection(
+    pub fn try_send_set_primary_selection(
         &self,
         source: Option<&Rc<ExtDataControlSourceV1>>,
     ) -> Result<(), ObjectError> {
@@ -460,13 +605,43 @@ impl ExtDataControlDeviceV1 {
         ]);
         Ok(())
     }
+
+    /// copy data to the primary selection
+    ///
+    /// This request asks the compositor to set the primary selection to the
+    /// data from the source on behalf of the client.
+    ///
+    /// The given source may not be used in any further set_selection or
+    /// set_primary_selection requests. Attempting to use a previously used
+    /// source triggers the used_source protocol error.
+    ///
+    /// To unset the primary selection, set the source to NULL.
+    ///
+    /// The compositor will ignore this request if it does not support primary
+    /// selection.
+    ///
+    /// # Arguments
+    ///
+    /// - `source`:
+    #[inline]
+    pub fn send_set_primary_selection(
+        &self,
+        source: Option<&Rc<ExtDataControlSourceV1>>,
+    ) {
+        let res = self.try_send_set_primary_selection(
+            source,
+        );
+        if let Err(e) = res {
+            log_send("ext_data_control_device_v1.set_primary_selection", &e);
+        }
+    }
 }
 
 /// A message handler for [ExtDataControlDeviceV1] proxies.
 pub trait ExtDataControlDeviceV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtDataControlDeviceV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// copy data to the selection
@@ -495,11 +670,11 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_selection(
+        let res = _slf.try_send_set_selection(
             source,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_data_control_device_v1.set_selection message: {}", Report::new(e));
+            log_forward("ext_data_control_device_v1.set_selection", &e);
         }
     }
 
@@ -514,10 +689,10 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_destroy(
+        let res = _slf.try_send_destroy(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_data_control_device_v1.destroy message: {}", Report::new(e));
+            log_forward("ext_data_control_device_v1.destroy", &e);
         }
     }
 
@@ -544,11 +719,11 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_data_offer(
+        let res = _slf.try_send_data_offer(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_data_control_device_v1.data_offer message: {}", Report::new(e));
+            log_forward("ext_data_control_device_v1.data_offer", &e);
         }
     }
 
@@ -592,11 +767,11 @@ pub trait ExtDataControlDeviceV1Handler: Any {
                 }
             }
         }
-        let res = _slf.send_selection(
+        let res = _slf.try_send_selection(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_data_control_device_v1.selection message: {}", Report::new(e));
+            log_forward("ext_data_control_device_v1.selection", &e);
         }
     }
 
@@ -612,10 +787,10 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_finished(
+        let res = _slf.try_send_finished(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_data_control_device_v1.finished message: {}", Report::new(e));
+            log_forward("ext_data_control_device_v1.finished", &e);
         }
     }
 
@@ -661,11 +836,11 @@ pub trait ExtDataControlDeviceV1Handler: Any {
                 }
             }
         }
-        let res = _slf.send_primary_selection(
+        let res = _slf.try_send_primary_selection(
             id,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_data_control_device_v1.primary_selection message: {}", Report::new(e));
+            log_forward("ext_data_control_device_v1.primary_selection", &e);
         }
     }
 
@@ -698,11 +873,11 @@ pub trait ExtDataControlDeviceV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_set_primary_selection(
+        let res = _slf.try_send_set_primary_selection(
             source,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a ext_data_control_device_v1.set_primary_selection message: {}", Report::new(e));
+            log_forward("ext_data_control_device_v1.set_primary_selection", &e);
         }
     }
 }
@@ -722,7 +897,7 @@ impl ObjectPrivate for ExtDataControlDeviceV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }

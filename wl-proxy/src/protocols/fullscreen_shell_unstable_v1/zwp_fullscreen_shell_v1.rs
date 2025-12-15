@@ -90,7 +90,7 @@ impl ZwpFullscreenShellV1 {
     /// the client binds to wl_fullscreen_shell multiple times, it may wish
     /// to free some of those bindings.
     #[inline]
-    pub fn send_release(
+    pub fn try_send_release(
         &self,
     ) -> Result<(), ObjectError> {
         let core = self.core();
@@ -122,6 +122,24 @@ impl ZwpFullscreenShellV1 {
         Ok(())
     }
 
+    /// release the wl_fullscreen_shell interface
+    ///
+    /// Release the binding from the wl_fullscreen_shell interface.
+    ///
+    /// This destroys the server-side object and frees this binding.  If
+    /// the client binds to wl_fullscreen_shell multiple times, it may wish
+    /// to free some of those bindings.
+    #[inline]
+    pub fn send_release(
+        &self,
+    ) {
+        let res = self.try_send_release(
+        );
+        if let Err(e) = res {
+            log_send("zwp_fullscreen_shell_v1.release", &e);
+        }
+    }
+
     /// Since when the capability message is available.
     pub const MSG__CAPABILITY__SINCE: u32 = 1;
 
@@ -140,7 +158,7 @@ impl ZwpFullscreenShellV1 {
     ///
     /// - `capability`:
     #[inline]
-    pub fn send_capability(
+    pub fn try_send_capability(
         &self,
         capability: ZwpFullscreenShellV1Capability,
     ) -> Result<(), ObjectError> {
@@ -180,6 +198,33 @@ impl ZwpFullscreenShellV1 {
         Ok(())
     }
 
+    /// advertises a capability of the compositor
+    ///
+    /// Advertises a single capability of the compositor.
+    ///
+    /// When the wl_fullscreen_shell interface is bound, this event is emitted
+    /// once for each capability advertised.  Valid capabilities are given by
+    /// the wl_fullscreen_shell.capability enum.  If clients want to take
+    /// advantage of any of these capabilities, they should use a
+    /// wl_display.sync request immediately after binding to ensure that they
+    /// receive all the capability events.
+    ///
+    /// # Arguments
+    ///
+    /// - `capability`:
+    #[inline]
+    pub fn send_capability(
+        &self,
+        capability: ZwpFullscreenShellV1Capability,
+    ) {
+        let res = self.try_send_capability(
+            capability,
+        );
+        if let Err(e) = res {
+            log_send("zwp_fullscreen_shell_v1.capability", &e);
+        }
+    }
+
     /// Since when the present_surface message is available.
     pub const MSG__PRESENT_SURFACE__SINCE: u32 = 1;
 
@@ -213,7 +258,7 @@ impl ZwpFullscreenShellV1 {
     /// - `method`:
     /// - `output`:
     #[inline]
-    pub fn send_present_surface(
+    pub fn try_send_present_surface(
         &self,
         surface: Option<&Rc<WlSurface>>,
         method: ZwpFullscreenShellV1PresentMethod,
@@ -275,6 +320,52 @@ impl ZwpFullscreenShellV1 {
         Ok(())
     }
 
+    /// present surface for display
+    ///
+    /// Present a surface on the given output.
+    ///
+    /// If the output is null, the compositor will present the surface on
+    /// whatever display (or displays) it thinks best.  In particular, this
+    /// may replace any or all surfaces currently presented so it should
+    /// not be used in combination with placing surfaces on specific
+    /// outputs.
+    ///
+    /// The method parameter is a hint to the compositor for how the surface
+    /// is to be presented.  In particular, it tells the compositor how to
+    /// handle a size mismatch between the presented surface and the
+    /// output.  The compositor is free to ignore this parameter.
+    ///
+    /// The "zoom", "zoom_crop", and "stretch" methods imply a scaling
+    /// operation on the surface.  This will override any kind of output
+    /// scaling, so the buffer_scale property of the surface is effectively
+    /// ignored.
+    ///
+    /// This request gives the surface the role of a fullscreen shell surface.
+    /// If the surface already has another role, it raises a role protocol
+    /// error.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`:
+    /// - `method`:
+    /// - `output`:
+    #[inline]
+    pub fn send_present_surface(
+        &self,
+        surface: Option<&Rc<WlSurface>>,
+        method: ZwpFullscreenShellV1PresentMethod,
+        output: Option<&Rc<WlOutput>>,
+    ) {
+        let res = self.try_send_present_surface(
+            surface,
+            method,
+            output,
+        );
+        if let Err(e) = res {
+            log_send("zwp_fullscreen_shell_v1.present_surface", &e);
+        }
+    }
+
     /// Since when the present_surface_for_mode message is available.
     pub const MSG__PRESENT_SURFACE_FOR_MODE__SINCE: u32 = 1;
 
@@ -329,7 +420,7 @@ impl ZwpFullscreenShellV1 {
     /// - `framerate`:
     /// - `feedback`:
     #[inline]
-    pub fn send_present_surface_for_mode(
+    pub fn try_send_present_surface_for_mode(
         &self,
         surface: &Rc<WlSurface>,
         output: &Rc<WlOutput>,
@@ -393,13 +484,82 @@ impl ZwpFullscreenShellV1 {
         ]);
         Ok(())
     }
+
+    /// present surface for display at a particular mode
+    ///
+    /// Presents a surface on the given output for a particular mode.
+    ///
+    /// If the current size of the output differs from that of the surface,
+    /// the compositor will attempt to change the size of the output to
+    /// match the surface.  The result of the mode-switch operation will be
+    /// returned via the provided wl_fullscreen_shell_mode_feedback object.
+    ///
+    /// If the current output mode matches the one requested or if the
+    /// compositor successfully switches the mode to match the surface,
+    /// then the mode_successful event will be sent and the output will
+    /// contain the contents of the given surface.  If the compositor
+    /// cannot match the output size to the surface size, the mode_failed
+    /// will be sent and the output will contain the contents of the
+    /// previously presented surface (if any).  If another surface is
+    /// presented on the given output before either of these has a chance
+    /// to happen, the present_cancelled event will be sent.
+    ///
+    /// Due to race conditions and other issues unknown to the client, no
+    /// mode-switch operation is guaranteed to succeed.  However, if the
+    /// mode is one advertised by wl_output.mode or if the compositor
+    /// advertises the ARBITRARY_MODES capability, then the client should
+    /// expect that the mode-switch operation will usually succeed.
+    ///
+    /// If the size of the presented surface changes, the resulting output
+    /// is undefined.  The compositor may attempt to change the output mode
+    /// to compensate.  However, there is no guarantee that a suitable mode
+    /// will be found and the client has no way to be notified of success
+    /// or failure.
+    ///
+    /// The framerate parameter specifies the desired framerate for the
+    /// output in mHz.  The compositor is free to ignore this parameter.  A
+    /// value of 0 indicates that the client has no preference.
+    ///
+    /// If the value of wl_output.scale differs from wl_surface.buffer_scale,
+    /// then the compositor may choose a mode that matches either the buffer
+    /// size or the surface size.  In either case, the surface will fill the
+    /// output.
+    ///
+    /// This request gives the surface the role of a fullscreen shell surface.
+    /// If the surface already has another role, it raises a role protocol
+    /// error.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`:
+    /// - `output`:
+    /// - `framerate`:
+    /// - `feedback`:
+    #[inline]
+    pub fn send_present_surface_for_mode(
+        &self,
+        surface: &Rc<WlSurface>,
+        output: &Rc<WlOutput>,
+        framerate: i32,
+        feedback: &Rc<ZwpFullscreenShellModeFeedbackV1>,
+    ) {
+        let res = self.try_send_present_surface_for_mode(
+            surface,
+            output,
+            framerate,
+            feedback,
+        );
+        if let Err(e) = res {
+            log_send("zwp_fullscreen_shell_v1.present_surface_for_mode", &e);
+        }
+    }
 }
 
 /// A message handler for [ZwpFullscreenShellV1] proxies.
 pub trait ZwpFullscreenShellV1Handler: Any {
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpFullscreenShellV1>) {
-        let _ = slf.core.delete_id();
+        slf.core.delete_id();
     }
 
     /// release the wl_fullscreen_shell interface
@@ -417,10 +577,10 @@ pub trait ZwpFullscreenShellV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_release(
+        let res = _slf.try_send_release(
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_fullscreen_shell_v1.release message: {}", Report::new(e));
+            log_forward("zwp_fullscreen_shell_v1.release", &e);
         }
     }
 
@@ -447,11 +607,11 @@ pub trait ZwpFullscreenShellV1Handler: Any {
         if !_slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.send_capability(
+        let res = _slf.try_send_capability(
             capability,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_fullscreen_shell_v1.capability message: {}", Report::new(e));
+            log_forward("zwp_fullscreen_shell_v1.capability", &e);
         }
     }
 
@@ -498,13 +658,13 @@ pub trait ZwpFullscreenShellV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_present_surface(
+        let res = _slf.try_send_present_surface(
             surface,
             method,
             output,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_fullscreen_shell_v1.present_surface message: {}", Report::new(e));
+            log_forward("zwp_fullscreen_shell_v1.present_surface", &e);
         }
     }
 
@@ -573,14 +733,14 @@ pub trait ZwpFullscreenShellV1Handler: Any {
         if !_slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.send_present_surface_for_mode(
+        let res = _slf.try_send_present_surface_for_mode(
             surface,
             output,
             framerate,
             feedback,
         );
         if let Err(e) = res {
-            log::warn!("Could not forward a zwp_fullscreen_shell_v1.present_surface_for_mode message: {}", Report::new(e));
+            log_forward("zwp_fullscreen_shell_v1.present_surface_for_mode", &e);
         }
     }
 }
@@ -600,7 +760,7 @@ impl ObjectPrivate for ZwpFullscreenShellV1 {
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
         } else {
-            let _ = self.core.delete_id();
+            self.core.delete_id();
         }
         Ok(())
     }
