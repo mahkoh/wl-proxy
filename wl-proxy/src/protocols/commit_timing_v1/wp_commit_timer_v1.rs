@@ -17,10 +17,10 @@ struct DefaultHandler;
 
 impl WpCommitTimerV1Handler for DefaultHandler { }
 
-impl WpCommitTimerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpCommitTimerV1;
-    pub const INTERFACE_NAME: &str = "wp_commit_timer_v1";
+impl ConcreteObject for WpCommitTimerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpCommitTimerV1;
+    const INTERFACE_NAME: &str = "wp_commit_timer_v1";
 }
 
 impl WpCommitTimerV1 {

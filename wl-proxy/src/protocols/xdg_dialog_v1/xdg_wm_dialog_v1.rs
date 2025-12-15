@@ -27,10 +27,10 @@ struct DefaultHandler;
 
 impl XdgWmDialogV1Handler for DefaultHandler { }
 
-impl XdgWmDialogV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgWmDialogV1;
-    pub const INTERFACE_NAME: &str = "xdg_wm_dialog_v1";
+impl ConcreteObject for XdgWmDialogV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::XdgWmDialogV1;
+    const INTERFACE_NAME: &str = "xdg_wm_dialog_v1";
 }
 
 impl XdgWmDialogV1 {

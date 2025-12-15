@@ -37,10 +37,10 @@ struct DefaultHandler;
 
 impl WpImageDescriptionV1Handler for DefaultHandler { }
 
-impl WpImageDescriptionV1 {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpImageDescriptionV1;
-    pub const INTERFACE_NAME: &str = "wp_image_description_v1";
+impl ConcreteObject for WpImageDescriptionV1 {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpImageDescriptionV1;
+    const INTERFACE_NAME: &str = "wp_image_description_v1";
 }
 
 impl WpImageDescriptionV1 {

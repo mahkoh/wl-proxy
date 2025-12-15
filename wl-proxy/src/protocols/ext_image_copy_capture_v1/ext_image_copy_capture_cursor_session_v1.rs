@@ -18,10 +18,10 @@ struct DefaultHandler;
 
 impl ExtImageCopyCaptureCursorSessionV1Handler for DefaultHandler { }
 
-impl ExtImageCopyCaptureCursorSessionV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtImageCopyCaptureCursorSessionV1;
-    pub const INTERFACE_NAME: &str = "ext_image_copy_capture_cursor_session_v1";
+impl ConcreteObject for ExtImageCopyCaptureCursorSessionV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ExtImageCopyCaptureCursorSessionV1;
+    const INTERFACE_NAME: &str = "ext_image_copy_capture_cursor_session_v1";
 }
 
 impl ExtImageCopyCaptureCursorSessionV1 {

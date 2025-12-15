@@ -25,10 +25,10 @@ struct DefaultHandler;
 
 impl ZwlrInputInhibitorV1Handler for DefaultHandler { }
 
-impl ZwlrInputInhibitorV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrInputInhibitorV1;
-    pub const INTERFACE_NAME: &str = "zwlr_input_inhibitor_v1";
+impl ConcreteObject for ZwlrInputInhibitorV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwlrInputInhibitorV1;
+    const INTERFACE_NAME: &str = "zwlr_input_inhibitor_v1";
 }
 
 impl ZwlrInputInhibitorV1 {

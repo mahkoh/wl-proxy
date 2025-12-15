@@ -39,10 +39,10 @@ struct DefaultHandler;
 
 impl ZwpInputMethodContextV1Handler for DefaultHandler { }
 
-impl ZwpInputMethodContextV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpInputMethodContextV1;
-    pub const INTERFACE_NAME: &str = "zwp_input_method_context_v1";
+impl ConcreteObject for ZwpInputMethodContextV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpInputMethodContextV1;
+    const INTERFACE_NAME: &str = "zwp_input_method_context_v1";
 }
 
 impl ZwpInputMethodContextV1 {

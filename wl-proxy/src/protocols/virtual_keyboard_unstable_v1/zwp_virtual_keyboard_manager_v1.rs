@@ -18,10 +18,10 @@ struct DefaultHandler;
 
 impl ZwpVirtualKeyboardManagerV1Handler for DefaultHandler { }
 
-impl ZwpVirtualKeyboardManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpVirtualKeyboardManagerV1;
-    pub const INTERFACE_NAME: &str = "zwp_virtual_keyboard_manager_v1";
+impl ConcreteObject for ZwpVirtualKeyboardManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpVirtualKeyboardManagerV1;
+    const INTERFACE_NAME: &str = "zwp_virtual_keyboard_manager_v1";
 }
 
 impl ZwpVirtualKeyboardManagerV1 {

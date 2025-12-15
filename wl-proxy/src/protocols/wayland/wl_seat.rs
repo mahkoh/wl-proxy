@@ -20,10 +20,10 @@ struct DefaultHandler;
 
 impl WlSeatHandler for DefaultHandler { }
 
-impl WlSeat {
-    pub const XML_VERSION: u32 = 10;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WlSeat;
-    pub const INTERFACE_NAME: &str = "wl_seat";
+impl ConcreteObject for WlSeat {
+    const XML_VERSION: u32 = 10;
+    const INTERFACE: ObjectInterface = ObjectInterface::WlSeat;
+    const INTERFACE_NAME: &str = "wl_seat";
 }
 
 impl WlSeat {

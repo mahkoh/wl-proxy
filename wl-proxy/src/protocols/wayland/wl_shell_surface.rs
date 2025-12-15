@@ -27,10 +27,10 @@ struct DefaultHandler;
 
 impl WlShellSurfaceHandler for DefaultHandler { }
 
-impl WlShellSurface {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WlShellSurface;
-    pub const INTERFACE_NAME: &str = "wl_shell_surface";
+impl ConcreteObject for WlShellSurface {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WlShellSurface;
+    const INTERFACE_NAME: &str = "wl_shell_surface";
 }
 
 impl WlShellSurface {

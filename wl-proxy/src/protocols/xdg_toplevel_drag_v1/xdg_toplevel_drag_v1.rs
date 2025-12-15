@@ -15,10 +15,10 @@ struct DefaultHandler;
 
 impl XdgToplevelDragV1Handler for DefaultHandler { }
 
-impl XdgToplevelDragV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgToplevelDragV1;
-    pub const INTERFACE_NAME: &str = "xdg_toplevel_drag_v1";
+impl ConcreteObject for XdgToplevelDragV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::XdgToplevelDragV1;
+    const INTERFACE_NAME: &str = "xdg_toplevel_drag_v1";
 }
 
 impl XdgToplevelDragV1 {

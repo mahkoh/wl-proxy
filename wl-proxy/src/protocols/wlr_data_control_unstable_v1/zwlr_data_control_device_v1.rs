@@ -19,10 +19,10 @@ struct DefaultHandler;
 
 impl ZwlrDataControlDeviceV1Handler for DefaultHandler { }
 
-impl ZwlrDataControlDeviceV1 {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrDataControlDeviceV1;
-    pub const INTERFACE_NAME: &str = "zwlr_data_control_device_v1";
+impl ConcreteObject for ZwlrDataControlDeviceV1 {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwlrDataControlDeviceV1;
+    const INTERFACE_NAME: &str = "zwlr_data_control_device_v1";
 }
 
 impl ZwlrDataControlDeviceV1 {

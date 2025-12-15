@@ -17,10 +17,10 @@ struct DefaultHandler;
 
 impl ExtTransientSeatManagerV1Handler for DefaultHandler { }
 
-impl ExtTransientSeatManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtTransientSeatManagerV1;
-    pub const INTERFACE_NAME: &str = "ext_transient_seat_manager_v1";
+impl ConcreteObject for ExtTransientSeatManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ExtTransientSeatManagerV1;
+    const INTERFACE_NAME: &str = "ext_transient_seat_manager_v1";
 }
 
 impl ExtTransientSeatManagerV1 {

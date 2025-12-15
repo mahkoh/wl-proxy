@@ -40,10 +40,10 @@ struct DefaultHandler;
 
 impl XdgPopupHandler for DefaultHandler { }
 
-impl XdgPopup {
-    pub const XML_VERSION: u32 = 7;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgPopup;
-    pub const INTERFACE_NAME: &str = "xdg_popup";
+impl ConcreteObject for XdgPopup {
+    const XML_VERSION: u32 = 7;
+    const INTERFACE: ObjectInterface = ObjectInterface::XdgPopup;
+    const INTERFACE_NAME: &str = "xdg_popup";
 }
 
 impl XdgPopup {

@@ -24,10 +24,10 @@ struct DefaultHandler;
 
 impl ZwpInputPopupSurfaceV2Handler for DefaultHandler { }
 
-impl ZwpInputPopupSurfaceV2 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpInputPopupSurfaceV2;
-    pub const INTERFACE_NAME: &str = "zwp_input_popup_surface_v2";
+impl ConcreteObject for ZwpInputPopupSurfaceV2 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpInputPopupSurfaceV2;
+    const INTERFACE_NAME: &str = "zwp_input_popup_surface_v2";
 }
 
 impl ZwpInputPopupSurfaceV2 {

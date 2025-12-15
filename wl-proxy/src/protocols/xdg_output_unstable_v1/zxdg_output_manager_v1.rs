@@ -17,10 +17,10 @@ struct DefaultHandler;
 
 impl ZxdgOutputManagerV1Handler for DefaultHandler { }
 
-impl ZxdgOutputManagerV1 {
-    pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZxdgOutputManagerV1;
-    pub const INTERFACE_NAME: &str = "zxdg_output_manager_v1";
+impl ConcreteObject for ZxdgOutputManagerV1 {
+    const XML_VERSION: u32 = 3;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZxdgOutputManagerV1;
+    const INTERFACE_NAME: &str = "zxdg_output_manager_v1";
 }
 
 impl ZxdgOutputManagerV1 {

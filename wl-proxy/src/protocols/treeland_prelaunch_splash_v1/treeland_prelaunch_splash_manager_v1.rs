@@ -23,10 +23,10 @@ struct DefaultHandler;
 
 impl TreelandPrelaunchSplashManagerV1Handler for DefaultHandler { }
 
-impl TreelandPrelaunchSplashManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandPrelaunchSplashManagerV1;
-    pub const INTERFACE_NAME: &str = "treeland_prelaunch_splash_manager_v1";
+impl ConcreteObject for TreelandPrelaunchSplashManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::TreelandPrelaunchSplashManagerV1;
+    const INTERFACE_NAME: &str = "treeland_prelaunch_splash_manager_v1";
 }
 
 impl TreelandPrelaunchSplashManagerV1 {

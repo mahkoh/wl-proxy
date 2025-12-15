@@ -54,6 +54,12 @@ pub trait Object: ObjectPrivate {
     fn get_handler_any_mut(&self) -> Result<HandlerMut<'_, dyn Any>, HandlerAccessError>;
 }
 
+pub trait ConcreteObject: Object {
+    const XML_VERSION: u32;
+    const INTERFACE: ObjectInterface;
+    const INTERFACE_NAME: &str;
+}
+
 pub trait ObjectUtils: Object {
     fn state(&self) -> &Rc<State> {
         self.core().state()
@@ -360,7 +366,10 @@ impl ObjectCore {
 
     pub fn try_delete_id(&self) -> Result<(), ObjectError> {
         if !self.awaiting_delete_id.replace(false) {
-            return Err(ObjectError::NotAwaitingDeleteId);
+            if self.client.borrow().is_some() {
+                return Err(ObjectError::NotAwaitingDeleteId);
+            }
+            return Ok(());
         }
         let Some(id) = self.client_obj_id.take() else {
             return Ok(());

@@ -5,12 +5,13 @@ use {
 
 pub(crate) mod prelude {
     pub(crate) use {
-        super::{debug_array, log_forward, time_since_epoch, log_send},
+        super::{debug_array, log_forward, log_send, time_since_epoch},
         crate::{
             client::Client,
             fixed::Fixed,
             object::{
-                HandlerAccessError, Object, ObjectCore, ObjectError, ObjectPrivate, StringError,
+                ConcreteObject, HandlerAccessError, Object, ObjectCore, ObjectError, ObjectPrivate,
+                StringError,
             },
             protocols::ObjectInterface,
             state::State,

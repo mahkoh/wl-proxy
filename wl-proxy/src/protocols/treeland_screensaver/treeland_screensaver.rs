@@ -35,10 +35,10 @@ struct DefaultHandler;
 
 impl TreelandScreensaverHandler for DefaultHandler { }
 
-impl TreelandScreensaver {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandScreensaver;
-    pub const INTERFACE_NAME: &str = "treeland_screensaver";
+impl ConcreteObject for TreelandScreensaver {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::TreelandScreensaver;
+    const INTERFACE_NAME: &str = "treeland_screensaver";
 }
 
 impl TreelandScreensaver {

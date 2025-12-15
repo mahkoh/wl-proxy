@@ -24,10 +24,10 @@ struct DefaultHandler;
 
 impl ZwpTabletV2Handler for DefaultHandler { }
 
-impl ZwpTabletV2 {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpTabletV2;
-    pub const INTERFACE_NAME: &str = "zwp_tablet_v2";
+impl ConcreteObject for ZwpTabletV2 {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpTabletV2;
+    const INTERFACE_NAME: &str = "zwp_tablet_v2";
 }
 
 impl ZwpTabletV2 {

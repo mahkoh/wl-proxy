@@ -64,10 +64,10 @@ struct DefaultHandler;
 
 impl XdgSurfaceHandler for DefaultHandler { }
 
-impl XdgSurface {
-    pub const XML_VERSION: u32 = 7;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgSurface;
-    pub const INTERFACE_NAME: &str = "xdg_surface";
+impl ConcreteObject for XdgSurface {
+    const XML_VERSION: u32 = 7;
+    const INTERFACE: ObjectInterface = ObjectInterface::XdgSurface;
+    const INTERFACE_NAME: &str = "xdg_surface";
 }
 
 impl XdgSurface {

@@ -26,10 +26,10 @@ struct DefaultHandler;
 
 impl ZwlrGammaControlV1Handler for DefaultHandler { }
 
-impl ZwlrGammaControlV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrGammaControlV1;
-    pub const INTERFACE_NAME: &str = "zwlr_gamma_control_v1";
+impl ConcreteObject for ZwlrGammaControlV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwlrGammaControlV1;
+    const INTERFACE_NAME: &str = "zwlr_gamma_control_v1";
 }
 
 impl ZwlrGammaControlV1 {

@@ -21,10 +21,10 @@ struct DefaultHandler;
 
 impl XdgWmBaseHandler for DefaultHandler { }
 
-impl XdgWmBase {
-    pub const XML_VERSION: u32 = 7;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgWmBase;
-    pub const INTERFACE_NAME: &str = "xdg_wm_base";
+impl ConcreteObject for XdgWmBase {
+    const XML_VERSION: u32 = 7;
+    const INTERFACE: ObjectInterface = ObjectInterface::XdgWmBase;
+    const INTERFACE_NAME: &str = "xdg_wm_base";
 }
 
 impl XdgWmBase {

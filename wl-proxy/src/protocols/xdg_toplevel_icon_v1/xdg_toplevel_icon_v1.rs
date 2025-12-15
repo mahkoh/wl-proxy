@@ -24,10 +24,10 @@ struct DefaultHandler;
 
 impl XdgToplevelIconV1Handler for DefaultHandler { }
 
-impl XdgToplevelIconV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgToplevelIconV1;
-    pub const INTERFACE_NAME: &str = "xdg_toplevel_icon_v1";
+impl ConcreteObject for XdgToplevelIconV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::XdgToplevelIconV1;
+    const INTERFACE_NAME: &str = "xdg_toplevel_icon_v1";
 }
 
 impl XdgToplevelIconV1 {

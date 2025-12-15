@@ -24,10 +24,10 @@ struct DefaultHandler;
 
 impl WlPointerHandler for DefaultHandler { }
 
-impl WlPointer {
-    pub const XML_VERSION: u32 = 10;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WlPointer;
-    pub const INTERFACE_NAME: &str = "wl_pointer";
+impl ConcreteObject for WlPointer {
+    const XML_VERSION: u32 = 10;
+    const INTERFACE: ObjectInterface = ObjectInterface::WlPointer;
+    const INTERFACE_NAME: &str = "wl_pointer";
 }
 
 impl WlPointer {

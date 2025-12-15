@@ -58,10 +58,10 @@ struct DefaultHandler;
 
 impl WlSurfaceHandler for DefaultHandler { }
 
-impl WlSurface {
-    pub const XML_VERSION: u32 = 6;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WlSurface;
-    pub const INTERFACE_NAME: &str = "wl_surface";
+impl ConcreteObject for WlSurface {
+    const XML_VERSION: u32 = 6;
+    const INTERFACE: ObjectInterface = ObjectInterface::WlSurface;
+    const INTERFACE_NAME: &str = "wl_surface";
 }
 
 impl WlSurface {

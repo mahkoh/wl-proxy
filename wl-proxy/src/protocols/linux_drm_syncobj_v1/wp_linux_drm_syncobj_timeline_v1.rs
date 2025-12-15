@@ -18,10 +18,10 @@ struct DefaultHandler;
 
 impl WpLinuxDrmSyncobjTimelineV1Handler for DefaultHandler { }
 
-impl WpLinuxDrmSyncobjTimelineV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpLinuxDrmSyncobjTimelineV1;
-    pub const INTERFACE_NAME: &str = "wp_linux_drm_syncobj_timeline_v1";
+impl ConcreteObject for WpLinuxDrmSyncobjTimelineV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpLinuxDrmSyncobjTimelineV1;
+    const INTERFACE_NAME: &str = "wp_linux_drm_syncobj_timeline_v1";
 }
 
 impl WpLinuxDrmSyncobjTimelineV1 {

@@ -17,10 +17,10 @@ struct DefaultHandler;
 
 impl ZwpKeyboardShortcutsInhibitManagerV1Handler for DefaultHandler { }
 
-impl ZwpKeyboardShortcutsInhibitManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpKeyboardShortcutsInhibitManagerV1;
-    pub const INTERFACE_NAME: &str = "zwp_keyboard_shortcuts_inhibit_manager_v1";
+impl ConcreteObject for ZwpKeyboardShortcutsInhibitManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpKeyboardShortcutsInhibitManagerV1;
+    const INTERFACE_NAME: &str = "zwp_keyboard_shortcuts_inhibit_manager_v1";
 }
 
 impl ZwpKeyboardShortcutsInhibitManagerV1 {

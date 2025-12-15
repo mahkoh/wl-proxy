@@ -22,10 +22,10 @@ struct DefaultHandler;
 
 impl WlDataOfferHandler for DefaultHandler { }
 
-impl WlDataOffer {
-    pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WlDataOffer;
-    pub const INTERFACE_NAME: &str = "wl_data_offer";
+impl ConcreteObject for WlDataOffer {
+    const XML_VERSION: u32 = 3;
+    const INTERFACE: ObjectInterface = ObjectInterface::WlDataOffer;
+    const INTERFACE_NAME: &str = "wl_data_offer";
 }
 
 impl WlDataOffer {

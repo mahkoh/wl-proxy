@@ -29,10 +29,10 @@ struct DefaultHandler;
 
 impl ZwpPointerConstraintsV1Handler for DefaultHandler { }
 
-impl ZwpPointerConstraintsV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpPointerConstraintsV1;
-    pub const INTERFACE_NAME: &str = "zwp_pointer_constraints_v1";
+impl ConcreteObject for ZwpPointerConstraintsV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpPointerConstraintsV1;
+    const INTERFACE_NAME: &str = "zwp_pointer_constraints_v1";
 }
 
 impl ZwpPointerConstraintsV1 {

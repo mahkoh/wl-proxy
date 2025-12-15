@@ -17,10 +17,10 @@ struct DefaultHandler;
 
 impl TreelandOutputColorControlV1Handler for DefaultHandler { }
 
-impl TreelandOutputColorControlV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandOutputColorControlV1;
-    pub const INTERFACE_NAME: &str = "treeland_output_color_control_v1";
+impl ConcreteObject for TreelandOutputColorControlV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::TreelandOutputColorControlV1;
+    const INTERFACE_NAME: &str = "treeland_output_color_control_v1";
 }
 
 impl TreelandOutputColorControlV1 {

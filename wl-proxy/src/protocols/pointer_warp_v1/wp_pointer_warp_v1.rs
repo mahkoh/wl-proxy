@@ -28,10 +28,10 @@ struct DefaultHandler;
 
 impl WpPointerWarpV1Handler for DefaultHandler { }
 
-impl WpPointerWarpV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpPointerWarpV1;
-    pub const INTERFACE_NAME: &str = "wp_pointer_warp_v1";
+impl ConcreteObject for WpPointerWarpV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpPointerWarpV1;
+    const INTERFACE_NAME: &str = "wp_pointer_warp_v1";
 }
 
 impl WpPointerWarpV1 {

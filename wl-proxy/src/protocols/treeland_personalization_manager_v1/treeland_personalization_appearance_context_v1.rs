@@ -22,10 +22,10 @@ struct DefaultHandler;
 
 impl TreelandPersonalizationAppearanceContextV1Handler for DefaultHandler { }
 
-impl TreelandPersonalizationAppearanceContextV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandPersonalizationAppearanceContextV1;
-    pub const INTERFACE_NAME: &str = "treeland_personalization_appearance_context_v1";
+impl ConcreteObject for TreelandPersonalizationAppearanceContextV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::TreelandPersonalizationAppearanceContextV1;
+    const INTERFACE_NAME: &str = "treeland_personalization_appearance_context_v1";
 }
 
 impl TreelandPersonalizationAppearanceContextV1 {

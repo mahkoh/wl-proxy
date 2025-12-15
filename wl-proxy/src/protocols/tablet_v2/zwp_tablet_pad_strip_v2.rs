@@ -21,10 +21,10 @@ struct DefaultHandler;
 
 impl ZwpTabletPadStripV2Handler for DefaultHandler { }
 
-impl ZwpTabletPadStripV2 {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpTabletPadStripV2;
-    pub const INTERFACE_NAME: &str = "zwp_tablet_pad_strip_v2";
+impl ConcreteObject for ZwpTabletPadStripV2 {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpTabletPadStripV2;
+    const INTERFACE_NAME: &str = "zwp_tablet_pad_strip_v2";
 }
 
 impl ZwpTabletPadStripV2 {

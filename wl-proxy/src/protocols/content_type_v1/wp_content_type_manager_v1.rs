@@ -23,10 +23,10 @@ struct DefaultHandler;
 
 impl WpContentTypeManagerV1Handler for DefaultHandler { }
 
-impl WpContentTypeManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpContentTypeManagerV1;
-    pub const INTERFACE_NAME: &str = "wp_content_type_manager_v1";
+impl ConcreteObject for WpContentTypeManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpContentTypeManagerV1;
+    const INTERFACE_NAME: &str = "wp_content_type_manager_v1";
 }
 
 impl WpContentTypeManagerV1 {

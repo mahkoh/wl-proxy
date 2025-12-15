@@ -18,10 +18,10 @@ struct DefaultHandler;
 
 impl WpSinglePixelBufferManagerV1Handler for DefaultHandler { }
 
-impl WpSinglePixelBufferManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpSinglePixelBufferManagerV1;
-    pub const INTERFACE_NAME: &str = "wp_single_pixel_buffer_manager_v1";
+impl ConcreteObject for WpSinglePixelBufferManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpSinglePixelBufferManagerV1;
+    const INTERFACE_NAME: &str = "wp_single_pixel_buffer_manager_v1";
 }
 
 impl WpSinglePixelBufferManagerV1 {

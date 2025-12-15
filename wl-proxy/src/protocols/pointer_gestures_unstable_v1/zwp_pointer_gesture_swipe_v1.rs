@@ -31,10 +31,10 @@ struct DefaultHandler;
 
 impl ZwpPointerGestureSwipeV1Handler for DefaultHandler { }
 
-impl ZwpPointerGestureSwipeV1 {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpPointerGestureSwipeV1;
-    pub const INTERFACE_NAME: &str = "zwp_pointer_gesture_swipe_v1";
+impl ConcreteObject for ZwpPointerGestureSwipeV1 {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpPointerGestureSwipeV1;
+    const INTERFACE_NAME: &str = "zwp_pointer_gesture_swipe_v1";
 }
 
 impl ZwpPointerGestureSwipeV1 {

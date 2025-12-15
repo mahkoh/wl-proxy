@@ -20,10 +20,10 @@ struct DefaultHandler;
 
 impl WlproxySyncV1Handler for DefaultHandler { }
 
-impl WlproxySyncV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WlproxySyncV1;
-    pub const INTERFACE_NAME: &str = "wlproxy_sync_v1";
+impl ConcreteObject for WlproxySyncV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WlproxySyncV1;
+    const INTERFACE_NAME: &str = "wlproxy_sync_v1";
 }
 
 impl WlproxySyncV1 {

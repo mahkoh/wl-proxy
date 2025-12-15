@@ -17,10 +17,10 @@ struct DefaultHandler;
 
 impl ExtOutputImageCaptureSourceManagerV1Handler for DefaultHandler { }
 
-impl ExtOutputImageCaptureSourceManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtOutputImageCaptureSourceManagerV1;
-    pub const INTERFACE_NAME: &str = "ext_output_image_capture_source_manager_v1";
+impl ConcreteObject for ExtOutputImageCaptureSourceManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ExtOutputImageCaptureSourceManagerV1;
+    const INTERFACE_NAME: &str = "ext_output_image_capture_source_manager_v1";
 }
 
 impl ExtOutputImageCaptureSourceManagerV1 {

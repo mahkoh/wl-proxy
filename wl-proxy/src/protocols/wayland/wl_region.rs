@@ -20,10 +20,10 @@ struct DefaultHandler;
 
 impl WlRegionHandler for DefaultHandler { }
 
-impl WlRegion {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WlRegion;
-    pub const INTERFACE_NAME: &str = "wl_region";
+impl ConcreteObject for WlRegion {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WlRegion;
+    const INTERFACE_NAME: &str = "wl_region";
 }
 
 impl WlRegion {

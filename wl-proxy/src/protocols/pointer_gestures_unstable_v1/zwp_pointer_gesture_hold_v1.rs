@@ -33,10 +33,10 @@ struct DefaultHandler;
 
 impl ZwpPointerGestureHoldV1Handler for DefaultHandler { }
 
-impl ZwpPointerGestureHoldV1 {
-    pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpPointerGestureHoldV1;
-    pub const INTERFACE_NAME: &str = "zwp_pointer_gesture_hold_v1";
+impl ConcreteObject for ZwpPointerGestureHoldV1 {
+    const XML_VERSION: u32 = 3;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpPointerGestureHoldV1;
+    const INTERFACE_NAME: &str = "zwp_pointer_gesture_hold_v1";
 }
 
 impl ZwpPointerGestureHoldV1 {

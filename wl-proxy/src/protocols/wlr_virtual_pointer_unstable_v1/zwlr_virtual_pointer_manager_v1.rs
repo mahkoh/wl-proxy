@@ -17,10 +17,10 @@ struct DefaultHandler;
 
 impl ZwlrVirtualPointerManagerV1Handler for DefaultHandler { }
 
-impl ZwlrVirtualPointerManagerV1 {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrVirtualPointerManagerV1;
-    pub const INTERFACE_NAME: &str = "zwlr_virtual_pointer_manager_v1";
+impl ConcreteObject for ZwlrVirtualPointerManagerV1 {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwlrVirtualPointerManagerV1;
+    const INTERFACE_NAME: &str = "zwlr_virtual_pointer_manager_v1";
 }
 
 impl ZwlrVirtualPointerManagerV1 {

@@ -22,10 +22,10 @@ struct DefaultHandler;
 
 impl WpViewporterHandler for DefaultHandler { }
 
-impl WpViewporter {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpViewporter;
-    pub const INTERFACE_NAME: &str = "wp_viewporter";
+impl ConcreteObject for WpViewporter {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpViewporter;
+    const INTERFACE_NAME: &str = "wp_viewporter";
 }
 
 impl WpViewporter {

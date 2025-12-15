@@ -17,10 +17,10 @@ struct DefaultHandler;
 
 impl TreelandVirtualOutputV1Handler for DefaultHandler { }
 
-impl TreelandVirtualOutputV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandVirtualOutputV1;
-    pub const INTERFACE_NAME: &str = "treeland_virtual_output_v1";
+impl ConcreteObject for TreelandVirtualOutputV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::TreelandVirtualOutputV1;
+    const INTERFACE_NAME: &str = "treeland_virtual_output_v1";
 }
 
 impl TreelandVirtualOutputV1 {

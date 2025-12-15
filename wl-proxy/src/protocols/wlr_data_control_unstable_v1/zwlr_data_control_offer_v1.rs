@@ -20,10 +20,10 @@ struct DefaultHandler;
 
 impl ZwlrDataControlOfferV1Handler for DefaultHandler { }
 
-impl ZwlrDataControlOfferV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrDataControlOfferV1;
-    pub const INTERFACE_NAME: &str = "zwlr_data_control_offer_v1";
+impl ConcreteObject for ZwlrDataControlOfferV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwlrDataControlOfferV1;
+    const INTERFACE_NAME: &str = "zwlr_data_control_offer_v1";
 }
 
 impl ZwlrDataControlOfferV1 {

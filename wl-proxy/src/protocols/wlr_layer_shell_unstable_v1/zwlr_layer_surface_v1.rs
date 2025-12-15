@@ -31,10 +31,10 @@ struct DefaultHandler;
 
 impl ZwlrLayerSurfaceV1Handler for DefaultHandler { }
 
-impl ZwlrLayerSurfaceV1 {
-    pub const XML_VERSION: u32 = 5;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrLayerSurfaceV1;
-    pub const INTERFACE_NAME: &str = "zwlr_layer_surface_v1";
+impl ConcreteObject for ZwlrLayerSurfaceV1 {
+    const XML_VERSION: u32 = 5;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwlrLayerSurfaceV1;
+    const INTERFACE_NAME: &str = "zwlr_layer_surface_v1";
 }
 
 impl ZwlrLayerSurfaceV1 {

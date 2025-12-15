@@ -26,10 +26,10 @@ struct DefaultHandler;
 
 impl TreelandDdeShellSurfaceV1Handler for DefaultHandler { }
 
-impl TreelandDdeShellSurfaceV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandDdeShellSurfaceV1;
-    pub const INTERFACE_NAME: &str = "treeland_dde_shell_surface_v1";
+impl ConcreteObject for TreelandDdeShellSurfaceV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::TreelandDdeShellSurfaceV1;
+    const INTERFACE_NAME: &str = "treeland_dde_shell_surface_v1";
 }
 
 impl TreelandDdeShellSurfaceV1 {

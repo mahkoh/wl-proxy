@@ -17,10 +17,10 @@ struct DefaultHandler;
 
 impl HyprlandInputCaptureManagerV1Handler for DefaultHandler { }
 
-impl HyprlandInputCaptureManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::HyprlandInputCaptureManagerV1;
-    pub const INTERFACE_NAME: &str = "hyprland_input_capture_manager_v1";
+impl ConcreteObject for HyprlandInputCaptureManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::HyprlandInputCaptureManagerV1;
+    const INTERFACE_NAME: &str = "hyprland_input_capture_manager_v1";
 }
 
 impl HyprlandInputCaptureManagerV1 {

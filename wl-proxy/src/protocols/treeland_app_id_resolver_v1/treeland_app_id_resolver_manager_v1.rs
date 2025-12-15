@@ -19,10 +19,10 @@ struct DefaultHandler;
 
 impl TreelandAppIdResolverManagerV1Handler for DefaultHandler { }
 
-impl TreelandAppIdResolverManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandAppIdResolverManagerV1;
-    pub const INTERFACE_NAME: &str = "treeland_app_id_resolver_manager_v1";
+impl ConcreteObject for TreelandAppIdResolverManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::TreelandAppIdResolverManagerV1;
+    const INTERFACE_NAME: &str = "treeland_app_id_resolver_manager_v1";
 }
 
 impl TreelandAppIdResolverManagerV1 {

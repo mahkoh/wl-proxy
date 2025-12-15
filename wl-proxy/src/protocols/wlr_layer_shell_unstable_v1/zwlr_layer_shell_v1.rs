@@ -23,10 +23,10 @@ struct DefaultHandler;
 
 impl ZwlrLayerShellV1Handler for DefaultHandler { }
 
-impl ZwlrLayerShellV1 {
-    pub const XML_VERSION: u32 = 5;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrLayerShellV1;
-    pub const INTERFACE_NAME: &str = "zwlr_layer_shell_v1";
+impl ConcreteObject for ZwlrLayerShellV1 {
+    const XML_VERSION: u32 = 5;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwlrLayerShellV1;
+    const INTERFACE_NAME: &str = "zwlr_layer_shell_v1";
 }
 
 impl ZwlrLayerShellV1 {

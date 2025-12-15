@@ -17,10 +17,10 @@ struct DefaultHandler;
 
 impl HyprlandGlobalShortcutsManagerV1Handler for DefaultHandler { }
 
-impl HyprlandGlobalShortcutsManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::HyprlandGlobalShortcutsManagerV1;
-    pub const INTERFACE_NAME: &str = "hyprland_global_shortcuts_manager_v1";
+impl ConcreteObject for HyprlandGlobalShortcutsManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::HyprlandGlobalShortcutsManagerV1;
+    const INTERFACE_NAME: &str = "hyprland_global_shortcuts_manager_v1";
 }
 
 impl HyprlandGlobalShortcutsManagerV1 {

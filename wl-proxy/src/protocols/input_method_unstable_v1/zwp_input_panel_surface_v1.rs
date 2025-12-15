@@ -13,10 +13,10 @@ struct DefaultHandler;
 
 impl ZwpInputPanelSurfaceV1Handler for DefaultHandler { }
 
-impl ZwpInputPanelSurfaceV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpInputPanelSurfaceV1;
-    pub const INTERFACE_NAME: &str = "zwp_input_panel_surface_v1";
+impl ConcreteObject for ZwpInputPanelSurfaceV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpInputPanelSurfaceV1;
+    const INTERFACE_NAME: &str = "zwp_input_panel_surface_v1";
 }
 
 impl ZwpInputPanelSurfaceV1 {

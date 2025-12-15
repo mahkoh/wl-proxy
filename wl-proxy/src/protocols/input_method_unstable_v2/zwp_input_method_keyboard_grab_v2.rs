@@ -18,10 +18,10 @@ struct DefaultHandler;
 
 impl ZwpInputMethodKeyboardGrabV2Handler for DefaultHandler { }
 
-impl ZwpInputMethodKeyboardGrabV2 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpInputMethodKeyboardGrabV2;
-    pub const INTERFACE_NAME: &str = "zwp_input_method_keyboard_grab_v2";
+impl ConcreteObject for ZwpInputMethodKeyboardGrabV2 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpInputMethodKeyboardGrabV2;
+    const INTERFACE_NAME: &str = "zwp_input_method_keyboard_grab_v2";
 }
 
 impl ZwpInputMethodKeyboardGrabV2 {

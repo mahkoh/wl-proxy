@@ -21,10 +21,10 @@ struct DefaultHandler;
 
 impl ExtBackgroundEffectSurfaceV1Handler for DefaultHandler { }
 
-impl ExtBackgroundEffectSurfaceV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtBackgroundEffectSurfaceV1;
-    pub const INTERFACE_NAME: &str = "ext_background_effect_surface_v1";
+impl ConcreteObject for ExtBackgroundEffectSurfaceV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ExtBackgroundEffectSurfaceV1;
+    const INTERFACE_NAME: &str = "ext_background_effect_surface_v1";
 }
 
 impl ExtBackgroundEffectSurfaceV1 {

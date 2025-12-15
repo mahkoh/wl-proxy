@@ -24,10 +24,10 @@ struct DefaultHandler;
 
 impl WpCursorShapeManagerV1Handler for DefaultHandler { }
 
-impl WpCursorShapeManagerV1 {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpCursorShapeManagerV1;
-    pub const INTERFACE_NAME: &str = "wp_cursor_shape_manager_v1";
+impl ConcreteObject for WpCursorShapeManagerV1 {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpCursorShapeManagerV1;
+    const INTERFACE_NAME: &str = "wp_cursor_shape_manager_v1";
 }
 
 impl WpCursorShapeManagerV1 {

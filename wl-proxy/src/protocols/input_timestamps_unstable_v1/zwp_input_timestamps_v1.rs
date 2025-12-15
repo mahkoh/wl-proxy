@@ -19,10 +19,10 @@ struct DefaultHandler;
 
 impl ZwpInputTimestampsV1Handler for DefaultHandler { }
 
-impl ZwpInputTimestampsV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpInputTimestampsV1;
-    pub const INTERFACE_NAME: &str = "zwp_input_timestamps_v1";
+impl ConcreteObject for ZwpInputTimestampsV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpInputTimestampsV1;
+    const INTERFACE_NAME: &str = "zwp_input_timestamps_v1";
 }
 
 impl ZwpInputTimestampsV1 {

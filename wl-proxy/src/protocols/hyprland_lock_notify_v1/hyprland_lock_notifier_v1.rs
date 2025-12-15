@@ -18,10 +18,10 @@ struct DefaultHandler;
 
 impl HyprlandLockNotifierV1Handler for DefaultHandler { }
 
-impl HyprlandLockNotifierV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::HyprlandLockNotifierV1;
-    pub const INTERFACE_NAME: &str = "hyprland_lock_notifier_v1";
+impl ConcreteObject for HyprlandLockNotifierV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::HyprlandLockNotifierV1;
+    const INTERFACE_NAME: &str = "hyprland_lock_notifier_v1";
 }
 
 impl HyprlandLockNotifierV1 {

@@ -20,10 +20,10 @@ struct DefaultHandler;
 
 impl ZwpPrimarySelectionDeviceManagerV1Handler for DefaultHandler { }
 
-impl ZwpPrimarySelectionDeviceManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpPrimarySelectionDeviceManagerV1;
-    pub const INTERFACE_NAME: &str = "zwp_primary_selection_device_manager_v1";
+impl ConcreteObject for ZwpPrimarySelectionDeviceManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpPrimarySelectionDeviceManagerV1;
+    const INTERFACE_NAME: &str = "zwp_primary_selection_device_manager_v1";
 }
 
 impl ZwpPrimarySelectionDeviceManagerV1 {

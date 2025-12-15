@@ -31,10 +31,10 @@ struct DefaultHandler;
 
 impl ZwpPointerGesturePinchV1Handler for DefaultHandler { }
 
-impl ZwpPointerGesturePinchV1 {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpPointerGesturePinchV1;
-    pub const INTERFACE_NAME: &str = "zwp_pointer_gesture_pinch_v1";
+impl ConcreteObject for ZwpPointerGesturePinchV1 {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpPointerGesturePinchV1;
+    const INTERFACE_NAME: &str = "zwp_pointer_gesture_pinch_v1";
 }
 
 impl ZwpPointerGesturePinchV1 {

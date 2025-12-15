@@ -37,10 +37,10 @@ struct DefaultHandler;
 
 impl XdgToplevelHandler for DefaultHandler { }
 
-impl XdgToplevel {
-    pub const XML_VERSION: u32 = 7;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgToplevel;
-    pub const INTERFACE_NAME: &str = "xdg_toplevel";
+impl ConcreteObject for XdgToplevel {
+    const XML_VERSION: u32 = 7;
+    const INTERFACE: ObjectInterface = ObjectInterface::XdgToplevel;
+    const INTERFACE_NAME: &str = "xdg_toplevel";
 }
 
 impl XdgToplevel {

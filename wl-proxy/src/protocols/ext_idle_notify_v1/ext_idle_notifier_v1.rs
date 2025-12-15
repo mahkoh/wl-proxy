@@ -20,10 +20,10 @@ struct DefaultHandler;
 
 impl ExtIdleNotifierV1Handler for DefaultHandler { }
 
-impl ExtIdleNotifierV1 {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtIdleNotifierV1;
-    pub const INTERFACE_NAME: &str = "ext_idle_notifier_v1";
+impl ConcreteObject for ExtIdleNotifierV1 {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::ExtIdleNotifierV1;
+    const INTERFACE_NAME: &str = "ext_idle_notifier_v1";
 }
 
 impl ExtIdleNotifierV1 {

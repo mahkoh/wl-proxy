@@ -35,10 +35,10 @@ struct DefaultHandler;
 
 impl WlSubcompositorHandler for DefaultHandler { }
 
-impl WlSubcompositor {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WlSubcompositor;
-    pub const INTERFACE_NAME: &str = "wl_subcompositor";
+impl ConcreteObject for WlSubcompositor {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WlSubcompositor;
+    const INTERFACE_NAME: &str = "wl_subcompositor";
 }
 
 impl WlSubcompositor {

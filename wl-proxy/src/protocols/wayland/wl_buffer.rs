@@ -31,10 +31,10 @@ struct DefaultHandler;
 
 impl WlBufferHandler for DefaultHandler { }
 
-impl WlBuffer {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WlBuffer;
-    pub const INTERFACE_NAME: &str = "wl_buffer";
+impl ConcreteObject for WlBuffer {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WlBuffer;
+    const INTERFACE_NAME: &str = "wl_buffer";
 }
 
 impl WlBuffer {

@@ -19,10 +19,10 @@ struct DefaultHandler;
 
 impl ZwpPrimarySelectionSourceV1Handler for DefaultHandler { }
 
-impl ZwpPrimarySelectionSourceV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpPrimarySelectionSourceV1;
-    pub const INTERFACE_NAME: &str = "zwp_primary_selection_source_v1";
+impl ConcreteObject for ZwpPrimarySelectionSourceV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpPrimarySelectionSourceV1;
+    const INTERFACE_NAME: &str = "zwp_primary_selection_source_v1";
 }
 
 impl ZwpPrimarySelectionSourceV1 {

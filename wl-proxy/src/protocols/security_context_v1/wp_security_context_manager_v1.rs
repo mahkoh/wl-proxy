@@ -34,10 +34,10 @@ struct DefaultHandler;
 
 impl WpSecurityContextManagerV1Handler for DefaultHandler { }
 
-impl WpSecurityContextManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpSecurityContextManagerV1;
-    pub const INTERFACE_NAME: &str = "wp_security_context_manager_v1";
+impl ConcreteObject for WpSecurityContextManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpSecurityContextManagerV1;
+    const INTERFACE_NAME: &str = "wp_security_context_manager_v1";
 }
 
 impl WpSecurityContextManagerV1 {

@@ -23,10 +23,10 @@ struct DefaultHandler;
 
 impl TreelandWindowOverlapCheckerHandler for DefaultHandler { }
 
-impl TreelandWindowOverlapChecker {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandWindowOverlapChecker;
-    pub const INTERFACE_NAME: &str = "treeland_window_overlap_checker";
+impl ConcreteObject for TreelandWindowOverlapChecker {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::TreelandWindowOverlapChecker;
+    const INTERFACE_NAME: &str = "treeland_window_overlap_checker";
 }
 
 impl TreelandWindowOverlapChecker {

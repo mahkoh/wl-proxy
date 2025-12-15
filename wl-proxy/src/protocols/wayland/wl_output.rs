@@ -22,10 +22,10 @@ struct DefaultHandler;
 
 impl WlOutputHandler for DefaultHandler { }
 
-impl WlOutput {
-    pub const XML_VERSION: u32 = 4;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WlOutput;
-    pub const INTERFACE_NAME: &str = "wl_output";
+impl ConcreteObject for WlOutput {
+    const XML_VERSION: u32 = 4;
+    const INTERFACE: ObjectInterface = ObjectInterface::WlOutput;
+    const INTERFACE_NAME: &str = "wl_output";
 }
 
 impl WlOutput {

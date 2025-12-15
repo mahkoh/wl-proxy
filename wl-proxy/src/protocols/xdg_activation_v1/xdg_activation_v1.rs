@@ -19,10 +19,10 @@ struct DefaultHandler;
 
 impl XdgActivationV1Handler for DefaultHandler { }
 
-impl XdgActivationV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgActivationV1;
-    pub const INTERFACE_NAME: &str = "xdg_activation_v1";
+impl ConcreteObject for XdgActivationV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::XdgActivationV1;
+    const INTERFACE_NAME: &str = "xdg_activation_v1";
 }
 
 impl XdgActivationV1 {

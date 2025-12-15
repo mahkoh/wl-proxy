@@ -21,10 +21,10 @@ struct DefaultHandler;
 
 impl HyprlandToplevelWindowMappingHandleV1Handler for DefaultHandler { }
 
-impl HyprlandToplevelWindowMappingHandleV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::HyprlandToplevelWindowMappingHandleV1;
-    pub const INTERFACE_NAME: &str = "hyprland_toplevel_window_mapping_handle_v1";
+impl ConcreteObject for HyprlandToplevelWindowMappingHandleV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::HyprlandToplevelWindowMappingHandleV1;
+    const INTERFACE_NAME: &str = "hyprland_toplevel_window_mapping_handle_v1";
 }
 
 impl HyprlandToplevelWindowMappingHandleV1 {

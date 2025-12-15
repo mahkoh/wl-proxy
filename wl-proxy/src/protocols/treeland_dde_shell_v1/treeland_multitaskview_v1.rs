@@ -17,10 +17,10 @@ struct DefaultHandler;
 
 impl TreelandMultitaskviewV1Handler for DefaultHandler { }
 
-impl TreelandMultitaskviewV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandMultitaskviewV1;
-    pub const INTERFACE_NAME: &str = "treeland_multitaskview_v1";
+impl ConcreteObject for TreelandMultitaskviewV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::TreelandMultitaskviewV1;
+    const INTERFACE_NAME: &str = "treeland_multitaskview_v1";
 }
 
 impl TreelandMultitaskviewV1 {

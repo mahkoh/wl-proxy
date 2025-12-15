@@ -18,10 +18,10 @@ struct DefaultHandler;
 
 impl WlDisplayHandler for DefaultHandler { }
 
-impl WlDisplay {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WlDisplay;
-    pub const INTERFACE_NAME: &str = "wl_display";
+impl ConcreteObject for WlDisplay {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WlDisplay;
+    const INTERFACE_NAME: &str = "wl_display";
 }
 
 impl WlDisplay {

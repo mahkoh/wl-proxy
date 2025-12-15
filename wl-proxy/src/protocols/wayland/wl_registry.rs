@@ -36,10 +36,10 @@ struct DefaultHandler;
 
 impl WlRegistryHandler for DefaultHandler { }
 
-impl WlRegistry {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WlRegistry;
-    pub const INTERFACE_NAME: &str = "wl_registry";
+impl ConcreteObject for WlRegistry {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WlRegistry;
+    const INTERFACE_NAME: &str = "wl_registry";
 }
 
 impl WlRegistry {

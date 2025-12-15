@@ -20,10 +20,10 @@ struct DefaultHandler;
 
 impl ExtDataControlSourceV1Handler for DefaultHandler { }
 
-impl ExtDataControlSourceV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtDataControlSourceV1;
-    pub const INTERFACE_NAME: &str = "ext_data_control_source_v1";
+impl ConcreteObject for ExtDataControlSourceV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ExtDataControlSourceV1;
+    const INTERFACE_NAME: &str = "ext_data_control_source_v1";
 }
 
 impl ExtDataControlSourceV1 {

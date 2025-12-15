@@ -19,10 +19,10 @@ struct DefaultHandler;
 
 impl ZxdgImporterV2Handler for DefaultHandler { }
 
-impl ZxdgImporterV2 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZxdgImporterV2;
-    pub const INTERFACE_NAME: &str = "zxdg_importer_v2";
+impl ConcreteObject for ZxdgImporterV2 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZxdgImporterV2;
+    const INTERFACE_NAME: &str = "zxdg_importer_v2";
 }
 
 impl ZxdgImporterV2 {

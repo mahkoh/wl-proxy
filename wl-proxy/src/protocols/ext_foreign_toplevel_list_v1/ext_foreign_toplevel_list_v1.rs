@@ -32,10 +32,10 @@ struct DefaultHandler;
 
 impl ExtForeignToplevelListV1Handler for DefaultHandler { }
 
-impl ExtForeignToplevelListV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtForeignToplevelListV1;
-    pub const INTERFACE_NAME: &str = "ext_foreign_toplevel_list_v1";
+impl ConcreteObject for ExtForeignToplevelListV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ExtForeignToplevelListV1;
+    const INTERFACE_NAME: &str = "ext_foreign_toplevel_list_v1";
 }
 
 impl ExtForeignToplevelListV1 {

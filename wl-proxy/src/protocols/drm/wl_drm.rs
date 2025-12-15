@@ -13,10 +13,10 @@ struct DefaultHandler;
 
 impl WlDrmHandler for DefaultHandler { }
 
-impl WlDrm {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WlDrm;
-    pub const INTERFACE_NAME: &str = "wl_drm";
+impl ConcreteObject for WlDrm {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::WlDrm;
+    const INTERFACE_NAME: &str = "wl_drm";
 }
 
 impl WlDrm {

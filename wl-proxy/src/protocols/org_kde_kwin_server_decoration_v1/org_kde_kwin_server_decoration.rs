@@ -13,10 +13,10 @@ struct DefaultHandler;
 
 impl OrgKdeKwinServerDecorationHandler for DefaultHandler { }
 
-impl OrgKdeKwinServerDecoration {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::OrgKdeKwinServerDecoration;
-    pub const INTERFACE_NAME: &str = "org_kde_kwin_server_decoration";
+impl ConcreteObject for OrgKdeKwinServerDecoration {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::OrgKdeKwinServerDecoration;
+    const INTERFACE_NAME: &str = "org_kde_kwin_server_decoration";
 }
 
 impl OrgKdeKwinServerDecoration {

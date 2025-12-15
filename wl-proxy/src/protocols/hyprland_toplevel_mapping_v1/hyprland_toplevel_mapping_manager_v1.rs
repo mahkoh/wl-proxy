@@ -18,10 +18,10 @@ struct DefaultHandler;
 
 impl HyprlandToplevelMappingManagerV1Handler for DefaultHandler { }
 
-impl HyprlandToplevelMappingManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::HyprlandToplevelMappingManagerV1;
-    pub const INTERFACE_NAME: &str = "hyprland_toplevel_mapping_manager_v1";
+impl ConcreteObject for HyprlandToplevelMappingManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::HyprlandToplevelMappingManagerV1;
+    const INTERFACE_NAME: &str = "hyprland_toplevel_mapping_manager_v1";
 }
 
 impl HyprlandToplevelMappingManagerV1 {

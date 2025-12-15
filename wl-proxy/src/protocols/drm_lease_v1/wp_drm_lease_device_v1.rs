@@ -46,10 +46,10 @@ struct DefaultHandler;
 
 impl WpDrmLeaseDeviceV1Handler for DefaultHandler { }
 
-impl WpDrmLeaseDeviceV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpDrmLeaseDeviceV1;
-    pub const INTERFACE_NAME: &str = "wp_drm_lease_device_v1";
+impl ConcreteObject for WpDrmLeaseDeviceV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpDrmLeaseDeviceV1;
+    const INTERFACE_NAME: &str = "wp_drm_lease_device_v1";
 }
 
 impl WpDrmLeaseDeviceV1 {

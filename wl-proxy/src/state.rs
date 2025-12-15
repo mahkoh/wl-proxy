@@ -226,7 +226,7 @@ impl State {
                 "Could not handle a wl_display.delete_id message: {}",
                 Report::new(e),
             );
-            let _ = object.delete_id();
+            let _ = object.core().try_delete_id();
         }
     }
 

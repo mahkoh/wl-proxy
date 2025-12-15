@@ -18,10 +18,10 @@ struct DefaultHandler;
 
 impl WpFifoV1Handler for DefaultHandler { }
 
-impl WpFifoV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpFifoV1;
-    pub const INTERFACE_NAME: &str = "wp_fifo_v1";
+impl ConcreteObject for WpFifoV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpFifoV1;
+    const INTERFACE_NAME: &str = "wp_fifo_v1";
 }
 
 impl WpFifoV1 {

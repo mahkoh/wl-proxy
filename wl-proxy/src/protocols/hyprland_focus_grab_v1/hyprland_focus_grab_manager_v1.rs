@@ -17,10 +17,10 @@ struct DefaultHandler;
 
 impl HyprlandFocusGrabManagerV1Handler for DefaultHandler { }
 
-impl HyprlandFocusGrabManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::HyprlandFocusGrabManagerV1;
-    pub const INTERFACE_NAME: &str = "hyprland_focus_grab_manager_v1";
+impl ConcreteObject for HyprlandFocusGrabManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::HyprlandFocusGrabManagerV1;
+    const INTERFACE_NAME: &str = "hyprland_focus_grab_manager_v1";
 }
 
 impl HyprlandFocusGrabManagerV1 {

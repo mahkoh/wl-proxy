@@ -18,10 +18,10 @@ struct DefaultHandler;
 
 impl WpFractionalScaleV1Handler for DefaultHandler { }
 
-impl WpFractionalScaleV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpFractionalScaleV1;
-    pub const INTERFACE_NAME: &str = "wp_fractional_scale_v1";
+impl ConcreteObject for WpFractionalScaleV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpFractionalScaleV1;
+    const INTERFACE_NAME: &str = "wp_fractional_scale_v1";
 }
 
 impl WpFractionalScaleV1 {

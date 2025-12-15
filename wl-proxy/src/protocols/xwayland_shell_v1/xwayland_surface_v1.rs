@@ -24,10 +24,10 @@ struct DefaultHandler;
 
 impl XwaylandSurfaceV1Handler for DefaultHandler { }
 
-impl XwaylandSurfaceV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::XwaylandSurfaceV1;
-    pub const INTERFACE_NAME: &str = "xwayland_surface_v1";
+impl ConcreteObject for XwaylandSurfaceV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::XwaylandSurfaceV1;
+    const INTERFACE_NAME: &str = "xwayland_surface_v1";
 }
 
 impl XwaylandSurfaceV1 {

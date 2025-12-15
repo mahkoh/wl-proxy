@@ -18,10 +18,10 @@ struct DefaultHandler;
 
 impl ZwpRelativePointerManagerV1Handler for DefaultHandler { }
 
-impl ZwpRelativePointerManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpRelativePointerManagerV1;
-    pub const INTERFACE_NAME: &str = "zwp_relative_pointer_manager_v1";
+impl ConcreteObject for ZwpRelativePointerManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpRelativePointerManagerV1;
+    const INTERFACE_NAME: &str = "zwp_relative_pointer_manager_v1";
 }
 
 impl ZwpRelativePointerManagerV1 {

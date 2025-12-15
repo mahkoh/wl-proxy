@@ -18,10 +18,10 @@ struct DefaultHandler;
 
 impl ZwlrScreencopyManagerV1Handler for DefaultHandler { }
 
-impl ZwlrScreencopyManagerV1 {
-    pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrScreencopyManagerV1;
-    pub const INTERFACE_NAME: &str = "zwlr_screencopy_manager_v1";
+impl ConcreteObject for ZwlrScreencopyManagerV1 {
+    const XML_VERSION: u32 = 3;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwlrScreencopyManagerV1;
+    const INTERFACE_NAME: &str = "zwlr_screencopy_manager_v1";
 }
 
 impl ZwlrScreencopyManagerV1 {

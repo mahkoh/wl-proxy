@@ -33,10 +33,10 @@ struct DefaultHandler;
 
 impl ZwpLinuxBufferReleaseV1Handler for DefaultHandler { }
 
-impl ZwpLinuxBufferReleaseV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpLinuxBufferReleaseV1;
-    pub const INTERFACE_NAME: &str = "zwp_linux_buffer_release_v1";
+impl ConcreteObject for ZwpLinuxBufferReleaseV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpLinuxBufferReleaseV1;
+    const INTERFACE_NAME: &str = "zwp_linux_buffer_release_v1";
 }
 
 impl ZwpLinuxBufferReleaseV1 {

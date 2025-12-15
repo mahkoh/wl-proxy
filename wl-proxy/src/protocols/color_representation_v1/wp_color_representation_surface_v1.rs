@@ -26,10 +26,10 @@ struct DefaultHandler;
 
 impl WpColorRepresentationSurfaceV1Handler for DefaultHandler { }
 
-impl WpColorRepresentationSurfaceV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpColorRepresentationSurfaceV1;
-    pub const INTERFACE_NAME: &str = "wp_color_representation_surface_v1";
+impl ConcreteObject for WpColorRepresentationSurfaceV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpColorRepresentationSurfaceV1;
+    const INTERFACE_NAME: &str = "wp_color_representation_surface_v1";
 }
 
 impl WpColorRepresentationSurfaceV1 {

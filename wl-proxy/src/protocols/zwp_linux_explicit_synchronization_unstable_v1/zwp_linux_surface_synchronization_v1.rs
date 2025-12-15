@@ -46,10 +46,10 @@ struct DefaultHandler;
 
 impl ZwpLinuxSurfaceSynchronizationV1Handler for DefaultHandler { }
 
-impl ZwpLinuxSurfaceSynchronizationV1 {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpLinuxSurfaceSynchronizationV1;
-    pub const INTERFACE_NAME: &str = "zwp_linux_surface_synchronization_v1";
+impl ConcreteObject for ZwpLinuxSurfaceSynchronizationV1 {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpLinuxSurfaceSynchronizationV1;
+    const INTERFACE_NAME: &str = "zwp_linux_surface_synchronization_v1";
 }
 
 impl ZwpLinuxSurfaceSynchronizationV1 {

@@ -31,10 +31,10 @@ struct DefaultHandler;
 
 impl HyprlandToplevelExportFrameV1Handler for DefaultHandler { }
 
-impl HyprlandToplevelExportFrameV1 {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::HyprlandToplevelExportFrameV1;
-    pub const INTERFACE_NAME: &str = "hyprland_toplevel_export_frame_v1";
+impl ConcreteObject for HyprlandToplevelExportFrameV1 {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::HyprlandToplevelExportFrameV1;
+    const INTERFACE_NAME: &str = "hyprland_toplevel_export_frame_v1";
 }
 
 impl HyprlandToplevelExportFrameV1 {

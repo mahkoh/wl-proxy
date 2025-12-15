@@ -25,10 +25,10 @@ struct DefaultHandler;
 
 impl XdgDialogV1Handler for DefaultHandler { }
 
-impl XdgDialogV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgDialogV1;
-    pub const INTERFACE_NAME: &str = "xdg_dialog_v1";
+impl ConcreteObject for XdgDialogV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::XdgDialogV1;
+    const INTERFACE_NAME: &str = "xdg_dialog_v1";
 }
 
 impl XdgDialogV1 {

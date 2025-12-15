@@ -17,10 +17,10 @@ struct DefaultHandler;
 
 impl WpCursorShapeDeviceV1Handler for DefaultHandler { }
 
-impl WpCursorShapeDeviceV1 {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpCursorShapeDeviceV1;
-    pub const INTERFACE_NAME: &str = "wp_cursor_shape_device_v1";
+impl ConcreteObject for WpCursorShapeDeviceV1 {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpCursorShapeDeviceV1;
+    const INTERFACE_NAME: &str = "wp_cursor_shape_device_v1";
 }
 
 impl WpCursorShapeDeviceV1 {

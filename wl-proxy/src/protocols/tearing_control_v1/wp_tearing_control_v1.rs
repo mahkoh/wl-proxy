@@ -24,10 +24,10 @@ struct DefaultHandler;
 
 impl WpTearingControlV1Handler for DefaultHandler { }
 
-impl WpTearingControlV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpTearingControlV1;
-    pub const INTERFACE_NAME: &str = "wp_tearing_control_v1";
+impl ConcreteObject for WpTearingControlV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpTearingControlV1;
+    const INTERFACE_NAME: &str = "wp_tearing_control_v1";
 }
 
 impl WpTearingControlV1 {

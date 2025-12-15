@@ -33,10 +33,10 @@ struct DefaultHandler;
 
 impl JayTrayItemV1Handler for DefaultHandler { }
 
-impl JayTrayItemV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::JayTrayItemV1;
-    pub const INTERFACE_NAME: &str = "jay_tray_item_v1";
+impl ConcreteObject for JayTrayItemV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::JayTrayItemV1;
+    const INTERFACE_NAME: &str = "jay_tray_item_v1";
 }
 
 impl JayTrayItemV1 {

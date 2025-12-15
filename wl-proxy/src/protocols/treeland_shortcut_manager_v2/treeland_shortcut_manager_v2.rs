@@ -29,10 +29,10 @@ struct DefaultHandler;
 
 impl TreelandShortcutManagerV2Handler for DefaultHandler { }
 
-impl TreelandShortcutManagerV2 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandShortcutManagerV2;
-    pub const INTERFACE_NAME: &str = "treeland_shortcut_manager_v2";
+impl ConcreteObject for TreelandShortcutManagerV2 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::TreelandShortcutManagerV2;
+    const INTERFACE_NAME: &str = "treeland_shortcut_manager_v2";
 }
 
 impl TreelandShortcutManagerV2 {

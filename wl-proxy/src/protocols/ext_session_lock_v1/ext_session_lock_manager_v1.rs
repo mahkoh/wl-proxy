@@ -17,10 +17,10 @@ struct DefaultHandler;
 
 impl ExtSessionLockManagerV1Handler for DefaultHandler { }
 
-impl ExtSessionLockManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtSessionLockManagerV1;
-    pub const INTERFACE_NAME: &str = "ext_session_lock_manager_v1";
+impl ConcreteObject for ExtSessionLockManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ExtSessionLockManagerV1;
+    const INTERFACE_NAME: &str = "ext_session_lock_manager_v1";
 }
 
 impl ExtSessionLockManagerV1 {

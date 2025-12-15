@@ -32,10 +32,10 @@ struct DefaultHandler;
 
 impl ZwpPointerGesturesV1Handler for DefaultHandler { }
 
-impl ZwpPointerGesturesV1 {
-    pub const XML_VERSION: u32 = 3;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpPointerGesturesV1;
-    pub const INTERFACE_NAME: &str = "zwp_pointer_gestures_v1";
+impl ConcreteObject for ZwpPointerGesturesV1 {
+    const XML_VERSION: u32 = 3;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpPointerGesturesV1;
+    const INTERFACE_NAME: &str = "zwp_pointer_gestures_v1";
 }
 
 impl ZwpPointerGesturesV1 {

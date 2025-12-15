@@ -19,10 +19,10 @@ struct DefaultHandler;
 
 impl WlCompositorHandler for DefaultHandler { }
 
-impl WlCompositor {
-    pub const XML_VERSION: u32 = 6;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WlCompositor;
-    pub const INTERFACE_NAME: &str = "wl_compositor";
+impl ConcreteObject for WlCompositor {
+    const XML_VERSION: u32 = 6;
+    const INTERFACE: ObjectInterface = ObjectInterface::WlCompositor;
+    const INTERFACE_NAME: &str = "wl_compositor";
 }
 
 impl WlCompositor {

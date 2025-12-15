@@ -17,10 +17,10 @@ struct DefaultHandler;
 
 impl ZwpXwaylandKeyboardGrabManagerV1Handler for DefaultHandler { }
 
-impl ZwpXwaylandKeyboardGrabManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpXwaylandKeyboardGrabManagerV1;
-    pub const INTERFACE_NAME: &str = "zwp_xwayland_keyboard_grab_manager_v1";
+impl ConcreteObject for ZwpXwaylandKeyboardGrabManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpXwaylandKeyboardGrabManagerV1;
+    const INTERFACE_NAME: &str = "zwp_xwayland_keyboard_grab_manager_v1";
 }
 
 impl ZwpXwaylandKeyboardGrabManagerV1 {

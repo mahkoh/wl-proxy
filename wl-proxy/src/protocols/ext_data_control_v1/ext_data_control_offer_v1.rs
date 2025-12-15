@@ -20,10 +20,10 @@ struct DefaultHandler;
 
 impl ExtDataControlOfferV1Handler for DefaultHandler { }
 
-impl ExtDataControlOfferV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtDataControlOfferV1;
-    pub const INTERFACE_NAME: &str = "ext_data_control_offer_v1";
+impl ConcreteObject for ExtDataControlOfferV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ExtDataControlOfferV1;
+    const INTERFACE_NAME: &str = "ext_data_control_offer_v1";
 }
 
 impl ExtDataControlOfferV1 {

@@ -27,10 +27,10 @@ struct DefaultHandler;
 
 impl XdgToplevelTagManagerV1Handler for DefaultHandler { }
 
-impl XdgToplevelTagManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::XdgToplevelTagManagerV1;
-    pub const INTERFACE_NAME: &str = "xdg_toplevel_tag_manager_v1";
+impl ConcreteObject for XdgToplevelTagManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::XdgToplevelTagManagerV1;
+    const INTERFACE_NAME: &str = "xdg_toplevel_tag_manager_v1";
 }
 
 impl XdgToplevelTagManagerV1 {

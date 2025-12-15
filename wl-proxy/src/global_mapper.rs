@@ -3,6 +3,7 @@ use {
         object::{Object, ObjectError},
         protocols::{ObjectInterface, wayland::wl_registry::WlRegistry},
     },
+    error_reporter::Report,
     std::{collections::HashMap, rc::Rc},
 };
 
@@ -32,6 +33,17 @@ impl GlobalMapper {
         registry: &WlRegistry,
         interface: ObjectInterface,
         version: u32,
+    ) {
+        if let Err(e) = self.try_add_synthetic_global(registry, interface, version) {
+            log::warn!("Could not add synthetic global: {}", Report::new(e));
+        }
+    }
+
+    pub fn try_add_synthetic_global(
+        &mut self,
+        registry: &WlRegistry,
+        interface: ObjectInterface,
+        version: u32,
     ) -> Result<u32, ObjectError> {
         let name = self.client_to_server.len() as u32;
         self.client_to_server.push(None);
@@ -39,7 +51,13 @@ impl GlobalMapper {
         Ok(name)
     }
 
-    pub fn remove_synthetic_global(
+    pub fn remove_synthetic_global(&mut self, registry: &WlRegistry, name: u32) {
+        if let Err(e) = self.try_remove_synthetic_global(registry, name) {
+            log::warn!("Could not remove synthetic global: {}", Report::new(e));
+        }
+    }
+
+    pub fn try_remove_synthetic_global(
         &mut self,
         registry: &WlRegistry,
         name: u32,
@@ -48,6 +66,18 @@ impl GlobalMapper {
     }
 
     pub fn handle_server_global(
+        &mut self,
+        registry: &WlRegistry,
+        server_name: u32,
+        interface: ObjectInterface,
+        version: u32,
+    ) {
+        if let Err(e) = self.try_handle_server_global(registry, server_name, interface, version) {
+            log::warn!("Could not handle server global: {}", Report::new(e));
+        }
+    }
+
+    pub fn try_handle_server_global(
         &mut self,
         registry: &WlRegistry,
         server_name: u32,
@@ -64,7 +94,13 @@ impl GlobalMapper {
         self.server_to_client.insert(name, None);
     }
 
-    pub fn handle_server_global_remove(
+    pub fn handle_server_global_remove(&mut self, registry: &WlRegistry, server_name: u32) {
+        if let Err(e) = self.try_handle_server_global_remove(registry, server_name) {
+            log::warn!("Could not handle server global remove: {}", Report::new(e));
+        }
+    }
+
+    pub fn try_handle_server_global_remove(
         &mut self,
         registry: &WlRegistry,
         server_name: u32,
@@ -82,6 +118,17 @@ impl GlobalMapper {
     }
 
     pub fn handle_client_bind(
+        &mut self,
+        registry: &WlRegistry,
+        client_name: u32,
+        proxy: &Rc<dyn Object>,
+    ) {
+        if let Err(e) = self.try_handle_client_bind(registry, client_name, proxy) {
+            log::warn!("Could not handle client bind: {}", Report::new(e));
+        }
+    }
+
+    pub fn try_handle_client_bind(
         &mut self,
         registry: &WlRegistry,
         client_name: u32,

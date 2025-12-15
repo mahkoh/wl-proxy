@@ -43,10 +43,10 @@ struct DefaultHandler;
 
 impl ZwlrOutputManagerV1Handler for DefaultHandler { }
 
-impl ZwlrOutputManagerV1 {
-    pub const XML_VERSION: u32 = 4;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrOutputManagerV1;
-    pub const INTERFACE_NAME: &str = "zwlr_output_manager_v1";
+impl ConcreteObject for ZwlrOutputManagerV1 {
+    const XML_VERSION: u32 = 4;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwlrOutputManagerV1;
+    const INTERFACE_NAME: &str = "zwlr_output_manager_v1";
 }
 
 impl ZwlrOutputManagerV1 {

@@ -21,10 +21,10 @@ struct DefaultHandler;
 
 impl WlCallbackHandler for DefaultHandler { }
 
-impl WlCallback {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WlCallback;
-    pub const INTERFACE_NAME: &str = "wl_callback";
+impl ConcreteObject for WlCallback {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WlCallback;
+    const INTERFACE_NAME: &str = "wl_callback";
 }
 
 impl WlCallback {

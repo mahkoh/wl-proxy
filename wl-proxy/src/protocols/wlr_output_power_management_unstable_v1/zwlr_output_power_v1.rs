@@ -18,10 +18,10 @@ struct DefaultHandler;
 
 impl ZwlrOutputPowerV1Handler for DefaultHandler { }
 
-impl ZwlrOutputPowerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrOutputPowerV1;
-    pub const INTERFACE_NAME: &str = "zwlr_output_power_v1";
+impl ConcreteObject for ZwlrOutputPowerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwlrOutputPowerV1;
+    const INTERFACE_NAME: &str = "zwlr_output_power_v1";
 }
 
 impl ZwlrOutputPowerV1 {

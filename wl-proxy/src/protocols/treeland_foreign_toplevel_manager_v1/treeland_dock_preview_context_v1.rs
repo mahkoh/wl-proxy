@@ -22,10 +22,10 @@ struct DefaultHandler;
 
 impl TreelandDockPreviewContextV1Handler for DefaultHandler { }
 
-impl TreelandDockPreviewContextV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandDockPreviewContextV1;
-    pub const INTERFACE_NAME: &str = "treeland_dock_preview_context_v1";
+impl ConcreteObject for TreelandDockPreviewContextV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::TreelandDockPreviewContextV1;
+    const INTERFACE_NAME: &str = "treeland_dock_preview_context_v1";
 }
 
 impl TreelandDockPreviewContextV1 {

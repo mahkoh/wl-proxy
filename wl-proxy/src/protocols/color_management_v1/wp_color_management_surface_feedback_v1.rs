@@ -21,10 +21,10 @@ struct DefaultHandler;
 
 impl WpColorManagementSurfaceFeedbackV1Handler for DefaultHandler { }
 
-impl WpColorManagementSurfaceFeedbackV1 {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpColorManagementSurfaceFeedbackV1;
-    pub const INTERFACE_NAME: &str = "wp_color_management_surface_feedback_v1";
+impl ConcreteObject for WpColorManagementSurfaceFeedbackV1 {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpColorManagementSurfaceFeedbackV1;
+    const INTERFACE_NAME: &str = "wp_color_management_surface_feedback_v1";
 }
 
 impl WpColorManagementSurfaceFeedbackV1 {

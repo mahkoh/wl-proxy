@@ -23,10 +23,10 @@ struct DefaultHandler;
 
 impl WpColorManagerV1Handler for DefaultHandler { }
 
-impl WpColorManagerV1 {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpColorManagerV1;
-    pub const INTERFACE_NAME: &str = "wp_color_manager_v1";
+impl ConcreteObject for WpColorManagerV1 {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpColorManagerV1;
+    const INTERFACE_NAME: &str = "wp_color_manager_v1";
 }
 
 impl WpColorManagerV1 {

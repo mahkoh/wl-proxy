@@ -22,10 +22,10 @@ struct DefaultHandler;
 
 impl TreelandPersonalizationCursorContextV1Handler for DefaultHandler { }
 
-impl TreelandPersonalizationCursorContextV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandPersonalizationCursorContextV1;
-    pub const INTERFACE_NAME: &str = "treeland_personalization_cursor_context_v1";
+impl ConcreteObject for TreelandPersonalizationCursorContextV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::TreelandPersonalizationCursorContextV1;
+    const INTERFACE_NAME: &str = "treeland_personalization_cursor_context_v1";
 }
 
 impl TreelandPersonalizationCursorContextV1 {

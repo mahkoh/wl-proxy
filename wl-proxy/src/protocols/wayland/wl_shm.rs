@@ -25,10 +25,10 @@ struct DefaultHandler;
 
 impl WlShmHandler for DefaultHandler { }
 
-impl WlShm {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WlShm;
-    pub const INTERFACE_NAME: &str = "wl_shm";
+impl ConcreteObject for WlShm {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::WlShm;
+    const INTERFACE_NAME: &str = "wl_shm";
 }
 
 impl WlShm {

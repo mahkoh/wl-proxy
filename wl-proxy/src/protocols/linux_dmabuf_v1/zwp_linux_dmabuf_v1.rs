@@ -78,10 +78,10 @@ struct DefaultHandler;
 
 impl ZwpLinuxDmabufV1Handler for DefaultHandler { }
 
-impl ZwpLinuxDmabufV1 {
-    pub const XML_VERSION: u32 = 5;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpLinuxDmabufV1;
-    pub const INTERFACE_NAME: &str = "zwp_linux_dmabuf_v1";
+impl ConcreteObject for ZwpLinuxDmabufV1 {
+    const XML_VERSION: u32 = 5;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpLinuxDmabufV1;
+    const INTERFACE_NAME: &str = "zwp_linux_dmabuf_v1";
 }
 
 impl ZwpLinuxDmabufV1 {

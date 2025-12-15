@@ -13,10 +13,10 @@ struct DefaultHandler;
 
 impl TreelandWallpaperColorManagerV1Handler for DefaultHandler { }
 
-impl TreelandWallpaperColorManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandWallpaperColorManagerV1;
-    pub const INTERFACE_NAME: &str = "treeland_wallpaper_color_manager_v1";
+impl ConcreteObject for TreelandWallpaperColorManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::TreelandWallpaperColorManagerV1;
+    const INTERFACE_NAME: &str = "treeland_wallpaper_color_manager_v1";
 }
 
 impl TreelandWallpaperColorManagerV1 {

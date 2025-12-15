@@ -121,16 +121,13 @@ fn format_interface_types(w: &mut impl Write, interface: &Interface) -> io::Resu
         wl!(r#"impl {PREFIX}{camel}Handler for DefaultHandler {{ }}"#)?;
     }
     wl!()?;
-    wl!(r#"impl {PREFIX}{camel} {{"#)?;
-    wl!(r#"    pub const XML_VERSION: u32 = {};"#, interface.version)?;
+    wl!(r#"impl ConcreteObject for {PREFIX}{camel} {{"#)?;
+    wl!(r#"    const XML_VERSION: u32 = {};"#, interface.version)?;
     wl!(
-        r#"    pub const INTERFACE: ObjectInterface = ObjectInterface::{};"#,
+        r#"    const INTERFACE: ObjectInterface = ObjectInterface::{};"#,
         camel
     )?;
-    wl!(
-        r#"    pub const INTERFACE_NAME: &str = "{}";"#,
-        interface.name
-    )?;
+    wl!(r#"    const INTERFACE_NAME: &str = "{}";"#, interface.name)?;
     wl!(r#"}}"#)?;
     Ok(())
 }

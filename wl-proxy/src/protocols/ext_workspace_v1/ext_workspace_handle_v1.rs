@@ -32,10 +32,10 @@ struct DefaultHandler;
 
 impl ExtWorkspaceHandleV1Handler for DefaultHandler { }
 
-impl ExtWorkspaceHandleV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtWorkspaceHandleV1;
-    pub const INTERFACE_NAME: &str = "ext_workspace_handle_v1";
+impl ConcreteObject for ExtWorkspaceHandleV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ExtWorkspaceHandleV1;
+    const INTERFACE_NAME: &str = "ext_workspace_handle_v1";
 }
 
 impl ExtWorkspaceHandleV1 {

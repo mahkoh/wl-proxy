@@ -17,10 +17,10 @@ struct DefaultHandler;
 
 impl HyprlandSurfaceManagerV1Handler for DefaultHandler { }
 
-impl HyprlandSurfaceManagerV1 {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::HyprlandSurfaceManagerV1;
-    pub const INTERFACE_NAME: &str = "hyprland_surface_manager_v1";
+impl ConcreteObject for HyprlandSurfaceManagerV1 {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::HyprlandSurfaceManagerV1;
+    const INTERFACE_NAME: &str = "hyprland_surface_manager_v1";
 }
 
 impl HyprlandSurfaceManagerV1 {

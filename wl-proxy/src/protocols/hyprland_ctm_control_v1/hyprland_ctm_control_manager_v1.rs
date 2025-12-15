@@ -20,10 +20,10 @@ struct DefaultHandler;
 
 impl HyprlandCtmControlManagerV1Handler for DefaultHandler { }
 
-impl HyprlandCtmControlManagerV1 {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::HyprlandCtmControlManagerV1;
-    pub const INTERFACE_NAME: &str = "hyprland_ctm_control_manager_v1";
+impl ConcreteObject for HyprlandCtmControlManagerV1 {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::HyprlandCtmControlManagerV1;
+    const INTERFACE_NAME: &str = "hyprland_ctm_control_manager_v1";
 }
 
 impl HyprlandCtmControlManagerV1 {

@@ -41,10 +41,10 @@ struct DefaultHandler;
 
 impl WpLinuxDrmSyncobjSurfaceV1Handler for DefaultHandler { }
 
-impl WpLinuxDrmSyncobjSurfaceV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpLinuxDrmSyncobjSurfaceV1;
-    pub const INTERFACE_NAME: &str = "wp_linux_drm_syncobj_surface_v1";
+impl ConcreteObject for WpLinuxDrmSyncobjSurfaceV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpLinuxDrmSyncobjSurfaceV1;
+    const INTERFACE_NAME: &str = "wp_linux_drm_syncobj_surface_v1";
 }
 
 impl WpLinuxDrmSyncobjSurfaceV1 {

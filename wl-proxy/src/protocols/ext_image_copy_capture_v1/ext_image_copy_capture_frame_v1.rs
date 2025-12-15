@@ -26,10 +26,10 @@ struct DefaultHandler;
 
 impl ExtImageCopyCaptureFrameV1Handler for DefaultHandler { }
 
-impl ExtImageCopyCaptureFrameV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ExtImageCopyCaptureFrameV1;
-    pub const INTERFACE_NAME: &str = "ext_image_copy_capture_frame_v1";
+impl ConcreteObject for ExtImageCopyCaptureFrameV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ExtImageCopyCaptureFrameV1;
+    const INTERFACE_NAME: &str = "ext_image_copy_capture_frame_v1";
 }
 
 impl ExtImageCopyCaptureFrameV1 {

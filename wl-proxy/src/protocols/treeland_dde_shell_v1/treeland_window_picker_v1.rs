@@ -17,10 +17,10 @@ struct DefaultHandler;
 
 impl TreelandWindowPickerV1Handler for DefaultHandler { }
 
-impl TreelandWindowPickerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandWindowPickerV1;
-    pub const INTERFACE_NAME: &str = "treeland_window_picker_v1";
+impl ConcreteObject for TreelandWindowPickerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::TreelandWindowPickerV1;
+    const INTERFACE_NAME: &str = "treeland_window_picker_v1";
 }
 
 impl TreelandWindowPickerV1 {

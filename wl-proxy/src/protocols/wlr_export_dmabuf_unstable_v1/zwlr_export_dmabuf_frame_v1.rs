@@ -30,10 +30,10 @@ struct DefaultHandler;
 
 impl ZwlrExportDmabufFrameV1Handler for DefaultHandler { }
 
-impl ZwlrExportDmabufFrameV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrExportDmabufFrameV1;
-    pub const INTERFACE_NAME: &str = "zwlr_export_dmabuf_frame_v1";
+impl ConcreteObject for ZwlrExportDmabufFrameV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwlrExportDmabufFrameV1;
+    const INTERFACE_NAME: &str = "zwlr_export_dmabuf_frame_v1";
 }
 
 impl ZwlrExportDmabufFrameV1 {

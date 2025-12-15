@@ -13,10 +13,10 @@ struct DefaultHandler;
 
 impl ZwpFullscreenShellModeFeedbackV1Handler for DefaultHandler { }
 
-impl ZwpFullscreenShellModeFeedbackV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpFullscreenShellModeFeedbackV1;
-    pub const INTERFACE_NAME: &str = "zwp_fullscreen_shell_mode_feedback_v1";
+impl ConcreteObject for ZwpFullscreenShellModeFeedbackV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpFullscreenShellModeFeedbackV1;
+    const INTERFACE_NAME: &str = "zwp_fullscreen_shell_mode_feedback_v1";
 }
 
 impl ZwpFullscreenShellModeFeedbackV1 {

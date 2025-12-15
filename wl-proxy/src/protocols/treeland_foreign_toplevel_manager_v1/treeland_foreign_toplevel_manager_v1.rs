@@ -22,10 +22,10 @@ struct DefaultHandler;
 
 impl TreelandForeignToplevelManagerV1Handler for DefaultHandler { }
 
-impl TreelandForeignToplevelManagerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::TreelandForeignToplevelManagerV1;
-    pub const INTERFACE_NAME: &str = "treeland_foreign_toplevel_manager_v1";
+impl ConcreteObject for TreelandForeignToplevelManagerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::TreelandForeignToplevelManagerV1;
+    const INTERFACE_NAME: &str = "treeland_foreign_toplevel_manager_v1";
 }
 
 impl TreelandForeignToplevelManagerV1 {

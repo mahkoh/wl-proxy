@@ -39,10 +39,10 @@ struct DefaultHandler;
 
 impl ZwpLockedPointerV1Handler for DefaultHandler { }
 
-impl ZwpLockedPointerV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpLockedPointerV1;
-    pub const INTERFACE_NAME: &str = "zwp_locked_pointer_v1";
+impl ConcreteObject for ZwpLockedPointerV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpLockedPointerV1;
+    const INTERFACE_NAME: &str = "zwp_locked_pointer_v1";
 }
 
 impl ZwpLockedPointerV1 {

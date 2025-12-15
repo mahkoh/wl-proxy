@@ -42,10 +42,10 @@ struct DefaultHandler;
 
 impl ZwpTextInputV3Handler for DefaultHandler { }
 
-impl ZwpTextInputV3 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwpTextInputV3;
-    pub const INTERFACE_NAME: &str = "zwp_text_input_v3";
+impl ConcreteObject for ZwpTextInputV3 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwpTextInputV3;
+    const INTERFACE_NAME: &str = "zwp_text_input_v3";
 }
 
 impl ZwpTextInputV3 {

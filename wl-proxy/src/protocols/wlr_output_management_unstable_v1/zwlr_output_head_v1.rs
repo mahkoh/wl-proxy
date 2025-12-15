@@ -29,10 +29,10 @@ struct DefaultHandler;
 
 impl ZwlrOutputHeadV1Handler for DefaultHandler { }
 
-impl ZwlrOutputHeadV1 {
-    pub const XML_VERSION: u32 = 4;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::ZwlrOutputHeadV1;
-    pub const INTERFACE_NAME: &str = "zwlr_output_head_v1";
+impl ConcreteObject for ZwlrOutputHeadV1 {
+    const XML_VERSION: u32 = 4;
+    const INTERFACE: ObjectInterface = ObjectInterface::ZwlrOutputHeadV1;
+    const INTERFACE_NAME: &str = "zwlr_output_head_v1";
 }
 
 impl ZwlrOutputHeadV1 {

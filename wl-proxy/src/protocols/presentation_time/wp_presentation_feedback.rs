@@ -27,10 +27,10 @@ struct DefaultHandler;
 
 impl WpPresentationFeedbackHandler for DefaultHandler { }
 
-impl WpPresentationFeedback {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WpPresentationFeedback;
-    pub const INTERFACE_NAME: &str = "wp_presentation_feedback";
+impl ConcreteObject for WpPresentationFeedback {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::WpPresentationFeedback;
+    const INTERFACE_NAME: &str = "wp_presentation_feedback";
 }
 
 impl WpPresentationFeedback {

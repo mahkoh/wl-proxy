@@ -23,10 +23,10 @@ struct DefaultHandler;
 
 impl WlShmPoolHandler for DefaultHandler { }
 
-impl WlShmPool {
-    pub const XML_VERSION: u32 = 2;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::WlShmPool;
-    pub const INTERFACE_NAME: &str = "wl_shm_pool";
+impl ConcreteObject for WlShmPool {
+    const XML_VERSION: u32 = 2;
+    const INTERFACE: ObjectInterface = ObjectInterface::WlShmPool;
+    const INTERFACE_NAME: &str = "wl_shm_pool";
 }
 
 impl WlShmPool {

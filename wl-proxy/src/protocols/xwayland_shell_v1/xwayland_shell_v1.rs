@@ -31,10 +31,10 @@ struct DefaultHandler;
 
 impl XwaylandShellV1Handler for DefaultHandler { }
 
-impl XwaylandShellV1 {
-    pub const XML_VERSION: u32 = 1;
-    pub const INTERFACE: ObjectInterface = ObjectInterface::XwaylandShellV1;
-    pub const INTERFACE_NAME: &str = "xwayland_shell_v1";
+impl ConcreteObject for XwaylandShellV1 {
+    const XML_VERSION: u32 = 1;
+    const INTERFACE: ObjectInterface = ObjectInterface::XwaylandShellV1;
+    const INTERFACE_NAME: &str = "xwayland_shell_v1";
 }
 
 impl XwaylandShellV1 {
