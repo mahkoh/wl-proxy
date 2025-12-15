@@ -122,6 +122,34 @@ impl WlDataDeviceManager {
         }
     }
 
+    /// create a new data source
+    ///
+    /// Create a new data source.
+    #[inline]
+    pub fn new_try_send_create_data_source(
+        &self,
+    ) -> Result<Rc<WlDataSource>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_data_source(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new data source
+    ///
+    /// Create a new data source.
+    #[inline]
+    pub fn new_send_create_data_source(
+        &self,
+    ) -> Rc<WlDataSource> {
+        let id = self.core.create_child();
+        self.send_create_data_source(
+            &id,
+        );
+        id
+    }
+
     /// Since when the get_data_device message is available.
     pub const MSG__GET_DATA_DEVICE__SINCE: u32 = 1;
 
@@ -207,6 +235,48 @@ impl WlDataDeviceManager {
         if let Err(e) = res {
             log_send("wl_data_device_manager.get_data_device", &e);
         }
+    }
+
+    /// create a new data device
+    ///
+    /// Create a new data device for a given seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: data device to create
+    /// - `seat`: seat associated with the data device
+    #[inline]
+    pub fn new_try_send_get_data_device(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) -> Result<Rc<WlDataDevice>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_data_device(
+            &id,
+            seat,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new data device
+    ///
+    /// Create a new data device for a given seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: data device to create
+    /// - `seat`: seat associated with the data device
+    #[inline]
+    pub fn new_send_get_data_device(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) -> Rc<WlDataDevice> {
+        let id = self.core.create_child();
+        self.send_get_data_device(
+            &id,
+            seat,
+        );
+        id
     }
 }
 

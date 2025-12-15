@@ -235,6 +235,90 @@ impl ZwpXwaylandKeyboardGrabManagerV1 {
             log_send("zwp_xwayland_keyboard_grab_manager_v1.grab_keyboard", &e);
         }
     }
+
+    /// grab the keyboard to a surface
+    ///
+    /// The grab_keyboard request asks for a grab of the keyboard, forcing
+    /// the keyboard focus for the given seat upon the given surface.
+    ///
+    /// The protocol provides no guarantee that the grab is ever satisfied,
+    /// and does not require the compositor to send an error if the grab
+    /// cannot ever be satisfied. It is thus possible to request a keyboard
+    /// grab that will never be effective.
+    ///
+    /// The protocol:
+    ///
+    /// * does not guarantee that the grab itself is applied for a surface,
+    ///   the grab request may be silently ignored by the compositor,
+    /// * does not guarantee that any events are sent to this client even
+    ///   if the grab is applied to a surface,
+    /// * does not guarantee that events sent to this client are exhaustive,
+    ///   a compositor may filter some events for its own consumption,
+    /// * does not guarantee that events sent to this client are continuous,
+    ///   a compositor may change and reroute keyboard events while the grab
+    ///   is nominally active.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`: surface to report keyboard events to
+    /// - `seat`: the seat for which the keyboard should be grabbed
+    #[inline]
+    pub fn new_try_send_grab_keyboard(
+        &self,
+        surface: &Rc<WlSurface>,
+        seat: &Rc<WlSeat>,
+    ) -> Result<Rc<ZwpXwaylandKeyboardGrabV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_grab_keyboard(
+            &id,
+            surface,
+            seat,
+        )?;
+        Ok(id)
+    }
+
+    /// grab the keyboard to a surface
+    ///
+    /// The grab_keyboard request asks for a grab of the keyboard, forcing
+    /// the keyboard focus for the given seat upon the given surface.
+    ///
+    /// The protocol provides no guarantee that the grab is ever satisfied,
+    /// and does not require the compositor to send an error if the grab
+    /// cannot ever be satisfied. It is thus possible to request a keyboard
+    /// grab that will never be effective.
+    ///
+    /// The protocol:
+    ///
+    /// * does not guarantee that the grab itself is applied for a surface,
+    ///   the grab request may be silently ignored by the compositor,
+    /// * does not guarantee that any events are sent to this client even
+    ///   if the grab is applied to a surface,
+    /// * does not guarantee that events sent to this client are exhaustive,
+    ///   a compositor may filter some events for its own consumption,
+    /// * does not guarantee that events sent to this client are continuous,
+    ///   a compositor may change and reroute keyboard events while the grab
+    ///   is nominally active.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`: surface to report keyboard events to
+    /// - `seat`: the seat for which the keyboard should be grabbed
+    #[inline]
+    pub fn new_send_grab_keyboard(
+        &self,
+        surface: &Rc<WlSurface>,
+        seat: &Rc<WlSeat>,
+    ) -> Rc<ZwpXwaylandKeyboardGrabV1> {
+        let id = self.core.create_child();
+        self.send_grab_keyboard(
+            &id,
+            surface,
+            seat,
+        );
+        id
+    }
 }
 
 /// A message handler for [ZwpXwaylandKeyboardGrabManagerV1] proxies.

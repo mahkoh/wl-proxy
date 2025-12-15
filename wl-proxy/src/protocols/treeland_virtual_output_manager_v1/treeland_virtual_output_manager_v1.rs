@@ -157,6 +157,74 @@ impl TreelandVirtualOutputManagerV1 {
         }
     }
 
+    /// Create a virtual output
+    ///
+    /// Create virtual output that can be used when setting screen copy mode for use
+    /// on multiple screens. Virtual outputs are created to mirror multiple wl_output
+    /// outputs.
+    ///
+    /// The element of the array is the name of the screen.
+    ///
+    /// The first element of the array outputs is the screen to be copied, and
+    /// the subsequent elements are the screens to be mirrored.
+    ///
+    /// The client calling this interface will not generate an additional wl_output
+    /// object on the client.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `name`: The name of the user readable virtual output
+    /// - `outputs`: Screen name array
+    #[inline]
+    pub fn new_try_send_create_virtual_output(
+        &self,
+        name: &str,
+        outputs: &[u8],
+    ) -> Result<Rc<TreelandVirtualOutputV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_virtual_output(
+            &id,
+            name,
+            outputs,
+        )?;
+        Ok(id)
+    }
+
+    /// Create a virtual output
+    ///
+    /// Create virtual output that can be used when setting screen copy mode for use
+    /// on multiple screens. Virtual outputs are created to mirror multiple wl_output
+    /// outputs.
+    ///
+    /// The element of the array is the name of the screen.
+    ///
+    /// The first element of the array outputs is the screen to be copied, and
+    /// the subsequent elements are the screens to be mirrored.
+    ///
+    /// The client calling this interface will not generate an additional wl_output
+    /// object on the client.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `name`: The name of the user readable virtual output
+    /// - `outputs`: Screen name array
+    #[inline]
+    pub fn new_send_create_virtual_output(
+        &self,
+        name: &str,
+        outputs: &[u8],
+    ) -> Rc<TreelandVirtualOutputV1> {
+        let id = self.core.create_child();
+        self.send_create_virtual_output(
+            &id,
+            name,
+            outputs,
+        );
+        id
+    }
+
     /// Since when the get_virtual_output_list message is available.
     pub const MSG__GET_VIRTUAL_OUTPUT_LIST__SINCE: u32 = 1;
 
@@ -364,6 +432,50 @@ impl TreelandVirtualOutputManagerV1 {
         if let Err(e) = res {
             log_send("treeland_virtual_output_manager_v1.get_virtual_output", &e);
         }
+    }
+
+    /// Get virtual output
+    ///
+    /// The client obtains the corresponding virtual_output_v1 object
+    /// through the virtual output name.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: The name of the user readable virtual output
+    /// - `id`:
+    #[inline]
+    pub fn new_try_send_get_virtual_output(
+        &self,
+        name: &str,
+    ) -> Result<Rc<TreelandVirtualOutputV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_virtual_output(
+            name,
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// Get virtual output
+    ///
+    /// The client obtains the corresponding virtual_output_v1 object
+    /// through the virtual output name.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: The name of the user readable virtual output
+    /// - `id`:
+    #[inline]
+    pub fn new_send_get_virtual_output(
+        &self,
+        name: &str,
+    ) -> Rc<TreelandVirtualOutputV1> {
+        let id = self.core.create_child();
+        self.send_get_virtual_output(
+            name,
+            &id,
+        );
+        id
     }
 }
 

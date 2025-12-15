@@ -218,6 +218,60 @@ impl JayTrayV1 {
             log_send("jay_tray_v1.get_tray_item", &e);
         }
     }
+
+    /// request tray item interface for surface
+    ///
+    /// Create a tray item for a surface.
+    ///
+    /// The surface is assigned the ext-tray-item-v1 role. If the surface
+    /// already has another role, the conflicting_role error is emitted.
+    ///
+    /// If the surface already has a role object, the already_exists error is
+    /// emitted.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new tray item
+    /// - `surface`: the underlying surface
+    #[inline]
+    pub fn new_try_send_get_tray_item(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<JayTrayItemV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_tray_item(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// request tray item interface for surface
+    ///
+    /// Create a tray item for a surface.
+    ///
+    /// The surface is assigned the ext-tray-item-v1 role. If the surface
+    /// already has another role, the conflicting_role error is emitted.
+    ///
+    /// If the surface already has a role object, the already_exists error is
+    /// emitted.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new tray item
+    /// - `surface`: the underlying surface
+    #[inline]
+    pub fn new_send_get_tray_item(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<JayTrayItemV1> {
+        let id = self.core.create_child();
+        self.send_get_tray_item(
+            &id,
+            surface,
+        );
+        id
+    }
 }
 
 /// A message handler for [JayTrayV1] proxies.

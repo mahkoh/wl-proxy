@@ -235,6 +235,40 @@ impl ZwpLinuxDmabufV1 {
         }
     }
 
+    /// create a temporary object for buffer parameters
+    ///
+    /// This temporary object is used to collect multiple dmabuf handles into
+    /// a single batch to create a wl_buffer. It can only be used once and
+    /// should be destroyed after a 'created' or 'failed' event has been
+    /// received.
+    #[inline]
+    pub fn new_try_send_create_params(
+        &self,
+    ) -> Result<Rc<ZwpLinuxBufferParamsV1>, ObjectError> {
+        let params_id = self.core.create_child();
+        self.try_send_create_params(
+            &params_id,
+        )?;
+        Ok(params_id)
+    }
+
+    /// create a temporary object for buffer parameters
+    ///
+    /// This temporary object is used to collect multiple dmabuf handles into
+    /// a single batch to create a wl_buffer. It can only be used once and
+    /// should be destroyed after a 'created' or 'failed' event has been
+    /// received.
+    #[inline]
+    pub fn new_send_create_params(
+        &self,
+    ) -> Rc<ZwpLinuxBufferParamsV1> {
+        let params_id = self.core.create_child();
+        self.send_create_params(
+            &params_id,
+        );
+        params_id
+    }
+
     /// Since when the format message is available.
     pub const MSG__FORMAT__SINCE: u32 = 1;
 
@@ -535,6 +569,40 @@ impl ZwpLinuxDmabufV1 {
         }
     }
 
+    /// get default feedback
+    ///
+    /// This request creates a new wp_linux_dmabuf_feedback object not bound
+    /// to a particular surface. This object will deliver feedback about dmabuf
+    /// parameters to use if the client doesn't support per-surface feedback
+    /// (see get_surface_feedback).
+    #[inline]
+    pub fn new_try_send_get_default_feedback(
+        &self,
+    ) -> Result<Rc<ZwpLinuxDmabufFeedbackV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_default_feedback(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// get default feedback
+    ///
+    /// This request creates a new wp_linux_dmabuf_feedback object not bound
+    /// to a particular surface. This object will deliver feedback about dmabuf
+    /// parameters to use if the client doesn't support per-surface feedback
+    /// (see get_surface_feedback).
+    #[inline]
+    pub fn new_send_get_default_feedback(
+        &self,
+    ) -> Rc<ZwpLinuxDmabufFeedbackV1> {
+        let id = self.core.create_child();
+        self.send_get_default_feedback(
+            &id,
+        );
+        id
+    }
+
     /// Since when the get_surface_feedback message is available.
     pub const MSG__GET_SURFACE_FEEDBACK__SINCE: u32 = 4;
 
@@ -630,6 +698,58 @@ impl ZwpLinuxDmabufV1 {
         if let Err(e) = res {
             log_send("zwp_linux_dmabuf_v1.get_surface_feedback", &e);
         }
+    }
+
+    /// get feedback for a surface
+    ///
+    /// This request creates a new wp_linux_dmabuf_feedback object for the
+    /// specified wl_surface. This object will deliver feedback about dmabuf
+    /// parameters to use for buffers attached to this surface.
+    ///
+    /// If the surface is destroyed before the wp_linux_dmabuf_feedback object,
+    /// the feedback object becomes inert.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_try_send_get_surface_feedback(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<ZwpLinuxDmabufFeedbackV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_surface_feedback(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// get feedback for a surface
+    ///
+    /// This request creates a new wp_linux_dmabuf_feedback object for the
+    /// specified wl_surface. This object will deliver feedback about dmabuf
+    /// parameters to use for buffers attached to this surface.
+    ///
+    /// If the surface is destroyed before the wp_linux_dmabuf_feedback object,
+    /// the feedback object becomes inert.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_send_get_surface_feedback(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<ZwpLinuxDmabufFeedbackV1> {
+        let id = self.core.create_child();
+        self.send_get_surface_feedback(
+            &id,
+            surface,
+        );
+        id
     }
 }
 

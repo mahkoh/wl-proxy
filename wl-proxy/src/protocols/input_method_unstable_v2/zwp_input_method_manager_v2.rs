@@ -140,6 +140,50 @@ impl ZwpInputMethodManagerV2 {
         }
     }
 
+    /// request an input method object
+    ///
+    /// Request a new input zwp_input_method_v2 object associated with a given
+    /// seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`:
+    /// - `input_method`:
+    #[inline]
+    pub fn new_try_send_get_input_method(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) -> Result<Rc<ZwpInputMethodV2>, ObjectError> {
+        let input_method = self.core.create_child();
+        self.try_send_get_input_method(
+            seat,
+            &input_method,
+        )?;
+        Ok(input_method)
+    }
+
+    /// request an input method object
+    ///
+    /// Request a new input zwp_input_method_v2 object associated with a given
+    /// seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`:
+    /// - `input_method`:
+    #[inline]
+    pub fn new_send_get_input_method(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) -> Rc<ZwpInputMethodV2> {
+        let input_method = self.core.create_child();
+        self.send_get_input_method(
+            seat,
+            &input_method,
+        );
+        input_method
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 

@@ -225,6 +225,42 @@ impl XdgSurface {
         }
     }
 
+    /// assign the xdg_toplevel surface role
+    ///
+    /// This creates an xdg_toplevel object for the given xdg_surface and gives
+    /// the associated wl_surface the xdg_toplevel role.
+    ///
+    /// See the documentation of xdg_toplevel for more details about what an
+    /// xdg_toplevel is and how it is used.
+    #[inline]
+    pub fn new_try_send_get_toplevel(
+        &self,
+    ) -> Result<Rc<XdgToplevel>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_toplevel(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// assign the xdg_toplevel surface role
+    ///
+    /// This creates an xdg_toplevel object for the given xdg_surface and gives
+    /// the associated wl_surface the xdg_toplevel role.
+    ///
+    /// See the documentation of xdg_toplevel for more details about what an
+    /// xdg_toplevel is and how it is used.
+    #[inline]
+    pub fn new_send_get_toplevel(
+        &self,
+    ) -> Rc<XdgToplevel> {
+        let id = self.core.create_child();
+        self.send_get_toplevel(
+            &id,
+        );
+        id
+    }
+
     /// Since when the get_popup message is available.
     pub const MSG__GET_POPUP__SINCE: u32 = 1;
 
@@ -340,6 +376,68 @@ impl XdgSurface {
         if let Err(e) = res {
             log_send("xdg_surface.get_popup", &e);
         }
+    }
+
+    /// assign the xdg_popup surface role
+    ///
+    /// This creates an xdg_popup object for the given xdg_surface and gives
+    /// the associated wl_surface the xdg_popup role.
+    ///
+    /// If null is passed as a parent, a parent surface must be specified using
+    /// some other protocol, before committing the initial state.
+    ///
+    /// See the documentation of xdg_popup for more details about what an
+    /// xdg_popup is and how it is used.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `parent`:
+    /// - `positioner`:
+    #[inline]
+    pub fn new_try_send_get_popup(
+        &self,
+        parent: Option<&Rc<XdgSurface>>,
+        positioner: &Rc<XdgPositioner>,
+    ) -> Result<Rc<XdgPopup>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_popup(
+            &id,
+            parent,
+            positioner,
+        )?;
+        Ok(id)
+    }
+
+    /// assign the xdg_popup surface role
+    ///
+    /// This creates an xdg_popup object for the given xdg_surface and gives
+    /// the associated wl_surface the xdg_popup role.
+    ///
+    /// If null is passed as a parent, a parent surface must be specified using
+    /// some other protocol, before committing the initial state.
+    ///
+    /// See the documentation of xdg_popup for more details about what an
+    /// xdg_popup is and how it is used.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `parent`:
+    /// - `positioner`:
+    #[inline]
+    pub fn new_send_get_popup(
+        &self,
+        parent: Option<&Rc<XdgSurface>>,
+        positioner: &Rc<XdgPositioner>,
+    ) -> Rc<XdgPopup> {
+        let id = self.core.create_child();
+        self.send_get_popup(
+            &id,
+            parent,
+            positioner,
+        );
+        id
     }
 
     /// Since when the set_window_geometry message is available.

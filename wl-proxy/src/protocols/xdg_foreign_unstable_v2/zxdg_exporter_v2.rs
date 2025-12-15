@@ -205,6 +205,64 @@ impl ZxdgExporterV2 {
             log_send("zxdg_exporter_v2.export_toplevel", &e);
         }
     }
+
+    /// export a toplevel surface
+    ///
+    /// The export_toplevel request exports the passed surface so that it can later be
+    /// imported via xdg_importer. When called, a new xdg_exported object will
+    /// be created and xdg_exported.handle will be sent immediately. See the
+    /// corresponding interface and event for details.
+    ///
+    /// A surface may be exported multiple times, and each exported handle may
+    /// be used to create an xdg_imported multiple times. Only xdg_toplevel
+    ///         equivalent surfaces may be exported, otherwise an invalid_surface
+    ///         protocol error is sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new xdg_exported object
+    /// - `surface`: the surface to export
+    #[inline]
+    pub fn new_try_send_export_toplevel(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<ZxdgExportedV2>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_export_toplevel(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// export a toplevel surface
+    ///
+    /// The export_toplevel request exports the passed surface so that it can later be
+    /// imported via xdg_importer. When called, a new xdg_exported object will
+    /// be created and xdg_exported.handle will be sent immediately. See the
+    /// corresponding interface and event for details.
+    ///
+    /// A surface may be exported multiple times, and each exported handle may
+    /// be used to create an xdg_imported multiple times. Only xdg_toplevel
+    ///         equivalent surfaces may be exported, otherwise an invalid_surface
+    ///         protocol error is sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new xdg_exported object
+    /// - `surface`: the surface to export
+    #[inline]
+    pub fn new_send_export_toplevel(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<ZxdgExportedV2> {
+        let id = self.core.create_child();
+        self.send_export_toplevel(
+            &id,
+            surface,
+        );
+        id
+    }
 }
 
 /// A message handler for [ZxdgExporterV2] proxies.

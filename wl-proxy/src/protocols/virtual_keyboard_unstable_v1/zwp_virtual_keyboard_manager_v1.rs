@@ -142,6 +142,56 @@ impl ZwpVirtualKeyboardManagerV1 {
             log_send("zwp_virtual_keyboard_manager_v1.create_virtual_keyboard", &e);
         }
     }
+
+    /// Create a new virtual keyboard
+    ///
+    /// Creates a new virtual keyboard associated to a seat.
+    ///
+    /// If the compositor enables a keyboard to perform arbitrary actions, it
+    /// should present an error when an untrusted client requests a new
+    /// keyboard.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`:
+    /// - `id`:
+    #[inline]
+    pub fn new_try_send_create_virtual_keyboard(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) -> Result<Rc<ZwpVirtualKeyboardV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_virtual_keyboard(
+            seat,
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// Create a new virtual keyboard
+    ///
+    /// Creates a new virtual keyboard associated to a seat.
+    ///
+    /// If the compositor enables a keyboard to perform arbitrary actions, it
+    /// should present an error when an untrusted client requests a new
+    /// keyboard.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`:
+    /// - `id`:
+    #[inline]
+    pub fn new_send_create_virtual_keyboard(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) -> Rc<ZwpVirtualKeyboardV1> {
+        let id = self.core.create_child();
+        self.send_create_virtual_keyboard(
+            seat,
+            &id,
+        );
+        id
+    }
 }
 
 /// A message handler for [ZwpVirtualKeyboardManagerV1] proxies.

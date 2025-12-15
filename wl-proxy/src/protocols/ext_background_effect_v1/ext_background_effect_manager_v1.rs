@@ -277,6 +277,58 @@ impl ExtBackgroundEffectManagerV1 {
             log_send("ext_background_effect_manager_v1.get_background_effect", &e);
         }
     }
+
+    /// get a background effects object
+    ///
+    /// Instantiate an interface extension for the given wl_surface to add
+    /// effects like blur for the background behind it.
+    ///
+    /// If the given wl_surface already has a ext_background_effect_surface_v1
+    /// object associated, the background_effect_exists protocol error will be
+    /// raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new ext_background_effect_surface_v1 object
+    /// - `surface`: the surface
+    #[inline]
+    pub fn new_try_send_get_background_effect(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<ExtBackgroundEffectSurfaceV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_background_effect(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// get a background effects object
+    ///
+    /// Instantiate an interface extension for the given wl_surface to add
+    /// effects like blur for the background behind it.
+    ///
+    /// If the given wl_surface already has a ext_background_effect_surface_v1
+    /// object associated, the background_effect_exists protocol error will be
+    /// raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new ext_background_effect_surface_v1 object
+    /// - `surface`: the surface
+    #[inline]
+    pub fn new_send_get_background_effect(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<ExtBackgroundEffectSurfaceV1> {
+        let id = self.core.create_child();
+        self.send_get_background_effect(
+            &id,
+            surface,
+        );
+        id
+    }
 }
 
 /// A message handler for [ExtBackgroundEffectManagerV1] proxies.

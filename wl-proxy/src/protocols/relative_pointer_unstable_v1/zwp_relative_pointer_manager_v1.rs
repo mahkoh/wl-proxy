@@ -191,6 +191,50 @@ impl ZwpRelativePointerManagerV1 {
             log_send("zwp_relative_pointer_manager_v1.get_relative_pointer", &e);
         }
     }
+
+    /// get a relative pointer object
+    ///
+    /// Create a relative pointer interface given a wl_pointer object. See the
+    /// wp_relative_pointer interface for more details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `pointer`:
+    #[inline]
+    pub fn new_try_send_get_relative_pointer(
+        &self,
+        pointer: &Rc<WlPointer>,
+    ) -> Result<Rc<ZwpRelativePointerV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_relative_pointer(
+            &id,
+            pointer,
+        )?;
+        Ok(id)
+    }
+
+    /// get a relative pointer object
+    ///
+    /// Create a relative pointer interface given a wl_pointer object. See the
+    /// wp_relative_pointer interface for more details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `pointer`:
+    #[inline]
+    pub fn new_send_get_relative_pointer(
+        &self,
+        pointer: &Rc<WlPointer>,
+    ) -> Rc<ZwpRelativePointerV1> {
+        let id = self.core.create_child();
+        self.send_get_relative_pointer(
+            &id,
+            pointer,
+        );
+        id
+    }
 }
 
 /// A message handler for [ZwpRelativePointerManagerV1] proxies.

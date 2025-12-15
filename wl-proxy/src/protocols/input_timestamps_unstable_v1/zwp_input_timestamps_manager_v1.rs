@@ -206,6 +206,62 @@ impl ZwpInputTimestampsManagerV1 {
         }
     }
 
+    /// subscribe to high-resolution keyboard timestamp events
+    ///
+    /// Creates a new input timestamps object that represents a subscription
+    /// to high-resolution timestamp events for all wl_keyboard events that
+    /// carry a timestamp.
+    ///
+    /// If the associated wl_keyboard object is invalidated, either through
+    /// client action (e.g. release) or server-side changes, the input
+    /// timestamps object becomes inert and the client should destroy it
+    /// by calling zwp_input_timestamps_v1.destroy.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `keyboard`: the wl_keyboard object for which to get timestamp events
+    #[inline]
+    pub fn new_try_send_get_keyboard_timestamps(
+        &self,
+        keyboard: &Rc<WlKeyboard>,
+    ) -> Result<Rc<ZwpInputTimestampsV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_keyboard_timestamps(
+            &id,
+            keyboard,
+        )?;
+        Ok(id)
+    }
+
+    /// subscribe to high-resolution keyboard timestamp events
+    ///
+    /// Creates a new input timestamps object that represents a subscription
+    /// to high-resolution timestamp events for all wl_keyboard events that
+    /// carry a timestamp.
+    ///
+    /// If the associated wl_keyboard object is invalidated, either through
+    /// client action (e.g. release) or server-side changes, the input
+    /// timestamps object becomes inert and the client should destroy it
+    /// by calling zwp_input_timestamps_v1.destroy.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `keyboard`: the wl_keyboard object for which to get timestamp events
+    #[inline]
+    pub fn new_send_get_keyboard_timestamps(
+        &self,
+        keyboard: &Rc<WlKeyboard>,
+    ) -> Rc<ZwpInputTimestampsV1> {
+        let id = self.core.create_child();
+        self.send_get_keyboard_timestamps(
+            &id,
+            keyboard,
+        );
+        id
+    }
+
     /// Since when the get_pointer_timestamps message is available.
     pub const MSG__GET_POINTER_TIMESTAMPS__SINCE: u32 = 1;
 
@@ -307,6 +363,62 @@ impl ZwpInputTimestampsManagerV1 {
         }
     }
 
+    /// subscribe to high-resolution pointer timestamp events
+    ///
+    /// Creates a new input timestamps object that represents a subscription
+    /// to high-resolution timestamp events for all wl_pointer events that
+    /// carry a timestamp.
+    ///
+    /// If the associated wl_pointer object is invalidated, either through
+    /// client action (e.g. release) or server-side changes, the input
+    /// timestamps object becomes inert and the client should destroy it
+    /// by calling zwp_input_timestamps_v1.destroy.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `pointer`: the wl_pointer object for which to get timestamp events
+    #[inline]
+    pub fn new_try_send_get_pointer_timestamps(
+        &self,
+        pointer: &Rc<WlPointer>,
+    ) -> Result<Rc<ZwpInputTimestampsV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_pointer_timestamps(
+            &id,
+            pointer,
+        )?;
+        Ok(id)
+    }
+
+    /// subscribe to high-resolution pointer timestamp events
+    ///
+    /// Creates a new input timestamps object that represents a subscription
+    /// to high-resolution timestamp events for all wl_pointer events that
+    /// carry a timestamp.
+    ///
+    /// If the associated wl_pointer object is invalidated, either through
+    /// client action (e.g. release) or server-side changes, the input
+    /// timestamps object becomes inert and the client should destroy it
+    /// by calling zwp_input_timestamps_v1.destroy.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `pointer`: the wl_pointer object for which to get timestamp events
+    #[inline]
+    pub fn new_send_get_pointer_timestamps(
+        &self,
+        pointer: &Rc<WlPointer>,
+    ) -> Rc<ZwpInputTimestampsV1> {
+        let id = self.core.create_child();
+        self.send_get_pointer_timestamps(
+            &id,
+            pointer,
+        );
+        id
+    }
+
     /// Since when the get_touch_timestamps message is available.
     pub const MSG__GET_TOUCH_TIMESTAMPS__SINCE: u32 = 1;
 
@@ -406,6 +518,62 @@ impl ZwpInputTimestampsManagerV1 {
         if let Err(e) = res {
             log_send("zwp_input_timestamps_manager_v1.get_touch_timestamps", &e);
         }
+    }
+
+    /// subscribe to high-resolution touch timestamp events
+    ///
+    /// Creates a new input timestamps object that represents a subscription
+    /// to high-resolution timestamp events for all wl_touch events that
+    /// carry a timestamp.
+    ///
+    /// If the associated wl_touch object becomes invalid, either through
+    /// client action (e.g. release) or server-side changes, the input
+    /// timestamps object becomes inert and the client should destroy it
+    /// by calling zwp_input_timestamps_v1.destroy.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `touch`: the wl_touch object for which to get timestamp events
+    #[inline]
+    pub fn new_try_send_get_touch_timestamps(
+        &self,
+        touch: &Rc<WlTouch>,
+    ) -> Result<Rc<ZwpInputTimestampsV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_touch_timestamps(
+            &id,
+            touch,
+        )?;
+        Ok(id)
+    }
+
+    /// subscribe to high-resolution touch timestamp events
+    ///
+    /// Creates a new input timestamps object that represents a subscription
+    /// to high-resolution timestamp events for all wl_touch events that
+    /// carry a timestamp.
+    ///
+    /// If the associated wl_touch object becomes invalid, either through
+    /// client action (e.g. release) or server-side changes, the input
+    /// timestamps object becomes inert and the client should destroy it
+    /// by calling zwp_input_timestamps_v1.destroy.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `touch`: the wl_touch object for which to get timestamp events
+    #[inline]
+    pub fn new_send_get_touch_timestamps(
+        &self,
+        touch: &Rc<WlTouch>,
+    ) -> Rc<ZwpInputTimestampsV1> {
+        let id = self.core.create_child();
+        self.send_get_touch_timestamps(
+            &id,
+            touch,
+        );
+        id
     }
 }
 

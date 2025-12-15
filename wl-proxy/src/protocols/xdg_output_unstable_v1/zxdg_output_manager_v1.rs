@@ -192,6 +192,48 @@ impl ZxdgOutputManagerV1 {
             log_send("zxdg_output_manager_v1.get_xdg_output", &e);
         }
     }
+
+    /// create an xdg output from a wl_output
+    ///
+    /// This creates a new xdg_output object for the given wl_output.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `output`:
+    #[inline]
+    pub fn new_try_send_get_xdg_output(
+        &self,
+        output: &Rc<WlOutput>,
+    ) -> Result<Rc<ZxdgOutputV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_xdg_output(
+            &id,
+            output,
+        )?;
+        Ok(id)
+    }
+
+    /// create an xdg output from a wl_output
+    ///
+    /// This creates a new xdg_output object for the given wl_output.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `output`:
+    #[inline]
+    pub fn new_send_get_xdg_output(
+        &self,
+        output: &Rc<WlOutput>,
+    ) -> Rc<ZxdgOutputV1> {
+        let id = self.core.create_child();
+        self.send_get_xdg_output(
+            &id,
+            output,
+        );
+        id
+    }
 }
 
 /// A message handler for [ZxdgOutputManagerV1] proxies.

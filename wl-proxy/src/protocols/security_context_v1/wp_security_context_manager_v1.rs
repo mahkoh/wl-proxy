@@ -236,6 +236,82 @@ impl WpSecurityContextManagerV1 {
             log_send("wp_security_context_manager_v1.create_listener", &e);
         }
     }
+
+    /// create a new security context
+    ///
+    /// Creates a new security context with a socket listening FD.
+    ///
+    /// The compositor will accept new client connections on listen_fd.
+    /// listen_fd must be ready to accept new connections when this request is
+    /// sent by the client. In other words, the client must call bind(2) and
+    /// listen(2) before sending the FD.
+    ///
+    /// close_fd is a FD that will signal hangup when the compositor should stop
+    /// accepting new connections on listen_fd.
+    ///
+    /// The compositor must continue to accept connections on listen_fd when
+    /// the Wayland client which created the security context disconnects.
+    ///
+    /// After sending this request, closing listen_fd and close_fd remains the
+    /// only valid operation on them.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `listen_fd`: listening socket FD
+    /// - `close_fd`: FD signaling when done
+    #[inline]
+    pub fn new_try_send_create_listener(
+        &self,
+        listen_fd: &Rc<OwnedFd>,
+        close_fd: &Rc<OwnedFd>,
+    ) -> Result<Rc<WpSecurityContextV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_listener(
+            &id,
+            listen_fd,
+            close_fd,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new security context
+    ///
+    /// Creates a new security context with a socket listening FD.
+    ///
+    /// The compositor will accept new client connections on listen_fd.
+    /// listen_fd must be ready to accept new connections when this request is
+    /// sent by the client. In other words, the client must call bind(2) and
+    /// listen(2) before sending the FD.
+    ///
+    /// close_fd is a FD that will signal hangup when the compositor should stop
+    /// accepting new connections on listen_fd.
+    ///
+    /// The compositor must continue to accept connections on listen_fd when
+    /// the Wayland client which created the security context disconnects.
+    ///
+    /// After sending this request, closing listen_fd and close_fd remains the
+    /// only valid operation on them.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `listen_fd`: listening socket FD
+    /// - `close_fd`: FD signaling when done
+    #[inline]
+    pub fn new_send_create_listener(
+        &self,
+        listen_fd: &Rc<OwnedFd>,
+        close_fd: &Rc<OwnedFd>,
+    ) -> Rc<WpSecurityContextV1> {
+        let id = self.core.create_child();
+        self.send_create_listener(
+            &id,
+            listen_fd,
+            close_fd,
+        );
+        id
+    }
 }
 
 /// A message handler for [WpSecurityContextManagerV1] proxies.

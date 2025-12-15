@@ -214,6 +214,68 @@ impl ExtIdleNotifierV1 {
         }
     }
 
+    /// create a notification object
+    ///
+    /// Create a new idle notification object.
+    ///
+    /// The notification object has a minimum timeout duration and is tied to a
+    /// seat. The client will be notified if the seat is inactive for at least
+    /// the provided timeout. See ext_idle_notification_v1 for more details.
+    ///
+    /// A zero timeout is valid and means the client wants to be notified as
+    /// soon as possible when the seat is inactive.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `timeout`: minimum idle timeout in msec
+    /// - `seat`:
+    #[inline]
+    pub fn new_try_send_get_idle_notification(
+        &self,
+        timeout: u32,
+        seat: &Rc<WlSeat>,
+    ) -> Result<Rc<ExtIdleNotificationV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_idle_notification(
+            &id,
+            timeout,
+            seat,
+        )?;
+        Ok(id)
+    }
+
+    /// create a notification object
+    ///
+    /// Create a new idle notification object.
+    ///
+    /// The notification object has a minimum timeout duration and is tied to a
+    /// seat. The client will be notified if the seat is inactive for at least
+    /// the provided timeout. See ext_idle_notification_v1 for more details.
+    ///
+    /// A zero timeout is valid and means the client wants to be notified as
+    /// soon as possible when the seat is inactive.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `timeout`: minimum idle timeout in msec
+    /// - `seat`:
+    #[inline]
+    pub fn new_send_get_idle_notification(
+        &self,
+        timeout: u32,
+        seat: &Rc<WlSeat>,
+    ) -> Rc<ExtIdleNotificationV1> {
+        let id = self.core.create_child();
+        self.send_get_idle_notification(
+            &id,
+            timeout,
+            seat,
+        );
+        id
+    }
+
     /// Since when the get_input_idle_notification message is available.
     pub const MSG__GET_INPUT_IDLE_NOTIFICATION__SINCE: u32 = 2;
 
@@ -325,6 +387,72 @@ impl ExtIdleNotifierV1 {
         if let Err(e) = res {
             log_send("ext_idle_notifier_v1.get_input_idle_notification", &e);
         }
+    }
+
+    /// create a notification object
+    ///
+    /// Create a new idle notification object to track input from the
+    /// user, such as keyboard and mouse movement. Because this object is
+    /// meant to track user input alone, it ignores idle inhibitors.
+    ///
+    /// The notification object has a minimum timeout duration and is tied to a
+    /// seat. The client will be notified if the seat is inactive for at least
+    /// the provided timeout. See ext_idle_notification_v1 for more details.
+    ///
+    /// A zero timeout is valid and means the client wants to be notified as
+    /// soon as possible when the seat is inactive.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `timeout`: minimum idle timeout in msec
+    /// - `seat`:
+    #[inline]
+    pub fn new_try_send_get_input_idle_notification(
+        &self,
+        timeout: u32,
+        seat: &Rc<WlSeat>,
+    ) -> Result<Rc<ExtIdleNotificationV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_input_idle_notification(
+            &id,
+            timeout,
+            seat,
+        )?;
+        Ok(id)
+    }
+
+    /// create a notification object
+    ///
+    /// Create a new idle notification object to track input from the
+    /// user, such as keyboard and mouse movement. Because this object is
+    /// meant to track user input alone, it ignores idle inhibitors.
+    ///
+    /// The notification object has a minimum timeout duration and is tied to a
+    /// seat. The client will be notified if the seat is inactive for at least
+    /// the provided timeout. See ext_idle_notification_v1 for more details.
+    ///
+    /// A zero timeout is valid and means the client wants to be notified as
+    /// soon as possible when the seat is inactive.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `timeout`: minimum idle timeout in msec
+    /// - `seat`:
+    #[inline]
+    pub fn new_send_get_input_idle_notification(
+        &self,
+        timeout: u32,
+        seat: &Rc<WlSeat>,
+    ) -> Rc<ExtIdleNotificationV1> {
+        let id = self.core.create_child();
+        self.send_get_input_idle_notification(
+            &id,
+            timeout,
+            seat,
+        );
+        id
     }
 }
 

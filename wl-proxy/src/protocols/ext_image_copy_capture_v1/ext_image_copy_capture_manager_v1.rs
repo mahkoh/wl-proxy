@@ -157,6 +157,68 @@ impl ExtImageCopyCaptureManagerV1 {
         }
     }
 
+    /// capture an image capture source
+    ///
+    /// Create a capturing session for an image capture source.
+    ///
+    /// If the paint_cursors option is set, cursors shall be composited onto
+    /// the captured frame. The cursor must not be composited onto the frame
+    /// if this flag is not set.
+    ///
+    /// If the options bitfield is invalid, the invalid_option protocol error
+    /// is sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `session`:
+    /// - `source`:
+    /// - `options`:
+    #[inline]
+    pub fn new_try_send_create_session(
+        &self,
+        source: &Rc<ExtImageCaptureSourceV1>,
+        options: ExtImageCopyCaptureManagerV1Options,
+    ) -> Result<Rc<ExtImageCopyCaptureSessionV1>, ObjectError> {
+        let session = self.core.create_child();
+        self.try_send_create_session(
+            &session,
+            source,
+            options,
+        )?;
+        Ok(session)
+    }
+
+    /// capture an image capture source
+    ///
+    /// Create a capturing session for an image capture source.
+    ///
+    /// If the paint_cursors option is set, cursors shall be composited onto
+    /// the captured frame. The cursor must not be composited onto the frame
+    /// if this flag is not set.
+    ///
+    /// If the options bitfield is invalid, the invalid_option protocol error
+    /// is sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `session`:
+    /// - `source`:
+    /// - `options`:
+    #[inline]
+    pub fn new_send_create_session(
+        &self,
+        source: &Rc<ExtImageCaptureSourceV1>,
+        options: ExtImageCopyCaptureManagerV1Options,
+    ) -> Rc<ExtImageCopyCaptureSessionV1> {
+        let session = self.core.create_child();
+        self.send_create_session(
+            &session,
+            source,
+            options,
+        );
+        session
+    }
+
     /// Since when the create_pointer_cursor_session message is available.
     pub const MSG__CREATE_POINTER_CURSOR_SESSION__SINCE: u32 = 1;
 
@@ -257,6 +319,56 @@ impl ExtImageCopyCaptureManagerV1 {
         if let Err(e) = res {
             log_send("ext_image_copy_capture_manager_v1.create_pointer_cursor_session", &e);
         }
+    }
+
+    /// capture the pointer cursor of an image capture source
+    ///
+    /// Create a cursor capturing session for the pointer of an image capture
+    /// source.
+    ///
+    /// # Arguments
+    ///
+    /// - `session`:
+    /// - `source`:
+    /// - `pointer`:
+    #[inline]
+    pub fn new_try_send_create_pointer_cursor_session(
+        &self,
+        source: &Rc<ExtImageCaptureSourceV1>,
+        pointer: &Rc<WlPointer>,
+    ) -> Result<Rc<ExtImageCopyCaptureCursorSessionV1>, ObjectError> {
+        let session = self.core.create_child();
+        self.try_send_create_pointer_cursor_session(
+            &session,
+            source,
+            pointer,
+        )?;
+        Ok(session)
+    }
+
+    /// capture the pointer cursor of an image capture source
+    ///
+    /// Create a cursor capturing session for the pointer of an image capture
+    /// source.
+    ///
+    /// # Arguments
+    ///
+    /// - `session`:
+    /// - `source`:
+    /// - `pointer`:
+    #[inline]
+    pub fn new_send_create_pointer_cursor_session(
+        &self,
+        source: &Rc<ExtImageCaptureSourceV1>,
+        pointer: &Rc<WlPointer>,
+    ) -> Rc<ExtImageCopyCaptureCursorSessionV1> {
+        let session = self.core.create_child();
+        self.send_create_pointer_cursor_session(
+            &session,
+            source,
+            pointer,
+        );
+        session
     }
 
     /// Since when the destroy message is available.

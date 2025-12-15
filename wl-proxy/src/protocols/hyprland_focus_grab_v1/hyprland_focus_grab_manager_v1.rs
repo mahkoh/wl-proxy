@@ -113,6 +113,34 @@ impl HyprlandFocusGrabManagerV1 {
         }
     }
 
+    /// create a focus grab object
+    ///
+    /// Create a surface grab object.
+    #[inline]
+    pub fn new_try_send_create_grab(
+        &self,
+    ) -> Result<Rc<HyprlandFocusGrabV1>, ObjectError> {
+        let grab = self.core.create_child();
+        self.try_send_create_grab(
+            &grab,
+        )?;
+        Ok(grab)
+    }
+
+    /// create a focus grab object
+    ///
+    /// Create a surface grab object.
+    #[inline]
+    pub fn new_send_create_grab(
+        &self,
+    ) -> Rc<HyprlandFocusGrabV1> {
+        let grab = self.core.create_child();
+        self.send_create_grab(
+            &grab,
+        );
+        grab
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 

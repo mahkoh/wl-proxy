@@ -221,6 +221,60 @@ impl ZxdgDecorationManagerV1 {
             log_send("zxdg_decoration_manager_v1.get_toplevel_decoration", &e);
         }
     }
+
+    /// create a new toplevel decoration object
+    ///
+    /// Create a new decoration object associated with the given toplevel.
+    ///
+    /// Creating an xdg_toplevel_decoration from an xdg_toplevel which has a
+    /// buffer attached or committed is a client error, and any attempts by a
+    /// client to attach or manipulate a buffer prior to the first
+    /// xdg_toplevel_decoration.configure event must also be treated as
+    /// errors.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `toplevel`:
+    #[inline]
+    pub fn new_try_send_get_toplevel_decoration(
+        &self,
+        toplevel: &Rc<XdgToplevel>,
+    ) -> Result<Rc<ZxdgToplevelDecorationV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_toplevel_decoration(
+            &id,
+            toplevel,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new toplevel decoration object
+    ///
+    /// Create a new decoration object associated with the given toplevel.
+    ///
+    /// Creating an xdg_toplevel_decoration from an xdg_toplevel which has a
+    /// buffer attached or committed is a client error, and any attempts by a
+    /// client to attach or manipulate a buffer prior to the first
+    /// xdg_toplevel_decoration.configure event must also be treated as
+    /// errors.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `toplevel`:
+    #[inline]
+    pub fn new_send_get_toplevel_decoration(
+        &self,
+        toplevel: &Rc<XdgToplevel>,
+    ) -> Rc<ZxdgToplevelDecorationV1> {
+        let id = self.core.create_child();
+        self.send_get_toplevel_decoration(
+            &id,
+            toplevel,
+        );
+        id
+    }
 }
 
 /// A message handler for [ZxdgDecorationManagerV1] proxies.

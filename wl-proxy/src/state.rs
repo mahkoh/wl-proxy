@@ -639,7 +639,7 @@ impl State {
         self.check_destroyed()?;
         let id = self.create_pollable_id();
         self.poller
-            .register(id, &socket)
+            .register(id, socket)
             .map_err(StateErrorKind::PollError)?;
         let endpoint = Endpoint::new(id, socket);
         self.change_interest(&endpoint, |i| i | poll::READABLE);

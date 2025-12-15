@@ -143,6 +143,54 @@ impl ZwlrScreencopyManagerV1 {
         }
     }
 
+    /// capture an output
+    ///
+    /// Capture the next frame of an entire output.
+    ///
+    /// # Arguments
+    ///
+    /// - `frame`:
+    /// - `overlay_cursor`: composite cursor onto the frame
+    /// - `output`:
+    #[inline]
+    pub fn new_try_send_capture_output(
+        &self,
+        overlay_cursor: i32,
+        output: &Rc<WlOutput>,
+    ) -> Result<Rc<ZwlrScreencopyFrameV1>, ObjectError> {
+        let frame = self.core.create_child();
+        self.try_send_capture_output(
+            &frame,
+            overlay_cursor,
+            output,
+        )?;
+        Ok(frame)
+    }
+
+    /// capture an output
+    ///
+    /// Capture the next frame of an entire output.
+    ///
+    /// # Arguments
+    ///
+    /// - `frame`:
+    /// - `overlay_cursor`: composite cursor onto the frame
+    /// - `output`:
+    #[inline]
+    pub fn new_send_capture_output(
+        &self,
+        overlay_cursor: i32,
+        output: &Rc<WlOutput>,
+    ) -> Rc<ZwlrScreencopyFrameV1> {
+        let frame = self.core.create_child();
+        self.send_capture_output(
+            &frame,
+            overlay_cursor,
+            output,
+        );
+        frame
+    }
+
     /// Since when the capture_output_region message is available.
     pub const MSG__CAPTURE_OUTPUT_REGION__SINCE: u32 = 1;
 
@@ -276,6 +324,86 @@ impl ZwlrScreencopyManagerV1 {
         if let Err(e) = res {
             log_send("zwlr_screencopy_manager_v1.capture_output_region", &e);
         }
+    }
+
+    /// capture an output's region
+    ///
+    /// Capture the next frame of an output's region.
+    ///
+    /// The region is given in output logical coordinates, see
+    /// xdg_output.logical_size. The region will be clipped to the output's
+    /// extents.
+    ///
+    /// # Arguments
+    ///
+    /// - `frame`:
+    /// - `overlay_cursor`: composite cursor onto the frame
+    /// - `output`:
+    /// - `x`:
+    /// - `y`:
+    /// - `width`:
+    /// - `height`:
+    #[inline]
+    pub fn new_try_send_capture_output_region(
+        &self,
+        overlay_cursor: i32,
+        output: &Rc<WlOutput>,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    ) -> Result<Rc<ZwlrScreencopyFrameV1>, ObjectError> {
+        let frame = self.core.create_child();
+        self.try_send_capture_output_region(
+            &frame,
+            overlay_cursor,
+            output,
+            x,
+            y,
+            width,
+            height,
+        )?;
+        Ok(frame)
+    }
+
+    /// capture an output's region
+    ///
+    /// Capture the next frame of an output's region.
+    ///
+    /// The region is given in output logical coordinates, see
+    /// xdg_output.logical_size. The region will be clipped to the output's
+    /// extents.
+    ///
+    /// # Arguments
+    ///
+    /// - `frame`:
+    /// - `overlay_cursor`: composite cursor onto the frame
+    /// - `output`:
+    /// - `x`:
+    /// - `y`:
+    /// - `width`:
+    /// - `height`:
+    #[inline]
+    pub fn new_send_capture_output_region(
+        &self,
+        overlay_cursor: i32,
+        output: &Rc<WlOutput>,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    ) -> Rc<ZwlrScreencopyFrameV1> {
+        let frame = self.core.create_child();
+        self.send_capture_output_region(
+            &frame,
+            overlay_cursor,
+            output,
+            x,
+            y,
+            width,
+            height,
+        );
+        frame
     }
 
     /// Since when the destroy message is available.

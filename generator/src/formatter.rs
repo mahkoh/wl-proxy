@@ -401,7 +401,7 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
         }
         wl!(r#"    ) {{"#)?;
         wl!(r#"        let res = self.try_send_{}("#, msg.name)?;
-        for (_, arg) in msg.args.iter().enumerate() {
+        for arg in &msg.args {
             let name = escape_name(&arg.name);
             wl!(r#"            {name},"#)?;
         }
@@ -414,6 +414,82 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
         )?;
         wl!(r#"        }}"#)?;
         wl!(r#"    }}"#)?;
+        let new_id = msg
+            .args
+            .iter()
+            .find(|a| a.ty == ArgType::NewId && a.interface.is_some());
+        if let Some(new_id) = new_id {
+            let new_interface_snake = new_id.interface.as_ref().unwrap();
+            let new_interface_camel = format_camel(new_interface_snake);
+            wl!()?;
+            format_message_doc(w, true, msg)?;
+            wl!(r#"    #[inline]"#)?;
+            w!(r#"    pub fn new_try_send_{}"#, &msg.name)?;
+            wl!(r#"("#)?;
+            wl!(r#"        &self,"#)?;
+            for (idx, arg) in msg.args.iter().enumerate() {
+                if arg.ty == ArgType::NewId {
+                    continue;
+                }
+                let name = escape_name(&arg.name);
+                if interface.is_wl_registry && msg.name == "global" && idx == 1 {
+                    wl!(r#"        {name}: ObjectInterface,"#)?;
+                } else {
+                    wl!(r#"        {name}: {},"#, arg_type(interface, arg))?;
+                }
+            }
+            wl!(r#"    ) -> Result<Rc<{new_interface_camel}>, ObjectError> {{"#)?;
+            wl!(
+                r#"        let {} = self.core.create_child();"#,
+                escape_name(&new_id.name)
+            )?;
+            wl!(r#"        self.try_send_{}("#, msg.name)?;
+            for arg in &msg.args {
+                let mut ref_ = "";
+                if arg.ty == ArgType::NewId {
+                    ref_ = "&";
+                }
+                let name = escape_name(&arg.name);
+                wl!(r#"            {ref_}{name},"#)?;
+            }
+            wl!(r#"        )?;"#)?;
+            wl!(r#"        Ok({})"#, escape_name(&new_id.name))?;
+            wl!(r#"    }}"#)?;
+            wl!()?;
+            format_message_doc(w, true, msg)?;
+            wl!(r#"    #[inline]"#)?;
+            w!(r#"    pub fn new_send_{}"#, &msg.name)?;
+            wl!(r#"("#)?;
+            wl!(r#"        &self,"#)?;
+            for (idx, arg) in msg.args.iter().enumerate() {
+                if arg.ty == ArgType::NewId {
+                    continue;
+                }
+                let name = escape_name(&arg.name);
+                if interface.is_wl_registry && msg.name == "global" && idx == 1 {
+                    wl!(r#"        {name}: ObjectInterface,"#)?;
+                } else {
+                    wl!(r#"        {name}: {},"#, arg_type(interface, arg))?;
+                }
+            }
+            wl!(r#"    ) -> Rc<{new_interface_camel}> {{"#)?;
+            wl!(
+                r#"        let {} = self.core.create_child();"#,
+                escape_name(&new_id.name)
+            )?;
+            wl!(r#"        self.send_{}("#, msg.name)?;
+            for arg in &msg.args {
+                let mut ref_ = "";
+                if arg.ty == ArgType::NewId {
+                    ref_ = "&";
+                }
+                let name = escape_name(&arg.name);
+                wl!(r#"            {ref_}{name},"#)?;
+            }
+            wl!(r#"        );"#)?;
+            wl!(r#"        {}"#, escape_name(&new_id.name))?;
+            wl!(r#"    }}"#)?;
+        }
     }
     wl!(r#"}}"#)?;
     Ok(())

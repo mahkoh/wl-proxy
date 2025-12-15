@@ -200,6 +200,54 @@ impl WpContentTypeManagerV1 {
             log_send("wp_content_type_manager_v1.get_surface_content_type", &e);
         }
     }
+
+    /// create a new content type object
+    ///
+    /// Create a new content type object associated with the given surface.
+    ///
+    /// Creating a wp_content_type_v1 from a wl_surface which already has one
+    /// attached is a client error: already_constructed.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_try_send_get_surface_content_type(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<WpContentTypeV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_surface_content_type(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new content type object
+    ///
+    /// Create a new content type object associated with the given surface.
+    ///
+    /// Creating a wp_content_type_v1 from a wl_surface which already has one
+    /// attached is a client error: already_constructed.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_send_get_surface_content_type(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<WpContentTypeV1> {
+        let id = self.core.create_child();
+        self.send_get_surface_content_type(
+            &id,
+            surface,
+        );
+        id
+    }
 }
 
 /// A message handler for [WpContentTypeManagerV1] proxies.

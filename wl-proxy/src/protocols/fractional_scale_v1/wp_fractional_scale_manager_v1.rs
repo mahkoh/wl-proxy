@@ -196,6 +196,54 @@ impl WpFractionalScaleManagerV1 {
             log_send("wp_fractional_scale_manager_v1.get_fractional_scale", &e);
         }
     }
+
+    /// extend surface interface for scale information
+    ///
+    /// Create an add-on object for the the wl_surface to let the compositor
+    /// request fractional scales. If the given wl_surface already has a
+    /// wp_fractional_scale_v1 object associated, the fractional_scale_exists
+    /// protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new surface scale info interface id
+    /// - `surface`: the surface
+    #[inline]
+    pub fn new_try_send_get_fractional_scale(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<WpFractionalScaleV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_fractional_scale(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// extend surface interface for scale information
+    ///
+    /// Create an add-on object for the the wl_surface to let the compositor
+    /// request fractional scales. If the given wl_surface already has a
+    /// wp_fractional_scale_v1 object associated, the fractional_scale_exists
+    /// protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new surface scale info interface id
+    /// - `surface`: the surface
+    #[inline]
+    pub fn new_send_get_fractional_scale(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<WpFractionalScaleV1> {
+        let id = self.core.create_child();
+        self.send_get_fractional_scale(
+            &id,
+            surface,
+        );
+        id
+    }
 }
 
 /// A message handler for [WpFractionalScaleManagerV1] proxies.

@@ -227,6 +227,68 @@ impl ZwpLinuxExplicitSynchronizationV1 {
             log_send("zwp_linux_explicit_synchronization_v1.get_synchronization", &e);
         }
     }
+
+    /// extend surface interface for explicit synchronization
+    ///
+    /// Instantiate an interface extension for the given wl_surface to provide
+    /// explicit synchronization.
+    ///
+    /// If the given wl_surface already has an explicit synchronization object
+    /// associated, the synchronization_exists protocol error is raised.
+    ///
+    /// Graphics APIs, like EGL or Vulkan, that manage the buffer queue and
+    /// commits of a wl_surface themselves, are likely to be using this
+    /// extension internally. If a client is using such an API for a
+    /// wl_surface, it should not directly use this extension on that surface,
+    /// to avoid raising a synchronization_exists protocol error.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new synchronization interface id
+    /// - `surface`: the surface
+    #[inline]
+    pub fn new_try_send_get_synchronization(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<ZwpLinuxSurfaceSynchronizationV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_synchronization(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// extend surface interface for explicit synchronization
+    ///
+    /// Instantiate an interface extension for the given wl_surface to provide
+    /// explicit synchronization.
+    ///
+    /// If the given wl_surface already has an explicit synchronization object
+    /// associated, the synchronization_exists protocol error is raised.
+    ///
+    /// Graphics APIs, like EGL or Vulkan, that manage the buffer queue and
+    /// commits of a wl_surface themselves, are likely to be using this
+    /// extension internally. If a client is using such an API for a
+    /// wl_surface, it should not directly use this extension on that surface,
+    /// to avoid raising a synchronization_exists protocol error.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new synchronization interface id
+    /// - `surface`: the surface
+    #[inline]
+    pub fn new_send_get_synchronization(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<ZwpLinuxSurfaceSynchronizationV1> {
+        let id = self.core.create_child();
+        self.send_get_synchronization(
+            &id,
+            surface,
+        );
+        id
+    }
 }
 
 /// A message handler for [ZwpLinuxExplicitSynchronizationV1] proxies.

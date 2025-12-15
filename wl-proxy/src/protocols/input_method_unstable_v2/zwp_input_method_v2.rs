@@ -1186,6 +1186,58 @@ impl ZwpInputMethodV2 {
         }
     }
 
+    /// create popup surface
+    ///
+    /// Creates a new zwp_input_popup_surface_v2 object wrapping a given
+    /// surface.
+    ///
+    /// The surface gets assigned the "input_popup" role. If the surface
+    /// already has an assigned role, the compositor must issue a protocol
+    /// error.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_try_send_get_input_popup_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<ZwpInputPopupSurfaceV2>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_input_popup_surface(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// create popup surface
+    ///
+    /// Creates a new zwp_input_popup_surface_v2 object wrapping a given
+    /// surface.
+    ///
+    /// The surface gets assigned the "input_popup" role. If the surface
+    /// already has an assigned role, the compositor must issue a protocol
+    /// error.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_send_get_input_popup_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<ZwpInputPopupSurfaceV2> {
+        let id = self.core.create_child();
+        self.send_get_input_popup_surface(
+            &id,
+            surface,
+        );
+        id
+    }
+
     /// Since when the grab_keyboard message is available.
     pub const MSG__GRAB_KEYBOARD__SINCE: u32 = 1;
 
@@ -1272,6 +1324,56 @@ impl ZwpInputMethodV2 {
         if let Err(e) = res {
             log_send("zwp_input_method_v2.grab_keyboard", &e);
         }
+    }
+
+    /// grab hardware keyboard
+    ///
+    /// Allow an input method to receive hardware keyboard input and process
+    /// key events to generate text events (with pre-edit) over the wire. This
+    /// allows input methods which compose multiple key events for inputting
+    /// text like it is done for CJK languages.
+    ///
+    /// The compositor should send all keyboard events on the seat to the grab
+    /// holder via the returned wl_keyboard object. Nevertheless, the
+    /// compositor may decide not to forward any particular event. The
+    /// compositor must not further process any event after it has been
+    /// forwarded to the grab holder.
+    ///
+    /// Releasing the resulting wl_keyboard object releases the grab.
+    #[inline]
+    pub fn new_try_send_grab_keyboard(
+        &self,
+    ) -> Result<Rc<ZwpInputMethodKeyboardGrabV2>, ObjectError> {
+        let keyboard = self.core.create_child();
+        self.try_send_grab_keyboard(
+            &keyboard,
+        )?;
+        Ok(keyboard)
+    }
+
+    /// grab hardware keyboard
+    ///
+    /// Allow an input method to receive hardware keyboard input and process
+    /// key events to generate text events (with pre-edit) over the wire. This
+    /// allows input methods which compose multiple key events for inputting
+    /// text like it is done for CJK languages.
+    ///
+    /// The compositor should send all keyboard events on the seat to the grab
+    /// holder via the returned wl_keyboard object. Nevertheless, the
+    /// compositor may decide not to forward any particular event. The
+    /// compositor must not further process any event after it has been
+    /// forwarded to the grab holder.
+    ///
+    /// Releasing the resulting wl_keyboard object releases the grab.
+    #[inline]
+    pub fn new_send_grab_keyboard(
+        &self,
+    ) -> Rc<ZwpInputMethodKeyboardGrabV2> {
+        let keyboard = self.core.create_child();
+        self.send_grab_keyboard(
+            &keyboard,
+        );
+        keyboard
     }
 
     /// Since when the unavailable message is available.

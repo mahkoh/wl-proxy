@@ -112,6 +112,28 @@ impl TreelandDdeShellManagerV1 {
         }
     }
 
+    #[inline]
+    pub fn new_try_send_get_window_overlap_checker(
+        &self,
+    ) -> Result<Rc<TreelandWindowOverlapChecker>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_window_overlap_checker(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    #[inline]
+    pub fn new_send_get_window_overlap_checker(
+        &self,
+    ) -> Rc<TreelandWindowOverlapChecker> {
+        let id = self.core.create_child();
+        self.send_get_window_overlap_checker(
+            &id,
+        );
+        id
+    }
+
     /// Since when the get_shell_surface message is available.
     pub const MSG__GET_SHELL_SURFACE__SINCE: u32 = 1;
 
@@ -207,6 +229,56 @@ impl TreelandDdeShellManagerV1 {
         }
     }
 
+    /// create a shell surface from a surface
+    ///
+    /// Create a shell surface for an existing wl_surface.
+    ///
+    /// Only one shell surface can be associated with a given surface.
+    ///
+    /// Recommended for use with xdg_surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_try_send_get_shell_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<TreelandDdeShellSurfaceV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_shell_surface(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// create a shell surface from a surface
+    ///
+    /// Create a shell surface for an existing wl_surface.
+    ///
+    /// Only one shell surface can be associated with a given surface.
+    ///
+    /// Recommended for use with xdg_surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_send_get_shell_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<TreelandDdeShellSurfaceV1> {
+        let id = self.core.create_child();
+        self.send_get_shell_surface(
+            &id,
+            surface,
+        );
+        id
+    }
+
     /// Since when the get_treeland_dde_active message is available.
     pub const MSG__GET_TREELAND_DDE_ACTIVE__SINCE: u32 = 1;
 
@@ -294,6 +366,48 @@ impl TreelandDdeShellManagerV1 {
         }
     }
 
+    /// create a new dde active
+    ///
+    /// Create a new dde active for a given seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `seat`: seat associated with the dde_active
+    #[inline]
+    pub fn new_try_send_get_treeland_dde_active(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) -> Result<Rc<TreelandDdeActiveV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_treeland_dde_active(
+            &id,
+            seat,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new dde active
+    ///
+    /// Create a new dde active for a given seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `seat`: seat associated with the dde_active
+    #[inline]
+    pub fn new_send_get_treeland_dde_active(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) -> Rc<TreelandDdeActiveV1> {
+        let id = self.core.create_child();
+        self.send_get_treeland_dde_active(
+            &id,
+            seat,
+        );
+        id
+    }
+
     /// Since when the get_treeland_multitaskview message is available.
     pub const MSG__GET_TREELAND_MULTITASKVIEW__SINCE: u32 = 1;
 
@@ -358,6 +472,34 @@ impl TreelandDdeShellManagerV1 {
         if let Err(e) = res {
             log_send("treeland_dde_shell_manager_v1.get_treeland_multitaskview", &e);
         }
+    }
+
+    /// create a new multitaskview context
+    ///
+    /// Create a new multitaskview context for toggle.
+    #[inline]
+    pub fn new_try_send_get_treeland_multitaskview(
+        &self,
+    ) -> Result<Rc<TreelandMultitaskviewV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_treeland_multitaskview(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new multitaskview context
+    ///
+    /// Create a new multitaskview context for toggle.
+    #[inline]
+    pub fn new_send_get_treeland_multitaskview(
+        &self,
+    ) -> Rc<TreelandMultitaskviewV1> {
+        let id = self.core.create_child();
+        self.send_get_treeland_multitaskview(
+            &id,
+        );
+        id
     }
 
     /// Since when the get_treeland_window_picker message is available.
@@ -426,6 +568,34 @@ impl TreelandDdeShellManagerV1 {
         }
     }
 
+    /// create a new window picker
+    ///
+    /// Create a new window picker to pick window.
+    #[inline]
+    pub fn new_try_send_get_treeland_window_picker(
+        &self,
+    ) -> Result<Rc<TreelandWindowPickerV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_treeland_window_picker(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new window picker
+    ///
+    /// Create a new window picker to pick window.
+    #[inline]
+    pub fn new_send_get_treeland_window_picker(
+        &self,
+    ) -> Rc<TreelandWindowPickerV1> {
+        let id = self.core.create_child();
+        self.send_get_treeland_window_picker(
+            &id,
+        );
+        id
+    }
+
     /// Since when the get_treeland_lockscreen message is available.
     pub const MSG__GET_TREELAND_LOCKSCREEN__SINCE: u32 = 1;
 
@@ -490,6 +660,34 @@ impl TreelandDdeShellManagerV1 {
         if let Err(e) = res {
             log_send("treeland_dde_shell_manager_v1.get_treeland_lockscreen", &e);
         }
+    }
+
+    /// create a new lockscreen context
+    ///
+    /// Create a new lockscreen context for toggle.
+    #[inline]
+    pub fn new_try_send_get_treeland_lockscreen(
+        &self,
+    ) -> Result<Rc<TreelandLockscreenV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_treeland_lockscreen(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new lockscreen context
+    ///
+    /// Create a new lockscreen context for toggle.
+    #[inline]
+    pub fn new_send_get_treeland_lockscreen(
+        &self,
+    ) -> Rc<TreelandLockscreenV1> {
+        let id = self.core.create_child();
+        self.send_get_treeland_lockscreen(
+            &id,
+        );
+        id
     }
 }
 

@@ -275,6 +275,48 @@ impl ExtDataControlDeviceV1 {
         }
     }
 
+    /// introduce a new ext_data_control_offer
+    ///
+    /// The data_offer event introduces a new ext_data_control_offer object,
+    /// which will subsequently be used in either the
+    /// ext_data_control_device.selection event (for the regular clipboard
+    /// selections) or the ext_data_control_device.primary_selection event (for
+    /// the primary clipboard selections). Immediately following the
+    /// ext_data_control_device.data_offer event, the new data_offer object
+    /// will send out ext_data_control_offer.offer events to describe the MIME
+    /// types it offers.
+    #[inline]
+    pub fn new_try_send_data_offer(
+        &self,
+    ) -> Result<Rc<ExtDataControlOfferV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_data_offer(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// introduce a new ext_data_control_offer
+    ///
+    /// The data_offer event introduces a new ext_data_control_offer object,
+    /// which will subsequently be used in either the
+    /// ext_data_control_device.selection event (for the regular clipboard
+    /// selections) or the ext_data_control_device.primary_selection event (for
+    /// the primary clipboard selections). Immediately following the
+    /// ext_data_control_device.data_offer event, the new data_offer object
+    /// will send out ext_data_control_offer.offer events to describe the MIME
+    /// types it offers.
+    #[inline]
+    pub fn new_send_data_offer(
+        &self,
+    ) -> Rc<ExtDataControlOfferV1> {
+        let id = self.core.create_child();
+        self.send_data_offer(
+            &id,
+        );
+        id
+    }
+
     /// Since when the selection message is available.
     pub const MSG__SELECTION__SINCE: u32 = 1;
 

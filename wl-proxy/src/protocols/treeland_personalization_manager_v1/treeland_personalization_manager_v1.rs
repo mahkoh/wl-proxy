@@ -139,6 +139,48 @@ impl TreelandPersonalizationManagerV1 {
         }
     }
 
+    /// get personalization window context
+    ///
+    /// set window background, shadow based on context
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_try_send_get_window_context(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<TreelandPersonalizationWindowContextV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_window_context(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// get personalization window context
+    ///
+    /// set window background, shadow based on context
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_send_get_window_context(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<TreelandPersonalizationWindowContextV1> {
+        let id = self.core.create_child();
+        self.send_get_window_context(
+            &id,
+            surface,
+        );
+        id
+    }
+
     /// Since when the get_wallpaper_context message is available.
     pub const MSG__GET_WALLPAPER_CONTEXT__SINCE: u32 = 1;
 
@@ -203,6 +245,34 @@ impl TreelandPersonalizationManagerV1 {
         if let Err(e) = res {
             log_send("treeland_personalization_manager_v1.get_wallpaper_context", &e);
         }
+    }
+
+    /// custom wallpaper context
+    ///
+    /// custom user wallpaper
+    #[inline]
+    pub fn new_try_send_get_wallpaper_context(
+        &self,
+    ) -> Result<Rc<TreelandPersonalizationWallpaperContextV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_wallpaper_context(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// custom wallpaper context
+    ///
+    /// custom user wallpaper
+    #[inline]
+    pub fn new_send_get_wallpaper_context(
+        &self,
+    ) -> Rc<TreelandPersonalizationWallpaperContextV1> {
+        let id = self.core.create_child();
+        self.send_get_wallpaper_context(
+            &id,
+        );
+        id
     }
 
     /// Since when the get_cursor_context message is available.
@@ -271,6 +341,34 @@ impl TreelandPersonalizationManagerV1 {
         }
     }
 
+    /// custom wallpaper context
+    ///
+    /// custom user cursor
+    #[inline]
+    pub fn new_try_send_get_cursor_context(
+        &self,
+    ) -> Result<Rc<TreelandPersonalizationCursorContextV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_cursor_context(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// custom wallpaper context
+    ///
+    /// custom user cursor
+    #[inline]
+    pub fn new_send_get_cursor_context(
+        &self,
+    ) -> Rc<TreelandPersonalizationCursorContextV1> {
+        let id = self.core.create_child();
+        self.send_get_cursor_context(
+            &id,
+        );
+        id
+    }
+
     /// Since when the get_font_context message is available.
     pub const MSG__GET_FONT_CONTEXT__SINCE: u32 = 1;
 
@@ -337,6 +435,34 @@ impl TreelandPersonalizationManagerV1 {
         }
     }
 
+    /// custom treeland and window global font context
+    ///
+    /// custom treeland and window global font context
+    #[inline]
+    pub fn new_try_send_get_font_context(
+        &self,
+    ) -> Result<Rc<TreelandPersonalizationFontContextV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_font_context(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// custom treeland and window global font context
+    ///
+    /// custom treeland and window global font context
+    #[inline]
+    pub fn new_send_get_font_context(
+        &self,
+    ) -> Rc<TreelandPersonalizationFontContextV1> {
+        let id = self.core.create_child();
+        self.send_get_font_context(
+            &id,
+        );
+        id
+    }
+
     /// Since when the get_appearance_context message is available.
     pub const MSG__GET_APPEARANCE_CONTEXT__SINCE: u32 = 1;
 
@@ -401,6 +527,34 @@ impl TreelandPersonalizationManagerV1 {
         if let Err(e) = res {
             log_send("treeland_personalization_manager_v1.get_appearance_context", &e);
         }
+    }
+
+    /// custom treeland window global settings context
+    ///
+    /// custom user treeland window appearance global
+    #[inline]
+    pub fn new_try_send_get_appearance_context(
+        &self,
+    ) -> Result<Rc<TreelandPersonalizationAppearanceContextV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_appearance_context(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// custom treeland window global settings context
+    ///
+    /// custom user treeland window appearance global
+    #[inline]
+    pub fn new_send_get_appearance_context(
+        &self,
+    ) -> Rc<TreelandPersonalizationAppearanceContextV1> {
+        let id = self.core.create_child();
+        self.send_get_appearance_context(
+            &id,
+        );
+        id
     }
 }
 

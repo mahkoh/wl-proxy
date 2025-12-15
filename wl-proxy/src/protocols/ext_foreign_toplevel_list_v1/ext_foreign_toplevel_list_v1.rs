@@ -144,6 +144,48 @@ impl ExtForeignToplevelListV1 {
         }
     }
 
+    /// a toplevel has been created
+    ///
+    /// This event is emitted whenever a new toplevel window is created. It is
+    /// emitted for all toplevels, regardless of the app that has created them.
+    ///
+    /// All initial properties of the toplevel (identifier, title, app_id) will be sent
+    /// immediately after this event using the corresponding events for
+    /// ext_foreign_toplevel_handle_v1. The compositor will use the
+    /// ext_foreign_toplevel_handle_v1.done event to indicate when all data has
+    /// been sent.
+    #[inline]
+    pub fn new_try_send_toplevel(
+        &self,
+    ) -> Result<Rc<ExtForeignToplevelHandleV1>, ObjectError> {
+        let toplevel = self.core.create_child();
+        self.try_send_toplevel(
+            &toplevel,
+        )?;
+        Ok(toplevel)
+    }
+
+    /// a toplevel has been created
+    ///
+    /// This event is emitted whenever a new toplevel window is created. It is
+    /// emitted for all toplevels, regardless of the app that has created them.
+    ///
+    /// All initial properties of the toplevel (identifier, title, app_id) will be sent
+    /// immediately after this event using the corresponding events for
+    /// ext_foreign_toplevel_handle_v1. The compositor will use the
+    /// ext_foreign_toplevel_handle_v1.done event to indicate when all data has
+    /// been sent.
+    #[inline]
+    pub fn new_send_toplevel(
+        &self,
+    ) -> Rc<ExtForeignToplevelHandleV1> {
+        let toplevel = self.core.create_child();
+        self.send_toplevel(
+            &toplevel,
+        );
+        toplevel
+    }
+
     /// Since when the finished message is available.
     pub const MSG__FINISHED__SINCE: u32 = 1;
 

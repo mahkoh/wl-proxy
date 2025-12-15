@@ -174,6 +174,40 @@ impl HyprlandLockNotifierV1 {
             log_send("hyprland_lock_notifier_v1.get_lock_notification", &e);
         }
     }
+
+    /// create a notification object
+    ///
+    /// Create a new lock notification object.
+    ///
+    /// If the session is already locked when calling this method,
+    /// the locked event shall be sent immediately.
+    #[inline]
+    pub fn new_try_send_get_lock_notification(
+        &self,
+    ) -> Result<Rc<HyprlandLockNotificationV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_lock_notification(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// create a notification object
+    ///
+    /// Create a new lock notification object.
+    ///
+    /// If the session is already locked when calling this method,
+    /// the locked event shall be sent immediately.
+    #[inline]
+    pub fn new_send_get_lock_notification(
+        &self,
+    ) -> Rc<HyprlandLockNotificationV1> {
+        let id = self.core.create_child();
+        self.send_get_lock_notification(
+            &id,
+        );
+        id
+    }
 }
 
 /// A message handler for [HyprlandLockNotifierV1] proxies.

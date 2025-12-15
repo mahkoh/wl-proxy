@@ -128,6 +128,48 @@ impl HyprlandInputCaptureManagerV1 {
             log_send("hyprland_input_capture_manager_v1.create_session", &e);
         }
     }
+
+    /// create a input capture session
+    ///
+    /// Create a input capture session.
+    ///
+    /// # Arguments
+    ///
+    /// - `session`:
+    /// - `handle`:
+    #[inline]
+    pub fn new_try_send_create_session(
+        &self,
+        handle: &str,
+    ) -> Result<Rc<HyprlandInputCaptureV1>, ObjectError> {
+        let session = self.core.create_child();
+        self.try_send_create_session(
+            &session,
+            handle,
+        )?;
+        Ok(session)
+    }
+
+    /// create a input capture session
+    ///
+    /// Create a input capture session.
+    ///
+    /// # Arguments
+    ///
+    /// - `session`:
+    /// - `handle`:
+    #[inline]
+    pub fn new_send_create_session(
+        &self,
+        handle: &str,
+    ) -> Rc<HyprlandInputCaptureV1> {
+        let session = self.core.create_child();
+        self.send_create_session(
+            &session,
+            handle,
+        );
+        session
+    }
 }
 
 /// A message handler for [HyprlandInputCaptureManagerV1] proxies.

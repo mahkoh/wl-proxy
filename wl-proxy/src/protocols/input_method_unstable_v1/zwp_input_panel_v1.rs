@@ -125,6 +125,40 @@ impl ZwpInputPanelV1 {
             log_send("zwp_input_panel_v1.get_input_panel_surface", &e);
         }
     }
+
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_try_send_get_input_panel_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<ZwpInputPanelSurfaceV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_input_panel_surface(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_send_get_input_panel_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<ZwpInputPanelSurfaceV1> {
+        let id = self.core.create_child();
+        self.send_get_input_panel_surface(
+            &id,
+            surface,
+        );
+        id
+    }
 }
 
 /// A message handler for [ZwpInputPanelV1] proxies.

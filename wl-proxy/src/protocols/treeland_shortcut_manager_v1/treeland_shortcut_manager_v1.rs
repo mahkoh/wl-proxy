@@ -141,6 +141,54 @@ impl TreelandShortcutManagerV1 {
             log_send("treeland_shortcut_manager_v1.register_shortcut_context", &e);
         }
     }
+
+    /// register shortcut key
+    ///
+    /// The format of the shortcut key is 'Modify+Key', such as 'Ctrl+Alt+T'.
+    /// If the format is wrong, the synthesizer will give a "format error". If the shortcut
+    /// key is already registered,
+    /// the compositor will give a "register error" and issue a destruction to the context.
+    ///
+    /// # Arguments
+    ///
+    /// - `key`:
+    /// - `id`:
+    #[inline]
+    pub fn new_try_send_register_shortcut_context(
+        &self,
+        key: &str,
+    ) -> Result<Rc<TreelandShortcutContextV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_register_shortcut_context(
+            key,
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// register shortcut key
+    ///
+    /// The format of the shortcut key is 'Modify+Key', such as 'Ctrl+Alt+T'.
+    /// If the format is wrong, the synthesizer will give a "format error". If the shortcut
+    /// key is already registered,
+    /// the compositor will give a "register error" and issue a destruction to the context.
+    ///
+    /// # Arguments
+    ///
+    /// - `key`:
+    /// - `id`:
+    #[inline]
+    pub fn new_send_register_shortcut_context(
+        &self,
+        key: &str,
+    ) -> Rc<TreelandShortcutContextV1> {
+        let id = self.core.create_child();
+        self.send_register_shortcut_context(
+            key,
+            &id,
+        );
+        id
+    }
 }
 
 /// A message handler for [TreelandShortcutManagerV1] proxies.

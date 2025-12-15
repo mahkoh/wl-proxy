@@ -138,6 +138,50 @@ impl ZwpTabletManagerV2 {
         }
     }
 
+    /// get the tablet seat
+    ///
+    /// Get the zwp_tablet_seat_v2 object for the given seat. This object
+    /// provides access to all graphics tablets in this seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `tablet_seat`:
+    /// - `seat`: The wl_seat object to retrieve the tablets for
+    #[inline]
+    pub fn new_try_send_get_tablet_seat(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) -> Result<Rc<ZwpTabletSeatV2>, ObjectError> {
+        let tablet_seat = self.core.create_child();
+        self.try_send_get_tablet_seat(
+            &tablet_seat,
+            seat,
+        )?;
+        Ok(tablet_seat)
+    }
+
+    /// get the tablet seat
+    ///
+    /// Get the zwp_tablet_seat_v2 object for the given seat. This object
+    /// provides access to all graphics tablets in this seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `tablet_seat`:
+    /// - `seat`: The wl_seat object to retrieve the tablets for
+    #[inline]
+    pub fn new_send_get_tablet_seat(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) -> Rc<ZwpTabletSeatV2> {
+        let tablet_seat = self.core.create_child();
+        self.send_get_tablet_seat(
+            &tablet_seat,
+            seat,
+        );
+        tablet_seat
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 

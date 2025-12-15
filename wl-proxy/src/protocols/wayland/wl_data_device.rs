@@ -400,6 +400,46 @@ impl WlDataDevice {
         }
     }
 
+    /// introduce a new wl_data_offer
+    ///
+    /// The data_offer event introduces a new wl_data_offer object,
+    /// which will subsequently be used in either the
+    /// data_device.enter event (for drag-and-drop) or the
+    /// data_device.selection event (for selections).  Immediately
+    /// following the data_device.data_offer event, the new data_offer
+    /// object will send out data_offer.offer events to describe the
+    /// mime types it offers.
+    #[inline]
+    pub fn new_try_send_data_offer(
+        &self,
+    ) -> Result<Rc<WlDataOffer>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_data_offer(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// introduce a new wl_data_offer
+    ///
+    /// The data_offer event introduces a new wl_data_offer object,
+    /// which will subsequently be used in either the
+    /// data_device.enter event (for drag-and-drop) or the
+    /// data_device.selection event (for selections).  Immediately
+    /// following the data_device.data_offer event, the new data_offer
+    /// object will send out data_offer.offer events to describe the
+    /// mime types it offers.
+    #[inline]
+    pub fn new_send_data_offer(
+        &self,
+    ) -> Rc<WlDataOffer> {
+        let id = self.core.create_child();
+        self.send_data_offer(
+            &id,
+        );
+        id
+    }
+
     /// Since when the enter message is available.
     pub const MSG__ENTER__SINCE: u32 = 1;
 

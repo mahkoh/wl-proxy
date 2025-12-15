@@ -167,6 +167,70 @@ impl WpImageDescriptionCreatorIccV1 {
         }
     }
 
+    /// Create the image description object from ICC data
+    ///
+    /// Create an image description object based on the ICC information
+    /// previously set on this object. A compositor must parse the ICC data in
+    /// some undefined but finite amount of time.
+    ///
+    /// The completeness of the parameter set is verified. If the set is not
+    /// complete, the protocol error incomplete_set is raised. For the
+    /// definition of a complete set, see the description of this interface.
+    ///
+    /// If the particular combination of the information is not supported
+    /// by the compositor, the resulting image description object shall
+    /// immediately deliver the wp_image_description_v1.failed event with the
+    /// 'unsupported' cause. If a valid image description was created from the
+    /// information, the wp_image_description_v1.ready event will eventually
+    /// be sent instead.
+    ///
+    /// This request destroys the wp_image_description_creator_icc_v1 object.
+    ///
+    /// The resulting image description object does not allow get_information
+    /// request.
+    #[inline]
+    pub fn new_try_send_create(
+        &self,
+    ) -> Result<Rc<WpImageDescriptionV1>, ObjectError> {
+        let image_description = self.core.create_child();
+        self.try_send_create(
+            &image_description,
+        )?;
+        Ok(image_description)
+    }
+
+    /// Create the image description object from ICC data
+    ///
+    /// Create an image description object based on the ICC information
+    /// previously set on this object. A compositor must parse the ICC data in
+    /// some undefined but finite amount of time.
+    ///
+    /// The completeness of the parameter set is verified. If the set is not
+    /// complete, the protocol error incomplete_set is raised. For the
+    /// definition of a complete set, see the description of this interface.
+    ///
+    /// If the particular combination of the information is not supported
+    /// by the compositor, the resulting image description object shall
+    /// immediately deliver the wp_image_description_v1.failed event with the
+    /// 'unsupported' cause. If a valid image description was created from the
+    /// information, the wp_image_description_v1.ready event will eventually
+    /// be sent instead.
+    ///
+    /// This request destroys the wp_image_description_creator_icc_v1 object.
+    ///
+    /// The resulting image description object does not allow get_information
+    /// request.
+    #[inline]
+    pub fn new_send_create(
+        &self,
+    ) -> Rc<WpImageDescriptionV1> {
+        let image_description = self.core.create_child();
+        self.send_create(
+            &image_description,
+        );
+        image_description
+    }
+
     /// Since when the set_icc_file message is available.
     pub const MSG__SET_ICC_FILE__SINCE: u32 = 1;
 

@@ -187,6 +187,92 @@ impl WlShmPool {
         }
     }
 
+    /// create a buffer from the pool
+    ///
+    /// Create a wl_buffer object from the pool.
+    ///
+    /// The buffer is created offset bytes into the pool and has
+    /// width and height as specified.  The stride argument specifies
+    /// the number of bytes from the beginning of one row to the beginning
+    /// of the next.  The format is the pixel format of the buffer and
+    /// must be one of those advertised through the wl_shm.format event.
+    ///
+    /// A buffer will keep a reference to the pool it was created from
+    /// so it is valid to destroy the pool immediately after creating
+    /// a buffer from it.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: buffer to create
+    /// - `offset`: buffer byte offset within the pool
+    /// - `width`: buffer width, in pixels
+    /// - `height`: buffer height, in pixels
+    /// - `stride`: number of bytes from the beginning of one row to the beginning of the next row
+    /// - `format`: buffer pixel format
+    #[inline]
+    pub fn new_try_send_create_buffer(
+        &self,
+        offset: i32,
+        width: i32,
+        height: i32,
+        stride: i32,
+        format: WlShmFormat,
+    ) -> Result<Rc<WlBuffer>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_buffer(
+            &id,
+            offset,
+            width,
+            height,
+            stride,
+            format,
+        )?;
+        Ok(id)
+    }
+
+    /// create a buffer from the pool
+    ///
+    /// Create a wl_buffer object from the pool.
+    ///
+    /// The buffer is created offset bytes into the pool and has
+    /// width and height as specified.  The stride argument specifies
+    /// the number of bytes from the beginning of one row to the beginning
+    /// of the next.  The format is the pixel format of the buffer and
+    /// must be one of those advertised through the wl_shm.format event.
+    ///
+    /// A buffer will keep a reference to the pool it was created from
+    /// so it is valid to destroy the pool immediately after creating
+    /// a buffer from it.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: buffer to create
+    /// - `offset`: buffer byte offset within the pool
+    /// - `width`: buffer width, in pixels
+    /// - `height`: buffer height, in pixels
+    /// - `stride`: number of bytes from the beginning of one row to the beginning of the next row
+    /// - `format`: buffer pixel format
+    #[inline]
+    pub fn new_send_create_buffer(
+        &self,
+        offset: i32,
+        width: i32,
+        height: i32,
+        stride: i32,
+        format: WlShmFormat,
+    ) -> Rc<WlBuffer> {
+        let id = self.core.create_child();
+        self.send_create_buffer(
+            &id,
+            offset,
+            width,
+            height,
+            stride,
+            format,
+        );
+        id
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 

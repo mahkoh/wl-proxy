@@ -234,6 +234,90 @@ impl WpSinglePixelBufferManagerV1 {
             log_send("wp_single_pixel_buffer_manager_v1.create_u32_rgba_buffer", &e);
         }
     }
+
+    /// create a 1×1 buffer from 32-bit RGBA values
+    ///
+    /// Create a single-pixel buffer from four 32-bit RGBA values.
+    ///
+    /// Unless specified in another protocol extension, the RGBA values use
+    /// pre-multiplied alpha.
+    ///
+    /// The width and height of the buffer are 1.
+    ///
+    /// The r, g, b and a arguments valid range is from UINT32_MIN (0)
+    /// to UINT32_MAX (0xffffffff).
+    ///
+    /// These arguments should be interpreted as a percentage, i.e.
+    /// - UINT32_MIN = 0% of the given color component
+    /// - UINT32_MAX = 100% of the given color component
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `r`: value of the buffer's red channel
+    /// - `g`: value of the buffer's green channel
+    /// - `b`: value of the buffer's blue channel
+    /// - `a`: value of the buffer's alpha channel
+    #[inline]
+    pub fn new_try_send_create_u32_rgba_buffer(
+        &self,
+        r: u32,
+        g: u32,
+        b: u32,
+        a: u32,
+    ) -> Result<Rc<WlBuffer>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_u32_rgba_buffer(
+            &id,
+            r,
+            g,
+            b,
+            a,
+        )?;
+        Ok(id)
+    }
+
+    /// create a 1×1 buffer from 32-bit RGBA values
+    ///
+    /// Create a single-pixel buffer from four 32-bit RGBA values.
+    ///
+    /// Unless specified in another protocol extension, the RGBA values use
+    /// pre-multiplied alpha.
+    ///
+    /// The width and height of the buffer are 1.
+    ///
+    /// The r, g, b and a arguments valid range is from UINT32_MIN (0)
+    /// to UINT32_MAX (0xffffffff).
+    ///
+    /// These arguments should be interpreted as a percentage, i.e.
+    /// - UINT32_MIN = 0% of the given color component
+    /// - UINT32_MAX = 100% of the given color component
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `r`: value of the buffer's red channel
+    /// - `g`: value of the buffer's green channel
+    /// - `b`: value of the buffer's blue channel
+    /// - `a`: value of the buffer's alpha channel
+    #[inline]
+    pub fn new_send_create_u32_rgba_buffer(
+        &self,
+        r: u32,
+        g: u32,
+        b: u32,
+        a: u32,
+    ) -> Rc<WlBuffer> {
+        let id = self.core.create_child();
+        self.send_create_u32_rgba_buffer(
+            &id,
+            r,
+            g,
+            b,
+            a,
+        );
+        id
+    }
 }
 
 /// A message handler for [WpSinglePixelBufferManagerV1] proxies.

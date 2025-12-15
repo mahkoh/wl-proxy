@@ -156,6 +156,72 @@ impl HyprlandToplevelExportManagerV1 {
         }
     }
 
+    /// capture a toplevel
+    ///
+    /// Capture the next frame of a toplevel. (window)
+    ///
+    /// The captured frame will not contain any server-side decorations and will
+    /// ignore the compositor-set geometry, like e.g. rounded corners.
+    ///
+    /// It will contain all the subsurfaces and popups, however the latter will be clipped
+    /// to the geometry of the base surface.
+    ///
+    /// The handle parameter refers to the address of the window as seen in `hyprctl clients`.
+    /// For example, for d161e7b0 it would be 3512854448.
+    ///
+    /// # Arguments
+    ///
+    /// - `frame`:
+    /// - `overlay_cursor`: composite cursor onto the frame
+    /// - `handle`: the handle of the toplevel (window) to be captured
+    #[inline]
+    pub fn new_try_send_capture_toplevel(
+        &self,
+        overlay_cursor: i32,
+        handle: u32,
+    ) -> Result<Rc<HyprlandToplevelExportFrameV1>, ObjectError> {
+        let frame = self.core.create_child();
+        self.try_send_capture_toplevel(
+            &frame,
+            overlay_cursor,
+            handle,
+        )?;
+        Ok(frame)
+    }
+
+    /// capture a toplevel
+    ///
+    /// Capture the next frame of a toplevel. (window)
+    ///
+    /// The captured frame will not contain any server-side decorations and will
+    /// ignore the compositor-set geometry, like e.g. rounded corners.
+    ///
+    /// It will contain all the subsurfaces and popups, however the latter will be clipped
+    /// to the geometry of the base surface.
+    ///
+    /// The handle parameter refers to the address of the window as seen in `hyprctl clients`.
+    /// For example, for d161e7b0 it would be 3512854448.
+    ///
+    /// # Arguments
+    ///
+    /// - `frame`:
+    /// - `overlay_cursor`: composite cursor onto the frame
+    /// - `handle`: the handle of the toplevel (window) to be captured
+    #[inline]
+    pub fn new_send_capture_toplevel(
+        &self,
+        overlay_cursor: i32,
+        handle: u32,
+    ) -> Rc<HyprlandToplevelExportFrameV1> {
+        let frame = self.core.create_child();
+        self.send_capture_toplevel(
+            &frame,
+            overlay_cursor,
+            handle,
+        );
+        frame
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -304,6 +370,54 @@ impl HyprlandToplevelExportManagerV1 {
         if let Err(e) = res {
             log_send("hyprland_toplevel_export_manager_v1.capture_toplevel_with_wlr_toplevel_handle", &e);
         }
+    }
+
+    /// capture a toplevel
+    ///
+    /// Same as capture_toplevel, but with a zwlr_foreign_toplevel_handle_v1 handle.
+    ///
+    /// # Arguments
+    ///
+    /// - `frame`:
+    /// - `overlay_cursor`: composite cursor onto the frame
+    /// - `handle`: the zwlr_foreign_toplevel_handle_v1 handle of the toplevel to be captured
+    #[inline]
+    pub fn new_try_send_capture_toplevel_with_wlr_toplevel_handle(
+        &self,
+        overlay_cursor: i32,
+        handle: &Rc<ZwlrForeignToplevelHandleV1>,
+    ) -> Result<Rc<HyprlandToplevelExportFrameV1>, ObjectError> {
+        let frame = self.core.create_child();
+        self.try_send_capture_toplevel_with_wlr_toplevel_handle(
+            &frame,
+            overlay_cursor,
+            handle,
+        )?;
+        Ok(frame)
+    }
+
+    /// capture a toplevel
+    ///
+    /// Same as capture_toplevel, but with a zwlr_foreign_toplevel_handle_v1 handle.
+    ///
+    /// # Arguments
+    ///
+    /// - `frame`:
+    /// - `overlay_cursor`: composite cursor onto the frame
+    /// - `handle`: the zwlr_foreign_toplevel_handle_v1 handle of the toplevel to be captured
+    #[inline]
+    pub fn new_send_capture_toplevel_with_wlr_toplevel_handle(
+        &self,
+        overlay_cursor: i32,
+        handle: &Rc<ZwlrForeignToplevelHandleV1>,
+    ) -> Rc<HyprlandToplevelExportFrameV1> {
+        let frame = self.core.create_child();
+        self.send_capture_toplevel_with_wlr_toplevel_handle(
+            &frame,
+            overlay_cursor,
+            handle,
+        );
+        frame
     }
 }
 

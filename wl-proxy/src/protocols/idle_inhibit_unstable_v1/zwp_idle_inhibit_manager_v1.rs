@@ -197,6 +197,48 @@ impl ZwpIdleInhibitManagerV1 {
             log_send("zwp_idle_inhibit_manager_v1.create_inhibitor", &e);
         }
     }
+
+    /// create a new inhibitor object
+    ///
+    /// Create a new inhibitor object associated with the given surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`: the surface that inhibits the idle behavior
+    #[inline]
+    pub fn new_try_send_create_inhibitor(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<ZwpIdleInhibitorV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_inhibitor(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new inhibitor object
+    ///
+    /// Create a new inhibitor object associated with the given surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`: the surface that inhibits the idle behavior
+    #[inline]
+    pub fn new_send_create_inhibitor(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<ZwpIdleInhibitorV1> {
+        let id = self.core.create_child();
+        self.send_create_inhibitor(
+            &id,
+            surface,
+        );
+        id
+    }
 }
 
 /// A message handler for [ZwpIdleInhibitManagerV1] proxies.

@@ -200,6 +200,54 @@ impl WpCursorShapeManagerV1 {
         }
     }
 
+    /// manage the cursor shape of a pointer device
+    ///
+    /// Obtain a wp_cursor_shape_device_v1 for a wl_pointer object.
+    ///
+    /// When the pointer capability is removed from the wl_seat, the
+    /// wp_cursor_shape_device_v1 object becomes inert.
+    ///
+    /// # Arguments
+    ///
+    /// - `cursor_shape_device`:
+    /// - `pointer`:
+    #[inline]
+    pub fn new_try_send_get_pointer(
+        &self,
+        pointer: &Rc<WlPointer>,
+    ) -> Result<Rc<WpCursorShapeDeviceV1>, ObjectError> {
+        let cursor_shape_device = self.core.create_child();
+        self.try_send_get_pointer(
+            &cursor_shape_device,
+            pointer,
+        )?;
+        Ok(cursor_shape_device)
+    }
+
+    /// manage the cursor shape of a pointer device
+    ///
+    /// Obtain a wp_cursor_shape_device_v1 for a wl_pointer object.
+    ///
+    /// When the pointer capability is removed from the wl_seat, the
+    /// wp_cursor_shape_device_v1 object becomes inert.
+    ///
+    /// # Arguments
+    ///
+    /// - `cursor_shape_device`:
+    /// - `pointer`:
+    #[inline]
+    pub fn new_send_get_pointer(
+        &self,
+        pointer: &Rc<WlPointer>,
+    ) -> Rc<WpCursorShapeDeviceV1> {
+        let cursor_shape_device = self.core.create_child();
+        self.send_get_pointer(
+            &cursor_shape_device,
+            pointer,
+        );
+        cursor_shape_device
+    }
+
     /// Since when the get_tablet_tool_v2 message is available.
     pub const MSG__GET_TABLET_TOOL_V2__SINCE: u32 = 1;
 
@@ -291,6 +339,54 @@ impl WpCursorShapeManagerV1 {
         if let Err(e) = res {
             log_send("wp_cursor_shape_manager_v1.get_tablet_tool_v2", &e);
         }
+    }
+
+    /// manage the cursor shape of a tablet tool device
+    ///
+    /// Obtain a wp_cursor_shape_device_v1 for a zwp_tablet_tool_v2 object.
+    ///
+    /// When the zwp_tablet_tool_v2 is removed, the wp_cursor_shape_device_v1
+    /// object becomes inert.
+    ///
+    /// # Arguments
+    ///
+    /// - `cursor_shape_device`:
+    /// - `tablet_tool`:
+    #[inline]
+    pub fn new_try_send_get_tablet_tool_v2(
+        &self,
+        tablet_tool: &Rc<ZwpTabletToolV2>,
+    ) -> Result<Rc<WpCursorShapeDeviceV1>, ObjectError> {
+        let cursor_shape_device = self.core.create_child();
+        self.try_send_get_tablet_tool_v2(
+            &cursor_shape_device,
+            tablet_tool,
+        )?;
+        Ok(cursor_shape_device)
+    }
+
+    /// manage the cursor shape of a tablet tool device
+    ///
+    /// Obtain a wp_cursor_shape_device_v1 for a zwp_tablet_tool_v2 object.
+    ///
+    /// When the zwp_tablet_tool_v2 is removed, the wp_cursor_shape_device_v1
+    /// object becomes inert.
+    ///
+    /// # Arguments
+    ///
+    /// - `cursor_shape_device`:
+    /// - `tablet_tool`:
+    #[inline]
+    pub fn new_send_get_tablet_tool_v2(
+        &self,
+        tablet_tool: &Rc<ZwpTabletToolV2>,
+    ) -> Rc<WpCursorShapeDeviceV1> {
+        let cursor_shape_device = self.core.create_child();
+        self.send_get_tablet_tool_v2(
+            &cursor_shape_device,
+            tablet_tool,
+        );
+        cursor_shape_device
     }
 }
 

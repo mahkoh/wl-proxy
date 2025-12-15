@@ -139,6 +139,50 @@ impl ZwlrVirtualPointerManagerV1 {
         }
     }
 
+    /// Create a new virtual pointer
+    ///
+    /// Creates a new virtual pointer. The optional seat is a suggestion to the
+    /// compositor.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`:
+    /// - `id`:
+    #[inline]
+    pub fn new_try_send_create_virtual_pointer(
+        &self,
+        seat: Option<&Rc<WlSeat>>,
+    ) -> Result<Rc<ZwlrVirtualPointerV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_virtual_pointer(
+            seat,
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// Create a new virtual pointer
+    ///
+    /// Creates a new virtual pointer. The optional seat is a suggestion to the
+    /// compositor.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`:
+    /// - `id`:
+    #[inline]
+    pub fn new_send_create_virtual_pointer(
+        &self,
+        seat: Option<&Rc<WlSeat>>,
+    ) -> Rc<ZwlrVirtualPointerV1> {
+        let id = self.core.create_child();
+        self.send_create_virtual_pointer(
+            seat,
+            &id,
+        );
+        id
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 
@@ -298,6 +342,60 @@ impl ZwlrVirtualPointerManagerV1 {
         if let Err(e) = res {
             log_send("zwlr_virtual_pointer_manager_v1.create_virtual_pointer_with_output", &e);
         }
+    }
+
+    /// Create a new virtual pointer
+    ///
+    /// Creates a new virtual pointer. The seat and the output arguments are
+    /// optional. If the seat argument is set, the compositor should assign the
+    /// input device to the requested seat. If the output argument is set, the
+    /// compositor should map the input device to the requested output.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`:
+    /// - `output`:
+    /// - `id`:
+    #[inline]
+    pub fn new_try_send_create_virtual_pointer_with_output(
+        &self,
+        seat: Option<&Rc<WlSeat>>,
+        output: Option<&Rc<WlOutput>>,
+    ) -> Result<Rc<ZwlrVirtualPointerV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_virtual_pointer_with_output(
+            seat,
+            output,
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// Create a new virtual pointer
+    ///
+    /// Creates a new virtual pointer. The seat and the output arguments are
+    /// optional. If the seat argument is set, the compositor should assign the
+    /// input device to the requested seat. If the output argument is set, the
+    /// compositor should map the input device to the requested output.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`:
+    /// - `output`:
+    /// - `id`:
+    #[inline]
+    pub fn new_send_create_virtual_pointer_with_output(
+        &self,
+        seat: Option<&Rc<WlSeat>>,
+        output: Option<&Rc<WlOutput>>,
+    ) -> Rc<ZwlrVirtualPointerV1> {
+        let id = self.core.create_child();
+        self.send_create_virtual_pointer_with_output(
+            seat,
+            output,
+            &id,
+        );
+        id
     }
 }
 

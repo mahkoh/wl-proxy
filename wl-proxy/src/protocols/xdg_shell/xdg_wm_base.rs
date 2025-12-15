@@ -182,6 +182,38 @@ impl XdgWmBase {
         }
     }
 
+    /// create a positioner object
+    ///
+    /// Create a positioner object. A positioner object is used to position
+    /// surfaces relative to some parent surface. See the interface description
+    /// and xdg_surface.get_popup for details.
+    #[inline]
+    pub fn new_try_send_create_positioner(
+        &self,
+    ) -> Result<Rc<XdgPositioner>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_positioner(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// create a positioner object
+    ///
+    /// Create a positioner object. A positioner object is used to position
+    /// surfaces relative to some parent surface. See the interface description
+    /// and xdg_surface.get_popup for details.
+    #[inline]
+    pub fn new_send_create_positioner(
+        &self,
+    ) -> Rc<XdgPositioner> {
+        let id = self.core.create_child();
+        self.send_create_positioner(
+            &id,
+        );
+        id
+    }
+
     /// Since when the get_xdg_surface message is available.
     pub const MSG__GET_XDG_SURFACE__SINCE: u32 = 1;
 
@@ -291,6 +323,72 @@ impl XdgWmBase {
         if let Err(e) = res {
             log_send("xdg_wm_base.get_xdg_surface", &e);
         }
+    }
+
+    /// create a shell surface from a surface
+    ///
+    /// This creates an xdg_surface for the given surface. While xdg_surface
+    /// itself is not a role, the corresponding surface may only be assigned
+    /// a role extending xdg_surface, such as xdg_toplevel or xdg_popup. It is
+    /// illegal to create an xdg_surface for a wl_surface which already has an
+    /// assigned role and this will result in a role error.
+    ///
+    /// This creates an xdg_surface for the given surface. An xdg_surface is
+    /// used as basis to define a role to a given surface, such as xdg_toplevel
+    /// or xdg_popup. It also manages functionality shared between xdg_surface
+    /// based surface roles.
+    ///
+    /// See the documentation of xdg_surface for more details about what an
+    /// xdg_surface is and how it is used.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_try_send_get_xdg_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<XdgSurface>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_xdg_surface(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// create a shell surface from a surface
+    ///
+    /// This creates an xdg_surface for the given surface. While xdg_surface
+    /// itself is not a role, the corresponding surface may only be assigned
+    /// a role extending xdg_surface, such as xdg_toplevel or xdg_popup. It is
+    /// illegal to create an xdg_surface for a wl_surface which already has an
+    /// assigned role and this will result in a role error.
+    ///
+    /// This creates an xdg_surface for the given surface. An xdg_surface is
+    /// used as basis to define a role to a given surface, such as xdg_toplevel
+    /// or xdg_popup. It also manages functionality shared between xdg_surface
+    /// based surface roles.
+    ///
+    /// See the documentation of xdg_surface for more details about what an
+    /// xdg_surface is and how it is used.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_send_get_xdg_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<XdgSurface> {
+        let id = self.core.create_child();
+        self.send_get_xdg_surface(
+            &id,
+            surface,
+        );
+        id
     }
 
     /// Since when the pong message is available.

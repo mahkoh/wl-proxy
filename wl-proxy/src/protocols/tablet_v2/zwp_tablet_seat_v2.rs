@@ -178,6 +178,40 @@ impl ZwpTabletSeatV2 {
         }
     }
 
+    /// new device notification
+    ///
+    /// This event is sent whenever a new tablet becomes available on this
+    /// seat. This event only provides the object id of the tablet, any
+    /// static information about the tablet (device name, vid/pid, etc.) is
+    /// sent through the zwp_tablet_v2 interface.
+    #[inline]
+    pub fn new_try_send_tablet_added(
+        &self,
+    ) -> Result<Rc<ZwpTabletV2>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_tablet_added(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// new device notification
+    ///
+    /// This event is sent whenever a new tablet becomes available on this
+    /// seat. This event only provides the object id of the tablet, any
+    /// static information about the tablet (device name, vid/pid, etc.) is
+    /// sent through the zwp_tablet_v2 interface.
+    #[inline]
+    pub fn new_send_tablet_added(
+        &self,
+    ) -> Rc<ZwpTabletV2> {
+        let id = self.core.create_child();
+        self.send_tablet_added(
+            &id,
+        );
+        id
+    }
+
     /// Since when the tool_added message is available.
     pub const MSG__TOOL_ADDED__SINCE: u32 = 1;
 
@@ -250,6 +284,40 @@ impl ZwpTabletSeatV2 {
         if let Err(e) = res {
             log_send("zwp_tablet_seat_v2.tool_added", &e);
         }
+    }
+
+    /// a new tool has been used with a tablet
+    ///
+    /// This event is sent whenever a tool that has not previously been used
+    /// with a tablet comes into use. This event only provides the object id
+    /// of the tool; any static information about the tool (capabilities,
+    /// type, etc.) is sent through the zwp_tablet_tool_v2 interface.
+    #[inline]
+    pub fn new_try_send_tool_added(
+        &self,
+    ) -> Result<Rc<ZwpTabletToolV2>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_tool_added(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// a new tool has been used with a tablet
+    ///
+    /// This event is sent whenever a tool that has not previously been used
+    /// with a tablet comes into use. This event only provides the object id
+    /// of the tool; any static information about the tool (capabilities,
+    /// type, etc.) is sent through the zwp_tablet_tool_v2 interface.
+    #[inline]
+    pub fn new_send_tool_added(
+        &self,
+    ) -> Rc<ZwpTabletToolV2> {
+        let id = self.core.create_child();
+        self.send_tool_added(
+            &id,
+        );
+        id
     }
 
     /// Since when the pad_added message is available.
@@ -336,6 +404,52 @@ impl ZwpTabletSeatV2 {
         if let Err(e) = res {
             log_send("zwp_tablet_seat_v2.pad_added", &e);
         }
+    }
+
+    /// new pad notification
+    ///
+    /// This event is sent whenever a new pad is known to the system. Typically,
+    /// pads are physically attached to tablets and a pad_added event is
+    /// sent immediately after the zwp_tablet_seat_v2.tablet_added.
+    /// However, some standalone pad devices logically attach to tablets at
+    /// runtime, and the client must wait for zwp_tablet_pad_v2.enter to know
+    /// the tablet a pad is attached to.
+    ///
+    /// This event only provides the object id of the pad. All further
+    /// features (buttons, strips, rings) are sent through the zwp_tablet_pad_v2
+    /// interface.
+    #[inline]
+    pub fn new_try_send_pad_added(
+        &self,
+    ) -> Result<Rc<ZwpTabletPadV2>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_pad_added(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// new pad notification
+    ///
+    /// This event is sent whenever a new pad is known to the system. Typically,
+    /// pads are physically attached to tablets and a pad_added event is
+    /// sent immediately after the zwp_tablet_seat_v2.tablet_added.
+    /// However, some standalone pad devices logically attach to tablets at
+    /// runtime, and the client must wait for zwp_tablet_pad_v2.enter to know
+    /// the tablet a pad is attached to.
+    ///
+    /// This event only provides the object id of the pad. All further
+    /// features (buttons, strips, rings) are sent through the zwp_tablet_pad_v2
+    /// interface.
+    #[inline]
+    pub fn new_send_pad_added(
+        &self,
+    ) -> Rc<ZwpTabletPadV2> {
+        let id = self.core.create_child();
+        self.send_pad_added(
+            &id,
+        );
+        id
     }
 }
 

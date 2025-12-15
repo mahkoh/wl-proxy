@@ -214,6 +214,62 @@ impl WpFifoManagerV1 {
             log_send("wp_fifo_manager_v1.get_fifo", &e);
         }
     }
+
+    /// request fifo interface for surface
+    ///
+    /// Establish a fifo object for a surface that may be used to add
+    /// display refresh constraints to content updates.
+    ///
+    /// Only one such object may exist for a surface and attempting
+    /// to create more than one will result in an already_exists
+    /// protocol error. If a surface is acted on by multiple software
+    /// components, general best practice is that only the component
+    /// performing wl_surface.attach operations should use this protocol.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_try_send_get_fifo(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<WpFifoV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_fifo(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// request fifo interface for surface
+    ///
+    /// Establish a fifo object for a surface that may be used to add
+    /// display refresh constraints to content updates.
+    ///
+    /// Only one such object may exist for a surface and attempting
+    /// to create more than one will result in an already_exists
+    /// protocol error. If a surface is acted on by multiple software
+    /// components, general best practice is that only the component
+    /// performing wl_surface.attach operations should use this protocol.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_send_get_fifo(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<WpFifoV1> {
+        let id = self.core.create_child();
+        self.send_get_fifo(
+            &id,
+            surface,
+        );
+        id
+    }
 }
 
 /// A message handler for [WpFifoManagerV1] proxies.

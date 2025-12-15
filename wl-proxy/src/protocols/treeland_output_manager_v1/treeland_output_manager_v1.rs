@@ -267,6 +267,44 @@ impl TreelandOutputManagerV1 {
         }
     }
 
+    /// Get color control interface for output.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `output`:
+    #[inline]
+    pub fn new_try_send_get_color_control(
+        &self,
+        output: &Rc<WlOutput>,
+    ) -> Result<Rc<TreelandOutputColorControlV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_color_control(
+            &id,
+            output,
+        )?;
+        Ok(id)
+    }
+
+    /// Get color control interface for output.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `output`:
+    #[inline]
+    pub fn new_send_get_color_control(
+        &self,
+        output: &Rc<WlOutput>,
+    ) -> Rc<TreelandOutputColorControlV1> {
+        let id = self.core.create_child();
+        self.send_get_color_control(
+            &id,
+            output,
+        );
+        id
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 2;
 

@@ -304,6 +304,132 @@ impl ZwpPointerConstraintsV1 {
         }
     }
 
+    /// lock pointer to a position
+    ///
+    /// The lock_pointer request lets the client request to disable movements of
+    /// the virtual pointer (i.e. the cursor), effectively locking the pointer
+    /// to a position. This request may not take effect immediately; in the
+    /// future, when the compositor deems implementation-specific constraints
+    /// are satisfied, the pointer lock will be activated and the compositor
+    /// sends a locked event.
+    ///
+    /// The protocol provides no guarantee that the constraints are ever
+    /// satisfied, and does not require the compositor to send an error if the
+    /// constraints cannot ever be satisfied. It is thus possible to request a
+    /// lock that will never activate.
+    ///
+    /// There may not be another pointer constraint of any kind requested or
+    /// active on the surface for any of the wl_pointer objects of the seat of
+    /// the passed pointer when requesting a lock. If there is, an error will be
+    /// raised. See general pointer lock documentation for more details.
+    ///
+    /// The intersection of the region passed with this request and the input
+    /// region of the surface is used to determine where the pointer must be
+    /// in order for the lock to activate. It is up to the compositor whether to
+    /// warp the pointer or require some kind of user interaction for the lock
+    /// to activate. If the region is null the surface input region is used.
+    ///
+    /// A surface may receive pointer focus without the lock being activated.
+    ///
+    /// The request creates a new object wp_locked_pointer which is used to
+    /// interact with the lock as well as receive updates about its state. See
+    /// the the description of wp_locked_pointer for further information.
+    ///
+    /// Note that while a pointer is locked, the wl_pointer objects of the
+    /// corresponding seat will not emit any wl_pointer.motion events, but
+    /// relative motion events will still be emitted via wp_relative_pointer
+    /// objects of the same seat. wl_pointer.axis and wl_pointer.button events
+    /// are unaffected.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`: surface to lock pointer to
+    /// - `pointer`: the pointer that should be locked
+    /// - `region`: region of surface
+    /// - `lifetime`: lock lifetime
+    #[inline]
+    pub fn new_try_send_lock_pointer(
+        &self,
+        surface: &Rc<WlSurface>,
+        pointer: &Rc<WlPointer>,
+        region: Option<&Rc<WlRegion>>,
+        lifetime: ZwpPointerConstraintsV1Lifetime,
+    ) -> Result<Rc<ZwpLockedPointerV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_lock_pointer(
+            &id,
+            surface,
+            pointer,
+            region,
+            lifetime,
+        )?;
+        Ok(id)
+    }
+
+    /// lock pointer to a position
+    ///
+    /// The lock_pointer request lets the client request to disable movements of
+    /// the virtual pointer (i.e. the cursor), effectively locking the pointer
+    /// to a position. This request may not take effect immediately; in the
+    /// future, when the compositor deems implementation-specific constraints
+    /// are satisfied, the pointer lock will be activated and the compositor
+    /// sends a locked event.
+    ///
+    /// The protocol provides no guarantee that the constraints are ever
+    /// satisfied, and does not require the compositor to send an error if the
+    /// constraints cannot ever be satisfied. It is thus possible to request a
+    /// lock that will never activate.
+    ///
+    /// There may not be another pointer constraint of any kind requested or
+    /// active on the surface for any of the wl_pointer objects of the seat of
+    /// the passed pointer when requesting a lock. If there is, an error will be
+    /// raised. See general pointer lock documentation for more details.
+    ///
+    /// The intersection of the region passed with this request and the input
+    /// region of the surface is used to determine where the pointer must be
+    /// in order for the lock to activate. It is up to the compositor whether to
+    /// warp the pointer or require some kind of user interaction for the lock
+    /// to activate. If the region is null the surface input region is used.
+    ///
+    /// A surface may receive pointer focus without the lock being activated.
+    ///
+    /// The request creates a new object wp_locked_pointer which is used to
+    /// interact with the lock as well as receive updates about its state. See
+    /// the the description of wp_locked_pointer for further information.
+    ///
+    /// Note that while a pointer is locked, the wl_pointer objects of the
+    /// corresponding seat will not emit any wl_pointer.motion events, but
+    /// relative motion events will still be emitted via wp_relative_pointer
+    /// objects of the same seat. wl_pointer.axis and wl_pointer.button events
+    /// are unaffected.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`: surface to lock pointer to
+    /// - `pointer`: the pointer that should be locked
+    /// - `region`: region of surface
+    /// - `lifetime`: lock lifetime
+    #[inline]
+    pub fn new_send_lock_pointer(
+        &self,
+        surface: &Rc<WlSurface>,
+        pointer: &Rc<WlPointer>,
+        region: Option<&Rc<WlRegion>>,
+        lifetime: ZwpPointerConstraintsV1Lifetime,
+    ) -> Rc<ZwpLockedPointerV1> {
+        let id = self.core.create_child();
+        self.send_lock_pointer(
+            &id,
+            surface,
+            pointer,
+            region,
+            lifetime,
+        );
+        id
+    }
+
     /// Since when the confine_pointer message is available.
     pub const MSG__CONFINE_POINTER__SINCE: u32 = 1;
 
@@ -458,6 +584,98 @@ impl ZwpPointerConstraintsV1 {
         if let Err(e) = res {
             log_send("zwp_pointer_constraints_v1.confine_pointer", &e);
         }
+    }
+
+    /// confine pointer to a region
+    ///
+    /// The confine_pointer request lets the client request to confine the
+    /// pointer cursor to a given region. This request may not take effect
+    /// immediately; in the future, when the compositor deems implementation-
+    /// specific constraints are satisfied, the pointer confinement will be
+    /// activated and the compositor sends a confined event.
+    ///
+    /// The intersection of the region passed with this request and the input
+    /// region of the surface is used to determine where the pointer must be
+    /// in order for the confinement to activate. It is up to the compositor
+    /// whether to warp the pointer or require some kind of user interaction for
+    /// the confinement to activate. If the region is null the surface input
+    /// region is used.
+    ///
+    /// The request will create a new object wp_confined_pointer which is used
+    /// to interact with the confinement as well as receive updates about its
+    /// state. See the the description of wp_confined_pointer for further
+    /// information.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`: surface to lock pointer to
+    /// - `pointer`: the pointer that should be confined
+    /// - `region`: region of surface
+    /// - `lifetime`: confinement lifetime
+    #[inline]
+    pub fn new_try_send_confine_pointer(
+        &self,
+        surface: &Rc<WlSurface>,
+        pointer: &Rc<WlPointer>,
+        region: Option<&Rc<WlRegion>>,
+        lifetime: ZwpPointerConstraintsV1Lifetime,
+    ) -> Result<Rc<ZwpConfinedPointerV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_confine_pointer(
+            &id,
+            surface,
+            pointer,
+            region,
+            lifetime,
+        )?;
+        Ok(id)
+    }
+
+    /// confine pointer to a region
+    ///
+    /// The confine_pointer request lets the client request to confine the
+    /// pointer cursor to a given region. This request may not take effect
+    /// immediately; in the future, when the compositor deems implementation-
+    /// specific constraints are satisfied, the pointer confinement will be
+    /// activated and the compositor sends a confined event.
+    ///
+    /// The intersection of the region passed with this request and the input
+    /// region of the surface is used to determine where the pointer must be
+    /// in order for the confinement to activate. It is up to the compositor
+    /// whether to warp the pointer or require some kind of user interaction for
+    /// the confinement to activate. If the region is null the surface input
+    /// region is used.
+    ///
+    /// The request will create a new object wp_confined_pointer which is used
+    /// to interact with the confinement as well as receive updates about its
+    /// state. See the the description of wp_confined_pointer for further
+    /// information.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`: surface to lock pointer to
+    /// - `pointer`: the pointer that should be confined
+    /// - `region`: region of surface
+    /// - `lifetime`: confinement lifetime
+    #[inline]
+    pub fn new_send_confine_pointer(
+        &self,
+        surface: &Rc<WlSurface>,
+        pointer: &Rc<WlPointer>,
+        region: Option<&Rc<WlRegion>>,
+        lifetime: ZwpPointerConstraintsV1Lifetime,
+    ) -> Rc<ZwpConfinedPointerV1> {
+        let id = self.core.create_child();
+        self.send_confine_pointer(
+            &id,
+            surface,
+            pointer,
+            region,
+            lifetime,
+        );
+        id
     }
 }
 

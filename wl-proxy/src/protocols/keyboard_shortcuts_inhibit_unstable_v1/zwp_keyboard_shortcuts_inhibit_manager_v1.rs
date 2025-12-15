@@ -207,6 +207,62 @@ impl ZwpKeyboardShortcutsInhibitManagerV1 {
             log_send("zwp_keyboard_shortcuts_inhibit_manager_v1.inhibit_shortcuts", &e);
         }
     }
+
+    /// create a new keyboard shortcuts inhibitor object
+    ///
+    /// Create a new keyboard shortcuts inhibitor object associated with
+    /// the given surface for the given seat.
+    ///
+    /// If shortcuts are already inhibited for the specified seat and surface,
+    /// a protocol error "already_inhibited" is raised by the compositor.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`: the surface that inhibits the keyboard shortcuts behavior
+    /// - `seat`: the wl_seat for which keyboard shortcuts should be disabled
+    #[inline]
+    pub fn new_try_send_inhibit_shortcuts(
+        &self,
+        surface: &Rc<WlSurface>,
+        seat: &Rc<WlSeat>,
+    ) -> Result<Rc<ZwpKeyboardShortcutsInhibitorV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_inhibit_shortcuts(
+            &id,
+            surface,
+            seat,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new keyboard shortcuts inhibitor object
+    ///
+    /// Create a new keyboard shortcuts inhibitor object associated with
+    /// the given surface for the given seat.
+    ///
+    /// If shortcuts are already inhibited for the specified seat and surface,
+    /// a protocol error "already_inhibited" is raised by the compositor.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`: the surface that inhibits the keyboard shortcuts behavior
+    /// - `seat`: the wl_seat for which keyboard shortcuts should be disabled
+    #[inline]
+    pub fn new_send_inhibit_shortcuts(
+        &self,
+        surface: &Rc<WlSurface>,
+        seat: &Rc<WlSeat>,
+    ) -> Rc<ZwpKeyboardShortcutsInhibitorV1> {
+        let id = self.core.create_child();
+        self.send_inhibit_shortcuts(
+            &id,
+            surface,
+            seat,
+        );
+        id
+    }
 }
 
 /// A message handler for [ZwpKeyboardShortcutsInhibitManagerV1] proxies.

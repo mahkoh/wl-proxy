@@ -553,6 +553,140 @@ impl ZwpFullscreenShellV1 {
             log_send("zwp_fullscreen_shell_v1.present_surface_for_mode", &e);
         }
     }
+
+    /// present surface for display at a particular mode
+    ///
+    /// Presents a surface on the given output for a particular mode.
+    ///
+    /// If the current size of the output differs from that of the surface,
+    /// the compositor will attempt to change the size of the output to
+    /// match the surface.  The result of the mode-switch operation will be
+    /// returned via the provided wl_fullscreen_shell_mode_feedback object.
+    ///
+    /// If the current output mode matches the one requested or if the
+    /// compositor successfully switches the mode to match the surface,
+    /// then the mode_successful event will be sent and the output will
+    /// contain the contents of the given surface.  If the compositor
+    /// cannot match the output size to the surface size, the mode_failed
+    /// will be sent and the output will contain the contents of the
+    /// previously presented surface (if any).  If another surface is
+    /// presented on the given output before either of these has a chance
+    /// to happen, the present_cancelled event will be sent.
+    ///
+    /// Due to race conditions and other issues unknown to the client, no
+    /// mode-switch operation is guaranteed to succeed.  However, if the
+    /// mode is one advertised by wl_output.mode or if the compositor
+    /// advertises the ARBITRARY_MODES capability, then the client should
+    /// expect that the mode-switch operation will usually succeed.
+    ///
+    /// If the size of the presented surface changes, the resulting output
+    /// is undefined.  The compositor may attempt to change the output mode
+    /// to compensate.  However, there is no guarantee that a suitable mode
+    /// will be found and the client has no way to be notified of success
+    /// or failure.
+    ///
+    /// The framerate parameter specifies the desired framerate for the
+    /// output in mHz.  The compositor is free to ignore this parameter.  A
+    /// value of 0 indicates that the client has no preference.
+    ///
+    /// If the value of wl_output.scale differs from wl_surface.buffer_scale,
+    /// then the compositor may choose a mode that matches either the buffer
+    /// size or the surface size.  In either case, the surface will fill the
+    /// output.
+    ///
+    /// This request gives the surface the role of a fullscreen shell surface.
+    /// If the surface already has another role, it raises a role protocol
+    /// error.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`:
+    /// - `output`:
+    /// - `framerate`:
+    /// - `feedback`:
+    #[inline]
+    pub fn new_try_send_present_surface_for_mode(
+        &self,
+        surface: &Rc<WlSurface>,
+        output: &Rc<WlOutput>,
+        framerate: i32,
+    ) -> Result<Rc<ZwpFullscreenShellModeFeedbackV1>, ObjectError> {
+        let feedback = self.core.create_child();
+        self.try_send_present_surface_for_mode(
+            surface,
+            output,
+            framerate,
+            &feedback,
+        )?;
+        Ok(feedback)
+    }
+
+    /// present surface for display at a particular mode
+    ///
+    /// Presents a surface on the given output for a particular mode.
+    ///
+    /// If the current size of the output differs from that of the surface,
+    /// the compositor will attempt to change the size of the output to
+    /// match the surface.  The result of the mode-switch operation will be
+    /// returned via the provided wl_fullscreen_shell_mode_feedback object.
+    ///
+    /// If the current output mode matches the one requested or if the
+    /// compositor successfully switches the mode to match the surface,
+    /// then the mode_successful event will be sent and the output will
+    /// contain the contents of the given surface.  If the compositor
+    /// cannot match the output size to the surface size, the mode_failed
+    /// will be sent and the output will contain the contents of the
+    /// previously presented surface (if any).  If another surface is
+    /// presented on the given output before either of these has a chance
+    /// to happen, the present_cancelled event will be sent.
+    ///
+    /// Due to race conditions and other issues unknown to the client, no
+    /// mode-switch operation is guaranteed to succeed.  However, if the
+    /// mode is one advertised by wl_output.mode or if the compositor
+    /// advertises the ARBITRARY_MODES capability, then the client should
+    /// expect that the mode-switch operation will usually succeed.
+    ///
+    /// If the size of the presented surface changes, the resulting output
+    /// is undefined.  The compositor may attempt to change the output mode
+    /// to compensate.  However, there is no guarantee that a suitable mode
+    /// will be found and the client has no way to be notified of success
+    /// or failure.
+    ///
+    /// The framerate parameter specifies the desired framerate for the
+    /// output in mHz.  The compositor is free to ignore this parameter.  A
+    /// value of 0 indicates that the client has no preference.
+    ///
+    /// If the value of wl_output.scale differs from wl_surface.buffer_scale,
+    /// then the compositor may choose a mode that matches either the buffer
+    /// size or the surface size.  In either case, the surface will fill the
+    /// output.
+    ///
+    /// This request gives the surface the role of a fullscreen shell surface.
+    /// If the surface already has another role, it raises a role protocol
+    /// error.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`:
+    /// - `output`:
+    /// - `framerate`:
+    /// - `feedback`:
+    #[inline]
+    pub fn new_send_present_surface_for_mode(
+        &self,
+        surface: &Rc<WlSurface>,
+        output: &Rc<WlOutput>,
+        framerate: i32,
+    ) -> Rc<ZwpFullscreenShellModeFeedbackV1> {
+        let feedback = self.core.create_child();
+        self.send_present_surface_for_mode(
+            surface,
+            output,
+            framerate,
+            &feedback,
+        );
+        feedback
+    }
 }
 
 /// A message handler for [ZwpFullscreenShellV1] proxies.

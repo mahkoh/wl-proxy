@@ -240,6 +240,66 @@ impl XdgToplevelDragManagerV1 {
             log_send("xdg_toplevel_drag_manager_v1.get_xdg_toplevel_drag", &e);
         }
     }
+
+    /// get an xdg_toplevel_drag for a wl_data_source
+    ///
+    /// Create an xdg_toplevel_drag for a drag and drop operation that is going
+    /// to be started with data_source.
+    ///
+    /// This request can only be made on sources used in drag-and-drop, so it
+    /// must be performed before wl_data_device.start_drag. Attempting to use
+    /// the source other than for drag-and-drop such as in
+    /// wl_data_device.set_selection will raise an invalid_source error.
+    ///
+    /// Destroying data_source while a toplevel is attached to the
+    /// xdg_toplevel_drag is undefined.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `data_source`:
+    #[inline]
+    pub fn new_try_send_get_xdg_toplevel_drag(
+        &self,
+        data_source: &Rc<WlDataSource>,
+    ) -> Result<Rc<XdgToplevelDragV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_xdg_toplevel_drag(
+            &id,
+            data_source,
+        )?;
+        Ok(id)
+    }
+
+    /// get an xdg_toplevel_drag for a wl_data_source
+    ///
+    /// Create an xdg_toplevel_drag for a drag and drop operation that is going
+    /// to be started with data_source.
+    ///
+    /// This request can only be made on sources used in drag-and-drop, so it
+    /// must be performed before wl_data_device.start_drag. Attempting to use
+    /// the source other than for drag-and-drop such as in
+    /// wl_data_device.set_selection will raise an invalid_source error.
+    ///
+    /// Destroying data_source while a toplevel is attached to the
+    /// xdg_toplevel_drag is undefined.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `data_source`:
+    #[inline]
+    pub fn new_send_get_xdg_toplevel_drag(
+        &self,
+        data_source: &Rc<WlDataSource>,
+    ) -> Rc<XdgToplevelDragV1> {
+        let id = self.core.create_child();
+        self.send_get_xdg_toplevel_drag(
+            &id,
+            data_source,
+        );
+        id
+    }
 }
 
 /// A message handler for [XdgToplevelDragManagerV1] proxies.

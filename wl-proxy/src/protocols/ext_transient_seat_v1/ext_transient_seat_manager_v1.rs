@@ -121,6 +121,42 @@ impl ExtTransientSeatManagerV1 {
         }
     }
 
+    /// create a transient seat
+    ///
+    /// Create a new seat that is removed when the client side transient seat
+    /// object is destroyed.
+    ///
+    /// The actual seat may be removed sooner, in which case the transient seat
+    /// object shall become inert.
+    #[inline]
+    pub fn new_try_send_create(
+        &self,
+    ) -> Result<Rc<ExtTransientSeatV1>, ObjectError> {
+        let seat = self.core.create_child();
+        self.try_send_create(
+            &seat,
+        )?;
+        Ok(seat)
+    }
+
+    /// create a transient seat
+    ///
+    /// Create a new seat that is removed when the client side transient seat
+    /// object is destroyed.
+    ///
+    /// The actual seat may be removed sooner, in which case the transient seat
+    /// object shall become inert.
+    #[inline]
+    pub fn new_send_create(
+        &self,
+    ) -> Rc<ExtTransientSeatV1> {
+        let seat = self.core.create_child();
+        self.send_create(
+            &seat,
+        );
+        seat
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 

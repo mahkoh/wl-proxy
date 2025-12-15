@@ -112,6 +112,34 @@ impl ZwpTextInputManagerV1 {
             log_send("zwp_text_input_manager_v1.create_text_input", &e);
         }
     }
+
+    /// create text input
+    ///
+    /// Creates a new text_input object.
+    #[inline]
+    pub fn new_try_send_create_text_input(
+        &self,
+    ) -> Result<Rc<ZwpTextInputV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_text_input(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// create text input
+    ///
+    /// Creates a new text_input object.
+    #[inline]
+    pub fn new_send_create_text_input(
+        &self,
+    ) -> Rc<ZwpTextInputV1> {
+        let id = self.core.create_child();
+        self.send_create_text_input(
+            &id,
+        );
+        id
+    }
 }
 
 /// A message handler for [ZwpTextInputManagerV1] proxies.

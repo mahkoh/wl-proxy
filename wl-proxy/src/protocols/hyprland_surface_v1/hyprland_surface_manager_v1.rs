@@ -140,6 +140,54 @@ impl HyprlandSurfaceManagerV1 {
         }
     }
 
+    /// create a hyprland surface object
+    ///
+    /// Create a hyprland surface object for the given wayland surface.
+    ///
+    /// If the wl_surface already has an associated hyprland_surface_v1 object,
+    /// even from a different manager, creation is a protocol error.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_try_send_get_hyprland_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<HyprlandSurfaceV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_hyprland_surface(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// create a hyprland surface object
+    ///
+    /// Create a hyprland surface object for the given wayland surface.
+    ///
+    /// If the wl_surface already has an associated hyprland_surface_v1 object,
+    /// even from a different manager, creation is a protocol error.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_send_get_hyprland_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<HyprlandSurfaceV1> {
+        let id = self.core.create_child();
+        self.send_get_hyprland_surface(
+            &id,
+            surface,
+        );
+        id
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 

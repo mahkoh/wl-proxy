@@ -201,6 +201,54 @@ impl WpColorManagerV1 {
         }
     }
 
+    /// create a color management interface for a wl_output
+    ///
+    /// This creates a new wp_color_management_output_v1 object for the
+    /// given wl_output.
+    ///
+    /// See the wp_color_management_output_v1 interface for more details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `output`:
+    #[inline]
+    pub fn new_try_send_get_output(
+        &self,
+        output: &Rc<WlOutput>,
+    ) -> Result<Rc<WpColorManagementOutputV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_output(
+            &id,
+            output,
+        )?;
+        Ok(id)
+    }
+
+    /// create a color management interface for a wl_output
+    ///
+    /// This creates a new wp_color_management_output_v1 object for the
+    /// given wl_output.
+    ///
+    /// See the wp_color_management_output_v1 interface for more details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `output`:
+    #[inline]
+    pub fn new_send_get_output(
+        &self,
+        output: &Rc<WlOutput>,
+    ) -> Rc<WpColorManagementOutputV1> {
+        let id = self.core.create_child();
+        self.send_get_output(
+            &id,
+            output,
+        );
+        id
+    }
+
     /// Since when the get_surface message is available.
     pub const MSG__GET_SURFACE__SINCE: u32 = 1;
 
@@ -300,6 +348,60 @@ impl WpColorManagerV1 {
         }
     }
 
+    /// create a color management interface for a wl_surface
+    ///
+    /// If a wp_color_management_surface_v1 object already exists for the given
+    /// wl_surface, the protocol error surface_exists is raised.
+    ///
+    /// This creates a new color wp_color_management_surface_v1 object for the
+    /// given wl_surface.
+    ///
+    /// See the wp_color_management_surface_v1 interface for more details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_try_send_get_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<WpColorManagementSurfaceV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_surface(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// create a color management interface for a wl_surface
+    ///
+    /// If a wp_color_management_surface_v1 object already exists for the given
+    /// wl_surface, the protocol error surface_exists is raised.
+    ///
+    /// This creates a new color wp_color_management_surface_v1 object for the
+    /// given wl_surface.
+    ///
+    /// See the wp_color_management_surface_v1 interface for more details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_send_get_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<WpColorManagementSurfaceV1> {
+        let id = self.core.create_child();
+        self.send_get_surface(
+            &id,
+            surface,
+        );
+        id
+    }
+
     /// Since when the get_surface_feedback message is available.
     pub const MSG__GET_SURFACE_FEEDBACK__SINCE: u32 = 1;
 
@@ -395,6 +497,56 @@ impl WpColorManagerV1 {
         }
     }
 
+    /// create a color management feedback interface
+    ///
+    /// This creates a new color wp_color_management_surface_feedback_v1 object
+    /// for the given wl_surface.
+    ///
+    /// See the wp_color_management_surface_feedback_v1 interface for more
+    /// details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_try_send_get_surface_feedback(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<WpColorManagementSurfaceFeedbackV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_surface_feedback(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// create a color management feedback interface
+    ///
+    /// This creates a new color wp_color_management_surface_feedback_v1 object
+    /// for the given wl_surface.
+    ///
+    /// See the wp_color_management_surface_feedback_v1 interface for more
+    /// details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_send_get_surface_feedback(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<WpColorManagementSurfaceFeedbackV1> {
+        let id = self.core.create_child();
+        self.send_get_surface_feedback(
+            &id,
+            surface,
+        );
+        id
+    }
+
     /// Since when the create_icc_creator message is available.
     pub const MSG__CREATE_ICC_CREATOR__SINCE: u32 = 1;
 
@@ -475,6 +627,48 @@ impl WpColorManagerV1 {
         }
     }
 
+    /// make a new ICC-based image description creator object
+    ///
+    /// Makes a new ICC-based image description creator object with all
+    /// properties initially unset. The client can then use the object's
+    /// interface to define all the required properties for an image description
+    /// and finally create a wp_image_description_v1 object.
+    ///
+    /// This request can be used when the compositor advertises
+    /// wp_color_manager_v1.feature.icc_v2_v4.
+    /// Otherwise this request raises the protocol error unsupported_feature.
+    #[inline]
+    pub fn new_try_send_create_icc_creator(
+        &self,
+    ) -> Result<Rc<WpImageDescriptionCreatorIccV1>, ObjectError> {
+        let obj = self.core.create_child();
+        self.try_send_create_icc_creator(
+            &obj,
+        )?;
+        Ok(obj)
+    }
+
+    /// make a new ICC-based image description creator object
+    ///
+    /// Makes a new ICC-based image description creator object with all
+    /// properties initially unset. The client can then use the object's
+    /// interface to define all the required properties for an image description
+    /// and finally create a wp_image_description_v1 object.
+    ///
+    /// This request can be used when the compositor advertises
+    /// wp_color_manager_v1.feature.icc_v2_v4.
+    /// Otherwise this request raises the protocol error unsupported_feature.
+    #[inline]
+    pub fn new_send_create_icc_creator(
+        &self,
+    ) -> Rc<WpImageDescriptionCreatorIccV1> {
+        let obj = self.core.create_child();
+        self.send_create_icc_creator(
+            &obj,
+        );
+        obj
+    }
+
     /// Since when the create_parametric_creator message is available.
     pub const MSG__CREATE_PARAMETRIC_CREATOR__SINCE: u32 = 1;
 
@@ -553,6 +747,48 @@ impl WpColorManagerV1 {
         if let Err(e) = res {
             log_send("wp_color_manager_v1.create_parametric_creator", &e);
         }
+    }
+
+    /// make a new parametric image description creator object
+    ///
+    /// Makes a new parametric image description creator object with all
+    /// properties initially unset. The client can then use the object's
+    /// interface to define all the required properties for an image description
+    /// and finally create a wp_image_description_v1 object.
+    ///
+    /// This request can be used when the compositor advertises
+    /// wp_color_manager_v1.feature.parametric.
+    /// Otherwise this request raises the protocol error unsupported_feature.
+    #[inline]
+    pub fn new_try_send_create_parametric_creator(
+        &self,
+    ) -> Result<Rc<WpImageDescriptionCreatorParamsV1>, ObjectError> {
+        let obj = self.core.create_child();
+        self.try_send_create_parametric_creator(
+            &obj,
+        )?;
+        Ok(obj)
+    }
+
+    /// make a new parametric image description creator object
+    ///
+    /// Makes a new parametric image description creator object with all
+    /// properties initially unset. The client can then use the object's
+    /// interface to define all the required properties for an image description
+    /// and finally create a wp_image_description_v1 object.
+    ///
+    /// This request can be used when the compositor advertises
+    /// wp_color_manager_v1.feature.parametric.
+    /// Otherwise this request raises the protocol error unsupported_feature.
+    #[inline]
+    pub fn new_send_create_parametric_creator(
+        &self,
+    ) -> Rc<WpImageDescriptionCreatorParamsV1> {
+        let obj = self.core.create_child();
+        self.send_create_parametric_creator(
+            &obj,
+        );
+        obj
     }
 
     /// Since when the create_windows_scrgb message is available.
@@ -705,6 +941,120 @@ impl WpColorManagerV1 {
         if let Err(e) = res {
             log_send("wp_color_manager_v1.create_windows_scrgb", &e);
         }
+    }
+
+    /// create Windows-scRGB image description object
+    ///
+    /// This creates a pre-defined image description for the so-called
+    /// Windows-scRGB stimulus encoding. This comes from the Windows 10 handling
+    /// of its own definition of an scRGB color space for an HDR screen
+    /// driven in BT.2100/PQ signalling mode.
+    ///
+    /// Windows-scRGB uses sRGB (BT.709) color primaries and white point.
+    /// The transfer characteristic is extended linear.
+    ///
+    /// The nominal color channel value range is extended, meaning it includes
+    /// negative and greater than 1.0 values. Negative values are used to
+    /// escape the sRGB color gamut boundaries. To make use of the extended
+    /// range, the client needs to use a pixel format that can represent those
+    /// values, e.g. floating-point 16 bits per channel.
+    ///
+    /// Nominal color value R=G=B=0.0 corresponds to BT.2100/PQ system
+    /// 0 cd/m², and R=G=B=1.0 corresponds to BT.2100/PQ system 80 cd/m².
+    /// The maximum is R=G=B=125.0 corresponding to 10k cd/m².
+    ///
+    /// Windows-scRGB is displayed by Windows 10 by converting it to
+    /// BT.2100/PQ, maintaining the CIE 1931 chromaticity and mapping the
+    /// luminance as above. No adjustment is made to the signal to account
+    /// for the viewing conditions.
+    ///
+    /// The reference white level of Windows-scRGB is unknown. If a
+    /// reference white level must be assumed for compositor processing, it
+    /// should be R=G=B=2.5375 corresponding to 203 cd/m² of Report ITU-R
+    /// BT.2408-7.
+    ///
+    /// The target color volume of Windows-scRGB is unknown. The color gamut
+    /// may be anything between sRGB and BT.2100.
+    ///
+    /// Note: EGL_EXT_gl_colorspace_scrgb_linear definition differs from
+    /// Windows-scRGB by using R=G=B=1.0 as the reference white level, while
+    /// Windows-scRGB reference white level is unknown or varies. However,
+    /// it seems probable that Windows implements both
+    /// EGL_EXT_gl_colorspace_scrgb_linear and Vulkan
+    /// VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT as Windows-scRGB.
+    ///
+    /// This request can be used when the compositor advertises
+    /// wp_color_manager_v1.feature.windows_scrgb.
+    /// Otherwise this request raises the protocol error unsupported_feature.
+    ///
+    /// The resulting image description object does not allow get_information
+    /// request. The wp_image_description_v1.ready event shall be sent.
+    #[inline]
+    pub fn new_try_send_create_windows_scrgb(
+        &self,
+    ) -> Result<Rc<WpImageDescriptionV1>, ObjectError> {
+        let image_description = self.core.create_child();
+        self.try_send_create_windows_scrgb(
+            &image_description,
+        )?;
+        Ok(image_description)
+    }
+
+    /// create Windows-scRGB image description object
+    ///
+    /// This creates a pre-defined image description for the so-called
+    /// Windows-scRGB stimulus encoding. This comes from the Windows 10 handling
+    /// of its own definition of an scRGB color space for an HDR screen
+    /// driven in BT.2100/PQ signalling mode.
+    ///
+    /// Windows-scRGB uses sRGB (BT.709) color primaries and white point.
+    /// The transfer characteristic is extended linear.
+    ///
+    /// The nominal color channel value range is extended, meaning it includes
+    /// negative and greater than 1.0 values. Negative values are used to
+    /// escape the sRGB color gamut boundaries. To make use of the extended
+    /// range, the client needs to use a pixel format that can represent those
+    /// values, e.g. floating-point 16 bits per channel.
+    ///
+    /// Nominal color value R=G=B=0.0 corresponds to BT.2100/PQ system
+    /// 0 cd/m², and R=G=B=1.0 corresponds to BT.2100/PQ system 80 cd/m².
+    /// The maximum is R=G=B=125.0 corresponding to 10k cd/m².
+    ///
+    /// Windows-scRGB is displayed by Windows 10 by converting it to
+    /// BT.2100/PQ, maintaining the CIE 1931 chromaticity and mapping the
+    /// luminance as above. No adjustment is made to the signal to account
+    /// for the viewing conditions.
+    ///
+    /// The reference white level of Windows-scRGB is unknown. If a
+    /// reference white level must be assumed for compositor processing, it
+    /// should be R=G=B=2.5375 corresponding to 203 cd/m² of Report ITU-R
+    /// BT.2408-7.
+    ///
+    /// The target color volume of Windows-scRGB is unknown. The color gamut
+    /// may be anything between sRGB and BT.2100.
+    ///
+    /// Note: EGL_EXT_gl_colorspace_scrgb_linear definition differs from
+    /// Windows-scRGB by using R=G=B=1.0 as the reference white level, while
+    /// Windows-scRGB reference white level is unknown or varies. However,
+    /// it seems probable that Windows implements both
+    /// EGL_EXT_gl_colorspace_scrgb_linear and Vulkan
+    /// VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT as Windows-scRGB.
+    ///
+    /// This request can be used when the compositor advertises
+    /// wp_color_manager_v1.feature.windows_scrgb.
+    /// Otherwise this request raises the protocol error unsupported_feature.
+    ///
+    /// The resulting image description object does not allow get_information
+    /// request. The wp_image_description_v1.ready event shall be sent.
+    #[inline]
+    pub fn new_send_create_windows_scrgb(
+        &self,
+    ) -> Rc<WpImageDescriptionV1> {
+        let image_description = self.core.create_child();
+        self.send_create_windows_scrgb(
+            &image_description,
+        );
+        image_description
     }
 
     /// Since when the supported_intent message is available.
@@ -1174,6 +1524,54 @@ impl WpColorManagerV1 {
         if let Err(e) = res {
             log_send("wp_color_manager_v1.get_image_description", &e);
         }
+    }
+
+    /// create an image description from a reference
+    ///
+    /// This request retrieves the image description backing a reference.
+    ///
+    /// The get_information request can be used if and only if the request that
+    /// creates the reference allows it.
+    ///
+    /// # Arguments
+    ///
+    /// - `image_description`:
+    /// - `reference`:
+    #[inline]
+    pub fn new_try_send_get_image_description(
+        &self,
+        reference: &Rc<WpImageDescriptionReferenceV1>,
+    ) -> Result<Rc<WpImageDescriptionV1>, ObjectError> {
+        let image_description = self.core.create_child();
+        self.try_send_get_image_description(
+            &image_description,
+            reference,
+        )?;
+        Ok(image_description)
+    }
+
+    /// create an image description from a reference
+    ///
+    /// This request retrieves the image description backing a reference.
+    ///
+    /// The get_information request can be used if and only if the request that
+    /// creates the reference allows it.
+    ///
+    /// # Arguments
+    ///
+    /// - `image_description`:
+    /// - `reference`:
+    #[inline]
+    pub fn new_send_get_image_description(
+        &self,
+        reference: &Rc<WpImageDescriptionReferenceV1>,
+    ) -> Rc<WpImageDescriptionV1> {
+        let image_description = self.core.create_child();
+        self.send_get_image_description(
+            &image_description,
+            reference,
+        );
+        image_description
     }
 }
 

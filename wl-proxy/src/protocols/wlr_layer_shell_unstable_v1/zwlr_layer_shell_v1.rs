@@ -212,6 +212,106 @@ impl ZwlrLayerShellV1 {
         }
     }
 
+    /// create a layer_surface from a surface
+    ///
+    /// Create a layer surface for an existing surface. This assigns the role of
+    /// layer_surface, or raises a protocol error if another role is already
+    /// assigned.
+    ///
+    /// Creating a layer surface from a wl_surface which has a buffer attached
+    /// or committed is a client error, and any attempts by a client to attach
+    /// or manipulate a buffer prior to the first layer_surface.configure call
+    /// must also be treated as errors.
+    ///
+    /// After creating a layer_surface object and setting it up, the client
+    /// must perform an initial commit without any buffer attached.
+    /// The compositor will reply with a layer_surface.configure event.
+    /// The client must acknowledge it and is then allowed to attach a buffer
+    /// to map the surface.
+    ///
+    /// You may pass NULL for output to allow the compositor to decide which
+    /// output to use. Generally this will be the one that the user most
+    /// recently interacted with.
+    ///
+    /// Clients can specify a namespace that defines the purpose of the layer
+    /// surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    /// - `output`:
+    /// - `layer`: layer to add this surface to
+    /// - `namespace`: namespace for the layer surface
+    #[inline]
+    pub fn new_try_send_get_layer_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+        output: Option<&Rc<WlOutput>>,
+        layer: ZwlrLayerShellV1Layer,
+        namespace: &str,
+    ) -> Result<Rc<ZwlrLayerSurfaceV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_layer_surface(
+            &id,
+            surface,
+            output,
+            layer,
+            namespace,
+        )?;
+        Ok(id)
+    }
+
+    /// create a layer_surface from a surface
+    ///
+    /// Create a layer surface for an existing surface. This assigns the role of
+    /// layer_surface, or raises a protocol error if another role is already
+    /// assigned.
+    ///
+    /// Creating a layer surface from a wl_surface which has a buffer attached
+    /// or committed is a client error, and any attempts by a client to attach
+    /// or manipulate a buffer prior to the first layer_surface.configure call
+    /// must also be treated as errors.
+    ///
+    /// After creating a layer_surface object and setting it up, the client
+    /// must perform an initial commit without any buffer attached.
+    /// The compositor will reply with a layer_surface.configure event.
+    /// The client must acknowledge it and is then allowed to attach a buffer
+    /// to map the surface.
+    ///
+    /// You may pass NULL for output to allow the compositor to decide which
+    /// output to use. Generally this will be the one that the user most
+    /// recently interacted with.
+    ///
+    /// Clients can specify a namespace that defines the purpose of the layer
+    /// surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    /// - `output`:
+    /// - `layer`: layer to add this surface to
+    /// - `namespace`: namespace for the layer surface
+    #[inline]
+    pub fn new_send_get_layer_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+        output: Option<&Rc<WlOutput>>,
+        layer: ZwlrLayerShellV1Layer,
+        namespace: &str,
+    ) -> Rc<ZwlrLayerSurfaceV1> {
+        let id = self.core.create_child();
+        self.send_get_layer_surface(
+            &id,
+            surface,
+            output,
+            layer,
+            namespace,
+        );
+        id
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 3;
 

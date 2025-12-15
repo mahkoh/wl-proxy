@@ -216,6 +216,54 @@ impl WpCommitTimingManagerV1 {
             log_send("wp_commit_timing_manager_v1.get_timer", &e);
         }
     }
+
+    /// request commit timer interface for surface
+    ///
+    /// Establish a timing controller for a surface.
+    ///
+    /// Only one commit timer can be created for a surface, or a
+    /// commit_timer_exists protocol error will be generated.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_try_send_get_timer(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<WpCommitTimerV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_timer(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// request commit timer interface for surface
+    ///
+    /// Establish a timing controller for a surface.
+    ///
+    /// Only one commit timer can be created for a surface, or a
+    /// commit_timer_exists protocol error will be generated.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_send_get_timer(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<WpCommitTimerV1> {
+        let id = self.core.create_child();
+        self.send_get_timer(
+            &id,
+            surface,
+        );
+        id
+    }
 }
 
 /// A message handler for [WpCommitTimingManagerV1] proxies.

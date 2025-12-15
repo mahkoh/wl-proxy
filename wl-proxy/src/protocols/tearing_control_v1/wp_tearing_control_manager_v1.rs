@@ -212,6 +212,56 @@ impl WpTearingControlManagerV1 {
             log_send("wp_tearing_control_manager_v1.get_tearing_control", &e);
         }
     }
+
+    /// extend surface interface for tearing control
+    ///
+    /// Instantiate an interface extension for the given wl_surface to request
+    /// asynchronous page flips for presentation.
+    ///
+    /// If the given wl_surface already has a wp_tearing_control_v1 object
+    /// associated, the tearing_control_exists protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_try_send_get_tearing_control(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<WpTearingControlV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_tearing_control(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// extend surface interface for tearing control
+    ///
+    /// Instantiate an interface extension for the given wl_surface to request
+    /// asynchronous page flips for presentation.
+    ///
+    /// If the given wl_surface already has a wp_tearing_control_v1 object
+    /// associated, the tearing_control_exists protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_send_get_tearing_control(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<WpTearingControlV1> {
+        let id = self.core.create_child();
+        self.send_get_tearing_control(
+            &id,
+            surface,
+        );
+        id
+    }
 }
 
 /// A message handler for [WpTearingControlManagerV1] proxies.

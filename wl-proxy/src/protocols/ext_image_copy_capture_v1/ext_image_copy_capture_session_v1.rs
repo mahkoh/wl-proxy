@@ -598,6 +598,42 @@ impl ExtImageCopyCaptureSessionV1 {
         }
     }
 
+    /// create a frame
+    ///
+    /// Create a capture frame for this session.
+    ///
+    /// At most one frame object can exist for a given session at any time. If
+    /// a client sends a create_frame request before a previous frame object
+    /// has been destroyed, the duplicate_frame protocol error is raised.
+    #[inline]
+    pub fn new_try_send_create_frame(
+        &self,
+    ) -> Result<Rc<ExtImageCopyCaptureFrameV1>, ObjectError> {
+        let frame = self.core.create_child();
+        self.try_send_create_frame(
+            &frame,
+        )?;
+        Ok(frame)
+    }
+
+    /// create a frame
+    ///
+    /// Create a capture frame for this session.
+    ///
+    /// At most one frame object can exist for a given session at any time. If
+    /// a client sends a create_frame request before a previous frame object
+    /// has been destroyed, the duplicate_frame protocol error is raised.
+    #[inline]
+    pub fn new_send_create_frame(
+        &self,
+    ) -> Rc<ExtImageCopyCaptureFrameV1> {
+        let frame = self.core.create_child();
+        self.send_create_frame(
+            &frame,
+        );
+        frame
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 

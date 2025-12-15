@@ -12,13 +12,13 @@ use {
 #[derive(Debug, Error)]
 pub(crate) enum PollError {
     #[error("could not create epoll fd")]
-    CreateEpoll(#[source] io::Error),
+    Create(#[source] io::Error),
     #[error("could not read epoll events")]
-    ReadEpoll(#[source] io::Error),
+    Read(#[source] io::Error),
     #[error("could not register socket with epoll")]
-    AddEpoll(#[source] io::Error),
+    Add(#[source] io::Error),
     #[error("could not update epoll interests")]
-    UpdateEpoll(#[source] io::Error),
+    Update(#[source] io::Error),
 }
 
 pub(crate) const MAX_EVENTS: usize = 16;
@@ -44,7 +44,7 @@ pub(crate) struct Poller {
 impl Poller {
     pub(crate) fn new() -> Result<Self, PollError> {
         let epoll =
-            uapi::epoll_create1(c::EPOLL_CLOEXEC).map_err(|e| PollError::CreateEpoll(e.into()))?;
+            uapi::epoll_create1(c::EPOLL_CLOEXEC).map_err(|e| PollError::Create(e.into()))?;
         Ok(Self {
             epoll: Rc::new(epoll.into()),
         })
@@ -65,7 +65,7 @@ impl Poller {
             let n = match res {
                 Ok(n) => n,
                 Err(Errno(c::EINTR)) => continue,
-                Err(e) => return Err(PollError::ReadEpoll(e.into()).into()),
+                Err(e) => return Err(PollError::Read(e.into())),
             };
             for i in 0..n {
                 let epe = &epe[i];
@@ -88,7 +88,7 @@ impl Poller {
             fd.as_raw_fd(),
             Some(&event),
         )
-        .map_err(|e| PollError::AddEpoll(e.into()))
+        .map_err(|e| PollError::Add(e.into()))
     }
 
     pub(crate) fn unregister(&self, fd: &OwnedFd) {
@@ -122,6 +122,6 @@ impl Poller {
             socket.as_raw_fd(),
             Some(&event),
         )
-        .map_err(|e| PollError::UpdateEpoll(e.into()))
+        .map_err(|e| PollError::Update(e.into()))
     }
 }

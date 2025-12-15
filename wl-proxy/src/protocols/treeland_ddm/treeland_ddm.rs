@@ -399,6 +399,36 @@ impl TreelandDdm {
         }
     }
 
+    /// stop treeland rendering
+    ///
+    /// Disable treeland rendering. This will prevent treeland from
+    /// output to DRM device.
+    #[inline]
+    pub fn new_try_send_disable_render(
+        &self,
+    ) -> Result<Rc<WlCallback>, ObjectError> {
+        let callback = self.core.create_child();
+        self.try_send_disable_render(
+            &callback,
+        )?;
+        Ok(callback)
+    }
+
+    /// stop treeland rendering
+    ///
+    /// Disable treeland rendering. This will prevent treeland from
+    /// output to DRM device.
+    #[inline]
+    pub fn new_send_disable_render(
+        &self,
+    ) -> Rc<WlCallback> {
+        let callback = self.core.create_child();
+        self.send_disable_render(
+            &callback,
+        );
+        callback
+    }
+
     /// Since when the switch_to_vt message is available.
     pub const MSG__SWITCH_TO_VT__SINCE: u32 = 1;
 

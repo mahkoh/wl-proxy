@@ -187,6 +187,46 @@ impl ExtImageCopyCaptureCursorSessionV1 {
         }
     }
 
+    /// get image copy capturer session
+    ///
+    /// Gets the image copy capture session for this cursor session.
+    ///
+    /// The session will produce frames of the cursor image. The compositor may
+    /// pause the session when the cursor leaves the captured area.
+    ///
+    /// This request must not be sent more than once, or else the
+    /// duplicate_session protocol error is raised.
+    #[inline]
+    pub fn new_try_send_get_capture_session(
+        &self,
+    ) -> Result<Rc<ExtImageCopyCaptureSessionV1>, ObjectError> {
+        let session = self.core.create_child();
+        self.try_send_get_capture_session(
+            &session,
+        )?;
+        Ok(session)
+    }
+
+    /// get image copy capturer session
+    ///
+    /// Gets the image copy capture session for this cursor session.
+    ///
+    /// The session will produce frames of the cursor image. The compositor may
+    /// pause the session when the cursor leaves the captured area.
+    ///
+    /// This request must not be sent more than once, or else the
+    /// duplicate_session protocol error is raised.
+    #[inline]
+    pub fn new_send_get_capture_session(
+        &self,
+    ) -> Rc<ExtImageCopyCaptureSessionV1> {
+        let session = self.core.create_child();
+        self.send_get_capture_session(
+            &session,
+        );
+        session
+    }
+
     /// Since when the enter message is available.
     pub const MSG__ENTER__SINCE: u32 = 1;
 

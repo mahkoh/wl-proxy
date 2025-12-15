@@ -9,7 +9,7 @@ use {
     wl_proxy::{
         baseline::Baseline,
         global_mapper::GlobalMapper,
-        object::{Object, ObjectRcUtils, ObjectUtils},
+        object::{ConcreteObject, Object, ObjectRcUtils, ObjectUtils},
         protocols::{
             ObjectInterface,
             org_kde_kwin_server_decoration_v1::{

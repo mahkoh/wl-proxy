@@ -547,6 +547,42 @@ impl ZwpLinuxBufferParamsV1 {
         }
     }
 
+    /// buffer creation succeeded
+    ///
+    /// This event indicates that the attempted buffer creation was
+    /// successful. It provides the new wl_buffer referencing the dmabuf(s).
+    ///
+    /// Upon receiving this event, the client should destroy the
+    /// zwp_linux_buffer_params_v1 object.
+    #[inline]
+    pub fn new_try_send_created(
+        &self,
+    ) -> Result<Rc<WlBuffer>, ObjectError> {
+        let buffer = self.core.create_child();
+        self.try_send_created(
+            &buffer,
+        )?;
+        Ok(buffer)
+    }
+
+    /// buffer creation succeeded
+    ///
+    /// This event indicates that the attempted buffer creation was
+    /// successful. It provides the new wl_buffer referencing the dmabuf(s).
+    ///
+    /// Upon receiving this event, the client should destroy the
+    /// zwp_linux_buffer_params_v1 object.
+    #[inline]
+    pub fn new_send_created(
+        &self,
+    ) -> Rc<WlBuffer> {
+        let buffer = self.core.create_child();
+        self.send_created(
+            &buffer,
+        );
+        buffer
+    }
+
     /// Since when the failed message is available.
     pub const MSG__FAILED__SINCE: u32 = 1;
 
@@ -761,6 +797,112 @@ impl ZwpLinuxBufferParamsV1 {
         if let Err(e) = res {
             log_send("zwp_linux_buffer_params_v1.create_immed", &e);
         }
+    }
+
+    /// immediately create a wl_buffer from the given
+    ///                      dmabufs
+    ///
+    /// This asks for immediate creation of a wl_buffer by importing the
+    /// added dmabufs.
+    ///
+    /// In case of import success, no event is sent from the server, and the
+    /// wl_buffer is ready to be used by the client.
+    ///
+    /// Upon import failure, either of the following may happen, as seen fit
+    /// by the implementation:
+    /// - the client is terminated with one of the following fatal protocol
+    ///   errors:
+    ///   - INCOMPLETE, INVALID_FORMAT, INVALID_DIMENSIONS, OUT_OF_BOUNDS,
+    ///     in case of argument errors such as mismatch between the number
+    ///     of planes and the format, bad format, non-positive width or
+    ///     height, or bad offset or stride.
+    ///   - INVALID_WL_BUFFER, in case the cause for failure is unknown or
+    ///     platform specific.
+    /// - the server creates an invalid wl_buffer, marks it as failed and
+    ///   sends a 'failed' event to the client. The result of using this
+    ///   invalid wl_buffer as an argument in any request by the client is
+    ///   defined by the compositor implementation.
+    ///
+    /// This takes the same arguments as a 'create' request, and obeys the
+    /// same restrictions.
+    ///
+    /// # Arguments
+    ///
+    /// - `buffer_id`: id for the newly created wl_buffer
+    /// - `width`: base plane width in pixels
+    /// - `height`: base plane height in pixels
+    /// - `format`: DRM_FORMAT code
+    /// - `flags`: see enum flags
+    #[inline]
+    pub fn new_try_send_create_immed(
+        &self,
+        width: i32,
+        height: i32,
+        format: u32,
+        flags: ZwpLinuxBufferParamsV1Flags,
+    ) -> Result<Rc<WlBuffer>, ObjectError> {
+        let buffer_id = self.core.create_child();
+        self.try_send_create_immed(
+            &buffer_id,
+            width,
+            height,
+            format,
+            flags,
+        )?;
+        Ok(buffer_id)
+    }
+
+    /// immediately create a wl_buffer from the given
+    ///                      dmabufs
+    ///
+    /// This asks for immediate creation of a wl_buffer by importing the
+    /// added dmabufs.
+    ///
+    /// In case of import success, no event is sent from the server, and the
+    /// wl_buffer is ready to be used by the client.
+    ///
+    /// Upon import failure, either of the following may happen, as seen fit
+    /// by the implementation:
+    /// - the client is terminated with one of the following fatal protocol
+    ///   errors:
+    ///   - INCOMPLETE, INVALID_FORMAT, INVALID_DIMENSIONS, OUT_OF_BOUNDS,
+    ///     in case of argument errors such as mismatch between the number
+    ///     of planes and the format, bad format, non-positive width or
+    ///     height, or bad offset or stride.
+    ///   - INVALID_WL_BUFFER, in case the cause for failure is unknown or
+    ///     platform specific.
+    /// - the server creates an invalid wl_buffer, marks it as failed and
+    ///   sends a 'failed' event to the client. The result of using this
+    ///   invalid wl_buffer as an argument in any request by the client is
+    ///   defined by the compositor implementation.
+    ///
+    /// This takes the same arguments as a 'create' request, and obeys the
+    /// same restrictions.
+    ///
+    /// # Arguments
+    ///
+    /// - `buffer_id`: id for the newly created wl_buffer
+    /// - `width`: base plane width in pixels
+    /// - `height`: base plane height in pixels
+    /// - `format`: DRM_FORMAT code
+    /// - `flags`: see enum flags
+    #[inline]
+    pub fn new_send_create_immed(
+        &self,
+        width: i32,
+        height: i32,
+        format: u32,
+        flags: ZwpLinuxBufferParamsV1Flags,
+    ) -> Rc<WlBuffer> {
+        let buffer_id = self.core.create_child();
+        self.send_create_immed(
+            &buffer_id,
+            width,
+            height,
+            format,
+            flags,
+        );
+        buffer_id
     }
 }
 

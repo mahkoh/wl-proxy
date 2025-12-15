@@ -186,6 +186,48 @@ impl ZwpTextInputManagerV3 {
             log_send("zwp_text_input_manager_v3.get_text_input", &e);
         }
     }
+
+    /// create a new text input object
+    ///
+    /// Creates a new text-input object for a given seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `seat`:
+    #[inline]
+    pub fn new_try_send_get_text_input(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) -> Result<Rc<ZwpTextInputV3>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_text_input(
+            &id,
+            seat,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new text input object
+    ///
+    /// Creates a new text-input object for a given seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `seat`:
+    #[inline]
+    pub fn new_send_get_text_input(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) -> Rc<ZwpTextInputV3> {
+        let id = self.core.create_child();
+        self.send_get_text_input(
+            &id,
+            seat,
+        );
+        id
+    }
 }
 
 /// A message handler for [ZwpTextInputManagerV3] proxies.

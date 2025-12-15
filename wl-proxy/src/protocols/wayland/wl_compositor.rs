@@ -115,6 +115,34 @@ impl WlCompositor {
         }
     }
 
+    /// create new surface
+    ///
+    /// Ask the compositor to create a new surface.
+    #[inline]
+    pub fn new_try_send_create_surface(
+        &self,
+    ) -> Result<Rc<WlSurface>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_surface(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// create new surface
+    ///
+    /// Ask the compositor to create a new surface.
+    #[inline]
+    pub fn new_send_create_surface(
+        &self,
+    ) -> Rc<WlSurface> {
+        let id = self.core.create_child();
+        self.send_create_surface(
+            &id,
+        );
+        id
+    }
+
     /// Since when the create_region message is available.
     pub const MSG__CREATE_REGION__SINCE: u32 = 1;
 
@@ -179,6 +207,34 @@ impl WlCompositor {
         if let Err(e) = res {
             log_send("wl_compositor.create_region", &e);
         }
+    }
+
+    /// create new region
+    ///
+    /// Ask the compositor to create a new region.
+    #[inline]
+    pub fn new_try_send_create_region(
+        &self,
+    ) -> Result<Rc<WlRegion>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_region(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// create new region
+    ///
+    /// Ask the compositor to create a new region.
+    #[inline]
+    pub fn new_send_create_region(
+        &self,
+    ) -> Rc<WlRegion> {
+        let id = self.core.create_child();
+        self.send_create_region(
+            &id,
+        );
+        id
     }
 }
 

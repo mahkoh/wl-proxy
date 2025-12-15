@@ -120,6 +120,36 @@ impl ZwlrInputInhibitManagerV1 {
             log_send("zwlr_input_inhibit_manager_v1.get_inhibitor", &e);
         }
     }
+
+    /// inhibit input to other clients
+    ///
+    /// Activates the input inhibitor. As long as the inhibitor is active, the
+    /// compositor will not send input events to other clients.
+    #[inline]
+    pub fn new_try_send_get_inhibitor(
+        &self,
+    ) -> Result<Rc<ZwlrInputInhibitorV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_inhibitor(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// inhibit input to other clients
+    ///
+    /// Activates the input inhibitor. As long as the inhibitor is active, the
+    /// compositor will not send input events to other clients.
+    #[inline]
+    pub fn new_send_get_inhibitor(
+        &self,
+    ) -> Rc<ZwlrInputInhibitorV1> {
+        let id = self.core.create_child();
+        self.send_get_inhibitor(
+            &id,
+        );
+        id
+    }
 }
 
 /// A message handler for [ZwlrInputInhibitManagerV1] proxies.

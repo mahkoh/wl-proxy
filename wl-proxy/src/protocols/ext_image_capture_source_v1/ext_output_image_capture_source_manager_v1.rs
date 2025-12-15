@@ -140,6 +140,54 @@ impl ExtOutputImageCaptureSourceManagerV1 {
         }
     }
 
+    /// create source object for output
+    ///
+    /// Creates a source object for an output. Images captured from this source
+    /// will show the same content as the output. Some elements may be omitted,
+    /// such as cursors and overlays that have been marked as transparent to
+    /// capturing.
+    ///
+    /// # Arguments
+    ///
+    /// - `source`:
+    /// - `output`:
+    #[inline]
+    pub fn new_try_send_create_source(
+        &self,
+        output: &Rc<WlOutput>,
+    ) -> Result<Rc<ExtImageCaptureSourceV1>, ObjectError> {
+        let source = self.core.create_child();
+        self.try_send_create_source(
+            &source,
+            output,
+        )?;
+        Ok(source)
+    }
+
+    /// create source object for output
+    ///
+    /// Creates a source object for an output. Images captured from this source
+    /// will show the same content as the output. Some elements may be omitted,
+    /// such as cursors and overlays that have been marked as transparent to
+    /// capturing.
+    ///
+    /// # Arguments
+    ///
+    /// - `source`:
+    /// - `output`:
+    #[inline]
+    pub fn new_send_create_source(
+        &self,
+        output: &Rc<WlOutput>,
+    ) -> Rc<ExtImageCaptureSourceV1> {
+        let source = self.core.create_child();
+        self.send_create_source(
+            &source,
+            output,
+        );
+        source
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 

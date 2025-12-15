@@ -173,6 +173,44 @@ impl TreelandAppIdResolverManagerV1 {
             log_send("treeland_app_id_resolver_manager_v1.get_resolver", &e);
         }
     }
+
+    /// create/bind a resolver object
+    ///
+    /// Create or bind a resolver object. Only one resolver may be registered
+    /// per session. Treeland is a multi-user compositor; different user
+    /// sessions may each register their own resolver. If a resolver is
+    /// already bound in the same session, the compositor will report an
+    /// error on the manager and will NOT create a new resolver object for
+    /// this request.
+    #[inline]
+    pub fn new_try_send_get_resolver(
+        &self,
+    ) -> Result<Rc<TreelandAppIdResolverV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_resolver(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// create/bind a resolver object
+    ///
+    /// Create or bind a resolver object. Only one resolver may be registered
+    /// per session. Treeland is a multi-user compositor; different user
+    /// sessions may each register their own resolver. If a resolver is
+    /// already bound in the same session, the compositor will report an
+    /// error on the manager and will NOT create a new resolver object for
+    /// this request.
+    #[inline]
+    pub fn new_send_get_resolver(
+        &self,
+    ) -> Rc<TreelandAppIdResolverV1> {
+        let id = self.core.create_child();
+        self.send_get_resolver(
+            &id,
+        );
+        id
+    }
 }
 
 /// A message handler for [TreelandAppIdResolverManagerV1] proxies.

@@ -132,6 +132,46 @@ impl TreelandForeignToplevelManagerV1 {
         }
     }
 
+    /// a toplevel has been created
+    ///
+    /// This event is emitted whenever a new toplevel window is created. It
+    /// is emitted for all toplevels, regardless of the app that has created
+    /// them.
+    ///
+    /// All initial details of the toplevel(title, app_id, states, etc.) will
+    /// be sent immediately after this event via the corresponding events in
+    /// treeland_foreign_toplevel_handle_v1.
+    #[inline]
+    pub fn new_try_send_toplevel(
+        &self,
+    ) -> Result<Rc<TreelandForeignToplevelHandleV1>, ObjectError> {
+        let toplevel = self.core.create_child();
+        self.try_send_toplevel(
+            &toplevel,
+        )?;
+        Ok(toplevel)
+    }
+
+    /// a toplevel has been created
+    ///
+    /// This event is emitted whenever a new toplevel window is created. It
+    /// is emitted for all toplevels, regardless of the app that has created
+    /// them.
+    ///
+    /// All initial details of the toplevel(title, app_id, states, etc.) will
+    /// be sent immediately after this event via the corresponding events in
+    /// treeland_foreign_toplevel_handle_v1.
+    #[inline]
+    pub fn new_send_toplevel(
+        &self,
+    ) -> Rc<TreelandForeignToplevelHandleV1> {
+        let toplevel = self.core.create_child();
+        self.send_toplevel(
+            &toplevel,
+        );
+        toplevel
+    }
+
     /// Since when the stop message is available.
     pub const MSG__STOP__SINCE: u32 = 1;
 
@@ -333,6 +373,40 @@ impl TreelandForeignToplevelManagerV1 {
         if let Err(e) = res {
             log_send("treeland_foreign_toplevel_manager_v1.get_dock_preview_context", &e);
         }
+    }
+
+    /// # Arguments
+    ///
+    /// - `relative_surface`:
+    /// - `id`:
+    #[inline]
+    pub fn new_try_send_get_dock_preview_context(
+        &self,
+        relative_surface: &Rc<WlSurface>,
+    ) -> Result<Rc<TreelandDockPreviewContextV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_dock_preview_context(
+            relative_surface,
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// # Arguments
+    ///
+    /// - `relative_surface`:
+    /// - `id`:
+    #[inline]
+    pub fn new_send_get_dock_preview_context(
+        &self,
+        relative_surface: &Rc<WlSurface>,
+    ) -> Rc<TreelandDockPreviewContextV1> {
+        let id = self.core.create_child();
+        self.send_get_dock_preview_context(
+            relative_surface,
+            &id,
+        );
+        id
     }
 }
 

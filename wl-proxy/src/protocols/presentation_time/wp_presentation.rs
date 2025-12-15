@@ -223,6 +223,62 @@ impl WpPresentation {
         }
     }
 
+    /// request presentation feedback information
+    ///
+    /// Request presentation feedback for the current content submission
+    /// on the given surface. This creates a new presentation_feedback
+    /// object, which will deliver the feedback information once. If
+    /// multiple presentation_feedback objects are created for the same
+    /// submission, they will all deliver the same information.
+    ///
+    /// For details on what information is returned, see the
+    /// presentation_feedback interface.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`: target surface
+    /// - `callback`: new feedback object
+    #[inline]
+    pub fn new_try_send_feedback(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<WpPresentationFeedback>, ObjectError> {
+        let callback = self.core.create_child();
+        self.try_send_feedback(
+            surface,
+            &callback,
+        )?;
+        Ok(callback)
+    }
+
+    /// request presentation feedback information
+    ///
+    /// Request presentation feedback for the current content submission
+    /// on the given surface. This creates a new presentation_feedback
+    /// object, which will deliver the feedback information once. If
+    /// multiple presentation_feedback objects are created for the same
+    /// submission, they will all deliver the same information.
+    ///
+    /// For details on what information is returned, see the
+    /// presentation_feedback interface.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`: target surface
+    /// - `callback`: new feedback object
+    #[inline]
+    pub fn new_send_feedback(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<WpPresentationFeedback> {
+        let callback = self.core.create_child();
+        self.send_feedback(
+            surface,
+            &callback,
+        );
+        callback
+    }
+
     /// Since when the clock_id message is available.
     pub const MSG__CLOCK_ID__SINCE: u32 = 1;
 

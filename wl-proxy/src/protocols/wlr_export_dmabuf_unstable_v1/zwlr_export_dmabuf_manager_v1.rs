@@ -142,6 +142,54 @@ impl ZwlrExportDmabufManagerV1 {
         }
     }
 
+    /// capture a frame from an output
+    ///
+    /// Capture the next frame of an entire output.
+    ///
+    /// # Arguments
+    ///
+    /// - `frame`:
+    /// - `overlay_cursor`: include custom client hardware cursor on top of the frame
+    /// - `output`:
+    #[inline]
+    pub fn new_try_send_capture_output(
+        &self,
+        overlay_cursor: i32,
+        output: &Rc<WlOutput>,
+    ) -> Result<Rc<ZwlrExportDmabufFrameV1>, ObjectError> {
+        let frame = self.core.create_child();
+        self.try_send_capture_output(
+            &frame,
+            overlay_cursor,
+            output,
+        )?;
+        Ok(frame)
+    }
+
+    /// capture a frame from an output
+    ///
+    /// Capture the next frame of an entire output.
+    ///
+    /// # Arguments
+    ///
+    /// - `frame`:
+    /// - `overlay_cursor`: include custom client hardware cursor on top of the frame
+    /// - `output`:
+    #[inline]
+    pub fn new_send_capture_output(
+        &self,
+        overlay_cursor: i32,
+        output: &Rc<WlOutput>,
+    ) -> Rc<ZwlrExportDmabufFrameV1> {
+        let frame = self.core.create_child();
+        self.send_capture_output(
+            &frame,
+            overlay_cursor,
+            output,
+        );
+        frame
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 

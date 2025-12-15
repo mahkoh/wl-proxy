@@ -171,6 +171,36 @@ impl XdgToplevelIconManagerV1 {
         }
     }
 
+    /// create a new icon instance
+    ///
+    /// Creates a new icon object. This icon can then be attached to a
+    /// xdg_toplevel via the 'set_icon' request.
+    #[inline]
+    pub fn new_try_send_create_icon(
+        &self,
+    ) -> Result<Rc<XdgToplevelIconV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_icon(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new icon instance
+    ///
+    /// Creates a new icon object. This icon can then be attached to a
+    /// xdg_toplevel via the 'set_icon' request.
+    #[inline]
+    pub fn new_send_create_icon(
+        &self,
+    ) -> Rc<XdgToplevelIconV1> {
+        let id = self.core.create_child();
+        self.send_create_icon(
+            &id,
+        );
+        id
+    }
+
     /// Since when the set_icon message is available.
     pub const MSG__SET_ICON__SINCE: u32 = 1;
 

@@ -69,7 +69,7 @@ impl WlDisplayHandler for WlDisplayHandlerImpl {
             filter: self.filter.clone(),
             filtered_globals: Default::default(),
         });
-        let _ = slf.send_get_registry(registry);
+        slf.send_get_registry(registry);
     }
 }
 
@@ -88,13 +88,13 @@ impl WlRegistryHandler for WlRegistryHandlerImpl {
     ) {
         match self.filter[interface] {
             Disposition::Forward => {
-                let _ = slf.send_global(name, interface, version);
+                slf.send_global(name, interface, version);
             }
             Disposition::Hide => {
                 self.filtered_globals.insert(name);
             }
             Disposition::ReduceVersion(max) => {
-                let _ = slf.send_global(name, interface, version.min(max));
+                slf.send_global(name, interface, version.min(max));
             }
         }
     }
@@ -103,6 +103,6 @@ impl WlRegistryHandler for WlRegistryHandlerImpl {
         if self.filtered_globals.remove(&name) {
             return;
         }
-        let _ = slf.send_global_remove(name);
+        slf.send_global_remove(name);
     }
 }

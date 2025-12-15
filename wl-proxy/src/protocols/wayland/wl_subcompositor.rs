@@ -257,6 +257,90 @@ impl WlSubcompositor {
             log_send("wl_subcompositor.get_subsurface", &e);
         }
     }
+
+    /// give a surface the role sub-surface
+    ///
+    /// Create a sub-surface interface for the given surface, and
+    /// associate it with the given parent surface. This turns a
+    /// plain wl_surface into a sub-surface.
+    ///
+    /// The to-be sub-surface must not already have another role, and it
+    /// must not have an existing wl_subsurface object. Otherwise the
+    /// bad_surface protocol error is raised.
+    ///
+    /// Adding sub-surfaces to a parent is a double-buffered operation on the
+    /// parent (see wl_surface.commit). The effect of adding a sub-surface
+    /// becomes visible on the next time the state of the parent surface is
+    /// applied.
+    ///
+    /// The parent surface must not be one of the child surface's descendants,
+    /// and the parent must be different from the child surface, otherwise the
+    /// bad_parent protocol error is raised.
+    ///
+    /// This request modifies the behaviour of wl_surface.commit request on
+    /// the sub-surface, see the documentation on wl_subsurface interface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new sub-surface object ID
+    /// - `surface`: the surface to be turned into a sub-surface
+    /// - `parent`: the parent surface
+    #[inline]
+    pub fn new_try_send_get_subsurface(
+        &self,
+        surface: &Rc<WlSurface>,
+        parent: &Rc<WlSurface>,
+    ) -> Result<Rc<WlSubsurface>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_subsurface(
+            &id,
+            surface,
+            parent,
+        )?;
+        Ok(id)
+    }
+
+    /// give a surface the role sub-surface
+    ///
+    /// Create a sub-surface interface for the given surface, and
+    /// associate it with the given parent surface. This turns a
+    /// plain wl_surface into a sub-surface.
+    ///
+    /// The to-be sub-surface must not already have another role, and it
+    /// must not have an existing wl_subsurface object. Otherwise the
+    /// bad_surface protocol error is raised.
+    ///
+    /// Adding sub-surfaces to a parent is a double-buffered operation on the
+    /// parent (see wl_surface.commit). The effect of adding a sub-surface
+    /// becomes visible on the next time the state of the parent surface is
+    /// applied.
+    ///
+    /// The parent surface must not be one of the child surface's descendants,
+    /// and the parent must be different from the child surface, otherwise the
+    /// bad_parent protocol error is raised.
+    ///
+    /// This request modifies the behaviour of wl_surface.commit request on
+    /// the sub-surface, see the documentation on wl_subsurface interface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new sub-surface object ID
+    /// - `surface`: the surface to be turned into a sub-surface
+    /// - `parent`: the parent surface
+    #[inline]
+    pub fn new_send_get_subsurface(
+        &self,
+        surface: &Rc<WlSurface>,
+        parent: &Rc<WlSurface>,
+    ) -> Rc<WlSubsurface> {
+        let id = self.core.create_child();
+        self.send_get_subsurface(
+            &id,
+            surface,
+            parent,
+        );
+        id
+    }
 }
 
 /// A message handler for [WlSubcompositor] proxies.

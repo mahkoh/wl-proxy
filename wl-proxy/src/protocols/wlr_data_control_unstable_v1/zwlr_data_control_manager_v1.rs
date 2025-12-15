@@ -114,6 +114,34 @@ impl ZwlrDataControlManagerV1 {
         }
     }
 
+    /// create a new data source
+    ///
+    /// Create a new data source.
+    #[inline]
+    pub fn new_try_send_create_data_source(
+        &self,
+    ) -> Result<Rc<ZwlrDataControlSourceV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_data_source(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new data source
+    ///
+    /// Create a new data source.
+    #[inline]
+    pub fn new_send_create_data_source(
+        &self,
+    ) -> Rc<ZwlrDataControlSourceV1> {
+        let id = self.core.create_child();
+        self.send_create_data_source(
+            &id,
+        );
+        id
+    }
+
     /// Since when the get_data_device message is available.
     pub const MSG__GET_DATA_DEVICE__SINCE: u32 = 1;
 
@@ -199,6 +227,48 @@ impl ZwlrDataControlManagerV1 {
         if let Err(e) = res {
             log_send("zwlr_data_control_manager_v1.get_data_device", &e);
         }
+    }
+
+    /// get a data device for a seat
+    ///
+    /// Create a data device that can be used to manage a seat's selection.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `seat`:
+    #[inline]
+    pub fn new_try_send_get_data_device(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) -> Result<Rc<ZwlrDataControlDeviceV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_data_device(
+            &id,
+            seat,
+        )?;
+        Ok(id)
+    }
+
+    /// get a data device for a seat
+    ///
+    /// Create a data device that can be used to manage a seat's selection.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `seat`:
+    #[inline]
+    pub fn new_send_get_data_device(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) -> Rc<ZwlrDataControlDeviceV1> {
+        let id = self.core.create_child();
+        self.send_get_data_device(
+            &id,
+            seat,
+        );
+        id
     }
 
     /// Since when the destroy message is available.

@@ -210,6 +210,64 @@ impl WlDrm {
         }
     }
 
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `name`:
+    /// - `width`:
+    /// - `height`:
+    /// - `stride`:
+    /// - `format`:
+    #[inline]
+    pub fn new_try_send_create_buffer(
+        &self,
+        name: u32,
+        width: i32,
+        height: i32,
+        stride: u32,
+        format: u32,
+    ) -> Result<Rc<WlBuffer>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_buffer(
+            &id,
+            name,
+            width,
+            height,
+            stride,
+            format,
+        )?;
+        Ok(id)
+    }
+
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `name`:
+    /// - `width`:
+    /// - `height`:
+    /// - `stride`:
+    /// - `format`:
+    #[inline]
+    pub fn new_send_create_buffer(
+        &self,
+        name: u32,
+        width: i32,
+        height: i32,
+        stride: u32,
+        format: u32,
+    ) -> Rc<WlBuffer> {
+        let id = self.core.create_child();
+        self.send_create_buffer(
+            &id,
+            name,
+            width,
+            height,
+            stride,
+            format,
+        );
+        id
+    }
+
     /// Since when the create_planar_buffer message is available.
     pub const MSG__CREATE_PLANAR_BUFFER__SINCE: u32 = 1;
 
@@ -354,6 +412,94 @@ impl WlDrm {
         if let Err(e) = res {
             log_send("wl_drm.create_planar_buffer", &e);
         }
+    }
+
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `name`:
+    /// - `width`:
+    /// - `height`:
+    /// - `format`:
+    /// - `offset0`:
+    /// - `stride0`:
+    /// - `offset1`:
+    /// - `stride1`:
+    /// - `offset2`:
+    /// - `stride2`:
+    #[inline]
+    pub fn new_try_send_create_planar_buffer(
+        &self,
+        name: u32,
+        width: i32,
+        height: i32,
+        format: u32,
+        offset0: i32,
+        stride0: i32,
+        offset1: i32,
+        stride1: i32,
+        offset2: i32,
+        stride2: i32,
+    ) -> Result<Rc<WlBuffer>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_planar_buffer(
+            &id,
+            name,
+            width,
+            height,
+            format,
+            offset0,
+            stride0,
+            offset1,
+            stride1,
+            offset2,
+            stride2,
+        )?;
+        Ok(id)
+    }
+
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `name`:
+    /// - `width`:
+    /// - `height`:
+    /// - `format`:
+    /// - `offset0`:
+    /// - `stride0`:
+    /// - `offset1`:
+    /// - `stride1`:
+    /// - `offset2`:
+    /// - `stride2`:
+    #[inline]
+    pub fn new_send_create_planar_buffer(
+        &self,
+        name: u32,
+        width: i32,
+        height: i32,
+        format: u32,
+        offset0: i32,
+        stride0: i32,
+        offset1: i32,
+        stride1: i32,
+        offset2: i32,
+        stride2: i32,
+    ) -> Rc<WlBuffer> {
+        let id = self.core.create_child();
+        self.send_create_planar_buffer(
+            &id,
+            name,
+            width,
+            height,
+            format,
+            offset0,
+            stride0,
+            offset1,
+            stride1,
+            offset2,
+            stride2,
+        );
+        id
     }
 
     /// Since when the device message is available.
@@ -737,6 +883,94 @@ impl WlDrm {
         if let Err(e) = res {
             log_send("wl_drm.create_prime_buffer", &e);
         }
+    }
+
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `name`:
+    /// - `width`:
+    /// - `height`:
+    /// - `format`:
+    /// - `offset0`:
+    /// - `stride0`:
+    /// - `offset1`:
+    /// - `stride1`:
+    /// - `offset2`:
+    /// - `stride2`:
+    #[inline]
+    pub fn new_try_send_create_prime_buffer(
+        &self,
+        name: &Rc<OwnedFd>,
+        width: i32,
+        height: i32,
+        format: u32,
+        offset0: i32,
+        stride0: i32,
+        offset1: i32,
+        stride1: i32,
+        offset2: i32,
+        stride2: i32,
+    ) -> Result<Rc<WlBuffer>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_prime_buffer(
+            &id,
+            name,
+            width,
+            height,
+            format,
+            offset0,
+            stride0,
+            offset1,
+            stride1,
+            offset2,
+            stride2,
+        )?;
+        Ok(id)
+    }
+
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `name`:
+    /// - `width`:
+    /// - `height`:
+    /// - `format`:
+    /// - `offset0`:
+    /// - `stride0`:
+    /// - `offset1`:
+    /// - `stride1`:
+    /// - `offset2`:
+    /// - `stride2`:
+    #[inline]
+    pub fn new_send_create_prime_buffer(
+        &self,
+        name: &Rc<OwnedFd>,
+        width: i32,
+        height: i32,
+        format: u32,
+        offset0: i32,
+        stride0: i32,
+        offset1: i32,
+        stride1: i32,
+        offset2: i32,
+        stride2: i32,
+    ) -> Rc<WlBuffer> {
+        let id = self.core.create_child();
+        self.send_create_prime_buffer(
+            &id,
+            name,
+            width,
+            height,
+            format,
+            offset0,
+            stride0,
+            offset1,
+            stride1,
+            offset2,
+            stride2,
+        );
+        id
     }
 }
 

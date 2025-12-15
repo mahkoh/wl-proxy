@@ -137,6 +137,50 @@ impl ZwlrOutputPowerManagerV1 {
         }
     }
 
+    /// get a power management for an output
+    ///
+    /// Create an output power management mode control that can be used to
+    /// adjust the power management mode for a given output.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `output`:
+    #[inline]
+    pub fn new_try_send_get_output_power(
+        &self,
+        output: &Rc<WlOutput>,
+    ) -> Result<Rc<ZwlrOutputPowerV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_output_power(
+            &id,
+            output,
+        )?;
+        Ok(id)
+    }
+
+    /// get a power management for an output
+    ///
+    /// Create an output power management mode control that can be used to
+    /// adjust the power management mode for a given output.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `output`:
+    #[inline]
+    pub fn new_send_get_output_power(
+        &self,
+        output: &Rc<WlOutput>,
+    ) -> Rc<ZwlrOutputPowerV1> {
+        let id = self.core.create_child();
+        self.send_get_output_power(
+            &id,
+            output,
+        );
+        id
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 

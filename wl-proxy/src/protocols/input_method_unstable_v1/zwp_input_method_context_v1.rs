@@ -898,6 +898,40 @@ impl ZwpInputMethodContextV1 {
         }
     }
 
+    /// grab hardware keyboard
+    ///
+    /// Allow an input method to receive hardware keyboard input and process
+    /// key events to generate text events (with pre-edit) over the wire. This
+    /// allows input methods which compose multiple key events for inputting
+    /// text like it is done for CJK languages.
+    #[inline]
+    pub fn new_try_send_grab_keyboard(
+        &self,
+    ) -> Result<Rc<WlKeyboard>, ObjectError> {
+        let keyboard = self.core.create_child();
+        self.try_send_grab_keyboard(
+            &keyboard,
+        )?;
+        Ok(keyboard)
+    }
+
+    /// grab hardware keyboard
+    ///
+    /// Allow an input method to receive hardware keyboard input and process
+    /// key events to generate text events (with pre-edit) over the wire. This
+    /// allows input methods which compose multiple key events for inputting
+    /// text like it is done for CJK languages.
+    #[inline]
+    pub fn new_send_grab_keyboard(
+        &self,
+    ) -> Rc<WlKeyboard> {
+        let keyboard = self.core.create_child();
+        self.send_grab_keyboard(
+            &keyboard,
+        );
+        keyboard
+    }
+
     /// Since when the key message is available.
     pub const MSG__KEY__SINCE: u32 = 1;
 

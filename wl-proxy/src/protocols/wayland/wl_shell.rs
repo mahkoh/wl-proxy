@@ -149,6 +149,56 @@ impl WlShell {
             log_send("wl_shell.get_shell_surface", &e);
         }
     }
+
+    /// create a shell surface from a surface
+    ///
+    /// Create a shell surface for an existing surface. This gives
+    /// the wl_surface the role of a shell surface. If the wl_surface
+    /// already has another role, it raises a protocol error.
+    ///
+    /// Only one shell surface can be associated with a given surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: shell surface to create
+    /// - `surface`: surface to be given the shell surface role
+    #[inline]
+    pub fn new_try_send_get_shell_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<WlShellSurface>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_shell_surface(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// create a shell surface from a surface
+    ///
+    /// Create a shell surface for an existing surface. This gives
+    /// the wl_surface the role of a shell surface. If the wl_surface
+    /// already has another role, it raises a protocol error.
+    ///
+    /// Only one shell surface can be associated with a given surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: shell surface to create
+    /// - `surface`: surface to be given the shell surface role
+    #[inline]
+    pub fn new_send_get_shell_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<WlShellSurface> {
+        let id = self.core.create_child();
+        self.send_get_shell_surface(
+            &id,
+            surface,
+        );
+        id
+    }
 }
 
 /// A message handler for [WlShell] proxies.

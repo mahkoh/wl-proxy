@@ -291,6 +291,42 @@ impl ZwpTabletPadGroupV2 {
         }
     }
 
+    /// ring announced
+    ///
+    /// Sent on zwp_tablet_pad_group_v2 initialization to announce available rings.
+    /// One event is sent for each ring available on this pad group.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_pad_group_v2.done event.
+    #[inline]
+    pub fn new_try_send_ring(
+        &self,
+    ) -> Result<Rc<ZwpTabletPadRingV2>, ObjectError> {
+        let ring = self.core.create_child();
+        self.try_send_ring(
+            &ring,
+        )?;
+        Ok(ring)
+    }
+
+    /// ring announced
+    ///
+    /// Sent on zwp_tablet_pad_group_v2 initialization to announce available rings.
+    /// One event is sent for each ring available on this pad group.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_pad_group_v2.done event.
+    #[inline]
+    pub fn new_send_ring(
+        &self,
+    ) -> Rc<ZwpTabletPadRingV2> {
+        let ring = self.core.create_child();
+        self.send_ring(
+            &ring,
+        );
+        ring
+    }
+
     /// Since when the strip message is available.
     pub const MSG__STRIP__SINCE: u32 = 1;
 
@@ -365,6 +401,42 @@ impl ZwpTabletPadGroupV2 {
         if let Err(e) = res {
             log_send("zwp_tablet_pad_group_v2.strip", &e);
         }
+    }
+
+    /// strip announced
+    ///
+    /// Sent on zwp_tablet_pad_v2 initialization to announce available strips.
+    /// One event is sent for each strip available on this pad group.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_pad_group_v2.done event.
+    #[inline]
+    pub fn new_try_send_strip(
+        &self,
+    ) -> Result<Rc<ZwpTabletPadStripV2>, ObjectError> {
+        let strip = self.core.create_child();
+        self.try_send_strip(
+            &strip,
+        )?;
+        Ok(strip)
+    }
+
+    /// strip announced
+    ///
+    /// Sent on zwp_tablet_pad_v2 initialization to announce available strips.
+    /// One event is sent for each strip available on this pad group.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_pad_group_v2.done event.
+    #[inline]
+    pub fn new_send_strip(
+        &self,
+    ) -> Rc<ZwpTabletPadStripV2> {
+        let strip = self.core.create_child();
+        self.send_strip(
+            &strip,
+        );
+        strip
     }
 
     /// Since when the modes message is available.
@@ -733,6 +805,42 @@ impl ZwpTabletPadGroupV2 {
         if let Err(e) = res {
             log_send("zwp_tablet_pad_group_v2.dial", &e);
         }
+    }
+
+    /// dial announced
+    ///
+    /// Sent on zwp_tablet_pad_v2 initialization to announce available dials.
+    /// One event is sent for each dial available on this pad group.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_pad_group_v2.done event.
+    #[inline]
+    pub fn new_try_send_dial(
+        &self,
+    ) -> Result<Rc<ZwpTabletPadDialV2>, ObjectError> {
+        let dial = self.core.create_child();
+        self.try_send_dial(
+            &dial,
+        )?;
+        Ok(dial)
+    }
+
+    /// dial announced
+    ///
+    /// Sent on zwp_tablet_pad_v2 initialization to announce available dials.
+    /// One event is sent for each dial available on this pad group.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_pad_group_v2.done event.
+    #[inline]
+    pub fn new_send_dial(
+        &self,
+    ) -> Rc<ZwpTabletPadDialV2> {
+        let dial = self.core.create_child();
+        self.send_dial(
+            &dial,
+        );
+        dial
     }
 }
 

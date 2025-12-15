@@ -175,6 +175,40 @@ impl ExtSessionLockManagerV1 {
             log_send("ext_session_lock_manager_v1.lock", &e);
         }
     }
+
+    /// attempt to lock the session
+    ///
+    /// This request creates a session lock and asks the compositor to lock the
+    /// session. The compositor will send either the ext_session_lock_v1.locked
+    /// or ext_session_lock_v1.finished event on the created object in
+    /// response to this request.
+    #[inline]
+    pub fn new_try_send_lock(
+        &self,
+    ) -> Result<Rc<ExtSessionLockV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_lock(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// attempt to lock the session
+    ///
+    /// This request creates a session lock and asks the compositor to lock the
+    /// session. The compositor will send either the ext_session_lock_v1.locked
+    /// or ext_session_lock_v1.finished event on the created object in
+    /// response to this request.
+    #[inline]
+    pub fn new_send_lock(
+        &self,
+    ) -> Rc<ExtSessionLockV1> {
+        let id = self.core.create_child();
+        self.send_lock(
+            &id,
+        );
+        id
+    }
 }
 
 /// A message handler for [ExtSessionLockManagerV1] proxies.

@@ -135,6 +135,48 @@ impl HyprlandToplevelMappingManagerV1 {
         }
     }
 
+    /// get window address for toplevel
+    ///
+    /// Get the window address for a toplevel.
+    ///
+    /// # Arguments
+    ///
+    /// - `handle`:
+    /// - `toplevel`: toplevel to get the window address for
+    #[inline]
+    pub fn new_try_send_get_window_for_toplevel(
+        &self,
+        toplevel: &Rc<ExtForeignToplevelHandleV1>,
+    ) -> Result<Rc<HyprlandToplevelWindowMappingHandleV1>, ObjectError> {
+        let handle = self.core.create_child();
+        self.try_send_get_window_for_toplevel(
+            &handle,
+            toplevel,
+        )?;
+        Ok(handle)
+    }
+
+    /// get window address for toplevel
+    ///
+    /// Get the window address for a toplevel.
+    ///
+    /// # Arguments
+    ///
+    /// - `handle`:
+    /// - `toplevel`: toplevel to get the window address for
+    #[inline]
+    pub fn new_send_get_window_for_toplevel(
+        &self,
+        toplevel: &Rc<ExtForeignToplevelHandleV1>,
+    ) -> Rc<HyprlandToplevelWindowMappingHandleV1> {
+        let handle = self.core.create_child();
+        self.send_get_window_for_toplevel(
+            &handle,
+            toplevel,
+        );
+        handle
+    }
+
     /// Since when the get_window_for_toplevel_wlr message is available.
     pub const MSG__GET_WINDOW_FOR_TOPLEVEL_WLR__SINCE: u32 = 1;
 
@@ -220,6 +262,48 @@ impl HyprlandToplevelMappingManagerV1 {
         if let Err(e) = res {
             log_send("hyprland_toplevel_mapping_manager_v1.get_window_for_toplevel_wlr", &e);
         }
+    }
+
+    /// get window address for wlr toplevel
+    ///
+    /// Get the window address for a wlr toplevel.
+    ///
+    /// # Arguments
+    ///
+    /// - `handle`:
+    /// - `toplevel`: wlr toplevel to get the window address for
+    #[inline]
+    pub fn new_try_send_get_window_for_toplevel_wlr(
+        &self,
+        toplevel: &Rc<ZwlrForeignToplevelHandleV1>,
+    ) -> Result<Rc<HyprlandToplevelWindowMappingHandleV1>, ObjectError> {
+        let handle = self.core.create_child();
+        self.try_send_get_window_for_toplevel_wlr(
+            &handle,
+            toplevel,
+        )?;
+        Ok(handle)
+    }
+
+    /// get window address for wlr toplevel
+    ///
+    /// Get the window address for a wlr toplevel.
+    ///
+    /// # Arguments
+    ///
+    /// - `handle`:
+    /// - `toplevel`: wlr toplevel to get the window address for
+    #[inline]
+    pub fn new_send_get_window_for_toplevel_wlr(
+        &self,
+        toplevel: &Rc<ZwlrForeignToplevelHandleV1>,
+    ) -> Rc<HyprlandToplevelWindowMappingHandleV1> {
+        let handle = self.core.create_child();
+        self.send_get_window_for_toplevel_wlr(
+            &handle,
+            toplevel,
+        );
+        handle
     }
 
     /// Since when the destroy message is available.

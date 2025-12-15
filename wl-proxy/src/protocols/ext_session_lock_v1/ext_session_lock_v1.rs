@@ -449,6 +449,74 @@ impl ExtSessionLockV1 {
         }
     }
 
+    /// create a lock surface for a given output
+    ///
+    /// The client is expected to create lock surfaces for all outputs
+    /// currently present and any new outputs as they are advertised. These
+    /// won't be displayed by the compositor unless the lock is successful
+    /// and the locked event is sent.
+    ///
+    /// Providing a wl_surface which already has a role or already has a buffer
+    /// attached or committed is a protocol error, as is attaching/committing
+    /// a buffer before the first ext_session_lock_surface_v1.configure event.
+    ///
+    /// Attempting to create more than one lock surface for a given output
+    /// is a duplicate_output protocol error.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    /// - `output`:
+    #[inline]
+    pub fn new_try_send_get_lock_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+        output: &Rc<WlOutput>,
+    ) -> Result<Rc<ExtSessionLockSurfaceV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_lock_surface(
+            &id,
+            surface,
+            output,
+        )?;
+        Ok(id)
+    }
+
+    /// create a lock surface for a given output
+    ///
+    /// The client is expected to create lock surfaces for all outputs
+    /// currently present and any new outputs as they are advertised. These
+    /// won't be displayed by the compositor unless the lock is successful
+    /// and the locked event is sent.
+    ///
+    /// Providing a wl_surface which already has a role or already has a buffer
+    /// attached or committed is a protocol error, as is attaching/committing
+    /// a buffer before the first ext_session_lock_surface_v1.configure event.
+    ///
+    /// Attempting to create more than one lock surface for a given output
+    /// is a duplicate_output protocol error.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    /// - `output`:
+    #[inline]
+    pub fn new_send_get_lock_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+        output: &Rc<WlOutput>,
+    ) -> Rc<ExtSessionLockSurfaceV1> {
+        let id = self.core.create_child();
+        self.send_get_lock_surface(
+            &id,
+            surface,
+            output,
+        );
+        id
+    }
+
     /// Since when the unlock_and_destroy message is available.
     pub const MSG__UNLOCK_AND_DESTROY__SINCE: u32 = 1;
 

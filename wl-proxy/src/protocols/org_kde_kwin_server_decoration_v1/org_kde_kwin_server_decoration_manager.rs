@@ -158,6 +158,66 @@ impl OrgKdeKwinServerDecorationManager {
         }
     }
 
+    /// Create a server-side decoration object for a given surface
+    ///
+    /// When a client creates a server-side decoration object it indicates
+    /// that it supports the protocol. The client is supposed to tell the
+    /// server whether it wants server-side decorations or will provide
+    /// client-side decorations.
+    ///
+    /// If the client does not create a server-side decoration object for
+    /// a surface the server interprets this as lack of support for this
+    /// protocol and considers it as client-side decorated. Nevertheless a
+    /// client-side decorated surface should use this protocol to indicate
+    /// to the server that it does not want a server-side deco.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_try_send_create(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<OrgKdeKwinServerDecoration>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// Create a server-side decoration object for a given surface
+    ///
+    /// When a client creates a server-side decoration object it indicates
+    /// that it supports the protocol. The client is supposed to tell the
+    /// server whether it wants server-side decorations or will provide
+    /// client-side decorations.
+    ///
+    /// If the client does not create a server-side decoration object for
+    /// a surface the server interprets this as lack of support for this
+    /// protocol and considers it as client-side decorated. Nevertheless a
+    /// client-side decorated surface should use this protocol to indicate
+    /// to the server that it does not want a server-side deco.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_send_create(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<OrgKdeKwinServerDecoration> {
+        let id = self.core.create_child();
+        self.send_create(
+            &id,
+            surface,
+        );
+        id
+    }
+
     /// Since when the default_mode message is available.
     pub const MSG__DEFAULT_MODE__SINCE: u32 = 1;
 

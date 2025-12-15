@@ -165,6 +165,78 @@ impl HyprlandGlobalShortcutsManagerV1 {
         }
     }
 
+    /// register a shortcut
+    ///
+    /// Register a new global shortcut.
+    ///
+    /// A global shortcut is anonymous, meaning the app does not know what key(s) trigger it.
+    ///
+    /// The shortcut's keybinding shall be dealt with by the compositor.
+    ///
+    /// In the case of a duplicate app_id + id combination, the already_taken protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `shortcut`:
+    /// - `id`: a unique id for the shortcut
+    /// - `app_id`: the app_id of the application requesting the shortcut
+    /// - `description`: user-readable text describing what the shortcut does.
+    /// - `trigger_description`: user-readable text describing how to trigger the shortcut for the client to render.
+    #[inline]
+    pub fn new_try_send_register_shortcut(
+        &self,
+        id: &str,
+        app_id: &str,
+        description: &str,
+        trigger_description: &str,
+    ) -> Result<Rc<HyprlandGlobalShortcutV1>, ObjectError> {
+        let shortcut = self.core.create_child();
+        self.try_send_register_shortcut(
+            &shortcut,
+            id,
+            app_id,
+            description,
+            trigger_description,
+        )?;
+        Ok(shortcut)
+    }
+
+    /// register a shortcut
+    ///
+    /// Register a new global shortcut.
+    ///
+    /// A global shortcut is anonymous, meaning the app does not know what key(s) trigger it.
+    ///
+    /// The shortcut's keybinding shall be dealt with by the compositor.
+    ///
+    /// In the case of a duplicate app_id + id combination, the already_taken protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `shortcut`:
+    /// - `id`: a unique id for the shortcut
+    /// - `app_id`: the app_id of the application requesting the shortcut
+    /// - `description`: user-readable text describing what the shortcut does.
+    /// - `trigger_description`: user-readable text describing how to trigger the shortcut for the client to render.
+    #[inline]
+    pub fn new_send_register_shortcut(
+        &self,
+        id: &str,
+        app_id: &str,
+        description: &str,
+        trigger_description: &str,
+    ) -> Rc<HyprlandGlobalShortcutV1> {
+        let shortcut = self.core.create_child();
+        self.send_register_shortcut(
+            &shortcut,
+            id,
+            app_id,
+            description,
+            trigger_description,
+        );
+        shortcut
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 

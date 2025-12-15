@@ -146,26 +146,33 @@ impl<T> ObjectUtils for T where T: Object + ?Sized {}
 pub trait ObjectRcUtils {
     fn try_downcast<T>(&self) -> Option<Rc<T>>
     where
-        T: 'static;
+        T: ConcreteObject;
 
     fn downcast<T>(&self) -> Rc<T>
     where
-        T: 'static;
+        T: ConcreteObject;
 }
 
 impl ObjectRcUtils for Rc<dyn Object> {
     fn try_downcast<T>(&self) -> Option<Rc<T>>
     where
-        T: 'static,
+        T: ConcreteObject,
     {
         (self.clone() as Rc<dyn Any>).downcast().ok()
     }
 
     fn downcast<T>(&self) -> Rc<T>
     where
-        T: 'static,
+        T: ConcreteObject,
     {
-        self.try_downcast().unwrap()
+        let Some(t) = self.try_downcast() else {
+            panic!(
+                "Tried to downcast {} to {}",
+                self.interface().name(),
+                T::INTERFACE_NAME,
+            );
+        };
+        t
     }
 }
 

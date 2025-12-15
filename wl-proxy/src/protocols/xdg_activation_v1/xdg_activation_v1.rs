@@ -180,6 +180,38 @@ impl XdgActivationV1 {
         }
     }
 
+    /// requests a token
+    ///
+    /// Creates an xdg_activation_token_v1 object that will provide
+    /// the initiating client with a unique token for this activation. This
+    /// token should be offered to the clients to be activated.
+    #[inline]
+    pub fn new_try_send_get_activation_token(
+        &self,
+    ) -> Result<Rc<XdgActivationTokenV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_activation_token(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// requests a token
+    ///
+    /// Creates an xdg_activation_token_v1 object that will provide
+    /// the initiating client with a unique token for this activation. This
+    /// token should be offered to the clients to be activated.
+    #[inline]
+    pub fn new_send_get_activation_token(
+        &self,
+    ) -> Rc<XdgActivationTokenV1> {
+        let id = self.core.create_child();
+        self.send_get_activation_token(
+            &id,
+        );
+        id
+    }
+
     /// Since when the activate message is available.
     pub const MSG__ACTIVATE__SINCE: u32 = 1;
 

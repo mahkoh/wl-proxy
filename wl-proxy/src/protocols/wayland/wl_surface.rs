@@ -623,6 +623,96 @@ impl WlSurface {
         }
     }
 
+    /// request a frame throttling hint
+    ///
+    /// Request a notification when it is a good time to start drawing a new
+    /// frame, by creating a frame callback. This is useful for throttling
+    /// redrawing operations, and driving animations.
+    ///
+    /// When a client is animating on a wl_surface, it can use the 'frame'
+    /// request to get notified when it is a good time to draw and commit the
+    /// next frame of animation. If the client commits an update earlier than
+    /// that, it is likely that some updates will not make it to the display,
+    /// and the client is wasting resources by drawing too often.
+    ///
+    /// The frame request will take effect on the next wl_surface.commit.
+    /// The notification will only be posted for one frame unless
+    /// requested again. For a wl_surface, the notifications are posted in
+    /// the order the frame requests were committed.
+    ///
+    /// The server must send the notifications so that a client
+    /// will not send excessive updates, while still allowing
+    /// the highest possible update rate for clients that wait for the reply
+    /// before drawing again. The server should give some time for the client
+    /// to draw and commit after sending the frame callback events to let it
+    /// hit the next output refresh.
+    ///
+    /// A server should avoid signaling the frame callbacks if the
+    /// surface is not visible in any way, e.g. the surface is off-screen,
+    /// or completely obscured by other opaque surfaces.
+    ///
+    /// The object returned by this request will be destroyed by the
+    /// compositor after the callback is fired and as such the client must not
+    /// attempt to use it after that point.
+    ///
+    /// The callback_data passed in the callback is the current time, in
+    /// milliseconds, with an undefined base.
+    #[inline]
+    pub fn new_try_send_frame(
+        &self,
+    ) -> Result<Rc<WlCallback>, ObjectError> {
+        let callback = self.core.create_child();
+        self.try_send_frame(
+            &callback,
+        )?;
+        Ok(callback)
+    }
+
+    /// request a frame throttling hint
+    ///
+    /// Request a notification when it is a good time to start drawing a new
+    /// frame, by creating a frame callback. This is useful for throttling
+    /// redrawing operations, and driving animations.
+    ///
+    /// When a client is animating on a wl_surface, it can use the 'frame'
+    /// request to get notified when it is a good time to draw and commit the
+    /// next frame of animation. If the client commits an update earlier than
+    /// that, it is likely that some updates will not make it to the display,
+    /// and the client is wasting resources by drawing too often.
+    ///
+    /// The frame request will take effect on the next wl_surface.commit.
+    /// The notification will only be posted for one frame unless
+    /// requested again. For a wl_surface, the notifications are posted in
+    /// the order the frame requests were committed.
+    ///
+    /// The server must send the notifications so that a client
+    /// will not send excessive updates, while still allowing
+    /// the highest possible update rate for clients that wait for the reply
+    /// before drawing again. The server should give some time for the client
+    /// to draw and commit after sending the frame callback events to let it
+    /// hit the next output refresh.
+    ///
+    /// A server should avoid signaling the frame callbacks if the
+    /// surface is not visible in any way, e.g. the surface is off-screen,
+    /// or completely obscured by other opaque surfaces.
+    ///
+    /// The object returned by this request will be destroyed by the
+    /// compositor after the callback is fired and as such the client must not
+    /// attempt to use it after that point.
+    ///
+    /// The callback_data passed in the callback is the current time, in
+    /// milliseconds, with an undefined base.
+    #[inline]
+    pub fn new_send_frame(
+        &self,
+    ) -> Rc<WlCallback> {
+        let callback = self.core.create_child();
+        self.send_frame(
+            &callback,
+        );
+        callback
+    }
+
     /// Since when the set_opaque_region message is available.
     pub const MSG__SET_OPAQUE_REGION__SINCE: u32 = 1;
 

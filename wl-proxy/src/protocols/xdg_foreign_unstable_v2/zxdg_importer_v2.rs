@@ -193,6 +193,56 @@ impl ZxdgImporterV2 {
             log_send("zxdg_importer_v2.import_toplevel", &e);
         }
     }
+
+    /// import a toplevel surface
+    ///
+    /// The import_toplevel request imports a surface from any client given a handle
+    /// retrieved by exporting said surface using xdg_exporter.export_toplevel.
+    /// When called, a new xdg_imported object will be created. This new object
+    /// represents the imported surface, and the importing client can
+    /// manipulate its relationship using it. See xdg_imported for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new xdg_imported object
+    /// - `handle`: the exported surface handle
+    #[inline]
+    pub fn new_try_send_import_toplevel(
+        &self,
+        handle: &str,
+    ) -> Result<Rc<ZxdgImportedV2>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_import_toplevel(
+            &id,
+            handle,
+        )?;
+        Ok(id)
+    }
+
+    /// import a toplevel surface
+    ///
+    /// The import_toplevel request imports a surface from any client given a handle
+    /// retrieved by exporting said surface using xdg_exporter.export_toplevel.
+    /// When called, a new xdg_imported object will be created. This new object
+    /// represents the imported surface, and the importing client can
+    /// manipulate its relationship using it. See xdg_imported for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new xdg_imported object
+    /// - `handle`: the exported surface handle
+    #[inline]
+    pub fn new_send_import_toplevel(
+        &self,
+        handle: &str,
+    ) -> Rc<ZxdgImportedV2> {
+        let id = self.core.create_child();
+        self.send_import_toplevel(
+            &id,
+            handle,
+        );
+        id
+    }
 }
 
 /// A message handler for [ZxdgImporterV2] proxies.

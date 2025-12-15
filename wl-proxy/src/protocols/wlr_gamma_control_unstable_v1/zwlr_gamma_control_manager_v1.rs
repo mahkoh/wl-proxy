@@ -137,6 +137,50 @@ impl ZwlrGammaControlManagerV1 {
         }
     }
 
+    /// get a gamma control for an output
+    ///
+    /// Create a gamma control that can be used to adjust gamma tables for the
+    /// provided output.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `output`:
+    #[inline]
+    pub fn new_try_send_get_gamma_control(
+        &self,
+        output: &Rc<WlOutput>,
+    ) -> Result<Rc<ZwlrGammaControlV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_gamma_control(
+            &id,
+            output,
+        )?;
+        Ok(id)
+    }
+
+    /// get a gamma control for an output
+    ///
+    /// Create a gamma control that can be used to adjust gamma tables for the
+    /// provided output.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `output`:
+    #[inline]
+    pub fn new_send_get_gamma_control(
+        &self,
+        output: &Rc<WlOutput>,
+    ) -> Rc<ZwlrGammaControlV1> {
+        let id = self.core.create_child();
+        self.send_get_gamma_control(
+            &id,
+            output,
+        );
+        id
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 

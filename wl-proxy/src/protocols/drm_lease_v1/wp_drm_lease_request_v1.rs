@@ -220,6 +220,46 @@ impl WpDrmLeaseRequestV1 {
             log_send("wp_drm_lease_request_v1.submit", &e);
         }
     }
+
+    /// submit the lease request
+    ///
+    /// Submits the lease request and creates a new wp_drm_lease_v1 object.
+    /// After calling submit the compositor will immediately destroy this
+    /// object, issuing any more requests will cause a wl_display error.
+    /// The compositor doesn't make any guarantees about the events of the
+    /// lease object, clients cannot expect an immediate response.
+    /// Not requesting any connectors before submitting the lease request
+    /// will raise the empty_lease error.
+    #[inline]
+    pub fn new_try_send_submit(
+        &self,
+    ) -> Result<Rc<WpDrmLeaseV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_submit(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// submit the lease request
+    ///
+    /// Submits the lease request and creates a new wp_drm_lease_v1 object.
+    /// After calling submit the compositor will immediately destroy this
+    /// object, issuing any more requests will cause a wl_display error.
+    /// The compositor doesn't make any guarantees about the events of the
+    /// lease object, clients cannot expect an immediate response.
+    /// Not requesting any connectors before submitting the lease request
+    /// will raise the empty_lease error.
+    #[inline]
+    pub fn new_send_submit(
+        &self,
+    ) -> Rc<WpDrmLeaseV1> {
+        let id = self.core.create_child();
+        self.send_submit(
+            &id,
+        );
+        id
+    }
 }
 
 /// A message handler for [WpDrmLeaseRequestV1] proxies.

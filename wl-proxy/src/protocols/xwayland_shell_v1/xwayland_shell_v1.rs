@@ -220,6 +220,64 @@ impl XwaylandShellV1 {
             log_send("xwayland_shell_v1.get_xwayland_surface", &e);
         }
     }
+
+    /// assign the xwayland_surface surface role
+    ///
+    /// Create an xwayland_surface_v1 interface for a given wl_surface
+    /// object and gives it the xwayland_surface role.
+    ///
+    /// It is illegal to create an xwayland_surface_v1 for a wl_surface
+    /// which already has an assigned role and this will result in the
+    /// `role` protocol error.
+    ///
+    /// See the documentation of xwayland_surface_v1 for more details
+    /// about what an xwayland_surface_v1 is and how it is used.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_try_send_get_xwayland_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<XwaylandSurfaceV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_xwayland_surface(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// assign the xwayland_surface surface role
+    ///
+    /// Create an xwayland_surface_v1 interface for a given wl_surface
+    /// object and gives it the xwayland_surface role.
+    ///
+    /// It is illegal to create an xwayland_surface_v1 for a wl_surface
+    /// which already has an assigned role and this will result in the
+    /// `role` protocol error.
+    ///
+    /// See the documentation of xwayland_surface_v1 for more details
+    /// about what an xwayland_surface_v1 is and how it is used.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_send_get_xwayland_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<XwaylandSurfaceV1> {
+        let id = self.core.create_child();
+        self.send_get_xwayland_surface(
+            &id,
+            surface,
+        );
+        id
+    }
 }
 
 /// A message handler for [XwaylandShellV1] proxies.

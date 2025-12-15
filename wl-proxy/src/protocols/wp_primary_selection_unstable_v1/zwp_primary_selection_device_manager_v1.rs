@@ -116,6 +116,34 @@ impl ZwpPrimarySelectionDeviceManagerV1 {
         }
     }
 
+    /// create a new primary selection source
+    ///
+    /// Create a new primary selection source.
+    #[inline]
+    pub fn new_try_send_create_source(
+        &self,
+    ) -> Result<Rc<ZwpPrimarySelectionSourceV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_source(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new primary selection source
+    ///
+    /// Create a new primary selection source.
+    #[inline]
+    pub fn new_send_create_source(
+        &self,
+    ) -> Rc<ZwpPrimarySelectionSourceV1> {
+        let id = self.core.create_child();
+        self.send_create_source(
+            &id,
+        );
+        id
+    }
+
     /// Since when the get_device message is available.
     pub const MSG__GET_DEVICE__SINCE: u32 = 1;
 
@@ -201,6 +229,48 @@ impl ZwpPrimarySelectionDeviceManagerV1 {
         if let Err(e) = res {
             log_send("zwp_primary_selection_device_manager_v1.get_device", &e);
         }
+    }
+
+    /// create a new primary selection device
+    ///
+    /// Create a new data device for a given seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `seat`:
+    #[inline]
+    pub fn new_try_send_get_device(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) -> Result<Rc<ZwpPrimarySelectionDeviceV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_device(
+            &id,
+            seat,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new primary selection device
+    ///
+    /// Create a new data device for a given seat.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `seat`:
+    #[inline]
+    pub fn new_send_get_device(
+        &self,
+        seat: &Rc<WlSeat>,
+    ) -> Rc<ZwpPrimarySelectionDeviceV1> {
+        let id = self.core.create_child();
+        self.send_get_device(
+            &id,
+            seat,
+        );
+        id
     }
 
     /// Since when the destroy message is available.

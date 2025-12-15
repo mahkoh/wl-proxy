@@ -212,6 +212,68 @@ impl WpLinuxDrmSyncobjManagerV1 {
         }
     }
 
+    /// extend surface interface for explicit synchronization
+    ///
+    /// Instantiate an interface extension for the given wl_surface to provide
+    /// explicit synchronization.
+    ///
+    /// If the given wl_surface already has an explicit synchronization object
+    /// associated, the surface_exists protocol error is raised.
+    ///
+    /// Graphics APIs, like EGL or Vulkan, that manage the buffer queue and
+    /// commits of a wl_surface themselves, are likely to be using this
+    /// extension internally. If a client is using such an API for a
+    /// wl_surface, it should not directly use this extension on that surface,
+    /// to avoid raising a surface_exists protocol error.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new synchronization surface object id
+    /// - `surface`: the surface
+    #[inline]
+    pub fn new_try_send_get_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<WpLinuxDrmSyncobjSurfaceV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_surface(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// extend surface interface for explicit synchronization
+    ///
+    /// Instantiate an interface extension for the given wl_surface to provide
+    /// explicit synchronization.
+    ///
+    /// If the given wl_surface already has an explicit synchronization object
+    /// associated, the surface_exists protocol error is raised.
+    ///
+    /// Graphics APIs, like EGL or Vulkan, that manage the buffer queue and
+    /// commits of a wl_surface themselves, are likely to be using this
+    /// extension internally. If a client is using such an API for a
+    /// wl_surface, it should not directly use this extension on that surface,
+    /// to avoid raising a surface_exists protocol error.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new synchronization surface object id
+    /// - `surface`: the surface
+    #[inline]
+    pub fn new_send_get_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<WpLinuxDrmSyncobjSurfaceV1> {
+        let id = self.core.create_child();
+        self.send_get_surface(
+            &id,
+            surface,
+        );
+        id
+    }
+
     /// Since when the import_timeline message is available.
     pub const MSG__IMPORT_TIMELINE__SINCE: u32 = 1;
 
@@ -296,6 +358,52 @@ impl WpLinuxDrmSyncobjManagerV1 {
         if let Err(e) = res {
             log_send("wp_linux_drm_syncobj_manager_v1.import_timeline", &e);
         }
+    }
+
+    /// import a DRM syncobj timeline
+    ///
+    /// Import a DRM synchronization object timeline.
+    ///
+    /// If the FD cannot be imported, the invalid_timeline error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `fd`: drm_syncobj file descriptor
+    #[inline]
+    pub fn new_try_send_import_timeline(
+        &self,
+        fd: &Rc<OwnedFd>,
+    ) -> Result<Rc<WpLinuxDrmSyncobjTimelineV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_import_timeline(
+            &id,
+            fd,
+        )?;
+        Ok(id)
+    }
+
+    /// import a DRM syncobj timeline
+    ///
+    /// Import a DRM synchronization object timeline.
+    ///
+    /// If the FD cannot be imported, the invalid_timeline error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `fd`: drm_syncobj file descriptor
+    #[inline]
+    pub fn new_send_import_timeline(
+        &self,
+        fd: &Rc<OwnedFd>,
+    ) -> Rc<WpLinuxDrmSyncobjTimelineV1> {
+        let id = self.core.create_child();
+        self.send_import_timeline(
+            &id,
+            fd,
+        );
+        id
     }
 }
 

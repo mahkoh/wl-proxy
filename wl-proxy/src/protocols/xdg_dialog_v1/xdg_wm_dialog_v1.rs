@@ -206,6 +206,56 @@ impl XdgWmDialogV1 {
             log_send("xdg_wm_dialog_v1.get_xdg_dialog", &e);
         }
     }
+
+    /// create a dialog object
+    ///
+    /// Creates a xdg_dialog_v1 object for the given toplevel. See the interface
+    /// description for more details.
+    ///
+    /// 	Compositors must raise an already_used error if clients attempt to
+    /// 	create multiple xdg_dialog_v1 objects for the same xdg_toplevel.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `toplevel`:
+    #[inline]
+    pub fn new_try_send_get_xdg_dialog(
+        &self,
+        toplevel: &Rc<XdgToplevel>,
+    ) -> Result<Rc<XdgDialogV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_xdg_dialog(
+            &id,
+            toplevel,
+        )?;
+        Ok(id)
+    }
+
+    /// create a dialog object
+    ///
+    /// Creates a xdg_dialog_v1 object for the given toplevel. See the interface
+    /// description for more details.
+    ///
+    /// 	Compositors must raise an already_used error if clients attempt to
+    /// 	create multiple xdg_dialog_v1 objects for the same xdg_toplevel.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `toplevel`:
+    #[inline]
+    pub fn new_send_get_xdg_dialog(
+        &self,
+        toplevel: &Rc<XdgToplevel>,
+    ) -> Rc<XdgDialogV1> {
+        let id = self.core.create_child();
+        self.send_get_xdg_dialog(
+            &id,
+            toplevel,
+        );
+        id
+    }
 }
 
 /// A message handler for [XdgWmDialogV1] proxies.

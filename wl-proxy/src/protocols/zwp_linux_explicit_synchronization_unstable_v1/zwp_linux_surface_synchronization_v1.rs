@@ -353,6 +353,66 @@ impl ZwpLinuxSurfaceSynchronizationV1 {
             log_send("zwp_linux_surface_synchronization_v1.get_release", &e);
         }
     }
+
+    /// release fence for last-attached buffer
+    ///
+    /// Create a listener for the release of the buffer attached by the
+    /// client with wl_surface.attach. See zwp_linux_buffer_release_v1
+    /// documentation for more information.
+    ///
+    /// The release object is double-buffered state, and will be associated
+    /// with the buffer that is attached to the surface at wl_surface.commit
+    /// time.
+    ///
+    /// If a zwp_linux_buffer_release_v1 object has already been requested for
+    /// the surface in the same commit cycle, a DUPLICATE_RELEASE error is
+    /// raised.
+    ///
+    /// If the associated wl_surface was destroyed, a NO_SURFACE error
+    /// is raised.
+    ///
+    /// If at surface commit time there is no buffer attached, a NO_BUFFER
+    /// error is raised.
+    #[inline]
+    pub fn new_try_send_get_release(
+        &self,
+    ) -> Result<Rc<ZwpLinuxBufferReleaseV1>, ObjectError> {
+        let release = self.core.create_child();
+        self.try_send_get_release(
+            &release,
+        )?;
+        Ok(release)
+    }
+
+    /// release fence for last-attached buffer
+    ///
+    /// Create a listener for the release of the buffer attached by the
+    /// client with wl_surface.attach. See zwp_linux_buffer_release_v1
+    /// documentation for more information.
+    ///
+    /// The release object is double-buffered state, and will be associated
+    /// with the buffer that is attached to the surface at wl_surface.commit
+    /// time.
+    ///
+    /// If a zwp_linux_buffer_release_v1 object has already been requested for
+    /// the surface in the same commit cycle, a DUPLICATE_RELEASE error is
+    /// raised.
+    ///
+    /// If the associated wl_surface was destroyed, a NO_SURFACE error
+    /// is raised.
+    ///
+    /// If at surface commit time there is no buffer attached, a NO_BUFFER
+    /// error is raised.
+    #[inline]
+    pub fn new_send_get_release(
+        &self,
+    ) -> Rc<ZwpLinuxBufferReleaseV1> {
+        let release = self.core.create_child();
+        self.send_get_release(
+            &release,
+        );
+        release
+    }
 }
 
 /// A message handler for [ZwpLinuxSurfaceSynchronizationV1] proxies.

@@ -145,6 +145,50 @@ impl ZwlrOutputConfigurationV1 {
         }
     }
 
+    /// enable and configure a head
+    ///
+    /// Enable a head. This request creates a head configuration object that can
+    /// be used to change the head's properties.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: a new object to configure the head
+    /// - `head`: the head to be enabled
+    #[inline]
+    pub fn new_try_send_enable_head(
+        &self,
+        head: &Rc<ZwlrOutputHeadV1>,
+    ) -> Result<Rc<ZwlrOutputConfigurationHeadV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_enable_head(
+            &id,
+            head,
+        )?;
+        Ok(id)
+    }
+
+    /// enable and configure a head
+    ///
+    /// Enable a head. This request creates a head configuration object that can
+    /// be used to change the head's properties.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: a new object to configure the head
+    /// - `head`: the head to be enabled
+    #[inline]
+    pub fn new_send_enable_head(
+        &self,
+        head: &Rc<ZwlrOutputHeadV1>,
+    ) -> Rc<ZwlrOutputConfigurationHeadV1> {
+        let id = self.core.create_child();
+        self.send_enable_head(
+            &id,
+            head,
+        );
+        id
+    }
+
     /// Since when the disable_head message is available.
     pub const MSG__DISABLE_HEAD__SINCE: u32 = 1;
 

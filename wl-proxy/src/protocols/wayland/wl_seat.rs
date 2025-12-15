@@ -249,6 +249,48 @@ impl WlSeat {
         }
     }
 
+    /// return pointer object
+    ///
+    /// The ID provided will be initialized to the wl_pointer interface
+    /// for this seat.
+    ///
+    /// This request only takes effect if the seat has the pointer
+    /// capability, or has had the pointer capability in the past.
+    /// It is a protocol violation to issue this request on a seat that has
+    /// never had the pointer capability. The missing_capability error will
+    /// be sent in this case.
+    #[inline]
+    pub fn new_try_send_get_pointer(
+        &self,
+    ) -> Result<Rc<WlPointer>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_pointer(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// return pointer object
+    ///
+    /// The ID provided will be initialized to the wl_pointer interface
+    /// for this seat.
+    ///
+    /// This request only takes effect if the seat has the pointer
+    /// capability, or has had the pointer capability in the past.
+    /// It is a protocol violation to issue this request on a seat that has
+    /// never had the pointer capability. The missing_capability error will
+    /// be sent in this case.
+    #[inline]
+    pub fn new_send_get_pointer(
+        &self,
+    ) -> Rc<WlPointer> {
+        let id = self.core.create_child();
+        self.send_get_pointer(
+            &id,
+        );
+        id
+    }
+
     /// Since when the get_keyboard message is available.
     pub const MSG__GET_KEYBOARD__SINCE: u32 = 1;
 
@@ -329,6 +371,48 @@ impl WlSeat {
         }
     }
 
+    /// return keyboard object
+    ///
+    /// The ID provided will be initialized to the wl_keyboard interface
+    /// for this seat.
+    ///
+    /// This request only takes effect if the seat has the keyboard
+    /// capability, or has had the keyboard capability in the past.
+    /// It is a protocol violation to issue this request on a seat that has
+    /// never had the keyboard capability. The missing_capability error will
+    /// be sent in this case.
+    #[inline]
+    pub fn new_try_send_get_keyboard(
+        &self,
+    ) -> Result<Rc<WlKeyboard>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_keyboard(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// return keyboard object
+    ///
+    /// The ID provided will be initialized to the wl_keyboard interface
+    /// for this seat.
+    ///
+    /// This request only takes effect if the seat has the keyboard
+    /// capability, or has had the keyboard capability in the past.
+    /// It is a protocol violation to issue this request on a seat that has
+    /// never had the keyboard capability. The missing_capability error will
+    /// be sent in this case.
+    #[inline]
+    pub fn new_send_get_keyboard(
+        &self,
+    ) -> Rc<WlKeyboard> {
+        let id = self.core.create_child();
+        self.send_get_keyboard(
+            &id,
+        );
+        id
+    }
+
     /// Since when the get_touch message is available.
     pub const MSG__GET_TOUCH__SINCE: u32 = 1;
 
@@ -407,6 +491,48 @@ impl WlSeat {
         if let Err(e) = res {
             log_send("wl_seat.get_touch", &e);
         }
+    }
+
+    /// return touch object
+    ///
+    /// The ID provided will be initialized to the wl_touch interface
+    /// for this seat.
+    ///
+    /// This request only takes effect if the seat has the touch
+    /// capability, or has had the touch capability in the past.
+    /// It is a protocol violation to issue this request on a seat that has
+    /// never had the touch capability. The missing_capability error will
+    /// be sent in this case.
+    #[inline]
+    pub fn new_try_send_get_touch(
+        &self,
+    ) -> Result<Rc<WlTouch>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_touch(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// return touch object
+    ///
+    /// The ID provided will be initialized to the wl_touch interface
+    /// for this seat.
+    ///
+    /// This request only takes effect if the seat has the touch
+    /// capability, or has had the touch capability in the past.
+    /// It is a protocol violation to issue this request on a seat that has
+    /// never had the touch capability. The missing_capability error will
+    /// be sent in this case.
+    #[inline]
+    pub fn new_send_get_touch(
+        &self,
+    ) -> Rc<WlTouch> {
+        let id = self.core.create_child();
+        self.send_get_touch(
+            &id,
+        );
+        id
     }
 
     /// Since when the name message is available.

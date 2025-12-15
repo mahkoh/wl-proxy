@@ -395,6 +395,46 @@ impl WpImageDescriptionV1 {
         }
     }
 
+    /// get information about the image description
+    ///
+    /// Creates a wp_image_description_info_v1 object which delivers the
+    /// information that makes up the image description.
+    ///
+    /// Not all image description protocol objects allow get_information
+    /// request. Whether it is allowed or not is defined by the request that
+    /// created the object. If get_information is not allowed, the protocol
+    /// error no_information is raised.
+    #[inline]
+    pub fn new_try_send_get_information(
+        &self,
+    ) -> Result<Rc<WpImageDescriptionInfoV1>, ObjectError> {
+        let information = self.core.create_child();
+        self.try_send_get_information(
+            &information,
+        )?;
+        Ok(information)
+    }
+
+    /// get information about the image description
+    ///
+    /// Creates a wp_image_description_info_v1 object which delivers the
+    /// information that makes up the image description.
+    ///
+    /// Not all image description protocol objects allow get_information
+    /// request. Whether it is allowed or not is defined by the request that
+    /// created the object. If get_information is not allowed, the protocol
+    /// error no_information is raised.
+    #[inline]
+    pub fn new_send_get_information(
+        &self,
+    ) -> Rc<WpImageDescriptionInfoV1> {
+        let information = self.core.create_child();
+        self.send_get_information(
+            &information,
+        );
+        information
+    }
+
     /// Since when the ready2 message is available.
     pub const MSG__READY2__SINCE: u32 = 2;
 

@@ -146,6 +146,38 @@ impl WpDrmLeaseDeviceV1 {
         }
     }
 
+    /// create a lease request object
+    ///
+    /// Creates a lease request object.
+    ///
+    /// See the documentation for wp_drm_lease_request_v1 for details.
+    #[inline]
+    pub fn new_try_send_create_lease_request(
+        &self,
+    ) -> Result<Rc<WpDrmLeaseRequestV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_lease_request(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// create a lease request object
+    ///
+    /// Creates a lease request object.
+    ///
+    /// See the documentation for wp_drm_lease_request_v1 for details.
+    #[inline]
+    pub fn new_send_create_lease_request(
+        &self,
+    ) -> Rc<WpDrmLeaseRequestV1> {
+        let id = self.core.create_child();
+        self.send_create_lease_request(
+            &id,
+        );
+        id
+    }
+
     /// Since when the release message is available.
     pub const MSG__RELEASE__SINCE: u32 = 1;
 
@@ -377,6 +409,52 @@ impl WpDrmLeaseDeviceV1 {
         if let Err(e) = res {
             log_send("wp_drm_lease_device_v1.connector", &e);
         }
+    }
+
+    /// advertise connectors available for leases
+    ///
+    /// The compositor will use this event to advertise connectors available for
+    /// lease by clients. This object may be passed into a lease request to
+    /// indicate the client would like to lease that connector, see
+    /// wp_drm_lease_request_v1.request_connector for details. While the
+    /// compositor will make a best effort to not send disconnected connectors,
+    /// no guarantees can be made.
+    ///
+    /// The compositor must send the drm_fd event before sending connectors.
+    /// After the drm_fd event it will send all available connectors but may
+    /// send additional connectors at any time.
+    #[inline]
+    pub fn new_try_send_connector(
+        &self,
+    ) -> Result<Rc<WpDrmLeaseConnectorV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_connector(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// advertise connectors available for leases
+    ///
+    /// The compositor will use this event to advertise connectors available for
+    /// lease by clients. This object may be passed into a lease request to
+    /// indicate the client would like to lease that connector, see
+    /// wp_drm_lease_request_v1.request_connector for details. While the
+    /// compositor will make a best effort to not send disconnected connectors,
+    /// no guarantees can be made.
+    ///
+    /// The compositor must send the drm_fd event before sending connectors.
+    /// After the drm_fd event it will send all available connectors but may
+    /// send additional connectors at any time.
+    #[inline]
+    pub fn new_send_connector(
+        &self,
+    ) -> Rc<WpDrmLeaseConnectorV1> {
+        let id = self.core.create_child();
+        self.send_connector(
+            &id,
+        );
+        id
     }
 
     /// Since when the done message is available.

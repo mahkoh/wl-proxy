@@ -310,6 +310,98 @@ impl WpColorManagementSurfaceFeedbackV1 {
         }
     }
 
+    /// get the preferred image description
+    ///
+    /// If this protocol object is inert, the protocol error inert is raised.
+    ///
+    /// The preferred image description represents the compositor's preferred
+    /// color encoding for this wl_surface at the current time. There might be
+    /// performance and power advantages, as well as improved color
+    /// reproduction, if the image description of a content update matches the
+    /// preferred image description.
+    ///
+    /// This creates a new wp_image_description_v1 object for the currently
+    /// preferred image description for the wl_surface. The client should
+    /// stop using and destroy the image descriptions created by earlier
+    /// invocations of this request for the associated wl_surface.
+    /// This request is usually sent as a reaction to the preferred_changed
+    /// event or when creating a wp_color_management_surface_feedback_v1 object
+    /// if the client is capable of adapting to image descriptions.
+    ///
+    /// The created wp_image_description_v1 object preserves the preferred image
+    /// description of the wl_surface from the time the object was created.
+    ///
+    /// The resulting image description object allows get_information request.
+    ///
+    /// If the image description is parametric, the client should set it on its
+    /// wl_surface only if the image description is an exact match with the
+    /// client content. Particularly if everything else matches, but the target
+    /// color volume is greater than what the client needs, the client should
+    /// create its own parameric image description with its exact parameters.
+    ///
+    /// If the interface version is inadequate for the preferred image
+    /// description, meaning that the client does not support all the
+    /// events needed to deliver the crucial information, the resulting image
+    /// description object shall immediately deliver the
+    /// wp_image_description_v1.failed event with the low_version cause,
+    /// otherwise the object shall immediately deliver the ready event.
+    #[inline]
+    pub fn new_try_send_get_preferred(
+        &self,
+    ) -> Result<Rc<WpImageDescriptionV1>, ObjectError> {
+        let image_description = self.core.create_child();
+        self.try_send_get_preferred(
+            &image_description,
+        )?;
+        Ok(image_description)
+    }
+
+    /// get the preferred image description
+    ///
+    /// If this protocol object is inert, the protocol error inert is raised.
+    ///
+    /// The preferred image description represents the compositor's preferred
+    /// color encoding for this wl_surface at the current time. There might be
+    /// performance and power advantages, as well as improved color
+    /// reproduction, if the image description of a content update matches the
+    /// preferred image description.
+    ///
+    /// This creates a new wp_image_description_v1 object for the currently
+    /// preferred image description for the wl_surface. The client should
+    /// stop using and destroy the image descriptions created by earlier
+    /// invocations of this request for the associated wl_surface.
+    /// This request is usually sent as a reaction to the preferred_changed
+    /// event or when creating a wp_color_management_surface_feedback_v1 object
+    /// if the client is capable of adapting to image descriptions.
+    ///
+    /// The created wp_image_description_v1 object preserves the preferred image
+    /// description of the wl_surface from the time the object was created.
+    ///
+    /// The resulting image description object allows get_information request.
+    ///
+    /// If the image description is parametric, the client should set it on its
+    /// wl_surface only if the image description is an exact match with the
+    /// client content. Particularly if everything else matches, but the target
+    /// color volume is greater than what the client needs, the client should
+    /// create its own parameric image description with its exact parameters.
+    ///
+    /// If the interface version is inadequate for the preferred image
+    /// description, meaning that the client does not support all the
+    /// events needed to deliver the crucial information, the resulting image
+    /// description object shall immediately deliver the
+    /// wp_image_description_v1.failed event with the low_version cause,
+    /// otherwise the object shall immediately deliver the ready event.
+    #[inline]
+    pub fn new_send_get_preferred(
+        &self,
+    ) -> Rc<WpImageDescriptionV1> {
+        let image_description = self.core.create_child();
+        self.send_get_preferred(
+            &image_description,
+        );
+        image_description
+    }
+
     /// Since when the get_preferred_parametric message is available.
     pub const MSG__GET_PREFERRED_PARAMETRIC__SINCE: u32 = 1;
 
@@ -384,6 +476,44 @@ impl WpColorManagementSurfaceFeedbackV1 {
         if let Err(e) = res {
             log_send("wp_color_management_surface_feedback_v1.get_preferred_parametric", &e);
         }
+    }
+
+    /// get the preferred image description
+    ///
+    /// The same description as for get_preferred applies, except the returned
+    /// image description is guaranteed to be parametric. This is meant for
+    /// clients that can only deal with parametric image descriptions.
+    ///
+    /// If the compositor doesn't support parametric image descriptions, the
+    /// unsupported_feature error is emitted.
+    #[inline]
+    pub fn new_try_send_get_preferred_parametric(
+        &self,
+    ) -> Result<Rc<WpImageDescriptionV1>, ObjectError> {
+        let image_description = self.core.create_child();
+        self.try_send_get_preferred_parametric(
+            &image_description,
+        )?;
+        Ok(image_description)
+    }
+
+    /// get the preferred image description
+    ///
+    /// The same description as for get_preferred applies, except the returned
+    /// image description is guaranteed to be parametric. This is meant for
+    /// clients that can only deal with parametric image descriptions.
+    ///
+    /// If the compositor doesn't support parametric image descriptions, the
+    /// unsupported_feature error is emitted.
+    #[inline]
+    pub fn new_send_get_preferred_parametric(
+        &self,
+    ) -> Rc<WpImageDescriptionV1> {
+        let image_description = self.core.create_child();
+        self.send_get_preferred_parametric(
+            &image_description,
+        );
+        image_description
     }
 
     /// Since when the preferred_changed2 message is available.

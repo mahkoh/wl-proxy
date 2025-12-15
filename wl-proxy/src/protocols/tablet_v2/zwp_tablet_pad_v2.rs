@@ -332,6 +332,42 @@ impl ZwpTabletPadV2 {
         }
     }
 
+    /// group announced
+    ///
+    /// Sent on zwp_tablet_pad_v2 initialization to announce available groups.
+    /// One event is sent for each pad group available.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_pad_v2.done event. At least one group will be announced.
+    #[inline]
+    pub fn new_try_send_group(
+        &self,
+    ) -> Result<Rc<ZwpTabletPadGroupV2>, ObjectError> {
+        let pad_group = self.core.create_child();
+        self.try_send_group(
+            &pad_group,
+        )?;
+        Ok(pad_group)
+    }
+
+    /// group announced
+    ///
+    /// Sent on zwp_tablet_pad_v2 initialization to announce available groups.
+    /// One event is sent for each pad group available.
+    ///
+    /// This event is sent in the initial burst of events before the
+    /// zwp_tablet_pad_v2.done event. At least one group will be announced.
+    #[inline]
+    pub fn new_send_group(
+        &self,
+    ) -> Rc<ZwpTabletPadGroupV2> {
+        let pad_group = self.core.create_child();
+        self.send_group(
+            &pad_group,
+        );
+        pad_group
+    }
+
     /// Since when the path message is available.
     pub const MSG__PATH__SINCE: u32 = 1;
 

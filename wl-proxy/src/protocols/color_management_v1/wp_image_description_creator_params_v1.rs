@@ -212,6 +212,92 @@ impl WpImageDescriptionCreatorParamsV1 {
         }
     }
 
+    /// Create the image description object using params
+    ///
+    /// Create an image description object based on the parameters previously
+    /// set on this object.
+    ///
+    /// The completeness of the parameter set is verified. If the set is not
+    /// complete, the protocol error incomplete_set is raised. For the
+    /// definition of a complete set, see the description of this interface.
+    ///
+    /// When both max_cll and max_fall are set, max_fall must be less or equal
+    /// to max_cll otherwise the invalid_luminance protocol error is raised.
+    ///
+    /// In version 1, these following conditions also result in the
+    /// invalid_luminance protocol error. Version 2 and later do not have this
+    /// requirement.
+    /// - When max_cll is set, it must be greater than min L and less or equal
+    ///   to max L of the mastering luminance range.
+    /// - When max_fall is set, it must be greater than min L and less or equal
+    ///   to max L of the mastering luminance range.
+    ///
+    /// If the particular combination of the parameter set is not supported
+    /// by the compositor, the resulting image description object shall
+    /// immediately deliver the wp_image_description_v1.failed event with the
+    /// 'unsupported' cause. If a valid image description was created from the
+    /// parameter set, the wp_image_description_v1.ready event will eventually
+    /// be sent instead.
+    ///
+    /// This request destroys the wp_image_description_creator_params_v1
+    /// object.
+    ///
+    /// The resulting image description object does not allow get_information
+    /// request.
+    #[inline]
+    pub fn new_try_send_create(
+        &self,
+    ) -> Result<Rc<WpImageDescriptionV1>, ObjectError> {
+        let image_description = self.core.create_child();
+        self.try_send_create(
+            &image_description,
+        )?;
+        Ok(image_description)
+    }
+
+    /// Create the image description object using params
+    ///
+    /// Create an image description object based on the parameters previously
+    /// set on this object.
+    ///
+    /// The completeness of the parameter set is verified. If the set is not
+    /// complete, the protocol error incomplete_set is raised. For the
+    /// definition of a complete set, see the description of this interface.
+    ///
+    /// When both max_cll and max_fall are set, max_fall must be less or equal
+    /// to max_cll otherwise the invalid_luminance protocol error is raised.
+    ///
+    /// In version 1, these following conditions also result in the
+    /// invalid_luminance protocol error. Version 2 and later do not have this
+    /// requirement.
+    /// - When max_cll is set, it must be greater than min L and less or equal
+    ///   to max L of the mastering luminance range.
+    /// - When max_fall is set, it must be greater than min L and less or equal
+    ///   to max L of the mastering luminance range.
+    ///
+    /// If the particular combination of the parameter set is not supported
+    /// by the compositor, the resulting image description object shall
+    /// immediately deliver the wp_image_description_v1.failed event with the
+    /// 'unsupported' cause. If a valid image description was created from the
+    /// parameter set, the wp_image_description_v1.ready event will eventually
+    /// be sent instead.
+    ///
+    /// This request destroys the wp_image_description_creator_params_v1
+    /// object.
+    ///
+    /// The resulting image description object does not allow get_information
+    /// request.
+    #[inline]
+    pub fn new_send_create(
+        &self,
+    ) -> Rc<WpImageDescriptionV1> {
+        let image_description = self.core.create_child();
+        self.send_create(
+            &image_description,
+        );
+        image_description
+    }
+
     /// Since when the set_tf_named message is available.
     pub const MSG__SET_TF_NAMED__SINCE: u32 = 1;
 

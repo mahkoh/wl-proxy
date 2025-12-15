@@ -132,6 +132,46 @@ impl ZwlrForeignToplevelManagerV1 {
         }
     }
 
+    /// a toplevel has been created
+    ///
+    /// This event is emitted whenever a new toplevel window is created. It
+    /// is emitted for all toplevels, regardless of the app that has created
+    /// them.
+    ///
+    /// All initial details of the toplevel(title, app_id, states, etc.) will
+    /// be sent immediately after this event via the corresponding events in
+    /// zwlr_foreign_toplevel_handle_v1.
+    #[inline]
+    pub fn new_try_send_toplevel(
+        &self,
+    ) -> Result<Rc<ZwlrForeignToplevelHandleV1>, ObjectError> {
+        let toplevel = self.core.create_child();
+        self.try_send_toplevel(
+            &toplevel,
+        )?;
+        Ok(toplevel)
+    }
+
+    /// a toplevel has been created
+    ///
+    /// This event is emitted whenever a new toplevel window is created. It
+    /// is emitted for all toplevels, regardless of the app that has created
+    /// them.
+    ///
+    /// All initial details of the toplevel(title, app_id, states, etc.) will
+    /// be sent immediately after this event via the corresponding events in
+    /// zwlr_foreign_toplevel_handle_v1.
+    #[inline]
+    pub fn new_send_toplevel(
+        &self,
+    ) -> Rc<ZwlrForeignToplevelHandleV1> {
+        let toplevel = self.core.create_child();
+        self.send_toplevel(
+            &toplevel,
+        );
+        toplevel
+    }
+
     /// Since when the stop message is available.
     pub const MSG__STOP__SINCE: u32 = 1;
 

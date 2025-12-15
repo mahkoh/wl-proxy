@@ -201,6 +201,54 @@ impl WpViewporter {
             log_send("wp_viewporter.get_viewport", &e);
         }
     }
+
+    /// extend surface interface for crop and scale
+    ///
+    /// Instantiate an interface extension for the given wl_surface to
+    /// crop and scale its content. If the given wl_surface already has
+    /// a wp_viewport object associated, the viewport_exists
+    /// protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new viewport interface id
+    /// - `surface`: the surface
+    #[inline]
+    pub fn new_try_send_get_viewport(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<WpViewport>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_viewport(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// extend surface interface for crop and scale
+    ///
+    /// Instantiate an interface extension for the given wl_surface to
+    /// crop and scale its content. If the given wl_surface already has
+    /// a wp_viewport object associated, the viewport_exists
+    /// protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new viewport interface id
+    /// - `surface`: the surface
+    #[inline]
+    pub fn new_send_get_viewport(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<WpViewport> {
+        let id = self.core.create_child();
+        self.send_get_viewport(
+            &id,
+            surface,
+        );
+        id
+    }
 }
 
 /// A message handler for [WpViewporter] proxies.

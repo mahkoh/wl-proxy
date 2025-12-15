@@ -210,6 +210,42 @@ impl ZwpPrimarySelectionDeviceV1 {
         }
     }
 
+    /// introduce a new wp_primary_selection_offer
+    ///
+    /// Introduces a new wp_primary_selection_offer object that may be used
+    /// to receive the current primary selection. Immediately following this
+    /// event, the new wp_primary_selection_offer object will send
+    /// wp_primary_selection_offer.offer events to describe the offered mime
+    /// types.
+    #[inline]
+    pub fn new_try_send_data_offer(
+        &self,
+    ) -> Result<Rc<ZwpPrimarySelectionOfferV1>, ObjectError> {
+        let offer = self.core.create_child();
+        self.try_send_data_offer(
+            &offer,
+        )?;
+        Ok(offer)
+    }
+
+    /// introduce a new wp_primary_selection_offer
+    ///
+    /// Introduces a new wp_primary_selection_offer object that may be used
+    /// to receive the current primary selection. Immediately following this
+    /// event, the new wp_primary_selection_offer object will send
+    /// wp_primary_selection_offer.offer events to describe the offered mime
+    /// types.
+    #[inline]
+    pub fn new_send_data_offer(
+        &self,
+    ) -> Rc<ZwpPrimarySelectionOfferV1> {
+        let offer = self.core.create_child();
+        self.send_data_offer(
+            &offer,
+        );
+        offer
+    }
+
     /// Since when the selection message is available.
     pub const MSG__SELECTION__SINCE: u32 = 1;
 

@@ -205,6 +205,60 @@ impl WpColorRepresentationManagerV1 {
         }
     }
 
+    /// create a color representation interface for a wl_surface
+    ///
+    /// If a wp_color_representation_surface_v1 object already exists for the
+    /// given wl_surface, the protocol error surface_exists is raised.
+    ///
+    /// This creates a new color wp_color_representation_surface_v1 object for
+    /// the given wl_surface.
+    ///
+    /// See the wp_color_representation_surface_v1 interface for more details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_try_send_get_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<WpColorRepresentationSurfaceV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_surface(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// create a color representation interface for a wl_surface
+    ///
+    /// If a wp_color_representation_surface_v1 object already exists for the
+    /// given wl_surface, the protocol error surface_exists is raised.
+    ///
+    /// This creates a new color wp_color_representation_surface_v1 object for
+    /// the given wl_surface.
+    ///
+    /// See the wp_color_representation_surface_v1 interface for more details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_send_get_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<WpColorRepresentationSurfaceV1> {
+        let id = self.core.create_child();
+        self.send_get_surface(
+            &id,
+            surface,
+        );
+        id
+    }
+
     /// Since when the supported_alpha_mode message is available.
     pub const MSG__SUPPORTED_ALPHA_MODE__SINCE: u32 = 1;
 

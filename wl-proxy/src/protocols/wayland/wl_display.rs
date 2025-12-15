@@ -134,6 +134,54 @@ impl WlDisplay {
         }
     }
 
+    /// asynchronous roundtrip
+    ///
+    /// The sync request asks the server to emit the 'done' event
+    /// on the returned wl_callback object.  Since requests are
+    /// handled in-order and events are delivered in-order, this can
+    /// be used as a barrier to ensure all previous requests and the
+    /// resulting events have been handled.
+    ///
+    /// The object returned by this request will be destroyed by the
+    /// compositor after the callback is fired and as such the client must not
+    /// attempt to use it after that point.
+    ///
+    /// The callback_data passed in the callback is undefined and should be ignored.
+    #[inline]
+    pub fn new_try_send_sync(
+        &self,
+    ) -> Result<Rc<WlCallback>, ObjectError> {
+        let callback = self.core.create_child();
+        self.try_send_sync(
+            &callback,
+        )?;
+        Ok(callback)
+    }
+
+    /// asynchronous roundtrip
+    ///
+    /// The sync request asks the server to emit the 'done' event
+    /// on the returned wl_callback object.  Since requests are
+    /// handled in-order and events are delivered in-order, this can
+    /// be used as a barrier to ensure all previous requests and the
+    /// resulting events have been handled.
+    ///
+    /// The object returned by this request will be destroyed by the
+    /// compositor after the callback is fired and as such the client must not
+    /// attempt to use it after that point.
+    ///
+    /// The callback_data passed in the callback is undefined and should be ignored.
+    #[inline]
+    pub fn new_send_sync(
+        &self,
+    ) -> Rc<WlCallback> {
+        let callback = self.core.create_child();
+        self.send_sync(
+            &callback,
+        );
+        callback
+    }
+
     /// Since when the get_registry message is available.
     pub const MSG__GET_REGISTRY__SINCE: u32 = 1;
 
@@ -214,6 +262,50 @@ impl WlDisplay {
         if let Err(e) = res {
             log_send("wl_display.get_registry", &e);
         }
+    }
+
+    /// get global registry object
+    ///
+    /// This request creates a registry object that allows the client
+    /// to list and bind the global objects available from the
+    /// compositor.
+    ///
+    /// It should be noted that the server side resources consumed in
+    /// response to a get_registry request can only be released when the
+    /// client disconnects, not when the client side proxy is destroyed.
+    /// Therefore, clients should invoke get_registry as infrequently as
+    /// possible to avoid wasting memory.
+    #[inline]
+    pub fn new_try_send_get_registry(
+        &self,
+    ) -> Result<Rc<WlRegistry>, ObjectError> {
+        let registry = self.core.create_child();
+        self.try_send_get_registry(
+            &registry,
+        )?;
+        Ok(registry)
+    }
+
+    /// get global registry object
+    ///
+    /// This request creates a registry object that allows the client
+    /// to list and bind the global objects available from the
+    /// compositor.
+    ///
+    /// It should be noted that the server side resources consumed in
+    /// response to a get_registry request can only be released when the
+    /// client disconnects, not when the client side proxy is destroyed.
+    /// Therefore, clients should invoke get_registry as infrequently as
+    /// possible to avoid wasting memory.
+    #[inline]
+    pub fn new_send_get_registry(
+        &self,
+    ) -> Rc<WlRegistry> {
+        let registry = self.core.create_child();
+        self.send_get_registry(
+            &registry,
+        );
+        registry
     }
 
     /// Since when the error message is available.

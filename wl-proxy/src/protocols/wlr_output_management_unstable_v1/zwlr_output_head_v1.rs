@@ -422,6 +422,36 @@ impl ZwlrOutputHeadV1 {
         }
     }
 
+    /// introduce a mode
+    ///
+    /// This event introduces a mode for this head. It is sent once per
+    /// supported mode.
+    #[inline]
+    pub fn new_try_send_mode(
+        &self,
+    ) -> Result<Rc<ZwlrOutputModeV1>, ObjectError> {
+        let mode = self.core.create_child();
+        self.try_send_mode(
+            &mode,
+        )?;
+        Ok(mode)
+    }
+
+    /// introduce a mode
+    ///
+    /// This event introduces a mode for this head. It is sent once per
+    /// supported mode.
+    #[inline]
+    pub fn new_send_mode(
+        &self,
+    ) -> Rc<ZwlrOutputModeV1> {
+        let mode = self.core.create_child();
+        self.send_mode(
+            &mode,
+        );
+        mode
+    }
+
     /// Since when the enabled message is available.
     pub const MSG__ENABLED__SINCE: u32 = 1;
 

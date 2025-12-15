@@ -145,6 +145,38 @@ impl ZwlrOutputManagerV1 {
         }
     }
 
+    /// introduce a new head
+    ///
+    /// This event introduces a new head. This happens whenever a new head
+    /// appears (e.g. a monitor is plugged in) or after the output manager is
+    /// bound.
+    #[inline]
+    pub fn new_try_send_head(
+        &self,
+    ) -> Result<Rc<ZwlrOutputHeadV1>, ObjectError> {
+        let head = self.core.create_child();
+        self.try_send_head(
+            &head,
+        )?;
+        Ok(head)
+    }
+
+    /// introduce a new head
+    ///
+    /// This event introduces a new head. This happens whenever a new head
+    /// appears (e.g. a monitor is plugged in) or after the output manager is
+    /// bound.
+    #[inline]
+    pub fn new_send_head(
+        &self,
+    ) -> Rc<ZwlrOutputHeadV1> {
+        let head = self.core.create_child();
+        self.send_head(
+            &head,
+        );
+        head
+    }
+
     /// Since when the done message is available.
     pub const MSG__DONE__SINCE: u32 = 1;
 
@@ -318,6 +350,50 @@ impl ZwlrOutputManagerV1 {
         if let Err(e) = res {
             log_send("zwlr_output_manager_v1.create_configuration", &e);
         }
+    }
+
+    /// create a new output configuration object
+    ///
+    /// Create a new output configuration object. This allows to update head
+    /// properties.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `serial`:
+    #[inline]
+    pub fn new_try_send_create_configuration(
+        &self,
+        serial: u32,
+    ) -> Result<Rc<ZwlrOutputConfigurationV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_configuration(
+            &id,
+            serial,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new output configuration object
+    ///
+    /// Create a new output configuration object. This allows to update head
+    /// properties.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `serial`:
+    #[inline]
+    pub fn new_send_create_configuration(
+        &self,
+        serial: u32,
+    ) -> Rc<ZwlrOutputConfigurationV1> {
+        let id = self.core.create_child();
+        self.send_create_configuration(
+            &id,
+            serial,
+        );
+        id
     }
 
     /// Since when the stop message is available.

@@ -120,6 +120,36 @@ impl ZwpInputMethodV1 {
         }
     }
 
+    /// activate event
+    ///
+    /// A text input was activated. Creates an input method context object
+    /// which allows communication with the text input.
+    #[inline]
+    pub fn new_try_send_activate(
+        &self,
+    ) -> Result<Rc<ZwpInputMethodContextV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_activate(
+            &id,
+        )?;
+        Ok(id)
+    }
+
+    /// activate event
+    ///
+    /// A text input was activated. Creates an input method context object
+    /// which allows communication with the text input.
+    #[inline]
+    pub fn new_send_activate(
+        &self,
+    ) -> Rc<ZwpInputMethodContextV1> {
+        let id = self.core.create_child();
+        self.send_activate(
+            &id,
+        );
+        id
+    }
+
     /// Since when the deactivate message is available.
     pub const MSG__DEACTIVATE__SINCE: u32 = 1;
 

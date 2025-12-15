@@ -199,6 +199,52 @@ impl WpAlphaModifierV1 {
             log_send("wp_alpha_modifier_v1.get_surface", &e);
         }
     }
+
+    /// create a new alpha modifier surface object
+    ///
+    /// Create a new alpha modifier surface object associated with the
+    /// given wl_surface. If there is already such an object associated with
+    /// the wl_surface, the already_constructed error will be raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_try_send_get_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Result<Rc<WpAlphaModifierSurfaceV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_surface(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// create a new alpha modifier surface object
+    ///
+    /// Create a new alpha modifier surface object associated with the
+    /// given wl_surface. If there is already such an object associated with
+    /// the wl_surface, the already_constructed error will be raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `surface`:
+    #[inline]
+    pub fn new_send_get_surface(
+        &self,
+        surface: &Rc<WlSurface>,
+    ) -> Rc<WpAlphaModifierSurfaceV1> {
+        let id = self.core.create_child();
+        self.send_get_surface(
+            &id,
+            surface,
+        );
+        id
+    }
 }
 
 /// A message handler for [WpAlphaModifierV1] proxies.

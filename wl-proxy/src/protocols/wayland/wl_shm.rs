@@ -153,6 +153,62 @@ impl WlShm {
         }
     }
 
+    /// create a shm pool
+    ///
+    /// Create a new wl_shm_pool object.
+    ///
+    /// The pool can be used to create shared memory based buffer
+    /// objects.  The server will mmap size bytes of the passed file
+    /// descriptor, to use as backing memory for the pool.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: pool to create
+    /// - `fd`: file descriptor for the pool
+    /// - `size`: pool size, in bytes
+    #[inline]
+    pub fn new_try_send_create_pool(
+        &self,
+        fd: &Rc<OwnedFd>,
+        size: i32,
+    ) -> Result<Rc<WlShmPool>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_create_pool(
+            &id,
+            fd,
+            size,
+        )?;
+        Ok(id)
+    }
+
+    /// create a shm pool
+    ///
+    /// Create a new wl_shm_pool object.
+    ///
+    /// The pool can be used to create shared memory based buffer
+    /// objects.  The server will mmap size bytes of the passed file
+    /// descriptor, to use as backing memory for the pool.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: pool to create
+    /// - `fd`: file descriptor for the pool
+    /// - `size`: pool size, in bytes
+    #[inline]
+    pub fn new_send_create_pool(
+        &self,
+        fd: &Rc<OwnedFd>,
+        size: i32,
+    ) -> Rc<WlShmPool> {
+        let id = self.core.create_child();
+        self.send_create_pool(
+            &id,
+            fd,
+            size,
+        );
+        id
+    }
+
     /// Since when the format message is available.
     pub const MSG__FORMAT__SINCE: u32 = 1;
 

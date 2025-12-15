@@ -137,6 +137,50 @@ impl ExtForeignToplevelImageCaptureSourceManagerV1 {
         }
     }
 
+    /// create source object for foreign toplevel
+    ///
+    /// Creates a source object for a foreign toplevel handle. Images captured
+    /// from this source will show the same content as the toplevel.
+    ///
+    /// # Arguments
+    ///
+    /// - `source`:
+    /// - `toplevel_handle`:
+    #[inline]
+    pub fn new_try_send_create_source(
+        &self,
+        toplevel_handle: &Rc<ExtForeignToplevelHandleV1>,
+    ) -> Result<Rc<ExtImageCaptureSourceV1>, ObjectError> {
+        let source = self.core.create_child();
+        self.try_send_create_source(
+            &source,
+            toplevel_handle,
+        )?;
+        Ok(source)
+    }
+
+    /// create source object for foreign toplevel
+    ///
+    /// Creates a source object for a foreign toplevel handle. Images captured
+    /// from this source will show the same content as the toplevel.
+    ///
+    /// # Arguments
+    ///
+    /// - `source`:
+    /// - `toplevel_handle`:
+    #[inline]
+    pub fn new_send_create_source(
+        &self,
+        toplevel_handle: &Rc<ExtForeignToplevelHandleV1>,
+    ) -> Rc<ExtImageCaptureSourceV1> {
+        let source = self.core.create_child();
+        self.send_create_source(
+            &source,
+            toplevel_handle,
+        );
+        source
+    }
+
     /// Since when the destroy message is available.
     pub const MSG__DESTROY__SINCE: u32 = 1;
 

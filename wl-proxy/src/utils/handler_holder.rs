@@ -132,6 +132,7 @@ impl<T: ?Sized> HandlerRef<'_, T> {
     /// Copies a `HandlerRef`.
     ///
     /// This is an associated function that needs to be used as `HandlerRef::clone(...)`.
+    #[expect(clippy::should_implement_trait)]
     pub fn clone(orig: &Self) -> Self {
         Self {
             handler: Ref::clone(&orig.handler),

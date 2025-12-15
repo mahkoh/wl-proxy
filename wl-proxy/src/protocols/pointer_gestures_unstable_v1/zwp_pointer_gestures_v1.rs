@@ -151,6 +151,50 @@ impl ZwpPointerGesturesV1 {
         }
     }
 
+    /// get swipe gesture
+    ///
+    /// Create a swipe gesture object. See the
+    /// wl_pointer_gesture_swipe interface for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `pointer`:
+    #[inline]
+    pub fn new_try_send_get_swipe_gesture(
+        &self,
+        pointer: &Rc<WlPointer>,
+    ) -> Result<Rc<ZwpPointerGestureSwipeV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_swipe_gesture(
+            &id,
+            pointer,
+        )?;
+        Ok(id)
+    }
+
+    /// get swipe gesture
+    ///
+    /// Create a swipe gesture object. See the
+    /// wl_pointer_gesture_swipe interface for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `pointer`:
+    #[inline]
+    pub fn new_send_get_swipe_gesture(
+        &self,
+        pointer: &Rc<WlPointer>,
+    ) -> Rc<ZwpPointerGestureSwipeV1> {
+        let id = self.core.create_child();
+        self.send_get_swipe_gesture(
+            &id,
+            pointer,
+        );
+        id
+    }
+
     /// Since when the get_pinch_gesture message is available.
     pub const MSG__GET_PINCH_GESTURE__SINCE: u32 = 1;
 
@@ -238,6 +282,50 @@ impl ZwpPointerGesturesV1 {
         if let Err(e) = res {
             log_send("zwp_pointer_gestures_v1.get_pinch_gesture", &e);
         }
+    }
+
+    /// get pinch gesture
+    ///
+    /// Create a pinch gesture object. See the
+    /// wl_pointer_gesture_pinch interface for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `pointer`:
+    #[inline]
+    pub fn new_try_send_get_pinch_gesture(
+        &self,
+        pointer: &Rc<WlPointer>,
+    ) -> Result<Rc<ZwpPointerGesturePinchV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_pinch_gesture(
+            &id,
+            pointer,
+        )?;
+        Ok(id)
+    }
+
+    /// get pinch gesture
+    ///
+    /// Create a pinch gesture object. See the
+    /// wl_pointer_gesture_pinch interface for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `pointer`:
+    #[inline]
+    pub fn new_send_get_pinch_gesture(
+        &self,
+        pointer: &Rc<WlPointer>,
+    ) -> Rc<ZwpPointerGesturePinchV1> {
+        let id = self.core.create_child();
+        self.send_get_pinch_gesture(
+            &id,
+            pointer,
+        );
+        id
     }
 
     /// Since when the release message is available.
@@ -382,6 +470,50 @@ impl ZwpPointerGesturesV1 {
         if let Err(e) = res {
             log_send("zwp_pointer_gestures_v1.get_hold_gesture", &e);
         }
+    }
+
+    /// get hold gesture
+    ///
+    /// Create a hold gesture object. See the
+    /// wl_pointer_gesture_hold interface for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `pointer`:
+    #[inline]
+    pub fn new_try_send_get_hold_gesture(
+        &self,
+        pointer: &Rc<WlPointer>,
+    ) -> Result<Rc<ZwpPointerGestureHoldV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_hold_gesture(
+            &id,
+            pointer,
+        )?;
+        Ok(id)
+    }
+
+    /// get hold gesture
+    ///
+    /// Create a hold gesture object. See the
+    /// wl_pointer_gesture_hold interface for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `pointer`:
+    #[inline]
+    pub fn new_send_get_hold_gesture(
+        &self,
+        pointer: &Rc<WlPointer>,
+    ) -> Rc<ZwpPointerGestureHoldV1> {
+        let id = self.core.create_child();
+        self.send_get_hold_gesture(
+            &id,
+            pointer,
+        );
+        id
     }
 }
 

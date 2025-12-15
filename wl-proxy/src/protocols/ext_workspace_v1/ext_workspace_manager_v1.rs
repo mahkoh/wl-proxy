@@ -141,6 +141,42 @@ impl ExtWorkspaceManagerV1 {
         }
     }
 
+    /// a workspace group has been created
+    ///
+    /// This event is emitted whenever a new workspace group has been created.
+    ///
+    /// All initial details of the workspace group (outputs) will be
+    /// sent immediately after this event via the corresponding events in
+    /// ext_workspace_group_handle_v1 and ext_workspace_handle_v1.
+    #[inline]
+    pub fn new_try_send_workspace_group(
+        &self,
+    ) -> Result<Rc<ExtWorkspaceGroupHandleV1>, ObjectError> {
+        let workspace_group = self.core.create_child();
+        self.try_send_workspace_group(
+            &workspace_group,
+        )?;
+        Ok(workspace_group)
+    }
+
+    /// a workspace group has been created
+    ///
+    /// This event is emitted whenever a new workspace group has been created.
+    ///
+    /// All initial details of the workspace group (outputs) will be
+    /// sent immediately after this event via the corresponding events in
+    /// ext_workspace_group_handle_v1 and ext_workspace_handle_v1.
+    #[inline]
+    pub fn new_send_workspace_group(
+        &self,
+    ) -> Rc<ExtWorkspaceGroupHandleV1> {
+        let workspace_group = self.core.create_child();
+        self.send_workspace_group(
+            &workspace_group,
+        );
+        workspace_group
+    }
+
     /// Since when the workspace message is available.
     pub const MSG__WORKSPACE__SINCE: u32 = 1;
 
@@ -219,6 +255,46 @@ impl ExtWorkspaceManagerV1 {
         if let Err(e) = res {
             log_send("ext_workspace_manager_v1.workspace", &e);
         }
+    }
+
+    /// workspace has been created
+    ///
+    /// This event is emitted whenever a new workspace has been created.
+    ///
+    /// All initial details of the workspace (name, coordinates, state) will
+    /// be sent immediately after this event via the corresponding events in
+    /// ext_workspace_handle_v1.
+    ///
+    /// Workspaces start off unassigned to any workspace group.
+    #[inline]
+    pub fn new_try_send_workspace(
+        &self,
+    ) -> Result<Rc<ExtWorkspaceHandleV1>, ObjectError> {
+        let workspace = self.core.create_child();
+        self.try_send_workspace(
+            &workspace,
+        )?;
+        Ok(workspace)
+    }
+
+    /// workspace has been created
+    ///
+    /// This event is emitted whenever a new workspace has been created.
+    ///
+    /// All initial details of the workspace (name, coordinates, state) will
+    /// be sent immediately after this event via the corresponding events in
+    /// ext_workspace_handle_v1.
+    ///
+    /// Workspaces start off unassigned to any workspace group.
+    #[inline]
+    pub fn new_send_workspace(
+        &self,
+    ) -> Rc<ExtWorkspaceHandleV1> {
+        let workspace = self.core.create_child();
+        self.send_workspace(
+            &workspace,
+        );
+        workspace
     }
 
     /// Since when the commit message is available.
