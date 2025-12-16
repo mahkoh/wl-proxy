@@ -39,6 +39,7 @@ suite-hyprland-protocols = [
     "protocol-hyprland_toplevel_mapping_v1",
 ]
 suite-jay-protocols = [
+    "protocol-jay_popup_ext_v1",
     "protocol-jay_tray_v1",
 ]
 suite-other = [
@@ -139,6 +140,7 @@ protocol-hyprland_lock_notify_v1 = []
 protocol-hyprland_surface_v1 = []
 protocol-hyprland_toplevel_export_v1 = ["protocol-wlr_foreign_toplevel_management_unstable_v1"]
 protocol-hyprland_toplevel_mapping_v1 = ["protocol-ext_foreign_toplevel_list_v1", "protocol-wlr_foreign_toplevel_management_unstable_v1"]
+protocol-jay_popup_ext_v1 = ["protocol-xdg_shell"]
 protocol-jay_tray_v1 = ["protocol-xdg_shell"]
 protocol-drm = []
 protocol-input_method_unstable_v2 = ["protocol-text_input_unstable_v3"]

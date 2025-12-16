@@ -14,6 +14,8 @@ pub mod hyprland_surface_v1;
 pub mod hyprland_toplevel_export_v1;
 #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
 pub mod hyprland_toplevel_mapping_v1;
+#[cfg(feature = "protocol-jay_popup_ext_v1")]
+pub mod jay_popup_ext_v1;
 #[cfg(feature = "protocol-jay_tray_v1")]
 pub mod jay_tray_v1;
 #[cfg(feature = "protocol-drm")]
@@ -222,6 +224,14 @@ mod all_types {
     pub(super) use super::hyprland_toplevel_mapping_v1::hyprland_toplevel_mapping_manager_v1::HyprlandToplevelMappingManagerV1;
     #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
     pub(super) use super::hyprland_toplevel_mapping_v1::hyprland_toplevel_window_mapping_handle_v1::HyprlandToplevelWindowMappingHandleV1;
+    #[cfg(feature = "protocol-jay_popup_ext_v1")]
+    pub(super) use super::jay_popup_ext_v1::jay_popup_ext_manager_v1::JayPopupExtManagerV1;
+    #[cfg(feature = "protocol-jay_popup_ext_v1")]
+    pub(super) use super::jay_popup_ext_v1::jay_popup_ext_manager_v1::JayPopupExtManagerV1Error;
+    #[cfg(feature = "protocol-jay_popup_ext_v1")]
+    pub(super) use super::jay_popup_ext_v1::jay_popup_ext_v1::JayPopupExtV1;
+    #[cfg(feature = "protocol-jay_popup_ext_v1")]
+    pub(super) use super::jay_popup_ext_v1::jay_popup_ext_v1::JayPopupExtV1Error;
     #[cfg(feature = "protocol-jay_tray_v1")]
     pub(super) use super::jay_tray_v1::jay_tray_item_v1::JayTrayItemV1;
     #[cfg(feature = "protocol-jay_tray_v1")]
@@ -1065,6 +1075,14 @@ mod all_types {
                 "hyprland_toplevel_window_mapping_handle_v1" => {
                     #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")] { Some(ObjectInterface::HyprlandToplevelWindowMappingHandleV1) }
                     #[cfg(not(feature = "protocol-hyprland_toplevel_mapping_v1"))] { None }
+                },
+                "jay_popup_ext_manager_v1" => {
+                    #[cfg(feature = "protocol-jay_popup_ext_v1")] { Some(ObjectInterface::JayPopupExtManagerV1) }
+                    #[cfg(not(feature = "protocol-jay_popup_ext_v1"))] { None }
+                },
+                "jay_popup_ext_v1" => {
+                    #[cfg(feature = "protocol-jay_popup_ext_v1")] { Some(ObjectInterface::JayPopupExtV1) }
+                    #[cfg(not(feature = "protocol-jay_popup_ext_v1"))] { None }
                 },
                 "jay_tray_item_v1" => {
                     #[cfg(feature = "protocol-jay_tray_v1")] { Some(ObjectInterface::JayTrayItemV1) }
@@ -2011,6 +2029,20 @@ mod all_types {
                         return Err(ObjectError::MaxVersion(self, version));
                     }
                     Ok(HyprlandToplevelWindowMappingHandleV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-jay_popup_ext_v1")]
+                Self::JayPopupExtManagerV1 => {
+                    if version > JayPopupExtManagerV1::XML_VERSION {
+                        return Err(ObjectError::MaxVersion(self, version));
+                    }
+                    Ok(JayPopupExtManagerV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-jay_popup_ext_v1")]
+                Self::JayPopupExtV1 => {
+                    if version > JayPopupExtV1::XML_VERSION {
+                        return Err(ObjectError::MaxVersion(self, version));
+                    }
+                    Ok(JayPopupExtV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-jay_tray_v1")]
                 Self::JayTrayItemV1 => {
@@ -3624,6 +3656,12 @@ pub enum ObjectInterface {
     /// hyprland_toplevel_window_mapping_handle_v1
     #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
     HyprlandToplevelWindowMappingHandleV1,
+    /// jay_popup_ext_manager_v1
+    #[cfg(feature = "protocol-jay_popup_ext_v1")]
+    JayPopupExtManagerV1,
+    /// jay_popup_ext_v1
+    #[cfg(feature = "protocol-jay_popup_ext_v1")]
+    JayPopupExtV1,
     /// jay_tray_item_v1
     #[cfg(feature = "protocol-jay_tray_v1")]
     JayTrayItemV1,
@@ -4314,6 +4352,10 @@ impl ObjectInterface {
             Self::HyprlandToplevelMappingManagerV1 => "hyprland_toplevel_mapping_manager_v1",
             #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
             Self::HyprlandToplevelWindowMappingHandleV1 => "hyprland_toplevel_window_mapping_handle_v1",
+            #[cfg(feature = "protocol-jay_popup_ext_v1")]
+            Self::JayPopupExtManagerV1 => "jay_popup_ext_manager_v1",
+            #[cfg(feature = "protocol-jay_popup_ext_v1")]
+            Self::JayPopupExtV1 => "jay_popup_ext_v1",
             #[cfg(feature = "protocol-jay_tray_v1")]
             Self::JayTrayItemV1 => "jay_tray_item_v1",
             #[cfg(feature = "protocol-jay_tray_v1")]
@@ -4778,6 +4820,10 @@ impl ObjectInterface {
             Self::HyprlandToplevelMappingManagerV1 => 1,
             #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
             Self::HyprlandToplevelWindowMappingHandleV1 => 1,
+            #[cfg(feature = "protocol-jay_popup_ext_v1")]
+            Self::JayPopupExtManagerV1 => 1,
+            #[cfg(feature = "protocol-jay_popup_ext_v1")]
+            Self::JayPopupExtV1 => 1,
             #[cfg(feature = "protocol-jay_tray_v1")]
             Self::JayTrayItemV1 => 1,
             #[cfg(feature = "protocol-jay_tray_v1")]

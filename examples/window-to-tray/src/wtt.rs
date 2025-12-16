@@ -27,6 +27,9 @@ use {
                 wp_cursor_shape_device_v1::{WpCursorShapeDeviceV1, WpCursorShapeDeviceV1Shape},
                 wp_cursor_shape_manager_v1::WpCursorShapeManagerV1,
             },
+            jay_popup_ext_v1::{
+                jay_popup_ext_manager_v1::JayPopupExtManagerV1, jay_popup_ext_v1::JayPopupExtV1,
+            },
             jay_tray_v1::{
                 jay_tray_item_v1::{
                     JayTrayItemV1, JayTrayItemV1Handler, JayTrayItemV1KeyboardFocusHint,
@@ -122,16 +125,16 @@ pub fn main(program: &[String]) -> Result<(), WttError> {
     Err(WttError::ServerFailed(err))
 }
 
-#[derive(Default)]
-struct Shared {
-    shared: RefCell<SharedMut>,
-}
+type Shared = RefCell<SharedMut>;
 
 #[derive(Default)]
 struct SharedMut {
     trays: HashMap<u32, Rc<JayTrayV1>>,
     toplevels: HashMap<u64, Rc<XdgSurface>>,
     globals: Option<Rc<Globals>>,
+    seats: HashMap<u32, Weak<Seat>>,
+    initial_seats: HashMap<u32, u32>,
+
     wl_compositor: Option<Rc<WlCompositor>>,
     wl_shm: Option<Rc<WlShm>>,
     wl_subcompositor: Option<Rc<WlSubcompositor>>,
@@ -139,8 +142,7 @@ struct SharedMut {
     wp_single_pixel_buffer_manager_v1: Option<Rc<WpSinglePixelBufferManagerV1>>,
     wp_cursor_shape_manager_v1: Option<Rc<WpCursorShapeManagerV1>>,
     xdg_wm_base: Option<Rc<XdgWmBase>>,
-    seats: HashMap<u32, Weak<Seat>>,
-    initial_seats: HashMap<u32, u32>,
+    jay_popup_ext_manager_v1: Option<Rc<JayPopupExtManagerV1>>,
 }
 
 struct Seat {
@@ -193,6 +195,7 @@ struct Globals {
     wp_viewporter: Rc<WpViewporter>,
     wp_cursor_shape_manager_v1: Rc<WpCursorShapeManagerV1>,
     xdg_wm_base: Rc<XdgWmBase>,
+    jay_popup_ext_manager_v1: Rc<JayPopupExtManagerV1>,
     empty_region: Rc<WlRegion>,
     transparent_spb: Rc<WlBuffer>,
     black_spb: Rc<WlBuffer>,
@@ -241,6 +244,8 @@ struct ClientXdgSurface {
     needed_tray_edges: usize,
     tray_popup_borders: Option<StaticMap<WindowEdge, TrayPopupBorder>>,
     toplevel_icon: Option<Vec<Icon>>,
+    last_configure_size: Option<[i32; 2]>,
+    ignore_configure: bool,
 }
 
 struct Icon {
@@ -261,6 +266,21 @@ enum WindowEdge {
     TopLeft,
 }
 
+impl WindowEdge {
+    fn to_wl(self) -> XdgToplevelResizeEdge {
+        match self {
+            WindowEdge::Top => XdgToplevelResizeEdge::TOP,
+            WindowEdge::TopRight => XdgToplevelResizeEdge::TOP_RIGHT,
+            WindowEdge::Right => XdgToplevelResizeEdge::RIGHT,
+            WindowEdge::BottomRight => XdgToplevelResizeEdge::BOTTOM_RIGHT,
+            WindowEdge::Bottom => XdgToplevelResizeEdge::BOTTOM,
+            WindowEdge::BottomLeft => XdgToplevelResizeEdge::BOTTOM_LEFT,
+            WindowEdge::Left => XdgToplevelResizeEdge::LEFT,
+            WindowEdge::TopLeft => XdgToplevelResizeEdge::TOP_LEFT,
+        }
+    }
+}
+
 struct TrayPopupBorder {
     wl_surface: Rc<WlSurface>,
     wl_subsurface: Rc<WlSubsurface>,
@@ -273,8 +293,7 @@ struct ProxyClientPopupXdgPopup {
 }
 
 struct ProxyTrayPopupBorderWlSurface {
-    xdg_surface: Rc<XdgSurface>,
-    xdg_toplevel: Rc<XdgToplevel>,
+    client_xdg_surface: Rc<XdgSurface>,
     window_edge: WindowEdge,
 }
 
@@ -307,8 +326,6 @@ struct ProxyWlPointer {
     wp_cursor_shape_device_v1: Rc<WpCursorShapeDeviceV1>,
     tray_icon_focus: Option<Rc<JayTrayItemV1>>,
     edge_focus: Option<WindowEdge>,
-    pos: [i32; 2],
-    button_down_pos: Option<[i32; 2]>,
     surface: Option<Rc<WlSurface>>,
 }
 
@@ -333,6 +350,7 @@ struct ProxyXdgSurface {
 
 struct ProxyTrayXdgPopup {
     jay_tray_item_v1: Rc<JayTrayItemV1>,
+    jay_popup_ext_v1: Rc<JayPopupExtV1>,
 }
 
 struct ProxyTrayIconWlSurface {
@@ -431,7 +449,7 @@ impl WlRegistryHandler for ProxyWlRegistry {
                 let proxy = slf.state().create_object::<$ty>(version.min($min));
                 proxy.set_forward_to_client(false);
                 slf.send_bind(name, proxy.clone());
-                self.shared.shared.borrow_mut().$field = Some(proxy);
+                self.shared.borrow_mut().$field = Some(proxy);
             }};
         }
         match interface {
@@ -447,13 +465,16 @@ impl WlRegistryHandler for ProxyWlRegistry {
             WpCursorShapeManagerV1::INTERFACE => {
                 bind!(wp_cursor_shape_manager_v1, WpCursorShapeManagerV1, 1)
             }
+            JayPopupExtManagerV1::INTERFACE => {
+                bind!(jay_popup_ext_manager_v1, JayPopupExtManagerV1, 1)
+            }
             XdgWmBase::INTERFACE => bind!(xdg_wm_base, XdgWmBase, 7),
             JayTrayV1::INTERFACE => {
-                let shared = &mut *self.shared.shared.borrow_mut();
+                let shared = &mut *self.shared.borrow_mut();
                 shared.handle_new_tray(&self.shared, slf, name, version);
             }
             WlSeat::INTERFACE => {
-                let shared = &mut *self.shared.shared.borrow_mut();
+                let shared = &mut *self.shared.borrow_mut();
                 shared.handle_new_seat(slf, name, version);
             }
             _ => {}
@@ -461,7 +482,7 @@ impl WlRegistryHandler for ProxyWlRegistry {
     }
 
     fn handle_global_remove(&mut self, _slf: &Rc<WlRegistry>, name: u32) {
-        let shared = &mut *self.shared.shared.borrow_mut();
+        let shared = &mut *self.shared.borrow_mut();
         if shared.globals.is_none() {
             shared.initial_seats.remove(&name);
             return;
@@ -502,8 +523,6 @@ impl SeatMut {
                     wp_cursor_shape_device_v1,
                     tray_icon_focus: None,
                     edge_focus: None,
-                    pos: [0, 0],
-                    button_down_pos: None,
                     surface: None,
                 });
                 self.wl_pointer = Some(proxy);
@@ -560,7 +579,7 @@ impl SharedMut {
 
 impl WlCallbackHandler for FirstSyncHandler {
     fn handle_done(&mut self, _slf: &Rc<WlCallback>, _callback_data: u32) {
-        let shared = &mut *self.shared.shared.borrow_mut();
+        let shared = &mut *self.shared.borrow_mut();
         macro_rules! expect {
             ($field:ident) => {
                 let $field = match shared.$field.clone() {
@@ -579,6 +598,7 @@ impl WlCallbackHandler for FirstSyncHandler {
         expect!(wp_cursor_shape_manager_v1);
         expect!(wp_single_pixel_buffer_manager_v1);
         expect!(xdg_wm_base);
+        expect!(jay_popup_ext_manager_v1);
         let empty_region = wl_compositor.new_send_create_region();
         let transparent_spb =
             wp_single_pixel_buffer_manager_v1.new_send_create_u32_rgba_buffer(0, 0, 0, 0);
@@ -594,6 +614,7 @@ impl WlCallbackHandler for FirstSyncHandler {
             wp_viewporter,
             wp_cursor_shape_manager_v1,
             xdg_wm_base,
+            jay_popup_ext_manager_v1,
             empty_region,
             transparent_spb,
             black_spb,
@@ -613,7 +634,7 @@ impl XdgWmBaseHandler for ProxyXdgWmBase {
 
 impl WlRegistryHandler for ClientWlRegistry {
     fn handle_bind(&mut self, slf: &Rc<WlRegistry>, name: u32, id: Rc<dyn Object>) {
-        let shared = &mut *self.shared.shared.borrow_mut();
+        let shared = &mut *self.shared.borrow_mut();
         match id.interface() {
             XdgWmBase::INTERFACE => {
                 id.downcast::<XdgWmBase>().set_handler(ClientXdgWmBase {
@@ -893,14 +914,6 @@ impl WlSurfaceHandler for ClientWlSurface {
                     need_sync = true;
                     h.geometry = geometry;
                     h.ensure_borders();
-                    if let Some(pf) = h.popup_jay_tray_item.upgrade() {
-                        let h2 = pf.get_handler_mut::<ProxyJayTrayItemV1>();
-                        if let Some(xdg_popup) = h2.proxy_xdg_popup.upgrade() {
-                            let xdg_positioner = h2.create_positioner(&h);
-                            xdg_popup.send_reposition(&xdg_positioner, 0);
-                            xdg_positioner.send_destroy();
-                        }
-                    }
                 }
                 if need_sync {
                     h.subsurface.send_set_sync();
@@ -932,7 +945,7 @@ impl ClientXdgSurface {
     fn handle_map(&mut self, xdg_surface: &Rc<XdgSurface>) {
         if let Some(xdg_toplevel) = self.client_xdg_toplevel.upgrade() {
             let shared = self.shared.clone();
-            let shared = &mut *shared.shared.borrow_mut();
+            let shared = &mut *shared.borrow_mut();
             for (&name, tray) in &shared.trays {
                 self.create_tray_item(name, tray, xdg_surface, &xdg_toplevel);
             }
@@ -1200,6 +1213,8 @@ impl XdgWmBaseHandler for ClientXdgWmBase {
             needed_tray_edges: 0,
             tray_popup_borders: Default::default(),
             toplevel_icon: Default::default(),
+            last_configure_size: None,
+            ignore_configure: false,
         });
         let mut client_surface_handler = client_surface.get_handler_mut::<ClientWlSurface>();
         client_surface_handler.xdg_surface = Rc::downgrade(client_xdg_surface);
@@ -1226,7 +1241,7 @@ impl XdgSurfaceHandler for ClientXdgSurface {
     }
 
     fn handle_get_toplevel(&mut self, slf: &Rc<XdgSurface>, id: &Rc<XdgToplevel>) {
-        let shared = &mut *self.shared.shared.borrow_mut();
+        let shared = &mut *self.shared.borrow_mut();
         shared.toplevels.insert(id.unique_id(), slf.clone());
         id.set_handler(ClientXdgToplevel {
             xdg_surface: slf.clone(),
@@ -1235,8 +1250,7 @@ impl XdgSurfaceHandler for ClientXdgSurface {
             let wl_surface = self.globals.wl_compositor.new_send_create_surface();
             wl_surface.set_forward_to_client(false);
             wl_surface.set_handler(ProxyTrayPopupBorderWlSurface {
-                xdg_surface: slf.clone(),
-                xdg_toplevel: id.clone(),
+                client_xdg_surface: slf.clone(),
                 window_edge: e,
             });
             let rotation = match e {
@@ -1373,11 +1387,7 @@ impl XdgToplevelHandler for ClientXdgToplevel {
                 edge.wl_surface.send_destroy();
             }
         }
-        h.shared
-            .shared
-            .borrow_mut()
-            .toplevels
-            .remove(&slf.unique_id());
+        h.shared.borrow_mut().toplevels.remove(&slf.unique_id());
         slf.unset_handler();
         slf.delete_id();
     }
@@ -1508,11 +1518,10 @@ impl WlPointerHandler for ProxyWlPointer {
         _slf: &Rc<WlPointer>,
         serial: u32,
         surface: &Rc<WlSurface>,
-        surface_x: Fixed,
-        surface_y: Fixed,
+        _surface_x: Fixed,
+        _surface_y: Fixed,
     ) {
         self.surface = Some(surface.clone());
-        self.pos = [surface_x.to_i32_floor(), surface_y.to_i32_floor()];
         if let Ok(tsh) = surface.try_get_handler_mut::<ProxyTrayIconWlSurface>() {
             self.wp_cursor_shape_device_v1
                 .send_set_shape(serial, WpCursorShapeDeviceV1Shape::DEFAULT);
@@ -1539,40 +1548,6 @@ impl WlPointerHandler for ProxyWlPointer {
         self.edge_focus = None;
     }
 
-    fn handle_motion(
-        &mut self,
-        _slf: &Rc<WlPointer>,
-        _time: u32,
-        surface_x: Fixed,
-        surface_y: Fixed,
-    ) {
-        self.pos = [surface_x.to_i32_floor(), surface_y.to_i32_floor()];
-        if let Some(edge) = self.edge_focus
-            && let Some(old) = &self.button_down_pos
-            && let Some(surface) = &self.surface
-            && let Ok(tsh) = surface.try_get_handler_mut::<ProxyTrayPopupBorderWlSurface>()
-        {
-            let (dx, dy) = match edge {
-                WindowEdge::Top => (0, old[1] - self.pos[1]),
-                WindowEdge::TopRight => (self.pos[0] - old[0], old[1] - self.pos[1]),
-                WindowEdge::Right => (self.pos[0] - old[0], 0),
-                WindowEdge::BottomRight => (self.pos[0] - old[0], self.pos[1] - old[1]),
-                WindowEdge::Bottom => (0, self.pos[1] - old[1]),
-                WindowEdge::BottomLeft => (old[0] - self.pos[0], self.pos[1] - old[1]),
-                WindowEdge::Left => (old[0] - self.pos[0], 0),
-                WindowEdge::TopLeft => (old[0] - self.pos[0], old[1] - self.pos[1]),
-            };
-            let mut client_xdg_surface = tsh.xdg_surface.get_handler_mut::<ClientXdgSurface>();
-            let w = client_xdg_surface.geometry[2] + dx;
-            let h = client_xdg_surface.geometry[3] + dy;
-            let states = compute_toplevel_states(&tsh.xdg_toplevel);
-            tsh.xdg_toplevel
-                .send_configure(w, h, uapi::as_bytes(&*states));
-            let serial = client_xdg_surface.create_client_serial(None);
-            tsh.xdg_surface.send_configure(serial as _);
-        }
-    }
-
     fn handle_button(
         &mut self,
         _slf: &Rc<WlPointer>,
@@ -1583,14 +1558,31 @@ impl WlPointerHandler for ProxyWlPointer {
     ) {
         const BTN_LEFT: u32 = 0x110;
         const BTN_MIDDLE: u32 = 0x112;
-        if button == BTN_LEFT {
-            if state == WlPointerButtonState::PRESSED {
-                self.button_down_pos = Some(self.pos);
-            } else {
-                self.button_down_pos = None;
-            }
-        }
         if state != WlPointerButtonState::PRESSED {
+            return;
+        }
+        if button == BTN_LEFT
+            && let Some(surface) = &self.surface
+            && let Ok(proxy_tray_popup_border_wl_surface) =
+                surface.try_get_handler_mut::<ProxyTrayPopupBorderWlSurface>()
+            && let Some(jay_tray_item_v1) = proxy_tray_popup_border_wl_surface
+                .client_xdg_surface
+                .get_handler_mut::<ClientXdgSurface>()
+                .popup_jay_tray_item
+                .upgrade()
+            && let Some(xdg_popup) = jay_tray_item_v1
+                .get_handler_mut::<ProxyJayTrayItemV1>()
+                .proxy_xdg_popup
+                .upgrade()
+        {
+            xdg_popup
+                .get_handler_mut::<ProxyTrayXdgPopup>()
+                .jay_popup_ext_v1
+                .send_resize(
+                    &self.seat.wl_seat,
+                    serial,
+                    proxy_tray_popup_border_wl_surface.window_edge.to_wl(),
+                );
             return;
         }
         let Some(pf) = &self.tray_icon_focus else {
@@ -1603,14 +1595,23 @@ impl WlPointerHandler for ProxyWlPointer {
         }
         let client_xdg_surface = tray_item_handler.client_xdg_surface.clone();
         let xdg_surface_handler = &mut *client_xdg_surface.get_handler_mut::<ClientXdgSurface>();
-        if tray_item_handler.proxy_xdg_popup.strong_count() > 0 {
-            tray_item_handler.destroy_popup(xdg_surface_handler);
+        if let Some(popup) = tray_item_handler.proxy_xdg_popup.upgrade() {
+            popup.get_handler_mut::<ProxyTrayXdgPopup>().destroy(
+                &popup,
+                tray_item_handler,
+                xdg_surface_handler,
+            );
             return;
         }
         if let Some(other) = xdg_surface_handler.popup_jay_tray_item.upgrade() {
-            other
-                .get_handler_mut::<ProxyJayTrayItemV1>()
-                .destroy_popup(xdg_surface_handler);
+            let mut other = other.get_handler_mut::<ProxyJayTrayItemV1>();
+            if let Some(popup) = other.proxy_xdg_popup.upgrade() {
+                popup.get_handler_mut::<ProxyTrayXdgPopup>().destroy(
+                    &popup,
+                    &mut other,
+                    xdg_surface_handler,
+                );
+            }
         }
         xdg_surface_handler.popup_jay_tray_item = Rc::downgrade(pf);
         let xdg_positioner = tray_item_handler.create_positioner(xdg_surface_handler);
@@ -1625,9 +1626,15 @@ impl WlPointerHandler for ProxyWlPointer {
             serial,
             JayTrayItemV1KeyboardFocusHint::IMMEDIATE,
         );
+        let jay_popup_ext_v1 = self
+            .seat
+            .globals
+            .jay_popup_ext_manager_v1
+            .new_send_get_ext(&xdg_popup);
         xdg_surface_handler.proxy_wl_surface.send_commit();
         xdg_popup.set_handler(ProxyTrayXdgPopup {
             jay_tray_item_v1: pf.clone(),
+            jay_popup_ext_v1,
         });
         tray_item_handler.proxy_xdg_popup = Rc::downgrade(&xdg_popup);
         xdg_surface_handler.map_unpon_configure = true;
@@ -1927,16 +1934,53 @@ impl ZwpRelativePointerV1Handler for ClientZwpRelativePointerV1 {
 }
 
 impl XdgSurfaceHandler for ProxyXdgSurface {
-    fn handle_configure(&mut self, _slf: &Rc<XdgSurface>, server_serial: u32) {
+    fn handle_configure(&mut self, slf: &Rc<XdgSurface>, server_serial: u32) {
         let mut h = self
             .client_xdg_surface
             .get_handler_mut::<ClientXdgSurface>();
-        let client_serial = h.create_client_serial(Some(server_serial));
-        self.client_xdg_surface.send_configure(client_serial as u32);
+        let client_serial;
+        if h.ignore_configure {
+            if h.pending_serials.is_empty() {
+                slf.send_ack_configure(server_serial);
+                if h.map_unpon_configure {
+                    h.map_unpon_configure = false;
+                    h.ensure_borders();
+                    h.proxy_wl_surface
+                        .send_attach(Some(&h.globals.transparent_spb), 0, 0);
+                    h.proxy_wl_surface.send_commit();
+                }
+                return;
+            } else {
+                client_serial = h.next_client_serial - 1;
+                h.pending_serials
+                    .push_back((client_serial, Some(server_serial)));
+            }
+        } else {
+            client_serial = h.create_client_serial(Some(server_serial));
+            self.client_xdg_surface.send_configure(client_serial as u32);
+        }
         if h.map_unpon_configure {
             h.map_unpon_configure = false;
             h.map_unpon_ack = Some(client_serial);
         }
+    }
+}
+
+impl ProxyTrayXdgPopup {
+    fn destroy(
+        &self,
+        popup: &Rc<XdgPopup>,
+        item: &mut ProxyJayTrayItemV1,
+        client_xdg_surface: &mut ClientXdgSurface,
+    ) {
+        self.jay_popup_ext_v1.send_destroy();
+        item.proxy_xdg_popup = Weak::new();
+        client_xdg_surface.destroy_popups_recursive();
+        popup.unset_handler();
+        popup.send_destroy();
+        client_xdg_surface.popup_jay_tray_item = Weak::new();
+        client_xdg_surface.proxy_wl_surface.send_attach(None, 0, 0);
+        client_xdg_surface.proxy_wl_surface.send_commit();
     }
 }
 
@@ -1945,6 +1989,15 @@ impl XdgPopupHandler for ProxyTrayXdgPopup {
         let tray_item_handler = self
             .jay_tray_item_v1
             .get_handler_mut::<ProxyJayTrayItemV1>();
+        let mut client_xdg_surface = tray_item_handler
+            .client_xdg_surface
+            .get_handler_mut::<ClientXdgSurface>();
+        if client_xdg_surface.last_configure_size == Some([width, height]) {
+            client_xdg_surface.ignore_configure = true;
+            return;
+        }
+        client_xdg_surface.ignore_configure = false;
+        client_xdg_surface.last_configure_size = Some([width, height]);
         let states = compute_toplevel_states(&tray_item_handler.client_xdg_toplevel);
         tray_item_handler.client_xdg_toplevel.send_configure(
             width,
@@ -1953,13 +2006,13 @@ impl XdgPopupHandler for ProxyTrayXdgPopup {
         );
     }
 
-    fn handle_popup_done(&mut self, _slf: &Rc<XdgPopup>) {
+    fn handle_popup_done(&mut self, slf: &Rc<XdgPopup>) {
         let mut tray_item_handler = self
             .jay_tray_item_v1
             .get_handler_mut::<ProxyJayTrayItemV1>();
         let client_xdg_surface = tray_item_handler.client_xdg_surface.clone();
         let mut client_xdg_surface = client_xdg_surface.get_handler_mut::<ClientXdgSurface>();
-        tray_item_handler.destroy_popup(&mut client_xdg_surface);
+        self.destroy(slf, &mut tray_item_handler, &mut client_xdg_surface);
     }
 }
 
@@ -1987,20 +2040,12 @@ fn compute_toplevel_states(xdg_toplevel: &XdgToplevel) -> ArrayVec<u32, 13> {
 impl WlSurfaceHandler for ProxyTrayIconWlSurface {}
 
 impl ProxyJayTrayItemV1 {
-    fn destroy_popup(&mut self, client_xdg_surface: &mut ClientXdgSurface) {
-        if let Some(popup) = self.proxy_xdg_popup.upgrade() {
-            self.proxy_xdg_popup = Weak::new();
-            client_xdg_surface.destroy_popups_recursive();
-            popup.unset_handler();
-            popup.send_destroy();
-            client_xdg_surface.popup_jay_tray_item = Weak::new();
-            client_xdg_surface.proxy_wl_surface.send_attach(None, 0, 0);
-            client_xdg_surface.proxy_wl_surface.send_commit();
-        }
-    }
-
     fn destroy(&mut self, slf: &Rc<JayTrayItemV1>, client_xdg_surface: &mut ClientXdgSurface) {
-        self.destroy_popup(client_xdg_surface);
+        if let Some(popup) = self.proxy_xdg_popup.upgrade() {
+            popup
+                .get_handler_mut::<ProxyTrayXdgPopup>()
+                .destroy(&popup, self, client_xdg_surface);
+        }
         slf.unset_handler();
         self.wl_surface.unset_handler();
         slf.send_destroy();
@@ -2021,11 +2066,7 @@ impl ProxyJayTrayItemV1 {
             client_xdg_surface.geometry[3],
         );
         xdg_positioner.send_set_constraint_adjustment(
-            XdgPositionerConstraintAdjustment::FLIP_X
-                | XdgPositionerConstraintAdjustment::FLIP_Y
-                | XdgPositionerConstraintAdjustment::SLIDE_X
-                | XdgPositionerConstraintAdjustment::SLIDE_Y
-                | XdgPositionerConstraintAdjustment::RESIZE_X
+            XdgPositionerConstraintAdjustment::RESIZE_X
                 | XdgPositionerConstraintAdjustment::RESIZE_Y,
         );
         xdg_positioner

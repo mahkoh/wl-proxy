@@ -266,9 +266,9 @@ dependencies = [
 
 [[package]]
 name = "linearize-derive"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d931b3daaf9c459c447e0da0fb49c93c241353f795757d5eafebd0af8c8b1255"
+checksum = "f657db73fbcad5341c5991ddee6c464d4bfd521575c0dc1a47913e0f434defeb"
 dependencies = [
  "proc-macro2",
  "quote",
