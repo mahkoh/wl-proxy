@@ -25,9 +25,7 @@ use {
                 wl_callback::{WlCallback, WlCallbackHandler},
                 wl_display::{WlDisplay, WlDisplayHandler},
                 wl_fixes::WlFixes,
-                wl_output::WlOutput,
                 wl_registry::{WlRegistry, WlRegistryHandler},
-                wl_seat::WlSeat,
                 wl_surface::WlSurface,
             },
             wlr_layer_shell_unstable_v1::{
@@ -50,9 +48,7 @@ use {
                 xdg_popup::{XdgPopup, XdgPopupHandler},
                 xdg_positioner::{XdgPositioner, XdgPositionerHandler},
                 xdg_surface::{XdgSurface, XdgSurfaceHandler},
-                xdg_toplevel::{
-                    XdgToplevel, XdgToplevelHandler, XdgToplevelResizeEdge, XdgToplevelState,
-                },
+                xdg_toplevel::{XdgToplevel, XdgToplevelHandler, XdgToplevelState},
                 xdg_wm_base::{XdgWmBase, XdgWmBaseHandler},
             },
         },
@@ -324,6 +320,7 @@ impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
         if id.version() >= XdgToplevel::MSG__WM_CAPABILITIES__SINCE {
             id.send_wm_capabilities(&[]);
         }
+        id.set_forward_to_server(false);
         id.set_handler(XdgToplevelHandlerImpl {
             zwlr_layer_surface_v1: zwlr_layer_surface_v1.clone(),
         });
@@ -414,71 +411,6 @@ impl XdgToplevelHandler for XdgToplevelHandlerImpl {
     fn handle_destroy(&mut self, slf: &Rc<XdgToplevel>) {
         slf.unset_handler();
         self.zwlr_layer_surface_v1.send_destroy();
-    }
-
-    fn handle_set_parent(&mut self, _slf: &Rc<XdgToplevel>, _parent: Option<&Rc<XdgToplevel>>) {
-        // nothing
-    }
-
-    fn handle_set_title(&mut self, _slf: &Rc<XdgToplevel>, _title: &str) {
-        // nothing
-    }
-
-    fn handle_set_app_id(&mut self, _slf: &Rc<XdgToplevel>, _app_id: &str) {
-        // nothing
-    }
-
-    fn handle_show_window_menu(
-        &mut self,
-        _slf: &Rc<XdgToplevel>,
-        _seat: &Rc<WlSeat>,
-        _serial: u32,
-        _x: i32,
-        _y: i32,
-    ) {
-        // nothing
-    }
-
-    fn handle_move(&mut self, _slf: &Rc<XdgToplevel>, _seat: &Rc<WlSeat>, _serial: u32) {
-        // nothing
-    }
-
-    fn handle_resize(
-        &mut self,
-        _slf: &Rc<XdgToplevel>,
-        _seat: &Rc<WlSeat>,
-        _serial: u32,
-        _edges: XdgToplevelResizeEdge,
-    ) {
-        // nothing
-    }
-
-    fn handle_set_max_size(&mut self, _slf: &Rc<XdgToplevel>, _width: i32, _height: i32) {
-        // nothing
-    }
-
-    fn handle_set_min_size(&mut self, _slf: &Rc<XdgToplevel>, _width: i32, _height: i32) {
-        // nothing
-    }
-
-    fn handle_set_maximized(&mut self, _slf: &Rc<XdgToplevel>) {
-        // nothing
-    }
-
-    fn handle_unset_maximized(&mut self, _slf: &Rc<XdgToplevel>) {
-        // nothing
-    }
-
-    fn handle_set_fullscreen(&mut self, _slf: &Rc<XdgToplevel>, _output: Option<&Rc<WlOutput>>) {
-        // nothing
-    }
-
-    fn handle_unset_fullscreen(&mut self, _slf: &Rc<XdgToplevel>) {
-        // nothing
-    }
-
-    fn handle_set_minimized(&mut self, _slf: &Rc<XdgToplevel>) {
-        // nothing
     }
 }
 
