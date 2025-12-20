@@ -1,4 +1,6 @@
 mod cli;
+mod desktop;
+mod icon;
 mod wtt;
 
 use {

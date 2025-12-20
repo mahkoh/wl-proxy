@@ -15,6 +15,11 @@ arrayvec = "0.7.6"
 run-on-drop = "1.0.0"
 linearize = { version = "0.1.5", features = ["derive"] }
 isnt = "0.2.0"
+resvg = "0.45.1"
+rust-ini = "0.21.3"
+png = "0.18.0"
+shellexpand = "3.1.1"
+walkdir = "2.5.0"
 
 [dependencies.wl-proxy]
 path = "../../wl-proxy"

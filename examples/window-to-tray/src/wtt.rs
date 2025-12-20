@@ -1,9 +1,11 @@
-#![expect(clippy::collapsible_else_if, clippy::collapsible_if)]
+#![expect(clippy::collapsible_else_if)]
 
 use {
-    crate::WttError,
+    crate::{
+        WttError,
+        icon::{BufferIcon, BufferIconFrame, IconTemplate, ThemeColor},
+    },
     arrayvec::ArrayVec,
-    isnt::std_1::primitive::IsntSliceExt,
     linearize::{Linearize, StaticMap},
     run_on_drop::on_drop,
     std::{
@@ -25,6 +27,10 @@ use {
             cursor_shape_v1::{
                 wp_cursor_shape_device_v1::{WpCursorShapeDeviceV1, WpCursorShapeDeviceV1Shape},
                 wp_cursor_shape_manager_v1::WpCursorShapeManagerV1,
+            },
+            fractional_scale_v1::{
+                wp_fractional_scale_manager_v1::WpFractionalScaleManagerV1,
+                wp_fractional_scale_v1::{WpFractionalScaleV1, WpFractionalScaleV1Handler},
             },
             jay_popup_ext_v1::{
                 jay_popup_ext_manager_v1::JayPopupExtManagerV1, jay_popup_ext_v1::JayPopupExtV1,
@@ -117,12 +123,39 @@ pub fn main(program: &[String]) -> Result<(), WttError> {
         .with_wayland_display(server.display())
         .spawn_and_forward_exit_code()
         .map_err(WttError::SpawnChild)?;
-    let err = server.run(DisplayHandler::default);
+    let err = server.run(|| DisplayHandler {
+        theme: Rc::new("hicolor".to_string()),
+        color: ThemeColor {
+            r: 1.0,
+            g: 1.0,
+            b: 1.0,
+            a: 1.0,
+        },
+        registry: Default::default(),
+        cached_requests: Default::default(),
+        trays: Default::default(),
+        toplevels: Default::default(),
+        globals: Default::default(),
+        seats: Default::default(),
+        initial_seats: Default::default(),
+        wl_compositor: Default::default(),
+        wl_shm: Default::default(),
+        wl_subcompositor: Default::default(),
+        wp_viewporter: Default::default(),
+        wp_single_pixel_buffer_manager_v1: Default::default(),
+        wp_cursor_shape_manager_v1: Default::default(),
+        xdg_wm_base: Default::default(),
+        jay_popup_ext_manager_v1: Default::default(),
+        wp_fractional_scale_manager_v1: Default::default(),
+    });
     Err(WttError::ServerFailed(err))
 }
 
 #[derive(Default)]
 struct DisplayHandler {
+    theme: Rc<String>,
+    color: ThemeColor,
+
     registry: Option<Rc<WlRegistry>>,
     cached_requests: Vec<CachedRequest>,
     trays: HashMap<u32, Rc<JayTrayV1>>,
@@ -139,6 +172,7 @@ struct DisplayHandler {
     wp_cursor_shape_manager_v1: Option<Rc<WpCursorShapeManagerV1>>,
     xdg_wm_base: Option<Rc<XdgWmBase>>,
     jay_popup_ext_manager_v1: Option<Rc<JayPopupExtManagerV1>>,
+    wp_fractional_scale_manager_v1: Option<Rc<WpFractionalScaleManagerV1>>,
 }
 
 enum CachedRequest {
@@ -146,17 +180,20 @@ enum CachedRequest {
     Sync(Rc<WlCallback>),
 }
 
-struct Globals {
-    wl_compositor: Rc<WlCompositor>,
-    wl_shm: Rc<WlShm>,
-    wl_subcompositor: Rc<WlSubcompositor>,
-    wp_viewporter: Rc<WpViewporter>,
-    wp_cursor_shape_manager_v1: Rc<WpCursorShapeManagerV1>,
-    xdg_wm_base: Rc<XdgWmBase>,
-    jay_popup_ext_manager_v1: Rc<JayPopupExtManagerV1>,
-    empty_region: Rc<WlRegion>,
-    transparent_spb: Rc<WlBuffer>,
-    black_spb: Rc<WlBuffer>,
+pub struct Globals {
+    pub theme: Rc<String>,
+    pub color: ThemeColor,
+    pub wl_compositor: Rc<WlCompositor>,
+    pub wl_shm: Rc<WlShm>,
+    pub wl_subcompositor: Rc<WlSubcompositor>,
+    pub wp_viewporter: Rc<WpViewporter>,
+    pub wp_cursor_shape_manager_v1: Rc<WpCursorShapeManagerV1>,
+    pub wp_fractional_scale_manager_v1: Option<Rc<WpFractionalScaleManagerV1>>,
+    pub xdg_wm_base: Rc<XdgWmBase>,
+    pub jay_popup_ext_manager_v1: Rc<JayPopupExtManagerV1>,
+    pub empty_region: Rc<WlRegion>,
+    pub transparent_spb: Rc<WlBuffer>,
+    pub black_frame: Rc<BufferIconFrame>,
 }
 
 struct ProxyWlRegistry {
@@ -229,15 +266,9 @@ struct ClientXdgSurface {
     pending_serials: VecDeque<(u64, Option<u32>)>,
     needed_tray_edges: usize,
     tray_popup_borders: Option<StaticMap<WindowEdge, TrayPopupBorder>>,
-    toplevel_icon: Option<Vec<Icon>>,
     last_configure_size: Option<[i32; 2]>,
     ignore_configure: bool,
-}
-
-struct Icon {
-    logical_size: i32,
-    buffer_size: i32,
-    buffer: Rc<WlBuffer>,
+    icon_template: IconTemplate,
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Linearize)]
@@ -364,10 +395,19 @@ struct ProxyJayTrayItemV1 {
     proxy_xdg_popup: Option<Rc<XdgPopup>>,
 
     // icon data
+    scale: i32,
     wl_surface: Rc<WlSurface>,
     wp_viewport: Rc<WpViewport>,
+    wp_fractional_scale_v1: Option<Rc<WpFractionalScaleV1>>,
     pending: JayTrayItemV1Config,
     current: JayTrayItemV1Config,
+    icon: BufferIcon,
+}
+
+const SCALE_BASE: i32 = 120;
+
+struct ProxyTrayIconWpFractionalScaleV1 {
+    tray_item: Rc<JayTrayItemV1>,
 }
 
 struct ClientZxdgDecorationManagerV1;
@@ -383,7 +423,8 @@ struct ClientXdgToplevelIconManagerV1 {
 }
 
 struct ClientXdgToplevelIconV1 {
-    buffers: HashMap<(i32, i32), Rc<WlBuffer>>,
+    name: Option<String>,
+    buffers: HashMap<([i32; 2], i32), Rc<WlBuffer>>,
 }
 
 struct ClientWlShm;
@@ -564,16 +605,23 @@ impl WlCallbackHandler for FirstSyncHandler {
         black_spb.set_forward_to_client(false);
         xdg_wm_base.set_handler(ProxyXdgWmBase);
         let globals = Globals {
+            theme: display.theme.clone(),
+            color: display.color,
             wl_compositor,
             wl_shm,
             wl_subcompositor,
             wp_viewporter,
             wp_cursor_shape_manager_v1,
+            wp_fractional_scale_manager_v1: display.wp_fractional_scale_manager_v1.clone(),
             xdg_wm_base,
             jay_popup_ext_manager_v1,
             empty_region,
             transparent_spb,
-            black_spb,
+            black_frame: Rc::new(BufferIconFrame {
+                buffer: black_spb,
+                buffer_size: [1, 1],
+                scale: 1,
+            }),
         };
         display.globals = Some(Rc::new(globals));
         for request in mem::take(&mut display.cached_requests) {
@@ -968,7 +1016,14 @@ impl ClientXdgSurface {
         let wp_viewport = globals.wp_viewporter.new_send_get_viewport(&wl_surface);
         let jay_tray_item_v1 = tray.new_send_get_tray_item(&wl_surface);
         jay_tray_item_v1.set_forward_to_client(false);
-        wl_surface.send_attach(Some(&globals.black_spb), 0, 0);
+        let wp_fractional_scale_v1 = globals.wp_fractional_scale_manager_v1.as_ref().map(|m| {
+            let s = m.new_send_get_fractional_scale(&wl_surface);
+            s.set_forward_to_client(false);
+            s.set_handler(ProxyTrayIconWpFractionalScaleV1 {
+                tray_item: jay_tray_item_v1.clone(),
+            });
+            s
+        });
         wl_surface.send_commit();
         wl_surface.set_handler(ProxyTrayIconWlSurface {
             jay_tray_item_v1: jay_tray_item_v1.clone(),
@@ -983,10 +1038,13 @@ impl ClientXdgSurface {
             client_xdg_surface: xdg_surface.clone(),
             client_xdg_toplevel: xdg_toplevel.clone(),
             proxy_xdg_popup: Default::default(),
+            scale: SCALE_BASE,
             wl_surface,
             wp_viewport,
+            wp_fractional_scale_v1,
             pending: current,
             current,
+            icon: BufferIcon::new(&self.globals),
         });
         self.jay_tray_items.insert(name, jay_tray_item_v1);
     }
@@ -1162,9 +1220,9 @@ impl XdgWmBaseHandler for ClientXdgWmBase {
             pending_serials: Default::default(),
             needed_tray_edges: 0,
             tray_popup_borders: Default::default(),
-            toplevel_icon: Default::default(),
             last_configure_size: None,
             ignore_configure: false,
+            icon_template: IconTemplate::new(&g.theme, &g.color),
         });
         let client_surface_handler = &mut *client_surface.get_handler_mut::<ClientWlSurface>();
         client_surface_handler.xdg_surface = Some(client_xdg_surface.clone());
@@ -1340,6 +1398,15 @@ impl XdgToplevelHandler for ClientXdgToplevel {
             .remove(&slf.unique_id());
         slf.unset_handler();
         slf.delete_id();
+    }
+
+    fn handle_set_app_id(&mut self, _slf: &Rc<XdgToplevel>, app_id: &str) {
+        let h = &mut *self.xdg_surface.get_handler_mut::<ClientXdgSurface>();
+        h.icon_template.update_app_id(Some(app_id));
+        for item in h.jay_tray_items.values() {
+            item.get_handler_mut::<ProxyJayTrayItemV1>()
+                .update_icon(h, true);
+        }
     }
 }
 
@@ -1951,7 +2018,19 @@ fn compute_toplevel_states(xdg_toplevel: &XdgToplevel) -> ArrayVec<u32, 13> {
     states
 }
 
-impl WlSurfaceHandler for ProxyTrayIconWlSurface {}
+impl WlSurfaceHandler for ProxyTrayIconWlSurface {
+    fn handle_preferred_buffer_scale(&mut self, _slf: &Rc<WlSurface>, factor: i32) {
+        let jay_tray_item_v1 = &mut *self
+            .jay_tray_item_v1
+            .get_handler_mut::<ProxyJayTrayItemV1>();
+        if jay_tray_item_v1.wp_fractional_scale_v1.is_none() {
+            jay_tray_item_v1.scale = factor * SCALE_BASE;
+            let client_xdg_surface = jay_tray_item_v1.client_xdg_surface.clone();
+            let client_xdg_surface = &mut *client_xdg_surface.get_handler_mut::<ClientXdgSurface>();
+            jay_tray_item_v1.update_icon(client_xdg_surface, true);
+        }
+    }
+}
 
 impl ProxyJayTrayItemV1 {
     fn destroy(&mut self, slf: &Rc<JayTrayItemV1>, client_xdg_surface: &mut ClientXdgSurface) {
@@ -1964,6 +2043,9 @@ impl ProxyJayTrayItemV1 {
         self.wl_surface.unset_handler();
         slf.send_destroy();
         self.wp_viewport.send_destroy();
+        if let Some(s) = &self.wp_fractional_scale_v1 {
+            s.send_destroy();
+        }
         self.wl_surface.send_destroy();
     }
 
@@ -1987,30 +2069,21 @@ impl ProxyJayTrayItemV1 {
     }
 
     fn update_icon(&mut self, client_xdg_surface: &ClientXdgSurface, commit: bool) {
-        self.wl_surface.send_damage(0, 0, i32::MAX, i32::MAX);
-        let Some(icons) = &client_xdg_surface.toplevel_icon else {
-            self.wl_surface
-                .send_attach(Some(&self.globals.black_spb), 0, 0);
+        let changed = self.icon.update(
+            &client_xdg_surface.icon_template,
+            self.current.size,
+            self.current
+                .size
+                .map(|s| (s * self.scale + SCALE_BASE / 2) / SCALE_BASE),
+            (self.scale + SCALE_BASE - 1) / SCALE_BASE,
+            &self.globals,
+        );
+        if changed {
+            self.wl_surface.send_damage(0, 0, i32::MAX, i32::MAX);
+            self.wl_surface.send_attach(Some(self.icon.get()), 0, 0);
             if commit {
                 self.wl_surface.send_commit();
             }
-            return;
-        };
-        let mut icon = &icons[0];
-        for cand in &icons[1..] {
-            if icon.logical_size < self.current.size[0] {
-                if (cand.logical_size, cand.buffer_size) > (icon.logical_size, icon.buffer_size) {
-                    icon = cand;
-                }
-            } else if cand.logical_size >= self.current.size[0] {
-                if (cand.logical_size, cand.buffer_size) < (icon.logical_size, icon.buffer_size) {
-                    icon = cand;
-                }
-            }
-        }
-        self.wl_surface.send_attach(Some(&icon.buffer), 0, 0);
-        if commit {
-            self.wl_surface.send_commit();
         }
     }
 }
@@ -2064,6 +2137,16 @@ impl JayTrayItemV1Handler for ProxyJayTrayItemV1 {
             _ => {}
         }
         client_xdg_surface.needed_tray_edges = needed_tray_edges;
+    }
+}
+
+impl WpFractionalScaleV1Handler for ProxyTrayIconWpFractionalScaleV1 {
+    fn handle_preferred_scale(&mut self, _slf: &Rc<WpFractionalScaleV1>, scale: u32) {
+        let jay_tray_item_v1 = &mut *self.tray_item.get_handler_mut::<ProxyJayTrayItemV1>();
+        jay_tray_item_v1.scale = scale as i32;
+        let client_xdg_surface = jay_tray_item_v1.client_xdg_surface.clone();
+        let client_xdg_surface = &mut *client_xdg_surface.get_handler_mut::<ClientXdgSurface>();
+        jay_tray_item_v1.update_icon(client_xdg_surface, true);
     }
 }
 
@@ -2135,6 +2218,7 @@ impl XdgToplevelIconManagerV1Handler for ClientXdgToplevelIconManagerV1 {
         id: &Rc<XdgToplevelIconV1>,
     ) {
         id.set_handler(ClientXdgToplevelIconV1 {
+            name: Default::default(),
             buffers: Default::default(),
         });
     }
@@ -2145,12 +2229,12 @@ impl XdgToplevelIconManagerV1Handler for ClientXdgToplevelIconManagerV1 {
         toplevel: &Rc<XdgToplevel>,
         icon: Option<&Rc<XdgToplevelIconV1>>,
     ) {
-        let mut icons = None;
+        let mut icons = vec![];
+        let mut name = None;
         if let Some(icon) = icon {
-            let mut vec = vec![];
-            for (&(size, scale), buffer) in
-                &icon.get_handler_mut::<ClientXdgToplevelIconV1>().buffers
-            {
+            let handler = icon.get_handler_mut::<ClientXdgToplevelIconV1>();
+            name = handler.name.clone();
+            for (&(size, scale), buffer) in &handler.buffers {
                 let buffer = buffer.get_handler_mut::<ClientShmWlBuffer>();
                 let wl_shm_pool = self
                     .globals
@@ -2164,26 +2248,20 @@ impl XdgToplevelIconManagerV1Handler for ClientXdgToplevelIconManagerV1 {
                     buffer.format,
                 );
                 wl_buffer.set_forward_to_client(false);
-                vec.push(Icon {
-                    logical_size: size / scale.max(1),
-                    buffer_size: size,
+                icons.push(Rc::new(BufferIconFrame {
                     buffer: wl_buffer,
-                });
+                    buffer_size: size,
+                    scale,
+                }));
                 wl_shm_pool.send_destroy();
-            }
-            if vec.is_not_empty() {
-                icons = Some(vec);
             }
         }
         let client_xdg_toplevel = toplevel.get_handler_mut::<ClientXdgToplevel>();
         let client_xdg_surface = &mut *client_xdg_toplevel
             .xdg_surface
             .get_handler_mut::<ClientXdgSurface>();
-        if let Some(prev) = mem::replace(&mut client_xdg_surface.toplevel_icon, icons) {
-            for icon in prev {
-                icon.buffer.send_destroy();
-            }
-        }
+        client_xdg_surface.icon_template.update_name(name);
+        client_xdg_surface.icon_template.update_buffers(icons);
         for tray in client_xdg_surface.jay_tray_items.values() {
             tray.get_handler_mut::<ProxyJayTrayItemV1>()
                 .update_icon(client_xdg_surface, true);
@@ -2196,8 +2274,8 @@ impl XdgToplevelIconV1Handler for ClientXdgToplevelIconV1 {
         slf.delete_id();
     }
 
-    fn handle_set_name(&mut self, _slf: &Rc<XdgToplevelIconV1>, _icon_name: &str) {
-        // nothing
+    fn handle_set_name(&mut self, _slf: &Rc<XdgToplevelIconV1>, icon_name: &str) {
+        self.name = Some(icon_name.to_string());
     }
 
     fn handle_add_buffer(
@@ -2207,7 +2285,7 @@ impl XdgToplevelIconV1Handler for ClientXdgToplevelIconV1 {
         scale: i32,
     ) {
         let size = buffer.get_handler_mut::<ClientShmWlBuffer>().size;
-        self.buffers.insert((size[0], scale), buffer.clone());
+        self.buffers.insert((size, scale), buffer.clone());
     }
 }
 
