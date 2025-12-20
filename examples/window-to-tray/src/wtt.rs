@@ -116,7 +116,12 @@ use {
     },
 };
 
-pub fn main(program: &[String]) -> Result<(), WttError> {
+pub fn main(
+    border_color: ThemeColor,
+    icon_color: ThemeColor,
+    border_width: u16,
+    program: &[String],
+) -> Result<(), WttError> {
     let server = SimpleServer::new(Baseline::V1_UNSTABLE).map_err(WttError::CreateServer)?;
     Command::new(&program[0])
         .args(&program[1..])
@@ -124,12 +129,11 @@ pub fn main(program: &[String]) -> Result<(), WttError> {
         .spawn_and_forward_exit_code()
         .map_err(WttError::SpawnChild)?;
     let err = server.run(|| DisplayHandler {
-        theme: Rc::new("hicolor".to_string()),
-        color: ThemeColor {
-            r: 1.0,
-            g: 1.0,
-            b: 1.0,
-            a: 1.0,
+        theme: Theme {
+            icon_theme: Rc::new("hicolor".to_string()),
+            icon_color,
+            border_color,
+            border_width,
         },
         registry: Default::default(),
         cached_requests: Default::default(),
@@ -151,10 +155,16 @@ pub fn main(program: &[String]) -> Result<(), WttError> {
     Err(WttError::ServerFailed(err))
 }
 
-#[derive(Default)]
+#[derive(Clone)]
+pub struct Theme {
+    icon_theme: Rc<String>,
+    icon_color: ThemeColor,
+    border_color: ThemeColor,
+    border_width: u16,
+}
+
 struct DisplayHandler {
-    theme: Rc<String>,
-    color: ThemeColor,
+    theme: Theme,
 
     registry: Option<Rc<WlRegistry>>,
     cached_requests: Vec<CachedRequest>,
@@ -181,8 +191,7 @@ enum CachedRequest {
 }
 
 pub struct Globals {
-    pub theme: Rc<String>,
-    pub color: ThemeColor,
+    pub theme: Theme,
     pub wl_compositor: Rc<WlCompositor>,
     pub wl_shm: Rc<WlShm>,
     pub wl_subcompositor: Rc<WlSubcompositor>,
@@ -300,7 +309,9 @@ impl WindowEdge {
 
 struct TrayPopupBorder {
     wl_surface: Rc<WlSurface>,
+    wp_viewport: Rc<WpViewport>,
     wl_subsurface: Rc<WlSubsurface>,
+    scale: i32,
     buffer_size: [usize; 2],
 }
 
@@ -514,6 +525,13 @@ impl WlRegistryHandler for ProxyWlRegistry {
             JayPopupExtManagerV1::INTERFACE => {
                 bind!(jay_popup_ext_manager_v1, JayPopupExtManagerV1, 1)
             }
+            WpFractionalScaleManagerV1::INTERFACE => {
+                bind!(
+                    wp_fractional_scale_manager_v1,
+                    WpFractionalScaleManagerV1,
+                    1
+                )
+            }
             XdgWmBase::INTERFACE => bind!(xdg_wm_base, XdgWmBase, 7),
             JayTrayV1::INTERFACE => display.handle_new_tray(slf, name),
             WlSeat::INTERFACE => display.handle_new_seat(slf, name, version),
@@ -606,7 +624,6 @@ impl WlCallbackHandler for FirstSyncHandler {
         xdg_wm_base.set_handler(ProxyXdgWmBase);
         let globals = Globals {
             theme: display.theme.clone(),
-            color: display.color,
             wl_compositor,
             wl_shm,
             wl_subcompositor,
@@ -1075,35 +1092,62 @@ impl ClientXdgSurface {
                 v.buffer_size = [0, 0];
                 continue;
             }
-            // todo
-            let length = 20;
+            let length = self.globals.theme.border_width as usize;
             let length32 = length as i32;
-            {
-                let (x, y) = match k {
-                    WindowEdge::Top => (0, -length32),
-                    WindowEdge::TopRight => (self.geometry[2], -length32),
-                    WindowEdge::Right => (self.geometry[2], 0),
-                    WindowEdge::BottomRight => (self.geometry[2], self.geometry[3]),
-                    WindowEdge::Bottom => (0, self.geometry[3]),
-                    WindowEdge::BottomLeft => (-length32, self.geometry[3]),
-                    WindowEdge::Left => (-length32, 0),
-                    WindowEdge::TopLeft => (-length32, -length32),
+            let x1 = self.geometry[0]
+                + match k {
+                    WindowEdge::Top | WindowEdge::Bottom => 0,
+                    WindowEdge::TopRight | WindowEdge::Right | WindowEdge::BottomRight => {
+                        self.geometry[2]
+                    }
+                    WindowEdge::BottomLeft | WindowEdge::Left | WindowEdge::TopLeft => -length32,
                 };
-                v.wl_subsurface
-                    .send_set_position(x + self.geometry[0], y + self.geometry[1]);
-            }
-            let required_size = match k {
-                WindowEdge::Top | WindowEdge::Bottom => [self.geometry[2] as usize, length],
-                WindowEdge::Right | WindowEdge::Left => [self.geometry[3] as usize, length],
-                WindowEdge::TopRight
-                | WindowEdge::BottomRight
-                | WindowEdge::BottomLeft
-                | WindowEdge::TopLeft => [length, length],
+            let y1 = self.geometry[1]
+                + match k {
+                    WindowEdge::Top | WindowEdge::TopRight | WindowEdge::TopLeft => -length32,
+                    WindowEdge::BottomRight | WindowEdge::Bottom | WindowEdge::BottomLeft => {
+                        self.geometry[3]
+                    }
+                    WindowEdge::Right | WindowEdge::Left => 0,
+                };
+            let x2 = x1
+                + match k {
+                    WindowEdge::Top | WindowEdge::Bottom => self.geometry[2],
+                    WindowEdge::TopRight
+                    | WindowEdge::Right
+                    | WindowEdge::BottomRight
+                    | WindowEdge::BottomLeft
+                    | WindowEdge::Left
+                    | WindowEdge::TopLeft => length as i32,
+                };
+            let y2 = y1
+                + match k {
+                    WindowEdge::Left | WindowEdge::Right => self.geometry[3],
+                    WindowEdge::Top
+                    | WindowEdge::TopRight
+                    | WindowEdge::BottomRight
+                    | WindowEdge::Bottom
+                    | WindowEdge::BottomLeft
+                    | WindowEdge::TopLeft => length as i32,
+                };
+            v.wl_subsurface.send_set_position(x1, y1);
+            v.wp_viewport.send_set_destination(x2 - x1, y2 - y1);
+            let [x1, y1, x2, y2] =
+                [x1, y1, x2, y2].map(|n| (n * v.scale + SCALE_BASE / 2) / SCALE_BASE);
+            let mut required_size = [(x2 - x1) as usize, (y2 - y1) as usize];
+            if let WindowEdge::Right | WindowEdge::Left = k {
+                required_size.swap(0, 1);
             };
             if v.buffer_size == required_size {
                 continue;
             }
             let mut mem = vec![0u32; required_size[0] * required_size[1]];
+            let map_color = |dist: f32| {
+                let c = &self.globals.theme.border_color;
+                let alpha = 0.5 * (1.0 - dist);
+                let map = |c| (c * alpha * 255.0) as u8;
+                u32::from_le_bytes([map(c.b), map(c.g), map(c.r), map(c.a)])
+            };
             if matches!(
                 k,
                 WindowEdge::TopRight
@@ -1111,35 +1155,36 @@ impl ClientXdgSurface {
                     | WindowEdge::BottomLeft
                     | WindowEdge::TopLeft
             ) {
-                let lengthf = length as f32;
-                for x in 0..length {
-                    for y in 0..length {
+                let w = required_size[0];
+                let h = required_size[1];
+                let num = (w * h) as f32;
+                for x in 0..w {
+                    for y in 0..h {
                         let dist = match k {
                             WindowEdge::TopRight => {
-                                ((x.pow(2) + (length - y - 1).pow(2)) as f32).sqrt() / lengthf
+                                (((x * h).pow(2) + ((h - y - 1) * w).pow(2)) as f32).sqrt() / num
                             }
                             WindowEdge::BottomRight => {
-                                ((x.pow(2) + y.pow(2)) as f32).sqrt() / lengthf
+                                (((x * h).pow(2) + (y * w).pow(2)) as f32).sqrt() / num
                             }
                             WindowEdge::BottomLeft => {
-                                (((length - x - 1).pow(2) + y.pow(2)) as f32).sqrt() / lengthf
+                                ((((w - x - 1) * h).pow(2) + (y * w).pow(2)) as f32).sqrt() / num
                             }
                             WindowEdge::TopLeft => {
-                                (((length - x - 1).pow(2) + (length - y - 1).pow(2)) as f32).sqrt()
-                                    / lengthf
+                                ((((w - x - 1) * h).pow(2) + ((h - y - 1) * w).pow(2)) as f32)
+                                    .sqrt()
+                                    / num
                             }
                             _ => unreachable!(),
                         };
-                        let alpha = 0.5 * (1.0 - dist);
-                        let v = u32::from_le_bytes([0, 0, 0, (alpha * 255.0) as u8]);
-                        mem[y * length + x] = v;
+                        mem[y * w + x] = map_color(dist);
                     }
                 }
             } else {
-                for y in 0..length {
-                    let dist = (length - y - 1) as f32 / length as f32;
-                    let alpha = 0.5 * (1.0 - dist);
-                    let v = u32::from_le_bytes([0, 0, 0, (alpha * 255.0) as u8]);
+                let h = required_size[1];
+                for y in 0..h {
+                    let dist = (h - y - 1) as f32 / h as f32;
+                    let v = map_color(dist);
                     mem[y * required_size[0]..][..required_size[0]].fill(v);
                 }
             }
@@ -1222,7 +1267,7 @@ impl XdgWmBaseHandler for ClientXdgWmBase {
             tray_popup_borders: Default::default(),
             last_configure_size: None,
             ignore_configure: false,
-            icon_template: IconTemplate::new(&g.theme, &g.color),
+            icon_template: IconTemplate::new(&g.theme.icon_theme, &g.theme.icon_color),
         });
         let client_surface_handler = &mut *client_surface.get_handler_mut::<ClientWlSurface>();
         client_surface_handler.xdg_surface = Some(client_xdg_surface.clone());
@@ -1273,9 +1318,15 @@ impl XdgSurfaceHandler for ClientXdgSurface {
                 .globals
                 .wl_subcompositor
                 .new_send_get_subsurface(&wl_surface, &self.proxy_wl_surface);
+            let wp_viewport = self
+                .globals
+                .wp_viewporter
+                .new_send_get_viewport(&wl_surface);
             TrayPopupBorder {
                 wl_surface,
+                wp_viewport,
                 wl_subsurface,
+                scale: SCALE_BASE,
                 buffer_size: [0, 0],
             }
         });
@@ -1389,6 +1440,7 @@ impl XdgToplevelHandler for ClientXdgToplevel {
             for edge in edges.values() {
                 edge.wl_surface.unset_handler();
                 edge.wl_subsurface.send_destroy();
+                edge.wp_viewport.send_destroy();
                 edge.wl_surface.send_destroy();
             }
         }

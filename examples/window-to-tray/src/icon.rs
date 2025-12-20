@@ -29,10 +29,10 @@ use {
 
 #[derive(Copy, Clone, Debug, PartialEq, Default)]
 pub struct ThemeColor {
-    pub r: f64,
-    pub g: f64,
-    pub b: f64,
-    pub a: f64,
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
+    pub a: f32,
 }
 
 pub struct IconTemplate {
@@ -297,7 +297,7 @@ fn render_svg(
     buffer_size: [i32; 2],
     color: &ThemeColor,
 ) -> Result<Vec<u8>, usvg::Error> {
-    let map = |c: f64| (c * 255.0).round();
+    let map = |c: f32| (c * 255.0).round();
     let stylesheet = format!(
         "* {{ color: rgb({} {} {} {}); }}",
         map(color.r),
