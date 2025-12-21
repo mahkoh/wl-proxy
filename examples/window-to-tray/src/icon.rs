@@ -1,5 +1,8 @@
 use {
-    crate::{desktop::get_icon_name, wtt::Globals},
+    crate::{
+        desktop::get_icon_name,
+        wtt::{Color, Globals},
+    },
     error_reporter::Report,
     ini::{Ini, ParseError},
     isnt::std_1::primitive::IsntSliceExt,
@@ -17,7 +20,7 @@ use {
         path::{Path, PathBuf},
         rc::Rc,
         str::FromStr,
-        sync::LazyLock,
+        sync::{Arc, LazyLock},
     },
     thiserror::Error,
     uapi::c,
@@ -27,21 +30,13 @@ use {
     },
 };
 
-#[derive(Copy, Clone, Debug, PartialEq, Default)]
-pub struct ThemeColor {
-    pub r: f32,
-    pub g: f32,
-    pub b: f32,
-    pub a: f32,
-}
-
 pub struct IconTemplate {
     version: usize,
     name: Option<String>,
     app_id: Option<String>,
     buffers: Vec<Rc<BufferIconFrame>>,
-    theme: Rc<String>,
-    color: ThemeColor,
+    theme: Arc<String>,
+    color: Color,
 }
 
 #[derive(Default, Eq, PartialEq)]
@@ -70,7 +65,7 @@ impl Drop for BufferIconFrame {
 }
 
 impl IconTemplate {
-    pub fn new(theme: &Rc<String>, color: &ThemeColor) -> Self {
+    pub fn new(theme: &Arc<String>, color: &Color) -> Self {
         Self {
             version: 1,
             name: Default::default(),
@@ -245,7 +240,7 @@ fn name_to_bytes(
     buffer_size: [i32; 2],
     scale: i32,
     theme: &str,
-    color: &ThemeColor,
+    color: &Color,
 ) -> Option<(Vec<u8>, [i32; 2])> {
     let lookup = find_icon(name, nominal_size[0].max(nominal_size[1]), scale, theme)?;
     let contents = match std::fs::read(&lookup.path) {
@@ -295,14 +290,14 @@ fn to_bgra(contents: &mut [u8]) {
 fn render_svg(
     contents: &[u8],
     buffer_size: [i32; 2],
-    color: &ThemeColor,
+    color: &Color,
 ) -> Result<Vec<u8>, usvg::Error> {
     let map = |c: f32| (c * 255.0).round();
     let stylesheet = format!(
         "* {{ color: rgb({} {} {} {}); }}",
-        map(color.r),
-        map(color.g),
-        map(color.b),
+        map(color.r / color.a),
+        map(color.g / color.a),
+        map(color.b / color.a),
         map(color.a)
     );
     let options = Options {
@@ -322,7 +317,7 @@ fn render_svg(
     Ok(res)
 }
 
-pub fn render_png(contents: &[u8]) -> Result<(Vec<u8>, [i32; 2]), png::DecodingError> {
+fn render_png(contents: &[u8]) -> Result<(Vec<u8>, [i32; 2]), png::DecodingError> {
     let mut contents = Cursor::new(contents);
     let mut decoder = png::Decoder::new(&mut contents);
     decoder.set_transformations(Transformations::STRIP_16 | Transformations::ALPHA);

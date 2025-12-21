@@ -3,7 +3,7 @@
 use {
     crate::{
         WttError,
-        icon::{BufferIcon, BufferIconFrame, IconTemplate, ThemeColor},
+        icon::{BufferIcon, BufferIconFrame, IconTemplate},
     },
     arrayvec::ArrayVec,
     linearize::{Linearize, StaticMap},
@@ -15,6 +15,7 @@ use {
         os::fd::OwnedFd,
         process::{Command, exit},
         rc::Rc,
+        sync::Arc,
     },
     uapi::c,
     wl_proxy::{
@@ -116,27 +117,17 @@ use {
     },
 };
 
-pub fn main(
-    border_color: ThemeColor,
-    icon_color: ThemeColor,
-    border_width: u16,
-    program: &[String],
-) -> Result<(), WttError> {
+pub fn main(theme: Theme, program: &[String]) -> Result<(), WttError> {
     let server = SimpleServer::new(Baseline::V1_UNSTABLE).map_err(WttError::CreateServer)?;
     Command::new(&program[0])
         .args(&program[1..])
         .with_wayland_display(server.display())
         .spawn_and_forward_exit_code()
         .map_err(WttError::SpawnChild)?;
-    let err = server.run(|| DisplayHandler {
-        theme: Theme {
-            icon_theme: Rc::new("hicolor".to_string()),
-            icon_color,
-            border_color,
-            border_width,
-        },
+    let err = server.run(|| ClientWlDisplay {
+        theme: theme.clone(),
         registry: Default::default(),
-        cached_requests: Default::default(),
+        client_registries_without_handlers: Default::default(),
         trays: Default::default(),
         toplevels: Default::default(),
         globals: Default::default(),
@@ -157,21 +148,39 @@ pub fn main(
 
 #[derive(Clone)]
 pub struct Theme {
-    icon_theme: Rc<String>,
-    icon_color: ThemeColor,
-    border_color: ThemeColor,
-    border_width: u16,
+    pub icon_theme: Arc<String>,
+    pub icon_color: Color,
+    pub border_color: Color,
+    pub border_width: u16,
 }
 
-struct DisplayHandler {
+#[derive(Copy, Clone, Debug, PartialEq, Default)]
+pub struct Color {
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
+    pub a: f32,
+}
+
+/// Handler for the client's wl_display object.
+struct ClientWlDisplay {
     theme: Theme,
 
+    /// The proxy-created wl_registry object.
     registry: Option<Rc<WlRegistry>>,
-    cached_requests: Vec<CachedRequest>,
+    /// The wl_registry objects created by the client before our initial roundtrip has
+    /// completed and we don't yet have an Rc<Globals> object needed to set the handler.
+    client_registries_without_handlers: Vec<Rc<WlRegistry>>,
+    /// The trays advertised by the server.
     trays: HashMap<u32, Rc<JayTrayV1>>,
+    /// The client-created xdg_surface objects that have an xdg_toplevel extension.
     toplevels: HashMap<u64, Rc<XdgSurface>>,
+    /// The globals object created after our initial roundtrip.
     globals: Option<Rc<Globals>>,
+    /// The seats advertised by the server.
     seats: HashMap<u32, Rc<WlSeat>>,
+    /// The seats advertised by the server that we haven't yet created a wl_seat object
+    /// for because the initial roundtrip has not yet completed.
     initial_seats: HashMap<u32, u32>,
 
     wl_compositor: Option<Rc<WlCompositor>>,
@@ -185,101 +194,166 @@ struct DisplayHandler {
     wp_fractional_scale_manager_v1: Option<Rc<WpFractionalScaleManagerV1>>,
 }
 
-enum CachedRequest {
-    GetRegistry(Rc<WlRegistry>),
-    Sync(Rc<WlCallback>),
-}
-
+/// A convenient collection of wayland globals and other values used by other types.
+///
+/// This is created after the initial roundtrip.
 pub struct Globals {
     pub theme: Theme,
+
     pub wl_compositor: Rc<WlCompositor>,
     pub wl_shm: Rc<WlShm>,
     pub wl_subcompositor: Rc<WlSubcompositor>,
     pub wp_viewporter: Rc<WpViewporter>,
-    pub wp_cursor_shape_manager_v1: Rc<WpCursorShapeManagerV1>,
+    pub wp_cursor_shape_manager_v1: Option<Rc<WpCursorShapeManagerV1>>,
     pub wp_fractional_scale_manager_v1: Option<Rc<WpFractionalScaleManagerV1>>,
     pub xdg_wm_base: Rc<XdgWmBase>,
     pub jay_popup_ext_manager_v1: Rc<JayPopupExtManagerV1>,
+
+    /// An empty wl_region.
     pub empty_region: Rc<WlRegion>,
+    /// A transparent single-pixel buffer.
     pub transparent_spb: Rc<WlBuffer>,
+    /// A black single-pixel buffer.
     pub black_frame: Rc<BufferIconFrame>,
 }
 
+/// Handler used for the proxy-created wl_registry.
 struct ProxyWlRegistry {
     wl_display: Rc<WlDisplay>,
 }
 
-struct FirstSyncHandler {
+/// Handler used for the initial, proxy-created wl_callback.
+struct ProxyFirstSyncHandler {
     wl_display: Rc<WlDisplay>,
     wl_registry: Rc<WlRegistry>,
 }
 
+/// Handler for all proxy-created xdg_wm_base objects.
 struct ProxyXdgWmBase;
 
+/// Handler for all client-created wl_registry objects.
 struct ClientWlRegistry {
-    init: bool,
     wl_display: Rc<WlDisplay>,
     globals: Rc<Globals>,
     mapper: GlobalMapper,
+    /// Used to track if we've already announced our synthetic globals to the client.
+    init: bool,
 }
 
+/// Handler for all client-created wl_compositor objects.
 struct ClientWlCompositor {
     globals: Rc<Globals>,
 }
 
+/// Handler for all client-created wl_subcompositor objects.
 struct ClientWlSubcompositor;
 
+/// Handler for all client-created wl_subsurface objects.
 struct ClientWlSubsurface {
+    /// The client's parent wl_surface.
     parent: Rc<WlSurface>,
+    /// The client's child wl_surface.
     surface: Rc<WlSurface>,
 }
 
+/// Handler for all client-created wl_surface objects.
 struct ClientWlSurface {
-    attached: bool,
     globals: Rc<Globals>,
+    /// Whether a buffer is attached to the surface.
+    attached: bool,
+    /// Set if wl_surface.attach was called but not yet committed.
     pending_attach: Option<bool>,
+    /// The xdg_surface created by the client for this wl_surface, if any.
     xdg_surface: Option<Rc<XdgSurface>>,
+    /// The input region set by the client for this surface.
     client_input_region: Option<Vec<WlRegionOp>>,
-    input_mask: Option<[i32; 4]>,
+    /// The window geometry relative to this surface. This is only used for xdg_toplevels.
+    /// The effective input region is the window geometry intersected with the input
+    /// region set by the client. This is used because some clients (GTK) use surfaces
+    /// that extend outside the window geometry and make the tray inaccessible if the
+    /// input region is not restricted.
+    window_geometry: Option<[i32; 4]>,
+    /// The position of this surface relative to its parent if this is a subsurface.
     subsurface_position: [i32; 2],
+    /// The subsurfaces of this surface.
     subsurfaces: HashMap<u64, Rc<WlSurface>>,
 }
 
+/// Handler for all client-created xdg_wm_base objects.
 struct ClientXdgWmBase {
     wl_display: Rc<WlDisplay>,
     globals: Rc<Globals>,
 }
 
+/// Handler for all proxy-created wl_surface objects that are the subsurface parents of
+/// client-created xdg_surface objects.
+///
+/// This is used to redirect keyboard input from this wl_surface to the client's
+/// wl_surface.
 struct ProxyXdgSurfaceWlSurface {
+    /// The client's wl_surface that has an xdg_surface extension.
     client_wl_surface: Rc<WlSurface>,
 }
 
+/// Handler for client-created xdg_surface objects.
 struct ClientXdgSurface {
     wl_display: Rc<WlDisplay>,
     globals: Rc<Globals>,
+    /// The client's wl_surface object.
     client_wl_surface: Rc<WlSurface>,
-    client_xdg_popup: Option<Rc<XdgPopup>>,
-    client_xdg_toplevel: Option<Rc<XdgToplevel>>,
+    /// The proxy's wl_surface object.
     proxy_wl_surface: Rc<WlSurface>,
+    /// The proxy's xdg_surface object.
     proxy_xdg_surface: Rc<XdgSurface>,
+    /// The proxy's xdg_popup object, if any.
     proxy_xdg_popup: Option<Rc<XdgPopup>>,
+    /// The wl_subsurface that has the proxy_wl_surface as the parent and the
+    /// client_wl_surface as the child.
     subsurface: Rc<WlSubsurface>,
-    popup_jay_tray_item: Option<Rc<JayTrayItemV1>>,
-    jay_tray_items: HashMap<u32, Rc<JayTrayItemV1>>,
+    /// All client-created xdg_popups that have this xdg_surface as their parent.
     client_popups: HashMap<u64, Rc<XdgPopup>>,
+    /// The geometry of this xdg_surface committed by the client.
     geometry: [i32; 4],
+    /// The geometry of this xdg_surface set but not yet committed by the client.
     pending_geometry: Option<[i32; 4]>,
-    map_unpon_configure: bool,
-    map_unpon_ack: Option<u64>,
+    /// The next configure serial we send to the client.
     next_client_serial: u64,
+    /// The pending configure serials we've sent to the client that have not yet been
+    /// ack'd. The second field is the corresponding server serial.
     pending_serials: VecDeque<(u64, Option<u32>)>,
-    needed_tray_edges: usize,
+
+    // popups
+    /// The client's xdg_popup extension, if any.
+    client_xdg_popup: Option<Rc<XdgPopup>>,
+
+    // toplevel
+    /// The client's xdg_toplevel extension, if any.
+    client_xdg_toplevel: Option<Rc<XdgToplevel>>,
+    /// The jay_tray_item_v1 that currently shows this surface as its popup.
+    popup_jay_tray_item: Option<Rc<JayTrayItemV1>>,
+    /// All jay_tray_item_v1 objects that could theoretically show this surface as their
+    /// popup.
+    jay_tray_items: HashMap<u32, Rc<JayTrayItemV1>>,
+    /// Whether this xdg_surface should be mapped in the next configure/ack cycle.
+    map_unpon_configure: bool,
+    /// Whether this xdg_surface should be mapped when the client sends the next
+    /// ack_configure message.
+    map_unpon_ack: Option<u64>,
+    /// The borders drawn around the xdg_toplevel surface.
     tray_popup_borders: Option<StaticMap<WindowEdge, TrayPopupBorder>>,
+    /// The last configure size sent to the client.
     last_configure_size: Option<[i32; 2]>,
+    /// Whether the next xdg_surface.configure event should not be forwarded to the
+    /// client and should instead be coalesced with the previous configure event.
+    ///
+    /// This is needed because many clients ignore configure events whose size is
+    /// identical to the previous size.
     ignore_configure: bool,
+    /// The template for the tray icon.
     icon_template: IconTemplate,
 }
 
+/// A window edge or corner.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Linearize)]
 enum WindowEdge {
     Top,
@@ -307,37 +381,65 @@ impl WindowEdge {
     }
 }
 
+/// A border for a tray popup.
 struct TrayPopupBorder {
     wl_surface: Rc<WlSurface>,
     wp_viewport: Rc<WpViewport>,
     wl_subsurface: Rc<WlSubsurface>,
+    wp_fractional_scale_v1: Option<Rc<WpFractionalScaleV1>>,
     scale: i32,
+    /// The size of the buffer attached to the surface. [0, 0] if no buffer is attached.
+    /// Note that rotation is used for the left, bottom, and right borders so that the
+    /// buffer itself always looks like the top buffer. This makes filling the buffer more
+    /// efficient.
     buffer_size: [usize; 2],
 }
 
+/// Handler for proxy-created xdg_popup objects that back a client-created xdg_popup.
 struct ProxyClientPopupXdgPopup {
+    /// The client's xdg_surface.
     xdg_surface: Rc<XdgSurface>,
+    /// The client's xdg_surface.
     client_xdg_popup: Rc<XdgPopup>,
 }
 
+/// Handler for proxy-created wl_surface objects that are borders of the tray popup.
 struct ProxyTrayPopupBorderWlSurface {
+    /// The client's xdg_surface.
     client_xdg_surface: Rc<XdgSurface>,
+    /// The edge of this border.
+    window_edge: WindowEdge,
+    /// Whether we have a fractional scale object.
+    has_fractional_scale: bool,
+}
+
+/// Handler for proxy-created wp_fractional_scale_v1 objects for borders of the tray popup.
+struct ProxyTrayPopupBorderWpFractionalScaleV1 {
+    /// The client's xdg_surface.
+    client_xdg_surface: Rc<XdgSurface>,
+    /// The edge of this border.
     window_edge: WindowEdge,
 }
 
+/// Handler for client-created xdg_toplevel objects.
 struct ClientXdgToplevel {
+    /// The client's xdg_surface.
     xdg_surface: Rc<XdgSurface>,
 }
 
+/// Handler for client-created xdg_popup objects.
 struct ClientXdgPopup {
+    /// The client's xdg_surface.
     xdg_surface: Rc<XdgSurface>,
+    /// The parent xdg_surface.
     parent_xdg_surface: Option<Rc<XdgSurface>>,
 }
 
+/// Handler for proxy-created wl_seat objects.
 #[derive(Clone)]
 struct ProxyWlSeat {
-    wl_seat: Rc<WlSeat>,
     globals: Rc<Globals>,
+    wl_seat: Rc<WlSeat>,
     wl_pointer: Option<Rc<WlPointer>>,
 }
 
@@ -347,43 +449,60 @@ enum WlRegionOp {
     Sub([i32; 4]),
 }
 
+/// Handler for client-created wl_region objects.
 struct ClientWlRegion {
     ops: Vec<WlRegionOp>,
 }
 
+/// Handler for proxy-created wl_pointer objects.
 struct ProxyWlPointer {
     globals: Rc<Globals>,
     seat: Rc<WlSeat>,
-    wp_cursor_shape_device_v1: Rc<WpCursorShapeDeviceV1>,
+    wp_cursor_shape_device_v1: Option<Rc<WpCursorShapeDeviceV1>>,
+    /// The tray item that has the pointer focus, if any.
     tray_icon_focus: Option<Rc<JayTrayItemV1>>,
-    edge_focus: Option<WindowEdge>,
+    /// The surface that has the pointer focus, if any.
     surface: Option<Rc<WlSurface>>,
 }
 
+/// Handler for client-created wl_seat objects.
 struct ClientWlSeat;
 
+/// Handler for client-created wl_pointer, wl_touch, or wl_keyboard objects.
 #[derive(Default)]
 struct ClientWlSeatDevice {
+    /// Whether the device is focused on a client-created wl_surface.
+    ///
+    /// This is used so that we don't send events to the client if the focus is on a
+    /// surface created by the proxy.
     on_client_surface: bool,
 }
 
+/// Handler for client-created zwp_text_input_manager_v3 objects.
 struct ClientZwpTextInputManagerV3;
 
+/// Handler for client-created zwp_relative_pointer_manager_v1 objects.
 struct ClientZwpRelativePointerManagerV1;
 
+/// Handler for client-created zwp_relative_pointer_v1 objects.
 struct ClientZwpRelativePointerV1 {
+    /// The client's wl_pointer object.
     wl_pointer: Rc<WlPointer>,
 }
 
+/// Handler for proxy-created xdg_surface objects.
 struct ProxyXdgSurface {
+    /// The client's xdg_surface object.
     client_xdg_surface: Rc<XdgSurface>,
 }
 
+/// Handler for proxy-created xdg_popups for tray item popups.
 struct ProxyTrayXdgPopup {
     jay_tray_item_v1: Rc<JayTrayItemV1>,
     jay_popup_ext_v1: Rc<JayPopupExtV1>,
 }
 
+/// Handler for proxy-created wl_surface objects for tray icons.
 struct ProxyTrayIconWlSurface {
     jay_tray_item_v1: Rc<JayTrayItemV1>,
 }
@@ -395,56 +514,79 @@ struct JayTrayItemV1Config {
     preferred_gravity: XdgPositionerGravity,
 }
 
+/// Handler for proxy-created jay_tray_item_v1 objects.
 struct ProxyJayTrayItemV1 {
     globals: Rc<Globals>,
 
-    // client toplevel
+    /// The client xdg_surface.
     client_xdg_surface: Rc<XdgSurface>,
+    /// The client xdg_toplevel.
     client_xdg_toplevel: Rc<XdgToplevel>,
 
-    // popup containing the toplevel
+    /// The proxy xdg_popup. This is created ad-hoc when we actually want to show the
+    /// popup and None otherwise.
     proxy_xdg_popup: Option<Rc<XdgPopup>>,
+    /// The window borders needed by the popup.
+    needed_tray_edges: u32,
 
-    // icon data
+    /// The scale of the icon.
     scale: i32,
+    /// The surface of the icon.
     wl_surface: Rc<WlSurface>,
+    /// The viewport of the icon.
     wp_viewport: Rc<WpViewport>,
+    /// The fractional scale of the icon.
     wp_fractional_scale_v1: Option<Rc<WpFractionalScaleV1>>,
+    /// The pending config of the item.
     pending: JayTrayItemV1Config,
+    /// The current config of the item.
     current: JayTrayItemV1Config,
+    /// The wl_buffer of the icon.
     icon: BufferIcon,
 }
 
 const SCALE_BASE: i32 = 120;
 
+/// Handler for proxy-created wp_fractional_scale_v1 objects for tray icons.
 struct ProxyTrayIconWpFractionalScaleV1 {
     tray_item: Rc<JayTrayItemV1>,
 }
 
+/// Handler for client-created zxdg_decoration_manager_v1 objects.
 struct ClientZxdgDecorationManagerV1;
 
+/// Handler for client-created zxdg_toplevel_decoration_v1 objects.
 struct ClientZxdgToplevelDecorationV1;
 
+/// Handler for client-created org_kde_kwin_server_decoration_manager objects.
 struct ClientOrgKdeKwinServerDecorationManager;
 
+/// Handler for client-created org_kde_kwin_server_decoration objects.
 struct ClientOrgKdeKwinServerDecoration;
 
+/// Handler for client-created xdg_toplevel_icon_manager_v1 objects.
 struct ClientXdgToplevelIconManagerV1 {
     globals: Rc<Globals>,
 }
 
+/// Handler for client-created xdg_toplevel_icon_v1 objects.
 struct ClientXdgToplevelIconV1 {
+    /// The name set by the client.
     name: Option<String>,
+    /// The buffers set by the client.
     buffers: HashMap<([i32; 2], i32), Rc<WlBuffer>>,
 }
 
+/// Handler for client-created wl_shm objects.
 struct ClientWlShm;
 
+/// Handler for client-created wl_shm_pool objects.
 struct ClientWlShmPool {
     fd: Rc<OwnedFd>,
     size: i32,
 }
 
+/// Handler for client-created wl_buffer objects that are backed by wl_shm.
 struct ClientShmWlBuffer {
     pool_fd: Rc<OwnedFd>,
     pool_size: i32,
@@ -454,16 +596,7 @@ struct ClientShmWlBuffer {
     format: WlShmFormat,
 }
 
-impl WlDisplayHandler for DisplayHandler {
-    fn handle_sync(&mut self, slf: &Rc<WlDisplay>, callback: &Rc<WlCallback>) {
-        if self.globals.is_some() {
-            slf.send_sync(callback);
-        } else {
-            self.cached_requests
-                .push(CachedRequest::Sync(callback.clone()));
-        }
-    }
-
+impl WlDisplayHandler for ClientWlDisplay {
     fn handle_get_registry(&mut self, slf: &Rc<WlDisplay>, registry: &Rc<WlRegistry>) {
         if self.registry.is_none() {
             let wl_registry = slf.new_send_get_registry();
@@ -471,23 +604,18 @@ impl WlDisplayHandler for DisplayHandler {
                 wl_display: slf.clone(),
             });
             let sync = slf.new_send_sync();
-            sync.set_handler(FirstSyncHandler {
+            sync.set_handler(ProxyFirstSyncHandler {
                 wl_display: slf.clone(),
                 wl_registry: wl_registry.clone(),
             });
             self.registry = Some(wl_registry);
         }
+        slf.send_get_registry(registry);
         if let Some(globals) = &self.globals {
-            slf.send_get_registry(registry);
-            registry.set_handler(ClientWlRegistry {
-                init: false,
-                wl_display: slf.clone(),
-                globals: globals.clone(),
-                mapper: Default::default(),
-            });
+            registry.set_handler(ClientWlRegistry::new(slf, globals));
         } else {
-            self.cached_requests
-                .push(CachedRequest::GetRegistry(registry.clone()));
+            self.client_registries_without_handlers
+                .push(registry.clone());
         }
     }
 }
@@ -500,7 +628,7 @@ impl WlRegistryHandler for ProxyWlRegistry {
         interface: ObjectInterface,
         version: u32,
     ) {
-        let display = &mut *self.wl_display.get_handler_mut::<DisplayHandler>();
+        let display = &mut *self.wl_display.get_handler_mut::<ClientWlDisplay>();
         macro_rules! bind {
             ($field:ident, $ty:ty, $min:expr) => {{
                 let proxy = slf.state().create_object::<$ty>(version.min($min));
@@ -540,7 +668,7 @@ impl WlRegistryHandler for ProxyWlRegistry {
     }
 
     fn handle_global_remove(&mut self, _slf: &Rc<WlRegistry>, name: u32) {
-        let display = &mut *self.wl_display.get_handler_mut::<DisplayHandler>();
+        let display = &mut *self.wl_display.get_handler_mut::<ClientWlDisplay>();
         if display.globals.is_none() {
             display.initial_seats.remove(&name);
             return;
@@ -562,7 +690,7 @@ impl WlRegistryHandler for ProxyWlRegistry {
     }
 }
 
-impl DisplayHandler {
+impl ClientWlDisplay {
     fn handle_new_seat(&mut self, registry: &Rc<WlRegistry>, name: u32, version: u32) {
         let Some(globals) = &self.globals else {
             self.initial_seats.insert(name, version);
@@ -592,9 +720,9 @@ impl DisplayHandler {
     }
 }
 
-impl WlCallbackHandler for FirstSyncHandler {
+impl WlCallbackHandler for ProxyFirstSyncHandler {
     fn handle_done(&mut self, _slf: &Rc<WlCallback>, _callback_data: u32) {
-        let display = &mut *self.wl_display.get_handler_mut::<DisplayHandler>();
+        let display = &mut *self.wl_display.get_handler_mut::<ClientWlDisplay>();
         macro_rules! expect {
             ($field:ident) => {
                 let $field = match display.$field.clone() {
@@ -610,7 +738,6 @@ impl WlCallbackHandler for FirstSyncHandler {
         expect!(wl_shm);
         expect!(wl_subcompositor);
         expect!(wp_viewporter);
-        expect!(wp_cursor_shape_manager_v1);
         expect!(wp_single_pixel_buffer_manager_v1);
         expect!(xdg_wm_base);
         expect!(jay_popup_ext_manager_v1);
@@ -622,13 +749,13 @@ impl WlCallbackHandler for FirstSyncHandler {
             wp_single_pixel_buffer_manager_v1.new_send_create_u32_rgba_buffer(0, 0, 0, u32::MAX);
         black_spb.set_forward_to_client(false);
         xdg_wm_base.set_handler(ProxyXdgWmBase);
-        let globals = Globals {
+        let globals = Rc::new(Globals {
             theme: display.theme.clone(),
             wl_compositor,
             wl_shm,
             wl_subcompositor,
             wp_viewporter,
-            wp_cursor_shape_manager_v1,
+            wp_cursor_shape_manager_v1: display.wp_cursor_shape_manager_v1.clone(),
             wp_fractional_scale_manager_v1: display.wp_fractional_scale_manager_v1.clone(),
             xdg_wm_base,
             jay_popup_ext_manager_v1,
@@ -639,14 +766,11 @@ impl WlCallbackHandler for FirstSyncHandler {
                 buffer_size: [1, 1],
                 scale: 1,
             }),
-        };
-        display.globals = Some(Rc::new(globals));
-        for request in mem::take(&mut display.cached_requests) {
-            match request {
-                CachedRequest::GetRegistry(r) => display.handle_get_registry(&self.wl_display, &r),
-                CachedRequest::Sync(s) => display.handle_sync(&self.wl_display, &s),
-            }
+        });
+        for wl_registry in mem::take(&mut display.client_registries_without_handlers) {
+            wl_registry.set_handler(ClientWlRegistry::new(&self.wl_display, &globals));
         }
+        display.globals = Some(globals);
         for (name, version) in mem::take(&mut display.initial_seats) {
             display.handle_new_seat(&self.wl_registry, name, version);
         }
@@ -656,6 +780,17 @@ impl WlCallbackHandler for FirstSyncHandler {
 impl XdgWmBaseHandler for ProxyXdgWmBase {
     fn handle_ping(&mut self, slf: &Rc<XdgWmBase>, serial: u32) {
         slf.send_ping(serial);
+    }
+}
+
+impl ClientWlRegistry {
+    fn new(display: &Rc<WlDisplay>, globals: &Rc<Globals>) -> Self {
+        Self {
+            init: false,
+            wl_display: display.clone(),
+            globals: globals.clone(),
+            mapper: Default::default(),
+        }
     }
 }
 
@@ -770,7 +905,7 @@ impl WlCompositorHandler for ClientWlCompositor {
             pending_attach: Default::default(),
             xdg_surface: Default::default(),
             client_input_region: Default::default(),
-            input_mask: Default::default(),
+            window_geometry: Default::default(),
             subsurface_position: [0, 0],
             subsurfaces: Default::default(),
         });
@@ -797,7 +932,7 @@ impl WlSubcompositorHandler for ClientWlSubcompositor {
         let c = &mut *surface.get_handler_mut::<ClientWlSurface>();
         p.subsurfaces.insert(surface.unique_id(), surface.clone());
         c.subsurface_position = [0, 0];
-        c.set_input_mask(surface, p.input_mask);
+        c.set_window_geometry(surface, p.window_geometry);
         id.set_handler(ClientWlSubsurface {
             parent: parent.clone(),
             surface: surface.clone(),
@@ -814,7 +949,7 @@ impl WlSubsurfaceHandler for ClientWlSubsurface {
             .remove(&self.surface.unique_id());
         self.surface
             .get_handler_mut::<ClientWlSurface>()
-            .set_input_mask(&self.surface, None);
+            .set_window_geometry(&self.surface, None);
         slf.unset_handler();
         slf.send_destroy();
     }
@@ -823,14 +958,14 @@ impl WlSubsurfaceHandler for ClientWlSubsurface {
         let p = &mut *self.parent.get_handler_mut::<ClientWlSurface>();
         let c = &mut *self.surface.get_handler_mut::<ClientWlSurface>();
         c.subsurface_position = [dx, dy];
-        c.set_input_mask(&self.surface, p.input_mask);
+        c.set_window_geometry(&self.surface, p.window_geometry);
         slf.send_set_position(dx, dy);
     }
 }
 
 impl ClientWlSurface {
-    fn set_input_mask(&mut self, slf: &Rc<WlSurface>, parent_mask: Option<[i32; 4]>) {
-        self.input_mask = parent_mask.map(|[x, y, w, h]| {
+    fn set_window_geometry(&mut self, slf: &Rc<WlSurface>, parent_geometry: Option<[i32; 4]>) {
+        self.window_geometry = parent_geometry.map(|[x, y, w, h]| {
             [
                 x - self.subsurface_position[0],
                 y - self.subsurface_position[1],
@@ -838,20 +973,20 @@ impl ClientWlSurface {
                 h,
             ]
         });
-        self.update_region(slf);
+        self.update_input_region(slf);
         for surface in self.subsurfaces.values() {
             surface
                 .get_handler_mut::<ClientWlSurface>()
-                .set_input_mask(surface, self.input_mask);
+                .set_window_geometry(surface, self.window_geometry);
         }
     }
 
-    fn update_region(&self, slf: &Rc<WlSurface>) {
+    fn update_input_region(&self, slf: &Rc<WlSurface>) {
         let wl_region = self.globals.wl_compositor.new_send_create_region();
         let _destroy_region = on_drop(|| {
             wl_region.send_destroy();
         });
-        let Some([x, y, w, h]) = self.input_mask else {
+        let Some([x, y, w, h]) = self.window_geometry else {
             let Some(region) = &self.client_input_region else {
                 slf.send_set_input_region(None);
                 return;
@@ -910,7 +1045,7 @@ impl WlSurfaceHandler for ClientWlSurface {
     fn handle_set_input_region(&mut self, slf: &Rc<WlSurface>, wl_region: Option<&Rc<WlRegion>>) {
         let region = wl_region.map(|r| r.get_handler_mut::<ClientWlRegion>().ops.clone());
         self.client_input_region = region;
-        self.update_region(slf);
+        self.update_input_region(slf);
     }
 
     fn handle_commit(&mut self, slf: &Rc<WlSurface>) {
@@ -975,7 +1110,7 @@ impl ClientXdgSurface {
     fn handle_map(&mut self, xdg_surface: &Rc<XdgSurface>) {
         if let Some(xdg_toplevel) = self.client_xdg_toplevel.clone() {
             let wl_display = self.wl_display.clone();
-            let display = &mut *wl_display.get_handler_mut::<DisplayHandler>();
+            let display = &mut *wl_display.get_handler_mut::<ClientWlDisplay>();
             for (&name, tray) in &display.trays {
                 self.create_tray_item(name, tray, xdg_surface, &xdg_toplevel);
             }
@@ -1055,6 +1190,7 @@ impl ClientXdgSurface {
             client_xdg_surface: xdg_surface.clone(),
             client_xdg_toplevel: xdg_toplevel.clone(),
             proxy_xdg_popup: Default::default(),
+            needed_tray_edges: 0,
             scale: SCALE_BASE,
             wl_surface,
             wp_viewport,
@@ -1083,10 +1219,21 @@ impl ClientXdgSurface {
         client_serial
     }
 
+    fn set_border_scale(&mut self, window_edge: WindowEdge, scale: i32) {
+        self.tray_popup_borders.as_mut().unwrap()[window_edge].scale = scale;
+        self.ensure_borders();
+        self.proxy_wl_surface.send_commit();
+    }
+
     fn ensure_borders(&mut self) {
         let borders = self.tray_popup_borders.as_mut().unwrap();
+        let needed_tray_edges = self
+            .popup_jay_tray_item
+            .as_ref()
+            .map(|p| p.get_handler_mut::<ProxyJayTrayItemV1>().needed_tray_edges)
+            .unwrap_or(0);
         for (k, v) in borders {
-            if self.needed_tray_edges & (1 << k.linearize()) == 0 {
+            if needed_tray_edges & (1 << k.linearize()) == 0 {
                 v.wl_surface.send_attach(None, 0, 0);
                 v.wl_surface.send_commit();
                 v.buffer_size = [0, 0];
@@ -1263,7 +1410,6 @@ impl XdgWmBaseHandler for ClientXdgWmBase {
             map_unpon_ack: None,
             next_client_serial: 1,
             pending_serials: Default::default(),
-            needed_tray_edges: 0,
             tray_popup_borders: Default::default(),
             last_configure_size: None,
             ignore_configure: false,
@@ -1291,7 +1437,7 @@ impl XdgSurfaceHandler for ClientXdgSurface {
 
     fn handle_get_toplevel(&mut self, slf: &Rc<XdgSurface>, id: &Rc<XdgToplevel>) {
         id.set_forward_to_server(false);
-        let display = &mut *self.wl_display.get_handler_mut::<DisplayHandler>();
+        let display = &mut *self.wl_display.get_handler_mut::<ClientWlDisplay>();
         display.toplevels.insert(id.unique_id(), slf.clone());
         id.set_handler(ClientXdgToplevel {
             xdg_surface: slf.clone(),
@@ -1302,6 +1448,7 @@ impl XdgSurfaceHandler for ClientXdgSurface {
             wl_surface.set_handler(ProxyTrayPopupBorderWlSurface {
                 client_xdg_surface: slf.clone(),
                 window_edge: e,
+                has_fractional_scale: self.globals.wp_fractional_scale_manager_v1.is_some(),
             });
             let rotation = match e {
                 WindowEdge::Top => WlOutputTransform::NORMAL,
@@ -1322,10 +1469,24 @@ impl XdgSurfaceHandler for ClientXdgSurface {
                 .globals
                 .wp_viewporter
                 .new_send_get_viewport(&wl_surface);
+            let wp_fractional_scale_v1 =
+                self.globals
+                    .wp_fractional_scale_manager_v1
+                    .as_ref()
+                    .map(|m| {
+                        let obj = m.new_send_get_fractional_scale(&wl_surface);
+                        obj.set_forward_to_client(false);
+                        obj.set_handler(ProxyTrayPopupBorderWpFractionalScaleV1 {
+                            client_xdg_surface: slf.clone(),
+                            window_edge: e,
+                        });
+                        obj
+                    });
             TrayPopupBorder {
                 wl_surface,
                 wp_viewport,
                 wl_subsurface,
+                wp_fractional_scale_v1,
                 scale: SCALE_BASE,
                 buffer_size: [0, 0],
             }
@@ -1377,7 +1538,7 @@ impl XdgSurfaceHandler for ClientXdgSurface {
     ) {
         self.client_wl_surface
             .get_handler_mut::<ClientWlSurface>()
-            .set_input_mask(&self.client_wl_surface, Some([x, y, width, height]));
+            .set_window_geometry(&self.client_wl_surface, Some([x, y, width, height]));
         self.proxy_xdg_surface
             .send_set_window_geometry(x, y, width, height);
         self.pending_geometry = Some([x, y, width, height]);
@@ -1429,7 +1590,24 @@ impl ClientXdgPopup {
     }
 }
 
-impl WlSurfaceHandler for ProxyTrayPopupBorderWlSurface {}
+impl WlSurfaceHandler for ProxyTrayPopupBorderWlSurface {
+    fn handle_preferred_buffer_scale(&mut self, _slf: &Rc<WlSurface>, factor: i32) {
+        if self.has_fractional_scale {
+            return;
+        }
+        self.client_xdg_surface
+            .get_handler_mut::<ClientXdgSurface>()
+            .set_border_scale(self.window_edge, factor * SCALE_BASE);
+    }
+}
+
+impl WpFractionalScaleV1Handler for ProxyTrayPopupBorderWpFractionalScaleV1 {
+    fn handle_preferred_scale(&mut self, _slf: &Rc<WpFractionalScaleV1>, scale: u32) {
+        self.client_xdg_surface
+            .get_handler_mut::<ClientXdgSurface>()
+            .set_border_scale(self.window_edge, scale as i32);
+    }
+}
 
 impl XdgToplevelHandler for ClientXdgToplevel {
     fn handle_destroy(&mut self, slf: &Rc<XdgToplevel>) {
@@ -1438,6 +1616,10 @@ impl XdgToplevelHandler for ClientXdgToplevel {
         h.client_xdg_toplevel = None;
         if let Some(edges) = h.tray_popup_borders.take() {
             for edge in edges.values() {
+                if let Some(obj) = &edge.wp_fractional_scale_v1 {
+                    obj.unset_handler();
+                    obj.send_destroy();
+                }
                 edge.wl_surface.unset_handler();
                 edge.wl_subsurface.send_destroy();
                 edge.wp_viewport.send_destroy();
@@ -1445,7 +1627,7 @@ impl XdgToplevelHandler for ClientXdgToplevel {
             }
         }
         h.wl_display
-            .get_handler_mut::<DisplayHandler>()
+            .get_handler_mut::<ClientWlDisplay>()
             .toplevels
             .remove(&slf.unique_id());
         slf.unset_handler();
@@ -1506,14 +1688,14 @@ impl ProxyWlSeat {
                 let wp_cursor_shape_device_v1 = self
                     .globals
                     .wp_cursor_shape_manager_v1
-                    .new_send_get_pointer(&proxy);
+                    .as_ref()
+                    .map(|m| m.new_send_get_pointer(&proxy));
                 proxy.set_handler(ProxyWlPointer {
                     globals: self.globals.clone(),
                     seat: self.wl_seat.clone(),
                     wp_cursor_shape_device_v1,
-                    tray_icon_focus: None,
-                    edge_focus: None,
-                    surface: None,
+                    tray_icon_focus: Default::default(),
+                    surface: Default::default(),
                 });
                 self.wl_pointer = Some(proxy);
             }
@@ -1521,8 +1703,9 @@ impl ProxyWlSeat {
             if let Some(proxy) = self.wl_pointer.take() {
                 let h = &mut *proxy.get_handler_mut::<ProxyWlPointer>();
                 h.tray_icon_focus = None;
-                h.wp_cursor_shape_device_v1.unset_handler();
-                h.wp_cursor_shape_device_v1.send_destroy();
+                if let Some(dev) = &h.wp_cursor_shape_device_v1 {
+                    dev.send_destroy();
+                }
                 proxy.unset_handler();
                 proxy.send_release();
             }
@@ -1559,29 +1742,30 @@ impl WlPointerHandler for ProxyWlPointer {
     ) {
         self.surface = Some(surface.clone());
         if let Ok(tsh) = surface.try_get_handler_mut::<ProxyTrayIconWlSurface>() {
-            self.wp_cursor_shape_device_v1
-                .send_set_shape(serial, WpCursorShapeDeviceV1Shape::DEFAULT);
+            if let Some(dev) = &self.wp_cursor_shape_device_v1 {
+                dev.send_set_shape(serial, WpCursorShapeDeviceV1Shape::DEFAULT);
+            }
             self.tray_icon_focus = Some(tsh.jay_tray_item_v1.clone());
         } else if let Ok(tsh) = surface.try_get_handler_mut::<ProxyTrayPopupBorderWlSurface>() {
-            let shape = match tsh.window_edge {
-                WindowEdge::Top | WindowEdge::Bottom => WpCursorShapeDeviceV1Shape::NS_RESIZE,
-                WindowEdge::Right | WindowEdge::Left => WpCursorShapeDeviceV1Shape::EW_RESIZE,
-                WindowEdge::TopRight | WindowEdge::BottomLeft => {
-                    WpCursorShapeDeviceV1Shape::NESW_RESIZE
-                }
-                WindowEdge::BottomRight | WindowEdge::TopLeft => {
-                    WpCursorShapeDeviceV1Shape::NWSE_RESIZE
-                }
-            };
-            self.wp_cursor_shape_device_v1.send_set_shape(serial, shape);
-            self.edge_focus = Some(tsh.window_edge);
+            if let Some(dev) = &self.wp_cursor_shape_device_v1 {
+                let shape = match tsh.window_edge {
+                    WindowEdge::Top | WindowEdge::Bottom => WpCursorShapeDeviceV1Shape::NS_RESIZE,
+                    WindowEdge::Right | WindowEdge::Left => WpCursorShapeDeviceV1Shape::EW_RESIZE,
+                    WindowEdge::TopRight | WindowEdge::BottomLeft => {
+                        WpCursorShapeDeviceV1Shape::NESW_RESIZE
+                    }
+                    WindowEdge::BottomRight | WindowEdge::TopLeft => {
+                        WpCursorShapeDeviceV1Shape::NWSE_RESIZE
+                    }
+                };
+                dev.send_set_shape(serial, shape);
+            }
         }
     }
 
     fn handle_leave(&mut self, _slf: &Rc<WlPointer>, _serial: u32, _surface: &Rc<WlSurface>) {
         self.surface = None;
         self.tray_icon_focus = None;
-        self.edge_focus = None;
     }
 
     fn handle_button(
@@ -2188,7 +2372,7 @@ impl JayTrayItemV1Handler for ProxyJayTrayItemV1 {
             XdgPositionerGravity::BOTTOM_RIGHT => need!(Bottom, BottomRight, Right),
             _ => {}
         }
-        client_xdg_surface.needed_tray_edges = needed_tray_edges;
+        self.needed_tray_edges = needed_tray_edges;
     }
 }
 
