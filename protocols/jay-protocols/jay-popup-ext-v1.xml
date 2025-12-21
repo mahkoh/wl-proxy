@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <protocol name="jay_popup_ext_v1">
   <copyright>
-    Copyright © 2025 Julian Orth
+    Copyright © 2008-2013 Kristian Høgsberg
+    Copyright © 2013      Rafael Antognolli
+    Copyright © 2013      Jasper St. Pierre
+    Copyright © 2010-2013 Intel Corporation
+    Copyright © 2015-2017 Samsung Electronics Co., Ltd
+    Copyright © 2015-2017 Red Hat Inc.
+    Copyright © 2025      Julian Orth
 
     Permission is hereby granted, free of charge, to any person obtaining a
     copy of this software and associated documentation files (the "Software"),
@@ -25,7 +31,7 @@
 
   <interface name="jay_popup_ext_manager_v1" version="1">
     <description summary="manager for xdg_popup extensions">
-      This globals allows clients to create jay_popup_ext_v1 extension objects
+      This global allows clients to create jay_popup_ext_v1 extension objects
       for xdg_popups.
     </description>
 

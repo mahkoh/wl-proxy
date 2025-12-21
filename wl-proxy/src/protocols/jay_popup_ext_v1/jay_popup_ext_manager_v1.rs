@@ -1,6 +1,6 @@
 //! manager for xdg_popup extensions
 //!
-//! This globals allows clients to create jay_popup_ext_v1 extension objects
+//! This global allows clients to create jay_popup_ext_v1 extension objects
 //! for xdg_popups.
 
 use crate::protocol_helpers::prelude::*;
