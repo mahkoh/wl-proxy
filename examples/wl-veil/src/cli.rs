@@ -6,21 +6,29 @@ use {
     thiserror::Error,
 };
 
+/// This application can be used to hide wayland globals from applications or to
+/// downgrade their versions.
 #[derive(Parser, Debug)]
 struct WlVeil {
-    #[clap(long, value_enum)]
+    /// Generate shell completions instead of running the program.
+    #[clap(long, value_enum, value_name = "SHELL")]
     generate_completion: Option<Shell>,
     #[clap(
         short,
         value_hint = ValueHint::Other,
         value_parser = parse_filters,
     )]
+    /// The filters to apply.
+    ///
+    /// Each filter should either be `<global_name>` to filter the global outright or
+    /// `<global_name>=<version>` to downgrade the global to that version.
     filter: Vec<HashMap<String, Option<u32>>>,
     #[clap(
         trailing_var_arg = true,
         value_hint = ValueHint::CommandWithArguments,
         required_unless_present = "generate_completion",
     )]
+    /// The program to run.
     program: Option<Vec<String>>,
 }
 
