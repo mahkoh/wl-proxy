@@ -1,11 +1,7 @@
 use {
     crate::PaperError,
-    std::{
-        cell::{Cell, RefCell},
-        process::Command,
-        rc::Rc,
-        sync::Arc,
-    },
+    arrayvec::ArrayVec,
+    std::{mem, process::Command, rc::Rc, sync::Arc},
     wl_proxy::{
         baseline::Baseline,
         global_mapper::GlobalMapper,
@@ -64,70 +60,147 @@ pub fn main(config: Config, program: &[String]) -> Result<(), PaperError> {
         .with_wayland_display(server.display())
         .spawn_and_forward_exit_code()
         .map_err(PaperError::SpawnChild)?;
-    let err = server.run(|| DisplayHandler {
+    let err = server.run(|| ClientWlDisplay {
         init: false,
         layer_shell: Default::default(),
         config: config.clone(),
+        registries_without_handlers: Default::default(),
+        wl_fixes: Default::default(),
     });
     Err(PaperError::ServerFailed(err))
 }
 
 pub struct Config {
+    pub keyboard_interactivity: ZwlrLayerSurfaceV1KeyboardInteractivity,
+    pub layer: ZwlrLayerShellV1Layer,
     pub margin_top: i32,
     pub margin_right: i32,
     pub margin_bottom: i32,
     pub margin_left: i32,
 }
 
-#[derive(Default)]
-struct LayerShell {
-    layer_shell: RefCell<Option<Rc<ZwlrLayerShellV1>>>,
-}
-
-struct DisplayHandler {
-    init: bool,
-    layer_shell: Rc<LayerShell>,
+/// Handler for the client's wl_display object.
+struct ClientWlDisplay {
     config: Arc<Config>,
+
+    /// Whether the initial wl_registry has been created.
+    init: bool,
+    /// Client-created registries that don't have a handler yet because the initial
+    /// roundtrip has not yet completed.
+    registries_without_handlers: Vec<Rc<WlRegistry>>,
+
+    /// The proxy-created zwlr_layer_shell_v1 object.
+    layer_shell: Option<Rc<ZwlrLayerShellV1>>,
+    /// The proxy-created wl_fixes object used to destroy the initial registry.
+    wl_fixes: Option<Rc<WlFixes>>,
 }
 
-impl WlDisplayHandler for DisplayHandler {
+/// Handler for the proxy-created wl_registry object.
+struct ProxyWlRegistry {
+    wl_display: Rc<WlDisplay>,
+}
+
+/// Handler for the proxy-created initial wl_callback object.
+struct ProxyFirstRoundtripWlCallback {
+    wl_display: Rc<WlDisplay>,
+    wl_registry: Rc<WlRegistry>,
+}
+
+/// Handler for client-created wl_registry objects.
+struct ClientWlRegistry {
+    config: Arc<Config>,
+    layer_shell: Rc<ZwlrLayerShellV1>,
+    filter: GlobalMapper,
+    /// Whether we have sent the synthetic globals.
+    init: bool,
+}
+
+/// Handler for client-created xdg_wm_base objects.
+struct ClientXdgWmBase {
+    config: Arc<Config>,
+    zwlr_layer_shell_v1: Rc<ZwlrLayerShellV1>,
+}
+
+/// Handler for client-created xdg_surface objects.
+struct ClientXdgSurface {
+    config: Arc<Config>,
+    zwlr_layer_shell_v1: Rc<ZwlrLayerShellV1>,
+    wl_surface: Rc<WlSurface>,
+    xdg_surface: Rc<XdgSurface>,
+    xdg_wm_base: Rc<XdgWmBase>,
+    zwlr_layer_surface_v1: Option<Rc<ZwlrLayerSurfaceV1>>,
+    geometry: Option<[i32; 4]>,
+    /// Whether this object has been forwarded to the server. We cannot initially forward
+    /// to the server because we don't know if this will become an xdg_toplevel or an
+    /// xdg_popup.
+    has_server: bool,
+}
+
+/// Handler for client-created xdg_toplevel objects.
+struct ClientXdgToplevel {
+    /// The corresponding zwlr_layer_surface_v1.
+    zwlr_layer_surface_v1: Rc<ZwlrLayerSurfaceV1>,
+}
+
+/// Handler for proxy-created zwlr_layer_surface_v1 objects.
+struct ProxyZwlrLayerSurfaceV1 {
+    xdg_surface: Rc<XdgSurface>,
+    xdg_toplevel: Rc<XdgToplevel>,
+}
+
+/// Handler for client-created xdg_positioner objects.
+struct ClientXdgPositioner {
+    anchor_rect: Option<[i32; 4]>,
+}
+
+/// Handler for client-created xdg_popup objects.
+struct ClientXdgPopup {
+    /// The geometry of the parent xdg_client specified by the client when creating the
+    /// popup. This is needed because xdg_popup.configure events for
+    /// zwlr_layer_surface_v1 parents are relative to the surface whereas for xdg_surface
+    /// parents they are relative to the geometry.
+    parent_geometry: [i32; 4],
+}
+
+struct ClientZxdgDecorationManagerV1;
+
+struct ClientZxdgToplevelDecorationV1;
+
+struct ClientOrgKdeKwinServerDecorationManager;
+
+struct ClientOrgKdeKwinServerDecoration;
+
+impl WlDisplayHandler for ClientWlDisplay {
     fn handle_get_registry(&mut self, slf: &Rc<WlDisplay>, registry: &Rc<WlRegistry>) {
         if !self.init {
             self.init = true;
             let wl_registry = slf.create_child::<WlRegistry>();
-            wl_registry.set_handler(FirstRegistryHandler {
-                layer_shell: self.layer_shell.clone(),
-                wl_fixes: Default::default(),
+            wl_registry.set_handler(ProxyWlRegistry {
+                wl_display: slf.clone(),
             });
             slf.send_get_registry(&wl_registry);
             let sync = slf.create_child::<WlCallback>();
-            sync.set_handler(FirstSyncHandler {
-                registry: wl_registry,
+            sync.set_handler(ProxyFirstRoundtripWlCallback {
+                wl_display: slf.clone(),
+                wl_registry,
             });
             slf.send_sync(&sync);
         }
-        let mut filter = GlobalMapper::default();
-        filter.add_synthetic_global(registry, ObjectInterface::ZxdgDecorationManagerV1, 1);
-        filter.add_synthetic_global(
-            registry,
-            ObjectInterface::OrgKdeKwinServerDecorationManager,
-            1,
-        );
         slf.send_get_registry(registry);
-        registry.set_handler(WlRegistryHandlerImpl {
-            layer_shell: self.layer_shell.clone(),
-            config: self.config.clone(),
-            filter,
-        });
+        if let Some(layer_shell) = &self.layer_shell {
+            registry.set_handler(ClientWlRegistry {
+                init: false,
+                layer_shell: layer_shell.clone(),
+                config: self.config.clone(),
+                filter: Default::default(),
+            });
+        } else {
+            self.registries_without_handlers.push(registry.clone());
+        }
     }
 }
 
-struct FirstRegistryHandler {
-    layer_shell: Rc<LayerShell>,
-    wl_fixes: Option<Rc<WlFixes>>,
-}
-
-impl WlRegistryHandler for FirstRegistryHandler {
+impl WlRegistryHandler for ProxyWlRegistry {
     fn handle_global(
         &mut self,
         slf: &Rc<WlRegistry>,
@@ -135,72 +208,78 @@ impl WlRegistryHandler for FirstRegistryHandler {
         interface: ObjectInterface,
         version: u32,
     ) {
+        let dh = &mut *self.wl_display.get_handler_mut::<ClientWlDisplay>();
         match interface {
             ZwlrLayerShellV1::INTERFACE => {
                 let proxy = slf
                     .state()
                     .create_object::<ZwlrLayerShellV1>(version.min(5));
                 slf.send_bind(name, proxy.clone());
-                *self.layer_shell.layer_shell.borrow_mut() = Some(proxy);
+                dh.layer_shell = Some(proxy);
             }
             WlFixes::INTERFACE => {
                 let proxy = slf.state().create_object::<WlFixes>(1);
                 slf.send_bind(name, proxy.clone());
-                self.wl_fixes = Some(proxy);
+                dh.wl_fixes = Some(proxy);
             }
             _ => {}
         }
     }
 }
 
-struct FirstSyncHandler {
-    registry: Rc<WlRegistry>,
-}
-
-impl WlCallbackHandler for FirstSyncHandler {
+impl WlCallbackHandler for ProxyFirstRoundtripWlCallback {
     fn handle_done(&mut self, _slf: &Rc<WlCallback>, _callback_data: u32) {
-        let rh = self
-            .registry
-            .try_get_handler_ref::<FirstRegistryHandler>()
-            .unwrap();
-        if let Some(fixes) = &rh.wl_fixes {
-            fixes.send_destroy_registry(&self.registry);
-            fixes.send_destroy();
+        let dh = &mut *self.wl_display.get_handler_mut::<ClientWlDisplay>();
+        if let Some(wl_fixes) = dh.wl_fixes.take() {
+            wl_fixes.send_destroy_registry(&self.wl_registry);
+            wl_fixes.send_destroy();
         }
-        if rh.layer_shell.layer_shell.borrow().is_none() {
+        let Some(zwlr_layer_shell_v1) = &dh.layer_shell else {
             eprintln!(
-                "compositor does not support {}",
+                "Server does not support {}",
                 ZwlrLayerShellV1::INTERFACE_NAME,
             );
             std::process::exit(1);
+        };
+        if zwlr_layer_shell_v1.version()
+            < ZwlrLayerSurfaceV1::ENM__KEYBOARD_INTERACTIVITY_ON_DEMAND__SINCE
+        {
+            eprintln!(
+                "Server does not support {} version {}",
+                ZwlrLayerShellV1::INTERFACE_NAME,
+                ZwlrLayerSurfaceV1::ENM__KEYBOARD_INTERACTIVITY_ON_DEMAND__SINCE,
+            );
+            std::process::exit(1);
+        }
+        for registry in mem::take(&mut dh.registries_without_handlers) {
+            registry.set_handler(ClientWlRegistry {
+                init: false,
+                config: dh.config.clone(),
+                layer_shell: zwlr_layer_shell_v1.clone(),
+                filter: Default::default(),
+            });
         }
     }
 }
 
-struct WlRegistryHandlerImpl {
-    config: Arc<Config>,
-    layer_shell: Rc<LayerShell>,
-    filter: GlobalMapper,
-}
-
-impl WlRegistryHandler for WlRegistryHandlerImpl {
+impl WlRegistryHandler for ClientWlRegistry {
     fn handle_bind(&mut self, slf: &Rc<WlRegistry>, name: u32, id: Rc<dyn Object>) {
         match id.interface() {
             XdgWmBase::INTERFACE => {
                 let id = id.downcast::<XdgWmBase>();
-                id.set_handler(XdgWmBaseHandlerImpl {
-                    zwlr_layer_shell_v1: self.layer_shell.layer_shell.borrow().clone().unwrap(),
+                id.set_handler(ClientXdgWmBase {
+                    zwlr_layer_shell_v1: self.layer_shell.clone(),
                     config: self.config.clone(),
                 });
             }
             ZxdgDecorationManagerV1::INTERFACE => {
                 let id = id.downcast::<ZxdgDecorationManagerV1>();
-                id.set_handler(ZxdgDecorationManagerV1HandlerImpl);
+                id.set_handler(ClientZxdgDecorationManagerV1);
                 return;
             }
             OrgKdeKwinServerDecorationManager::INTERFACE => {
                 let id = id.downcast::<OrgKdeKwinServerDecorationManager>();
-                id.set_handler(OrgKdeKwinServerDecorationManagerHandlerImpl);
+                id.set_handler(ClientOrgKdeKwinServerDecorationManager);
                 return;
             }
             _ => {}
@@ -215,6 +294,16 @@ impl WlRegistryHandler for WlRegistryHandlerImpl {
         interface: ObjectInterface,
         version: u32,
     ) {
+        if !self.init {
+            self.init = true;
+            self.filter
+                .add_synthetic_global(slf, ObjectInterface::ZxdgDecorationManagerV1, 1);
+            self.filter.add_synthetic_global(
+                slf,
+                ObjectInterface::OrgKdeKwinServerDecorationManager,
+                1,
+            );
+        }
         match interface {
             ObjectInterface::ZxdgDecorationManagerV1
             | ObjectInterface::OrgKdeKwinServerDecorationManager
@@ -236,14 +325,9 @@ impl WlRegistryHandler for WlRegistryHandlerImpl {
     }
 }
 
-struct XdgWmBaseHandlerImpl {
-    config: Arc<Config>,
-    zwlr_layer_shell_v1: Rc<ZwlrLayerShellV1>,
-}
-
-impl XdgWmBaseHandler for XdgWmBaseHandlerImpl {
+impl XdgWmBaseHandler for ClientXdgWmBase {
     fn handle_create_positioner(&mut self, slf: &Rc<XdgWmBase>, id: &Rc<XdgPositioner>) {
-        id.set_handler(XdgPositionerHandlerImpl {
+        id.set_handler(ClientXdgPositioner {
             anchor_rect: Default::default(),
         });
         slf.send_create_positioner(id);
@@ -255,7 +339,7 @@ impl XdgWmBaseHandler for XdgWmBaseHandlerImpl {
         id: &Rc<XdgSurface>,
         surface: &Rc<WlSurface>,
     ) {
-        id.set_handler(XdgSurfaceHandlerImpl {
+        id.set_handler(ClientXdgSurface {
             zwlr_layer_shell_v1: self.zwlr_layer_shell_v1.clone(),
             wl_surface: surface.clone(),
             xdg_surface: id.clone(),
@@ -268,18 +352,7 @@ impl XdgWmBaseHandler for XdgWmBaseHandlerImpl {
     }
 }
 
-struct XdgSurfaceHandlerImpl {
-    config: Arc<Config>,
-    zwlr_layer_shell_v1: Rc<ZwlrLayerShellV1>,
-    wl_surface: Rc<WlSurface>,
-    xdg_surface: Rc<XdgSurface>,
-    xdg_wm_base: Rc<XdgWmBase>,
-    zwlr_layer_surface_v1: Option<Rc<ZwlrLayerSurfaceV1>>,
-    geometry: Cell<Option<[i32; 4]>>,
-    has_server: bool,
-}
-
-impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
+impl XdgSurfaceHandler for ClientXdgSurface {
     fn handle_destroy(&mut self, slf: &Rc<XdgSurface>) {
         slf.unset_handler();
         if self.has_server {
@@ -294,14 +367,14 @@ impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
         let zwlr_layer_surface_v1 = self
             .zwlr_layer_shell_v1
             .create_child::<ZwlrLayerSurfaceV1>();
+        let c = &*self.config;
         self.zwlr_layer_shell_v1.send_get_layer_surface(
             &zwlr_layer_surface_v1,
             &self.wl_surface,
             None,
-            ZwlrLayerShellV1Layer::BACKGROUND,
+            c.layer,
             "",
         );
-        let c = &*self.config;
         zwlr_layer_surface_v1.send_set_size(0, 0);
         zwlr_layer_surface_v1.send_set_margin(
             c.margin_top,
@@ -309,8 +382,7 @@ impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
             c.margin_bottom,
             c.margin_left,
         );
-        zwlr_layer_surface_v1
-            .send_set_keyboard_interactivity(ZwlrLayerSurfaceV1KeyboardInteractivity::ON_DEMAND);
+        zwlr_layer_surface_v1.send_set_keyboard_interactivity(c.keyboard_interactivity);
         zwlr_layer_surface_v1.send_set_anchor(
             ZwlrLayerSurfaceV1Anchor::TOP
                 | ZwlrLayerSurfaceV1Anchor::BOTTOM
@@ -321,10 +393,10 @@ impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
             id.send_wm_capabilities(&[]);
         }
         id.set_forward_to_server(false);
-        id.set_handler(XdgToplevelHandlerImpl {
+        id.set_handler(ClientXdgToplevel {
             zwlr_layer_surface_v1: zwlr_layer_surface_v1.clone(),
         });
-        zwlr_layer_surface_v1.set_handler(ZwlrLayerSurfaceV1HandlerImpl {
+        zwlr_layer_surface_v1.set_handler(ProxyZwlrLayerSurfaceV1 {
             xdg_surface: self.xdg_surface.clone(),
             xdg_toplevel: id.clone(),
         });
@@ -335,46 +407,44 @@ impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
         &mut self,
         slf: &Rc<XdgSurface>,
         id: &Rc<XdgPopup>,
-        parent: Option<&Rc<XdgSurface>>,
+        client_parent: Option<&Rc<XdgSurface>>,
         positioner: &Rc<XdgPositioner>,
     ) {
         if !self.has_server {
             self.has_server = true;
             self.xdg_wm_base.send_get_xdg_surface(slf, &self.wl_surface);
         }
-        if let Some([x, y, w, h]) = self.geometry.get() {
+        if let Some([x, y, w, h]) = self.geometry {
             slf.send_set_window_geometry(x, y, w, h);
         }
-        let mut layer_parent = None;
-        let mut direct_parent = parent;
+        let mut zwlr_layer_surface_v1 = None;
+        let mut proxy_parent = client_parent;
         let mut parent_geometry = None;
-        if let Some(parent) = parent
-            && let Ok(handler) = parent.try_get_handler_ref::<XdgSurfaceHandlerImpl>()
-            && let Some(parent) = &handler.zwlr_layer_surface_v1
+        if let Some(parent) = client_parent
+            && let Ok(client_xdg_surface) = parent.try_get_handler_ref::<ClientXdgSurface>()
+            && let Some(layer_surface) = &client_xdg_surface.zwlr_layer_surface_v1
         {
-            layer_parent = Some(parent.clone());
-            direct_parent = None;
-            parent_geometry = handler.geometry.get();
+            zwlr_layer_surface_v1 = Some(layer_surface.clone());
+            proxy_parent = None;
+            parent_geometry = client_xdg_surface.geometry;
         }
-        let pos_handler = &*positioner
-            .try_get_handler_ref::<XdgPositionerHandlerImpl>()
-            .unwrap();
+        let client_xdg_positioner = &*positioner.get_handler_ref::<ClientXdgPositioner>();
         if let Some([gx, gy, _, _]) = parent_geometry
-            && let Some([px, py, pw, ph]) = pos_handler.anchor_rect
+            && let Some([px, py, pw, ph]) = client_xdg_positioner.anchor_rect
         {
             positioner.send_set_anchor_rect(gx + px, gy + py, pw, ph);
         }
-        slf.send_get_popup(id, direct_parent, positioner);
+        slf.send_get_popup(id, proxy_parent, positioner);
         if parent_geometry.is_some()
-            && let Some([px, py, pw, ph]) = pos_handler.anchor_rect
+            && let Some([px, py, pw, ph]) = client_xdg_positioner.anchor_rect
         {
             positioner.send_set_anchor_rect(px, py, pw, ph);
         }
-        if let Some(layer_parent) = layer_parent {
-            layer_parent.send_get_popup(id);
+        if let Some(zwlr_layer_surface_v1) = zwlr_layer_surface_v1 {
+            zwlr_layer_surface_v1.send_get_popup(id);
         }
         if let Some(pg) = parent_geometry {
-            id.set_handler(XdgPopupHandlerImpl {
+            id.set_handler(ClientXdgPopup {
                 parent_geometry: pg,
             });
         }
@@ -388,7 +458,7 @@ impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
         width: i32,
         height: i32,
     ) {
-        self.geometry.set(Some([x, y, width, height]));
+        self.geometry = Some([x, y, width, height]);
         if self.has_server {
             slf.send_set_window_geometry(x, y, width, height);
         }
@@ -403,23 +473,14 @@ impl XdgSurfaceHandler for XdgSurfaceHandlerImpl {
     }
 }
 
-struct XdgToplevelHandlerImpl {
-    zwlr_layer_surface_v1: Rc<ZwlrLayerSurfaceV1>,
-}
-
-impl XdgToplevelHandler for XdgToplevelHandlerImpl {
+impl XdgToplevelHandler for ClientXdgToplevel {
     fn handle_destroy(&mut self, slf: &Rc<XdgToplevel>) {
         slf.unset_handler();
         self.zwlr_layer_surface_v1.send_destroy();
     }
 }
 
-struct ZwlrLayerSurfaceV1HandlerImpl {
-    xdg_surface: Rc<XdgSurface>,
-    xdg_toplevel: Rc<XdgToplevel>,
-}
-
-impl ZwlrLayerSurfaceV1Handler for ZwlrLayerSurfaceV1HandlerImpl {
+impl ZwlrLayerSurfaceV1Handler for ProxyZwlrLayerSurfaceV1 {
     fn delete_id(&mut self, slf: &Rc<ZwlrLayerSurfaceV1>) {
         slf.unset_handler();
         self.xdg_toplevel.delete_id();
@@ -432,19 +493,29 @@ impl ZwlrLayerSurfaceV1Handler for ZwlrLayerSurfaceV1HandlerImpl {
         width: u32,
         height: u32,
     ) {
-        let states = [
-            XdgToplevelState::ACTIVATED.0,
-            XdgToplevelState::TILED_LEFT.0,
-            XdgToplevelState::TILED_TOP.0,
-            XdgToplevelState::TILED_RIGHT.0,
-            XdgToplevelState::TILED_BOTTOM.0,
-        ];
+        let mut states = ArrayVec::<_, 9>::new();
+        if self.xdg_toplevel.version() >= XdgToplevel::ENM__STATE_TILED_TOP__SINCE {
+            states.extend([
+                XdgToplevelState::TILED_LEFT.0,
+                XdgToplevelState::TILED_TOP.0,
+                XdgToplevelState::TILED_RIGHT.0,
+                XdgToplevelState::TILED_BOTTOM.0,
+            ]);
+        }
+        if self.xdg_toplevel.version() >= XdgToplevel::ENM__STATE_CONSTRAINED_TOP__SINCE {
+            states.extend([
+                XdgToplevelState::CONSTRAINED_LEFT.0,
+                XdgToplevelState::CONSTRAINED_TOP.0,
+                XdgToplevelState::CONSTRAINED_RIGHT.0,
+                XdgToplevelState::CONSTRAINED_BOTTOM.0,
+            ]);
+        }
         if self.xdg_toplevel.version() >= XdgToplevel::MSG__CONFIGURE_BOUNDS__SINCE {
             self.xdg_toplevel
                 .send_configure_bounds(width as _, height as _);
         }
         self.xdg_toplevel
-            .send_configure(width as _, height as _, uapi::as_bytes(&states));
+            .send_configure(width as _, height as _, uapi::as_bytes(&*states));
         self.xdg_surface.send_configure(serial);
     }
 
@@ -453,11 +524,7 @@ impl ZwlrLayerSurfaceV1Handler for ZwlrLayerSurfaceV1HandlerImpl {
     }
 }
 
-struct XdgPositionerHandlerImpl {
-    anchor_rect: Option<[i32; 4]>,
-}
-
-impl XdgPositionerHandler for XdgPositionerHandlerImpl {
+impl XdgPositionerHandler for ClientXdgPositioner {
     fn handle_set_anchor_rect(
         &mut self,
         slf: &Rc<XdgPositioner>,
@@ -471,20 +538,14 @@ impl XdgPositionerHandler for XdgPositionerHandlerImpl {
     }
 }
 
-struct XdgPopupHandlerImpl {
-    parent_geometry: [i32; 4],
-}
-
-impl XdgPopupHandler for XdgPopupHandlerImpl {
+impl XdgPopupHandler for ClientXdgPopup {
     fn handle_configure(&mut self, slf: &Rc<XdgPopup>, x: i32, y: i32, width: i32, height: i32) {
         let [dx, dy, ..] = self.parent_geometry;
         slf.send_configure(x - dx, y - dy, width, height);
     }
 }
 
-struct ZxdgDecorationManagerV1HandlerImpl;
-
-impl ZxdgDecorationManagerV1Handler for ZxdgDecorationManagerV1HandlerImpl {
+impl ZxdgDecorationManagerV1Handler for ClientZxdgDecorationManagerV1 {
     fn handle_destroy(&mut self, slf: &Rc<ZxdgDecorationManagerV1>) {
         slf.delete_id();
     }
@@ -495,14 +556,12 @@ impl ZxdgDecorationManagerV1Handler for ZxdgDecorationManagerV1HandlerImpl {
         id: &Rc<ZxdgToplevelDecorationV1>,
         _toplevel: &Rc<XdgToplevel>,
     ) {
-        id.set_handler(ZxdgToplevelDecorationV1HandlerImpl);
+        id.set_handler(ClientZxdgToplevelDecorationV1);
         id.send_configure(ZxdgToplevelDecorationV1Mode::SERVER_SIDE);
     }
 }
 
-struct ZxdgToplevelDecorationV1HandlerImpl;
-
-impl ZxdgToplevelDecorationV1Handler for ZxdgToplevelDecorationV1HandlerImpl {
+impl ZxdgToplevelDecorationV1Handler for ClientZxdgToplevelDecorationV1 {
     fn handle_destroy(&mut self, slf: &Rc<ZxdgToplevelDecorationV1>) {
         slf.delete_id();
     }
@@ -520,23 +579,19 @@ impl ZxdgToplevelDecorationV1Handler for ZxdgToplevelDecorationV1HandlerImpl {
     }
 }
 
-struct OrgKdeKwinServerDecorationManagerHandlerImpl;
-
-impl OrgKdeKwinServerDecorationManagerHandler for OrgKdeKwinServerDecorationManagerHandlerImpl {
+impl OrgKdeKwinServerDecorationManagerHandler for ClientOrgKdeKwinServerDecorationManager {
     fn handle_create(
         &mut self,
         _slf: &Rc<OrgKdeKwinServerDecorationManager>,
         id: &Rc<OrgKdeKwinServerDecoration>,
         _surface: &Rc<WlSurface>,
     ) {
-        id.set_handler(OrgKdeKwinServerDecorationHandlerImpl);
+        id.set_handler(ClientOrgKdeKwinServerDecoration);
         id.send_mode(OrgKdeKwinServerDecorationMode::SERVER.0);
     }
 }
 
-struct OrgKdeKwinServerDecorationHandlerImpl;
-
-impl OrgKdeKwinServerDecorationHandler for OrgKdeKwinServerDecorationHandlerImpl {
+impl OrgKdeKwinServerDecorationHandler for ClientOrgKdeKwinServerDecoration {
     fn handle_release(&mut self, slf: &Rc<OrgKdeKwinServerDecoration>) {
         slf.delete_id();
     }

@@ -1266,6 +1266,7 @@ dependencies = [
 name = "wl-paper"
 version = "0.1.0"
 dependencies = [
+ "arrayvec",
  "clap",
  "clap_complete",
  "env_logger",
