@@ -14,7 +14,7 @@ use {
 #[derive(Parser, Debug)]
 struct WindowToTray {
     /// Generate shell completions instead of running the program.
-    #[clap(long, value_enum)]
+    #[clap(long, value_enum, value_name = "SHELL")]
     generate_completion: Option<Shell>,
     /// Set the color of the popup border.
     #[clap(

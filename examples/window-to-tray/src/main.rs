@@ -1,3 +1,5 @@
+#![expect(clippy::identity_op, clippy::collapsible_if)]
+
 mod cli;
 mod desktop;
 mod icon;

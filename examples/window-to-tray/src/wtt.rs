@@ -305,8 +305,6 @@ struct ClientXdgSurface {
     proxy_wl_surface: Rc<WlSurface>,
     /// The proxy's xdg_surface object.
     proxy_xdg_surface: Rc<XdgSurface>,
-    /// The proxy's xdg_popup object, if any.
-    proxy_xdg_popup: Option<Rc<XdgPopup>>,
     /// The wl_subsurface that has the proxy_wl_surface as the parent and the
     /// client_wl_surface as the child.
     subsurface: Rc<WlSubsurface>,
@@ -325,6 +323,8 @@ struct ClientXdgSurface {
     // popups
     /// The client's xdg_popup extension, if any.
     client_xdg_popup: Option<Rc<XdgPopup>>,
+    /// The proxy's xdg_popup object backing the client_xdg_popup, if any.
+    proxy_xdg_popup: Option<Rc<XdgPopup>>,
 
     // toplevel
     /// The client's xdg_toplevel extension, if any.
@@ -721,7 +721,8 @@ impl ClientWlDisplay {
 }
 
 impl WlCallbackHandler for ProxyFirstSyncHandler {
-    fn handle_done(&mut self, _slf: &Rc<WlCallback>, _callback_data: u32) {
+    fn handle_done(&mut self, slf: &Rc<WlCallback>, _callback_data: u32) {
+        slf.unset_handler();
         let display = &mut *self.wl_display.get_handler_mut::<ClientWlDisplay>();
         macro_rules! expect {
             ($field:ident) => {
@@ -1427,6 +1428,7 @@ impl XdgSurfaceHandler for ClientXdgSurface {
         self.client_wl_surface
             .get_handler_mut::<ClientWlSurface>()
             .xdg_surface = None;
+        self.proxy_xdg_surface.unset_handler();
         self.proxy_xdg_surface.send_destroy();
         self.subsurface.send_destroy();
         self.proxy_wl_surface.unset_handler();
@@ -1620,9 +1622,9 @@ impl XdgToplevelHandler for ClientXdgToplevel {
                     obj.unset_handler();
                     obj.send_destroy();
                 }
-                edge.wl_surface.unset_handler();
                 edge.wl_subsurface.send_destroy();
                 edge.wp_viewport.send_destroy();
+                edge.wl_surface.unset_handler();
                 edge.wl_surface.send_destroy();
             }
         }
@@ -1683,31 +1685,31 @@ impl ProxyWlSeat {
     fn handle_capabilities(&mut self, capabilities: WlSeatCapability) {
         if capabilities.contains(WlSeatCapability::POINTER) {
             if self.wl_pointer.is_none() {
-                let proxy = self.wl_seat.new_send_get_pointer();
-                proxy.set_forward_to_client(false);
+                let wl_pointer = self.wl_seat.new_send_get_pointer();
+                wl_pointer.set_forward_to_client(false);
                 let wp_cursor_shape_device_v1 = self
                     .globals
                     .wp_cursor_shape_manager_v1
                     .as_ref()
-                    .map(|m| m.new_send_get_pointer(&proxy));
-                proxy.set_handler(ProxyWlPointer {
+                    .map(|m| m.new_send_get_pointer(&wl_pointer));
+                wl_pointer.set_handler(ProxyWlPointer {
                     globals: self.globals.clone(),
                     seat: self.wl_seat.clone(),
                     wp_cursor_shape_device_v1,
                     tray_icon_focus: Default::default(),
                     surface: Default::default(),
                 });
-                self.wl_pointer = Some(proxy);
+                self.wl_pointer = Some(wl_pointer);
             }
         } else {
-            if let Some(proxy) = self.wl_pointer.take() {
-                let h = &mut *proxy.get_handler_mut::<ProxyWlPointer>();
+            if let Some(wl_pointer) = self.wl_pointer.take() {
+                let h = &mut *wl_pointer.get_handler_mut::<ProxyWlPointer>();
                 h.tray_icon_focus = None;
                 if let Some(dev) = &h.wp_cursor_shape_device_v1 {
                     dev.send_destroy();
                 }
-                proxy.unset_handler();
-                proxy.send_release();
+                wl_pointer.unset_handler();
+                wl_pointer.send_release();
             }
         }
     }
@@ -2276,12 +2278,13 @@ impl ProxyJayTrayItemV1 {
                 .destroy(&popup, self, client_xdg_surface);
         }
         slf.unset_handler();
-        self.wl_surface.unset_handler();
         slf.send_destroy();
         self.wp_viewport.send_destroy();
         if let Some(s) = &self.wp_fractional_scale_v1 {
+            s.unset_handler();
             s.send_destroy();
         }
+        self.wl_surface.unset_handler();
         self.wl_surface.send_destroy();
     }
 
