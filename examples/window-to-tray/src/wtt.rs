@@ -23,7 +23,7 @@ use {
         fixed::Fixed,
         global_mapper::GlobalMapper,
         handler::HandlerMut,
-        object::{ConcreteObject, Object, ObjectRcUtils, ObjectUtils},
+        object::{ConcreteObject, Object, ObjectCoreApi, ObjectRcUtils, ObjectUtils},
         protocols::{
             ObjectInterface,
             cursor_shape_v1::{
@@ -113,12 +113,12 @@ use {
                 xdg_toplevel_icon_v1::{XdgToplevelIconV1, XdgToplevelIconV1Handler},
             },
         },
-        simple::{SimpleCommandExt, SimpleServer},
+        simple::{SimpleCommandExt, SimpleProxy},
     },
 };
 
 pub fn main(theme: Theme, program: &[String]) -> Result<(), WttError> {
-    let server = SimpleServer::new(Baseline::V1_UNSTABLE).map_err(WttError::CreateServer)?;
+    let server = SimpleProxy::new(Baseline::V1_UNSTABLE).map_err(WttError::CreateServer)?;
     Command::new(&program[0])
         .args(&program[1..])
         .with_wayland_display(server.display())

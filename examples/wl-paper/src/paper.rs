@@ -5,7 +5,7 @@ use {
     wl_proxy::{
         baseline::Baseline,
         global_mapper::GlobalMapper,
-        object::{ConcreteObject, Object, ObjectRcUtils, ObjectUtils},
+        object::{ConcreteObject, Object, ObjectCoreApi, ObjectRcUtils, ObjectUtils},
         protocols::{
             ObjectInterface,
             org_kde_kwin_server_decoration_v1::{
@@ -48,13 +48,13 @@ use {
                 xdg_wm_base::{XdgWmBase, XdgWmBaseHandler},
             },
         },
-        simple::{SimpleCommandExt, SimpleServer},
+        simple::{SimpleCommandExt, SimpleProxy},
     },
 };
 
 pub fn main(config: Config, program: &[String]) -> Result<(), PaperError> {
     let config = Arc::new(config);
-    let server = SimpleServer::new(Baseline::V1_UNSTABLE).map_err(PaperError::CreateServer)?;
+    let server = SimpleProxy::new(Baseline::V1_UNSTABLE).map_err(PaperError::CreateServer)?;
     Command::new(&program[0])
         .args(&program[1..])
         .with_wayland_display(server.display())

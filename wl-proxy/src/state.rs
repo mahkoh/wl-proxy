@@ -120,7 +120,7 @@ enum StateErrorKind {
 ///
 /// impl StateHandler for StateHandlerImpl {
 ///     fn new_client(&mut self, client: &Rc<Client>) {
-///         eprintln!("client connected");
+///         eprintln!("Client connected");
 ///         client.set_handler(ClientHandlerImpl);
 ///         client.display().set_handler(DisplayHandler);
 ///     }
@@ -130,7 +130,7 @@ enum StateErrorKind {
 ///
 /// impl ClientHandler for ClientHandlerImpl {
 ///     fn disconnected(self: Box<Self>) {
-///         eprintln!("client disconnected");
+///         eprintln!("Client disconnected");
 ///     }
 /// }
 ///

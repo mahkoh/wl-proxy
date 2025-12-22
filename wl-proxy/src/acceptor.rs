@@ -35,7 +35,8 @@ use {
 pub struct Acceptor {
     pub(crate) id: u64,
     pub(crate) socket: OwnedFd,
-    pub(crate) display: String,
+    display: String,
+    _lock_fd: OwnedFd,
 }
 
 /// An error emitted by an acceptor.
@@ -114,10 +115,13 @@ impl Acceptor {
             .map_err(|e| AcceptorErrorType::CreateSocket(e.into()))?;
         let socket = socket.into();
         for i in 1..max_tries {
-            if let Err(e) = bind_socket(&socket, &xrd, i) {
-                log::debug!("Cannot use the wayland-{} socket: {}", i, Report::new(e));
-                continue;
-            }
+            let lock_fd = match bind_socket(&socket, &xrd, i) {
+                Ok(f) => f,
+                Err(e) => {
+                    log::debug!("Cannot use the wayland-{} socket: {}", i, Report::new(e));
+                    continue;
+                }
+            };
             if let Err(e) = uapi::listen(socket.as_raw_fd(), 1024) {
                 return Err(AcceptorErrorType::ListenFailed(e.into()).into());
             }
@@ -125,6 +129,7 @@ impl Acceptor {
                 id,
                 socket,
                 display: format!("wayland-{i}"),
+                _lock_fd: lock_fd,
             }));
         }
         Err(AcceptorErrorType::AddressesInUse.into())
@@ -237,7 +242,7 @@ impl AsFd for Acceptor {
     }
 }
 
-fn bind_socket(socket: &OwnedFd, xrd: &str, id: u32) -> Result<(), AcceptorErrorType> {
+fn bind_socket(socket: &OwnedFd, xrd: &str, id: u32) -> Result<OwnedFd, AcceptorErrorType> {
     let mut addr: c::sockaddr_un = uapi::pod_zeroed();
     addr.sun_family = c::AF_UNIX as _;
     let name = format!("wayland-{}", id);
@@ -266,5 +271,5 @@ fn bind_socket(socket: &OwnedFd, xrd: &str, id: u32) -> Result<(), AcceptorError
     if let Err(e) = uapi::bind(socket.as_raw_fd(), &addr) {
         return Err(AcceptorErrorType::BindFailed(e.into()));
     }
-    Ok(())
+    Ok(lock_fd.into())
 }

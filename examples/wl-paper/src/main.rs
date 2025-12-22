@@ -3,17 +3,17 @@ mod paper;
 
 use {
     error_reporter::Report, log::LevelFilter, std::io, thiserror::Error,
-    wl_proxy::simple::SimpleServerError,
+    wl_proxy::simple::SimpleProxyError,
 };
 
 #[derive(Debug, Error)]
 enum PaperError {
     #[error("could not create a simple server")]
-    CreateServer(#[source] SimpleServerError),
+    CreateServer(#[source] SimpleProxyError),
     #[error("could not spawn child")]
     SpawnChild(#[source] io::Error),
     #[error("the server terminated")]
-    ServerFailed(#[source] SimpleServerError),
+    ServerFailed(#[source] SimpleProxyError),
 }
 
 fn main() -> Result<(), Report<PaperError>> {
