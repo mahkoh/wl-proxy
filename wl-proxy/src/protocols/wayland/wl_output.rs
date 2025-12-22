@@ -29,7 +29,7 @@ impl ConcreteObject for WlOutput {
 }
 
 impl WlOutput {
-    pub fn set_handler(&self, handler: impl WlOutputHandler + 'static) {
+    pub fn set_handler(&self, handler: impl WlOutputHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -122,7 +122,7 @@ impl WlOutput {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -286,7 +286,7 @@ impl WlOutput {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -395,7 +395,7 @@ impl WlOutput {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -480,7 +480,7 @@ impl WlOutput {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -558,7 +558,7 @@ impl WlOutput {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -650,7 +650,7 @@ impl WlOutput {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -761,7 +761,7 @@ impl WlOutput {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -1140,7 +1140,7 @@ impl ObjectPrivate for WlOutput {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -1152,13 +1152,13 @@ impl ObjectPrivate for WlOutput {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1182,7 +1182,7 @@ impl ObjectPrivate for WlOutput {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -1190,82 +1190,82 @@ impl ObjectPrivate for WlOutput {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let mut offset = 2;
                 let Some(&arg0) = msg.get(offset) else {
-                    return Err(ObjectError::MissingArgument("x"));
+                    return Err(ObjectError(ObjectErrorKind::MissingArgument("x")));
                 };
                 offset += 1;
                 let Some(&arg1) = msg.get(offset) else {
-                    return Err(ObjectError::MissingArgument("y"));
+                    return Err(ObjectError(ObjectErrorKind::MissingArgument("y")));
                 };
                 offset += 1;
                 let Some(&arg2) = msg.get(offset) else {
-                    return Err(ObjectError::MissingArgument("physical_width"));
+                    return Err(ObjectError(ObjectErrorKind::MissingArgument("physical_width")));
                 };
                 offset += 1;
                 let Some(&arg3) = msg.get(offset) else {
-                    return Err(ObjectError::MissingArgument("physical_height"));
+                    return Err(ObjectError(ObjectErrorKind::MissingArgument("physical_height")));
                 };
                 offset += 1;
                 let Some(&arg4) = msg.get(offset) else {
-                    return Err(ObjectError::MissingArgument("subpixel"));
+                    return Err(ObjectError(ObjectErrorKind::MissingArgument("subpixel")));
                 };
                 offset += 1;
                 let arg5 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("make"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("make")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("make"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("make")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("make"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("make")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("make"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("make")));
                         };
                         s
                     }
                 };
                 let arg6 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("model"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("model")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("model"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("model")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("model"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("model")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("model"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("model")));
                         };
                         s
                     }
                 };
                 let Some(&arg7) = msg.get(offset) else {
-                    return Err(ObjectError::MissingArgument("transform"));
+                    return Err(ObjectError(ObjectErrorKind::MissingArgument("transform")));
                 };
                 offset += 1;
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
@@ -1296,7 +1296,7 @@ impl ObjectPrivate for WlOutput {
                     arg2,
                     arg3,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 24)));
                 };
                 let arg0 = WlOutputMode(arg0);
                 let arg1 = arg1 as i32;
@@ -1320,7 +1320,7 @@ impl ObjectPrivate for WlOutput {
             }
             2 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1342,7 +1342,7 @@ impl ObjectPrivate for WlOutput {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 let arg0 = arg0 as i32;
                 if self.core.state.log {
@@ -1365,28 +1365,28 @@ impl ObjectPrivate for WlOutput {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("name"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("name")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("name"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("name")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("name"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("name")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("name"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("name")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1408,28 +1408,28 @@ impl ObjectPrivate for WlOutput {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("description"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("description")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("description"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("description")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("description"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("description")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("description"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("description")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1451,7 +1451,7 @@ impl ObjectPrivate for WlOutput {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())

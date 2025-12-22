@@ -28,7 +28,7 @@ impl ConcreteObject for ZwlrForeignToplevelHandleV1 {
 }
 
 impl ZwlrForeignToplevelHandleV1 {
-    pub fn set_handler(&self, handler: impl ZwlrForeignToplevelHandleV1Handler + 'static) {
+    pub fn set_handler(&self, handler: impl ZwlrForeignToplevelHandleV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -74,7 +74,7 @@ impl ZwlrForeignToplevelHandleV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -145,7 +145,7 @@ impl ZwlrForeignToplevelHandleV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -218,11 +218,11 @@ impl ZwlrForeignToplevelHandleV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if arg0.client_id.get() != Some(client.endpoint.id) {
-            return Err(ObjectError::ArgNoClientId("output", client.endpoint.id));
+            return Err(ObjectError(ObjectErrorKind::ArgNoClientId("output", client.endpoint.id)));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -297,11 +297,11 @@ impl ZwlrForeignToplevelHandleV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if arg0.client_id.get() != Some(client.endpoint.id) {
-            return Err(ObjectError::ArgNoClientId("output", client.endpoint.id));
+            return Err(ObjectError(ObjectErrorKind::ArgNoClientId("output", client.endpoint.id)));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -364,7 +364,7 @@ impl ZwlrForeignToplevelHandleV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -418,7 +418,7 @@ impl ZwlrForeignToplevelHandleV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -472,7 +472,7 @@ impl ZwlrForeignToplevelHandleV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -526,7 +526,7 @@ impl ZwlrForeignToplevelHandleV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -591,10 +591,10 @@ impl ZwlrForeignToplevelHandleV1 {
         let arg0 = arg0.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         let arg0_id = match arg0.server_obj_id.get() {
-            None => return Err(ObjectError::ArgNoServerId("seat")),
+            None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("seat"))),
             Some(id) => id,
         };
         if self.core.state.log {
@@ -668,7 +668,7 @@ impl ZwlrForeignToplevelHandleV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -735,7 +735,7 @@ impl ZwlrForeignToplevelHandleV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -797,7 +797,7 @@ impl ZwlrForeignToplevelHandleV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -891,10 +891,10 @@ impl ZwlrForeignToplevelHandleV1 {
         let arg0 = arg0.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         let arg0_id = match arg0.server_obj_id.get() {
-            None => return Err(ObjectError::ArgNoServerId("surface")),
+            None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("surface"))),
             Some(id) => id,
         };
         if self.core.state.log {
@@ -984,7 +984,7 @@ impl ZwlrForeignToplevelHandleV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -1044,7 +1044,7 @@ impl ZwlrForeignToplevelHandleV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -1119,12 +1119,12 @@ impl ZwlrForeignToplevelHandleV1 {
         let arg0 = arg0.map(|a| a.core());
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         let arg0_id = match arg0 {
             None => 0,
             Some(arg0) => match arg0.server_obj_id.get() {
-                None => return Err(ObjectError::ArgNoServerId("output")),
+                None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("output"))),
                 Some(id) => id,
             },
         };
@@ -1193,7 +1193,7 @@ impl ZwlrForeignToplevelHandleV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -1260,12 +1260,12 @@ impl ZwlrForeignToplevelHandleV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if let Some(arg0) = arg0 {
             if arg0.client_id.get() != Some(client.endpoint.id) {
-                return Err(ObjectError::ArgNoClientId("parent", client.endpoint.id));
+                return Err(ObjectError(ObjectErrorKind::ArgNoClientId("parent", client.endpoint.id)));
             }
         }
         let arg0_id = arg0.and_then(|arg0| arg0.client_obj_id.get()).unwrap_or(0);
@@ -1812,7 +1812,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -1824,13 +1824,13 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1850,7 +1850,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
             }
             1 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1870,7 +1870,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
             }
             2 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1890,7 +1890,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
             }
             3 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1912,7 +1912,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -1926,11 +1926,11 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
-                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
+                    return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg0_id)));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSeat>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat));
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("seat", o.core().interface, ObjectInterface::WlSeat)));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1941,7 +1941,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
             }
             5 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1967,7 +1967,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                     arg3,
                     arg4,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 28));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 28)));
                 };
                 let arg1 = arg1 as i32;
                 let arg2 = arg2 as i32;
@@ -1985,11 +1985,11 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
-                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
+                    return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg0_id)));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface)));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -2000,7 +2000,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
             }
             7 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -2023,7 +2023,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -2040,11 +2040,11 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 } else {
                     let arg0_id = arg0;
                     let Some(arg0) = client.endpoint.lookup(arg0_id) else {
-                        return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
+                        return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg0_id)));
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlOutput>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
+                        return Err(ObjectError(ObjectErrorKind::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput)));
                     };
                     Some(arg0)
                 };
@@ -2057,7 +2057,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
             }
             9 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -2080,7 +2080,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -2088,7 +2088,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -2096,28 +2096,28 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("title"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("title")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("title"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("title")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("title"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("title")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("title"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("title")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -2139,28 +2139,28 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("app_id"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("app_id")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("app_id"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("app_id")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("app_id"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("app_id")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("app_id"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("app_id")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -2182,7 +2182,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -2196,11 +2196,11 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 }
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
-                    return Err(ObjectError::NoServerObject(arg0_id));
+                    return Err(ObjectError(ObjectErrorKind::NoServerObject(arg0_id)));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = self.core.state.server.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput)));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -2213,7 +2213,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -2227,11 +2227,11 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 }
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
-                    return Err(ObjectError::NoServerObject(arg0_id));
+                    return Err(ObjectError(ObjectErrorKind::NoServerObject(arg0_id)));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = self.core.state.server.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput)));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -2244,20 +2244,20 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("state"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("state")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("state"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("state")));
                     }
                     let start = offset;
                     offset += words;
                     &uapi::as_bytes(&msg[start..])[..len]
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -2277,7 +2277,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
             }
             5 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -2297,7 +2297,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
             }
             6 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -2319,7 +2319,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -2336,11 +2336,11 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 } else {
                     let arg0_id = arg0;
                     let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
-                        return Err(ObjectError::NoServerObject(arg0_id));
+                        return Err(ObjectError(ObjectErrorKind::NoServerObject(arg0_id)));
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ZwlrForeignToplevelHandleV1>() else {
                         let o = self.core.state.server.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("parent", o.core().interface, ObjectInterface::ZwlrForeignToplevelHandleV1));
+                        return Err(ObjectError(ObjectErrorKind::WrongObjectType("parent", o.core().interface, ObjectInterface::ZwlrForeignToplevelHandleV1)));
                     };
                     Some(arg0)
                 };
@@ -2355,7 +2355,7 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())

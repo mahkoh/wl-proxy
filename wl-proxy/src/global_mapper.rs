@@ -169,9 +169,9 @@ impl GlobalMapper {
         &mut self,
         registry: &WlRegistry,
         client_name: u32,
-        proxy: &Rc<dyn Object>,
+        object: &Rc<dyn Object>,
     ) {
-        if let Err(e) = self.try_handle_client_bind(registry, client_name, proxy) {
+        if let Err(e) = self.try_handle_client_bind(registry, client_name, object) {
             log::warn!("Could not handle client bind: {}", Report::new(e));
         }
     }
@@ -181,7 +181,7 @@ impl GlobalMapper {
         &mut self,
         registry: &WlRegistry,
         client_name: u32,
-        proxy: &Rc<dyn Object>,
+        object: &Rc<dyn Object>,
     ) -> Result<(), ObjectError> {
         let Some(server_name) = self.client_to_server.get(client_name as usize) else {
             log::warn!(
@@ -192,6 +192,6 @@ impl GlobalMapper {
         let Some(server_name) = server_name else {
             return Ok(());
         };
-        registry.try_send_bind(*server_name, proxy.clone())
+        registry.try_send_bind(*server_name, object.clone())
     }
 }

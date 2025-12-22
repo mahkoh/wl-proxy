@@ -137,7 +137,7 @@ fn format_interface_constructors(w: &mut impl Write, interface: &Interface) -> i
     let snake = &interface.name;
     let camel = format_camel(snake).to_string();
     wl!(r#"impl {PREFIX}{camel} {{"#)?;
-    wl!(r#"    pub fn set_handler(&self, handler: impl {PREFIX}{camel}Handler + 'static) {{"#)?;
+    wl!(r#"    pub fn set_handler(&self, handler: impl {PREFIX}{camel}Handler) {{"#)?;
     wl!(r#"        self.set_boxed_handler(Box::new(handler));"#)?;
     wl!(r#"    }}"#)?;
     wl!()?;
@@ -212,12 +212,12 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
         wl!(r#"        let core = self.core();"#)?;
         if msg.is_request {
             wl!(r#"        let Some(id) = core.server_obj_id.get() else {{"#)?;
-            wl!(r#"            return Err(ObjectError::ReceiverNoServerId);"#)?;
+            wl!(r#"            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));"#)?;
             wl!(r#"        }};"#)?;
         } else {
             wl!(r#"        let client_ref = core.client.borrow();"#)?;
             wl!(r#"        let Some(client) = &*client_ref else {{"#)?;
-            wl!(r#"            return Err(ObjectError::ReceiverNoClient);"#)?;
+            wl!(r#"            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));"#)?;
             wl!(r#"        }};"#)?;
             wl!(r#"        let id = core.client_obj_id.get().unwrap_or(0);"#)?;
         }
@@ -233,7 +233,7 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
                         r#"        {prefix}if arg{idx}.client_id.get() != Some(client.endpoint.id) {{"#
                     )?;
                     wl!(
-                        r#"        {prefix}    return Err(ObjectError::ArgNoClientId("{}", client.endpoint.id));"#,
+                        r#"        {prefix}    return Err(ObjectError(ObjectErrorKind::ArgNoClientId("{}", client.endpoint.id)));"#,
                         arg.name
                     )?;
                     wl!(r#"        {prefix}}}"#)?;
@@ -256,7 +256,7 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
                     }
                     wl!(r#"match arg{idx}.server_obj_id.get() {{"#)?;
                     wl!(
-                        r#"            {prefix}None => return Err(ObjectError::ArgNoServerId("{}")),"#,
+                        r#"            {prefix}None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("{}"))),"#,
                         arg.name
                     )?;
                     wl!(r#"            {prefix}Some(id) => id,"#)?;
@@ -272,13 +272,13 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
                 if msg.is_request {
                     wl!(r#"        arg{idx}.generate_server_id(arg{idx}_obj.clone())"#)?;
                     wl!(
-                        r#"            .map_err(|e| ObjectError::GenerateServerId("{}", e))?;"#,
+                        r#"            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("{}", e)))?;"#,
                         arg.name
                     )?;
                 } else {
                     wl!(r#"        arg{idx}.generate_client_id(client, arg{idx}_obj.clone())"#)?;
                     wl!(
-                        r#"            .map_err(|e| ObjectError::GenerateClientId("{}", e))?;"#,
+                        r#"            .map_err(|e| ObjectError(ObjectErrorKind::GenerateClientId("{}", e)))?;"#,
                         arg.name
                     )?;
                 }
@@ -699,7 +699,9 @@ pub fn format_mod_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<()> {
         "    pub(super) fn create_object_for_interface(state: &Rc<State>, interface: &str, version: u32) -> Result<Rc<dyn Object>, ObjectError> {{"
     )?;
     wl!("        ObjectInterface::from_str(interface)")?;
-    wl!("            .ok_or(ObjectError::UnsupportedInterface(interface.to_string()))")?;
+    wl!(
+        "            .ok_or(ObjectError(ObjectErrorKind::UnsupportedInterface(interface.to_string())))"
+    )?;
     wl!("            .and_then(|i| i.create_object(state, version))")?;
     wl!("    }}")?;
     wl!()?;
@@ -737,7 +739,9 @@ pub fn format_mod_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<()> {
         write_cfg!(protocol, "                ");
         wl!(r#"                Self::{camel} => {{"#)?;
         wl!(r#"                    if version > {PREFIX}{camel}::XML_VERSION {{"#)?;
-        wl!(r#"                        return Err(ObjectError::MaxVersion(self, version));"#)?;
+        wl!(
+            r#"                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));"#
+        )?;
         wl!(r#"                    }}"#)?;
         wl!(r#"                    Ok({PREFIX}{camel}::new(state, version))"#)?;
         wl!(r#"                }}"#)?;
@@ -985,7 +989,7 @@ fn format_object_impl(w: &mut impl Write, interface: &Interface) -> io::Result<(
     wl!()?;
     wl!(r#"    fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {{"#)?;
     wl!(r#"        let Some(mut handler) = self.handler.try_borrow_mut() else {{"#)?;
-    wl!(r#"            return Err((ObjectError::HandlerBorrowed, self));"#)?;
+    wl!(r#"            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));"#)?;
     wl!(r#"        }};"#)?;
     wl!(r#"        if let Some(handler) = &mut *handler {{"#)?;
     wl!(r#"            handler.delete_id(&self);"#)?;
@@ -1254,7 +1258,7 @@ fn format_object_message_handler_body<W: Write>(
     define_w!(w);
     let p = "        ";
     wl!(r#"{p}let Some(mut handler) = self.handler.try_borrow_mut() else {{"#)?;
-    wl!(r#"{p}    return Err(ObjectError::HandlerBorrowed);"#)?;
+    wl!(r#"{p}    return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));"#)?;
     wl!(r#"{p}}};"#)?;
     wl!(r#"{p}let handler = &mut *handler;"#)?;
     wl!(r#"{p}match msg[1] & 0xffff {{"#)?;
@@ -1297,7 +1301,7 @@ fn format_object_message_handler_body<W: Write>(
             }
             wl!(r#"{p}        ] = msg[2..] else {{"#)?;
             wl!(
-                r#"{p}            return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, {}));"#,
+                r#"{p}            return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, {})));"#,
                 (num_words + 2) * 4
             )?;
             wl!(r#"{p}        }};"#)?;
@@ -1310,13 +1314,17 @@ fn format_object_message_handler_body<W: Write>(
              -> io::Result<()> {
                 define_w!(w, wl2);
                 wl2!(r#"{p}            let Some(&len) = msg.get(offset) else {{"#)?;
-                wl2!(r#"{p}                return Err(ObjectError::MissingArgument("{name}"));"#)?;
+                wl2!(
+                    r#"{p}                return Err(ObjectError(ObjectErrorKind::MissingArgument("{name}")));"#
+                )?;
                 wl2!(r#"{p}            }};"#)?;
                 wl2!(r#"{p}            offset += 1;"#)?;
                 wl2!(r#"{p}            let len = len as usize;"#)?;
                 wl2!(r#"{p}            let words = ((len as u64 + 3) / 4) as usize;"#)?;
                 wl2!(r#"{p}            if offset + words > msg.len() {{"#)?;
-                wl2!(r#"{p}                return Err(ObjectError::MissingArgument("{name}"));"#)?;
+                wl2!(
+                    r#"{p}                return Err(ObjectError(ObjectErrorKind::MissingArgument("{name}")));"#
+                )?;
                 wl2!(r#"{p}            }}"#)?;
                 wl2!(r#"{p}            let start = offset;"#)?;
                 wl2!(r#"{p}            offset += words;"#)?;
@@ -1329,14 +1337,16 @@ fn format_object_message_handler_body<W: Write>(
                         wl2!(r#"{p}                None"#)?;
                     } else {
                         wl2!(
-                            r#"{p}                return Err(ObjectError::NullString("{name}"));"#
+                            r#"{p}                return Err(ObjectError(ObjectErrorKind::NullString("{name}")));"#
                         )?;
                     }
                     wl2!(r#"{p}            }} else {{"#)?;
                     wl2!(
                         r#"{p}                let Ok(s) = str::from_utf8(&bytes[..len-1]) else {{"#
                     )?;
-                    wl2!(r#"{p}                    return Err(ObjectError::NonUtf8("{name}"));"#)?;
+                    wl2!(
+                        r#"{p}                    return Err(ObjectError(ObjectErrorKind::NonUtf8("{name}")));"#
+                    )?;
                     wl2!(r#"{p}                }};"#)?;
                     if allow_null {
                         wl2!(r#"{p}                Some(s)"#)?;
@@ -1362,7 +1372,7 @@ fn format_object_message_handler_body<W: Write>(
                                 r#"{p}        let Some(&arg{idx}_version) = msg.get(offset) else {{"#
                             )?;
                             wl!(
-                                r#"{p}            return Err(ObjectError::MissingArgument("{}"));"#,
+                                r#"{p}            return Err(ObjectError(ObjectErrorKind::MissingArgument("{}")));"#,
                                 arg.name
                             )?;
                             wl!(r#"{p}        }};"#)?;
@@ -1370,7 +1380,7 @@ fn format_object_message_handler_body<W: Write>(
                         }
                         wl!(r#"{p}        let Some(&arg{idx}) = msg.get(offset) else {{"#)?;
                         wl!(
-                            r#"{p}            return Err(ObjectError::MissingArgument("{}"));"#,
+                            r#"{p}            return Err(ObjectError(ObjectErrorKind::MissingArgument("{}")));"#,
                             arg.name
                         )?;
                         wl!(r#"{p}        }};"#)?;
@@ -1385,12 +1395,12 @@ fn format_object_message_handler_body<W: Write>(
                 }
             }
             wl!(r#"{p}        if offset != msg.len() {{"#)?;
-            wl!(r#"{p}            return Err(ObjectError::TrailingBytes);"#)?;
+            wl!(r#"{p}            return Err(ObjectError(ObjectErrorKind::TrailingBytes));"#)?;
             wl!(r#"{p}        }}"#)?;
         } else {
             wl!(r#"{p}        if msg.len() != 2 {{"#)?;
             wl!(
-                r#"{p}            return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));"#
+                r#"{p}            return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));"#
             )?;
             wl!(r#"{p}        }}"#)?;
         }
@@ -1398,7 +1408,7 @@ fn format_object_message_handler_body<W: Write>(
             if arg.ty == ArgType::Fd {
                 wl!(r#"{p}        let Some(arg{idx}) = fds.pop_front() else {{"#)?;
                 wl!(
-                    r#"{p}            return Err(ObjectError::MissingFd("{}"));"#,
+                    r#"{p}            return Err(ObjectError(ObjectErrorKind::MissingFd("{}")));"#,
                     arg.name
                 )?;
                 wl!(r#"{p}        }};"#)?;
@@ -1468,7 +1478,7 @@ fn format_object_message_handler_body<W: Write>(
                             r#"{p}        arg{idx}.core().set_client_id(client, arg{idx}_id, arg{idx}.clone())"#
                         )?;
                         wl!(
-                            r#"{p}            .map_err(|e| ObjectError::SetClientId(arg{idx}_id, "{}", e))?;"#,
+                            r#"{p}            .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg{idx}_id, "{}", e)))?;"#,
                             arg.name,
                         )?;
                     } else {
@@ -1476,7 +1486,7 @@ fn format_object_message_handler_body<W: Write>(
                             r#"{p}        arg{idx}.core().set_server_id(arg{idx}_id, arg{idx}.clone())"#
                         )?;
                         wl!(
-                            r#"{p}            .map_err(|e| ObjectError::SetServerId(arg{idx}_id, "{}", e))?;"#,
+                            r#"{p}            .map_err(|e| ObjectError(ObjectErrorKind::SetServerId(arg{idx}_id, "{}", e)))?;"#,
                             arg.name,
                         )?;
                     }
@@ -1495,14 +1505,14 @@ fn format_object_message_handler_body<W: Write>(
                             r#"{p}        {prefix}let Some(arg{idx}) = client.endpoint.lookup(arg{idx}_id) else {{"#
                         )?;
                         wl!(
-                            r#"{p}            {prefix}return Err(ObjectError::NoClientObject(client.endpoint.id, arg{idx}_id));"#
+                            r#"{p}            {prefix}return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg{idx}_id)));"#
                         )?;
                     } else {
                         wl!(
                             r#"{p}        {prefix}let Some(arg{idx}) = self.core.state.server.lookup(arg{idx}_id) else {{"#
                         )?;
                         wl!(
-                            r#"{p}            {prefix}return Err(ObjectError::NoServerObject(arg{idx}_id));"#
+                            r#"{p}            {prefix}return Err(ObjectError(ObjectErrorKind::NoServerObject(arg{idx}_id)));"#
                         )?;
                     }
                     wl!(r#"{p}        {prefix}}};"#)?;
@@ -1521,7 +1531,7 @@ fn format_object_message_handler_body<W: Write>(
                             )?;
                         }
                         wl!(
-                            r#"{p}        {prefix}    return Err(ObjectError::WrongObjectType("{}", o.core().interface, ObjectInterface::{camel}));"#,
+                            r#"{p}        {prefix}    return Err(ObjectError(ObjectErrorKind::WrongObjectType("{}", o.core().interface, ObjectInterface::{camel})));"#,
                             arg.name
                         )?;
                         wl!(r#"{p}        {prefix}}};"#)?;
@@ -1564,7 +1574,7 @@ fn format_object_message_handler_body<W: Write>(
                 wl!(r#"{p}        self.core.state.handle_delete_id(arg0);"#)?;
             } else if msg.name == "error" {
                 wl!(
-                    r#"{p}        return Err(ObjectError::ServerError(arg0.core().interface, arg0_id, arg1, StringError(arg2.to_string())));"#
+                    r#"{p}        return Err(ObjectError(ObjectErrorKind::ServerError(arg0.core().interface, arg0_id, arg1, StringError(arg2.to_string()))));"#
                 )?;
             }
         } else {
@@ -1603,7 +1613,7 @@ fn format_object_message_handler_body<W: Write>(
     wl!(r#"{p}        let _ = msg;"#)?;
     wl!(r#"{p}        let _ = fds;"#)?;
     wl!(r#"{p}        let _ = handler;"#)?;
-    wl!(r#"{p}        return Err(ObjectError::UnknownMessageId(n));"#)?;
+    wl!(r#"{p}        return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));"#)?;
     wl!(r#"{p}    }}"#)?;
     wl!(r#"{p}}}"#)?;
     if any_messages {

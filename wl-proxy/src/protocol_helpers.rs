@@ -9,9 +9,9 @@ pub(crate) mod prelude {
         crate::{
             client::Client,
             fixed::Fixed,
-            handler::{HandlerHolder, HandlerMut, HandlerRef},
+            handler::{HandlerAccessError, HandlerHolder, HandlerMut, HandlerRef},
             object::{
-                ConcreteObject, HandlerAccessError, Object, ObjectCore, ObjectError, ObjectPrivate,
+                ConcreteObject, Object, ObjectCore, ObjectError, ObjectErrorKind, ObjectPrivate,
                 StringError,
             },
             protocols::ObjectInterface,

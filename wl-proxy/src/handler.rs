@@ -1,3 +1,9 @@
+//! Helpers for event handlers.
+//!
+//! These types are similar to [`Ref`] and [`RefMut`] but allow the handler to be replaced
+//! while it is borrowed. When this happens, the handler will be replaced before the next
+//! event is emitted.
+
 use {
     crate::utils::cold_path::cold_path,
     std::{
@@ -6,6 +12,7 @@ use {
         mem::{self},
         ops::{Deref, DerefMut},
     },
+    thiserror::Error,
 };
 
 pub(crate) struct HandlerHolder<T: ?Sized> {
@@ -34,6 +41,20 @@ pub struct HandlerMut<'a, U: ?Sized> {
 pub struct HandlerRef<'a, U: ?Sized> {
     handler: Ref<'a, U>,
     update: HandlerHolderUpdate<'a>,
+}
+
+/// An error returned when trying to access a handler.
+#[derive(Debug, Error)]
+pub enum HandlerAccessError {
+    /// The handler is already borrowed.
+    #[error("the handler is already borrowed")]
+    AlreadyBorrowed,
+    /// The object has no handler.
+    #[error("the object has no handler")]
+    NoHandler,
+    /// The handler has a different type.
+    #[error("the handler has a different type")]
+    InvalidType,
 }
 
 impl<T: ?Sized> HandlerHolderDyn for HandlerHolder<T> {

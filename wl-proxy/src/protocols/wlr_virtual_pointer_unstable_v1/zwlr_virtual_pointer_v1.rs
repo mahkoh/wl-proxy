@@ -25,7 +25,7 @@ impl ConcreteObject for ZwlrVirtualPointerV1 {
 }
 
 impl ZwlrVirtualPointerV1 {
-    pub fn set_handler(&self, handler: impl ZwlrVirtualPointerV1Handler + 'static) {
+    pub fn set_handler(&self, handler: impl ZwlrVirtualPointerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -80,7 +80,7 @@ impl ZwlrVirtualPointerV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -178,7 +178,7 @@ impl ZwlrVirtualPointerV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -274,7 +274,7 @@ impl ZwlrVirtualPointerV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -359,7 +359,7 @@ impl ZwlrVirtualPointerV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -426,7 +426,7 @@ impl ZwlrVirtualPointerV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -488,7 +488,7 @@ impl ZwlrVirtualPointerV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -561,7 +561,7 @@ impl ZwlrVirtualPointerV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -649,7 +649,7 @@ impl ZwlrVirtualPointerV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -721,7 +721,7 @@ impl ZwlrVirtualPointerV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -1031,7 +1031,7 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -1043,7 +1043,7 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -1053,7 +1053,7 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                     arg1,
                     arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 20)));
                 };
                 let arg1 = Fixed::from_wire(arg1 as i32);
                 let arg2 = Fixed::from_wire(arg2 as i32);
@@ -1081,7 +1081,7 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                     arg3,
                     arg4,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 28));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 28)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -1105,7 +1105,7 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                     arg1,
                     arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 20)));
                 };
                 let arg2 = WlPointerButtonState(arg2);
                 if self.core.state.log {
@@ -1130,7 +1130,7 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                     arg1,
                     arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 20)));
                 };
                 let arg1 = WlPointerAxis(arg1);
                 let arg2 = Fixed::from_wire(arg2 as i32);
@@ -1152,7 +1152,7 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
             }
             4 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1174,7 +1174,7 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 let arg0 = WlPointerAxisSource(arg0);
                 if self.core.state.log {
@@ -1198,7 +1198,7 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 16)));
                 };
                 let arg1 = WlPointerAxis(arg1);
                 if self.core.state.log {
@@ -1224,7 +1224,7 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                     arg2,
                     arg3,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 24)));
                 };
                 let arg1 = WlPointerAxis(arg1);
                 let arg2 = Fixed::from_wire(arg2 as i32);
@@ -1247,7 +1247,7 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
             }
             8 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1271,7 +1271,7 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -1279,7 +1279,7 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -1287,7 +1287,7 @@ impl ObjectPrivate for ZwlrVirtualPointerV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
     }

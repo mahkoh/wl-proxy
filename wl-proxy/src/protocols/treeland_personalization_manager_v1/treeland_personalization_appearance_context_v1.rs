@@ -29,7 +29,7 @@ impl ConcreteObject for TreelandPersonalizationAppearanceContextV1 {
 }
 
 impl TreelandPersonalizationAppearanceContextV1 {
-    pub fn set_handler(&self, handler: impl TreelandPersonalizationAppearanceContextV1Handler + 'static) {
+    pub fn set_handler(&self, handler: impl TreelandPersonalizationAppearanceContextV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -75,7 +75,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -146,7 +146,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -217,7 +217,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -288,7 +288,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -359,7 +359,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -430,7 +430,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -500,7 +500,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -559,7 +559,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -621,7 +621,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -680,7 +680,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -742,7 +742,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -801,7 +801,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -863,7 +863,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -922,7 +922,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -984,7 +984,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -1043,7 +1043,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -1105,7 +1105,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -1164,7 +1164,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -1216,7 +1216,7 @@ impl TreelandPersonalizationAppearanceContextV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -1690,7 +1690,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -1702,7 +1702,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -1710,7 +1710,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 let arg0 = arg0 as i32;
                 if self.core.state.log {
@@ -1731,7 +1731,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
             }
             1 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1753,28 +1753,28 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("theme"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("theme")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("theme"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("theme")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("theme"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("theme")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("theme"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("theme")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1794,7 +1794,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
             }
             3 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1816,28 +1816,28 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("color"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("color")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("color"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("color")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("color"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("color")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("color"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("color")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1857,7 +1857,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
             }
             5 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1879,7 +1879,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -1899,7 +1899,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
             }
             7 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1921,7 +1921,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 let arg0 = TreelandPersonalizationAppearanceContextV1ThemeType(arg0);
                 if self.core.state.log {
@@ -1942,7 +1942,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
             }
             9 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1964,7 +1964,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -1984,7 +1984,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
             }
             11 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -2004,7 +2004,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
             }
             12 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -2028,7 +2028,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -2036,7 +2036,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -2044,7 +2044,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 let arg0 = arg0 as i32;
                 if self.core.state.log {
@@ -2067,28 +2067,28 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("theme_name"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("theme_name")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("theme_name"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("theme_name")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("theme_name"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("theme_name")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("theme_name"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("theme_name")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -2110,28 +2110,28 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("active_color"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("active_color")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("active_color"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("active_color")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("active_color"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("active_color")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("active_color"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("active_color")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -2153,7 +2153,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -2175,7 +2175,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 let arg0 = TreelandPersonalizationAppearanceContextV1ThemeType(arg0);
                 if self.core.state.log {
@@ -2198,7 +2198,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -2220,7 +2220,7 @@ impl ObjectPrivate for TreelandPersonalizationAppearanceContextV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())

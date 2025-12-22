@@ -28,7 +28,7 @@ impl ConcreteObject for WlDataDevice {
 }
 
 impl WlDataDevice {
-    pub fn set_handler(&self, handler: impl WlDataDeviceHandler + 'static) {
+    pub fn set_handler(&self, handler: impl WlDataDeviceHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -116,23 +116,23 @@ impl WlDataDevice {
         let arg2 = arg2.map(|a| a.core());
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         let arg0_id = match arg0 {
             None => 0,
             Some(arg0) => match arg0.server_obj_id.get() {
-                None => return Err(ObjectError::ArgNoServerId("source")),
+                None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("source"))),
                 Some(id) => id,
             },
         };
         let arg1_id = match arg1.server_obj_id.get() {
-            None => return Err(ObjectError::ArgNoServerId("origin")),
+            None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("origin"))),
             Some(id) => id,
         };
         let arg2_id = match arg2 {
             None => 0,
             Some(arg2) => match arg2.server_obj_id.get() {
-                None => return Err(ObjectError::ArgNoServerId("icon")),
+                None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("icon"))),
                 Some(id) => id,
             },
         };
@@ -255,12 +255,12 @@ impl WlDataDevice {
         let arg0 = arg0.map(|a| a.core());
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         let arg0_id = match arg0 {
             None => 0,
             Some(arg0) => match arg0.server_obj_id.get() {
-                None => return Err(ObjectError::ArgNoServerId("source")),
+                None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("source"))),
                 Some(id) => id,
             },
         };
@@ -347,11 +347,11 @@ impl WlDataDevice {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         arg0.generate_client_id(client, arg0_obj.clone())
-            .map_err(|e| ObjectError::GenerateClientId("id", e))?;
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateClientId("id", e)))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             #[cold]
@@ -484,15 +484,15 @@ impl WlDataDevice {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if arg1.client_id.get() != Some(client.endpoint.id) {
-            return Err(ObjectError::ArgNoClientId("surface", client.endpoint.id));
+            return Err(ObjectError(ObjectErrorKind::ArgNoClientId("surface", client.endpoint.id)));
         }
         if let Some(arg4) = arg4 {
             if arg4.client_id.get() != Some(client.endpoint.id) {
-                return Err(ObjectError::ArgNoClientId("id", client.endpoint.id));
+                return Err(ObjectError(ObjectErrorKind::ArgNoClientId("id", client.endpoint.id)));
             }
         }
         let arg1_id = arg1.client_obj_id.get().unwrap_or(0);
@@ -576,7 +576,7 @@ impl WlDataDevice {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -653,7 +653,7 @@ impl WlDataDevice {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -737,7 +737,7 @@ impl WlDataDevice {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -825,12 +825,12 @@ impl WlDataDevice {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if let Some(arg0) = arg0 {
             if arg0.client_id.get() != Some(client.endpoint.id) {
-                return Err(ObjectError::ArgNoClientId("id", client.endpoint.id));
+                return Err(ObjectError(ObjectErrorKind::ArgNoClientId("id", client.endpoint.id)));
             }
         }
         let arg0_id = arg0.and_then(|arg0| arg0.client_obj_id.get()).unwrap_or(0);
@@ -902,7 +902,7 @@ impl WlDataDevice {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -1297,7 +1297,7 @@ impl ObjectPrivate for WlDataDevice {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -1309,7 +1309,7 @@ impl ObjectPrivate for WlDataDevice {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -1320,7 +1320,7 @@ impl ObjectPrivate for WlDataDevice {
                     arg2,
                     arg3,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 24)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -1337,32 +1337,32 @@ impl ObjectPrivate for WlDataDevice {
                 } else {
                     let arg0_id = arg0;
                     let Some(arg0) = client.endpoint.lookup(arg0_id) else {
-                        return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
+                        return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg0_id)));
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlDataSource>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("source", o.core().interface, ObjectInterface::WlDataSource));
+                        return Err(ObjectError(ObjectErrorKind::WrongObjectType("source", o.core().interface, ObjectInterface::WlDataSource)));
                     };
                     Some(arg0)
                 };
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
-                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
+                    return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg1_id)));
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("origin", o.core().interface, ObjectInterface::WlSurface));
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("origin", o.core().interface, ObjectInterface::WlSurface)));
                 };
                 let arg2 = if arg2 == 0 {
                     None
                 } else {
                     let arg2_id = arg2;
                     let Some(arg2) = client.endpoint.lookup(arg2_id) else {
-                        return Err(ObjectError::NoClientObject(client.endpoint.id, arg2_id));
+                        return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg2_id)));
                     };
                     let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlSurface>() else {
                         let o = client.endpoint.lookup(arg2_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("icon", o.core().interface, ObjectInterface::WlSurface));
+                        return Err(ObjectError(ObjectErrorKind::WrongObjectType("icon", o.core().interface, ObjectInterface::WlSurface)));
                     };
                     Some(arg2)
                 };
@@ -1380,7 +1380,7 @@ impl ObjectPrivate for WlDataDevice {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 16)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -1397,11 +1397,11 @@ impl ObjectPrivate for WlDataDevice {
                 } else {
                     let arg0_id = arg0;
                     let Some(arg0) = client.endpoint.lookup(arg0_id) else {
-                        return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
+                        return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg0_id)));
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlDataSource>() else {
                         let o = client.endpoint.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("source", o.core().interface, ObjectInterface::WlDataSource));
+                        return Err(ObjectError(ObjectErrorKind::WrongObjectType("source", o.core().interface, ObjectInterface::WlDataSource)));
                     };
                     Some(arg0)
                 };
@@ -1414,7 +1414,7 @@ impl ObjectPrivate for WlDataDevice {
             }
             2 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1438,7 +1438,7 @@ impl ObjectPrivate for WlDataDevice {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -1446,7 +1446,7 @@ impl ObjectPrivate for WlDataDevice {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -1454,7 +1454,7 @@ impl ObjectPrivate for WlDataDevice {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -1469,7 +1469,7 @@ impl ObjectPrivate for WlDataDevice {
                 let arg0_id = arg0;
                 let arg0 = WlDataOffer::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
-                    .map_err(|e| ObjectError::SetServerId(arg0_id, "id", e))?;
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetServerId(arg0_id, "id", e)))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).handle_data_offer(&self, arg0);
@@ -1485,7 +1485,7 @@ impl ObjectPrivate for WlDataDevice {
                     arg3,
                     arg4,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 28));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 28)));
                 };
                 let arg2 = Fixed::from_wire(arg2 as i32);
                 let arg3 = Fixed::from_wire(arg3 as i32);
@@ -1501,22 +1501,22 @@ impl ObjectPrivate for WlDataDevice {
                 }
                 let arg1_id = arg1;
                 let Some(arg1) = self.core.state.server.lookup(arg1_id) else {
-                    return Err(ObjectError::NoServerObject(arg1_id));
+                    return Err(ObjectError(ObjectErrorKind::NoServerObject(arg1_id)));
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = self.core.state.server.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface)));
                 };
                 let arg4 = if arg4 == 0 {
                     None
                 } else {
                     let arg4_id = arg4;
                     let Some(arg4) = self.core.state.server.lookup(arg4_id) else {
-                        return Err(ObjectError::NoServerObject(arg4_id));
+                        return Err(ObjectError(ObjectErrorKind::NoServerObject(arg4_id)));
                     };
                     let Ok(arg4) = (arg4 as Rc<dyn Any>).downcast::<WlDataOffer>() else {
                         let o = self.core.state.server.lookup(arg4_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("id", o.core().interface, ObjectInterface::WlDataOffer));
+                        return Err(ObjectError(ObjectErrorKind::WrongObjectType("id", o.core().interface, ObjectInterface::WlDataOffer)));
                     };
                     Some(arg4)
                 };
@@ -1530,7 +1530,7 @@ impl ObjectPrivate for WlDataDevice {
             }
             2 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1554,7 +1554,7 @@ impl ObjectPrivate for WlDataDevice {
                     arg1,
                     arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 20)));
                 };
                 let arg1 = Fixed::from_wire(arg1 as i32);
                 let arg2 = Fixed::from_wire(arg2 as i32);
@@ -1576,7 +1576,7 @@ impl ObjectPrivate for WlDataDevice {
             }
             4 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1598,7 +1598,7 @@ impl ObjectPrivate for WlDataDevice {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -1615,11 +1615,11 @@ impl ObjectPrivate for WlDataDevice {
                 } else {
                     let arg0_id = arg0;
                     let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
-                        return Err(ObjectError::NoServerObject(arg0_id));
+                        return Err(ObjectError(ObjectErrorKind::NoServerObject(arg0_id)));
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlDataOffer>() else {
                         let o = self.core.state.server.lookup(arg0_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("id", o.core().interface, ObjectInterface::WlDataOffer));
+                        return Err(ObjectError(ObjectErrorKind::WrongObjectType("id", o.core().interface, ObjectInterface::WlDataOffer)));
                     };
                     Some(arg0)
                 };
@@ -1634,7 +1634,7 @@ impl ObjectPrivate for WlDataDevice {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())

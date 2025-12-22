@@ -26,7 +26,7 @@ impl ConcreteObject for ZxdgImportedV2 {
 }
 
 impl ZxdgImportedV2 {
-    pub fn set_handler(&self, handler: impl ZxdgImportedV2Handler + 'static) {
+    pub fn set_handler(&self, handler: impl ZxdgImportedV2Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -63,7 +63,7 @@ impl ZxdgImportedV2 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -133,10 +133,10 @@ impl ZxdgImportedV2 {
         let arg0 = arg0.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         let arg0_id = match arg0.server_obj_id.get() {
-            None => return Err(ObjectError::ArgNoServerId("surface")),
+            None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("surface"))),
             Some(id) => id,
         };
         if self.core.state.log {
@@ -204,7 +204,7 @@ impl ZxdgImportedV2 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -339,7 +339,7 @@ impl ObjectPrivate for ZxdgImportedV2 {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -351,13 +351,13 @@ impl ObjectPrivate for ZxdgImportedV2 {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -380,7 +380,7 @@ impl ObjectPrivate for ZxdgImportedV2 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -394,11 +394,11 @@ impl ObjectPrivate for ZxdgImportedV2 {
                 }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
-                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
+                    return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg0_id)));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlSurface>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface));
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface)));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -412,7 +412,7 @@ impl ObjectPrivate for ZxdgImportedV2 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -420,13 +420,13 @@ impl ObjectPrivate for ZxdgImportedV2 {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -448,7 +448,7 @@ impl ObjectPrivate for ZxdgImportedV2 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())

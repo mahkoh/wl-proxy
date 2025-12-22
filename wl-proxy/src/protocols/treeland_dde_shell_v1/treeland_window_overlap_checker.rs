@@ -30,7 +30,7 @@ impl ConcreteObject for TreelandWindowOverlapChecker {
 }
 
 impl TreelandWindowOverlapChecker {
-    pub fn set_handler(&self, handler: impl TreelandWindowOverlapCheckerHandler + 'static) {
+    pub fn set_handler(&self, handler: impl TreelandWindowOverlapCheckerHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -67,7 +67,7 @@ impl TreelandWindowOverlapChecker {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -123,7 +123,7 @@ impl TreelandWindowOverlapChecker {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -204,10 +204,10 @@ impl TreelandWindowOverlapChecker {
         let arg3 = arg3.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         let arg3_id = match arg3.server_obj_id.get() {
-            None => return Err(ObjectError::ArgNoServerId("output")),
+            None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("output"))),
             Some(id) => id,
         };
         if self.core.state.log {
@@ -287,7 +287,7 @@ impl TreelandWindowOverlapChecker {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -451,7 +451,7 @@ impl ObjectPrivate for TreelandWindowOverlapChecker {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -463,7 +463,7 @@ impl ObjectPrivate for TreelandWindowOverlapChecker {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -474,7 +474,7 @@ impl ObjectPrivate for TreelandWindowOverlapChecker {
                     arg2,
                     arg3,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 24)));
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
@@ -491,11 +491,11 @@ impl ObjectPrivate for TreelandWindowOverlapChecker {
                 }
                 let arg3_id = arg3;
                 let Some(arg3) = client.endpoint.lookup(arg3_id) else {
-                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg3_id));
+                    return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg3_id)));
                 };
                 let Ok(arg3) = (arg3 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = client.endpoint.lookup(arg3_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput)));
                 };
                 let arg3 = &arg3;
                 if let Some(handler) = handler {
@@ -506,7 +506,7 @@ impl ObjectPrivate for TreelandWindowOverlapChecker {
             }
             1 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -530,7 +530,7 @@ impl ObjectPrivate for TreelandWindowOverlapChecker {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -538,13 +538,13 @@ impl ObjectPrivate for TreelandWindowOverlapChecker {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -564,7 +564,7 @@ impl ObjectPrivate for TreelandWindowOverlapChecker {
             }
             1 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -586,7 +586,7 @@ impl ObjectPrivate for TreelandWindowOverlapChecker {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())

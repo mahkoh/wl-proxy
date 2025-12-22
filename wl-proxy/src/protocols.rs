@@ -1008,7 +1008,7 @@ mod all_types {
 
     pub(super) fn create_object_for_interface(state: &Rc<State>, interface: &str, version: u32) -> Result<Rc<dyn Object>, ObjectError> {
         ObjectInterface::from_str(interface)
-            .ok_or(ObjectError::UnsupportedInterface(interface.to_string()))
+            .ok_or(ObjectError(ObjectErrorKind::UnsupportedInterface(interface.to_string())))
             .and_then(|i| i.create_object(state, version))
     }
 
@@ -1928,1678 +1928,1678 @@ mod all_types {
                 #[cfg(feature = "protocol-hyprland_ctm_control_v1")]
                 Self::HyprlandCtmControlManagerV1 => {
                     if version > HyprlandCtmControlManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(HyprlandCtmControlManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-hyprland_focus_grab_v1")]
                 Self::HyprlandFocusGrabManagerV1 => {
                     if version > HyprlandFocusGrabManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(HyprlandFocusGrabManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-hyprland_focus_grab_v1")]
                 Self::HyprlandFocusGrabV1 => {
                     if version > HyprlandFocusGrabV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(HyprlandFocusGrabV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-hyprland_global_shortcuts_v1")]
                 Self::HyprlandGlobalShortcutV1 => {
                     if version > HyprlandGlobalShortcutV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(HyprlandGlobalShortcutV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-hyprland_global_shortcuts_v1")]
                 Self::HyprlandGlobalShortcutsManagerV1 => {
                     if version > HyprlandGlobalShortcutsManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(HyprlandGlobalShortcutsManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-hyprland_input_capture_v1")]
                 Self::HyprlandInputCaptureManagerV1 => {
                     if version > HyprlandInputCaptureManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(HyprlandInputCaptureManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-hyprland_input_capture_v1")]
                 Self::HyprlandInputCaptureV1 => {
                     if version > HyprlandInputCaptureV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(HyprlandInputCaptureV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-hyprland_lock_notify_v1")]
                 Self::HyprlandLockNotificationV1 => {
                     if version > HyprlandLockNotificationV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(HyprlandLockNotificationV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-hyprland_lock_notify_v1")]
                 Self::HyprlandLockNotifierV1 => {
                     if version > HyprlandLockNotifierV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(HyprlandLockNotifierV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-hyprland_surface_v1")]
                 Self::HyprlandSurfaceManagerV1 => {
                     if version > HyprlandSurfaceManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(HyprlandSurfaceManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-hyprland_surface_v1")]
                 Self::HyprlandSurfaceV1 => {
                     if version > HyprlandSurfaceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(HyprlandSurfaceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-hyprland_toplevel_export_v1")]
                 Self::HyprlandToplevelExportFrameV1 => {
                     if version > HyprlandToplevelExportFrameV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(HyprlandToplevelExportFrameV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-hyprland_toplevel_export_v1")]
                 Self::HyprlandToplevelExportManagerV1 => {
                     if version > HyprlandToplevelExportManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(HyprlandToplevelExportManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
                 Self::HyprlandToplevelMappingManagerV1 => {
                     if version > HyprlandToplevelMappingManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(HyprlandToplevelMappingManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-hyprland_toplevel_mapping_v1")]
                 Self::HyprlandToplevelWindowMappingHandleV1 => {
                     if version > HyprlandToplevelWindowMappingHandleV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(HyprlandToplevelWindowMappingHandleV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-jay_popup_ext_v1")]
                 Self::JayPopupExtManagerV1 => {
                     if version > JayPopupExtManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(JayPopupExtManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-jay_popup_ext_v1")]
                 Self::JayPopupExtV1 => {
                     if version > JayPopupExtV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(JayPopupExtV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-jay_tray_v1")]
                 Self::JayTrayItemV1 => {
                     if version > JayTrayItemV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(JayTrayItemV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-jay_tray_v1")]
                 Self::JayTrayV1 => {
                     if version > JayTrayV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(JayTrayV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-drm")]
                 Self::WlDrm => {
                     if version > WlDrm::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlDrm::new(state, version))
                 }
                 #[cfg(feature = "protocol-input_method_unstable_v2")]
                 Self::ZwpInputMethodKeyboardGrabV2 => {
                     if version > ZwpInputMethodKeyboardGrabV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpInputMethodKeyboardGrabV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-input_method_unstable_v2")]
                 Self::ZwpInputMethodManagerV2 => {
                     if version > ZwpInputMethodManagerV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpInputMethodManagerV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-input_method_unstable_v2")]
                 Self::ZwpInputMethodV2 => {
                     if version > ZwpInputMethodV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpInputMethodV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-input_method_unstable_v2")]
                 Self::ZwpInputPopupSurfaceV2 => {
                     if version > ZwpInputPopupSurfaceV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpInputPopupSurfaceV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
                 Self::OrgKdeKwinServerDecoration => {
                     if version > OrgKdeKwinServerDecoration::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(OrgKdeKwinServerDecoration::new(state, version))
                 }
                 #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
                 Self::OrgKdeKwinServerDecorationManager => {
                     if version > OrgKdeKwinServerDecorationManager::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(OrgKdeKwinServerDecorationManager::new(state, version))
                 }
                 #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
                 Self::ZwpVirtualKeyboardManagerV1 => {
                     if version > ZwpVirtualKeyboardManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpVirtualKeyboardManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
                 Self::ZwpVirtualKeyboardV1 => {
                     if version > ZwpVirtualKeyboardV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpVirtualKeyboardV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_app_id_resolver_v1")]
                 Self::TreelandAppIdResolverManagerV1 => {
                     if version > TreelandAppIdResolverManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandAppIdResolverManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_app_id_resolver_v1")]
                 Self::TreelandAppIdResolverV1 => {
                     if version > TreelandAppIdResolverV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandAppIdResolverV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_dde_shell_v1")]
                 Self::TreelandDdeActiveV1 => {
                     if version > TreelandDdeActiveV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandDdeActiveV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_dde_shell_v1")]
                 Self::TreelandDdeShellManagerV1 => {
                     if version > TreelandDdeShellManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandDdeShellManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_dde_shell_v1")]
                 Self::TreelandDdeShellSurfaceV1 => {
                     if version > TreelandDdeShellSurfaceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandDdeShellSurfaceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_dde_shell_v1")]
                 Self::TreelandLockscreenV1 => {
                     if version > TreelandLockscreenV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandLockscreenV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_dde_shell_v1")]
                 Self::TreelandMultitaskviewV1 => {
                     if version > TreelandMultitaskviewV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandMultitaskviewV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_dde_shell_v1")]
                 Self::TreelandWindowOverlapChecker => {
                     if version > TreelandWindowOverlapChecker::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandWindowOverlapChecker::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_dde_shell_v1")]
                 Self::TreelandWindowPickerV1 => {
                     if version > TreelandWindowPickerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandWindowPickerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_ddm")]
                 Self::TreelandDdm => {
                     if version > TreelandDdm::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandDdm::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_foreign_toplevel_manager_v1")]
                 Self::TreelandDockPreviewContextV1 => {
                     if version > TreelandDockPreviewContextV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandDockPreviewContextV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_foreign_toplevel_manager_v1")]
                 Self::TreelandForeignToplevelHandleV1 => {
                     if version > TreelandForeignToplevelHandleV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandForeignToplevelHandleV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_foreign_toplevel_manager_v1")]
                 Self::TreelandForeignToplevelManagerV1 => {
                     if version > TreelandForeignToplevelManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandForeignToplevelManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_output_manager_v1")]
                 Self::TreelandOutputColorControlV1 => {
                     if version > TreelandOutputColorControlV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandOutputColorControlV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_output_manager_v1")]
                 Self::TreelandOutputManagerV1 => {
                     if version > TreelandOutputManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandOutputManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_personalization_manager_v1")]
                 Self::TreelandPersonalizationAppearanceContextV1 => {
                     if version > TreelandPersonalizationAppearanceContextV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandPersonalizationAppearanceContextV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_personalization_manager_v1")]
                 Self::TreelandPersonalizationCursorContextV1 => {
                     if version > TreelandPersonalizationCursorContextV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandPersonalizationCursorContextV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_personalization_manager_v1")]
                 Self::TreelandPersonalizationFontContextV1 => {
                     if version > TreelandPersonalizationFontContextV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandPersonalizationFontContextV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_personalization_manager_v1")]
                 Self::TreelandPersonalizationManagerV1 => {
                     if version > TreelandPersonalizationManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandPersonalizationManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_personalization_manager_v1")]
                 Self::TreelandPersonalizationWallpaperContextV1 => {
                     if version > TreelandPersonalizationWallpaperContextV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandPersonalizationWallpaperContextV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_personalization_manager_v1")]
                 Self::TreelandPersonalizationWindowContextV1 => {
                     if version > TreelandPersonalizationWindowContextV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandPersonalizationWindowContextV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_prelaunch_splash_v1")]
                 Self::TreelandPrelaunchSplashManagerV1 => {
                     if version > TreelandPrelaunchSplashManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandPrelaunchSplashManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_screensaver")]
                 Self::TreelandScreensaver => {
                     if version > TreelandScreensaver::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandScreensaver::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_shortcut_manager_v1")]
                 Self::TreelandShortcutContextV1 => {
                     if version > TreelandShortcutContextV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandShortcutContextV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_shortcut_manager_v1")]
                 Self::TreelandShortcutManagerV1 => {
                     if version > TreelandShortcutManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandShortcutManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_shortcut_manager_v2")]
                 Self::TreelandShortcutManagerV2 => {
                     if version > TreelandShortcutManagerV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandShortcutManagerV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_virtual_output_manager_v1")]
                 Self::TreelandVirtualOutputManagerV1 => {
                     if version > TreelandVirtualOutputManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandVirtualOutputManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_virtual_output_manager_v1")]
                 Self::TreelandVirtualOutputV1 => {
                     if version > TreelandVirtualOutputV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandVirtualOutputV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_wallpaper_color_v1")]
                 Self::TreelandWallpaperColorManagerV1 => {
                     if version > TreelandWallpaperColorManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandWallpaperColorManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-treeland_window_management_v1")]
                 Self::TreelandWindowManagementV1 => {
                     if version > TreelandWindowManagementV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(TreelandWindowManagementV1::new(state, version))
                 }
                 Self::WlBuffer => {
                     if version > WlBuffer::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlBuffer::new(state, version))
                 }
                 Self::WlCallback => {
                     if version > WlCallback::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlCallback::new(state, version))
                 }
                 Self::WlCompositor => {
                     if version > WlCompositor::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlCompositor::new(state, version))
                 }
                 Self::WlDataDevice => {
                     if version > WlDataDevice::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlDataDevice::new(state, version))
                 }
                 Self::WlDataDeviceManager => {
                     if version > WlDataDeviceManager::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlDataDeviceManager::new(state, version))
                 }
                 Self::WlDataOffer => {
                     if version > WlDataOffer::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlDataOffer::new(state, version))
                 }
                 Self::WlDataSource => {
                     if version > WlDataSource::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlDataSource::new(state, version))
                 }
                 Self::WlDisplay => {
                     if version > WlDisplay::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlDisplay::new(state, version))
                 }
                 Self::WlFixes => {
                     if version > WlFixes::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlFixes::new(state, version))
                 }
                 Self::WlKeyboard => {
                     if version > WlKeyboard::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlKeyboard::new(state, version))
                 }
                 Self::WlOutput => {
                     if version > WlOutput::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlOutput::new(state, version))
                 }
                 Self::WlPointer => {
                     if version > WlPointer::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlPointer::new(state, version))
                 }
                 Self::WlRegion => {
                     if version > WlRegion::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlRegion::new(state, version))
                 }
                 Self::WlRegistry => {
                     if version > WlRegistry::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlRegistry::new(state, version))
                 }
                 Self::WlSeat => {
                     if version > WlSeat::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlSeat::new(state, version))
                 }
                 Self::WlShell => {
                     if version > WlShell::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlShell::new(state, version))
                 }
                 Self::WlShellSurface => {
                     if version > WlShellSurface::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlShellSurface::new(state, version))
                 }
                 Self::WlShm => {
                     if version > WlShm::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlShm::new(state, version))
                 }
                 Self::WlShmPool => {
                     if version > WlShmPool::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlShmPool::new(state, version))
                 }
                 Self::WlSubcompositor => {
                     if version > WlSubcompositor::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlSubcompositor::new(state, version))
                 }
                 Self::WlSubsurface => {
                     if version > WlSubsurface::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlSubsurface::new(state, version))
                 }
                 Self::WlSurface => {
                     if version > WlSurface::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlSurface::new(state, version))
                 }
                 Self::WlTouch => {
                     if version > WlTouch::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlTouch::new(state, version))
                 }
                 #[cfg(feature = "protocol-alpha_modifier_v1")]
                 Self::WpAlphaModifierSurfaceV1 => {
                     if version > WpAlphaModifierSurfaceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpAlphaModifierSurfaceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-alpha_modifier_v1")]
                 Self::WpAlphaModifierV1 => {
                     if version > WpAlphaModifierV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpAlphaModifierV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-color_management_v1")]
                 Self::WpColorManagementOutputV1 => {
                     if version > WpColorManagementOutputV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpColorManagementOutputV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-color_management_v1")]
                 Self::WpColorManagementSurfaceFeedbackV1 => {
                     if version > WpColorManagementSurfaceFeedbackV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpColorManagementSurfaceFeedbackV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-color_management_v1")]
                 Self::WpColorManagementSurfaceV1 => {
                     if version > WpColorManagementSurfaceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpColorManagementSurfaceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-color_management_v1")]
                 Self::WpColorManagerV1 => {
                     if version > WpColorManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpColorManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-color_management_v1")]
                 Self::WpImageDescriptionCreatorIccV1 => {
                     if version > WpImageDescriptionCreatorIccV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpImageDescriptionCreatorIccV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-color_management_v1")]
                 Self::WpImageDescriptionCreatorParamsV1 => {
                     if version > WpImageDescriptionCreatorParamsV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpImageDescriptionCreatorParamsV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-color_management_v1")]
                 Self::WpImageDescriptionInfoV1 => {
                     if version > WpImageDescriptionInfoV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpImageDescriptionInfoV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-color_management_v1")]
                 Self::WpImageDescriptionReferenceV1 => {
                     if version > WpImageDescriptionReferenceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpImageDescriptionReferenceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-color_management_v1")]
                 Self::WpImageDescriptionV1 => {
                     if version > WpImageDescriptionV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpImageDescriptionV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-color_representation_v1")]
                 Self::WpColorRepresentationManagerV1 => {
                     if version > WpColorRepresentationManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpColorRepresentationManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-color_representation_v1")]
                 Self::WpColorRepresentationSurfaceV1 => {
                     if version > WpColorRepresentationSurfaceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpColorRepresentationSurfaceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-commit_timing_v1")]
                 Self::WpCommitTimerV1 => {
                     if version > WpCommitTimerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpCommitTimerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-commit_timing_v1")]
                 Self::WpCommitTimingManagerV1 => {
                     if version > WpCommitTimingManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpCommitTimingManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-content_type_v1")]
                 Self::WpContentTypeManagerV1 => {
                     if version > WpContentTypeManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpContentTypeManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-content_type_v1")]
                 Self::WpContentTypeV1 => {
                     if version > WpContentTypeV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpContentTypeV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-cursor_shape_v1")]
                 Self::WpCursorShapeDeviceV1 => {
                     if version > WpCursorShapeDeviceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpCursorShapeDeviceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-cursor_shape_v1")]
                 Self::WpCursorShapeManagerV1 => {
                     if version > WpCursorShapeManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpCursorShapeManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-drm_lease_v1")]
                 Self::WpDrmLeaseConnectorV1 => {
                     if version > WpDrmLeaseConnectorV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpDrmLeaseConnectorV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-drm_lease_v1")]
                 Self::WpDrmLeaseDeviceV1 => {
                     if version > WpDrmLeaseDeviceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpDrmLeaseDeviceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-drm_lease_v1")]
                 Self::WpDrmLeaseRequestV1 => {
                     if version > WpDrmLeaseRequestV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpDrmLeaseRequestV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-drm_lease_v1")]
                 Self::WpDrmLeaseV1 => {
                     if version > WpDrmLeaseV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpDrmLeaseV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_background_effect_v1")]
                 Self::ExtBackgroundEffectManagerV1 => {
                     if version > ExtBackgroundEffectManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtBackgroundEffectManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_background_effect_v1")]
                 Self::ExtBackgroundEffectSurfaceV1 => {
                     if version > ExtBackgroundEffectSurfaceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtBackgroundEffectSurfaceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_data_control_v1")]
                 Self::ExtDataControlDeviceV1 => {
                     if version > ExtDataControlDeviceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtDataControlDeviceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_data_control_v1")]
                 Self::ExtDataControlManagerV1 => {
                     if version > ExtDataControlManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtDataControlManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_data_control_v1")]
                 Self::ExtDataControlOfferV1 => {
                     if version > ExtDataControlOfferV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtDataControlOfferV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_data_control_v1")]
                 Self::ExtDataControlSourceV1 => {
                     if version > ExtDataControlSourceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtDataControlSourceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_foreign_toplevel_list_v1")]
                 Self::ExtForeignToplevelHandleV1 => {
                     if version > ExtForeignToplevelHandleV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtForeignToplevelHandleV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_foreign_toplevel_list_v1")]
                 Self::ExtForeignToplevelListV1 => {
                     if version > ExtForeignToplevelListV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtForeignToplevelListV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_idle_notify_v1")]
                 Self::ExtIdleNotificationV1 => {
                     if version > ExtIdleNotificationV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtIdleNotificationV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_idle_notify_v1")]
                 Self::ExtIdleNotifierV1 => {
                     if version > ExtIdleNotifierV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtIdleNotifierV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_image_capture_source_v1")]
                 Self::ExtForeignToplevelImageCaptureSourceManagerV1 => {
                     if version > ExtForeignToplevelImageCaptureSourceManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtForeignToplevelImageCaptureSourceManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_image_capture_source_v1")]
                 Self::ExtImageCaptureSourceV1 => {
                     if version > ExtImageCaptureSourceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtImageCaptureSourceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_image_capture_source_v1")]
                 Self::ExtOutputImageCaptureSourceManagerV1 => {
                     if version > ExtOutputImageCaptureSourceManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtOutputImageCaptureSourceManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_image_copy_capture_v1")]
                 Self::ExtImageCopyCaptureCursorSessionV1 => {
                     if version > ExtImageCopyCaptureCursorSessionV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtImageCopyCaptureCursorSessionV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_image_copy_capture_v1")]
                 Self::ExtImageCopyCaptureFrameV1 => {
                     if version > ExtImageCopyCaptureFrameV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtImageCopyCaptureFrameV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_image_copy_capture_v1")]
                 Self::ExtImageCopyCaptureManagerV1 => {
                     if version > ExtImageCopyCaptureManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtImageCopyCaptureManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_image_copy_capture_v1")]
                 Self::ExtImageCopyCaptureSessionV1 => {
                     if version > ExtImageCopyCaptureSessionV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtImageCopyCaptureSessionV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_session_lock_v1")]
                 Self::ExtSessionLockManagerV1 => {
                     if version > ExtSessionLockManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtSessionLockManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_session_lock_v1")]
                 Self::ExtSessionLockSurfaceV1 => {
                     if version > ExtSessionLockSurfaceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtSessionLockSurfaceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_session_lock_v1")]
                 Self::ExtSessionLockV1 => {
                     if version > ExtSessionLockV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtSessionLockV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_transient_seat_v1")]
                 Self::ExtTransientSeatManagerV1 => {
                     if version > ExtTransientSeatManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtTransientSeatManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_transient_seat_v1")]
                 Self::ExtTransientSeatV1 => {
                     if version > ExtTransientSeatV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtTransientSeatV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_workspace_v1")]
                 Self::ExtWorkspaceGroupHandleV1 => {
                     if version > ExtWorkspaceGroupHandleV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtWorkspaceGroupHandleV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_workspace_v1")]
                 Self::ExtWorkspaceHandleV1 => {
                     if version > ExtWorkspaceHandleV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtWorkspaceHandleV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-ext_workspace_v1")]
                 Self::ExtWorkspaceManagerV1 => {
                     if version > ExtWorkspaceManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ExtWorkspaceManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-fifo_v1")]
                 Self::WpFifoManagerV1 => {
                     if version > WpFifoManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpFifoManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-fifo_v1")]
                 Self::WpFifoV1 => {
                     if version > WpFifoV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpFifoV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-fractional_scale_v1")]
                 Self::WpFractionalScaleManagerV1 => {
                     if version > WpFractionalScaleManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpFractionalScaleManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-fractional_scale_v1")]
                 Self::WpFractionalScaleV1 => {
                     if version > WpFractionalScaleV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpFractionalScaleV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-fullscreen_shell_unstable_v1")]
                 Self::ZwpFullscreenShellModeFeedbackV1 => {
                     if version > ZwpFullscreenShellModeFeedbackV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpFullscreenShellModeFeedbackV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-fullscreen_shell_unstable_v1")]
                 Self::ZwpFullscreenShellV1 => {
                     if version > ZwpFullscreenShellV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpFullscreenShellV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-idle_inhibit_unstable_v1")]
                 Self::ZwpIdleInhibitManagerV1 => {
                     if version > ZwpIdleInhibitManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpIdleInhibitManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-idle_inhibit_unstable_v1")]
                 Self::ZwpIdleInhibitorV1 => {
                     if version > ZwpIdleInhibitorV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpIdleInhibitorV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-input_method_unstable_v1")]
                 Self::ZwpInputMethodContextV1 => {
                     if version > ZwpInputMethodContextV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpInputMethodContextV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-input_method_unstable_v1")]
                 Self::ZwpInputMethodV1 => {
                     if version > ZwpInputMethodV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpInputMethodV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-input_method_unstable_v1")]
                 Self::ZwpInputPanelSurfaceV1 => {
                     if version > ZwpInputPanelSurfaceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpInputPanelSurfaceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-input_method_unstable_v1")]
                 Self::ZwpInputPanelV1 => {
                     if version > ZwpInputPanelV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpInputPanelV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-input_timestamps_unstable_v1")]
                 Self::ZwpInputTimestampsManagerV1 => {
                     if version > ZwpInputTimestampsManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpInputTimestampsManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-input_timestamps_unstable_v1")]
                 Self::ZwpInputTimestampsV1 => {
                     if version > ZwpInputTimestampsV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpInputTimestampsV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-keyboard_shortcuts_inhibit_unstable_v1")]
                 Self::ZwpKeyboardShortcutsInhibitManagerV1 => {
                     if version > ZwpKeyboardShortcutsInhibitManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpKeyboardShortcutsInhibitManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-keyboard_shortcuts_inhibit_unstable_v1")]
                 Self::ZwpKeyboardShortcutsInhibitorV1 => {
                     if version > ZwpKeyboardShortcutsInhibitorV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpKeyboardShortcutsInhibitorV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-linux_dmabuf_v1")]
                 Self::ZwpLinuxBufferParamsV1 => {
                     if version > ZwpLinuxBufferParamsV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpLinuxBufferParamsV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-linux_dmabuf_v1")]
                 Self::ZwpLinuxDmabufFeedbackV1 => {
                     if version > ZwpLinuxDmabufFeedbackV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpLinuxDmabufFeedbackV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-linux_dmabuf_v1")]
                 Self::ZwpLinuxDmabufV1 => {
                     if version > ZwpLinuxDmabufV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpLinuxDmabufV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-linux_drm_syncobj_v1")]
                 Self::WpLinuxDrmSyncobjManagerV1 => {
                     if version > WpLinuxDrmSyncobjManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpLinuxDrmSyncobjManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-linux_drm_syncobj_v1")]
                 Self::WpLinuxDrmSyncobjSurfaceV1 => {
                     if version > WpLinuxDrmSyncobjSurfaceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpLinuxDrmSyncobjSurfaceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-linux_drm_syncobj_v1")]
                 Self::WpLinuxDrmSyncobjTimelineV1 => {
                     if version > WpLinuxDrmSyncobjTimelineV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpLinuxDrmSyncobjTimelineV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-pointer_constraints_unstable_v1")]
                 Self::ZwpConfinedPointerV1 => {
                     if version > ZwpConfinedPointerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpConfinedPointerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-pointer_constraints_unstable_v1")]
                 Self::ZwpLockedPointerV1 => {
                     if version > ZwpLockedPointerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpLockedPointerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-pointer_constraints_unstable_v1")]
                 Self::ZwpPointerConstraintsV1 => {
                     if version > ZwpPointerConstraintsV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpPointerConstraintsV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-pointer_gestures_unstable_v1")]
                 Self::ZwpPointerGestureHoldV1 => {
                     if version > ZwpPointerGestureHoldV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpPointerGestureHoldV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-pointer_gestures_unstable_v1")]
                 Self::ZwpPointerGesturePinchV1 => {
                     if version > ZwpPointerGesturePinchV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpPointerGesturePinchV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-pointer_gestures_unstable_v1")]
                 Self::ZwpPointerGestureSwipeV1 => {
                     if version > ZwpPointerGestureSwipeV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpPointerGestureSwipeV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-pointer_gestures_unstable_v1")]
                 Self::ZwpPointerGesturesV1 => {
                     if version > ZwpPointerGesturesV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpPointerGesturesV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-pointer_warp_v1")]
                 Self::WpPointerWarpV1 => {
                     if version > WpPointerWarpV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpPointerWarpV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-presentation_time")]
                 Self::WpPresentation => {
                     if version > WpPresentation::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpPresentation::new(state, version))
                 }
                 #[cfg(feature = "protocol-presentation_time")]
                 Self::WpPresentationFeedback => {
                     if version > WpPresentationFeedback::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpPresentationFeedback::new(state, version))
                 }
                 #[cfg(feature = "protocol-relative_pointer_unstable_v1")]
                 Self::ZwpRelativePointerManagerV1 => {
                     if version > ZwpRelativePointerManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpRelativePointerManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-relative_pointer_unstable_v1")]
                 Self::ZwpRelativePointerV1 => {
                     if version > ZwpRelativePointerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpRelativePointerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-security_context_v1")]
                 Self::WpSecurityContextManagerV1 => {
                     if version > WpSecurityContextManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpSecurityContextManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-security_context_v1")]
                 Self::WpSecurityContextV1 => {
                     if version > WpSecurityContextV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpSecurityContextV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-single_pixel_buffer_v1")]
                 Self::WpSinglePixelBufferManagerV1 => {
                     if version > WpSinglePixelBufferManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpSinglePixelBufferManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-tablet_v2")]
                 Self::ZwpTabletManagerV2 => {
                     if version > ZwpTabletManagerV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpTabletManagerV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-tablet_v2")]
                 Self::ZwpTabletPadDialV2 => {
                     if version > ZwpTabletPadDialV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpTabletPadDialV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-tablet_v2")]
                 Self::ZwpTabletPadGroupV2 => {
                     if version > ZwpTabletPadGroupV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpTabletPadGroupV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-tablet_v2")]
                 Self::ZwpTabletPadRingV2 => {
                     if version > ZwpTabletPadRingV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpTabletPadRingV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-tablet_v2")]
                 Self::ZwpTabletPadStripV2 => {
                     if version > ZwpTabletPadStripV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpTabletPadStripV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-tablet_v2")]
                 Self::ZwpTabletPadV2 => {
                     if version > ZwpTabletPadV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpTabletPadV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-tablet_v2")]
                 Self::ZwpTabletSeatV2 => {
                     if version > ZwpTabletSeatV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpTabletSeatV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-tablet_v2")]
                 Self::ZwpTabletToolV2 => {
                     if version > ZwpTabletToolV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpTabletToolV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-tablet_v2")]
                 Self::ZwpTabletV2 => {
                     if version > ZwpTabletV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpTabletV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-tearing_control_v1")]
                 Self::WpTearingControlManagerV1 => {
                     if version > WpTearingControlManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpTearingControlManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-tearing_control_v1")]
                 Self::WpTearingControlV1 => {
                     if version > WpTearingControlV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpTearingControlV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-text_input_unstable_v1")]
                 Self::ZwpTextInputManagerV1 => {
                     if version > ZwpTextInputManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpTextInputManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-text_input_unstable_v1")]
                 Self::ZwpTextInputV1 => {
                     if version > ZwpTextInputV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpTextInputV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-text_input_unstable_v3")]
                 Self::ZwpTextInputManagerV3 => {
                     if version > ZwpTextInputManagerV3::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpTextInputManagerV3::new(state, version))
                 }
                 #[cfg(feature = "protocol-text_input_unstable_v3")]
                 Self::ZwpTextInputV3 => {
                     if version > ZwpTextInputV3::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpTextInputV3::new(state, version))
                 }
                 #[cfg(feature = "protocol-viewporter")]
                 Self::WpViewport => {
                     if version > WpViewport::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpViewport::new(state, version))
                 }
                 #[cfg(feature = "protocol-viewporter")]
                 Self::WpViewporter => {
                     if version > WpViewporter::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WpViewporter::new(state, version))
                 }
                 #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
                 Self::ZwpPrimarySelectionDeviceManagerV1 => {
                     if version > ZwpPrimarySelectionDeviceManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpPrimarySelectionDeviceManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
                 Self::ZwpPrimarySelectionDeviceV1 => {
                     if version > ZwpPrimarySelectionDeviceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpPrimarySelectionDeviceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
                 Self::ZwpPrimarySelectionOfferV1 => {
                     if version > ZwpPrimarySelectionOfferV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpPrimarySelectionOfferV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wp_primary_selection_unstable_v1")]
                 Self::ZwpPrimarySelectionSourceV1 => {
                     if version > ZwpPrimarySelectionSourceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpPrimarySelectionSourceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_activation_v1")]
                 Self::XdgActivationTokenV1 => {
                     if version > XdgActivationTokenV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(XdgActivationTokenV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_activation_v1")]
                 Self::XdgActivationV1 => {
                     if version > XdgActivationV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(XdgActivationV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_decoration_unstable_v1")]
                 Self::ZxdgDecorationManagerV1 => {
                     if version > ZxdgDecorationManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZxdgDecorationManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_decoration_unstable_v1")]
                 Self::ZxdgToplevelDecorationV1 => {
                     if version > ZxdgToplevelDecorationV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZxdgToplevelDecorationV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_dialog_v1")]
                 Self::XdgDialogV1 => {
                     if version > XdgDialogV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(XdgDialogV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_dialog_v1")]
                 Self::XdgWmDialogV1 => {
                     if version > XdgWmDialogV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(XdgWmDialogV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_foreign_unstable_v2")]
                 Self::ZxdgExportedV2 => {
                     if version > ZxdgExportedV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZxdgExportedV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_foreign_unstable_v2")]
                 Self::ZxdgExporterV2 => {
                     if version > ZxdgExporterV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZxdgExporterV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_foreign_unstable_v2")]
                 Self::ZxdgImportedV2 => {
                     if version > ZxdgImportedV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZxdgImportedV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_foreign_unstable_v2")]
                 Self::ZxdgImporterV2 => {
                     if version > ZxdgImporterV2::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZxdgImporterV2::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_output_unstable_v1")]
                 Self::ZxdgOutputManagerV1 => {
                     if version > ZxdgOutputManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZxdgOutputManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_output_unstable_v1")]
                 Self::ZxdgOutputV1 => {
                     if version > ZxdgOutputV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZxdgOutputV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_shell")]
                 Self::XdgPopup => {
                     if version > XdgPopup::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(XdgPopup::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_shell")]
                 Self::XdgPositioner => {
                     if version > XdgPositioner::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(XdgPositioner::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_shell")]
                 Self::XdgSurface => {
                     if version > XdgSurface::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(XdgSurface::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_shell")]
                 Self::XdgToplevel => {
                     if version > XdgToplevel::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(XdgToplevel::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_shell")]
                 Self::XdgWmBase => {
                     if version > XdgWmBase::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(XdgWmBase::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_system_bell_v1")]
                 Self::XdgSystemBellV1 => {
                     if version > XdgSystemBellV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(XdgSystemBellV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_toplevel_drag_v1")]
                 Self::XdgToplevelDragManagerV1 => {
                     if version > XdgToplevelDragManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(XdgToplevelDragManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_toplevel_drag_v1")]
                 Self::XdgToplevelDragV1 => {
                     if version > XdgToplevelDragV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(XdgToplevelDragV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_toplevel_icon_v1")]
                 Self::XdgToplevelIconManagerV1 => {
                     if version > XdgToplevelIconManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(XdgToplevelIconManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_toplevel_icon_v1")]
                 Self::XdgToplevelIconV1 => {
                     if version > XdgToplevelIconV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(XdgToplevelIconV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xdg_toplevel_tag_v1")]
                 Self::XdgToplevelTagManagerV1 => {
                     if version > XdgToplevelTagManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(XdgToplevelTagManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xwayland_keyboard_grab_unstable_v1")]
                 Self::ZwpXwaylandKeyboardGrabManagerV1 => {
                     if version > ZwpXwaylandKeyboardGrabManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpXwaylandKeyboardGrabManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xwayland_keyboard_grab_unstable_v1")]
                 Self::ZwpXwaylandKeyboardGrabV1 => {
                     if version > ZwpXwaylandKeyboardGrabV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpXwaylandKeyboardGrabV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xwayland_shell_v1")]
                 Self::XwaylandShellV1 => {
                     if version > XwaylandShellV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(XwaylandShellV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-xwayland_shell_v1")]
                 Self::XwaylandSurfaceV1 => {
                     if version > XwaylandSurfaceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(XwaylandSurfaceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
                 Self::ZwpLinuxBufferReleaseV1 => {
                     if version > ZwpLinuxBufferReleaseV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpLinuxBufferReleaseV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
                 Self::ZwpLinuxExplicitSynchronizationV1 => {
                     if version > ZwpLinuxExplicitSynchronizationV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpLinuxExplicitSynchronizationV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
                 Self::ZwpLinuxSurfaceSynchronizationV1 => {
                     if version > ZwpLinuxSurfaceSynchronizationV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpLinuxSurfaceSynchronizationV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
                 Self::ZwlrDataControlDeviceV1 => {
                     if version > ZwlrDataControlDeviceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrDataControlDeviceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
                 Self::ZwlrDataControlManagerV1 => {
                     if version > ZwlrDataControlManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrDataControlManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
                 Self::ZwlrDataControlOfferV1 => {
                     if version > ZwlrDataControlOfferV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrDataControlOfferV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
                 Self::ZwlrDataControlSourceV1 => {
                     if version > ZwlrDataControlSourceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrDataControlSourceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_export_dmabuf_unstable_v1")]
                 Self::ZwlrExportDmabufFrameV1 => {
                     if version > ZwlrExportDmabufFrameV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrExportDmabufFrameV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_export_dmabuf_unstable_v1")]
                 Self::ZwlrExportDmabufManagerV1 => {
                     if version > ZwlrExportDmabufManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrExportDmabufManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_foreign_toplevel_management_unstable_v1")]
                 Self::ZwlrForeignToplevelHandleV1 => {
                     if version > ZwlrForeignToplevelHandleV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrForeignToplevelHandleV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_foreign_toplevel_management_unstable_v1")]
                 Self::ZwlrForeignToplevelManagerV1 => {
                     if version > ZwlrForeignToplevelManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrForeignToplevelManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_gamma_control_unstable_v1")]
                 Self::ZwlrGammaControlManagerV1 => {
                     if version > ZwlrGammaControlManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrGammaControlManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_gamma_control_unstable_v1")]
                 Self::ZwlrGammaControlV1 => {
                     if version > ZwlrGammaControlV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrGammaControlV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_input_inhibit_unstable_v1")]
                 Self::ZwlrInputInhibitManagerV1 => {
                     if version > ZwlrInputInhibitManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrInputInhibitManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_input_inhibit_unstable_v1")]
                 Self::ZwlrInputInhibitorV1 => {
                     if version > ZwlrInputInhibitorV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrInputInhibitorV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_layer_shell_unstable_v1")]
                 Self::ZwlrLayerShellV1 => {
                     if version > ZwlrLayerShellV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrLayerShellV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_layer_shell_unstable_v1")]
                 Self::ZwlrLayerSurfaceV1 => {
                     if version > ZwlrLayerSurfaceV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrLayerSurfaceV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_output_management_unstable_v1")]
                 Self::ZwlrOutputConfigurationHeadV1 => {
                     if version > ZwlrOutputConfigurationHeadV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrOutputConfigurationHeadV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_output_management_unstable_v1")]
                 Self::ZwlrOutputConfigurationV1 => {
                     if version > ZwlrOutputConfigurationV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrOutputConfigurationV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_output_management_unstable_v1")]
                 Self::ZwlrOutputHeadV1 => {
                     if version > ZwlrOutputHeadV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrOutputHeadV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_output_management_unstable_v1")]
                 Self::ZwlrOutputManagerV1 => {
                     if version > ZwlrOutputManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrOutputManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_output_management_unstable_v1")]
                 Self::ZwlrOutputModeV1 => {
                     if version > ZwlrOutputModeV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrOutputModeV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_output_power_management_unstable_v1")]
                 Self::ZwlrOutputPowerManagerV1 => {
                     if version > ZwlrOutputPowerManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrOutputPowerManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_output_power_management_unstable_v1")]
                 Self::ZwlrOutputPowerV1 => {
                     if version > ZwlrOutputPowerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrOutputPowerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_screencopy_unstable_v1")]
                 Self::ZwlrScreencopyFrameV1 => {
                     if version > ZwlrScreencopyFrameV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrScreencopyFrameV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_screencopy_unstable_v1")]
                 Self::ZwlrScreencopyManagerV1 => {
                     if version > ZwlrScreencopyManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrScreencopyManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_virtual_pointer_unstable_v1")]
                 Self::ZwlrVirtualPointerManagerV1 => {
                     if version > ZwlrVirtualPointerManagerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrVirtualPointerManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlr_virtual_pointer_unstable_v1")]
                 Self::ZwlrVirtualPointerV1 => {
                     if version > ZwlrVirtualPointerV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwlrVirtualPointerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-wlproxy_sync_v1")]
                 Self::WlproxySyncV1 => {
                     if version > WlproxySyncV1::XML_VERSION {
-                        return Err(ObjectError::MaxVersion(self, version));
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(WlproxySyncV1::new(state, version))
                 }

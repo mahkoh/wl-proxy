@@ -25,7 +25,7 @@ impl ConcreteObject for TreelandOutputManagerV1 {
 }
 
 impl TreelandOutputManagerV1 {
-    pub fn set_handler(&self, handler: impl TreelandOutputManagerV1Handler + 'static) {
+    pub fn set_handler(&self, handler: impl TreelandOutputManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -68,7 +68,7 @@ impl TreelandOutputManagerV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -136,7 +136,7 @@ impl TreelandOutputManagerV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -211,14 +211,14 @@ impl TreelandOutputManagerV1 {
         let arg1 = arg1.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         let arg1_id = match arg1.server_obj_id.get() {
-            None => return Err(ObjectError::ArgNoServerId("output")),
+            None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("output"))),
             Some(id) => id,
         };
         arg0.generate_server_id(arg0_obj.clone())
-            .map_err(|e| ObjectError::GenerateServerId("id", e))?;
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("id", e)))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             #[cold]
@@ -315,7 +315,7 @@ impl TreelandOutputManagerV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -463,7 +463,7 @@ impl ObjectPrivate for TreelandOutputManagerV1 {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -475,7 +475,7 @@ impl ObjectPrivate for TreelandOutputManagerV1 {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -483,28 +483,28 @@ impl ObjectPrivate for TreelandOutputManagerV1 {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("output"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("output")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("output"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("output")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("output"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("output")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("output"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("output")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -527,7 +527,7 @@ impl ObjectPrivate for TreelandOutputManagerV1 {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 16)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -542,14 +542,14 @@ impl ObjectPrivate for TreelandOutputManagerV1 {
                 let arg0_id = arg0;
                 let arg0 = TreelandOutputColorControlV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
-                    .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg0_id, "id", e)))?;
                 let arg1_id = arg1;
                 let Some(arg1) = client.endpoint.lookup(arg1_id) else {
-                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
+                    return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg1_id)));
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = client.endpoint.lookup(arg1_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput)));
                 };
                 let arg0 = &arg0;
                 let arg1 = &arg1;
@@ -561,7 +561,7 @@ impl ObjectPrivate for TreelandOutputManagerV1 {
             }
             2 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -585,7 +585,7 @@ impl ObjectPrivate for TreelandOutputManagerV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -593,7 +593,7 @@ impl ObjectPrivate for TreelandOutputManagerV1 {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -601,28 +601,28 @@ impl ObjectPrivate for TreelandOutputManagerV1 {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("output_name"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("output_name")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("output_name"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("output_name")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("output_name"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("output_name")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("output_name"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("output_name")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -644,7 +644,7 @@ impl ObjectPrivate for TreelandOutputManagerV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())

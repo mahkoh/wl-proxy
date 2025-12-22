@@ -25,7 +25,7 @@ impl ConcreteObject for WlDisplay {
 }
 
 impl WlDisplay {
-    pub fn set_handler(&self, handler: impl WlDisplayHandler + 'static) {
+    pub fn set_handler(&self, handler: impl WlDisplayHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -78,10 +78,10 @@ impl WlDisplay {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         arg0.generate_server_id(arg0_obj.clone())
-            .map_err(|e| ObjectError::GenerateServerId("callback", e))?;
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("callback", e)))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             #[cold]
@@ -210,10 +210,10 @@ impl WlDisplay {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         arg0.generate_server_id(arg0_obj.clone())
-            .map_err(|e| ObjectError::GenerateServerId("registry", e))?;
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("registry", e)))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             #[cold]
@@ -346,11 +346,11 @@ impl WlDisplay {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if arg0.client_id.get() != Some(client.endpoint.id) {
-            return Err(ObjectError::ArgNoClientId("object_id", client.endpoint.id));
+            return Err(ObjectError(ObjectErrorKind::ArgNoClientId("object_id", client.endpoint.id)));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -439,7 +439,7 @@ impl WlDisplay {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -650,7 +650,7 @@ impl ObjectPrivate for WlDisplay {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -662,7 +662,7 @@ impl ObjectPrivate for WlDisplay {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -670,7 +670,7 @@ impl ObjectPrivate for WlDisplay {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -685,7 +685,7 @@ impl ObjectPrivate for WlDisplay {
                 let arg0_id = arg0;
                 let arg0 = WlCallback::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
-                    .map_err(|e| ObjectError::SetClientId(arg0_id, "callback", e))?;
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg0_id, "callback", e)))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).handle_sync(&self, arg0);
@@ -697,7 +697,7 @@ impl ObjectPrivate for WlDisplay {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -712,7 +712,7 @@ impl ObjectPrivate for WlDisplay {
                 let arg0_id = arg0;
                 let arg0 = WlRegistry::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
-                    .map_err(|e| ObjectError::SetClientId(arg0_id, "registry", e))?;
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg0_id, "registry", e)))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).handle_get_registry(&self, arg0);
@@ -725,7 +725,7 @@ impl ObjectPrivate for WlDisplay {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -733,44 +733,44 @@ impl ObjectPrivate for WlDisplay {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let mut offset = 2;
                 let Some(&arg0) = msg.get(offset) else {
-                    return Err(ObjectError::MissingArgument("object_id"));
+                    return Err(ObjectError(ObjectErrorKind::MissingArgument("object_id")));
                 };
                 offset += 1;
                 let Some(&arg1) = msg.get(offset) else {
-                    return Err(ObjectError::MissingArgument("code"));
+                    return Err(ObjectError(ObjectErrorKind::MissingArgument("code")));
                 };
                 offset += 1;
                 let arg2 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("message"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("message")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("message"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("message")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("message"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("message")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("message"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("message")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -784,15 +784,15 @@ impl ObjectPrivate for WlDisplay {
                 }
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
-                    return Err(ObjectError::NoServerObject(arg0_id));
+                    return Err(ObjectError(ObjectErrorKind::NoServerObject(arg0_id)));
                 };
-                return Err(ObjectError::ServerError(arg0.core().interface, arg0_id, arg1, StringError(arg2.to_string())));
+                return Err(ObjectError(ObjectErrorKind::ServerError(arg0.core().interface, arg0_id, arg1, StringError(arg2.to_string()))));
             }
             1 => {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -810,7 +810,7 @@ impl ObjectPrivate for WlDisplay {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())

@@ -231,6 +231,12 @@ impl Acceptor {
     }
 }
 
+impl AsFd for Acceptor {
+    fn as_fd(&self) -> BorrowedFd<'_> {
+        self.socket()
+    }
+}
+
 fn bind_socket(socket: &OwnedFd, xrd: &str, id: u32) -> Result<(), AcceptorErrorType> {
     let mut addr: c::sockaddr_un = uapi::pod_zeroed();
     addr.sun_family = c::AF_UNIX as _;

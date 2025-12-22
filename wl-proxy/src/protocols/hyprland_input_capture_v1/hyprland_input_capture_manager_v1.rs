@@ -24,7 +24,7 @@ impl ConcreteObject for HyprlandInputCaptureManagerV1 {
 }
 
 impl HyprlandInputCaptureManagerV1 {
-    pub fn set_handler(&self, handler: impl HyprlandInputCaptureManagerV1Handler + 'static) {
+    pub fn set_handler(&self, handler: impl HyprlandInputCaptureManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -75,10 +75,10 @@ impl HyprlandInputCaptureManagerV1 {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         arg0.generate_server_id(arg0_obj.clone())
-            .map_err(|e| ObjectError::GenerateServerId("session", e))?;
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("session", e)))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             #[cold]
@@ -217,7 +217,7 @@ impl ObjectPrivate for HyprlandInputCaptureManagerV1 {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -229,40 +229,40 @@ impl ObjectPrivate for HyprlandInputCaptureManagerV1 {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let mut offset = 2;
                 let Some(&arg0) = msg.get(offset) else {
-                    return Err(ObjectError::MissingArgument("session"));
+                    return Err(ObjectError(ObjectErrorKind::MissingArgument("session")));
                 };
                 offset += 1;
                 let arg1 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("handle"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("handle")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("handle"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("handle")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("handle"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("handle")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("handle"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("handle")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -277,7 +277,7 @@ impl ObjectPrivate for HyprlandInputCaptureManagerV1 {
                 let arg0_id = arg0;
                 let arg0 = HyprlandInputCaptureV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
-                    .map_err(|e| ObjectError::SetClientId(arg0_id, "session", e))?;
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg0_id, "session", e)))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).handle_create_session(&self, arg0, arg1);
@@ -290,7 +290,7 @@ impl ObjectPrivate for HyprlandInputCaptureManagerV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -298,7 +298,7 @@ impl ObjectPrivate for HyprlandInputCaptureManagerV1 {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -306,7 +306,7 @@ impl ObjectPrivate for HyprlandInputCaptureManagerV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
     }

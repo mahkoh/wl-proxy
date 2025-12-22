@@ -53,7 +53,7 @@ impl ConcreteObject for WpDrmLeaseDeviceV1 {
 }
 
 impl WpDrmLeaseDeviceV1 {
-    pub fn set_handler(&self, handler: impl WpDrmLeaseDeviceV1Handler + 'static) {
+    pub fn set_handler(&self, handler: impl WpDrmLeaseDeviceV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -98,10 +98,10 @@ impl WpDrmLeaseDeviceV1 {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         arg0.generate_server_id(arg0_obj.clone())
-            .map_err(|e| ObjectError::GenerateServerId("id", e))?;
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("id", e)))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             #[cold]
@@ -195,7 +195,7 @@ impl WpDrmLeaseDeviceV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -270,7 +270,7 @@ impl WpDrmLeaseDeviceV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -355,11 +355,11 @@ impl WpDrmLeaseDeviceV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         arg0.generate_client_id(client, arg0_obj.clone())
-            .map_err(|e| ObjectError::GenerateClientId("id", e))?;
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateClientId("id", e)))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             #[cold]
@@ -475,7 +475,7 @@ impl WpDrmLeaseDeviceV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -538,7 +538,7 @@ impl WpDrmLeaseDeviceV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -764,7 +764,7 @@ impl ObjectPrivate for WpDrmLeaseDeviceV1 {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -776,7 +776,7 @@ impl ObjectPrivate for WpDrmLeaseDeviceV1 {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -784,7 +784,7 @@ impl ObjectPrivate for WpDrmLeaseDeviceV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -799,7 +799,7 @@ impl ObjectPrivate for WpDrmLeaseDeviceV1 {
                 let arg0_id = arg0;
                 let arg0 = WpDrmLeaseRequestV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
-                    .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg0_id, "id", e)))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).handle_create_lease_request(&self, arg0);
@@ -809,7 +809,7 @@ impl ObjectPrivate for WpDrmLeaseDeviceV1 {
             }
             1 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -832,7 +832,7 @@ impl ObjectPrivate for WpDrmLeaseDeviceV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -840,16 +840,16 @@ impl ObjectPrivate for WpDrmLeaseDeviceV1 {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 let Some(arg0) = fds.pop_front() else {
-                    return Err(ObjectError::MissingFd("fd"));
+                    return Err(ObjectError(ObjectErrorKind::MissingFd("fd")));
                 };
                 let arg0 = &arg0;
                 if self.core.state.log {
@@ -872,7 +872,7 @@ impl ObjectPrivate for WpDrmLeaseDeviceV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -887,7 +887,7 @@ impl ObjectPrivate for WpDrmLeaseDeviceV1 {
                 let arg0_id = arg0;
                 let arg0 = WpDrmLeaseConnectorV1::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
-                    .map_err(|e| ObjectError::SetServerId(arg0_id, "id", e))?;
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetServerId(arg0_id, "id", e)))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).handle_connector(&self, arg0);
@@ -897,7 +897,7 @@ impl ObjectPrivate for WpDrmLeaseDeviceV1 {
             }
             2 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -917,7 +917,7 @@ impl ObjectPrivate for WpDrmLeaseDeviceV1 {
             }
             3 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -940,7 +940,7 @@ impl ObjectPrivate for WpDrmLeaseDeviceV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())

@@ -28,7 +28,7 @@ impl ConcreteObject for WpColorManagementSurfaceFeedbackV1 {
 }
 
 impl WpColorManagementSurfaceFeedbackV1 {
-    pub fn set_handler(&self, handler: impl WpColorManagementSurfaceFeedbackV1Handler + 'static) {
+    pub fn set_handler(&self, handler: impl WpColorManagementSurfaceFeedbackV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -63,7 +63,7 @@ impl WpColorManagementSurfaceFeedbackV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -131,7 +131,7 @@ impl WpColorManagementSurfaceFeedbackV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -232,10 +232,10 @@ impl WpColorManagementSurfaceFeedbackV1 {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         arg0.generate_server_id(arg0_obj.clone())
-            .map_err(|e| ObjectError::GenerateServerId("image_description", e))?;
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("image_description", e)))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             #[cold]
@@ -427,10 +427,10 @@ impl WpColorManagementSurfaceFeedbackV1 {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         arg0.generate_server_id(arg0_obj.clone())
-            .map_err(|e| ObjectError::GenerateServerId("image_description", e))?;
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("image_description", e)))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             #[cold]
@@ -558,7 +558,7 @@ impl WpColorManagementSurfaceFeedbackV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -814,7 +814,7 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -826,13 +826,13 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -855,7 +855,7 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -870,7 +870,7 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
                 let arg0_id = arg0;
                 let arg0 = WpImageDescriptionV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
-                    .map_err(|e| ObjectError::SetClientId(arg0_id, "image_description", e))?;
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg0_id, "image_description", e)))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).handle_get_preferred(&self, arg0);
@@ -882,7 +882,7 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -897,7 +897,7 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
                 let arg0_id = arg0;
                 let arg0 = WpImageDescriptionV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
-                    .map_err(|e| ObjectError::SetClientId(arg0_id, "image_description", e))?;
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg0_id, "image_description", e)))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).handle_get_preferred_parametric(&self, arg0);
@@ -910,7 +910,7 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -918,7 +918,7 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -926,7 +926,7 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -949,7 +949,7 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 16)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -971,7 +971,7 @@ impl ObjectPrivate for WpColorManagementSurfaceFeedbackV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())

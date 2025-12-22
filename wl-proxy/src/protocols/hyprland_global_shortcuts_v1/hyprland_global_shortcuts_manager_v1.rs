@@ -24,7 +24,7 @@ impl ConcreteObject for HyprlandGlobalShortcutsManagerV1 {
 }
 
 impl HyprlandGlobalShortcutsManagerV1 {
-    pub fn set_handler(&self, handler: impl HyprlandGlobalShortcutsManagerV1Handler + 'static) {
+    pub fn set_handler(&self, handler: impl HyprlandGlobalShortcutsManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -93,10 +93,10 @@ impl HyprlandGlobalShortcutsManagerV1 {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         arg0.generate_server_id(arg0_obj.clone())
-            .map_err(|e| ObjectError::GenerateServerId("shortcut", e))?;
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("shortcut", e)))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             #[cold]
@@ -250,7 +250,7 @@ impl HyprlandGlobalShortcutsManagerV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -372,7 +372,7 @@ impl ObjectPrivate for HyprlandGlobalShortcutsManagerV1 {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -384,106 +384,106 @@ impl ObjectPrivate for HyprlandGlobalShortcutsManagerV1 {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let mut offset = 2;
                 let Some(&arg0) = msg.get(offset) else {
-                    return Err(ObjectError::MissingArgument("shortcut"));
+                    return Err(ObjectError(ObjectErrorKind::MissingArgument("shortcut")));
                 };
                 offset += 1;
                 let arg1 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("id"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("id")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("id"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("id")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("id"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("id")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("id"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("id")));
                         };
                         s
                     }
                 };
                 let arg2 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("app_id"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("app_id")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("app_id"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("app_id")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("app_id"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("app_id")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("app_id"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("app_id")));
                         };
                         s
                     }
                 };
                 let arg3 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("description"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("description")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("description"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("description")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("description"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("description")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("description"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("description")));
                         };
                         s
                     }
                 };
                 let arg4 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("trigger_description"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("trigger_description")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("trigger_description"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("trigger_description")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("trigger_description"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("trigger_description")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("trigger_description"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("trigger_description")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -498,7 +498,7 @@ impl ObjectPrivate for HyprlandGlobalShortcutsManagerV1 {
                 let arg0_id = arg0;
                 let arg0 = HyprlandGlobalShortcutV1::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
-                    .map_err(|e| ObjectError::SetClientId(arg0_id, "shortcut", e))?;
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg0_id, "shortcut", e)))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).handle_register_shortcut(&self, arg0, arg1, arg2, arg3, arg4);
@@ -508,7 +508,7 @@ impl ObjectPrivate for HyprlandGlobalShortcutsManagerV1 {
             }
             1 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -532,7 +532,7 @@ impl ObjectPrivate for HyprlandGlobalShortcutsManagerV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -540,7 +540,7 @@ impl ObjectPrivate for HyprlandGlobalShortcutsManagerV1 {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -548,7 +548,7 @@ impl ObjectPrivate for HyprlandGlobalShortcutsManagerV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
     }

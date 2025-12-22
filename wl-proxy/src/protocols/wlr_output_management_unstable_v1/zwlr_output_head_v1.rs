@@ -36,7 +36,7 @@ impl ConcreteObject for ZwlrOutputHeadV1 {
 }
 
 impl ZwlrOutputHeadV1 {
-    pub fn set_handler(&self, handler: impl ZwlrOutputHeadV1Handler + 'static) {
+    pub fn set_handler(&self, handler: impl ZwlrOutputHeadV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -99,7 +99,7 @@ impl ZwlrOutputHeadV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -200,7 +200,7 @@ impl ZwlrOutputHeadV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -294,7 +294,7 @@ impl ZwlrOutputHeadV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -374,11 +374,11 @@ impl ZwlrOutputHeadV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         arg0.generate_client_id(client, arg0_obj.clone())
-            .map_err(|e| ObjectError::GenerateClientId("mode", e))?;
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateClientId("mode", e)))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             #[cold]
@@ -479,7 +479,7 @@ impl ZwlrOutputHeadV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -556,11 +556,11 @@ impl ZwlrOutputHeadV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if arg0.client_id.get() != Some(client.endpoint.id) {
-            return Err(ObjectError::ArgNoClientId("mode", client.endpoint.id));
+            return Err(ObjectError(ObjectErrorKind::ArgNoClientId("mode", client.endpoint.id)));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -637,7 +637,7 @@ impl ZwlrOutputHeadV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -714,7 +714,7 @@ impl ZwlrOutputHeadV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -787,7 +787,7 @@ impl ZwlrOutputHeadV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -851,7 +851,7 @@ impl ZwlrOutputHeadV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -935,7 +935,7 @@ impl ZwlrOutputHeadV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -1042,7 +1042,7 @@ impl ZwlrOutputHeadV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -1150,7 +1150,7 @@ impl ZwlrOutputHeadV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -1230,7 +1230,7 @@ impl ZwlrOutputHeadV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -1297,7 +1297,7 @@ impl ZwlrOutputHeadV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -1835,7 +1835,7 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -1847,13 +1847,13 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1877,7 +1877,7 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -1885,7 +1885,7 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -1893,28 +1893,28 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("name"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("name")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("name"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("name")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("name"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("name")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("name"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("name")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1936,28 +1936,28 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("description"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("description")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("description"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("description")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("description"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("description")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("description"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("description")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1980,7 +1980,7 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 16)));
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
@@ -2004,7 +2004,7 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -2019,7 +2019,7 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
                 let arg0_id = arg0;
                 let arg0 = ZwlrOutputModeV1::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
-                    .map_err(|e| ObjectError::SetServerId(arg0_id, "mode", e))?;
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetServerId(arg0_id, "mode", e)))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).handle_mode(&self, arg0);
@@ -2031,7 +2031,7 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 let arg0 = arg0 as i32;
                 if self.core.state.log {
@@ -2054,7 +2054,7 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -2068,11 +2068,11 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
                 }
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
-                    return Err(ObjectError::NoServerObject(arg0_id));
+                    return Err(ObjectError(ObjectErrorKind::NoServerObject(arg0_id)));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ZwlrOutputModeV1>() else {
                     let o = self.core.state.server.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("mode", o.core().interface, ObjectInterface::ZwlrOutputModeV1));
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("mode", o.core().interface, ObjectInterface::ZwlrOutputModeV1)));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -2086,7 +2086,7 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
                     arg0,
                     arg1,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 16));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 16)));
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
@@ -2110,7 +2110,7 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 let arg0 = WlOutputTransform(arg0);
                 if self.core.state.log {
@@ -2133,7 +2133,7 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 let arg0 = Fixed::from_wire(arg0 as i32);
                 if self.core.state.log {
@@ -2154,7 +2154,7 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
             }
             9 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -2176,28 +2176,28 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("make"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("make")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("make"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("make")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("make"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("make")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("make"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("make")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -2219,28 +2219,28 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("model"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("model")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("model"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("model")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("model"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("model")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("model"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("model")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -2262,28 +2262,28 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
                 let mut offset = 2;
                 let arg0 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("serial_number"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("serial_number")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("serial_number"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("serial_number")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("serial_number"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("serial_number")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("serial_number"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("serial_number")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -2305,7 +2305,7 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 let arg0 = ZwlrOutputHeadV1AdaptiveSyncState(arg0);
                 if self.core.state.log {
@@ -2328,7 +2328,7 @@ impl ObjectPrivate for ZwlrOutputHeadV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())

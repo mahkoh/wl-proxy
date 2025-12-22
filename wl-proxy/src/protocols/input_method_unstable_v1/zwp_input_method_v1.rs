@@ -27,7 +27,7 @@ impl ConcreteObject for ZwpInputMethodV1 {
 }
 
 impl ZwpInputMethodV1 {
-    pub fn set_handler(&self, handler: impl ZwpInputMethodV1Handler + 'static) {
+    pub fn set_handler(&self, handler: impl ZwpInputMethodV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -72,11 +72,11 @@ impl ZwpInputMethodV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         arg0.generate_client_id(client, arg0_obj.clone())
-            .map_err(|e| ObjectError::GenerateClientId("id", e))?;
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateClientId("id", e)))?;
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             #[cold]
@@ -176,11 +176,11 @@ impl ZwpInputMethodV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if arg0.client_id.get() != Some(client.endpoint.id) {
-            return Err(ObjectError::ArgNoClientId("context", client.endpoint.id));
+            return Err(ObjectError(ObjectErrorKind::ArgNoClientId("context", client.endpoint.id)));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -310,7 +310,7 @@ impl ObjectPrivate for ZwpInputMethodV1 {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -322,7 +322,7 @@ impl ObjectPrivate for ZwpInputMethodV1 {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -331,14 +331,14 @@ impl ObjectPrivate for ZwpInputMethodV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -346,7 +346,7 @@ impl ObjectPrivate for ZwpInputMethodV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -361,7 +361,7 @@ impl ObjectPrivate for ZwpInputMethodV1 {
                 let arg0_id = arg0;
                 let arg0 = ZwpInputMethodContextV1::new(&self.core.state, self.core.version);
                 arg0.core().set_server_id(arg0_id, arg0.clone())
-                    .map_err(|e| ObjectError::SetServerId(arg0_id, "id", e))?;
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetServerId(arg0_id, "id", e)))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).handle_activate(&self, arg0);
@@ -373,7 +373,7 @@ impl ObjectPrivate for ZwpInputMethodV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -387,11 +387,11 @@ impl ObjectPrivate for ZwpInputMethodV1 {
                 }
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
-                    return Err(ObjectError::NoServerObject(arg0_id));
+                    return Err(ObjectError(ObjectErrorKind::NoServerObject(arg0_id)));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<ZwpInputMethodContextV1>() else {
                     let o = self.core.state.server.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("context", o.core().interface, ObjectInterface::ZwpInputMethodContextV1));
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("context", o.core().interface, ObjectInterface::ZwpInputMethodContextV1)));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -404,7 +404,7 @@ impl ObjectPrivate for ZwpInputMethodV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())

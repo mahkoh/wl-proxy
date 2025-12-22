@@ -71,7 +71,7 @@ impl ConcreteObject for XdgSurface {
 }
 
 impl XdgSurface {
-    pub fn set_handler(&self, handler: impl XdgSurfaceHandler + 'static) {
+    pub fn set_handler(&self, handler: impl XdgSurfaceHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -108,7 +108,7 @@ impl XdgSurface {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -175,10 +175,10 @@ impl XdgSurface {
         let arg0 = arg0_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         arg0.generate_server_id(arg0_obj.clone())
-            .map_err(|e| ObjectError::GenerateServerId("id", e))?;
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("id", e)))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             #[cold]
@@ -302,21 +302,21 @@ impl XdgSurface {
         let arg2 = arg2.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         let arg1_id = match arg1 {
             None => 0,
             Some(arg1) => match arg1.server_obj_id.get() {
-                None => return Err(ObjectError::ArgNoServerId("parent")),
+                None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("parent"))),
                 Some(id) => id,
             },
         };
         let arg2_id = match arg2.server_obj_id.get() {
-            None => return Err(ObjectError::ArgNoServerId("positioner")),
+            None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("positioner"))),
             Some(id) => id,
         };
         arg0.generate_server_id(arg0_obj.clone())
-            .map_err(|e| ObjectError::GenerateServerId("id", e))?;
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("id", e)))?;
         let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             #[cold]
@@ -513,7 +513,7 @@ impl XdgSurface {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -664,7 +664,7 @@ impl XdgSurface {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -780,7 +780,7 @@ impl XdgSurface {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -1116,7 +1116,7 @@ impl ObjectPrivate for XdgSurface {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -1128,13 +1128,13 @@ impl ObjectPrivate for XdgSurface {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1157,7 +1157,7 @@ impl ObjectPrivate for XdgSurface {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -1172,7 +1172,7 @@ impl ObjectPrivate for XdgSurface {
                 let arg0_id = arg0;
                 let arg0 = XdgToplevel::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
-                    .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg0_id, "id", e)))?;
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
                     (**handler).handle_get_toplevel(&self, arg0);
@@ -1186,7 +1186,7 @@ impl ObjectPrivate for XdgSurface {
                     arg1,
                     arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 20)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -1201,27 +1201,27 @@ impl ObjectPrivate for XdgSurface {
                 let arg0_id = arg0;
                 let arg0 = XdgPopup::new(&self.core.state, self.core.version);
                 arg0.core().set_client_id(client, arg0_id, arg0.clone())
-                    .map_err(|e| ObjectError::SetClientId(arg0_id, "id", e))?;
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg0_id, "id", e)))?;
                 let arg1 = if arg1 == 0 {
                     None
                 } else {
                     let arg1_id = arg1;
                     let Some(arg1) = client.endpoint.lookup(arg1_id) else {
-                        return Err(ObjectError::NoClientObject(client.endpoint.id, arg1_id));
+                        return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg1_id)));
                     };
                     let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<XdgSurface>() else {
                         let o = client.endpoint.lookup(arg1_id).unwrap();
-                        return Err(ObjectError::WrongObjectType("parent", o.core().interface, ObjectInterface::XdgSurface));
+                        return Err(ObjectError(ObjectErrorKind::WrongObjectType("parent", o.core().interface, ObjectInterface::XdgSurface)));
                     };
                     Some(arg1)
                 };
                 let arg2_id = arg2;
                 let Some(arg2) = client.endpoint.lookup(arg2_id) else {
-                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg2_id));
+                    return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg2_id)));
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<XdgPositioner>() else {
                     let o = client.endpoint.lookup(arg2_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("positioner", o.core().interface, ObjectInterface::XdgPositioner));
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("positioner", o.core().interface, ObjectInterface::XdgPositioner)));
                 };
                 let arg0 = &arg0;
                 let arg1 = arg1.as_ref();
@@ -1239,7 +1239,7 @@ impl ObjectPrivate for XdgSurface {
                     arg2,
                     arg3,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 24)));
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
@@ -1265,7 +1265,7 @@ impl ObjectPrivate for XdgSurface {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -1288,7 +1288,7 @@ impl ObjectPrivate for XdgSurface {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -1296,7 +1296,7 @@ impl ObjectPrivate for XdgSurface {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -1304,7 +1304,7 @@ impl ObjectPrivate for XdgSurface {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -1326,7 +1326,7 @@ impl ObjectPrivate for XdgSurface {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())

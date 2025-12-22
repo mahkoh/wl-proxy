@@ -33,7 +33,7 @@ impl ConcreteObject for ExtImageCopyCaptureFrameV1 {
 }
 
 impl ExtImageCopyCaptureFrameV1 {
-    pub fn set_handler(&self, handler: impl ExtImageCopyCaptureFrameV1Handler + 'static) {
+    pub fn set_handler(&self, handler: impl ExtImageCopyCaptureFrameV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -69,7 +69,7 @@ impl ExtImageCopyCaptureFrameV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -141,10 +141,10 @@ impl ExtImageCopyCaptureFrameV1 {
         let arg0 = arg0.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         let arg0_id = match arg0.server_obj_id.get() {
-            None => return Err(ObjectError::ArgNoServerId("buffer")),
+            None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("buffer"))),
             Some(id) => id,
         };
         if self.core.state.log {
@@ -253,7 +253,7 @@ impl ExtImageCopyCaptureFrameV1 {
         );
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -352,7 +352,7 @@ impl ExtImageCopyCaptureFrameV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -424,7 +424,7 @@ impl ExtImageCopyCaptureFrameV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -515,7 +515,7 @@ impl ExtImageCopyCaptureFrameV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -621,7 +621,7 @@ impl ExtImageCopyCaptureFrameV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -703,7 +703,7 @@ impl ExtImageCopyCaptureFrameV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -774,7 +774,7 @@ impl ExtImageCopyCaptureFrameV1 {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -1127,7 +1127,7 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -1139,13 +1139,13 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1168,7 +1168,7 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -1182,11 +1182,11 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                 }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
-                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
+                    return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg0_id)));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlBuffer>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("buffer", o.core().interface, ObjectInterface::WlBuffer));
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("buffer", o.core().interface, ObjectInterface::WlBuffer)));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -1202,7 +1202,7 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                     arg2,
                     arg3,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 24)));
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
@@ -1226,7 +1226,7 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
             }
             3 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1249,7 +1249,7 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -1257,7 +1257,7 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -1265,7 +1265,7 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 let arg0 = WlOutputTransform(arg0);
                 if self.core.state.log {
@@ -1291,7 +1291,7 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                     arg2,
                     arg3,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 24));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 24)));
                 };
                 let arg0 = arg0 as i32;
                 let arg1 = arg1 as i32;
@@ -1319,7 +1319,7 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                     arg1,
                     arg2,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 20));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 20)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -1339,7 +1339,7 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
             }
             3 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -1361,7 +1361,7 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 let arg0 = ExtImageCopyCaptureFrameV1FailureReason(arg0);
                 if self.core.state.log {
@@ -1384,7 +1384,7 @@ impl ObjectPrivate for ExtImageCopyCaptureFrameV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())

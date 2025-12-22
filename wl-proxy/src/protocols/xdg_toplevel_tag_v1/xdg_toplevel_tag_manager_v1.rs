@@ -34,7 +34,7 @@ impl ConcreteObject for XdgToplevelTagManagerV1 {
 }
 
 impl XdgToplevelTagManagerV1 {
-    pub fn set_handler(&self, handler: impl XdgToplevelTagManagerV1Handler + 'static) {
+    pub fn set_handler(&self, handler: impl XdgToplevelTagManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -70,7 +70,7 @@ impl XdgToplevelTagManagerV1 {
     ) -> Result<(), ObjectError> {
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         if self.core.state.log {
             #[cold]
@@ -152,10 +152,10 @@ impl XdgToplevelTagManagerV1 {
         let arg0 = arg0.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         let arg0_id = match arg0.server_obj_id.get() {
-            None => return Err(ObjectError::ArgNoServerId("toplevel")),
+            None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("toplevel"))),
             Some(id) => id,
         };
         if self.core.state.log {
@@ -254,10 +254,10 @@ impl XdgToplevelTagManagerV1 {
         let arg0 = arg0.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         let arg0_id = match arg0.server_obj_id.get() {
-            None => return Err(ObjectError::ArgNoServerId("toplevel")),
+            None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("toplevel"))),
             Some(id) => id,
         };
         if self.core.state.log {
@@ -434,7 +434,7 @@ impl ObjectPrivate for XdgToplevelTagManagerV1 {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -446,13 +446,13 @@ impl ObjectPrivate for XdgToplevelTagManagerV1 {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -474,33 +474,33 @@ impl ObjectPrivate for XdgToplevelTagManagerV1 {
             1 => {
                 let mut offset = 2;
                 let Some(&arg0) = msg.get(offset) else {
-                    return Err(ObjectError::MissingArgument("toplevel"));
+                    return Err(ObjectError(ObjectErrorKind::MissingArgument("toplevel")));
                 };
                 offset += 1;
                 let arg1 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("tag"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("tag")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("tag"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("tag")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("tag"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("tag")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("tag"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("tag")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -514,11 +514,11 @@ impl ObjectPrivate for XdgToplevelTagManagerV1 {
                 }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
-                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
+                    return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg0_id)));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<XdgToplevel>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("toplevel", o.core().interface, ObjectInterface::XdgToplevel));
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("toplevel", o.core().interface, ObjectInterface::XdgToplevel)));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -530,33 +530,33 @@ impl ObjectPrivate for XdgToplevelTagManagerV1 {
             2 => {
                 let mut offset = 2;
                 let Some(&arg0) = msg.get(offset) else {
-                    return Err(ObjectError::MissingArgument("toplevel"));
+                    return Err(ObjectError(ObjectErrorKind::MissingArgument("toplevel")));
                 };
                 offset += 1;
                 let arg1 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("description"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("description")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("description"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("description")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("description"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("description")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("description"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("description")));
                         };
                         s
                     }
                 };
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -570,11 +570,11 @@ impl ObjectPrivate for XdgToplevelTagManagerV1 {
                 }
                 let arg0_id = arg0;
                 let Some(arg0) = client.endpoint.lookup(arg0_id) else {
-                    return Err(ObjectError::NoClientObject(client.endpoint.id, arg0_id));
+                    return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg0_id)));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<XdgToplevel>() else {
                     let o = client.endpoint.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("toplevel", o.core().interface, ObjectInterface::XdgToplevel));
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("toplevel", o.core().interface, ObjectInterface::XdgToplevel)));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -588,7 +588,7 @@ impl ObjectPrivate for XdgToplevelTagManagerV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -596,7 +596,7 @@ impl ObjectPrivate for XdgToplevelTagManagerV1 {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -604,7 +604,7 @@ impl ObjectPrivate for XdgToplevelTagManagerV1 {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
     }

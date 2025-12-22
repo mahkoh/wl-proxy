@@ -162,8 +162,8 @@ pub struct State {
     has_interest_update_endpoints: Cell<bool>,
     interest_update_acceptors: Stack<Rc<Acceptor>>,
     has_interest_update_acceptors: Cell<bool>,
-    pub(crate) all_proxies: RefCell<HashMap<u64, Weak<dyn Object>>>,
-    pub(crate) next_proxy_id: Cell<u64>,
+    pub(crate) all_objects: RefCell<HashMap<u64, Weak<dyn Object>>>,
+    pub(crate) next_object_id: Cell<u64>,
     pub(crate) log: bool,
     pub(crate) log_prefix: String,
     log_writer: RefCell<BufWriter<Fd>>,
@@ -742,14 +742,14 @@ impl State {
         if self.destroyed.replace(true) {
             return;
         }
-        let proxies = &mut *self.object_stash.borrow();
+        let objects = &mut *self.object_stash.borrow();
         for pollable in self.pollables.borrow().values() {
             let fd = match pollable {
                 Pollable::Endpoint(ewc) => {
                     if let Some(c) = &ewc.client {
                         c.destroyed.set(true);
                     }
-                    proxies.extend(ewc.endpoint.objects.borrow_mut().drain().map(|v| v.1));
+                    objects.extend(ewc.endpoint.objects.borrow_mut().drain().map(|v| v.1));
                     &ewc.endpoint.socket
                 }
                 Pollable::Acceptor(a) => &a.socket,
@@ -757,15 +757,15 @@ impl State {
             };
             self.poller.unregister(fd);
         }
-        proxies.clear();
-        for proxy in self.all_proxies.borrow().values() {
-            if let Some(proxy) = proxy.upgrade() {
-                proxies.push(proxy);
+        objects.clear();
+        for object in self.all_objects.borrow().values() {
+            if let Some(object) = object.upgrade() {
+                objects.push(object);
             }
         }
-        for proxy in proxies {
-            proxy.unset_handler();
-            proxy.core().client.take();
+        for object in objects {
+            object.unset_handler();
+            object.core().client.take();
         }
         self.handler.set(None);
         self.pollables.borrow_mut().clear();
@@ -775,7 +775,7 @@ impl State {
         self.flushable_endpoints.take();
         self.interest_update_endpoints.take();
         self.interest_update_acceptors.take();
-        self.all_proxies.borrow_mut().clear();
+        self.all_objects.borrow_mut().clear();
         // Ensure that the poll fd stays permanently readable.
         let _ = self.create_remote_destructor();
     }

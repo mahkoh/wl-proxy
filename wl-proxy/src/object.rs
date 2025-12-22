@@ -1,7 +1,7 @@
 use {
     crate::{
         client::Client,
-        handler::{HandlerMut, HandlerRef},
+        handler::{HandlerAccessError, HandlerMut, HandlerRef},
         protocols::ObjectInterface,
         state::State,
     },
@@ -15,16 +15,6 @@ use {
     },
     thiserror::Error,
 };
-
-#[derive(Debug, Error)]
-pub enum HandlerAccessError {
-    #[error("the handler is already borrowed")]
-    AlreadyBorrowed,
-    #[error("the proxy has no handler")]
-    NoHandler,
-    #[error("the handler has a different type")]
-    InvalidType,
-}
 
 pub(crate) trait ObjectPrivate: Any {
     fn new(state: &Rc<State>, version: u32) -> Rc<Self>
@@ -223,12 +213,12 @@ impl ObjectCore {
         interface: ObjectInterface,
         version: u32,
     ) -> Self {
-        let proxy_id = state.next_proxy_id.get();
-        state.next_proxy_id.set(proxy_id + 1);
-        state.all_proxies.borrow_mut().insert(proxy_id, slf);
+        let object_id = state.next_object_id.get();
+        state.next_object_id.set(object_id + 1);
+        state.all_objects.borrow_mut().insert(object_id, slf);
         Self {
             state: state.clone(),
-            id: proxy_id,
+            id: object_id,
             interface,
             version,
             forward_to_client: Cell::new(true),
@@ -348,8 +338,8 @@ impl ObjectCore {
             self.client_obj_id.take();
             self.client_id.take();
             let client = self.client.take().unwrap();
-            let proxy = client.endpoint.objects.borrow_mut().remove(&id);
-            drop(proxy);
+            let object = client.endpoint.objects.borrow_mut().remove(&id);
+            drop(object);
             client.endpoint.idl.release(idl);
         } else {
             self.awaiting_delete_id.set(true);
@@ -362,7 +352,7 @@ impl ObjectCore {
             return;
         }
         self.server_obj_id.take();
-        let _proxy = self.state.server.objects.borrow_mut().remove(&id);
+        let _object = self.state.server.objects.borrow_mut().remove(&id);
     }
 
     pub fn delete_id(&self) {
@@ -374,7 +364,7 @@ impl ObjectCore {
     pub fn try_delete_id(&self) -> Result<(), ObjectError> {
         if !self.awaiting_delete_id.replace(false) {
             if self.client.borrow().is_some() {
-                return Err(ObjectError::NotAwaitingDeleteId);
+                return Err(ObjectError(ObjectErrorKind::NotAwaitingDeleteId));
             }
             return Ok(());
         }
@@ -385,8 +375,8 @@ impl ObjectCore {
         let Some(client) = self.client.take() else {
             return Ok(());
         };
-        let proxy = client.endpoint.objects.borrow_mut().remove(&id);
-        drop(proxy);
+        let object = client.endpoint.objects.borrow_mut().remove(&id);
+        drop(object);
         client.display.try_send_delete_id(id)
     }
 
@@ -424,12 +414,17 @@ impl ObjectCore {
 
 impl Drop for ObjectCore {
     fn drop(&mut self) {
-        self.state.all_proxies.borrow_mut().remove(&self.id);
+        self.state.all_objects.borrow_mut().remove(&self.id);
     }
 }
 
+/// An error emitted by an [`Object`].
 #[derive(Debug, Error)]
-pub enum ObjectError {
+#[error(transparent)]
+pub struct ObjectError(#[from] pub(crate) ObjectErrorKind);
+
+#[derive(Debug, Error)]
+pub enum ObjectErrorKind {
     #[error("could not generate a client id for argument {0}")]
     GenerateClientId(&'static str, #[source] IdError),
     #[error("could not generate a server id for argument {0}")]
@@ -470,7 +465,7 @@ pub enum ObjectError {
     NullString(&'static str),
     #[error("argument {0} is not valid UTF-8")]
     NonUtf8(&'static str),
-    #[error("server sent error {} on proxy {}#{}", .2, .0.name(), .1)]
+    #[error("server sent error {} on object {}#{}", .2, .0.name(), .1)]
     ServerError(ObjectInterface, u32, u32, #[source] StringError),
     #[error("the message handler is already borrowed")]
     HandlerBorrowed,

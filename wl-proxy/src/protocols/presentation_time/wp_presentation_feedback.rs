@@ -34,7 +34,7 @@ impl ConcreteObject for WpPresentationFeedback {
 }
 
 impl WpPresentationFeedback {
-    pub fn set_handler(&self, handler: impl WpPresentationFeedbackHandler + 'static) {
+    pub fn set_handler(&self, handler: impl WpPresentationFeedbackHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -88,11 +88,11 @@ impl WpPresentationFeedback {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if arg0.client_id.get() != Some(client.endpoint.id) {
-            return Err(ObjectError::ArgNoClientId("output", client.endpoint.id));
+            return Err(ObjectError(ObjectErrorKind::ArgNoClientId("output", client.endpoint.id)));
         }
         let arg0_id = arg0.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -237,7 +237,7 @@ impl WpPresentationFeedback {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -369,7 +369,7 @@ impl WpPresentationFeedback {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -577,7 +577,7 @@ impl ObjectPrivate for WpPresentationFeedback {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -589,7 +589,7 @@ impl ObjectPrivate for WpPresentationFeedback {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -598,14 +598,14 @@ impl ObjectPrivate for WpPresentationFeedback {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
     }
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
@@ -613,7 +613,7 @@ impl ObjectPrivate for WpPresentationFeedback {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -627,11 +627,11 @@ impl ObjectPrivate for WpPresentationFeedback {
                 }
                 let arg0_id = arg0;
                 let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
-                    return Err(ObjectError::NoServerObject(arg0_id));
+                    return Err(ObjectError(ObjectErrorKind::NoServerObject(arg0_id)));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlOutput>() else {
                     let o = self.core.state.server.lookup(arg0_id).unwrap();
-                    return Err(ObjectError::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput));
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("output", o.core().interface, ObjectInterface::WlOutput)));
                 };
                 let arg0 = &arg0;
                 if let Some(handler) = handler {
@@ -650,7 +650,7 @@ impl ObjectPrivate for WpPresentationFeedback {
                     arg5,
                     arg6,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 36));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 36)));
                 };
                 let arg6 = WpPresentationFeedbackKind(arg6);
                 if self.core.state.log {
@@ -672,7 +672,7 @@ impl ObjectPrivate for WpPresentationFeedback {
             }
             2 => {
                 if msg.len() != 2 {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 8));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -695,7 +695,7 @@ impl ObjectPrivate for WpPresentationFeedback {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())

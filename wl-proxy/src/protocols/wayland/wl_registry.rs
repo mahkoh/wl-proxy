@@ -43,7 +43,7 @@ impl ConcreteObject for WlRegistry {
 }
 
 impl WlRegistry {
-    pub fn set_handler(&self, handler: impl WlRegistryHandler + 'static) {
+    pub fn set_handler(&self, handler: impl WlRegistryHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
@@ -95,10 +95,10 @@ impl WlRegistry {
         let arg1 = arg1_obj.core();
         let core = self.core();
         let Some(id) = core.server_obj_id.get() else {
-            return Err(ObjectError::ReceiverNoServerId);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
         };
         arg1.generate_server_id(arg1_obj.clone())
-            .map_err(|e| ObjectError::GenerateServerId("id", e))?;
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("id", e)))?;
         let arg1_id = arg1.server_obj_id.get().unwrap_or(0);
         if self.core.state.log {
             #[cold]
@@ -190,7 +190,7 @@ impl WlRegistry {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -284,7 +284,7 @@ impl WlRegistry {
         let core = self.core();
         let client_ref = core.client.borrow();
         let Some(client) = &*client_ref else {
-            return Err(ObjectError::ReceiverNoClient);
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
         };
         let id = core.client_obj_id.get().unwrap_or(0);
         if self.core.state.log {
@@ -455,7 +455,7 @@ impl ObjectPrivate for WlRegistry {
 
     fn delete_id(self: Rc<Self>) -> Result<(), (ObjectError, Rc<dyn Object>)> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err((ObjectError::HandlerBorrowed, self));
+            return Err((ObjectError(ObjectErrorKind::HandlerBorrowed), self));
         };
         if let Some(handler) = &mut *handler {
             handler.delete_id(&self);
@@ -467,48 +467,48 @@ impl ObjectPrivate for WlRegistry {
 
     fn handle_request(self: Rc<Self>, client: &Rc<Client>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let mut offset = 2;
                 let Some(&arg0) = msg.get(offset) else {
-                    return Err(ObjectError::MissingArgument("name"));
+                    return Err(ObjectError(ObjectErrorKind::MissingArgument("name")));
                 };
                 offset += 1;
                 let arg1_interface = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("id"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("id")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("id"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("id")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("id"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("id")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("id"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("id")));
                         };
                         s
                     }
                 };
                 let Some(&arg1_version) = msg.get(offset) else {
-                    return Err(ObjectError::MissingArgument("id"));
+                    return Err(ObjectError(ObjectErrorKind::MissingArgument("id")));
                 };
                 offset += 1;
                 let Some(&arg1) = msg.get(offset) else {
-                    return Err(ObjectError::MissingArgument("id"));
+                    return Err(ObjectError(ObjectErrorKind::MissingArgument("id")));
                 };
                 offset += 1;
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -523,7 +523,7 @@ impl ObjectPrivate for WlRegistry {
                 let arg1_id = arg1;
                 let arg1 = create_object_for_interface(&self.core.state, arg1_interface, arg1_version)?;
                 arg1.core().set_client_id(client, arg1_id, arg1.clone())
-                    .map_err(|e| ObjectError::SetClientId(arg1_id, "id", e))?;
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg1_id, "id", e)))?;
                 if let Some(handler) = handler {
                     (**handler).handle_bind(&self, arg0, arg1);
                 } else {
@@ -535,7 +535,7 @@ impl ObjectPrivate for WlRegistry {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
@@ -543,44 +543,44 @@ impl ObjectPrivate for WlRegistry {
 
     fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
-            return Err(ObjectError::HandlerBorrowed);
+            return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             0 => {
                 let mut offset = 2;
                 let Some(&arg0) = msg.get(offset) else {
-                    return Err(ObjectError::MissingArgument("name"));
+                    return Err(ObjectError(ObjectErrorKind::MissingArgument("name")));
                 };
                 offset += 1;
                 let arg1 = {
                     let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError::MissingArgument("interface"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("interface")));
                     };
                     offset += 1;
                     let len = len as usize;
                     let words = ((len as u64 + 3) / 4) as usize;
                     if offset + words > msg.len() {
-                        return Err(ObjectError::MissingArgument("interface"));
+                        return Err(ObjectError(ObjectErrorKind::MissingArgument("interface")));
                     }
                     let start = offset;
                     offset += words;
                     let bytes = &uapi::as_bytes(&msg[start..])[..len];
                     if bytes.is_empty() {
-                        return Err(ObjectError::NullString("interface"));
+                        return Err(ObjectError(ObjectErrorKind::NullString("interface")));
                     } else {
                         let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError::NonUtf8("interface"));
+                            return Err(ObjectError(ObjectErrorKind::NonUtf8("interface")));
                         };
                         s
                     }
                 };
                 let Some(&arg2) = msg.get(offset) else {
-                    return Err(ObjectError::MissingArgument("version"));
+                    return Err(ObjectError(ObjectErrorKind::MissingArgument("version")));
                 };
                 offset += 1;
                 if offset != msg.len() {
-                    return Err(ObjectError::TrailingBytes);
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
                 if self.core.state.log {
                     #[cold]
@@ -610,7 +610,7 @@ impl ObjectPrivate for WlRegistry {
                 let [
                     arg0,
                 ] = msg[2..] else {
-                    return Err(ObjectError::WrongMessageSize(msg.len() as u32 * 4, 12));
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
                 };
                 if self.core.state.log {
                     #[cold]
@@ -632,7 +632,7 @@ impl ObjectPrivate for WlRegistry {
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;
-                return Err(ObjectError::UnknownMessageId(n));
+                return Err(ObjectError(ObjectErrorKind::UnknownMessageId(n)));
             }
         }
         Ok(())
