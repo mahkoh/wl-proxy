@@ -9,13 +9,13 @@ pub(crate) mod prelude {
         crate::{
             client::Client,
             fixed::Fixed,
+            handler::{HandlerHolder, HandlerMut, HandlerRef},
             object::{
                 ConcreteObject, HandlerAccessError, Object, ObjectCore, ObjectError, ObjectPrivate,
                 StringError,
             },
             protocols::ObjectInterface,
             state::State,
-            utils::handler_holder::{HandlerHolder, HandlerMut, HandlerRef},
         },
         std::{
             any::Any,

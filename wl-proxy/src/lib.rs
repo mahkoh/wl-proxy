@@ -6,17 +6,18 @@
 
 pub mod acceptor;
 pub mod client;
-pub mod endpoint;
+mod endpoint;
 pub mod fixed;
 mod protocol_helpers;
 #[rustfmt::skip]
 pub mod protocols;
 pub mod baseline;
 pub mod global_mapper;
+pub mod handler;
 pub mod object;
 mod poll;
 pub mod simple;
 pub mod state;
 mod trans;
-pub mod utils;
+mod utils;
 mod wire;

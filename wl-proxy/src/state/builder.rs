@@ -168,7 +168,7 @@ impl StateBuilder {
             log_prefix,
             log_writer: RefCell::new(BufWriter::with_capacity(1024, Fd::new(c::STDERR_FILENO))),
             global_lock_held: Default::default(),
-            proxy_stash: Default::default(),
+            object_stash: Default::default(),
         });
         state.change_interest(&state.server, |i| i | poll::READABLE);
         state

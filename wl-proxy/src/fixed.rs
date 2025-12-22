@@ -1,3 +1,5 @@
+//! A signed 24.8 fixed-point number used in the wayland protocol.
+
 use std::{
     fmt::{Debug, Display, Formatter},
     ops::{

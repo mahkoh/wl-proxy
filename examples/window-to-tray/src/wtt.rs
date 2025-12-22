@@ -22,6 +22,7 @@ use {
         baseline::Baseline,
         fixed::Fixed,
         global_mapper::GlobalMapper,
+        handler::HandlerMut,
         object::{ConcreteObject, Object, ObjectRcUtils, ObjectUtils},
         protocols::{
             ObjectInterface,
@@ -113,7 +114,6 @@ use {
             },
         },
         simple::{SimpleCommandExt, SimpleServer},
-        utils::handler_holder::HandlerMut,
     },
 };
 
@@ -169,7 +169,7 @@ struct ClientWlDisplay {
     /// The proxy-created wl_registry object.
     registry: Option<Rc<WlRegistry>>,
     /// The wl_registry objects created by the client before our initial roundtrip has
-    /// completed and we don't yet have an Rc<Globals> object needed to set the handler.
+    /// completed and we don't yet have a Globals object needed to set the handler.
     client_registries_without_handlers: Vec<Rc<WlRegistry>>,
     /// The trays advertised by the server.
     trays: HashMap<u32, Rc<JayTrayV1>>,

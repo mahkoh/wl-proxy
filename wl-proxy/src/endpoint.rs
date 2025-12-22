@@ -123,6 +123,11 @@ impl Endpoint {
         let fds = &mut incoming.fds;
         let mut may_read_from_socket = true;
         loop {
+            if let Some(client) = client
+                && client.destroyed.get()
+            {
+                return Ok(());
+            }
             let msg = trans::read_message(
                 self.socket.as_raw_fd(),
                 &mut may_read_from_socket,

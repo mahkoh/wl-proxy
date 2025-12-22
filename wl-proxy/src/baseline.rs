@@ -1,3 +1,5 @@
+//! Baseline protocol support.
+
 #[rustfmt::skip]
 mod versions;
 

@@ -1,9 +1,9 @@
 use {
     crate::{
         client::Client,
+        handler::{HandlerMut, HandlerRef},
         protocols::ObjectInterface,
         state::State,
-        utils::handler_holder::{HandlerMut, HandlerRef},
     },
     error_reporter::Report,
     std::{

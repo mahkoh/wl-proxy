@@ -1,3 +1,5 @@
+//! Wayland connection acceptor.
+
 use {
     crate::utils::env::{WAYLAND_DISPLAY, XDG_RUNTIME_DIR},
     error_reporter::Report,

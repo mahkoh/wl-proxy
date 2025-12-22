@@ -7,13 +7,13 @@ use {
         baseline::Baseline,
         client::Client,
         endpoint::{Endpoint, EndpointError},
+        handler::HandlerHolder,
         object::{Object, ObjectPrivate},
         poll::{self, PollError, PollEvent, Poller},
         protocols::wayland::wl_display::WlDisplay,
         trans::{FlushResult, TransError},
         utils::{
             env::{WAYLAND_DISPLAY, WAYLAND_SOCKET, XDG_RUNTIME_DIR},
-            handler_holder::HandlerHolder,
             stack::Stack,
             stash::Stash,
         },
@@ -168,7 +168,7 @@ pub struct State {
     pub(crate) log_prefix: String,
     log_writer: RefCell<BufWriter<Fd>>,
     global_lock_held: Cell<bool>,
-    pub(crate) proxy_stash: Stash<Rc<dyn Object>>,
+    pub(crate) object_stash: Stash<Rc<dyn Object>>,
 }
 
 /// A handler for events emitted by a [`State`].
@@ -415,7 +415,7 @@ impl State {
             if let Some(handler) = client.handler.borrow_mut().take() {
                 handler.disconnected();
             }
-            client.kill();
+            client.disconnect();
         }
         self.has_clients_to_kill.set(false);
     }
@@ -742,7 +742,7 @@ impl State {
         if self.destroyed.replace(true) {
             return;
         }
-        let proxies = &mut *self.proxy_stash.borrow();
+        let proxies = &mut *self.object_stash.borrow();
         for pollable in self.pollables.borrow().values() {
             let fd = match pollable {
                 Pollable::Endpoint(ewc) => {
