@@ -24,10 +24,12 @@ impl ConcreteObject for WpFractionalScaleManagerV1 {
 }
 
 impl WpFractionalScaleManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WpFractionalScaleManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WpFractionalScaleManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -206,7 +208,6 @@ impl WpFractionalScaleManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`: the new surface scale info interface id
     /// - `surface`: the surface
     #[inline]
     pub fn new_try_send_get_fractional_scale(
@@ -230,7 +231,6 @@ impl WpFractionalScaleManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`: the new surface scale info interface id
     /// - `surface`: the surface
     #[inline]
     pub fn new_send_get_fractional_scale(
@@ -246,8 +246,11 @@ impl WpFractionalScaleManagerV1 {
     }
 }
 
-/// A message handler for [WpFractionalScaleManagerV1] proxies.
+/// A message handler for [`WpFractionalScaleManagerV1`] proxies.
 pub trait WpFractionalScaleManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpFractionalScaleManagerV1>) {
         slf.core.delete_id();

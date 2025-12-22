@@ -28,10 +28,12 @@ impl ConcreteObject for XdgWmBase {
 }
 
 impl XdgWmBase {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl XdgWmBaseHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn XdgWmBaseHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -120,6 +122,10 @@ impl XdgWmBase {
     /// Create a positioner object. A positioner object is used to position
     /// surfaces relative to some parent surface. See the interface description
     /// and xdg_surface.get_popup for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_create_positioner(
         &self,
@@ -169,6 +175,10 @@ impl XdgWmBase {
     /// Create a positioner object. A positioner object is used to position
     /// surfaces relative to some parent surface. See the interface description
     /// and xdg_surface.get_popup for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_create_positioner(
         &self,
@@ -343,7 +353,6 @@ impl XdgWmBase {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_try_send_get_xdg_surface(
@@ -376,7 +385,6 @@ impl XdgWmBase {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_send_get_xdg_surface(
@@ -560,8 +568,11 @@ impl XdgWmBase {
     }
 }
 
-/// A message handler for [XdgWmBase] proxies.
+/// A message handler for [`XdgWmBase`] proxies.
 pub trait XdgWmBaseHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgWmBase>) {
         slf.core.delete_id();

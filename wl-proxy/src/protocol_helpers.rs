@@ -11,8 +11,8 @@ pub(crate) mod prelude {
             fixed::Fixed,
             handler::{HandlerAccessError, HandlerHolder, HandlerMut, HandlerRef},
             object::{
-                ConcreteObject, Object, ObjectCore, ObjectError, ObjectErrorKind, ObjectPrivate,
-                StringError,
+                ConcreteObject, Object, ObjectCore, ObjectCoreApi, ObjectError, ObjectErrorKind,
+                ObjectPrivate, StringError,
             },
             protocols::ObjectInterface,
             state::State,

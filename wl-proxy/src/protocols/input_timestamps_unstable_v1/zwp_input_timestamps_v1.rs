@@ -26,10 +26,12 @@ impl ConcreteObject for ZwpInputTimestampsV1 {
 }
 
 impl ZwpInputTimestampsV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpInputTimestampsV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpInputTimestampsV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -220,8 +222,11 @@ impl ZwpInputTimestampsV1 {
     }
 }
 
-/// A message handler for [ZwpInputTimestampsV1] proxies.
+/// A message handler for [`ZwpInputTimestampsV1`] proxies.
 pub trait ZwpInputTimestampsV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpInputTimestampsV1>) {
         slf.core.delete_id();

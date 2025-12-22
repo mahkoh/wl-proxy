@@ -39,10 +39,12 @@ impl ConcreteObject for ZwpLinuxBufferParamsV1 {
 }
 
 impl ZwpLinuxBufferParamsV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpLinuxBufferParamsV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpLinuxBufferParamsV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -481,6 +483,10 @@ impl ZwpLinuxBufferParamsV1 {
     ///
     /// Upon receiving this event, the client should destroy the
     /// zwp_linux_buffer_params_v1 object.
+    ///
+    /// # Arguments
+    ///
+    /// - `buffer`: the newly created wl_buffer
     #[inline]
     pub fn try_send_created(
         &self,
@@ -534,6 +540,10 @@ impl ZwpLinuxBufferParamsV1 {
     ///
     /// Upon receiving this event, the client should destroy the
     /// zwp_linux_buffer_params_v1 object.
+    ///
+    /// # Arguments
+    ///
+    /// - `buffer`: the newly created wl_buffer
     #[inline]
     pub fn send_created(
         &self,
@@ -828,7 +838,6 @@ impl ZwpLinuxBufferParamsV1 {
     ///
     /// # Arguments
     ///
-    /// - `buffer_id`: id for the newly created wl_buffer
     /// - `width`: base plane width in pixels
     /// - `height`: base plane height in pixels
     /// - `format`: DRM_FORMAT code
@@ -881,7 +890,6 @@ impl ZwpLinuxBufferParamsV1 {
     ///
     /// # Arguments
     ///
-    /// - `buffer_id`: id for the newly created wl_buffer
     /// - `width`: base plane width in pixels
     /// - `height`: base plane height in pixels
     /// - `format`: DRM_FORMAT code
@@ -906,8 +914,11 @@ impl ZwpLinuxBufferParamsV1 {
     }
 }
 
-/// A message handler for [ZwpLinuxBufferParamsV1] proxies.
+/// A message handler for [`ZwpLinuxBufferParamsV1`] proxies.
 pub trait ZwpLinuxBufferParamsV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpLinuxBufferParamsV1>) {
         slf.core.delete_id();
@@ -1528,7 +1539,7 @@ impl Debug for ZwpLinuxBufferParamsV1Error {
 #[derive(Default)]
 pub struct ZwpLinuxBufferParamsV1Flags(pub u32);
 
-/// An iterator over the set bits in a [ZwpLinuxBufferParamsV1Flags].
+/// An iterator over the set bits in a [`ZwpLinuxBufferParamsV1Flags`].
 ///
 /// You can construct this with the `IntoIterator` implementation of `ZwpLinuxBufferParamsV1Flags`.
 #[derive(Clone, Debug)]

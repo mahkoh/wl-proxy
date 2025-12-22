@@ -33,10 +33,12 @@ impl ConcreteObject for ZwlrOutputConfigurationV1 {
 }
 
 impl ZwlrOutputConfigurationV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwlrOutputConfigurationV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwlrOutputConfigurationV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -152,7 +154,6 @@ impl ZwlrOutputConfigurationV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`: a new object to configure the head
     /// - `head`: the head to be enabled
     #[inline]
     pub fn new_try_send_enable_head(
@@ -174,7 +175,6 @@ impl ZwlrOutputConfigurationV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`: a new object to configure the head
     /// - `head`: the head to be enabled
     #[inline]
     pub fn new_send_enable_head(
@@ -661,8 +661,11 @@ impl ZwlrOutputConfigurationV1 {
     }
 }
 
-/// A message handler for [ZwlrOutputConfigurationV1] proxies.
+/// A message handler for [`ZwlrOutputConfigurationV1`] proxies.
 pub trait ZwlrOutputConfigurationV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrOutputConfigurationV1>) {
         slf.core.delete_id();

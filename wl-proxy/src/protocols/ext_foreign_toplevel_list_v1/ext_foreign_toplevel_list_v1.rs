@@ -39,10 +39,12 @@ impl ConcreteObject for ExtForeignToplevelListV1 {
 }
 
 impl ExtForeignToplevelListV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ExtForeignToplevelListV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ExtForeignToplevelListV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -75,6 +77,10 @@ impl ExtForeignToplevelListV1 {
     /// ext_foreign_toplevel_handle_v1. The compositor will use the
     /// ext_foreign_toplevel_handle_v1.done event to indicate when all data has
     /// been sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `toplevel`:
     #[inline]
     pub fn try_send_toplevel(
         &self,
@@ -131,6 +137,10 @@ impl ExtForeignToplevelListV1 {
     /// ext_foreign_toplevel_handle_v1. The compositor will use the
     /// ext_foreign_toplevel_handle_v1.done event to indicate when all data has
     /// been sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `toplevel`:
     #[inline]
     pub fn send_toplevel(
         &self,
@@ -378,8 +388,11 @@ impl ExtForeignToplevelListV1 {
     }
 }
 
-/// A message handler for [ExtForeignToplevelListV1] proxies.
+/// A message handler for [`ExtForeignToplevelListV1`] proxies.
 pub trait ExtForeignToplevelListV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtForeignToplevelListV1>) {
         slf.core.delete_id();

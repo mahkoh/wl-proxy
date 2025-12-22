@@ -30,10 +30,12 @@ impl ConcreteObject for WlShmPool {
 }
 
 impl WlShmPool {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WlShmPoolHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WlShmPoolHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -203,7 +205,6 @@ impl WlShmPool {
     ///
     /// # Arguments
     ///
-    /// - `id`: buffer to create
     /// - `offset`: buffer byte offset within the pool
     /// - `width`: buffer width, in pixels
     /// - `height`: buffer height, in pixels
@@ -246,7 +247,6 @@ impl WlShmPool {
     ///
     /// # Arguments
     ///
-    /// - `id`: buffer to create
     /// - `offset`: buffer byte offset within the pool
     /// - `width`: buffer width, in pixels
     /// - `height`: buffer height, in pixels
@@ -422,8 +422,11 @@ impl WlShmPool {
     }
 }
 
-/// A message handler for [WlShmPool] proxies.
+/// A message handler for [`WlShmPool`] proxies.
 pub trait WlShmPoolHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlShmPool>) {
         slf.core.delete_id();

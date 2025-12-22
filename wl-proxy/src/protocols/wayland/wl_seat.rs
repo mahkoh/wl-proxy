@@ -27,10 +27,12 @@ impl ConcreteObject for WlSeat {
 }
 
 impl WlSeat {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WlSeatHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WlSeatHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -182,6 +184,10 @@ impl WlSeat {
     /// It is a protocol violation to issue this request on a seat that has
     /// never had the pointer capability. The missing_capability error will
     /// be sent in this case.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: seat pointer
     #[inline]
     pub fn try_send_get_pointer(
         &self,
@@ -236,6 +242,10 @@ impl WlSeat {
     /// It is a protocol violation to issue this request on a seat that has
     /// never had the pointer capability. The missing_capability error will
     /// be sent in this case.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: seat pointer
     #[inline]
     pub fn send_get_pointer(
         &self,
@@ -304,6 +314,10 @@ impl WlSeat {
     /// It is a protocol violation to issue this request on a seat that has
     /// never had the keyboard capability. The missing_capability error will
     /// be sent in this case.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: seat keyboard
     #[inline]
     pub fn try_send_get_keyboard(
         &self,
@@ -358,6 +372,10 @@ impl WlSeat {
     /// It is a protocol violation to issue this request on a seat that has
     /// never had the keyboard capability. The missing_capability error will
     /// be sent in this case.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: seat keyboard
     #[inline]
     pub fn send_get_keyboard(
         &self,
@@ -426,6 +444,10 @@ impl WlSeat {
     /// It is a protocol violation to issue this request on a seat that has
     /// never had the touch capability. The missing_capability error will
     /// be sent in this case.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: seat touch interface
     #[inline]
     pub fn try_send_get_touch(
         &self,
@@ -480,6 +502,10 @@ impl WlSeat {
     /// It is a protocol violation to issue this request on a seat that has
     /// never had the touch capability. The missing_capability error will
     /// be sent in this case.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: seat touch interface
     #[inline]
     pub fn send_get_touch(
         &self,
@@ -692,8 +718,11 @@ impl WlSeat {
     }
 }
 
-/// A message handler for [WlSeat] proxies.
+/// A message handler for [`WlSeat`] proxies.
 pub trait WlSeatHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlSeat>) {
         slf.core.delete_id();
@@ -1187,7 +1216,7 @@ impl WlSeat {
 #[derive(Default)]
 pub struct WlSeatCapability(pub u32);
 
-/// An iterator over the set bits in a [WlSeatCapability].
+/// An iterator over the set bits in a [`WlSeatCapability`].
 ///
 /// You can construct this with the `IntoIterator` implementation of `WlSeatCapability`.
 #[derive(Clone, Debug)]

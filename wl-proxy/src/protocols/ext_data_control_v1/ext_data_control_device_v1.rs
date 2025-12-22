@@ -26,10 +26,12 @@ impl ConcreteObject for ExtDataControlDeviceV1 {
 }
 
 impl ExtDataControlDeviceV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ExtDataControlDeviceV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ExtDataControlDeviceV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -206,6 +208,10 @@ impl ExtDataControlDeviceV1 {
     /// ext_data_control_device.data_offer event, the new data_offer object
     /// will send out ext_data_control_offer.offer events to describe the MIME
     /// types it offers.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_data_offer(
         &self,
@@ -262,6 +268,10 @@ impl ExtDataControlDeviceV1 {
     /// ext_data_control_device.data_offer event, the new data_offer object
     /// will send out ext_data_control_offer.offer events to describe the MIME
     /// types it offers.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_data_offer(
         &self,
@@ -679,8 +689,11 @@ impl ExtDataControlDeviceV1 {
     }
 }
 
-/// A message handler for [ExtDataControlDeviceV1] proxies.
+/// A message handler for [`ExtDataControlDeviceV1`] proxies.
 pub trait ExtDataControlDeviceV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtDataControlDeviceV1>) {
         slf.core.delete_id();

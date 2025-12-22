@@ -1,3 +1,5 @@
+//! The proxy state.
+
 mod builder;
 mod destructor;
 
@@ -8,7 +10,7 @@ use {
         client::Client,
         endpoint::{Endpoint, EndpointError},
         handler::HandlerHolder,
-        object::{Object, ObjectPrivate},
+        object::{Object, ObjectCoreApi, ObjectPrivate},
         poll::{self, PollError, PollEvent, Poller},
         protocols::wayland::wl_display::WlDisplay,
         trans::{FlushResult, TransError},

@@ -39,10 +39,12 @@ impl ConcreteObject for ZwpInputMethodV2 {
 }
 
 impl ZwpInputMethodV2 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpInputMethodV2Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpInputMethodV2Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -1197,7 +1199,6 @@ impl ZwpInputMethodV2 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_try_send_get_input_popup_surface(
@@ -1223,7 +1224,6 @@ impl ZwpInputMethodV2 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_send_get_input_popup_surface(
@@ -1255,6 +1255,10 @@ impl ZwpInputMethodV2 {
     /// forwarded to the grab holder.
     ///
     /// Releasing the resulting wl_keyboard object releases the grab.
+    ///
+    /// # Arguments
+    ///
+    /// - `keyboard`:
     #[inline]
     pub fn try_send_grab_keyboard(
         &self,
@@ -1313,6 +1317,10 @@ impl ZwpInputMethodV2 {
     /// forwarded to the grab holder.
     ///
     /// Releasing the resulting wl_keyboard object releases the grab.
+    ///
+    /// # Arguments
+    ///
+    /// - `keyboard`:
     #[inline]
     pub fn send_grab_keyboard(
         &self,
@@ -1510,8 +1518,11 @@ impl ZwpInputMethodV2 {
     }
 }
 
-/// A message handler for [ZwpInputMethodV2] proxies.
+/// A message handler for [`ZwpInputMethodV2`] proxies.
 pub trait ZwpInputMethodV2Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpInputMethodV2>) {
         slf.core.delete_id();

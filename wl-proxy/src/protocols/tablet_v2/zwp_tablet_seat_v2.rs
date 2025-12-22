@@ -26,10 +26,12 @@ impl ConcreteObject for ZwpTabletSeatV2 {
 }
 
 impl ZwpTabletSeatV2 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpTabletSeatV2Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpTabletSeatV2Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -113,6 +115,10 @@ impl ZwpTabletSeatV2 {
     /// seat. This event only provides the object id of the tablet, any
     /// static information about the tablet (device name, vid/pid, etc.) is
     /// sent through the zwp_tablet_v2 interface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the newly added graphics tablet
     #[inline]
     pub fn try_send_tablet_added(
         &self,
@@ -165,6 +171,10 @@ impl ZwpTabletSeatV2 {
     /// seat. This event only provides the object id of the tablet, any
     /// static information about the tablet (device name, vid/pid, etc.) is
     /// sent through the zwp_tablet_v2 interface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the newly added graphics tablet
     #[inline]
     pub fn send_tablet_added(
         &self,
@@ -221,6 +231,10 @@ impl ZwpTabletSeatV2 {
     /// with a tablet comes into use. This event only provides the object id
     /// of the tool; any static information about the tool (capabilities,
     /// type, etc.) is sent through the zwp_tablet_tool_v2 interface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the newly added tablet tool
     #[inline]
     pub fn try_send_tool_added(
         &self,
@@ -273,6 +287,10 @@ impl ZwpTabletSeatV2 {
     /// with a tablet comes into use. This event only provides the object id
     /// of the tool; any static information about the tool (capabilities,
     /// type, etc.) is sent through the zwp_tablet_tool_v2 interface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the newly added tablet tool
     #[inline]
     pub fn send_tool_added(
         &self,
@@ -335,6 +353,10 @@ impl ZwpTabletSeatV2 {
     /// This event only provides the object id of the pad. All further
     /// features (buttons, strips, rings) are sent through the zwp_tablet_pad_v2
     /// interface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the newly added pad
     #[inline]
     pub fn try_send_pad_added(
         &self,
@@ -393,6 +415,10 @@ impl ZwpTabletSeatV2 {
     /// This event only provides the object id of the pad. All further
     /// features (buttons, strips, rings) are sent through the zwp_tablet_pad_v2
     /// interface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the newly added pad
     #[inline]
     pub fn send_pad_added(
         &self,
@@ -453,8 +479,11 @@ impl ZwpTabletSeatV2 {
     }
 }
 
-/// A message handler for [ZwpTabletSeatV2] proxies.
+/// A message handler for [`ZwpTabletSeatV2`] proxies.
 pub trait ZwpTabletSeatV2Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpTabletSeatV2>) {
         slf.core.delete_id();

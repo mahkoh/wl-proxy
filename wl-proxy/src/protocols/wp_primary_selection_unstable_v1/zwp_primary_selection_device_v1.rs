@@ -20,10 +20,12 @@ impl ConcreteObject for ZwpPrimarySelectionDeviceV1 {
 }
 
 impl ZwpPrimarySelectionDeviceV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpPrimarySelectionDeviceV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpPrimarySelectionDeviceV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -144,6 +146,10 @@ impl ZwpPrimarySelectionDeviceV1 {
     /// event, the new wp_primary_selection_offer object will send
     /// wp_primary_selection_offer.offer events to describe the offered mime
     /// types.
+    ///
+    /// # Arguments
+    ///
+    /// - `offer`:
     #[inline]
     pub fn try_send_data_offer(
         &self,
@@ -197,6 +203,10 @@ impl ZwpPrimarySelectionDeviceV1 {
     /// event, the new wp_primary_selection_offer object will send
     /// wp_primary_selection_offer.offer events to describe the offered mime
     /// types.
+    ///
+    /// # Arguments
+    ///
+    /// - `offer`:
     #[inline]
     pub fn send_data_offer(
         &self,
@@ -394,8 +404,11 @@ impl ZwpPrimarySelectionDeviceV1 {
     }
 }
 
-/// A message handler for [ZwpPrimarySelectionDeviceV1] proxies.
+/// A message handler for [`ZwpPrimarySelectionDeviceV1`] proxies.
 pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpPrimarySelectionDeviceV1>) {
         slf.core.delete_id();

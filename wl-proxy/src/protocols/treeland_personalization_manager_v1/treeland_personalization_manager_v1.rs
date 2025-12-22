@@ -29,10 +29,12 @@ impl ConcreteObject for TreelandPersonalizationManagerV1 {
 }
 
 impl TreelandPersonalizationManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl TreelandPersonalizationManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn TreelandPersonalizationManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -145,7 +147,6 @@ impl TreelandPersonalizationManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_try_send_get_window_context(
@@ -166,7 +167,6 @@ impl TreelandPersonalizationManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_send_get_window_context(
@@ -187,6 +187,10 @@ impl TreelandPersonalizationManagerV1 {
     /// custom wallpaper context
     ///
     /// custom user wallpaper
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_get_wallpaper_context(
         &self,
@@ -234,6 +238,10 @@ impl TreelandPersonalizationManagerV1 {
     /// custom wallpaper context
     ///
     /// custom user wallpaper
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_get_wallpaper_context(
         &self,
@@ -281,6 +289,10 @@ impl TreelandPersonalizationManagerV1 {
     /// custom wallpaper context
     ///
     /// custom user cursor
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_get_cursor_context(
         &self,
@@ -328,6 +340,10 @@ impl TreelandPersonalizationManagerV1 {
     /// custom wallpaper context
     ///
     /// custom user cursor
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_get_cursor_context(
         &self,
@@ -375,6 +391,10 @@ impl TreelandPersonalizationManagerV1 {
     /// custom treeland and window global font context
     ///
     /// custom treeland and window global font context
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_get_font_context(
         &self,
@@ -422,6 +442,10 @@ impl TreelandPersonalizationManagerV1 {
     /// custom treeland and window global font context
     ///
     /// custom treeland and window global font context
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_get_font_context(
         &self,
@@ -469,6 +493,10 @@ impl TreelandPersonalizationManagerV1 {
     /// custom treeland window global settings context
     ///
     /// custom user treeland window appearance global
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_get_appearance_context(
         &self,
@@ -516,6 +544,10 @@ impl TreelandPersonalizationManagerV1 {
     /// custom treeland window global settings context
     ///
     /// custom user treeland window appearance global
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_get_appearance_context(
         &self,
@@ -558,8 +590,11 @@ impl TreelandPersonalizationManagerV1 {
     }
 }
 
-/// A message handler for [TreelandPersonalizationManagerV1] proxies.
+/// A message handler for [`TreelandPersonalizationManagerV1`] proxies.
 pub trait TreelandPersonalizationManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandPersonalizationManagerV1>) {
         slf.core.delete_id();

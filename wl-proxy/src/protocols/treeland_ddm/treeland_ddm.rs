@@ -25,10 +25,12 @@ impl ConcreteObject for TreelandDdm {
 }
 
 impl TreelandDdm {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl TreelandDdmHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn TreelandDdmHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -338,6 +340,10 @@ impl TreelandDdm {
     ///
     /// Disable treeland rendering. This will prevent treeland from
     /// output to DRM device.
+    ///
+    /// # Arguments
+    ///
+    /// - `callback`:
     #[inline]
     pub fn try_send_disable_render(
         &self,
@@ -386,6 +392,10 @@ impl TreelandDdm {
     ///
     /// Disable treeland rendering. This will prevent treeland from
     /// output to DRM device.
+    ///
+    /// # Arguments
+    ///
+    /// - `callback`:
     #[inline]
     pub fn send_disable_render(
         &self,
@@ -576,8 +586,11 @@ impl TreelandDdm {
     }
 }
 
-/// A message handler for [TreelandDdm] proxies.
+/// A message handler for [`TreelandDdm`] proxies.
 pub trait TreelandDdmHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandDdm>) {
         slf.core.delete_id();

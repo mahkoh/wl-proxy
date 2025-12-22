@@ -24,10 +24,12 @@ impl ConcreteObject for HyprlandGlobalShortcutsManagerV1 {
 }
 
 impl HyprlandGlobalShortcutsManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl HyprlandGlobalShortcutsManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn HyprlandGlobalShortcutsManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -177,7 +179,6 @@ impl HyprlandGlobalShortcutsManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `shortcut`:
     /// - `id`: a unique id for the shortcut
     /// - `app_id`: the app_id of the application requesting the shortcut
     /// - `description`: user-readable text describing what the shortcut does.
@@ -213,7 +214,6 @@ impl HyprlandGlobalShortcutsManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `shortcut`:
     /// - `id`: a unique id for the shortcut
     /// - `app_id`: the app_id of the application requesting the shortcut
     /// - `description`: user-readable text describing what the shortcut does.
@@ -293,8 +293,11 @@ impl HyprlandGlobalShortcutsManagerV1 {
     }
 }
 
-/// A message handler for [HyprlandGlobalShortcutsManagerV1] proxies.
+/// A message handler for [`HyprlandGlobalShortcutsManagerV1`] proxies.
 pub trait HyprlandGlobalShortcutsManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandGlobalShortcutsManagerV1>) {
         slf.core.delete_id();

@@ -31,10 +31,12 @@ impl ConcreteObject for XwaylandSurfaceV1 {
 }
 
 impl XwaylandSurfaceV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl XwaylandSurfaceV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn XwaylandSurfaceV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -229,8 +231,11 @@ impl XwaylandSurfaceV1 {
     }
 }
 
-/// A message handler for [XwaylandSurfaceV1] proxies.
+/// A message handler for [`XwaylandSurfaceV1`] proxies.
 pub trait XwaylandSurfaceV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XwaylandSurfaceV1>) {
         slf.core.delete_id();

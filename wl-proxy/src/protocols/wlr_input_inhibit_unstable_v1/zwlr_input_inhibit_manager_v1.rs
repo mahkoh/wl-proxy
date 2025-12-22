@@ -30,10 +30,12 @@ impl ConcreteObject for ZwlrInputInhibitManagerV1 {
 }
 
 impl ZwlrInputInhibitManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwlrInputInhibitManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwlrInputInhibitManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -60,6 +62,10 @@ impl ZwlrInputInhibitManagerV1 {
     ///
     /// Activates the input inhibitor. As long as the inhibitor is active, the
     /// compositor will not send input events to other clients.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_get_inhibitor(
         &self,
@@ -108,6 +114,10 @@ impl ZwlrInputInhibitManagerV1 {
     ///
     /// Activates the input inhibitor. As long as the inhibitor is active, the
     /// compositor will not send input events to other clients.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_get_inhibitor(
         &self,
@@ -152,8 +162,11 @@ impl ZwlrInputInhibitManagerV1 {
     }
 }
 
-/// A message handler for [ZwlrInputInhibitManagerV1] proxies.
+/// A message handler for [`ZwlrInputInhibitManagerV1`] proxies.
 pub trait ZwlrInputInhibitManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrInputInhibitManagerV1>) {
         slf.core.delete_id();

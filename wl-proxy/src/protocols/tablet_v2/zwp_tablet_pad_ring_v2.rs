@@ -28,10 +28,12 @@ impl ConcreteObject for ZwpTabletPadRingV2 {
 }
 
 impl ZwpTabletPadRingV2 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpTabletPadRingV2Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpTabletPadRingV2Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -557,8 +559,11 @@ impl ZwpTabletPadRingV2 {
     }
 }
 
-/// A message handler for [ZwpTabletPadRingV2] proxies.
+/// A message handler for [`ZwpTabletPadRingV2`] proxies.
 pub trait ZwpTabletPadRingV2Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpTabletPadRingV2>) {
         slf.core.delete_id();

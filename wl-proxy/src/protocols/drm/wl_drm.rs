@@ -20,10 +20,12 @@ impl ConcreteObject for WlDrm {
 }
 
 impl WlDrm {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WlDrmHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WlDrmHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -212,7 +214,6 @@ impl WlDrm {
 
     /// # Arguments
     ///
-    /// - `id`:
     /// - `name`:
     /// - `width`:
     /// - `height`:
@@ -241,7 +242,6 @@ impl WlDrm {
 
     /// # Arguments
     ///
-    /// - `id`:
     /// - `name`:
     /// - `width`:
     /// - `height`:
@@ -416,7 +416,6 @@ impl WlDrm {
 
     /// # Arguments
     ///
-    /// - `id`:
     /// - `name`:
     /// - `width`:
     /// - `height`:
@@ -460,7 +459,6 @@ impl WlDrm {
 
     /// # Arguments
     ///
-    /// - `id`:
     /// - `name`:
     /// - `width`:
     /// - `height`:
@@ -887,7 +885,6 @@ impl WlDrm {
 
     /// # Arguments
     ///
-    /// - `id`:
     /// - `name`:
     /// - `width`:
     /// - `height`:
@@ -931,7 +928,6 @@ impl WlDrm {
 
     /// # Arguments
     ///
-    /// - `id`:
     /// - `name`:
     /// - `width`:
     /// - `height`:
@@ -974,8 +970,11 @@ impl WlDrm {
     }
 }
 
-/// A message handler for [WlDrm] proxies.
+/// A message handler for [`WlDrm`] proxies.
 pub trait WlDrmHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlDrm>) {
         slf.core.delete_id();

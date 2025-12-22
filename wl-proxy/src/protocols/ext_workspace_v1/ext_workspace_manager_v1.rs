@@ -42,10 +42,12 @@ impl ConcreteObject for ExtWorkspaceManagerV1 {
 }
 
 impl ExtWorkspaceManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ExtWorkspaceManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ExtWorkspaceManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -75,6 +77,10 @@ impl ExtWorkspaceManagerV1 {
     /// All initial details of the workspace group (outputs) will be
     /// sent immediately after this event via the corresponding events in
     /// ext_workspace_group_handle_v1 and ext_workspace_handle_v1.
+    ///
+    /// # Arguments
+    ///
+    /// - `workspace_group`:
     #[inline]
     pub fn try_send_workspace_group(
         &self,
@@ -128,6 +134,10 @@ impl ExtWorkspaceManagerV1 {
     /// All initial details of the workspace group (outputs) will be
     /// sent immediately after this event via the corresponding events in
     /// ext_workspace_group_handle_v1 and ext_workspace_handle_v1.
+    ///
+    /// # Arguments
+    ///
+    /// - `workspace_group`:
     #[inline]
     pub fn send_workspace_group(
         &self,
@@ -189,6 +199,10 @@ impl ExtWorkspaceManagerV1 {
     /// ext_workspace_handle_v1.
     ///
     /// Workspaces start off unassigned to any workspace group.
+    ///
+    /// # Arguments
+    ///
+    /// - `workspace`:
     #[inline]
     pub fn try_send_workspace(
         &self,
@@ -244,6 +258,10 @@ impl ExtWorkspaceManagerV1 {
     /// ext_workspace_handle_v1.
     ///
     /// Workspaces start off unassigned to any workspace group.
+    ///
+    /// # Arguments
+    ///
+    /// - `workspace`:
     #[inline]
     pub fn send_workspace(
         &self,
@@ -564,8 +582,11 @@ impl ExtWorkspaceManagerV1 {
     }
 }
 
-/// A message handler for [ExtWorkspaceManagerV1] proxies.
+/// A message handler for [`ExtWorkspaceManagerV1`] proxies.
 pub trait ExtWorkspaceManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtWorkspaceManagerV1>) {
         slf.core.delete_id();

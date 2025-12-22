@@ -44,10 +44,12 @@ impl ConcreteObject for ZwpTabletPadGroupV2 {
 }
 
 impl ZwpTabletPadGroupV2 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpTabletPadGroupV2Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpTabletPadGroupV2Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -225,6 +227,10 @@ impl ZwpTabletPadGroupV2 {
     ///
     /// This event is sent in the initial burst of events before the
     /// zwp_tablet_pad_group_v2.done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `ring`:
     #[inline]
     pub fn try_send_ring(
         &self,
@@ -278,6 +284,10 @@ impl ZwpTabletPadGroupV2 {
     ///
     /// This event is sent in the initial burst of events before the
     /// zwp_tablet_pad_group_v2.done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `ring`:
     #[inline]
     pub fn send_ring(
         &self,
@@ -337,6 +347,10 @@ impl ZwpTabletPadGroupV2 {
     ///
     /// This event is sent in the initial burst of events before the
     /// zwp_tablet_pad_group_v2.done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `strip`:
     #[inline]
     pub fn try_send_strip(
         &self,
@@ -390,6 +404,10 @@ impl ZwpTabletPadGroupV2 {
     ///
     /// This event is sent in the initial burst of events before the
     /// zwp_tablet_pad_group_v2.done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `strip`:
     #[inline]
     pub fn send_strip(
         &self,
@@ -741,6 +759,10 @@ impl ZwpTabletPadGroupV2 {
     ///
     /// This event is sent in the initial burst of events before the
     /// zwp_tablet_pad_group_v2.done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `dial`:
     #[inline]
     pub fn try_send_dial(
         &self,
@@ -794,6 +816,10 @@ impl ZwpTabletPadGroupV2 {
     ///
     /// This event is sent in the initial burst of events before the
     /// zwp_tablet_pad_group_v2.done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `dial`:
     #[inline]
     pub fn send_dial(
         &self,
@@ -844,8 +870,11 @@ impl ZwpTabletPadGroupV2 {
     }
 }
 
-/// A message handler for [ZwpTabletPadGroupV2] proxies.
+/// A message handler for [`ZwpTabletPadGroupV2`] proxies.
 pub trait ZwpTabletPadGroupV2Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpTabletPadGroupV2>) {
         slf.core.delete_id();

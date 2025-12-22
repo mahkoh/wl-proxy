@@ -39,10 +39,12 @@ impl ConcreteObject for ExtImageCopyCaptureSessionV1 {
 }
 
 impl ExtImageCopyCaptureSessionV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ExtImageCopyCaptureSessionV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ExtImageCopyCaptureSessionV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -534,6 +536,10 @@ impl ExtImageCopyCaptureSessionV1 {
     /// At most one frame object can exist for a given session at any time. If
     /// a client sends a create_frame request before a previous frame object
     /// has been destroyed, the duplicate_frame protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `frame`:
     #[inline]
     pub fn try_send_create_frame(
         &self,
@@ -585,6 +591,10 @@ impl ExtImageCopyCaptureSessionV1 {
     /// At most one frame object can exist for a given session at any time. If
     /// a client sends a create_frame request before a previous frame object
     /// has been destroyed, the duplicate_frame protocol error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `frame`:
     #[inline]
     pub fn send_create_frame(
         &self,
@@ -696,8 +706,11 @@ impl ExtImageCopyCaptureSessionV1 {
     }
 }
 
-/// A message handler for [ExtImageCopyCaptureSessionV1] proxies.
+/// A message handler for [`ExtImageCopyCaptureSessionV1`] proxies.
 pub trait ExtImageCopyCaptureSessionV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtImageCopyCaptureSessionV1>) {
         slf.core.delete_id();

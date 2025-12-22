@@ -28,10 +28,12 @@ impl ConcreteObject for WpColorManagementSurfaceFeedbackV1 {
 }
 
 impl WpColorManagementSurfaceFeedbackV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WpColorManagementSurfaceFeedbackV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WpColorManagementSurfaceFeedbackV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -218,6 +220,10 @@ impl WpColorManagementSurfaceFeedbackV1 {
     /// description object shall immediately deliver the
     /// wp_image_description_v1.failed event with the low_version cause,
     /// otherwise the object shall immediately deliver the ready event.
+    ///
+    /// # Arguments
+    ///
+    /// - `image_description`:
     #[inline]
     pub fn try_send_get_preferred(
         &self,
@@ -297,6 +303,10 @@ impl WpColorManagementSurfaceFeedbackV1 {
     /// description object shall immediately deliver the
     /// wp_image_description_v1.failed event with the low_version cause,
     /// otherwise the object shall immediately deliver the ready event.
+    ///
+    /// # Arguments
+    ///
+    /// - `image_description`:
     #[inline]
     pub fn send_get_preferred(
         &self,
@@ -413,6 +423,10 @@ impl WpColorManagementSurfaceFeedbackV1 {
     ///
     /// If the compositor doesn't support parametric image descriptions, the
     /// unsupported_feature error is emitted.
+    ///
+    /// # Arguments
+    ///
+    /// - `image_description`:
     #[inline]
     pub fn try_send_get_preferred_parametric(
         &self,
@@ -465,6 +479,10 @@ impl WpColorManagementSurfaceFeedbackV1 {
     ///
     /// If the compositor doesn't support parametric image descriptions, the
     /// unsupported_feature error is emitted.
+    ///
+    /// # Arguments
+    ///
+    /// - `image_description`:
     #[inline]
     pub fn send_get_preferred_parametric(
         &self,
@@ -626,8 +644,11 @@ impl WpColorManagementSurfaceFeedbackV1 {
     }
 }
 
-/// A message handler for [WpColorManagementSurfaceFeedbackV1] proxies.
+/// A message handler for [`WpColorManagementSurfaceFeedbackV1`] proxies.
 pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpColorManagementSurfaceFeedbackV1>) {
         slf.core.delete_id();

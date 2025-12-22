@@ -24,10 +24,12 @@ impl ConcreteObject for ZwpTextInputManagerV3 {
 }
 
 impl ZwpTextInputManagerV3 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpTextInputManagerV3Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpTextInputManagerV3Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -193,7 +195,6 @@ impl ZwpTextInputManagerV3 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `seat`:
     #[inline]
     pub fn new_try_send_get_text_input(
@@ -214,7 +215,6 @@ impl ZwpTextInputManagerV3 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `seat`:
     #[inline]
     pub fn new_send_get_text_input(
@@ -230,8 +230,11 @@ impl ZwpTextInputManagerV3 {
     }
 }
 
-/// A message handler for [ZwpTextInputManagerV3] proxies.
+/// A message handler for [`ZwpTextInputManagerV3`] proxies.
 pub trait ZwpTextInputManagerV3Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpTextInputManagerV3>) {
         slf.core.delete_id();

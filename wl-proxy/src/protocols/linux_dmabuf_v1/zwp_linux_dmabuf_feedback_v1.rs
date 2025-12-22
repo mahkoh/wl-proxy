@@ -48,10 +48,12 @@ impl ConcreteObject for ZwpLinuxDmabufFeedbackV1 {
 }
 
 impl ZwpLinuxDmabufFeedbackV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpLinuxDmabufFeedbackV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpLinuxDmabufFeedbackV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -792,8 +794,11 @@ impl ZwpLinuxDmabufFeedbackV1 {
     }
 }
 
-/// A message handler for [ZwpLinuxDmabufFeedbackV1] proxies.
+/// A message handler for [`ZwpLinuxDmabufFeedbackV1`] proxies.
 pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpLinuxDmabufFeedbackV1>) {
         slf.core.delete_id();
@@ -1401,7 +1406,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
 #[derive(Default)]
 pub struct ZwpLinuxDmabufFeedbackV1TrancheFlags(pub u32);
 
-/// An iterator over the set bits in a [ZwpLinuxDmabufFeedbackV1TrancheFlags].
+/// An iterator over the set bits in a [`ZwpLinuxDmabufFeedbackV1TrancheFlags`].
 ///
 /// You can construct this with the `IntoIterator` implementation of `ZwpLinuxDmabufFeedbackV1TrancheFlags`.
 #[derive(Clone, Debug)]

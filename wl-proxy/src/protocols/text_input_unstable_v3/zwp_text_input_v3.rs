@@ -49,10 +49,12 @@ impl ConcreteObject for ZwpTextInputV3 {
 }
 
 impl ZwpTextInputV3 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpTextInputV3Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpTextInputV3Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -1484,8 +1486,11 @@ impl ZwpTextInputV3 {
     }
 }
 
-/// A message handler for [ZwpTextInputV3] proxies.
+/// A message handler for [`ZwpTextInputV3`] proxies.
 pub trait ZwpTextInputV3Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpTextInputV3>) {
         slf.core.delete_id();
@@ -2668,7 +2673,7 @@ impl Debug for ZwpTextInputV3ChangeCause {
 #[derive(Default)]
 pub struct ZwpTextInputV3ContentHint(pub u32);
 
-/// An iterator over the set bits in a [ZwpTextInputV3ContentHint].
+/// An iterator over the set bits in a [`ZwpTextInputV3ContentHint`].
 ///
 /// You can construct this with the `IntoIterator` implementation of `ZwpTextInputV3ContentHint`.
 #[derive(Clone, Debug)]

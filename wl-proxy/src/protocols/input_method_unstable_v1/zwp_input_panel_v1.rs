@@ -24,10 +24,12 @@ impl ConcreteObject for ZwpInputPanelV1 {
 }
 
 impl ZwpInputPanelV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpInputPanelV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpInputPanelV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -128,7 +130,6 @@ impl ZwpInputPanelV1 {
 
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_try_send_get_input_panel_surface(
@@ -145,7 +146,6 @@ impl ZwpInputPanelV1 {
 
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_send_get_input_panel_surface(
@@ -161,8 +161,11 @@ impl ZwpInputPanelV1 {
     }
 }
 
-/// A message handler for [ZwpInputPanelV1] proxies.
+/// A message handler for [`ZwpInputPanelV1`] proxies.
 pub trait ZwpInputPanelV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpInputPanelV1>) {
         slf.core.delete_id();

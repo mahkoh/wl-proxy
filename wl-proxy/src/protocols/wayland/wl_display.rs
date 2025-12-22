@@ -25,10 +25,12 @@ impl ConcreteObject for WlDisplay {
 }
 
 impl WlDisplay {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WlDisplayHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WlDisplayHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -64,6 +66,10 @@ impl WlDisplay {
     /// attempt to use it after that point.
     ///
     /// The callback_data passed in the callback is undefined and should be ignored.
+    ///
+    /// # Arguments
+    ///
+    /// - `callback`: callback object for the sync request
     #[inline]
     pub fn try_send_sync(
         &self,
@@ -121,6 +127,10 @@ impl WlDisplay {
     /// attempt to use it after that point.
     ///
     /// The callback_data passed in the callback is undefined and should be ignored.
+    ///
+    /// # Arguments
+    ///
+    /// - `callback`: callback object for the sync request
     #[inline]
     pub fn send_sync(
         &self,
@@ -196,6 +206,10 @@ impl WlDisplay {
     /// client disconnects, not when the client side proxy is destroyed.
     /// Therefore, clients should invoke get_registry as infrequently as
     /// possible to avoid wasting memory.
+    ///
+    /// # Arguments
+    ///
+    /// - `registry`: global registry object
     #[inline]
     pub fn try_send_get_registry(
         &self,
@@ -251,6 +265,10 @@ impl WlDisplay {
     /// client disconnects, not when the client side proxy is destroyed.
     /// Therefore, clients should invoke get_registry as infrequently as
     /// possible to avoid wasting memory.
+    ///
+    /// # Arguments
+    ///
+    /// - `registry`: global registry object
     #[inline]
     pub fn send_get_registry(
         &self,
@@ -492,8 +510,11 @@ impl WlDisplay {
     }
 }
 
-/// A message handler for [WlDisplay] proxies.
+/// A message handler for [`WlDisplay`] proxies.
 pub trait WlDisplayHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlDisplay>) {
         slf.core.delete_id();

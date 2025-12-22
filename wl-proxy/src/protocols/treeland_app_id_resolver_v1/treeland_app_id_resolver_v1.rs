@@ -26,10 +26,12 @@ impl ConcreteObject for TreelandAppIdResolverV1 {
 }
 
 impl TreelandAppIdResolverV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl TreelandAppIdResolverV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn TreelandAppIdResolverV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -263,8 +265,11 @@ impl TreelandAppIdResolverV1 {
     }
 }
 
-/// A message handler for [TreelandAppIdResolverV1] proxies.
+/// A message handler for [`TreelandAppIdResolverV1`] proxies.
 pub trait TreelandAppIdResolverV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandAppIdResolverV1>) {
         slf.core.delete_id();

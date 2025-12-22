@@ -53,10 +53,12 @@ impl ConcreteObject for WpDrmLeaseDeviceV1 {
 }
 
 impl WpDrmLeaseDeviceV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WpDrmLeaseDeviceV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WpDrmLeaseDeviceV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -84,6 +86,10 @@ impl WpDrmLeaseDeviceV1 {
     /// Creates a lease request object.
     ///
     /// See the documentation for wp_drm_lease_request_v1 for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_create_lease_request(
         &self,
@@ -133,6 +139,10 @@ impl WpDrmLeaseDeviceV1 {
     /// Creates a lease request object.
     ///
     /// See the documentation for wp_drm_lease_request_v1 for details.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_create_lease_request(
         &self,
@@ -340,6 +350,10 @@ impl WpDrmLeaseDeviceV1 {
     /// The compositor must send the drm_fd event before sending connectors.
     /// After the drm_fd event it will send all available connectors but may
     /// send additional connectors at any time.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_connector(
         &self,
@@ -398,6 +412,10 @@ impl WpDrmLeaseDeviceV1 {
     /// The compositor must send the drm_fd event before sending connectors.
     /// After the drm_fd event it will send all available connectors but may
     /// send additional connectors at any time.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_connector(
         &self,
@@ -588,8 +606,11 @@ impl WpDrmLeaseDeviceV1 {
     }
 }
 
-/// A message handler for [WpDrmLeaseDeviceV1] proxies.
+/// A message handler for [`WpDrmLeaseDeviceV1`] proxies.
 pub trait WpDrmLeaseDeviceV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpDrmLeaseDeviceV1>) {
         slf.core.delete_id();

@@ -44,10 +44,12 @@ impl ConcreteObject for WpImageDescriptionV1 {
 }
 
 impl WpImageDescriptionV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WpImageDescriptionV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WpImageDescriptionV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -329,6 +331,10 @@ impl WpImageDescriptionV1 {
     /// request. Whether it is allowed or not is defined by the request that
     /// created the object. If get_information is not allowed, the protocol
     /// error no_information is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `information`:
     #[inline]
     pub fn try_send_get_information(
         &self,
@@ -382,6 +388,10 @@ impl WpImageDescriptionV1 {
     /// request. Whether it is allowed or not is defined by the request that
     /// created the object. If get_information is not allowed, the protocol
     /// error no_information is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `information`:
     #[inline]
     pub fn send_get_information(
         &self,
@@ -561,8 +571,11 @@ impl WpImageDescriptionV1 {
     }
 }
 
-/// A message handler for [WpImageDescriptionV1] proxies.
+/// A message handler for [`WpImageDescriptionV1`] proxies.
 pub trait WpImageDescriptionV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpImageDescriptionV1>) {
         slf.core.delete_id();

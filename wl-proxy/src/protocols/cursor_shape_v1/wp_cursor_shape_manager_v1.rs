@@ -31,10 +31,12 @@ impl ConcreteObject for WpCursorShapeManagerV1 {
 }
 
 impl WpCursorShapeManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WpCursorShapeManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WpCursorShapeManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -209,7 +211,6 @@ impl WpCursorShapeManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `cursor_shape_device`:
     /// - `pointer`:
     #[inline]
     pub fn new_try_send_get_pointer(
@@ -233,7 +234,6 @@ impl WpCursorShapeManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `cursor_shape_device`:
     /// - `pointer`:
     #[inline]
     pub fn new_send_get_pointer(
@@ -350,7 +350,6 @@ impl WpCursorShapeManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `cursor_shape_device`:
     /// - `tablet_tool`:
     #[inline]
     pub fn new_try_send_get_tablet_tool_v2(
@@ -374,7 +373,6 @@ impl WpCursorShapeManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `cursor_shape_device`:
     /// - `tablet_tool`:
     #[inline]
     pub fn new_send_get_tablet_tool_v2(
@@ -390,8 +388,11 @@ impl WpCursorShapeManagerV1 {
     }
 }
 
-/// A message handler for [WpCursorShapeManagerV1] proxies.
+/// A message handler for [`WpCursorShapeManagerV1`] proxies.
 pub trait WpCursorShapeManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpCursorShapeManagerV1>) {
         slf.core.delete_id();

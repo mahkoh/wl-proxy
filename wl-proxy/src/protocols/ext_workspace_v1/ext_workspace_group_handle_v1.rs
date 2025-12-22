@@ -34,10 +34,12 @@ impl ConcreteObject for ExtWorkspaceGroupHandleV1 {
 }
 
 impl ExtWorkspaceGroupHandleV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ExtWorkspaceGroupHandleV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ExtWorkspaceGroupHandleV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -673,8 +675,11 @@ impl ExtWorkspaceGroupHandleV1 {
     }
 }
 
-/// A message handler for [ExtWorkspaceGroupHandleV1] proxies.
+/// A message handler for [`ExtWorkspaceGroupHandleV1`] proxies.
 pub trait ExtWorkspaceGroupHandleV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtWorkspaceGroupHandleV1>) {
         slf.core.delete_id();
@@ -1275,7 +1280,7 @@ impl ExtWorkspaceGroupHandleV1 {
 #[derive(Default)]
 pub struct ExtWorkspaceGroupHandleV1GroupCapabilities(pub u32);
 
-/// An iterator over the set bits in a [ExtWorkspaceGroupHandleV1GroupCapabilities].
+/// An iterator over the set bits in a [`ExtWorkspaceGroupHandleV1GroupCapabilities`].
 ///
 /// You can construct this with the `IntoIterator` implementation of `ExtWorkspaceGroupHandleV1GroupCapabilities`.
 #[derive(Clone, Debug)]

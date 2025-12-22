@@ -56,10 +56,12 @@ impl ConcreteObject for ZwpFullscreenShellV1 {
 }
 
 impl ZwpFullscreenShellV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpFullscreenShellV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpFullscreenShellV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -603,7 +605,6 @@ impl ZwpFullscreenShellV1 {
     /// - `surface`:
     /// - `output`:
     /// - `framerate`:
-    /// - `feedback`:
     #[inline]
     pub fn new_try_send_present_surface_for_mode(
         &self,
@@ -670,7 +671,6 @@ impl ZwpFullscreenShellV1 {
     /// - `surface`:
     /// - `output`:
     /// - `framerate`:
-    /// - `feedback`:
     #[inline]
     pub fn new_send_present_surface_for_mode(
         &self,
@@ -689,8 +689,11 @@ impl ZwpFullscreenShellV1 {
     }
 }
 
-/// A message handler for [ZwpFullscreenShellV1] proxies.
+/// A message handler for [`ZwpFullscreenShellV1`] proxies.
 pub trait ZwpFullscreenShellV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpFullscreenShellV1>) {
         slf.core.delete_id();

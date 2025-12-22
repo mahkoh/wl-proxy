@@ -42,10 +42,12 @@ impl ConcreteObject for XdgPositioner {
 }
 
 impl XdgPositioner {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl XdgPositionerHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn XdgPositionerHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -889,8 +891,11 @@ impl XdgPositioner {
     }
 }
 
-/// A message handler for [XdgPositioner] proxies.
+/// A message handler for [`XdgPositioner`] proxies.
 pub trait XdgPositionerHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgPositioner>) {
         slf.core.delete_id();
@@ -1714,7 +1719,7 @@ impl Debug for XdgPositionerGravity {
 #[derive(Default)]
 pub struct XdgPositionerConstraintAdjustment(pub u32);
 
-/// An iterator over the set bits in a [XdgPositionerConstraintAdjustment].
+/// An iterator over the set bits in a [`XdgPositionerConstraintAdjustment`].
 ///
 /// You can construct this with the `IntoIterator` implementation of `XdgPositionerConstraintAdjustment`.
 #[derive(Clone, Debug)]

@@ -25,10 +25,12 @@ impl ConcreteObject for HyprlandToplevelMappingManagerV1 {
 }
 
 impl HyprlandToplevelMappingManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl HyprlandToplevelMappingManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn HyprlandToplevelMappingManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -141,7 +143,6 @@ impl HyprlandToplevelMappingManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `handle`:
     /// - `toplevel`: toplevel to get the window address for
     #[inline]
     pub fn new_try_send_get_window_for_toplevel(
@@ -162,7 +163,6 @@ impl HyprlandToplevelMappingManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `handle`:
     /// - `toplevel`: toplevel to get the window address for
     #[inline]
     pub fn new_send_get_window_for_toplevel(
@@ -270,7 +270,6 @@ impl HyprlandToplevelMappingManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `handle`:
     /// - `toplevel`: wlr toplevel to get the window address for
     #[inline]
     pub fn new_try_send_get_window_for_toplevel_wlr(
@@ -291,7 +290,6 @@ impl HyprlandToplevelMappingManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `handle`:
     /// - `toplevel`: wlr toplevel to get the window address for
     #[inline]
     pub fn new_send_get_window_for_toplevel_wlr(
@@ -362,8 +360,11 @@ impl HyprlandToplevelMappingManagerV1 {
     }
 }
 
-/// A message handler for [HyprlandToplevelMappingManagerV1] proxies.
+/// A message handler for [`HyprlandToplevelMappingManagerV1`] proxies.
 pub trait HyprlandToplevelMappingManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandToplevelMappingManagerV1>) {
         slf.core.delete_id();

@@ -50,10 +50,12 @@ impl ConcreteObject for ZwlrOutputManagerV1 {
 }
 
 impl ZwlrOutputManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwlrOutputManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwlrOutputManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -81,6 +83,10 @@ impl ZwlrOutputManagerV1 {
     /// This event introduces a new head. This happens whenever a new head
     /// appears (e.g. a monitor is plugged in) or after the output manager is
     /// bound.
+    ///
+    /// # Arguments
+    ///
+    /// - `head`:
     #[inline]
     pub fn try_send_head(
         &self,
@@ -132,6 +138,10 @@ impl ZwlrOutputManagerV1 {
     /// This event introduces a new head. This happens whenever a new head
     /// appears (e.g. a monitor is plugged in) or after the output manager is
     /// bound.
+    ///
+    /// # Arguments
+    ///
+    /// - `head`:
     #[inline]
     pub fn send_head(
         &self,
@@ -359,7 +369,6 @@ impl ZwlrOutputManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `serial`:
     #[inline]
     pub fn new_try_send_create_configuration(
@@ -381,7 +390,6 @@ impl ZwlrOutputManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `serial`:
     #[inline]
     pub fn new_send_create_configuration(
@@ -521,8 +529,11 @@ impl ZwlrOutputManagerV1 {
     }
 }
 
-/// A message handler for [ZwlrOutputManagerV1] proxies.
+/// A message handler for [`ZwlrOutputManagerV1`] proxies.
 pub trait ZwlrOutputManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrOutputManagerV1>) {
         slf.core.delete_id();

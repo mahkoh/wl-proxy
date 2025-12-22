@@ -34,10 +34,12 @@ impl ConcreteObject for WlShellSurface {
 }
 
 impl WlShellSurface {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WlShellSurfaceHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WlShellSurfaceHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -1316,8 +1318,11 @@ impl WlShellSurface {
     }
 }
 
-/// A message handler for [WlShellSurface] proxies.
+/// A message handler for [`WlShellSurface`] proxies.
 pub trait WlShellSurfaceHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlShellSurface>) {
         slf.core.delete_id();
@@ -2374,7 +2379,7 @@ impl WlShellSurface {
 #[derive(Default)]
 pub struct WlShellSurfaceResize(pub u32);
 
-/// An iterator over the set bits in a [WlShellSurfaceResize].
+/// An iterator over the set bits in a [`WlShellSurfaceResize`].
 ///
 /// You can construct this with the `IntoIterator` implementation of `WlShellSurfaceResize`.
 #[derive(Clone, Debug)]
@@ -2679,7 +2684,7 @@ impl Debug for WlShellSurfaceResize {
 #[derive(Default)]
 pub struct WlShellSurfaceTransient(pub u32);
 
-/// An iterator over the set bits in a [WlShellSurfaceTransient].
+/// An iterator over the set bits in a [`WlShellSurfaceTransient`].
 ///
 /// You can construct this with the `IntoIterator` implementation of `WlShellSurfaceTransient`.
 #[derive(Clone, Debug)]

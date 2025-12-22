@@ -42,10 +42,12 @@ impl ConcreteObject for WlSubcompositor {
 }
 
 impl WlSubcompositor {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WlSubcompositorHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WlSubcompositorHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -282,7 +284,6 @@ impl WlSubcompositor {
     ///
     /// # Arguments
     ///
-    /// - `id`: the new sub-surface object ID
     /// - `surface`: the surface to be turned into a sub-surface
     /// - `parent`: the parent surface
     #[inline]
@@ -324,7 +325,6 @@ impl WlSubcompositor {
     ///
     /// # Arguments
     ///
-    /// - `id`: the new sub-surface object ID
     /// - `surface`: the surface to be turned into a sub-surface
     /// - `parent`: the parent surface
     #[inline]
@@ -343,8 +343,11 @@ impl WlSubcompositor {
     }
 }
 
-/// A message handler for [WlSubcompositor] proxies.
+/// A message handler for [`WlSubcompositor`] proxies.
 pub trait WlSubcompositorHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlSubcompositor>) {
         slf.core.delete_id();

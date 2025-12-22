@@ -25,10 +25,12 @@ impl ConcreteObject for ExtForeignToplevelImageCaptureSourceManagerV1 {
 }
 
 impl ExtForeignToplevelImageCaptureSourceManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ExtForeignToplevelImageCaptureSourceManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ExtForeignToplevelImageCaptureSourceManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -144,7 +146,6 @@ impl ExtForeignToplevelImageCaptureSourceManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `source`:
     /// - `toplevel_handle`:
     #[inline]
     pub fn new_try_send_create_source(
@@ -166,7 +167,6 @@ impl ExtForeignToplevelImageCaptureSourceManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `source`:
     /// - `toplevel_handle`:
     #[inline]
     pub fn new_send_create_source(
@@ -239,8 +239,11 @@ impl ExtForeignToplevelImageCaptureSourceManagerV1 {
     }
 }
 
-/// A message handler for [ExtForeignToplevelImageCaptureSourceManagerV1] proxies.
+/// A message handler for [`ExtForeignToplevelImageCaptureSourceManagerV1`] proxies.
 pub trait ExtForeignToplevelImageCaptureSourceManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtForeignToplevelImageCaptureSourceManagerV1>) {
         slf.core.delete_id();

@@ -27,10 +27,12 @@ impl ConcreteObject for ExtIdleNotifierV1 {
 }
 
 impl ExtIdleNotifierV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ExtIdleNotifierV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ExtIdleNotifierV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -227,7 +229,6 @@ impl ExtIdleNotifierV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `timeout`: minimum idle timeout in msec
     /// - `seat`:
     #[inline]
@@ -258,7 +259,6 @@ impl ExtIdleNotifierV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `timeout`: minimum idle timeout in msec
     /// - `seat`:
     #[inline]
@@ -404,7 +404,6 @@ impl ExtIdleNotifierV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `timeout`: minimum idle timeout in msec
     /// - `seat`:
     #[inline]
@@ -437,7 +436,6 @@ impl ExtIdleNotifierV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `timeout`: minimum idle timeout in msec
     /// - `seat`:
     #[inline]
@@ -456,8 +454,11 @@ impl ExtIdleNotifierV1 {
     }
 }
 
-/// A message handler for [ExtIdleNotifierV1] proxies.
+/// A message handler for [`ExtIdleNotifierV1`] proxies.
 pub trait ExtIdleNotifierV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtIdleNotifierV1>) {
         slf.core.delete_id();

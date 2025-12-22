@@ -24,10 +24,12 @@ impl ConcreteObject for ExtSessionLockManagerV1 {
 }
 
 impl ExtSessionLockManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ExtSessionLockManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ExtSessionLockManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -113,6 +115,10 @@ impl ExtSessionLockManagerV1 {
     /// session. The compositor will send either the ext_session_lock_v1.locked
     /// or ext_session_lock_v1.finished event on the created object in
     /// response to this request.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_lock(
         &self,
@@ -163,6 +169,10 @@ impl ExtSessionLockManagerV1 {
     /// session. The compositor will send either the ext_session_lock_v1.locked
     /// or ext_session_lock_v1.finished event on the created object in
     /// response to this request.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_lock(
         &self,
@@ -211,8 +221,11 @@ impl ExtSessionLockManagerV1 {
     }
 }
 
-/// A message handler for [ExtSessionLockManagerV1] proxies.
+/// A message handler for [`ExtSessionLockManagerV1`] proxies.
 pub trait ExtSessionLockManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtSessionLockManagerV1>) {
         slf.core.delete_id();

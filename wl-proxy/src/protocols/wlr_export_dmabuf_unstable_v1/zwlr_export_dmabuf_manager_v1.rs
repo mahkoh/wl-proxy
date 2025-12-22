@@ -24,10 +24,12 @@ impl ConcreteObject for ZwlrExportDmabufManagerV1 {
 }
 
 impl ZwlrExportDmabufManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwlrExportDmabufManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwlrExportDmabufManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -148,7 +150,6 @@ impl ZwlrExportDmabufManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `frame`:
     /// - `overlay_cursor`: include custom client hardware cursor on top of the frame
     /// - `output`:
     #[inline]
@@ -172,7 +173,6 @@ impl ZwlrExportDmabufManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `frame`:
     /// - `overlay_cursor`: include custom client hardware cursor on top of the frame
     /// - `output`:
     #[inline]
@@ -246,8 +246,11 @@ impl ZwlrExportDmabufManagerV1 {
     }
 }
 
-/// A message handler for [ZwlrExportDmabufManagerV1] proxies.
+/// A message handler for [`ZwlrExportDmabufManagerV1`] proxies.
 pub trait ZwlrExportDmabufManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrExportDmabufManagerV1>) {
         slf.core.delete_id();

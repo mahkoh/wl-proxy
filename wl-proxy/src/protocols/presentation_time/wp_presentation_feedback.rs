@@ -34,10 +34,12 @@ impl ConcreteObject for WpPresentationFeedback {
 }
 
 impl WpPresentationFeedback {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WpPresentationFeedbackHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WpPresentationFeedbackHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -415,8 +417,11 @@ impl WpPresentationFeedback {
     }
 }
 
-/// A message handler for [WpPresentationFeedback] proxies.
+/// A message handler for [`WpPresentationFeedback`] proxies.
 pub trait WpPresentationFeedbackHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpPresentationFeedback>) {
         slf.core.delete_id();
@@ -764,7 +769,7 @@ impl WpPresentationFeedback {
 #[derive(Default)]
 pub struct WpPresentationFeedbackKind(pub u32);
 
-/// An iterator over the set bits in a [WpPresentationFeedbackKind].
+/// An iterator over the set bits in a [`WpPresentationFeedbackKind`].
 ///
 /// You can construct this with the `IntoIterator` implementation of `WpPresentationFeedbackKind`.
 #[derive(Clone, Debug)]

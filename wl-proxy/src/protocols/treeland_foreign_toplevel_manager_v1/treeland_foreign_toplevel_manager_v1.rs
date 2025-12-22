@@ -29,10 +29,12 @@ impl ConcreteObject for TreelandForeignToplevelManagerV1 {
 }
 
 impl TreelandForeignToplevelManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl TreelandForeignToplevelManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn TreelandForeignToplevelManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -64,6 +66,10 @@ impl TreelandForeignToplevelManagerV1 {
     /// All initial details of the toplevel(title, app_id, states, etc.) will
     /// be sent immediately after this event via the corresponding events in
     /// treeland_foreign_toplevel_handle_v1.
+    ///
+    /// # Arguments
+    ///
+    /// - `toplevel`:
     #[inline]
     pub fn try_send_toplevel(
         &self,
@@ -119,6 +125,10 @@ impl TreelandForeignToplevelManagerV1 {
     /// All initial details of the toplevel(title, app_id, states, etc.) will
     /// be sent immediately after this event via the corresponding events in
     /// treeland_foreign_toplevel_handle_v1.
+    ///
+    /// # Arguments
+    ///
+    /// - `toplevel`:
     #[inline]
     pub fn send_toplevel(
         &self,
@@ -378,7 +388,6 @@ impl TreelandForeignToplevelManagerV1 {
     /// # Arguments
     ///
     /// - `relative_surface`:
-    /// - `id`:
     #[inline]
     pub fn new_try_send_get_dock_preview_context(
         &self,
@@ -395,7 +404,6 @@ impl TreelandForeignToplevelManagerV1 {
     /// # Arguments
     ///
     /// - `relative_surface`:
-    /// - `id`:
     #[inline]
     pub fn new_send_get_dock_preview_context(
         &self,
@@ -410,8 +418,11 @@ impl TreelandForeignToplevelManagerV1 {
     }
 }
 
-/// A message handler for [TreelandForeignToplevelManagerV1] proxies.
+/// A message handler for [`TreelandForeignToplevelManagerV1`] proxies.
 pub trait TreelandForeignToplevelManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandForeignToplevelManagerV1>) {
         slf.core.delete_id();

@@ -28,10 +28,12 @@ impl ConcreteObject for WpColorRepresentationManagerV1 {
 }
 
 impl WpColorRepresentationManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WpColorRepresentationManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WpColorRepresentationManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -217,7 +219,6 @@ impl WpColorRepresentationManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_try_send_get_surface(
@@ -244,7 +245,6 @@ impl WpColorRepresentationManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_send_get_surface(
@@ -484,8 +484,11 @@ impl WpColorRepresentationManagerV1 {
     }
 }
 
-/// A message handler for [WpColorRepresentationManagerV1] proxies.
+/// A message handler for [`WpColorRepresentationManagerV1`] proxies.
 pub trait WpColorRepresentationManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpColorRepresentationManagerV1>) {
         slf.core.delete_id();

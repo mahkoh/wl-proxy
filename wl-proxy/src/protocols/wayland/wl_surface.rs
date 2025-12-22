@@ -65,10 +65,12 @@ impl ConcreteObject for WlSurface {
 }
 
 impl WlSurface {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WlSurfaceHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WlSurfaceHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -532,6 +534,10 @@ impl WlSurface {
     ///
     /// The callback_data passed in the callback is the current time, in
     /// milliseconds, with an undefined base.
+    ///
+    /// # Arguments
+    ///
+    /// - `callback`: callback object for the frame request
     #[inline]
     pub fn try_send_frame(
         &self,
@@ -610,6 +616,10 @@ impl WlSurface {
     ///
     /// The callback_data passed in the callback is the current time, in
     /// milliseconds, with an undefined base.
+    ///
+    /// # Arguments
+    ///
+    /// - `callback`: callback object for the frame request
     #[inline]
     pub fn send_frame(
         &self,
@@ -1902,8 +1912,11 @@ impl WlSurface {
     }
 }
 
-/// A message handler for [WlSurface] proxies.
+/// A message handler for [`WlSurface`] proxies.
 pub trait WlSurfaceHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlSurface>) {
         slf.core.delete_id();

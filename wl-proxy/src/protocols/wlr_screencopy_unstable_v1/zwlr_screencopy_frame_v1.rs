@@ -39,10 +39,12 @@ impl ConcreteObject for ZwlrScreencopyFrameV1 {
 }
 
 impl ZwlrScreencopyFrameV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwlrScreencopyFrameV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwlrScreencopyFrameV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -877,8 +879,11 @@ impl ZwlrScreencopyFrameV1 {
     }
 }
 
-/// A message handler for [ZwlrScreencopyFrameV1] proxies.
+/// A message handler for [`ZwlrScreencopyFrameV1`] proxies.
 pub trait ZwlrScreencopyFrameV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrScreencopyFrameV1>) {
         slf.core.delete_id();
@@ -1563,7 +1568,7 @@ impl Debug for ZwlrScreencopyFrameV1Error {
 #[derive(Default)]
 pub struct ZwlrScreencopyFrameV1Flags(pub u32);
 
-/// An iterator over the set bits in a [ZwlrScreencopyFrameV1Flags].
+/// An iterator over the set bits in a [`ZwlrScreencopyFrameV1Flags`].
 ///
 /// You can construct this with the `IntoIterator` implementation of `ZwlrScreencopyFrameV1Flags`.
 #[derive(Clone, Debug)]

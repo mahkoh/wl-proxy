@@ -28,10 +28,12 @@ impl ConcreteObject for WlDataDevice {
 }
 
 impl WlDataDevice {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WlDataDeviceHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WlDataDeviceHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -332,6 +334,10 @@ impl WlDataDevice {
     /// following the data_device.data_offer event, the new data_offer
     /// object will send out data_offer.offer events to describe the
     /// mime types it offers.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new data_offer object
     #[inline]
     pub fn try_send_data_offer(
         &self,
@@ -387,6 +393,10 @@ impl WlDataDevice {
     /// following the data_device.data_offer event, the new data_offer
     /// object will send out data_offer.offer events to describe the
     /// mime types it offers.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new data_offer object
     #[inline]
     pub fn send_data_offer(
         &self,
@@ -944,8 +954,11 @@ impl WlDataDevice {
     }
 }
 
-/// A message handler for [WlDataDevice] proxies.
+/// A message handler for [`WlDataDevice`] proxies.
 pub trait WlDataDeviceHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlDataDevice>) {
         slf.core.delete_id();

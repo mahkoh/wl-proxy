@@ -38,10 +38,12 @@ impl ConcreteObject for ZwlrLayerSurfaceV1 {
 }
 
 impl ZwlrLayerSurfaceV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwlrLayerSurfaceV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwlrLayerSurfaceV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -1144,8 +1146,11 @@ impl ZwlrLayerSurfaceV1 {
     }
 }
 
-/// A message handler for [ZwlrLayerSurfaceV1] proxies.
+/// A message handler for [`ZwlrLayerSurfaceV1`] proxies.
 pub trait ZwlrLayerSurfaceV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrLayerSurfaceV1>) {
         slf.core.delete_id();
@@ -2098,7 +2103,7 @@ impl Debug for ZwlrLayerSurfaceV1Error {
 #[derive(Default)]
 pub struct ZwlrLayerSurfaceV1Anchor(pub u32);
 
-/// An iterator over the set bits in a [ZwlrLayerSurfaceV1Anchor].
+/// An iterator over the set bits in a [`ZwlrLayerSurfaceV1Anchor`].
 ///
 /// You can construct this with the `IntoIterator` implementation of `ZwlrLayerSurfaceV1Anchor`.
 #[derive(Clone, Debug)]

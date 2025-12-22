@@ -27,10 +27,12 @@ impl ConcreteObject for ZwpInputMethodV1 {
 }
 
 impl ZwpInputMethodV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpInputMethodV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpInputMethodV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -57,6 +59,10 @@ impl ZwpInputMethodV1 {
     ///
     /// A text input was activated. Creates an input method context object
     /// which allows communication with the text input.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_activate(
         &self,
@@ -107,6 +113,10 @@ impl ZwpInputMethodV1 {
     ///
     /// A text input was activated. Creates an input method context object
     /// which allows communication with the text input.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_activate(
         &self,
@@ -231,8 +241,11 @@ impl ZwpInputMethodV1 {
     }
 }
 
-/// A message handler for [ZwpInputMethodV1] proxies.
+/// A message handler for [`ZwpInputMethodV1`] proxies.
 pub trait ZwpInputMethodV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpInputMethodV1>) {
         slf.core.delete_id();

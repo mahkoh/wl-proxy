@@ -29,10 +29,12 @@ impl ConcreteObject for TreelandShortcutManagerV1 {
 }
 
 impl TreelandShortcutManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl TreelandShortcutManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn TreelandShortcutManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -152,7 +154,6 @@ impl TreelandShortcutManagerV1 {
     /// # Arguments
     ///
     /// - `key`:
-    /// - `id`:
     #[inline]
     pub fn new_try_send_register_shortcut_context(
         &self,
@@ -176,7 +177,6 @@ impl TreelandShortcutManagerV1 {
     /// # Arguments
     ///
     /// - `key`:
-    /// - `id`:
     #[inline]
     pub fn new_send_register_shortcut_context(
         &self,
@@ -191,8 +191,11 @@ impl TreelandShortcutManagerV1 {
     }
 }
 
-/// A message handler for [TreelandShortcutManagerV1] proxies.
+/// A message handler for [`TreelandShortcutManagerV1`] proxies.
 pub trait TreelandShortcutManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandShortcutManagerV1>) {
         slf.core.delete_id();

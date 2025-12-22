@@ -85,10 +85,12 @@ impl ConcreteObject for ZwpLinuxDmabufV1 {
 }
 
 impl ZwpLinuxDmabufV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpLinuxDmabufV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpLinuxDmabufV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -172,6 +174,10 @@ impl ZwpLinuxDmabufV1 {
     /// a single batch to create a wl_buffer. It can only be used once and
     /// should be destroyed after a 'created' or 'failed' event has been
     /// received.
+    ///
+    /// # Arguments
+    ///
+    /// - `params_id`: the new temporary
     #[inline]
     pub fn try_send_create_params(
         &self,
@@ -222,6 +228,10 @@ impl ZwpLinuxDmabufV1 {
     /// a single batch to create a wl_buffer. It can only be used once and
     /// should be destroyed after a 'created' or 'failed' event has been
     /// received.
+    ///
+    /// # Arguments
+    ///
+    /// - `params_id`: the new temporary
     #[inline]
     pub fn send_create_params(
         &self,
@@ -506,6 +516,10 @@ impl ZwpLinuxDmabufV1 {
     /// to a particular surface. This object will deliver feedback about dmabuf
     /// parameters to use if the client doesn't support per-surface feedback
     /// (see get_surface_feedback).
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_get_default_feedback(
         &self,
@@ -556,6 +570,10 @@ impl ZwpLinuxDmabufV1 {
     /// to a particular surface. This object will deliver feedback about dmabuf
     /// parameters to use if the client doesn't support per-surface feedback
     /// (see get_surface_feedback).
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_get_default_feedback(
         &self,
@@ -711,7 +729,6 @@ impl ZwpLinuxDmabufV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_try_send_get_surface_feedback(
@@ -737,7 +754,6 @@ impl ZwpLinuxDmabufV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_send_get_surface_feedback(
@@ -753,8 +769,11 @@ impl ZwpLinuxDmabufV1 {
     }
 }
 
-/// A message handler for [ZwpLinuxDmabufV1] proxies.
+/// A message handler for [`ZwpLinuxDmabufV1`] proxies.
 pub trait ZwpLinuxDmabufV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpLinuxDmabufV1>) {
         slf.core.delete_id();

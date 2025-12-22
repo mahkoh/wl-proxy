@@ -25,10 +25,12 @@ impl ConcreteObject for JayPopupExtManagerV1 {
 }
 
 impl JayPopupExtManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl JayPopupExtManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn JayPopupExtManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -209,7 +211,6 @@ impl JayPopupExtManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`: the new jay_popup_ext_v1
     /// - `popup`: the xdg_popup
     #[inline]
     pub fn new_try_send_get_ext(
@@ -235,7 +236,6 @@ impl JayPopupExtManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`: the new jay_popup_ext_v1
     /// - `popup`: the xdg_popup
     #[inline]
     pub fn new_send_get_ext(
@@ -251,8 +251,11 @@ impl JayPopupExtManagerV1 {
     }
 }
 
-/// A message handler for [JayPopupExtManagerV1] proxies.
+/// A message handler for [`JayPopupExtManagerV1`] proxies.
 pub trait JayPopupExtManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<JayPopupExtManagerV1>) {
         slf.core.delete_id();

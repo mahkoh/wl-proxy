@@ -36,10 +36,12 @@ impl ConcreteObject for ZwpPointerConstraintsV1 {
 }
 
 impl ZwpPointerConstraintsV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpPointerConstraintsV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpPointerConstraintsV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -343,7 +345,6 @@ impl ZwpPointerConstraintsV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`: surface to lock pointer to
     /// - `pointer`: the pointer that should be locked
     /// - `region`: region of surface
@@ -406,7 +407,6 @@ impl ZwpPointerConstraintsV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`: surface to lock pointer to
     /// - `pointer`: the pointer that should be locked
     /// - `region`: region of surface
@@ -608,7 +608,6 @@ impl ZwpPointerConstraintsV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`: surface to lock pointer to
     /// - `pointer`: the pointer that should be confined
     /// - `region`: region of surface
@@ -654,7 +653,6 @@ impl ZwpPointerConstraintsV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`: surface to lock pointer to
     /// - `pointer`: the pointer that should be confined
     /// - `region`: region of surface
@@ -679,8 +677,11 @@ impl ZwpPointerConstraintsV1 {
     }
 }
 
-/// A message handler for [ZwpPointerConstraintsV1] proxies.
+/// A message handler for [`ZwpPointerConstraintsV1`] proxies.
 pub trait ZwpPointerConstraintsV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpPointerConstraintsV1>) {
         slf.core.delete_id();

@@ -71,10 +71,12 @@ impl ConcreteObject for XdgSurface {
 }
 
 impl XdgSurface {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl XdgSurfaceHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn XdgSurfaceHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -161,6 +163,10 @@ impl XdgSurface {
     ///
     /// See the documentation of xdg_toplevel for more details about what an
     /// xdg_toplevel is and how it is used.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_get_toplevel(
         &self,
@@ -212,6 +218,10 @@ impl XdgSurface {
     ///
     /// See the documentation of xdg_toplevel for more details about what an
     /// xdg_toplevel is and how it is used.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_get_toplevel(
         &self,
@@ -391,7 +401,6 @@ impl XdgSurface {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `parent`:
     /// - `positioner`:
     #[inline]
@@ -422,7 +431,6 @@ impl XdgSurface {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `parent`:
     /// - `positioner`:
     #[inline]
@@ -844,8 +852,11 @@ impl XdgSurface {
     }
 }
 
-/// A message handler for [XdgSurface] proxies.
+/// A message handler for [`XdgSurface`] proxies.
 pub trait XdgSurfaceHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgSurface>) {
         slf.core.delete_id();

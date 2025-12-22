@@ -27,10 +27,12 @@ impl ConcreteObject for WpLinuxDrmSyncobjManagerV1 {
 }
 
 impl WpLinuxDrmSyncobjManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WpLinuxDrmSyncobjManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WpLinuxDrmSyncobjManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -228,7 +230,6 @@ impl WpLinuxDrmSyncobjManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`: the new synchronization surface object id
     /// - `surface`: the surface
     #[inline]
     pub fn new_try_send_get_surface(
@@ -259,7 +260,6 @@ impl WpLinuxDrmSyncobjManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`: the new synchronization surface object id
     /// - `surface`: the surface
     #[inline]
     pub fn new_send_get_surface(
@@ -368,7 +368,6 @@ impl WpLinuxDrmSyncobjManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `fd`: drm_syncobj file descriptor
     #[inline]
     pub fn new_try_send_import_timeline(
@@ -391,7 +390,6 @@ impl WpLinuxDrmSyncobjManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `fd`: drm_syncobj file descriptor
     #[inline]
     pub fn new_send_import_timeline(
@@ -407,8 +405,11 @@ impl WpLinuxDrmSyncobjManagerV1 {
     }
 }
 
-/// A message handler for [WpLinuxDrmSyncobjManagerV1] proxies.
+/// A message handler for [`WpLinuxDrmSyncobjManagerV1`] proxies.
 pub trait WpLinuxDrmSyncobjManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpLinuxDrmSyncobjManagerV1>) {
         slf.core.delete_id();

@@ -24,10 +24,12 @@ impl ConcreteObject for HyprlandFocusGrabManagerV1 {
 }
 
 impl HyprlandFocusGrabManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl HyprlandFocusGrabManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn HyprlandFocusGrabManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -53,6 +55,10 @@ impl HyprlandFocusGrabManagerV1 {
     /// create a focus grab object
     ///
     /// Create a surface grab object.
+    ///
+    /// # Arguments
+    ///
+    /// - `grab`:
     #[inline]
     pub fn try_send_create_grab(
         &self,
@@ -100,6 +106,10 @@ impl HyprlandFocusGrabManagerV1 {
     /// create a focus grab object
     ///
     /// Create a surface grab object.
+    ///
+    /// # Arguments
+    ///
+    /// - `grab`:
     #[inline]
     pub fn send_create_grab(
         &self,
@@ -197,8 +207,11 @@ impl HyprlandFocusGrabManagerV1 {
     }
 }
 
-/// A message handler for [HyprlandFocusGrabManagerV1] proxies.
+/// A message handler for [`HyprlandFocusGrabManagerV1`] proxies.
 pub trait HyprlandFocusGrabManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandFocusGrabManagerV1>) {
         slf.core.delete_id();

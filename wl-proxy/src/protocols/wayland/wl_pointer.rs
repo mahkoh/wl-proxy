@@ -31,10 +31,12 @@ impl ConcreteObject for WlPointer {
 }
 
 impl WlPointer {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WlPointerHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WlPointerHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -1562,8 +1564,11 @@ impl WlPointer {
     }
 }
 
-/// A message handler for [WlPointer] proxies.
+/// A message handler for [`WlPointer`] proxies.
 pub trait WlPointerHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlPointer>) {
         slf.core.delete_id();

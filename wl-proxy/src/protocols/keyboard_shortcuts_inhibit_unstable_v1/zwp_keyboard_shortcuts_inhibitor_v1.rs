@@ -56,10 +56,12 @@ impl ConcreteObject for ZwpKeyboardShortcutsInhibitorV1 {
 }
 
 impl ZwpKeyboardShortcutsInhibitorV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpKeyboardShortcutsInhibitorV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpKeyboardShortcutsInhibitorV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -263,8 +265,11 @@ impl ZwpKeyboardShortcutsInhibitorV1 {
     }
 }
 
-/// A message handler for [ZwpKeyboardShortcutsInhibitorV1] proxies.
+/// A message handler for [`ZwpKeyboardShortcutsInhibitorV1`] proxies.
 pub trait ZwpKeyboardShortcutsInhibitorV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpKeyboardShortcutsInhibitorV1>) {
         slf.core.delete_id();

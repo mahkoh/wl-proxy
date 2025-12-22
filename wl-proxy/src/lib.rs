@@ -9,6 +9,7 @@ pub mod client;
 mod endpoint;
 pub mod fixed;
 mod protocol_helpers;
+/// Auto-generated wayland protocols.
 #[rustfmt::skip]
 pub mod protocols;
 pub mod baseline;

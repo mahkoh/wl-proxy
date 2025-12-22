@@ -26,10 +26,12 @@ impl ConcreteObject for WlCompositor {
 }
 
 impl WlCompositor {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WlCompositorHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WlCompositorHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -55,6 +57,10 @@ impl WlCompositor {
     /// create new surface
     ///
     /// Ask the compositor to create a new surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new surface
     #[inline]
     pub fn try_send_create_surface(
         &self,
@@ -102,6 +108,10 @@ impl WlCompositor {
     /// create new surface
     ///
     /// Ask the compositor to create a new surface.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new surface
     #[inline]
     pub fn send_create_surface(
         &self,
@@ -149,6 +159,10 @@ impl WlCompositor {
     /// create new region
     ///
     /// Ask the compositor to create a new region.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new region
     #[inline]
     pub fn try_send_create_region(
         &self,
@@ -196,6 +210,10 @@ impl WlCompositor {
     /// create new region
     ///
     /// Ask the compositor to create a new region.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new region
     #[inline]
     pub fn send_create_region(
         &self,
@@ -238,8 +256,11 @@ impl WlCompositor {
     }
 }
 
-/// A message handler for [WlCompositor] proxies.
+/// A message handler for [`WlCompositor`] proxies.
 pub trait WlCompositorHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlCompositor>) {
         slf.core.delete_id();

@@ -28,10 +28,12 @@ impl ConcreteObject for ZwlrForeignToplevelHandleV1 {
 }
 
 impl ZwlrForeignToplevelHandleV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwlrForeignToplevelHandleV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwlrForeignToplevelHandleV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -1317,8 +1319,11 @@ impl ZwlrForeignToplevelHandleV1 {
     }
 }
 
-/// A message handler for [ZwlrForeignToplevelHandleV1] proxies.
+/// A message handler for [`ZwlrForeignToplevelHandleV1`] proxies.
 pub trait ZwlrForeignToplevelHandleV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwlrForeignToplevelHandleV1>) {
         slf.core.delete_id();

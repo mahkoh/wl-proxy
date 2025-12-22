@@ -25,10 +25,12 @@ impl ConcreteObject for TreelandOutputManagerV1 {
 }
 
 impl TreelandOutputManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl TreelandOutputManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn TreelandOutputManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -271,7 +273,6 @@ impl TreelandOutputManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `output`:
     #[inline]
     pub fn new_try_send_get_color_control(
@@ -290,7 +291,6 @@ impl TreelandOutputManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `output`:
     #[inline]
     pub fn new_send_get_color_control(
@@ -355,8 +355,11 @@ impl TreelandOutputManagerV1 {
     }
 }
 
-/// A message handler for [TreelandOutputManagerV1] proxies.
+/// A message handler for [`TreelandOutputManagerV1`] proxies.
 pub trait TreelandOutputManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandOutputManagerV1>) {
         slf.core.delete_id();

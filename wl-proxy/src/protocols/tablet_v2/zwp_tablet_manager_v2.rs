@@ -26,10 +26,12 @@ impl ConcreteObject for ZwpTabletManagerV2 {
 }
 
 impl ZwpTabletManagerV2 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpTabletManagerV2Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpTabletManagerV2Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -145,7 +147,6 @@ impl ZwpTabletManagerV2 {
     ///
     /// # Arguments
     ///
-    /// - `tablet_seat`:
     /// - `seat`: The wl_seat object to retrieve the tablets for
     #[inline]
     pub fn new_try_send_get_tablet_seat(
@@ -167,7 +168,6 @@ impl ZwpTabletManagerV2 {
     ///
     /// # Arguments
     ///
-    /// - `tablet_seat`:
     /// - `seat`: The wl_seat object to retrieve the tablets for
     #[inline]
     pub fn new_send_get_tablet_seat(
@@ -238,8 +238,11 @@ impl ZwpTabletManagerV2 {
     }
 }
 
-/// A message handler for [ZwpTabletManagerV2] proxies.
+/// A message handler for [`ZwpTabletManagerV2`] proxies.
 pub trait ZwpTabletManagerV2Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpTabletManagerV2>) {
         slf.core.delete_id();

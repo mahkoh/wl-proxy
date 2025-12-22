@@ -1,3 +1,5 @@
+//! Wayland objects.
+
 use {
     crate::{
         client::Client,
@@ -36,23 +38,168 @@ pub(crate) trait ObjectPrivate: Any {
     fn get_event_name(&self, id: u32) -> Option<&'static str>;
 }
 
+/// A wayland object.
+///
+/// Note that [`ObjectCoreApi`] provides additional functions for all `T: Object`.
 #[expect(private_bounds)]
 pub trait Object: ObjectPrivate {
+    /// Returns the [`ObjectCore`] of this object.
     fn core(&self) -> &ObjectCore;
+    /// Unsets the handler of this object.
+    ///
+    /// Handlers are unset automatically when the [`State`] is destroyed. Otherwise, if
+    /// a handler creates a reference cycle, the handler has to be unset manually.
+    /// For example, within the handler of a destructor message or when the client
+    /// disconnects.
     fn unset_handler(&self);
+    /// Returns a shared reference to the handler.
     fn get_handler_any_ref(&self) -> Result<HandlerRef<'_, dyn Any>, HandlerAccessError>;
+    /// Returns a mutable reference to the handler.
     fn get_handler_any_mut(&self) -> Result<HandlerMut<'_, dyn Any>, HandlerAccessError>;
 }
 
+/// A concrete (not `dyn`) object.
 pub trait ConcreteObject: Object {
+    /// The interface version from the XML file that the interface was generated from.
     const XML_VERSION: u32;
+    /// The interface of the object.
     const INTERFACE: ObjectInterface;
+    /// The interface of the object as a string.
     const INTERFACE_NAME: &str;
 }
 
-pub trait ObjectUtils: Object {
+/// The API implemented by [`ObjectCore`].
+pub trait ObjectCoreApi {
+    /// Returns the [`State`] of this object.
+    fn state(&self) -> &Rc<State>;
+
+    /// Returns the [`Client`] associated with this object, if any.
+    fn client(&self) -> Option<Rc<Client>>;
+
+    /// Creates a child of this object.
+    ///
+    /// This is a shorthand for
+    ///
+    /// ```
+    /// # use std::rc::Rc;
+    /// # use wl_proxy::object::{Object, ObjectCore};
+    /// # trait T { fn f<P: Object>(&self) -> Rc<P>; }
+    /// # impl T for ObjectCore {
+    /// #     fn f<P: Object>(&self) -> Rc<P> {
+    /// self.state().create_object::<P>(self.version())
+    /// #     }
+    /// # }
+    /// ```
+    fn create_child<P>(&self) -> Rc<P>
+    where
+        P: Object;
+
+    /// Returns the [`ObjectInterface`] of this object.
+    fn interface(&self) -> ObjectInterface;
+
+    /// Returns the version of this object.
+    fn version(&self) -> u32;
+
+    /// Returns the unique ID of this object.
+    ///
+    /// This ID is not reused for any other object for the lifetime of the [`State`].
+    fn unique_id(&self) -> u64;
+
+    /// Sends a wl_display.delete_id event for this object.
+    ///
+    /// This is similar to [`ObjectCoreApi::try_delete_id`] but logs a message instead of
+    /// returning an error.
+    fn delete_id(&self);
+
+    /// Tries to send a wl_display.delete_id event for this object.
+    ///
+    /// This should be used when overriding the `delete_id` function in message handlers
+    /// or in destructors when the destructor is not forwarded to the server.
+    fn try_delete_id(&self) -> Result<(), ObjectError>;
+
+    /// Enables or disables automatic forwarding of events to the client.
+    ///
+    /// This affects the default message handlers.
+    fn set_forward_to_client(&self, enabled: bool);
+
+    /// Enables or disables automatic forwarding of requests to the server.
+    ///
+    /// This affects the default message handlers.
+    fn set_forward_to_server(&self, enabled: bool);
+}
+
+impl ObjectCoreApi for ObjectCore {
+    fn state(&self) -> &Rc<State> {
+        &self.state
+    }
+
+    fn client(&self) -> Option<Rc<Client>> {
+        self.client.borrow().clone()
+    }
+
+    fn create_child<P>(&self) -> Rc<P>
+    where
+        P: Object,
+    {
+        self.state.create_object::<P>(self.version)
+    }
+
+    fn interface(&self) -> ObjectInterface {
+        self.interface
+    }
+
+    fn version(&self) -> u32 {
+        self.version
+    }
+
+    fn unique_id(&self) -> u64 {
+        self.id
+    }
+
+    fn delete_id(&self) {
+        if let Err(e) = self.try_delete_id() {
+            log::warn!("Could not release a client id: {}", Report::new(e));
+        }
+    }
+
+    fn try_delete_id(&self) -> Result<(), ObjectError> {
+        if !self.awaiting_delete_id.replace(false) {
+            if self.client.borrow().is_some() {
+                return Err(ObjectError(ObjectErrorKind::NotAwaitingDeleteId));
+            }
+            return Ok(());
+        }
+        let Some(id) = self.client_obj_id.take() else {
+            return Ok(());
+        };
+        self.client_id.take();
+        let Some(client) = self.client.take() else {
+            return Ok(());
+        };
+        let object = client.endpoint.objects.borrow_mut().remove(&id);
+        drop(object);
+        client.display.try_send_delete_id(id)
+    }
+
+    fn set_forward_to_client(&self, enabled: bool) {
+        self.forward_to_client.set(enabled);
+    }
+
+    fn set_forward_to_server(&self, enabled: bool) {
+        self.forward_to_server.set(enabled);
+    }
+}
+
+impl<T> ObjectCoreApi for T
+where
+    T: Object + ?Sized,
+{
     fn state(&self) -> &Rc<State> {
         self.core().state()
+    }
+
+    fn client(&self) -> Option<Rc<Client>> {
+        self.core().client()
     }
 
     fn create_child<P>(&self) -> Rc<P>
@@ -89,7 +236,11 @@ pub trait ObjectUtils: Object {
     fn set_forward_to_server(&self, enabled: bool) {
         self.core().set_forward_to_server(enabled);
     }
+}
 
+/// Utilities for [`Object`]s.
+pub trait ObjectUtils: Object {
+    /// Tries to get a shared reference to the handler.
     fn try_get_handler_ref<T>(&self) -> Result<HandlerRef<'_, T>, HandlerAccessError>
     where
         T: 'static,
@@ -103,6 +254,9 @@ pub trait ObjectUtils: Object {
         }))
     }
 
+    /// Gets a shared reference to the handler.
+    ///
+    /// This function panics if a [`HandlerAccessError`] occurs.
     fn get_handler_ref<T>(&self) -> HandlerRef<'_, T>
     where
         T: 'static,
@@ -110,6 +264,7 @@ pub trait ObjectUtils: Object {
         self.try_get_handler_ref().map_err(Report::new).unwrap()
     }
 
+    /// Tries to get a mutable reference to the handler.
     fn try_get_handler_mut<T>(&self) -> Result<HandlerMut<'_, T>, HandlerAccessError>
     where
         T: 'static,
@@ -123,6 +278,9 @@ pub trait ObjectUtils: Object {
         }))
     }
 
+    /// Gets a mutable reference to the handler.
+    ///
+    /// This function panics if a [`HandlerAccessError`] occurs.
     fn get_handler_mut<T>(&self) -> HandlerMut<'_, T>
     where
         T: 'static,
@@ -133,11 +291,16 @@ pub trait ObjectUtils: Object {
 
 impl<T> ObjectUtils for T where T: Object + ?Sized {}
 
+/// Utilities for `Rc<dyn Object>`.
 pub trait ObjectRcUtils {
+    /// Tries to downcast the object to a [`ConcreteObject`].
     fn try_downcast<T>(&self) -> Option<Rc<T>>
     where
         T: ConcreteObject;
 
+    /// Downcasts the object to a [`ConcreteObject`].
+    ///
+    /// This function panics if the object has a different interface.
     fn downcast<T>(&self) -> Rc<T>
     where
         T: ConcreteObject;
@@ -166,6 +329,9 @@ impl ObjectRcUtils for Rc<dyn Object> {
     }
 }
 
+/// Core data structure shared by all objects.
+///
+/// This can be accessed via [`Object::core`].
 pub struct ObjectCore {
     pub(crate) state: Rc<State>,
     id: u64,
@@ -181,7 +347,7 @@ pub struct ObjectCore {
 }
 
 #[derive(Debug, Error)]
-pub enum IdError {
+pub(crate) enum IdError {
     #[error("the state is already destroyed")]
     StateDestroyed,
     #[error("the client is already destroyed")]
@@ -354,62 +520,6 @@ impl ObjectCore {
         self.server_obj_id.take();
         let _object = self.state.server.objects.borrow_mut().remove(&id);
     }
-
-    pub fn delete_id(&self) {
-        if let Err(e) = self.try_delete_id() {
-            log::warn!("Could not release a client id: {}", Report::new(e));
-        }
-    }
-
-    pub fn try_delete_id(&self) -> Result<(), ObjectError> {
-        if !self.awaiting_delete_id.replace(false) {
-            if self.client.borrow().is_some() {
-                return Err(ObjectError(ObjectErrorKind::NotAwaitingDeleteId));
-            }
-            return Ok(());
-        }
-        let Some(id) = self.client_obj_id.take() else {
-            return Ok(());
-        };
-        self.client_id.take();
-        let Some(client) = self.client.take() else {
-            return Ok(());
-        };
-        let object = client.endpoint.objects.borrow_mut().remove(&id);
-        drop(object);
-        client.display.try_send_delete_id(id)
-    }
-
-    pub fn create_child<P>(&self) -> Rc<P>
-    where
-        P: Object,
-    {
-        self.state.create_object::<P>(self.version)
-    }
-
-    pub fn state(&self) -> &Rc<State> {
-        &self.state
-    }
-
-    pub fn interface(&self) -> ObjectInterface {
-        self.interface
-    }
-
-    pub fn version(&self) -> u32 {
-        self.version
-    }
-
-    pub fn unique_id(&self) -> u64 {
-        self.id
-    }
-
-    pub fn set_forward_to_client(&self, enabled: bool) {
-        self.forward_to_client.set(enabled);
-    }
-
-    pub fn set_forward_to_server(&self, enabled: bool) {
-        self.forward_to_server.set(enabled);
-    }
 }
 
 impl Drop for ObjectCore {
@@ -424,7 +534,7 @@ impl Drop for ObjectCore {
 pub struct ObjectError(#[from] pub(crate) ObjectErrorKind);
 
 #[derive(Debug, Error)]
-pub enum ObjectErrorKind {
+pub(crate) enum ObjectErrorKind {
     #[error("could not generate a client id for argument {0}")]
     GenerateClientId(&'static str, #[source] IdError),
     #[error("could not generate a server id for argument {0}")]
@@ -475,4 +585,4 @@ pub enum ObjectErrorKind {
 
 #[derive(Debug, Error)]
 #[error("{0}")]
-pub struct StringError(pub String);
+pub(crate) struct StringError(pub String);

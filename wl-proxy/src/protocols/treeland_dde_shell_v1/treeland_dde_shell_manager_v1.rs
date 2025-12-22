@@ -29,10 +29,12 @@ impl ConcreteObject for TreelandDdeShellManagerV1 {
 }
 
 impl TreelandDdeShellManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl TreelandDdeShellManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn TreelandDdeShellManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -55,6 +57,9 @@ impl TreelandDdeShellManagerV1 {
     /// Since when the get_window_overlap_checker message is available.
     pub const MSG__GET_WINDOW_OVERLAP_CHECKER__SINCE: u32 = 1;
 
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_get_window_overlap_checker(
         &self,
@@ -99,6 +104,9 @@ impl TreelandDdeShellManagerV1 {
         Ok(())
     }
 
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_get_window_overlap_checker(
         &self,
@@ -239,7 +247,6 @@ impl TreelandDdeShellManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_try_send_get_shell_surface(
@@ -264,7 +271,6 @@ impl TreelandDdeShellManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_send_get_shell_surface(
@@ -372,7 +378,6 @@ impl TreelandDdeShellManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `seat`: seat associated with the dde_active
     #[inline]
     pub fn new_try_send_get_treeland_dde_active(
@@ -393,7 +398,6 @@ impl TreelandDdeShellManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `seat`: seat associated with the dde_active
     #[inline]
     pub fn new_send_get_treeland_dde_active(
@@ -414,6 +418,10 @@ impl TreelandDdeShellManagerV1 {
     /// create a new multitaskview context
     ///
     /// Create a new multitaskview context for toggle.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_get_treeland_multitaskview(
         &self,
@@ -461,6 +469,10 @@ impl TreelandDdeShellManagerV1 {
     /// create a new multitaskview context
     ///
     /// Create a new multitaskview context for toggle.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_get_treeland_multitaskview(
         &self,
@@ -508,6 +520,10 @@ impl TreelandDdeShellManagerV1 {
     /// create a new window picker
     ///
     /// Create a new window picker to pick window.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_get_treeland_window_picker(
         &self,
@@ -555,6 +571,10 @@ impl TreelandDdeShellManagerV1 {
     /// create a new window picker
     ///
     /// Create a new window picker to pick window.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_get_treeland_window_picker(
         &self,
@@ -602,6 +622,10 @@ impl TreelandDdeShellManagerV1 {
     /// create a new lockscreen context
     ///
     /// Create a new lockscreen context for toggle.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_get_treeland_lockscreen(
         &self,
@@ -649,6 +673,10 @@ impl TreelandDdeShellManagerV1 {
     /// create a new lockscreen context
     ///
     /// Create a new lockscreen context for toggle.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_get_treeland_lockscreen(
         &self,
@@ -691,8 +719,11 @@ impl TreelandDdeShellManagerV1 {
     }
 }
 
-/// A message handler for [TreelandDdeShellManagerV1] proxies.
+/// A message handler for [`TreelandDdeShellManagerV1`] proxies.
 pub trait TreelandDdeShellManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandDdeShellManagerV1>) {
         slf.core.delete_id();

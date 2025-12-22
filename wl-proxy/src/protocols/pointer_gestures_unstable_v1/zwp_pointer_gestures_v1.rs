@@ -39,10 +39,12 @@ impl ConcreteObject for ZwpPointerGesturesV1 {
 }
 
 impl ZwpPointerGesturesV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpPointerGesturesV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpPointerGesturesV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -158,7 +160,6 @@ impl ZwpPointerGesturesV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `pointer`:
     #[inline]
     pub fn new_try_send_get_swipe_gesture(
@@ -180,7 +181,6 @@ impl ZwpPointerGesturesV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `pointer`:
     #[inline]
     pub fn new_send_get_swipe_gesture(
@@ -291,7 +291,6 @@ impl ZwpPointerGesturesV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `pointer`:
     #[inline]
     pub fn new_try_send_get_pinch_gesture(
@@ -313,7 +312,6 @@ impl ZwpPointerGesturesV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `pointer`:
     #[inline]
     pub fn new_send_get_pinch_gesture(
@@ -479,7 +477,6 @@ impl ZwpPointerGesturesV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `pointer`:
     #[inline]
     pub fn new_try_send_get_hold_gesture(
@@ -501,7 +498,6 @@ impl ZwpPointerGesturesV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `pointer`:
     #[inline]
     pub fn new_send_get_hold_gesture(
@@ -517,8 +513,11 @@ impl ZwpPointerGesturesV1 {
     }
 }
 
-/// A message handler for [ZwpPointerGesturesV1] proxies.
+/// A message handler for [`ZwpPointerGesturesV1`] proxies.
 pub trait ZwpPointerGesturesV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpPointerGesturesV1>) {
         slf.core.delete_id();

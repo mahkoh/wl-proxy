@@ -25,10 +25,12 @@ impl ConcreteObject for HyprlandToplevelExportManagerV1 {
 }
 
 impl HyprlandToplevelExportManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl HyprlandToplevelExportManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn HyprlandToplevelExportManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -171,7 +173,6 @@ impl HyprlandToplevelExportManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `frame`:
     /// - `overlay_cursor`: composite cursor onto the frame
     /// - `handle`: the handle of the toplevel (window) to be captured
     #[inline]
@@ -204,7 +205,6 @@ impl HyprlandToplevelExportManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `frame`:
     /// - `overlay_cursor`: composite cursor onto the frame
     /// - `handle`: the handle of the toplevel (window) to be captured
     #[inline]
@@ -378,7 +378,6 @@ impl HyprlandToplevelExportManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `frame`:
     /// - `overlay_cursor`: composite cursor onto the frame
     /// - `handle`: the zwlr_foreign_toplevel_handle_v1 handle of the toplevel to be captured
     #[inline]
@@ -402,7 +401,6 @@ impl HyprlandToplevelExportManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `frame`:
     /// - `overlay_cursor`: composite cursor onto the frame
     /// - `handle`: the zwlr_foreign_toplevel_handle_v1 handle of the toplevel to be captured
     #[inline]
@@ -421,8 +419,11 @@ impl HyprlandToplevelExportManagerV1 {
     }
 }
 
-/// A message handler for [HyprlandToplevelExportManagerV1] proxies.
+/// A message handler for [`HyprlandToplevelExportManagerV1`] proxies.
 pub trait HyprlandToplevelExportManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandToplevelExportManagerV1>) {
         slf.core.delete_id();

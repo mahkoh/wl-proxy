@@ -25,10 +25,12 @@ impl ConcreteObject for ZwpInputTimestampsManagerV1 {
 }
 
 impl ZwpInputTimestampsManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpInputTimestampsManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpInputTimestampsManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -219,7 +221,6 @@ impl ZwpInputTimestampsManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `keyboard`: the wl_keyboard object for which to get timestamp events
     #[inline]
     pub fn new_try_send_get_keyboard_timestamps(
@@ -247,7 +248,6 @@ impl ZwpInputTimestampsManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `keyboard`: the wl_keyboard object for which to get timestamp events
     #[inline]
     pub fn new_send_get_keyboard_timestamps(
@@ -376,7 +376,6 @@ impl ZwpInputTimestampsManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `pointer`: the wl_pointer object for which to get timestamp events
     #[inline]
     pub fn new_try_send_get_pointer_timestamps(
@@ -404,7 +403,6 @@ impl ZwpInputTimestampsManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `pointer`: the wl_pointer object for which to get timestamp events
     #[inline]
     pub fn new_send_get_pointer_timestamps(
@@ -533,7 +531,6 @@ impl ZwpInputTimestampsManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `touch`: the wl_touch object for which to get timestamp events
     #[inline]
     pub fn new_try_send_get_touch_timestamps(
@@ -561,7 +558,6 @@ impl ZwpInputTimestampsManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `touch`: the wl_touch object for which to get timestamp events
     #[inline]
     pub fn new_send_get_touch_timestamps(
@@ -577,8 +573,11 @@ impl ZwpInputTimestampsManagerV1 {
     }
 }
 
-/// A message handler for [ZwpInputTimestampsManagerV1] proxies.
+/// A message handler for [`ZwpInputTimestampsManagerV1`] proxies.
 pub trait ZwpInputTimestampsManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpInputTimestampsManagerV1>) {
         slf.core.delete_id();

@@ -25,10 +25,12 @@ impl ConcreteObject for ZxdgExporterV2 {
 }
 
 impl ZxdgExporterV2 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZxdgExporterV2Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZxdgExporterV2Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -220,7 +222,6 @@ impl ZxdgExporterV2 {
     ///
     /// # Arguments
     ///
-    /// - `id`: the new xdg_exported object
     /// - `surface`: the surface to export
     #[inline]
     pub fn new_try_send_export_toplevel(
@@ -249,7 +250,6 @@ impl ZxdgExporterV2 {
     ///
     /// # Arguments
     ///
-    /// - `id`: the new xdg_exported object
     /// - `surface`: the surface to export
     #[inline]
     pub fn new_send_export_toplevel(
@@ -265,8 +265,11 @@ impl ZxdgExporterV2 {
     }
 }
 
-/// A message handler for [ZxdgExporterV2] proxies.
+/// A message handler for [`ZxdgExporterV2`] proxies.
 pub trait ZxdgExporterV2Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZxdgExporterV2>) {
         slf.core.delete_id();

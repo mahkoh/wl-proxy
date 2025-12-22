@@ -40,10 +40,12 @@ impl ConcreteObject for JayTrayV1 {
 }
 
 impl JayTrayV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl JayTrayV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn JayTrayV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -231,7 +233,6 @@ impl JayTrayV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`: the new tray item
     /// - `surface`: the underlying surface
     #[inline]
     pub fn new_try_send_get_tray_item(
@@ -258,7 +259,6 @@ impl JayTrayV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`: the new tray item
     /// - `surface`: the underlying surface
     #[inline]
     pub fn new_send_get_tray_item(
@@ -274,8 +274,11 @@ impl JayTrayV1 {
     }
 }
 
-/// A message handler for [JayTrayV1] proxies.
+/// A message handler for [`JayTrayV1`] proxies.
 pub trait JayTrayV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<JayTrayV1>) {
         slf.core.delete_id();

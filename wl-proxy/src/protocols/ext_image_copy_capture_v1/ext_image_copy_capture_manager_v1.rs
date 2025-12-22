@@ -25,10 +25,12 @@ impl ConcreteObject for ExtImageCopyCaptureManagerV1 {
 }
 
 impl ExtImageCopyCaptureManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ExtImageCopyCaptureManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ExtImageCopyCaptureManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -170,7 +172,6 @@ impl ExtImageCopyCaptureManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `session`:
     /// - `source`:
     /// - `options`:
     #[inline]
@@ -201,7 +202,6 @@ impl ExtImageCopyCaptureManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `session`:
     /// - `source`:
     /// - `options`:
     #[inline]
@@ -328,7 +328,6 @@ impl ExtImageCopyCaptureManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `session`:
     /// - `source`:
     /// - `pointer`:
     #[inline]
@@ -353,7 +352,6 @@ impl ExtImageCopyCaptureManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `session`:
     /// - `source`:
     /// - `pointer`:
     #[inline]
@@ -429,8 +427,11 @@ impl ExtImageCopyCaptureManagerV1 {
     }
 }
 
-/// A message handler for [ExtImageCopyCaptureManagerV1] proxies.
+/// A message handler for [`ExtImageCopyCaptureManagerV1`] proxies.
 pub trait ExtImageCopyCaptureManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtImageCopyCaptureManagerV1>) {
         slf.core.delete_id();
@@ -762,7 +763,7 @@ impl Debug for ExtImageCopyCaptureManagerV1Error {
 #[derive(Default)]
 pub struct ExtImageCopyCaptureManagerV1Options(pub u32);
 
-/// An iterator over the set bits in a [ExtImageCopyCaptureManagerV1Options].
+/// An iterator over the set bits in a [`ExtImageCopyCaptureManagerV1Options`].
 ///
 /// You can construct this with the `IntoIterator` implementation of `ExtImageCopyCaptureManagerV1Options`.
 #[derive(Clone, Debug)]

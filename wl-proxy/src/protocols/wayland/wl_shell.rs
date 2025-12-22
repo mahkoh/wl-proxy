@@ -32,10 +32,12 @@ impl ConcreteObject for WlShell {
 }
 
 impl WlShell {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WlShellHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WlShellHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -160,7 +162,6 @@ impl WlShell {
     ///
     /// # Arguments
     ///
-    /// - `id`: shell surface to create
     /// - `surface`: surface to be given the shell surface role
     #[inline]
     pub fn new_try_send_get_shell_surface(
@@ -185,7 +186,6 @@ impl WlShell {
     ///
     /// # Arguments
     ///
-    /// - `id`: shell surface to create
     /// - `surface`: surface to be given the shell surface role
     #[inline]
     pub fn new_send_get_shell_surface(
@@ -201,8 +201,11 @@ impl WlShell {
     }
 }
 
-/// A message handler for [WlShell] proxies.
+/// A message handler for [`WlShell`] proxies.
 pub trait WlShellHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlShell>) {
         slf.core.delete_id();

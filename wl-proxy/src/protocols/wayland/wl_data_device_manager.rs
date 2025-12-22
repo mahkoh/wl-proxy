@@ -33,10 +33,12 @@ impl ConcreteObject for WlDataDeviceManager {
 }
 
 impl WlDataDeviceManager {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WlDataDeviceManagerHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WlDataDeviceManagerHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -62,6 +64,10 @@ impl WlDataDeviceManager {
     /// create a new data source
     ///
     /// Create a new data source.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: data source to create
     #[inline]
     pub fn try_send_create_data_source(
         &self,
@@ -109,6 +115,10 @@ impl WlDataDeviceManager {
     /// create a new data source
     ///
     /// Create a new data source.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: data source to create
     #[inline]
     pub fn send_create_data_source(
         &self,
@@ -243,7 +253,6 @@ impl WlDataDeviceManager {
     ///
     /// # Arguments
     ///
-    /// - `id`: data device to create
     /// - `seat`: seat associated with the data device
     #[inline]
     pub fn new_try_send_get_data_device(
@@ -264,7 +273,6 @@ impl WlDataDeviceManager {
     ///
     /// # Arguments
     ///
-    /// - `id`: data device to create
     /// - `seat`: seat associated with the data device
     #[inline]
     pub fn new_send_get_data_device(
@@ -280,8 +288,11 @@ impl WlDataDeviceManager {
     }
 }
 
-/// A message handler for [WlDataDeviceManager] proxies.
+/// A message handler for [`WlDataDeviceManager`] proxies.
 pub trait WlDataDeviceManagerHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlDataDeviceManager>) {
         slf.core.delete_id();
@@ -539,7 +550,7 @@ impl WlDataDeviceManager {
 #[derive(Default)]
 pub struct WlDataDeviceManagerDndAction(pub u32);
 
-/// An iterator over the set bits in a [WlDataDeviceManagerDndAction].
+/// An iterator over the set bits in a [`WlDataDeviceManagerDndAction`].
 ///
 /// You can construct this with the `IntoIterator` implementation of `WlDataDeviceManagerDndAction`.
 #[derive(Clone, Debug)]

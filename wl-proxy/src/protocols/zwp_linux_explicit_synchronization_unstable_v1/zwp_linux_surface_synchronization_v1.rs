@@ -53,10 +53,12 @@ impl ConcreteObject for ZwpLinuxSurfaceSynchronizationV1 {
 }
 
 impl ZwpLinuxSurfaceSynchronizationV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpLinuxSurfaceSynchronizationV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpLinuxSurfaceSynchronizationV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -278,6 +280,10 @@ impl ZwpLinuxSurfaceSynchronizationV1 {
     ///
     /// If at surface commit time there is no buffer attached, a NO_BUFFER
     /// error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `release`: new zwp_linux_buffer_release_v1 object
     #[inline]
     pub fn try_send_get_release(
         &self,
@@ -341,6 +347,10 @@ impl ZwpLinuxSurfaceSynchronizationV1 {
     ///
     /// If at surface commit time there is no buffer attached, a NO_BUFFER
     /// error is raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `release`: new zwp_linux_buffer_release_v1 object
     #[inline]
     pub fn send_get_release(
         &self,
@@ -415,8 +425,11 @@ impl ZwpLinuxSurfaceSynchronizationV1 {
     }
 }
 
-/// A message handler for [ZwpLinuxSurfaceSynchronizationV1] proxies.
+/// A message handler for [`ZwpLinuxSurfaceSynchronizationV1`] proxies.
 pub trait ZwpLinuxSurfaceSynchronizationV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpLinuxSurfaceSynchronizationV1>) {
         slf.core.delete_id();

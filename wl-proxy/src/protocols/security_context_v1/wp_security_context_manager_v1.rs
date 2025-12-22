@@ -41,10 +41,12 @@ impl ConcreteObject for WpSecurityContextManagerV1 {
 }
 
 impl WpSecurityContextManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WpSecurityContextManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WpSecurityContextManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -257,7 +259,6 @@ impl WpSecurityContextManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `listen_fd`: listening socket FD
     /// - `close_fd`: FD signaling when done
     #[inline]
@@ -295,7 +296,6 @@ impl WpSecurityContextManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `listen_fd`: listening socket FD
     /// - `close_fd`: FD signaling when done
     #[inline]
@@ -314,8 +314,11 @@ impl WpSecurityContextManagerV1 {
     }
 }
 
-/// A message handler for [WpSecurityContextManagerV1] proxies.
+/// A message handler for [`WpSecurityContextManagerV1`] proxies.
 pub trait WpSecurityContextManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpSecurityContextManagerV1>) {
         slf.core.delete_id();

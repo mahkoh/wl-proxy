@@ -30,10 +30,12 @@ impl ConcreteObject for TreelandWindowOverlapChecker {
 }
 
 impl TreelandWindowOverlapChecker {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl TreelandWindowOverlapCheckerHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn TreelandWindowOverlapCheckerHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -333,8 +335,11 @@ impl TreelandWindowOverlapChecker {
     }
 }
 
-/// A message handler for [TreelandWindowOverlapChecker] proxies.
+/// A message handler for [`TreelandWindowOverlapChecker`] proxies.
 pub trait TreelandWindowOverlapCheckerHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandWindowOverlapChecker>) {
         slf.core.delete_id();
@@ -655,7 +660,7 @@ impl TreelandWindowOverlapChecker {
 #[derive(Default)]
 pub struct TreelandWindowOverlapCheckerAnchor(pub u32);
 
-/// An iterator over the set bits in a [TreelandWindowOverlapCheckerAnchor].
+/// An iterator over the set bits in a [`TreelandWindowOverlapCheckerAnchor`].
 ///
 /// You can construct this with the `IntoIterator` implementation of `TreelandWindowOverlapCheckerAnchor`.
 #[derive(Clone, Debug)]

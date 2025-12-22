@@ -34,10 +34,12 @@ impl ConcreteObject for ExtBackgroundEffectManagerV1 {
 }
 
 impl ExtBackgroundEffectManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ExtBackgroundEffectManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ExtBackgroundEffectManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -289,7 +291,6 @@ impl ExtBackgroundEffectManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`: the new ext_background_effect_surface_v1 object
     /// - `surface`: the surface
     #[inline]
     pub fn new_try_send_get_background_effect(
@@ -315,7 +316,6 @@ impl ExtBackgroundEffectManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`: the new ext_background_effect_surface_v1 object
     /// - `surface`: the surface
     #[inline]
     pub fn new_send_get_background_effect(
@@ -331,8 +331,11 @@ impl ExtBackgroundEffectManagerV1 {
     }
 }
 
-/// A message handler for [ExtBackgroundEffectManagerV1] proxies.
+/// A message handler for [`ExtBackgroundEffectManagerV1`] proxies.
 pub trait ExtBackgroundEffectManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtBackgroundEffectManagerV1>) {
         slf.core.delete_id();
@@ -624,7 +627,7 @@ impl Debug for ExtBackgroundEffectManagerV1Error {
 #[derive(Default)]
 pub struct ExtBackgroundEffectManagerV1Capability(pub u32);
 
-/// An iterator over the set bits in a [ExtBackgroundEffectManagerV1Capability].
+/// An iterator over the set bits in a [`ExtBackgroundEffectManagerV1Capability`].
 ///
 /// You can construct this with the `IntoIterator` implementation of `ExtBackgroundEffectManagerV1Capability`.
 #[derive(Clone, Debug)]

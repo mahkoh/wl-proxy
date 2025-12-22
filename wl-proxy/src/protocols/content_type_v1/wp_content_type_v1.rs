@@ -30,10 +30,12 @@ impl ConcreteObject for WpContentTypeV1 {
 }
 
 impl WpContentTypeV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WpContentTypeV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WpContentTypeV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -194,8 +196,11 @@ impl WpContentTypeV1 {
     }
 }
 
-/// A message handler for [WpContentTypeV1] proxies.
+/// A message handler for [`WpContentTypeV1`] proxies.
 pub trait WpContentTypeV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpContentTypeV1>) {
         slf.core.delete_id();

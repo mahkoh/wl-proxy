@@ -24,10 +24,12 @@ impl ConcreteObject for ZxdgOutputManagerV1 {
 }
 
 impl ZxdgOutputManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZxdgOutputManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZxdgOutputManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -199,7 +201,6 @@ impl ZxdgOutputManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `output`:
     #[inline]
     pub fn new_try_send_get_xdg_output(
@@ -220,7 +221,6 @@ impl ZxdgOutputManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `output`:
     #[inline]
     pub fn new_send_get_xdg_output(
@@ -236,8 +236,11 @@ impl ZxdgOutputManagerV1 {
     }
 }
 
-/// A message handler for [ZxdgOutputManagerV1] proxies.
+/// A message handler for [`ZxdgOutputManagerV1`] proxies.
 pub trait ZxdgOutputManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZxdgOutputManagerV1>) {
         slf.core.delete_id();

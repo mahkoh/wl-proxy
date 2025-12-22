@@ -38,10 +38,12 @@ impl ConcreteObject for HyprlandToplevelExportFrameV1 {
 }
 
 impl HyprlandToplevelExportFrameV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl HyprlandToplevelExportFrameV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn HyprlandToplevelExportFrameV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -818,8 +820,11 @@ impl HyprlandToplevelExportFrameV1 {
     }
 }
 
-/// A message handler for [HyprlandToplevelExportFrameV1] proxies.
+/// A message handler for [`HyprlandToplevelExportFrameV1`] proxies.
 pub trait HyprlandToplevelExportFrameV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandToplevelExportFrameV1>) {
         slf.core.delete_id();
@@ -1454,7 +1459,7 @@ impl Debug for HyprlandToplevelExportFrameV1Error {
 #[derive(Default)]
 pub struct HyprlandToplevelExportFrameV1Flags(pub u32);
 
-/// An iterator over the set bits in a [HyprlandToplevelExportFrameV1Flags].
+/// An iterator over the set bits in a [`HyprlandToplevelExportFrameV1Flags`].
 ///
 /// You can construct this with the `IntoIterator` implementation of `HyprlandToplevelExportFrameV1Flags`.
 #[derive(Clone, Debug)]

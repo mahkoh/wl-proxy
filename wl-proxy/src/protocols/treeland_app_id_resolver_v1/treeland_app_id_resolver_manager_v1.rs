@@ -26,10 +26,12 @@ impl ConcreteObject for TreelandAppIdResolverManagerV1 {
 }
 
 impl TreelandAppIdResolverManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl TreelandAppIdResolverManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn TreelandAppIdResolverManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -109,6 +111,10 @@ impl TreelandAppIdResolverManagerV1 {
     /// already bound in the same session, the compositor will report an
     /// error on the manager and will NOT create a new resolver object for
     /// this request.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_get_resolver(
         &self,
@@ -161,6 +167,10 @@ impl TreelandAppIdResolverManagerV1 {
     /// already bound in the same session, the compositor will report an
     /// error on the manager and will NOT create a new resolver object for
     /// this request.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_get_resolver(
         &self,
@@ -213,8 +223,11 @@ impl TreelandAppIdResolverManagerV1 {
     }
 }
 
-/// A message handler for [TreelandAppIdResolverManagerV1] proxies.
+/// A message handler for [`TreelandAppIdResolverManagerV1`] proxies.
 pub trait TreelandAppIdResolverManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<TreelandAppIdResolverManagerV1>) {
         slf.core.delete_id();

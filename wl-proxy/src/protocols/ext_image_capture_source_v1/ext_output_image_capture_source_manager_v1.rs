@@ -24,10 +24,12 @@ impl ConcreteObject for ExtOutputImageCaptureSourceManagerV1 {
 }
 
 impl ExtOutputImageCaptureSourceManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ExtOutputImageCaptureSourceManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ExtOutputImageCaptureSourceManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -149,7 +151,6 @@ impl ExtOutputImageCaptureSourceManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `source`:
     /// - `output`:
     #[inline]
     pub fn new_try_send_create_source(
@@ -173,7 +174,6 @@ impl ExtOutputImageCaptureSourceManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `source`:
     /// - `output`:
     #[inline]
     pub fn new_send_create_source(
@@ -246,8 +246,11 @@ impl ExtOutputImageCaptureSourceManagerV1 {
     }
 }
 
-/// A message handler for [ExtOutputImageCaptureSourceManagerV1] proxies.
+/// A message handler for [`ExtOutputImageCaptureSourceManagerV1`] proxies.
 pub trait ExtOutputImageCaptureSourceManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ExtOutputImageCaptureSourceManagerV1>) {
         slf.core.delete_id();

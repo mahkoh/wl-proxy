@@ -30,10 +30,12 @@ impl ConcreteObject for WpColorManagerV1 {
 }
 
 impl WpColorManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WpColorManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WpColorManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -210,7 +212,6 @@ impl WpColorManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `output`:
     #[inline]
     pub fn new_try_send_get_output(
@@ -234,7 +235,6 @@ impl WpColorManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `output`:
     #[inline]
     pub fn new_send_get_output(
@@ -360,7 +360,6 @@ impl WpColorManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_try_send_get_surface(
@@ -387,7 +386,6 @@ impl WpColorManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_send_get_surface(
@@ -507,7 +505,6 @@ impl WpColorManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_try_send_get_surface_feedback(
@@ -532,7 +529,6 @@ impl WpColorManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_send_get_surface_feedback(
@@ -560,6 +556,10 @@ impl WpColorManagerV1 {
     /// This request can be used when the compositor advertises
     /// wp_color_manager_v1.feature.icc_v2_v4.
     /// Otherwise this request raises the protocol error unsupported_feature.
+    ///
+    /// # Arguments
+    ///
+    /// - `obj`: the new creator object
     #[inline]
     pub fn try_send_create_icc_creator(
         &self,
@@ -614,6 +614,10 @@ impl WpColorManagerV1 {
     /// This request can be used when the compositor advertises
     /// wp_color_manager_v1.feature.icc_v2_v4.
     /// Otherwise this request raises the protocol error unsupported_feature.
+    ///
+    /// # Arguments
+    ///
+    /// - `obj`: the new creator object
     #[inline]
     pub fn send_create_icc_creator(
         &self,
@@ -682,6 +686,10 @@ impl WpColorManagerV1 {
     /// This request can be used when the compositor advertises
     /// wp_color_manager_v1.feature.parametric.
     /// Otherwise this request raises the protocol error unsupported_feature.
+    ///
+    /// # Arguments
+    ///
+    /// - `obj`: the new creator object
     #[inline]
     pub fn try_send_create_parametric_creator(
         &self,
@@ -736,6 +744,10 @@ impl WpColorManagerV1 {
     /// This request can be used when the compositor advertises
     /// wp_color_manager_v1.feature.parametric.
     /// Otherwise this request raises the protocol error unsupported_feature.
+    ///
+    /// # Arguments
+    ///
+    /// - `obj`: the new creator object
     #[inline]
     pub fn send_create_parametric_creator(
         &self,
@@ -840,6 +852,10 @@ impl WpColorManagerV1 {
     ///
     /// The resulting image description object does not allow get_information
     /// request. The wp_image_description_v1.ready event shall be sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `image_description`:
     #[inline]
     pub fn try_send_create_windows_scrgb(
         &self,
@@ -930,6 +946,10 @@ impl WpColorManagerV1 {
     ///
     /// The resulting image description object does not allow get_information
     /// request. The wp_image_description_v1.ready event shall be sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `image_description`:
     #[inline]
     pub fn send_create_windows_scrgb(
         &self,
@@ -1535,7 +1555,6 @@ impl WpColorManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `image_description`:
     /// - `reference`:
     #[inline]
     pub fn new_try_send_get_image_description(
@@ -1559,7 +1578,6 @@ impl WpColorManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `image_description`:
     /// - `reference`:
     #[inline]
     pub fn new_send_get_image_description(
@@ -1575,8 +1593,11 @@ impl WpColorManagerV1 {
     }
 }
 
-/// A message handler for [WpColorManagerV1] proxies.
+/// A message handler for [`WpColorManagerV1`] proxies.
 pub trait WpColorManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpColorManagerV1>) {
         slf.core.delete_id();

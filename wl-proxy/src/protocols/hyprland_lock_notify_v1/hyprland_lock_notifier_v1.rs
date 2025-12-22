@@ -25,10 +25,12 @@ impl ConcreteObject for HyprlandLockNotifierV1 {
 }
 
 impl HyprlandLockNotifierV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl HyprlandLockNotifierV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn HyprlandLockNotifierV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -112,6 +114,10 @@ impl HyprlandLockNotifierV1 {
     ///
     /// If the session is already locked when calling this method,
     /// the locked event shall be sent immediately.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_get_lock_notification(
         &self,
@@ -162,6 +168,10 @@ impl HyprlandLockNotifierV1 {
     ///
     /// If the session is already locked when calling this method,
     /// the locked event shall be sent immediately.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_get_lock_notification(
         &self,
@@ -210,8 +220,11 @@ impl HyprlandLockNotifierV1 {
     }
 }
 
-/// A message handler for [HyprlandLockNotifierV1] proxies.
+/// A message handler for [`HyprlandLockNotifierV1`] proxies.
 pub trait HyprlandLockNotifierV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandLockNotifierV1>) {
         slf.core.delete_id();

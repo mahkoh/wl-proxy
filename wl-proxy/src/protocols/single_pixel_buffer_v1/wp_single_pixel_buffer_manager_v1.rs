@@ -25,10 +25,12 @@ impl ConcreteObject for WpSinglePixelBufferManagerV1 {
 }
 
 impl WpSinglePixelBufferManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WpSinglePixelBufferManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WpSinglePixelBufferManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -253,7 +255,6 @@ impl WpSinglePixelBufferManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `r`: value of the buffer's red channel
     /// - `g`: value of the buffer's green channel
     /// - `b`: value of the buffer's blue channel
@@ -295,7 +296,6 @@ impl WpSinglePixelBufferManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `r`: value of the buffer's red channel
     /// - `g`: value of the buffer's green channel
     /// - `b`: value of the buffer's blue channel
@@ -320,8 +320,11 @@ impl WpSinglePixelBufferManagerV1 {
     }
 }
 
-/// A message handler for [WpSinglePixelBufferManagerV1] proxies.
+/// A message handler for [`WpSinglePixelBufferManagerV1`] proxies.
 pub trait WpSinglePixelBufferManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpSinglePixelBufferManagerV1>) {
         slf.core.delete_id();

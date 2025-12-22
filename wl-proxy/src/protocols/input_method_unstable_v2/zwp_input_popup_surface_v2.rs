@@ -31,10 +31,12 @@ impl ConcreteObject for ZwpInputPopupSurfaceV2 {
 }
 
 impl ZwpInputPopupSurfaceV2 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl ZwpInputPopupSurfaceV2Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn ZwpInputPopupSurfaceV2Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -205,8 +207,11 @@ impl ZwpInputPopupSurfaceV2 {
     }
 }
 
-/// A message handler for [ZwpInputPopupSurfaceV2] proxies.
+/// A message handler for [`ZwpInputPopupSurfaceV2`] proxies.
 pub trait ZwpInputPopupSurfaceV2Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<ZwpInputPopupSurfaceV2>) {
         slf.core.delete_id();

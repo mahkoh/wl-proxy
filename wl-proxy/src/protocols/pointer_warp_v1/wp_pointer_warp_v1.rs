@@ -35,10 +35,12 @@ impl ConcreteObject for WpPointerWarpV1 {
 }
 
 impl WpPointerWarpV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WpPointerWarpV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WpPointerWarpV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -241,8 +243,11 @@ impl WpPointerWarpV1 {
     }
 }
 
-/// A message handler for [WpPointerWarpV1] proxies.
+/// A message handler for [`WpPointerWarpV1`] proxies.
 pub trait WpPointerWarpV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WpPointerWarpV1>) {
         slf.core.delete_id();

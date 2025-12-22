@@ -28,10 +28,12 @@ impl ConcreteObject for HyprlandToplevelWindowMappingHandleV1 {
 }
 
 impl HyprlandToplevelWindowMappingHandleV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl HyprlandToplevelWindowMappingHandleV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn HyprlandToplevelWindowMappingHandleV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -242,8 +244,11 @@ impl HyprlandToplevelWindowMappingHandleV1 {
     }
 }
 
-/// A message handler for [HyprlandToplevelWindowMappingHandleV1] proxies.
+/// A message handler for [`HyprlandToplevelWindowMappingHandleV1`] proxies.
 pub trait HyprlandToplevelWindowMappingHandleV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<HyprlandToplevelWindowMappingHandleV1>) {
         slf.core.delete_id();

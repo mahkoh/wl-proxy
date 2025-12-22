@@ -25,10 +25,12 @@ impl ConcreteObject for XdgToplevelIconManagerV1 {
 }
 
 impl XdgToplevelIconManagerV1 {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl XdgToplevelIconManagerV1Handler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn XdgToplevelIconManagerV1Handler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -110,6 +112,10 @@ impl XdgToplevelIconManagerV1 {
     ///
     /// Creates a new icon object. This icon can then be attached to a
     /// xdg_toplevel via the 'set_icon' request.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn try_send_create_icon(
         &self,
@@ -158,6 +164,10 @@ impl XdgToplevelIconManagerV1 {
     ///
     /// Creates a new icon object. This icon can then be attached to a
     /// xdg_toplevel via the 'set_icon' request.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
     #[inline]
     pub fn send_create_icon(
         &self,
@@ -477,8 +487,11 @@ impl XdgToplevelIconManagerV1 {
     }
 }
 
-/// A message handler for [XdgToplevelIconManagerV1] proxies.
+/// A message handler for [`XdgToplevelIconManagerV1`] proxies.
 pub trait XdgToplevelIconManagerV1Handler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<XdgToplevelIconManagerV1>) {
         slf.core.delete_id();

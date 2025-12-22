@@ -30,10 +30,12 @@ impl ConcreteObject for OrgKdeKwinServerDecorationManager {
 }
 
 impl OrgKdeKwinServerDecorationManager {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl OrgKdeKwinServerDecorationManagerHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn OrgKdeKwinServerDecorationManagerHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -173,7 +175,6 @@ impl OrgKdeKwinServerDecorationManager {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_try_send_create(
@@ -203,7 +204,6 @@ impl OrgKdeKwinServerDecorationManager {
     ///
     /// # Arguments
     ///
-    /// - `id`:
     /// - `surface`:
     #[inline]
     pub fn new_send_create(
@@ -300,8 +300,11 @@ impl OrgKdeKwinServerDecorationManager {
     }
 }
 
-/// A message handler for [OrgKdeKwinServerDecorationManager] proxies.
+/// A message handler for [`OrgKdeKwinServerDecorationManager`] proxies.
 pub trait OrgKdeKwinServerDecorationManagerHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<OrgKdeKwinServerDecorationManager>) {
         slf.core.delete_id();

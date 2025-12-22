@@ -43,10 +43,12 @@ impl ConcreteObject for WlRegistry {
 }
 
 impl WlRegistry {
+    /// Sets a new handler.
     pub fn set_handler(&self, handler: impl WlRegistryHandler) {
         self.set_boxed_handler(Box::new(handler));
     }
 
+    /// Sets a new, already boxed handler.
     pub fn set_boxed_handler(&self, handler: Box<dyn WlRegistryHandler>) {
         if self.core.state.destroyed.get() {
             return;
@@ -342,8 +344,11 @@ impl WlRegistry {
     }
 }
 
-/// A message handler for [WlRegistry] proxies.
+/// A message handler for [`WlRegistry`] proxies.
 pub trait WlRegistryHandler: Any {
+    /// Event handler for wl_display.delete_id messages deleting the ID of this object.
+    ///
+    /// The default handler forwards the event to the client, if any.
     #[inline]
     fn delete_id(&mut self, slf: &Rc<WlRegistry>) {
         slf.core.delete_id();

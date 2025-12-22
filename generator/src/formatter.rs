@@ -137,10 +137,12 @@ fn format_interface_constructors(w: &mut impl Write, interface: &Interface) -> i
     let snake = &interface.name;
     let camel = format_camel(snake).to_string();
     wl!(r#"impl {PREFIX}{camel} {{"#)?;
+    wl!(r#"    /// Sets a new handler."#)?;
     wl!(r#"    pub fn set_handler(&self, handler: impl {PREFIX}{camel}Handler) {{"#)?;
     wl!(r#"        self.set_boxed_handler(Box::new(handler));"#)?;
     wl!(r#"    }}"#)?;
     wl!()?;
+    wl!(r#"    /// Sets a new, already boxed handler."#)?;
     wl!(r#"    pub fn set_boxed_handler(&self, handler: Box<dyn {PREFIX}{camel}Handler>) {{"#)?;
     wl!(r#"        if self.core.state.destroyed.get() {{"#)?;
     wl!(r#"            return;"#)?;
@@ -165,7 +167,7 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
         }
         format_message_since(w, msg)?;
         wl!()?;
-        format_message_doc(w, true, msg)?;
+        format_message_doc(w, true, false, msg)?;
         wl!(r#"    #[inline]"#)?;
         w!(r#"    pub fn try_send_{}"#, &msg.name)?;
         wl!(r#"("#)?;
@@ -386,7 +388,7 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
         wl!(r#"        Ok(())"#)?;
         wl!(r#"    }}"#)?;
         wl!()?;
-        format_message_doc(w, true, msg)?;
+        format_message_doc(w, true, false, msg)?;
         wl!(r#"    #[inline]"#)?;
         w!(r#"    pub fn send_{}"#, &msg.name)?;
         wl!(r#"("#)?;
@@ -422,7 +424,7 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
             let new_interface_snake = new_id.interface.as_ref().unwrap();
             let new_interface_camel = format_camel(new_interface_snake);
             wl!()?;
-            format_message_doc(w, true, msg)?;
+            format_message_doc(w, true, true, msg)?;
             wl!(r#"    #[inline]"#)?;
             w!(r#"    pub fn new_try_send_{}"#, &msg.name)?;
             wl!(r#"("#)?;
@@ -456,7 +458,7 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
             wl!(r#"        Ok({})"#, escape_name(&new_id.name))?;
             wl!(r#"    }}"#)?;
             wl!()?;
-            format_message_doc(w, true, msg)?;
+            format_message_doc(w, true, true, msg)?;
             wl!(r#"    #[inline]"#)?;
             w!(r#"    pub fn new_send_{}"#, &msg.name)?;
             wl!(r#"("#)?;
@@ -534,15 +536,20 @@ fn format_interface_message_handler(w: &mut impl Write, interface: &Interface) -
     define_w!(w);
     let snake = &interface.name;
     let camel = format_camel(snake).to_string();
-    wl!(r#"/// A message handler for [{camel}] proxies."#)?;
+    wl!(r#"/// A message handler for [`{camel}`] proxies."#)?;
     wl!(r#"pub trait {PREFIX}{camel}Handler: Any {{"#)?;
+    wl!(
+        r#"    /// Event handler for wl_display.delete_id messages deleting the ID of this object."#
+    )?;
+    wl!(r#"    ///"#)?;
+    wl!(r#"    /// The default handler forwards the event to the client, if any."#)?;
     wl!(r#"    #[inline]"#)?;
     wl!(r#"    fn delete_id(&mut self, slf: &Rc<{camel}>) {{"#)?;
     wl!(r#"        slf.core.delete_id();"#)?;
     wl!(r#"    }}"#)?;
     for msg in &interface.messages {
         wl!()?;
-        format_message_doc(w, false, msg)?;
+        format_message_doc(w, false, false, msg)?;
         wl!(r#"    #[inline]"#)?;
         wl!(r#"    fn handle_{}("#, msg.name)?;
         wl!(r#"        &mut self,"#)?;
@@ -855,7 +862,7 @@ pub fn format_protocol_file(w: &mut impl Write, protocol: &Protocol) -> io::Resu
     Ok(())
 }
 
-fn format_message_doc<W>(w: &mut W, request: bool, message: &Message) -> io::Result<()>
+fn format_message_doc<W>(w: &mut W, outgoing: bool, new: bool, message: &Message) -> io::Result<()>
 where
     W: Write,
 {
@@ -867,11 +874,13 @@ where
     }
     let mut num_args = message.args.len();
     let mut has_object = false;
-    if request {
-        for arg in &message.args {
-            if arg.ty == ArgType::NewId {
-                num_args -= 1;
-                break;
+    if outgoing {
+        if new {
+            for arg in &message.args {
+                if arg.ty == ArgType::NewId {
+                    num_args -= 1;
+                    break;
+                }
             }
         }
     } else {
@@ -889,6 +898,9 @@ where
         wl!("    /// # Arguments")?;
         wl!("    ///")?;
         for arg in &message.args {
+            if new && arg.ty == ArgType::NewId {
+                continue;
+            }
             let name = escape_name(&arg.name).to_string();
             w!("    /// - `{name}`:")?;
             let prefix = format!("    ///    {:width$}  ", " ", width = name.len());
@@ -1668,7 +1680,7 @@ fn format_interface_enums(w: &mut impl Write, interface: &Interface) -> io::Resu
         wl!(r#"pub struct {PREFIX}{camel}(pub u32);"#)?;
         if enum_.bitfield {
             wl!()?;
-            wl!(r#"/// An iterator over the set bits in a [{PREFIX}{camel}]."#)?;
+            wl!(r#"/// An iterator over the set bits in a [`{PREFIX}{camel}`]."#)?;
             wl!(r#"///"#)?;
             wl!(
                 r#"/// You can construct this with the `IntoIterator` implementation of `{PREFIX}{camel}`."#
