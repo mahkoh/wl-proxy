@@ -116,9 +116,9 @@ impl ZwpTabletV2 {
     ///
     /// A descriptive name for the tablet device.
     ///
-    /// 	If the device has no descriptive name, this event is not sent.
+    /// If the device has no descriptive name, this event is not sent.
     ///
-    /// 	This event is sent in the initial burst of events before the
+    /// This event is sent in the initial burst of events before the
     /// zwp_tablet_v2.done event.
     ///
     /// # Arguments
@@ -169,9 +169,9 @@ impl ZwpTabletV2 {
     ///
     /// A descriptive name for the tablet device.
     ///
-    /// 	If the device has no descriptive name, this event is not sent.
+    /// If the device has no descriptive name, this event is not sent.
     ///
-    /// 	This event is sent in the initial burst of events before the
+    /// This event is sent in the initial burst of events before the
     /// zwp_tablet_v2.done event.
     ///
     /// # Arguments
@@ -628,9 +628,9 @@ pub trait ZwpTabletV2Handler: Any {
     ///
     /// A descriptive name for the tablet device.
     ///
-    /// 	If the device has no descriptive name, this event is not sent.
+    /// If the device has no descriptive name, this event is not sent.
     ///
-    /// 	This event is sent in the initial burst of events before the
+    /// This event is sent in the initial burst of events before the
     /// zwp_tablet_v2.done event.
     ///
     /// # Arguments

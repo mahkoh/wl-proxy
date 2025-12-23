@@ -82,7 +82,7 @@ pub trait ObjectCoreApi {
     ///
     /// ```
     /// # use std::rc::Rc;
-    /// # use wl_proxy::object::{Object, ObjectCore};
+    /// # use wl_proxy::object::{Object, ObjectCore, ObjectCoreApi};
     /// # trait T { fn f<P: Object>(&self) -> Rc<P>; }
     /// # impl T for ObjectCore {
     /// #     fn f<P: Object>(&self) -> Rc<P> {

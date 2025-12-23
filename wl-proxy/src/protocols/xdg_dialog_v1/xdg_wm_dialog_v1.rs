@@ -122,8 +122,8 @@ impl XdgWmDialogV1 {
     /// Creates a xdg_dialog_v1 object for the given toplevel. See the interface
     /// description for more details.
     ///
-    /// 	Compositors must raise an already_used error if clients attempt to
-    /// 	create multiple xdg_dialog_v1 objects for the same xdg_toplevel.
+    /// Compositors must raise an already_used error if clients attempt to
+    /// create multiple xdg_dialog_v1 objects for the same xdg_toplevel.
     ///
     /// # Arguments
     ///
@@ -187,8 +187,8 @@ impl XdgWmDialogV1 {
     /// Creates a xdg_dialog_v1 object for the given toplevel. See the interface
     /// description for more details.
     ///
-    /// 	Compositors must raise an already_used error if clients attempt to
-    /// 	create multiple xdg_dialog_v1 objects for the same xdg_toplevel.
+    /// Compositors must raise an already_used error if clients attempt to
+    /// create multiple xdg_dialog_v1 objects for the same xdg_toplevel.
     ///
     /// # Arguments
     ///
@@ -214,8 +214,8 @@ impl XdgWmDialogV1 {
     /// Creates a xdg_dialog_v1 object for the given toplevel. See the interface
     /// description for more details.
     ///
-    /// 	Compositors must raise an already_used error if clients attempt to
-    /// 	create multiple xdg_dialog_v1 objects for the same xdg_toplevel.
+    /// Compositors must raise an already_used error if clients attempt to
+    /// create multiple xdg_dialog_v1 objects for the same xdg_toplevel.
     ///
     /// # Arguments
     ///
@@ -238,8 +238,8 @@ impl XdgWmDialogV1 {
     /// Creates a xdg_dialog_v1 object for the given toplevel. See the interface
     /// description for more details.
     ///
-    /// 	Compositors must raise an already_used error if clients attempt to
-    /// 	create multiple xdg_dialog_v1 objects for the same xdg_toplevel.
+    /// Compositors must raise an already_used error if clients attempt to
+    /// create multiple xdg_dialog_v1 objects for the same xdg_toplevel.
     ///
     /// # Arguments
     ///
@@ -292,8 +292,8 @@ pub trait XdgWmDialogV1Handler: Any {
     /// Creates a xdg_dialog_v1 object for the given toplevel. See the interface
     /// description for more details.
     ///
-    /// 	Compositors must raise an already_used error if clients attempt to
-    /// 	create multiple xdg_dialog_v1 objects for the same xdg_toplevel.
+    /// Compositors must raise an already_used error if clients attempt to
+    /// create multiple xdg_dialog_v1 objects for the same xdg_toplevel.
     ///
     /// # Arguments
     ///

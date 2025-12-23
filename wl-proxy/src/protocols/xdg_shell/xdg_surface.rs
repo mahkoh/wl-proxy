@@ -41,7 +41,7 @@
 //! conditions must be met:
 //! (1) the client has assigned an xdg_surface-based role to the surface
 //! (2) the client has set and committed the xdg_surface state and the
-//! 	  role-dependent state to the surface
+//!     role-dependent state to the surface
 //! (3) the client has committed a buffer to the surface
 //!
 //! A newly-unmapped surface is considered to have met condition (1) out

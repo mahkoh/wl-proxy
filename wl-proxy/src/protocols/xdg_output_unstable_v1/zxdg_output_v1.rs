@@ -435,8 +435,8 @@ impl ZxdgOutputV1 {
     /// xdg_output, and the name does not change over the lifetime of the
     /// wl_output global.
     ///
-    ///         This event is deprecated, instead clients should use wl_output.name.
-    ///         Compositors must still support this event.
+    /// This event is deprecated, instead clients should use wl_output.name.
+    /// Compositors must still support this event.
     ///
     /// # Arguments
     ///
@@ -503,8 +503,8 @@ impl ZxdgOutputV1 {
     /// xdg_output, and the name does not change over the lifetime of the
     /// wl_output global.
     ///
-    ///         This event is deprecated, instead clients should use wl_output.name.
-    ///         Compositors must still support this event.
+    /// This event is deprecated, instead clients should use wl_output.name.
+    /// Compositors must still support this event.
     ///
     /// # Arguments
     ///
@@ -792,8 +792,8 @@ pub trait ZxdgOutputV1Handler: Any {
     /// xdg_output, and the name does not change over the lifetime of the
     /// wl_output global.
     ///
-    ///         This event is deprecated, instead clients should use wl_output.name.
-    ///         Compositors must still support this event.
+    /// This event is deprecated, instead clients should use wl_output.name.
+    /// Compositors must still support this event.
     ///
     /// # Arguments
     ///

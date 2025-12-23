@@ -962,19 +962,57 @@ fn format_description(
     let mut empty_lines = 0;
     'outer: for mut line in description.body.lines() {
         if trim.is_none() {
-            let idx = 'idx: {
-                for (idx, c) in line.char_indices() {
-                    if c != ' ' && c != '\t' {
-                        break 'idx idx;
+            let mut spaces = 0usize;
+            'spaces: {
+                for c in line.chars() {
+                    if c == ' ' {
+                        spaces += 1;
+                    } else if c == '\t' {
+                        spaces = (spaces + 8) & !7;
+                    } else {
+                        break 'spaces;
                     }
                 }
                 continue 'outer;
-            };
-            trim = Some(&line[..idx]);
+            }
+            trim = Some(spaces);
         }
-        if let Some(stripped) = line.strip_prefix(trim.unwrap()) {
-            line = stripped;
+        let trim = trim.unwrap();
+        let mut line_buf = String::new();
+        // let mut line = line;
+        if line.contains('\t') {
+            let mut offset = 0;
+            for c in line.chars() {
+                if c == '\t' {
+                    line_buf.push(' ');
+                    offset += 1;
+                    let delta = (-offset) & 7;
+                    for _ in 0..delta {
+                        line_buf.push(' ');
+                    }
+                    offset += delta;
+                } else {
+                    line_buf.push(c);
+                    offset += 1;
+                }
+            }
+            line = &line_buf;
         }
+        let idx = 'idx: {
+            let mut spaces = 0usize;
+            for (idx, c) in line.char_indices() {
+                if c == ' ' {
+                    spaces += 1;
+                } else {
+                    break 'idx idx;
+                }
+                if spaces >= trim {
+                    break 'idx idx + 1;
+                }
+            }
+            line.len()
+        };
+        line = &line[idx..];
         if line.trim_ascii().is_empty() {
             empty_lines += 1;
             continue;

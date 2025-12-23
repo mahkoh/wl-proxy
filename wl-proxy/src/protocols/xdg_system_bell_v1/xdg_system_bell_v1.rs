@@ -117,10 +117,10 @@ impl XdgSystemBellV1 {
     /// sound, a visual feedback of some kind, or any other thing including
     /// nothing.
     ///
-    ///         The passed surface should correspond to a toplevel like surface role,
-    ///         or be null, meaning the client doesn't have a particular toplevel it
-    ///         wants to associate the bell ringing with. See the xdg-shell protocol
-    ///         extension for a toplevel like surface role.
+    /// The passed surface should correspond to a toplevel like surface role,
+    /// or be null, meaning the client doesn't have a particular toplevel it
+    /// wants to associate the bell ringing with. See the xdg-shell protocol
+    /// extension for a toplevel like surface role.
     ///
     /// # Arguments
     ///
@@ -179,10 +179,10 @@ impl XdgSystemBellV1 {
     /// sound, a visual feedback of some kind, or any other thing including
     /// nothing.
     ///
-    ///         The passed surface should correspond to a toplevel like surface role,
-    ///         or be null, meaning the client doesn't have a particular toplevel it
-    ///         wants to associate the bell ringing with. See the xdg-shell protocol
-    ///         extension for a toplevel like surface role.
+    /// The passed surface should correspond to a toplevel like surface role,
+    /// or be null, meaning the client doesn't have a particular toplevel it
+    /// wants to associate the bell ringing with. See the xdg-shell protocol
+    /// extension for a toplevel like surface role.
     ///
     /// # Arguments
     ///
@@ -236,10 +236,10 @@ pub trait XdgSystemBellV1Handler: Any {
     /// sound, a visual feedback of some kind, or any other thing including
     /// nothing.
     ///
-    ///         The passed surface should correspond to a toplevel like surface role,
-    ///         or be null, meaning the client doesn't have a particular toplevel it
-    ///         wants to associate the bell ringing with. See the xdg-shell protocol
-    ///         extension for a toplevel like surface role.
+    /// The passed surface should correspond to a toplevel like surface role,
+    /// or be null, meaning the client doesn't have a particular toplevel it
+    /// wants to associate the bell ringing with. See the xdg-shell protocol
+    /// extension for a toplevel like surface role.
     ///
     /// # Arguments
     ///

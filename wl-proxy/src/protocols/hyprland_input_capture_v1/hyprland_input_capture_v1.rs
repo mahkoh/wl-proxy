@@ -322,7 +322,7 @@ impl HyprlandInputCaptureV1 {
     /// release input capturing
     ///
     /// Release input capturing, the input are not intercepted anymore and barrier crossing will activate it again.
-    /// 		If x != -1 and y != -1 then the cursor is warped to the x and y coordinates.
+    ///     If x != -1 and y != -1 then the cursor is warped to the x and y coordinates.
     ///
     /// # Arguments
     ///
@@ -379,7 +379,7 @@ impl HyprlandInputCaptureV1 {
     /// release input capturing
     ///
     /// Release input capturing, the input are not intercepted anymore and barrier crossing will activate it again.
-    /// 		If x != -1 and y != -1 then the cursor is warped to the x and y coordinates.
+    ///     If x != -1 and y != -1 then the cursor is warped to the x and y coordinates.
     ///
     /// # Arguments
     ///
@@ -801,7 +801,7 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     /// release input capturing
     ///
     /// Release input capturing, the input are not intercepted anymore and barrier crossing will activate it again.
-    /// 		If x != -1 and y != -1 then the cursor is warped to the x and y coordinates.
+    ///     If x != -1 and y != -1 then the cursor is warped to the x and y coordinates.
     ///
     /// # Arguments
     ///

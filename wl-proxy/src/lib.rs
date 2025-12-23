@@ -63,7 +63,7 @@
 //!     // This function is invoked when the client sends a bind request.
 //!     fn handle_bind(&mut self, slf: &Rc<WlRegistry>, name: u32, id: Rc<dyn Object>) {
 //!         // This function forwards the bind request to the compositor.
-//!         self.filter.forward_bind(slf, name, id);
+//!         self.filter.forward_bind(slf, name, &id);
 //!     }
 //!
 //!     // This function is invoked when the compositor sends a global event.
@@ -121,6 +121,10 @@
 //! Associations are created implicitly. For example,
 //!
 //! ```no_run
+//! # use std::rc::Rc;
+//! # use wl_proxy::protocols::wayland::wl_display::{WlDisplay, WlDisplayHandler};
+//! # use wl_proxy::protocols::wayland::wl_registry::WlRegistry;
+//! #
 //! struct Display;
 //!
 //! impl WlDisplayHandler for Display {

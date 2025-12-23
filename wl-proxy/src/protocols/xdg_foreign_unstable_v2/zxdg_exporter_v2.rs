@@ -117,8 +117,8 @@ impl ZxdgExporterV2 {
     ///
     /// A surface may be exported multiple times, and each exported handle may
     /// be used to create an xdg_imported multiple times. Only xdg_toplevel
-    ///         equivalent surfaces may be exported, otherwise an invalid_surface
-    ///         protocol error is sent.
+    /// equivalent surfaces may be exported, otherwise an invalid_surface
+    /// protocol error is sent.
     ///
     /// # Arguments
     ///
@@ -186,8 +186,8 @@ impl ZxdgExporterV2 {
     ///
     /// A surface may be exported multiple times, and each exported handle may
     /// be used to create an xdg_imported multiple times. Only xdg_toplevel
-    ///         equivalent surfaces may be exported, otherwise an invalid_surface
-    ///         protocol error is sent.
+    /// equivalent surfaces may be exported, otherwise an invalid_surface
+    /// protocol error is sent.
     ///
     /// # Arguments
     ///
@@ -217,8 +217,8 @@ impl ZxdgExporterV2 {
     ///
     /// A surface may be exported multiple times, and each exported handle may
     /// be used to create an xdg_imported multiple times. Only xdg_toplevel
-    ///         equivalent surfaces may be exported, otherwise an invalid_surface
-    ///         protocol error is sent.
+    /// equivalent surfaces may be exported, otherwise an invalid_surface
+    /// protocol error is sent.
     ///
     /// # Arguments
     ///
@@ -245,8 +245,8 @@ impl ZxdgExporterV2 {
     ///
     /// A surface may be exported multiple times, and each exported handle may
     /// be used to create an xdg_imported multiple times. Only xdg_toplevel
-    ///         equivalent surfaces may be exported, otherwise an invalid_surface
-    ///         protocol error is sent.
+    /// equivalent surfaces may be exported, otherwise an invalid_surface
+    /// protocol error is sent.
     ///
     /// # Arguments
     ///
@@ -303,8 +303,8 @@ pub trait ZxdgExporterV2Handler: Any {
     ///
     /// A surface may be exported multiple times, and each exported handle may
     /// be used to create an xdg_imported multiple times. Only xdg_toplevel
-    ///         equivalent surfaces may be exported, otherwise an invalid_surface
-    ///         protocol error is sent.
+    /// equivalent surfaces may be exported, otherwise an invalid_surface
+    /// protocol error is sent.
     ///
     /// # Arguments
     ///
