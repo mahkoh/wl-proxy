@@ -281,50 +281,10 @@ impl ObjectPrivate for TreelandScreensaver {
         match msg[1] & 0xffff {
             0 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("application_name")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("application_name")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("application_name")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("application_name")));
-                        };
-                        s
-                    }
-                };
-                let arg1 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("reason_for_inhibit")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("reason_for_inhibit")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("reason_for_inhibit")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("reason_for_inhibit")));
-                        };
-                        s
-                    }
-                };
+                let arg0;
+                (arg0, offset) = parse_string::<NonNullString>(msg, offset, "application_name")?;
+                let arg1;
+                (arg1, offset) = parse_string::<NonNullString>(msg, offset, "reason_for_inhibit")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }

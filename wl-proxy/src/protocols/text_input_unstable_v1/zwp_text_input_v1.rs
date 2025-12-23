@@ -2873,28 +2873,8 @@ impl ObjectPrivate for ZwpTextInputV1 {
             }
             5 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("text")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("text")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("text")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("text")));
-                        };
-                        s
-                    }
-                };
+                let arg0;
+                (arg0, offset) = parse_string::<NonNullString>(msg, offset, "text")?;
                 let Some(&arg1) = msg.get(offset) else {
                     return Err(ObjectError(ObjectErrorKind::MissingArgument("cursor")));
                 };
@@ -2978,28 +2958,8 @@ impl ObjectPrivate for ZwpTextInputV1 {
             }
             8 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("language")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("language")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("language")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("language")));
-                        };
-                        s
-                    }
-                };
+                let arg0;
+                (arg0, offset) = parse_string::<NonNullString>(msg, offset, "language")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
@@ -3134,20 +3094,8 @@ impl ObjectPrivate for ZwpTextInputV1 {
             }
             2 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("map")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("map")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    &uapi::as_bytes(&msg[start..])[..len]
-                };
+                let arg0;
+                (arg0, offset) = parse_array(msg, offset, "map")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
@@ -3195,50 +3143,10 @@ impl ObjectPrivate for ZwpTextInputV1 {
                     return Err(ObjectError(ObjectErrorKind::MissingArgument("serial")));
                 };
                 offset += 1;
-                let arg1 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("text")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("text")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("text")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("text")));
-                        };
-                        s
-                    }
-                };
-                let arg2 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("commit")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("commit")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("commit")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("commit")));
-                        };
-                        s
-                    }
-                };
+                let arg1;
+                (arg1, offset) = parse_string::<NonNullString>(msg, offset, "text")?;
+                let arg2;
+                (arg2, offset) = parse_string::<NonNullString>(msg, offset, "commit")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
@@ -3312,28 +3220,8 @@ impl ObjectPrivate for ZwpTextInputV1 {
                     return Err(ObjectError(ObjectErrorKind::MissingArgument("serial")));
                 };
                 offset += 1;
-                let arg1 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("text")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("text")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("text")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("text")));
-                        };
-                        s
-                    }
-                };
+                let arg1;
+                (arg1, offset) = parse_string::<NonNullString>(msg, offset, "text")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
@@ -3434,28 +3322,8 @@ impl ObjectPrivate for ZwpTextInputV1 {
                     return Err(ObjectError(ObjectErrorKind::MissingArgument("serial")));
                 };
                 offset += 1;
-                let arg1 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("language")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("language")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("language")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("language")));
-                        };
-                        s
-                    }
-                };
+                let arg1;
+                (arg1, offset) = parse_string::<NonNullString>(msg, offset, "language")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }

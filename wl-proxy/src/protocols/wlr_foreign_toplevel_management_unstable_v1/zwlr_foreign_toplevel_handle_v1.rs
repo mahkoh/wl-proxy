@@ -2099,28 +2099,8 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
         match msg[1] & 0xffff {
             0 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("title")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("title")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("title")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("title")));
-                        };
-                        s
-                    }
-                };
+                let arg0;
+                (arg0, offset) = parse_string::<NonNullString>(msg, offset, "title")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
@@ -2142,28 +2122,8 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
             }
             1 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("app_id")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("app_id")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("app_id")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("app_id")));
-                        };
-                        s
-                    }
-                };
+                let arg0;
+                (arg0, offset) = parse_string::<NonNullString>(msg, offset, "app_id")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
@@ -2247,20 +2207,8 @@ impl ObjectPrivate for ZwlrForeignToplevelHandleV1 {
             }
             4 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("state")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("state")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    &uapi::as_bytes(&msg[start..])[..len]
-                };
+                let arg0;
+                (arg0, offset) = parse_array(msg, offset, "state")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }

@@ -1366,56 +1366,6 @@ fn format_object_message_handler_body<W: Write>(
             wl!(r#"{p}        }};"#)?;
         } else if msg.args.iter().any(|a| !matches!(a.ty, ArgType::Fd)) {
             wl!(r#"{p}        let mut offset = 2;"#)?;
-            let parse_array = |w: &mut W,
-                               name: &str,
-                               ty: ArgType,
-                               allow_null: bool|
-             -> io::Result<()> {
-                define_w!(w, wl2);
-                wl2!(r#"{p}            let Some(&len) = msg.get(offset) else {{"#)?;
-                wl2!(
-                    r#"{p}                return Err(ObjectError(ObjectErrorKind::MissingArgument("{name}")));"#
-                )?;
-                wl2!(r#"{p}            }};"#)?;
-                wl2!(r#"{p}            offset += 1;"#)?;
-                wl2!(r#"{p}            let len = len as usize;"#)?;
-                wl2!(r#"{p}            let words = ((len as u64 + 3) / 4) as usize;"#)?;
-                wl2!(r#"{p}            if offset + words > msg.len() {{"#)?;
-                wl2!(
-                    r#"{p}                return Err(ObjectError(ObjectErrorKind::MissingArgument("{name}")));"#
-                )?;
-                wl2!(r#"{p}            }}"#)?;
-                wl2!(r#"{p}            let start = offset;"#)?;
-                wl2!(r#"{p}            offset += words;"#)?;
-                if ty == ArgType::Array {
-                    wl2!(r#"{p}            &uapi::as_bytes(&msg[start..])[..len]"#)?;
-                } else {
-                    wl2!(r#"{p}            let bytes = &uapi::as_bytes(&msg[start..])[..len];"#)?;
-                    wl2!(r#"{p}            if bytes.is_empty() {{"#)?;
-                    if allow_null {
-                        wl2!(r#"{p}                None"#)?;
-                    } else {
-                        wl2!(
-                            r#"{p}                return Err(ObjectError(ObjectErrorKind::NullString("{name}")));"#
-                        )?;
-                    }
-                    wl2!(r#"{p}            }} else {{"#)?;
-                    wl2!(
-                        r#"{p}                let Ok(s) = str::from_utf8(&bytes[..len-1]) else {{"#
-                    )?;
-                    wl2!(
-                        r#"{p}                    return Err(ObjectError(ObjectErrorKind::NonUtf8("{name}")));"#
-                    )?;
-                    wl2!(r#"{p}                }};"#)?;
-                    if allow_null {
-                        wl2!(r#"{p}                Some(s)"#)?;
-                    } else {
-                        wl2!(r#"{p}                s"#)?;
-                    }
-                    wl2!(r#"{p}            }}"#)?;
-                }
-                Ok(())
-            };
             for (idx, arg) in msg.args.iter().enumerate() {
                 match arg.ty {
                     ArgType::NewId
@@ -1424,9 +1374,11 @@ fn format_object_message_handler_body<W: Write>(
                     | ArgType::Fixed
                     | ArgType::Object => {
                         if arg.ty == ArgType::NewId && arg.interface.is_none() {
-                            wl!(r#"{p}        let arg{idx}_interface = {{"#)?;
-                            parse_array(w, &arg.name, ArgType::String, false)?;
-                            wl!(r#"{p}        }};"#)?;
+                            wl!(r#"{p}        let arg{idx}_interface;"#)?;
+                            wl!(
+                                r#"{p}        (arg{idx}_interface, offset) = parse_string::<NonNullString>(msg, offset, "{}")?;"#,
+                                arg.name,
+                            )?;
                             wl!(
                                 r#"{p}        let Some(&arg{idx}_version) = msg.get(offset) else {{"#
                             )?;
@@ -1446,10 +1398,23 @@ fn format_object_message_handler_body<W: Write>(
                         wl!(r#"{p}        offset += 1;"#)?;
                     }
                     ArgType::Fd => continue,
-                    ArgType::String | ArgType::Array => {
-                        wl!(r#"{p}        let arg{idx} = {{"#)?;
-                        parse_array(w, &arg.name, arg.ty, arg.allow_null)?;
-                        wl!(r#"{p}        }};"#)?;
+                    ArgType::String => {
+                        let str_type = match arg.allow_null {
+                            true => "NullableString",
+                            false => "NonNullString",
+                        };
+                        wl!(r#"{p}        let arg{idx};"#)?;
+                        wl!(
+                            r#"{p}        (arg{idx}, offset) = parse_string::<{str_type}>(msg, offset, "{}")?;"#,
+                            arg.name,
+                        )?;
+                    }
+                    ArgType::Array => {
+                        wl!(r#"{p}        let arg{idx};"#)?;
+                        wl!(
+                            r#"{p}        (arg{idx}, offset) = parse_array(msg, offset, "{}")?;"#,
+                            arg.name,
+                        )?;
                     }
                 }
             }

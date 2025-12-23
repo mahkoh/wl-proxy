@@ -1071,20 +1071,8 @@ impl ObjectPrivate for ExtImageCopyCaptureSessionV1 {
             }
             2 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("device")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("device")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    &uapi::as_bytes(&msg[start..])[..len]
-                };
+                let arg0;
+                (arg0, offset) = parse_array(msg, offset, "device")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
@@ -1110,20 +1098,8 @@ impl ObjectPrivate for ExtImageCopyCaptureSessionV1 {
                     return Err(ObjectError(ObjectErrorKind::MissingArgument("format")));
                 };
                 offset += 1;
-                let arg1 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("modifiers")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("modifiers")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    &uapi::as_bytes(&msg[start..])[..len]
-                };
+                let arg1;
+                (arg1, offset) = parse_array(msg, offset, "modifiers")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }

@@ -653,28 +653,8 @@ impl ObjectPrivate for WpSecurityContextV1 {
             }
             1 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("name")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("name")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("name")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("name")));
-                        };
-                        s
-                    }
-                };
+                let arg0;
+                (arg0, offset) = parse_string::<NonNullString>(msg, offset, "name")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
@@ -696,28 +676,8 @@ impl ObjectPrivate for WpSecurityContextV1 {
             }
             2 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("app_id")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("app_id")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("app_id")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("app_id")));
-                        };
-                        s
-                    }
-                };
+                let arg0;
+                (arg0, offset) = parse_string::<NonNullString>(msg, offset, "app_id")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
@@ -739,28 +699,8 @@ impl ObjectPrivate for WpSecurityContextV1 {
             }
             3 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("instance_id")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("instance_id")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("instance_id")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("instance_id")));
-                        };
-                        s
-                    }
-                };
+                let arg0;
+                (arg0, offset) = parse_string::<NonNullString>(msg, offset, "instance_id")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }

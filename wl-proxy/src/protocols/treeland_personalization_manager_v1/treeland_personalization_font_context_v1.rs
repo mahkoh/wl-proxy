@@ -981,28 +981,8 @@ impl ObjectPrivate for TreelandPersonalizationFontContextV1 {
             }
             2 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("font_name")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("font_name")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("font_name")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("font_name")));
-                        };
-                        s
-                    }
-                };
+                let arg0;
+                (arg0, offset) = parse_string::<NonNullString>(msg, offset, "font_name")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
@@ -1044,28 +1024,8 @@ impl ObjectPrivate for TreelandPersonalizationFontContextV1 {
             }
             4 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("font_name")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("font_name")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("font_name")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("font_name")));
-                        };
-                        s
-                    }
-                };
+                let arg0;
+                (arg0, offset) = parse_string::<NonNullString>(msg, offset, "font_name")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
@@ -1145,28 +1105,8 @@ impl ObjectPrivate for TreelandPersonalizationFontContextV1 {
         match msg[1] & 0xffff {
             0 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("font_name")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("font_name")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("font_name")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("font_name")));
-                        };
-                        s
-                    }
-                };
+                let arg0;
+                (arg0, offset) = parse_string::<NonNullString>(msg, offset, "font_name")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
@@ -1188,28 +1128,8 @@ impl ObjectPrivate for TreelandPersonalizationFontContextV1 {
             }
             1 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("font_name")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("font_name")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("font_name")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("font_name")));
-                        };
-                        s
-                    }
-                };
+                let arg0;
+                (arg0, offset) = parse_string::<NonNullString>(msg, offset, "font_name")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }

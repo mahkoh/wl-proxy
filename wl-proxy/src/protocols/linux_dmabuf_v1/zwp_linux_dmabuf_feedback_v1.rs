@@ -1192,20 +1192,8 @@ impl ObjectPrivate for ZwpLinuxDmabufFeedbackV1 {
             }
             2 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("device")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("device")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    &uapi::as_bytes(&msg[start..])[..len]
-                };
+                let arg0;
+                (arg0, offset) = parse_array(msg, offset, "device")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
@@ -1247,20 +1235,8 @@ impl ObjectPrivate for ZwpLinuxDmabufFeedbackV1 {
             }
             4 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("device")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("device")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    &uapi::as_bytes(&msg[start..])[..len]
-                };
+                let arg0;
+                (arg0, offset) = parse_array(msg, offset, "device")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
@@ -1282,20 +1258,8 @@ impl ObjectPrivate for ZwpLinuxDmabufFeedbackV1 {
             }
             5 => {
                 let mut offset = 2;
-                let arg0 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("indices")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("indices")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    &uapi::as_bytes(&msg[start..])[..len]
-                };
+                let arg0;
+                (arg0, offset) = parse_array(msg, offset, "indices")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }

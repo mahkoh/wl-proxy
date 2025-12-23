@@ -482,28 +482,8 @@ impl ObjectPrivate for WlRegistry {
                     return Err(ObjectError(ObjectErrorKind::MissingArgument("name")));
                 };
                 offset += 1;
-                let arg1_interface = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("id")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("id")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("id")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("id")));
-                        };
-                        s
-                    }
-                };
+                let arg1_interface;
+                (arg1_interface, offset) = parse_string::<NonNullString>(msg, offset, "id")?;
                 let Some(&arg1_version) = msg.get(offset) else {
                     return Err(ObjectError(ObjectErrorKind::MissingArgument("id")));
                 };
@@ -558,28 +538,8 @@ impl ObjectPrivate for WlRegistry {
                     return Err(ObjectError(ObjectErrorKind::MissingArgument("name")));
                 };
                 offset += 1;
-                let arg1 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("interface")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("interface")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("interface")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("interface")));
-                        };
-                        s
-                    }
-                };
+                let arg1;
+                (arg1, offset) = parse_string::<NonNullString>(msg, offset, "interface")?;
                 let Some(&arg2) = msg.get(offset) else {
                     return Err(ObjectError(ObjectErrorKind::MissingArgument("version")));
                 };

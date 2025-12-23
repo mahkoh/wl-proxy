@@ -504,28 +504,8 @@ impl ObjectPrivate for ZwlrLayerShellV1 {
                     return Err(ObjectError(ObjectErrorKind::MissingArgument("layer")));
                 };
                 offset += 1;
-                let arg4 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("namespace")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("namespace")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    let bytes = &uapi::as_bytes(&msg[start..])[..len];
-                    if bytes.is_empty() {
-                        return Err(ObjectError(ObjectErrorKind::NullString("namespace")));
-                    } else {
-                        let Ok(s) = str::from_utf8(&bytes[..len-1]) else {
-                            return Err(ObjectError(ObjectErrorKind::NonUtf8("namespace")));
-                        };
-                        s
-                    }
-                };
+                let arg4;
+                (arg4, offset) = parse_string::<NonNullString>(msg, offset, "namespace")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }

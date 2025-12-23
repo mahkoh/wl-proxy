@@ -1,11 +1,17 @@
 use {
-    crate::object::ObjectError, debug_fn::debug_fn, error_reporter::Report, std::fmt::Display,
+    crate::object::{ObjectError, ObjectErrorKind},
+    debug_fn::debug_fn,
+    error_reporter::Report,
+    std::fmt::Display,
     uapi::c,
 };
 
 pub(crate) mod prelude {
     pub(crate) use {
-        super::{debug_array, log_forward, log_send, time_since_epoch},
+        super::{
+            NonNullString, NullableString, debug_array, log_forward, log_send, parse_array,
+            parse_string, time_since_epoch,
+        },
         crate::{
             client::Client,
             fixed::Fixed,
@@ -66,4 +72,103 @@ pub(crate) fn log_forward(name: &str, e: &ObjectError) {
 #[cold]
 pub(crate) fn log_send(name: &str, e: &ObjectError) {
     log::warn!("Could not send a {name} message: {}", Report::new(e));
+}
+
+pub(crate) trait StringType {
+    type Type<'a>;
+    fn null_string<'a>(
+        offset: usize,
+        name: &'static str,
+    ) -> Result<(Self::Type<'a>, usize), ObjectError>;
+    fn wrap(s: &str) -> Self::Type<'_>;
+}
+
+pub(crate) struct NonNullString;
+
+impl StringType for NonNullString {
+    type Type<'a> = &'a str;
+
+    #[inline(always)]
+    fn null_string<'a>(
+        _offset: usize,
+        name: &'static str,
+    ) -> Result<(Self::Type<'a>, usize), ObjectError> {
+        Err(ObjectError(ObjectErrorKind::NullString(name)))
+    }
+
+    #[inline(always)]
+    fn wrap(s: &str) -> Self::Type<'_> {
+        s
+    }
+}
+
+pub(crate) struct NullableString;
+
+impl StringType for NullableString {
+    type Type<'a> = Option<&'a str>;
+
+    #[inline(always)]
+    fn null_string<'a>(
+        offset: usize,
+        _name: &'static str,
+    ) -> Result<(Self::Type<'a>, usize), ObjectError> {
+        Ok((None, offset))
+    }
+
+    #[inline(always)]
+    fn wrap(s: &str) -> Self::Type<'_> {
+        Some(s)
+    }
+}
+
+#[inline]
+pub(crate) fn parse_string<'a, T>(
+    msg: &'a [u32],
+    mut offset: usize,
+    name: &'static str,
+) -> Result<(T::Type<'a>, usize), ObjectError>
+where
+    T: StringType,
+{
+    let Some(&len) = msg.get(offset) else {
+        return Err(ObjectError(ObjectErrorKind::MissingArgument(name)));
+    };
+    offset += 1;
+    let len = len as usize;
+    let words = ((len as u64 + 3) / 4) as usize;
+    if offset + words > msg.len() {
+        return Err(ObjectError(ObjectErrorKind::MissingArgument(name)));
+    }
+    let start = offset;
+    offset += words;
+    let bytes = &uapi::as_bytes(&msg[start..])[..len];
+    if bytes.is_empty() {
+        T::null_string(offset, name)
+    } else {
+        let Ok(s) = str::from_utf8(&bytes[..len - 1]) else {
+            return Err(ObjectError(ObjectErrorKind::NonUtf8(name)));
+        };
+        Ok((T::wrap(s), offset))
+    }
+}
+
+#[inline]
+pub(crate) fn parse_array<'a>(
+    msg: &'a [u32],
+    mut offset: usize,
+    name: &'static str,
+) -> Result<(&'a [u8], usize), ObjectError> {
+    let Some(&len) = msg.get(offset) else {
+        return Err(ObjectError(ObjectErrorKind::MissingArgument(name)));
+    };
+    offset += 1;
+    let len = len as usize;
+    let words = ((len as u64 + 3) / 4) as usize;
+    if offset + words > msg.len() {
+        return Err(ObjectError(ObjectErrorKind::MissingArgument(name)));
+    }
+    let start = offset;
+    offset += words;
+    let array = &uapi::as_bytes(&msg[start..])[..len];
+    Ok((array, offset))
 }

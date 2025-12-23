@@ -1195,20 +1195,8 @@ impl ObjectPrivate for WlKeyboard {
                     return Err(ObjectError(ObjectErrorKind::MissingArgument("surface")));
                 };
                 offset += 1;
-                let arg2 = {
-                    let Some(&len) = msg.get(offset) else {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("keys")));
-                    };
-                    offset += 1;
-                    let len = len as usize;
-                    let words = ((len as u64 + 3) / 4) as usize;
-                    if offset + words > msg.len() {
-                        return Err(ObjectError(ObjectErrorKind::MissingArgument("keys")));
-                    }
-                    let start = offset;
-                    offset += words;
-                    &uapi::as_bytes(&msg[start..])[..len]
-                };
+                let arg2;
+                (arg2, offset) = parse_array(msg, offset, "keys")?;
                 if offset != msg.len() {
                     return Err(ObjectError(ObjectErrorKind::TrailingBytes));
                 }
