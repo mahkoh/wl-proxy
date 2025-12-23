@@ -811,12 +811,12 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
+        slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_linux_dmabuf_feedback_v1.destroy", &e);
@@ -833,12 +833,12 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
+        slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
         );
         if let Err(e) = res {
             log_forward("zwp_linux_dmabuf_feedback_v1.done", &e);
@@ -869,14 +869,14 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
     #[inline]
     fn handle_format_table(
         &mut self,
-        _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
+        slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
         fd: &Rc<OwnedFd>,
         size: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_format_table(
+        let res = slf.try_send_format_table(
             fd,
             size,
         );
@@ -917,13 +917,13 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
     #[inline]
     fn handle_main_device(
         &mut self,
-        _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
+        slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
         device: &[u8],
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_main_device(
+        let res = slf.try_send_main_device(
             device,
         );
         if let Err(e) = res {
@@ -940,12 +940,12 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
     #[inline]
     fn handle_tranche_done(
         &mut self,
-        _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
+        slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_tranche_done(
+        let res = slf.try_send_tranche_done(
         );
         if let Err(e) = res {
             log_forward("zwp_linux_dmabuf_feedback_v1.tranche_done", &e);
@@ -987,13 +987,13 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
     #[inline]
     fn handle_tranche_target_device(
         &mut self,
-        _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
+        slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
         device: &[u8],
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_tranche_target_device(
+        let res = slf.try_send_tranche_target_device(
             device,
         );
         if let Err(e) = res {
@@ -1034,13 +1034,13 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
     #[inline]
     fn handle_tranche_formats(
         &mut self,
-        _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
+        slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
         indices: &[u8],
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_tranche_formats(
+        let res = slf.try_send_tranche_formats(
             indices,
         );
         if let Err(e) = res {
@@ -1065,13 +1065,13 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
     #[inline]
     fn handle_tranche_flags(
         &mut self,
-        _slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
+        slf: &Rc<ZwpLinuxDmabufFeedbackV1>,
         flags: ZwpLinuxDmabufFeedbackV1TrancheFlags,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_tranche_flags(
+        let res = slf.try_send_tranche_flags(
             flags,
         );
         if let Err(e) = res {

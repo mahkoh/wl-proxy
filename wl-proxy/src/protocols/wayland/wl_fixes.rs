@@ -205,12 +205,12 @@ pub trait WlFixesHandler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WlFixes>,
+        slf: &Rc<WlFixes>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wl_fixes.destroy", &e);
@@ -238,13 +238,13 @@ pub trait WlFixesHandler: Any {
     #[inline]
     fn handle_destroy_registry(
         &mut self,
-        _slf: &Rc<WlFixes>,
+        slf: &Rc<WlFixes>,
         registry: &Rc<WlRegistry>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy_registry(
+        let res = slf.try_send_destroy_registry(
             registry,
         );
         if let Err(e) = res {

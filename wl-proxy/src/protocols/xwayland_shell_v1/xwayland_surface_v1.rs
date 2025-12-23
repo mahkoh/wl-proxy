@@ -272,14 +272,14 @@ pub trait XwaylandSurfaceV1Handler: Any {
     #[inline]
     fn handle_set_serial(
         &mut self,
-        _slf: &Rc<XwaylandSurfaceV1>,
+        slf: &Rc<XwaylandSurfaceV1>,
         serial_lo: u32,
         serial_hi: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_serial(
+        let res = slf.try_send_set_serial(
             serial_lo,
             serial_hi,
         );
@@ -296,12 +296,12 @@ pub trait XwaylandSurfaceV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<XwaylandSurfaceV1>,
+        slf: &Rc<XwaylandSurfaceV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("xwayland_surface_v1.destroy", &e);

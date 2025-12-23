@@ -284,14 +284,14 @@ pub trait TreelandAppIdResolverV1Handler: Any {
     #[inline]
     fn handle_identify_request(
         &mut self,
-        _slf: &Rc<TreelandAppIdResolverV1>,
+        slf: &Rc<TreelandAppIdResolverV1>,
         request_id: u32,
         pidfd: &Rc<OwnedFd>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_identify_request(
+        let res = slf.try_send_identify_request(
             request_id,
             pidfd,
         );
@@ -314,15 +314,15 @@ pub trait TreelandAppIdResolverV1Handler: Any {
     #[inline]
     fn handle_respond(
         &mut self,
-        _slf: &Rc<TreelandAppIdResolverV1>,
+        slf: &Rc<TreelandAppIdResolverV1>,
         request_id: u32,
         app_id: &str,
         sandbox_engine_name: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_respond(
+        let res = slf.try_send_respond(
             request_id,
             app_id,
             sandbox_engine_name,
@@ -336,12 +336,12 @@ pub trait TreelandAppIdResolverV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<TreelandAppIdResolverV1>,
+        slf: &Rc<TreelandAppIdResolverV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("treeland_app_id_resolver_v1.destroy", &e);

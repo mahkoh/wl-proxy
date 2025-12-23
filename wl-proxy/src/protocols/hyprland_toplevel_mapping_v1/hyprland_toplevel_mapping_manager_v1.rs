@@ -384,14 +384,14 @@ pub trait HyprlandToplevelMappingManagerV1Handler: Any {
     #[inline]
     fn handle_get_window_for_toplevel(
         &mut self,
-        _slf: &Rc<HyprlandToplevelMappingManagerV1>,
+        slf: &Rc<HyprlandToplevelMappingManagerV1>,
         handle: &Rc<HyprlandToplevelWindowMappingHandleV1>,
         toplevel: &Rc<ExtForeignToplevelHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_window_for_toplevel(
+        let res = slf.try_send_get_window_for_toplevel(
             handle,
             toplevel,
         );
@@ -414,14 +414,14 @@ pub trait HyprlandToplevelMappingManagerV1Handler: Any {
     #[inline]
     fn handle_get_window_for_toplevel_wlr(
         &mut self,
-        _slf: &Rc<HyprlandToplevelMappingManagerV1>,
+        slf: &Rc<HyprlandToplevelMappingManagerV1>,
         handle: &Rc<HyprlandToplevelWindowMappingHandleV1>,
         toplevel: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_window_for_toplevel_wlr(
+        let res = slf.try_send_get_window_for_toplevel_wlr(
             handle,
             toplevel,
         );
@@ -437,12 +437,12 @@ pub trait HyprlandToplevelMappingManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<HyprlandToplevelMappingManagerV1>,
+        slf: &Rc<HyprlandToplevelMappingManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("hyprland_toplevel_mapping_manager_v1.destroy", &e);

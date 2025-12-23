@@ -269,12 +269,12 @@ pub trait ZxdgImportedV2Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZxdgImportedV2>,
+        slf: &Rc<ZxdgImportedV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zxdg_imported_v2.destroy", &e);
@@ -298,13 +298,13 @@ pub trait ZxdgImportedV2Handler: Any {
     #[inline]
     fn handle_set_parent_of(
         &mut self,
-        _slf: &Rc<ZxdgImportedV2>,
+        slf: &Rc<ZxdgImportedV2>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_parent_of(
+        let res = slf.try_send_set_parent_of(
             surface,
         );
         if let Err(e) = res {
@@ -321,12 +321,12 @@ pub trait ZxdgImportedV2Handler: Any {
     #[inline]
     fn handle_destroyed(
         &mut self,
-        _slf: &Rc<ZxdgImportedV2>,
+        slf: &Rc<ZxdgImportedV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_destroyed(
+        let res = slf.try_send_destroyed(
         );
         if let Err(e) = res {
             log_forward("zxdg_imported_v2.destroyed", &e);

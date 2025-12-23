@@ -485,15 +485,15 @@ pub trait ZwlrScreencopyManagerV1Handler: Any {
     #[inline]
     fn handle_capture_output(
         &mut self,
-        _slf: &Rc<ZwlrScreencopyManagerV1>,
+        slf: &Rc<ZwlrScreencopyManagerV1>,
         frame: &Rc<ZwlrScreencopyFrameV1>,
         overlay_cursor: i32,
         output: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_capture_output(
+        let res = slf.try_send_capture_output(
             frame,
             overlay_cursor,
             output,
@@ -526,7 +526,7 @@ pub trait ZwlrScreencopyManagerV1Handler: Any {
     #[inline]
     fn handle_capture_output_region(
         &mut self,
-        _slf: &Rc<ZwlrScreencopyManagerV1>,
+        slf: &Rc<ZwlrScreencopyManagerV1>,
         frame: &Rc<ZwlrScreencopyFrameV1>,
         overlay_cursor: i32,
         output: &Rc<WlOutput>,
@@ -535,10 +535,10 @@ pub trait ZwlrScreencopyManagerV1Handler: Any {
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_capture_output_region(
+        let res = slf.try_send_capture_output_region(
             frame,
             overlay_cursor,
             output,
@@ -559,12 +559,12 @@ pub trait ZwlrScreencopyManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwlrScreencopyManagerV1>,
+        slf: &Rc<ZwlrScreencopyManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwlr_screencopy_manager_v1.destroy", &e);

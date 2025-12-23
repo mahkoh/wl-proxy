@@ -259,12 +259,12 @@ pub trait WpPointerWarpV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpPointerWarpV1>,
+        slf: &Rc<WpPointerWarpV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_pointer_warp_v1.destroy", &e);
@@ -297,17 +297,17 @@ pub trait WpPointerWarpV1Handler: Any {
     #[inline]
     fn handle_warp_pointer(
         &mut self,
-        _slf: &Rc<WpPointerWarpV1>,
+        slf: &Rc<WpPointerWarpV1>,
         surface: &Rc<WlSurface>,
         pointer: &Rc<WlPointer>,
         x: Fixed,
         y: Fixed,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_warp_pointer(
+        let res = slf.try_send_warp_pointer(
             surface,
             pointer,
             x,

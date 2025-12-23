@@ -602,12 +602,12 @@ pub trait TreelandDdmHandler: Any {
     #[inline]
     fn handle_switch_to_greeter(
         &mut self,
-        _slf: &Rc<TreelandDdm>,
+        slf: &Rc<TreelandDdm>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_switch_to_greeter(
+        let res = slf.try_send_switch_to_greeter(
         );
         if let Err(e) = res {
             log_forward("treeland_ddm.switch_to_greeter", &e);
@@ -624,13 +624,13 @@ pub trait TreelandDdmHandler: Any {
     #[inline]
     fn handle_switch_to_user(
         &mut self,
-        _slf: &Rc<TreelandDdm>,
+        slf: &Rc<TreelandDdm>,
         username: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_switch_to_user(
+        let res = slf.try_send_switch_to_user(
             username,
         );
         if let Err(e) = res {
@@ -645,12 +645,12 @@ pub trait TreelandDdmHandler: Any {
     #[inline]
     fn handle_activate_session(
         &mut self,
-        _slf: &Rc<TreelandDdm>,
+        slf: &Rc<TreelandDdm>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_activate_session(
+        let res = slf.try_send_activate_session(
         );
         if let Err(e) = res {
             log_forward("treeland_ddm.activate_session", &e);
@@ -664,12 +664,12 @@ pub trait TreelandDdmHandler: Any {
     #[inline]
     fn handle_deactivate_session(
         &mut self,
-        _slf: &Rc<TreelandDdm>,
+        slf: &Rc<TreelandDdm>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_deactivate_session(
+        let res = slf.try_send_deactivate_session(
         );
         if let Err(e) = res {
             log_forward("treeland_ddm.deactivate_session", &e);
@@ -683,12 +683,12 @@ pub trait TreelandDdmHandler: Any {
     #[inline]
     fn handle_enable_render(
         &mut self,
-        _slf: &Rc<TreelandDdm>,
+        slf: &Rc<TreelandDdm>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_enable_render(
+        let res = slf.try_send_enable_render(
         );
         if let Err(e) = res {
             log_forward("treeland_ddm.enable_render", &e);
@@ -706,13 +706,13 @@ pub trait TreelandDdmHandler: Any {
     #[inline]
     fn handle_disable_render(
         &mut self,
-        _slf: &Rc<TreelandDdm>,
+        slf: &Rc<TreelandDdm>,
         callback: &Rc<WlCallback>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_disable_render(
+        let res = slf.try_send_disable_render(
             callback,
         );
         if let Err(e) = res {
@@ -731,13 +731,13 @@ pub trait TreelandDdmHandler: Any {
     #[inline]
     fn handle_switch_to_vt(
         &mut self,
-        _slf: &Rc<TreelandDdm>,
+        slf: &Rc<TreelandDdm>,
         vtnr: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_switch_to_vt(
+        let res = slf.try_send_switch_to_vt(
             vtnr,
         );
         if let Err(e) = res {
@@ -756,13 +756,13 @@ pub trait TreelandDdmHandler: Any {
     #[inline]
     fn handle_acquire_vt(
         &mut self,
-        _slf: &Rc<TreelandDdm>,
+        slf: &Rc<TreelandDdm>,
         vtnr: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_acquire_vt(
+        let res = slf.try_send_acquire_vt(
             vtnr,
         );
         if let Err(e) = res {

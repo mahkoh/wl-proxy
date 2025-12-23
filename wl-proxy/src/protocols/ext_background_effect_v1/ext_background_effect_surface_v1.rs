@@ -235,12 +235,12 @@ pub trait ExtBackgroundEffectSurfaceV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtBackgroundEffectSurfaceV1>,
+        slf: &Rc<ExtBackgroundEffectSurfaceV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_background_effect_surface_v1.destroy", &e);
@@ -276,13 +276,13 @@ pub trait ExtBackgroundEffectSurfaceV1Handler: Any {
     #[inline]
     fn handle_set_blur_region(
         &mut self,
-        _slf: &Rc<ExtBackgroundEffectSurfaceV1>,
+        slf: &Rc<ExtBackgroundEffectSurfaceV1>,
         region: Option<&Rc<WlRegion>>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_blur_region(
+        let res = slf.try_send_set_blur_region(
             region,
         );
         if let Err(e) = res {

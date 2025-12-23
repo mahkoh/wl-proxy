@@ -308,12 +308,12 @@ pub trait WlRegionHandler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WlRegion>,
+        slf: &Rc<WlRegion>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wl_region.destroy", &e);
@@ -333,16 +333,16 @@ pub trait WlRegionHandler: Any {
     #[inline]
     fn handle_add(
         &mut self,
-        _slf: &Rc<WlRegion>,
+        slf: &Rc<WlRegion>,
         x: i32,
         y: i32,
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_add(
+        let res = slf.try_send_add(
             x,
             y,
             width,
@@ -366,16 +366,16 @@ pub trait WlRegionHandler: Any {
     #[inline]
     fn handle_subtract(
         &mut self,
-        _slf: &Rc<WlRegion>,
+        slf: &Rc<WlRegion>,
         x: i32,
         y: i32,
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_subtract(
+        let res = slf.try_send_subtract(
             x,
             y,
             width,

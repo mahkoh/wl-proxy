@@ -294,12 +294,12 @@ pub trait ZxdgDecorationManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZxdgDecorationManagerV1>,
+        slf: &Rc<ZxdgDecorationManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zxdg_decoration_manager_v1.destroy", &e);
@@ -326,14 +326,14 @@ pub trait ZxdgDecorationManagerV1Handler: Any {
     #[inline]
     fn handle_get_toplevel_decoration(
         &mut self,
-        _slf: &Rc<ZxdgDecorationManagerV1>,
+        slf: &Rc<ZxdgDecorationManagerV1>,
         id: &Rc<ZxdgToplevelDecorationV1>,
         toplevel: &Rc<XdgToplevel>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_toplevel_decoration(
+        let res = slf.try_send_get_toplevel_decoration(
             id,
             toplevel,
         );

@@ -222,14 +222,14 @@ pub trait ZwpVirtualKeyboardManagerV1Handler: Any {
     #[inline]
     fn handle_create_virtual_keyboard(
         &mut self,
-        _slf: &Rc<ZwpVirtualKeyboardManagerV1>,
+        slf: &Rc<ZwpVirtualKeyboardManagerV1>,
         seat: &Rc<WlSeat>,
         id: &Rc<ZwpVirtualKeyboardV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_virtual_keyboard(
+        let res = slf.try_send_create_virtual_keyboard(
             seat,
             id,
         );

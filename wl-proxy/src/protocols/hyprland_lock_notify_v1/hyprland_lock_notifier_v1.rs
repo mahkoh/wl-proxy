@@ -237,12 +237,12 @@ pub trait HyprlandLockNotifierV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<HyprlandLockNotifierV1>,
+        slf: &Rc<HyprlandLockNotifierV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("hyprland_lock_notifier_v1.destroy", &e);
@@ -262,13 +262,13 @@ pub trait HyprlandLockNotifierV1Handler: Any {
     #[inline]
     fn handle_get_lock_notification(
         &mut self,
-        _slf: &Rc<HyprlandLockNotifierV1>,
+        slf: &Rc<HyprlandLockNotifierV1>,
         id: &Rc<HyprlandLockNotificationV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_lock_notification(
+        let res = slf.try_send_get_lock_notification(
             id,
         );
         if let Err(e) = res {

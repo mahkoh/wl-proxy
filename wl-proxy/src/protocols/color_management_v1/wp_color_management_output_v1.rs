@@ -416,12 +416,12 @@ pub trait WpColorManagementOutputV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpColorManagementOutputV1>,
+        slf: &Rc<WpColorManagementOutputV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_color_management_output_v1.destroy", &e);
@@ -440,12 +440,12 @@ pub trait WpColorManagementOutputV1Handler: Any {
     #[inline]
     fn handle_image_description_changed(
         &mut self,
-        _slf: &Rc<WpColorManagementOutputV1>,
+        slf: &Rc<WpColorManagementOutputV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_image_description_changed(
+        let res = slf.try_send_image_description_changed(
         );
         if let Err(e) = res {
             log_forward("wp_color_management_output_v1.image_description_changed", &e);
@@ -492,13 +492,13 @@ pub trait WpColorManagementOutputV1Handler: Any {
     #[inline]
     fn handle_get_image_description(
         &mut self,
-        _slf: &Rc<WpColorManagementOutputV1>,
+        slf: &Rc<WpColorManagementOutputV1>,
         image_description: &Rc<WpImageDescriptionV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_image_description(
+        let res = slf.try_send_get_image_description(
             image_description,
         );
         if let Err(e) = res {

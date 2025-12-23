@@ -591,12 +591,12 @@ pub trait WpImageDescriptionV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpImageDescriptionV1>,
+        slf: &Rc<WpImageDescriptionV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_image_description_v1.destroy", &e);
@@ -623,14 +623,14 @@ pub trait WpImageDescriptionV1Handler: Any {
     #[inline]
     fn handle_failed(
         &mut self,
-        _slf: &Rc<WpImageDescriptionV1>,
+        slf: &Rc<WpImageDescriptionV1>,
         cause: WpImageDescriptionV1Cause,
         msg: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_failed(
+        let res = slf.try_send_failed(
             cause,
             msg,
         );
@@ -658,13 +658,13 @@ pub trait WpImageDescriptionV1Handler: Any {
     #[inline]
     fn handle_ready(
         &mut self,
-        _slf: &Rc<WpImageDescriptionV1>,
+        slf: &Rc<WpImageDescriptionV1>,
         identity: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_ready(
+        let res = slf.try_send_ready(
             identity,
         );
         if let Err(e) = res {
@@ -688,13 +688,13 @@ pub trait WpImageDescriptionV1Handler: Any {
     #[inline]
     fn handle_get_information(
         &mut self,
-        _slf: &Rc<WpImageDescriptionV1>,
+        slf: &Rc<WpImageDescriptionV1>,
         information: &Rc<WpImageDescriptionInfoV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_information(
+        let res = slf.try_send_get_information(
             information,
         );
         if let Err(e) = res {
@@ -736,14 +736,14 @@ pub trait WpImageDescriptionV1Handler: Any {
     #[inline]
     fn handle_ready2(
         &mut self,
-        _slf: &Rc<WpImageDescriptionV1>,
+        slf: &Rc<WpImageDescriptionV1>,
         identity_hi: u32,
         identity_lo: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_ready2(
+        let res = slf.try_send_ready2(
             identity_hi,
             identity_lo,
         );

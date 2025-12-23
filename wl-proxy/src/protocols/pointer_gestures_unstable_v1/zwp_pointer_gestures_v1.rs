@@ -538,14 +538,14 @@ pub trait ZwpPointerGesturesV1Handler: Any {
     #[inline]
     fn handle_get_swipe_gesture(
         &mut self,
-        _slf: &Rc<ZwpPointerGesturesV1>,
+        slf: &Rc<ZwpPointerGesturesV1>,
         id: &Rc<ZwpPointerGestureSwipeV1>,
         pointer: &Rc<WlPointer>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_swipe_gesture(
+        let res = slf.try_send_get_swipe_gesture(
             id,
             pointer,
         );
@@ -569,14 +569,14 @@ pub trait ZwpPointerGesturesV1Handler: Any {
     #[inline]
     fn handle_get_pinch_gesture(
         &mut self,
-        _slf: &Rc<ZwpPointerGesturesV1>,
+        slf: &Rc<ZwpPointerGesturesV1>,
         id: &Rc<ZwpPointerGesturePinchV1>,
         pointer: &Rc<WlPointer>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_pinch_gesture(
+        let res = slf.try_send_get_pinch_gesture(
             id,
             pointer,
         );
@@ -592,12 +592,12 @@ pub trait ZwpPointerGesturesV1Handler: Any {
     #[inline]
     fn handle_release(
         &mut self,
-        _slf: &Rc<ZwpPointerGesturesV1>,
+        slf: &Rc<ZwpPointerGesturesV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_release(
+        let res = slf.try_send_release(
         );
         if let Err(e) = res {
             log_forward("zwp_pointer_gestures_v1.release", &e);
@@ -619,14 +619,14 @@ pub trait ZwpPointerGesturesV1Handler: Any {
     #[inline]
     fn handle_get_hold_gesture(
         &mut self,
-        _slf: &Rc<ZwpPointerGesturesV1>,
+        slf: &Rc<ZwpPointerGesturesV1>,
         id: &Rc<ZwpPointerGestureHoldV1>,
         pointer: &Rc<WlPointer>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_hold_gesture(
+        let res = slf.try_send_get_hold_gesture(
             id,
             pointer,
         );

@@ -845,16 +845,16 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     #[inline]
     fn handle_buffer(
         &mut self,
-        _slf: &Rc<HyprlandToplevelExportFrameV1>,
+        slf: &Rc<HyprlandToplevelExportFrameV1>,
         format: WlShmFormat,
         width: u32,
         height: u32,
         stride: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_buffer(
+        let res = slf.try_send_buffer(
             format,
             width,
             height,
@@ -888,14 +888,14 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     #[inline]
     fn handle_copy(
         &mut self,
-        _slf: &Rc<HyprlandToplevelExportFrameV1>,
+        slf: &Rc<HyprlandToplevelExportFrameV1>,
         buffer: &Rc<WlBuffer>,
         ignore_damage: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_copy(
+        let res = slf.try_send_copy(
             buffer,
             ignore_damage,
         );
@@ -926,16 +926,16 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     #[inline]
     fn handle_damage(
         &mut self,
-        _slf: &Rc<HyprlandToplevelExportFrameV1>,
+        slf: &Rc<HyprlandToplevelExportFrameV1>,
         x: u32,
         y: u32,
         width: u32,
         height: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_damage(
+        let res = slf.try_send_damage(
             x,
             y,
             width,
@@ -957,13 +957,13 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     #[inline]
     fn handle_flags(
         &mut self,
-        _slf: &Rc<HyprlandToplevelExportFrameV1>,
+        slf: &Rc<HyprlandToplevelExportFrameV1>,
         flags: HyprlandToplevelExportFrameV1Flags,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_flags(
+        let res = slf.try_send_flags(
             flags,
         );
         if let Err(e) = res {
@@ -994,15 +994,15 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     #[inline]
     fn handle_ready(
         &mut self,
-        _slf: &Rc<HyprlandToplevelExportFrameV1>,
+        slf: &Rc<HyprlandToplevelExportFrameV1>,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
         tv_nsec: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_ready(
+        let res = slf.try_send_ready(
             tv_sec_hi,
             tv_sec_lo,
             tv_nsec,
@@ -1020,12 +1020,12 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     #[inline]
     fn handle_failed(
         &mut self,
-        _slf: &Rc<HyprlandToplevelExportFrameV1>,
+        slf: &Rc<HyprlandToplevelExportFrameV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_failed(
+        let res = slf.try_send_failed(
         );
         if let Err(e) = res {
             log_forward("hyprland_toplevel_export_frame_v1.failed", &e);
@@ -1038,12 +1038,12 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<HyprlandToplevelExportFrameV1>,
+        slf: &Rc<HyprlandToplevelExportFrameV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("hyprland_toplevel_export_frame_v1.destroy", &e);
@@ -1064,15 +1064,15 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     #[inline]
     fn handle_linux_dmabuf(
         &mut self,
-        _slf: &Rc<HyprlandToplevelExportFrameV1>,
+        slf: &Rc<HyprlandToplevelExportFrameV1>,
         format: u32,
         width: u32,
         height: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_linux_dmabuf(
+        let res = slf.try_send_linux_dmabuf(
             format,
             width,
             height,
@@ -1091,12 +1091,12 @@ pub trait HyprlandToplevelExportFrameV1Handler: Any {
     #[inline]
     fn handle_buffer_done(
         &mut self,
-        _slf: &Rc<HyprlandToplevelExportFrameV1>,
+        slf: &Rc<HyprlandToplevelExportFrameV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_buffer_done(
+        let res = slf.try_send_buffer_done(
         );
         if let Err(e) = res {
             log_forward("hyprland_toplevel_export_frame_v1.buffer_done", &e);

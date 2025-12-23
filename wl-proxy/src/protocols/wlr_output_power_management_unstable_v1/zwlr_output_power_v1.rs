@@ -352,13 +352,13 @@ pub trait ZwlrOutputPowerV1Handler: Any {
     #[inline]
     fn handle_set_mode(
         &mut self,
-        _slf: &Rc<ZwlrOutputPowerV1>,
+        slf: &Rc<ZwlrOutputPowerV1>,
         mode: ZwlrOutputPowerV1Mode,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_mode(
+        let res = slf.try_send_set_mode(
             mode,
         );
         if let Err(e) = res {
@@ -382,13 +382,13 @@ pub trait ZwlrOutputPowerV1Handler: Any {
     #[inline]
     fn handle_mode(
         &mut self,
-        _slf: &Rc<ZwlrOutputPowerV1>,
+        slf: &Rc<ZwlrOutputPowerV1>,
         mode: ZwlrOutputPowerV1Mode,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_mode(
+        let res = slf.try_send_mode(
             mode,
         );
         if let Err(e) = res {
@@ -410,12 +410,12 @@ pub trait ZwlrOutputPowerV1Handler: Any {
     #[inline]
     fn handle_failed(
         &mut self,
-        _slf: &Rc<ZwlrOutputPowerV1>,
+        slf: &Rc<ZwlrOutputPowerV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_failed(
+        let res = slf.try_send_failed(
         );
         if let Err(e) = res {
             log_forward("zwlr_output_power_v1.failed", &e);
@@ -428,12 +428,12 @@ pub trait ZwlrOutputPowerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwlrOutputPowerV1>,
+        slf: &Rc<ZwlrOutputPowerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwlr_output_power_v1.destroy", &e);

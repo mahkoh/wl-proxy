@@ -1008,16 +1008,16 @@ pub trait WlDataDeviceHandler: Any {
     #[inline]
     fn handle_start_drag(
         &mut self,
-        _slf: &Rc<WlDataDevice>,
+        slf: &Rc<WlDataDevice>,
         source: Option<&Rc<WlDataSource>>,
         origin: &Rc<WlSurface>,
         icon: Option<&Rc<WlSurface>>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_start_drag(
+        let res = slf.try_send_start_drag(
             source,
             origin,
             icon,
@@ -1049,14 +1049,14 @@ pub trait WlDataDeviceHandler: Any {
     #[inline]
     fn handle_set_selection(
         &mut self,
-        _slf: &Rc<WlDataDevice>,
+        slf: &Rc<WlDataDevice>,
         source: Option<&Rc<WlDataSource>>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_selection(
+        let res = slf.try_send_set_selection(
             source,
             serial,
         );
@@ -1081,13 +1081,13 @@ pub trait WlDataDeviceHandler: Any {
     #[inline]
     fn handle_data_offer(
         &mut self,
-        _slf: &Rc<WlDataDevice>,
+        slf: &Rc<WlDataDevice>,
         id: &Rc<WlDataOffer>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_data_offer(
+        let res = slf.try_send_data_offer(
             id,
         );
         if let Err(e) = res {
@@ -1115,17 +1115,17 @@ pub trait WlDataDeviceHandler: Any {
     #[inline]
     fn handle_enter(
         &mut self,
-        _slf: &Rc<WlDataDevice>,
+        slf: &Rc<WlDataDevice>,
         serial: u32,
         surface: &Rc<WlSurface>,
         x: Fixed,
         y: Fixed,
         id: Option<&Rc<WlDataOffer>>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
@@ -1139,7 +1139,7 @@ pub trait WlDataDeviceHandler: Any {
                 }
             }
         }
-        let res = _slf.try_send_enter(
+        let res = slf.try_send_enter(
             serial,
             surface,
             x,
@@ -1159,12 +1159,12 @@ pub trait WlDataDeviceHandler: Any {
     #[inline]
     fn handle_leave(
         &mut self,
-        _slf: &Rc<WlDataDevice>,
+        slf: &Rc<WlDataDevice>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_leave(
+        let res = slf.try_send_leave(
         );
         if let Err(e) = res {
             log_forward("wl_data_device.leave", &e);
@@ -1186,15 +1186,15 @@ pub trait WlDataDeviceHandler: Any {
     #[inline]
     fn handle_motion(
         &mut self,
-        _slf: &Rc<WlDataDevice>,
+        slf: &Rc<WlDataDevice>,
         time: u32,
         x: Fixed,
         y: Fixed,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_motion(
+        let res = slf.try_send_motion(
             time,
             x,
             y,
@@ -1222,12 +1222,12 @@ pub trait WlDataDeviceHandler: Any {
     #[inline]
     fn handle_drop(
         &mut self,
-        _slf: &Rc<WlDataDevice>,
+        slf: &Rc<WlDataDevice>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_drop(
+        let res = slf.try_send_drop(
         );
         if let Err(e) = res {
             log_forward("wl_data_device.drop", &e);
@@ -1258,13 +1258,13 @@ pub trait WlDataDeviceHandler: Any {
     #[inline]
     fn handle_selection(
         &mut self,
-        _slf: &Rc<WlDataDevice>,
+        slf: &Rc<WlDataDevice>,
         id: Option<&Rc<WlDataOffer>>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {
                     if client_id != client_id_2 {
@@ -1273,7 +1273,7 @@ pub trait WlDataDeviceHandler: Any {
                 }
             }
         }
-        let res = _slf.try_send_selection(
+        let res = slf.try_send_selection(
             id,
         );
         if let Err(e) = res {
@@ -1287,12 +1287,12 @@ pub trait WlDataDeviceHandler: Any {
     #[inline]
     fn handle_release(
         &mut self,
-        _slf: &Rc<WlDataDevice>,
+        slf: &Rc<WlDataDevice>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_release(
+        let res = slf.try_send_release(
         );
         if let Err(e) = res {
             log_forward("wl_data_device.release", &e);

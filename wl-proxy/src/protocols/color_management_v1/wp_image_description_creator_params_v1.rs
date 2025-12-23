@@ -1473,13 +1473,13 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     #[inline]
     fn handle_create(
         &mut self,
-        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
+        slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         image_description: &Rc<WpImageDescriptionV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create(
+        let res = slf.try_send_create(
             image_description,
         );
         if let Err(e) = res {
@@ -1508,13 +1508,13 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     #[inline]
     fn handle_set_tf_named(
         &mut self,
-        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
+        slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         tf: WpColorManagerV1TransferFunction,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_tf_named(
+        let res = slf.try_send_set_tf_named(
             tf,
         );
         if let Err(e) = res {
@@ -1549,13 +1549,13 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     #[inline]
     fn handle_set_tf_power(
         &mut self,
-        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
+        slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         eexp: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_tf_power(
+        let res = slf.try_send_set_tf_power(
             eexp,
         );
         if let Err(e) = res {
@@ -1582,13 +1582,13 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     #[inline]
     fn handle_set_primaries_named(
         &mut self,
-        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
+        slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         primaries: WpColorManagerV1Primaries,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_primaries_named(
+        let res = slf.try_send_set_primaries_named(
             primaries,
         );
         if let Err(e) = res {
@@ -1625,7 +1625,7 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     #[inline]
     fn handle_set_primaries(
         &mut self,
-        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
+        slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         r_x: i32,
         r_y: i32,
         g_x: i32,
@@ -1635,10 +1635,10 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
         w_x: i32,
         w_y: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_primaries(
+        let res = slf.try_send_set_primaries(
             r_x,
             r_y,
             g_x,
@@ -1713,15 +1713,15 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     #[inline]
     fn handle_set_luminances(
         &mut self,
-        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
+        slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         min_lum: u32,
         max_lum: u32,
         reference_lum: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_luminances(
+        let res = slf.try_send_set_luminances(
             min_lum,
             max_lum,
             reference_lum,
@@ -1793,7 +1793,7 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     #[inline]
     fn handle_set_mastering_display_primaries(
         &mut self,
-        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
+        slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         r_x: i32,
         r_y: i32,
         g_x: i32,
@@ -1803,10 +1803,10 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
         w_x: i32,
         w_y: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_mastering_display_primaries(
+        let res = slf.try_send_set_mastering_display_primaries(
             r_x,
             r_y,
             g_x,
@@ -1864,14 +1864,14 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     #[inline]
     fn handle_set_mastering_luminance(
         &mut self,
-        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
+        slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         min_lum: u32,
         max_lum: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_mastering_luminance(
+        let res = slf.try_send_set_mastering_luminance(
             min_lum,
             max_lum,
         );
@@ -1892,13 +1892,13 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     #[inline]
     fn handle_set_max_cll(
         &mut self,
-        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
+        slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         max_cll: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_max_cll(
+        let res = slf.try_send_set_max_cll(
             max_cll,
         );
         if let Err(e) = res {
@@ -1919,13 +1919,13 @@ pub trait WpImageDescriptionCreatorParamsV1Handler: Any {
     #[inline]
     fn handle_set_max_fall(
         &mut self,
-        _slf: &Rc<WpImageDescriptionCreatorParamsV1>,
+        slf: &Rc<WpImageDescriptionCreatorParamsV1>,
         max_fall: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_max_fall(
+        let res = slf.try_send_set_max_fall(
             max_fall,
         );
         if let Err(e) = res {

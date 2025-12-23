@@ -381,12 +381,12 @@ pub trait WpViewportHandler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpViewport>,
+        slf: &Rc<WpViewport>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_viewport.destroy", &e);
@@ -415,16 +415,16 @@ pub trait WpViewportHandler: Any {
     #[inline]
     fn handle_set_source(
         &mut self,
-        _slf: &Rc<WpViewport>,
+        slf: &Rc<WpViewport>,
         x: Fixed,
         y: Fixed,
         width: Fixed,
         height: Fixed,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_source(
+        let res = slf.try_send_set_source(
             x,
             y,
             width,
@@ -455,14 +455,14 @@ pub trait WpViewportHandler: Any {
     #[inline]
     fn handle_set_destination(
         &mut self,
-        _slf: &Rc<WpViewport>,
+        slf: &Rc<WpViewport>,
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_destination(
+        let res = slf.try_send_set_destination(
             width,
             height,
         );

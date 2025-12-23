@@ -271,14 +271,14 @@ pub trait HyprlandSurfaceManagerV1Handler: Any {
     #[inline]
     fn handle_get_hyprland_surface(
         &mut self,
-        _slf: &Rc<HyprlandSurfaceManagerV1>,
+        slf: &Rc<HyprlandSurfaceManagerV1>,
         id: &Rc<HyprlandSurfaceV1>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_hyprland_surface(
+        let res = slf.try_send_get_hyprland_surface(
             id,
             surface,
         );
@@ -294,12 +294,12 @@ pub trait HyprlandSurfaceManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<HyprlandSurfaceManagerV1>,
+        slf: &Rc<HyprlandSurfaceManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("hyprland_surface_manager_v1.destroy", &e);

@@ -786,12 +786,12 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpLinuxDmabufV1>,
+        slf: &Rc<ZwpLinuxDmabufV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_linux_dmabuf_v1.destroy", &e);
@@ -811,13 +811,13 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
     #[inline]
     fn handle_create_params(
         &mut self,
-        _slf: &Rc<ZwpLinuxDmabufV1>,
+        slf: &Rc<ZwpLinuxDmabufV1>,
         params_id: &Rc<ZwpLinuxBufferParamsV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_params(
+        let res = slf.try_send_create_params(
             params_id,
         );
         if let Err(e) = res {
@@ -845,13 +845,13 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
     #[inline]
     fn handle_format(
         &mut self,
-        _slf: &Rc<ZwpLinuxDmabufV1>,
+        slf: &Rc<ZwpLinuxDmabufV1>,
         format: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_format(
+        let res = slf.try_send_format(
             format,
         );
         if let Err(e) = res {
@@ -893,15 +893,15 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
     #[inline]
     fn handle_modifier(
         &mut self,
-        _slf: &Rc<ZwpLinuxDmabufV1>,
+        slf: &Rc<ZwpLinuxDmabufV1>,
         format: u32,
         modifier_hi: u32,
         modifier_lo: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_modifier(
+        let res = slf.try_send_modifier(
             format,
             modifier_hi,
             modifier_lo,
@@ -924,13 +924,13 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
     #[inline]
     fn handle_get_default_feedback(
         &mut self,
-        _slf: &Rc<ZwpLinuxDmabufV1>,
+        slf: &Rc<ZwpLinuxDmabufV1>,
         id: &Rc<ZwpLinuxDmabufFeedbackV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_default_feedback(
+        let res = slf.try_send_get_default_feedback(
             id,
         );
         if let Err(e) = res {
@@ -957,14 +957,14 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
     #[inline]
     fn handle_get_surface_feedback(
         &mut self,
-        _slf: &Rc<ZwpLinuxDmabufV1>,
+        slf: &Rc<ZwpLinuxDmabufV1>,
         id: &Rc<ZwpLinuxDmabufFeedbackV1>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_surface_feedback(
+        let res = slf.try_send_get_surface_feedback(
             id,
             surface,
         );

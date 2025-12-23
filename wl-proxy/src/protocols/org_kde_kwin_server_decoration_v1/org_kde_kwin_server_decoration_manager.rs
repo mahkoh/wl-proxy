@@ -333,14 +333,14 @@ pub trait OrgKdeKwinServerDecorationManagerHandler: Any {
     #[inline]
     fn handle_create(
         &mut self,
-        _slf: &Rc<OrgKdeKwinServerDecorationManager>,
+        slf: &Rc<OrgKdeKwinServerDecorationManager>,
         id: &Rc<OrgKdeKwinServerDecoration>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create(
+        let res = slf.try_send_create(
             id,
             surface,
         );
@@ -364,13 +364,13 @@ pub trait OrgKdeKwinServerDecorationManagerHandler: Any {
     #[inline]
     fn handle_default_mode(
         &mut self,
-        _slf: &Rc<OrgKdeKwinServerDecorationManager>,
+        slf: &Rc<OrgKdeKwinServerDecorationManager>,
         mode: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_default_mode(
+        let res = slf.try_send_default_mode(
             mode,
         );
         if let Err(e) = res {

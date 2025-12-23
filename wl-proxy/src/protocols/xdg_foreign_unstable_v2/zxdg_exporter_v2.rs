@@ -282,12 +282,12 @@ pub trait ZxdgExporterV2Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZxdgExporterV2>,
+        slf: &Rc<ZxdgExporterV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zxdg_exporter_v2.destroy", &e);
@@ -316,14 +316,14 @@ pub trait ZxdgExporterV2Handler: Any {
     #[inline]
     fn handle_export_toplevel(
         &mut self,
-        _slf: &Rc<ZxdgExporterV2>,
+        slf: &Rc<ZxdgExporterV2>,
         id: &Rc<ZxdgExportedV2>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_export_toplevel(
+        let res = slf.try_send_export_toplevel(
             id,
             surface,
         );

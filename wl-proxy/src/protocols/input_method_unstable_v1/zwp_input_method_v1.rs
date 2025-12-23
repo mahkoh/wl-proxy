@@ -262,13 +262,13 @@ pub trait ZwpInputMethodV1Handler: Any {
     #[inline]
     fn handle_activate(
         &mut self,
-        _slf: &Rc<ZwpInputMethodV1>,
+        slf: &Rc<ZwpInputMethodV1>,
         id: &Rc<ZwpInputMethodContextV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_activate(
+        let res = slf.try_send_activate(
             id,
         );
         if let Err(e) = res {
@@ -291,20 +291,20 @@ pub trait ZwpInputMethodV1Handler: Any {
     #[inline]
     fn handle_deactivate(
         &mut self,
-        _slf: &Rc<ZwpInputMethodV1>,
+        slf: &Rc<ZwpInputMethodV1>,
         context: &Rc<ZwpInputMethodContextV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = context.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_deactivate(
+        let res = slf.try_send_deactivate(
             context,
         );
         if let Err(e) = res {

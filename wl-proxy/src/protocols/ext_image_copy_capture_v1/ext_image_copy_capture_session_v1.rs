@@ -729,14 +729,14 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     #[inline]
     fn handle_buffer_size(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureSessionV1>,
+        slf: &Rc<ExtImageCopyCaptureSessionV1>,
         width: u32,
         height: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_buffer_size(
+        let res = slf.try_send_buffer_size(
             width,
             height,
         );
@@ -758,13 +758,13 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     #[inline]
     fn handle_shm_format(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureSessionV1>,
+        slf: &Rc<ExtImageCopyCaptureSessionV1>,
         format: WlShmFormat,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_shm_format(
+        let res = slf.try_send_shm_format(
             format,
         );
         if let Err(e) = res {
@@ -788,13 +788,13 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     #[inline]
     fn handle_dmabuf_device(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureSessionV1>,
+        slf: &Rc<ExtImageCopyCaptureSessionV1>,
         device: &[u8],
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_dmabuf_device(
+        let res = slf.try_send_dmabuf_device(
             device,
         );
         if let Err(e) = res {
@@ -819,14 +819,14 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     #[inline]
     fn handle_dmabuf_format(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureSessionV1>,
+        slf: &Rc<ExtImageCopyCaptureSessionV1>,
         format: u32,
         modifiers: &[u8],
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_dmabuf_format(
+        let res = slf.try_send_dmabuf_format(
             format,
             modifiers,
         );
@@ -846,12 +846,12 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureSessionV1>,
+        slf: &Rc<ExtImageCopyCaptureSessionV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
         );
         if let Err(e) = res {
             log_forward("ext_image_copy_capture_session_v1.done", &e);
@@ -869,12 +869,12 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     #[inline]
     fn handle_stopped(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureSessionV1>,
+        slf: &Rc<ExtImageCopyCaptureSessionV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_stopped(
+        let res = slf.try_send_stopped(
         );
         if let Err(e) = res {
             log_forward("ext_image_copy_capture_session_v1.stopped", &e);
@@ -895,13 +895,13 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     #[inline]
     fn handle_create_frame(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureSessionV1>,
+        slf: &Rc<ExtImageCopyCaptureSessionV1>,
         frame: &Rc<ExtImageCopyCaptureFrameV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_frame(
+        let res = slf.try_send_create_frame(
             frame,
         );
         if let Err(e) = res {
@@ -919,12 +919,12 @@ pub trait ExtImageCopyCaptureSessionV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureSessionV1>,
+        slf: &Rc<ExtImageCopyCaptureSessionV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_image_copy_capture_session_v1.destroy", &e);

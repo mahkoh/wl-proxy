@@ -591,12 +591,12 @@ pub trait ZwpInputTimestampsManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpInputTimestampsManagerV1>,
+        slf: &Rc<ZwpInputTimestampsManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_input_timestamps_manager_v1.destroy", &e);
@@ -624,14 +624,14 @@ pub trait ZwpInputTimestampsManagerV1Handler: Any {
     #[inline]
     fn handle_get_keyboard_timestamps(
         &mut self,
-        _slf: &Rc<ZwpInputTimestampsManagerV1>,
+        slf: &Rc<ZwpInputTimestampsManagerV1>,
         id: &Rc<ZwpInputTimestampsV1>,
         keyboard: &Rc<WlKeyboard>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_keyboard_timestamps(
+        let res = slf.try_send_get_keyboard_timestamps(
             id,
             keyboard,
         );
@@ -661,14 +661,14 @@ pub trait ZwpInputTimestampsManagerV1Handler: Any {
     #[inline]
     fn handle_get_pointer_timestamps(
         &mut self,
-        _slf: &Rc<ZwpInputTimestampsManagerV1>,
+        slf: &Rc<ZwpInputTimestampsManagerV1>,
         id: &Rc<ZwpInputTimestampsV1>,
         pointer: &Rc<WlPointer>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_pointer_timestamps(
+        let res = slf.try_send_get_pointer_timestamps(
             id,
             pointer,
         );
@@ -698,14 +698,14 @@ pub trait ZwpInputTimestampsManagerV1Handler: Any {
     #[inline]
     fn handle_get_touch_timestamps(
         &mut self,
-        _slf: &Rc<ZwpInputTimestampsManagerV1>,
+        slf: &Rc<ZwpInputTimestampsManagerV1>,
         id: &Rc<ZwpInputTimestampsV1>,
         touch: &Rc<WlTouch>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_touch_timestamps(
+        let res = slf.try_send_get_touch_timestamps(
             id,
             touch,
         );

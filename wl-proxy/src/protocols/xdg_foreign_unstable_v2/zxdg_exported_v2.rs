@@ -205,12 +205,12 @@ pub trait ZxdgExportedV2Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZxdgExportedV2>,
+        slf: &Rc<ZxdgExportedV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zxdg_exported_v2.destroy", &e);
@@ -230,13 +230,13 @@ pub trait ZxdgExportedV2Handler: Any {
     #[inline]
     fn handle_handle(
         &mut self,
-        _slf: &Rc<ZxdgExportedV2>,
+        slf: &Rc<ZxdgExportedV2>,
         handle: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_handle(
+        let res = slf.try_send_handle(
             handle,
         );
         if let Err(e) = res {

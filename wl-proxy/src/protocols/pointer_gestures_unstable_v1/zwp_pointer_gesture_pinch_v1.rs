@@ -453,12 +453,12 @@ pub trait ZwpPointerGesturePinchV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpPointerGesturePinchV1>,
+        slf: &Rc<ZwpPointerGesturePinchV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_pointer_gesture_pinch_v1.destroy", &e);
@@ -482,23 +482,23 @@ pub trait ZwpPointerGesturePinchV1Handler: Any {
     #[inline]
     fn handle_begin(
         &mut self,
-        _slf: &Rc<ZwpPointerGesturePinchV1>,
+        slf: &Rc<ZwpPointerGesturePinchV1>,
         serial: u32,
         time: u32,
         surface: &Rc<WlSurface>,
         fingers: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_begin(
+        let res = slf.try_send_begin(
             serial,
             time,
             surface,
@@ -534,17 +534,17 @@ pub trait ZwpPointerGesturePinchV1Handler: Any {
     #[inline]
     fn handle_update(
         &mut self,
-        _slf: &Rc<ZwpPointerGesturePinchV1>,
+        slf: &Rc<ZwpPointerGesturePinchV1>,
         time: u32,
         dx: Fixed,
         dy: Fixed,
         scale: Fixed,
         rotation: Fixed,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_update(
+        let res = slf.try_send_update(
             time,
             dx,
             dy,
@@ -574,15 +574,15 @@ pub trait ZwpPointerGesturePinchV1Handler: Any {
     #[inline]
     fn handle_end(
         &mut self,
-        _slf: &Rc<ZwpPointerGesturePinchV1>,
+        slf: &Rc<ZwpPointerGesturePinchV1>,
         serial: u32,
         time: u32,
         cancelled: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_end(
+        let res = slf.try_send_end(
             serial,
             time,
             cancelled,

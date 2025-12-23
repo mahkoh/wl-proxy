@@ -304,14 +304,14 @@ pub trait ExtDataControlOfferV1Handler: Any {
     #[inline]
     fn handle_receive(
         &mut self,
-        _slf: &Rc<ExtDataControlOfferV1>,
+        slf: &Rc<ExtDataControlOfferV1>,
         mime_type: &str,
         fd: &Rc<OwnedFd>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_receive(
+        let res = slf.try_send_receive(
             mime_type,
             fd,
         );
@@ -326,12 +326,12 @@ pub trait ExtDataControlOfferV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtDataControlOfferV1>,
+        slf: &Rc<ExtDataControlOfferV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_data_control_offer_v1.destroy", &e);
@@ -349,13 +349,13 @@ pub trait ExtDataControlOfferV1Handler: Any {
     #[inline]
     fn handle_offer(
         &mut self,
-        _slf: &Rc<ExtDataControlOfferV1>,
+        slf: &Rc<ExtDataControlOfferV1>,
         mime_type: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_offer(
+        let res = slf.try_send_offer(
             mime_type,
         );
         if let Err(e) = res {

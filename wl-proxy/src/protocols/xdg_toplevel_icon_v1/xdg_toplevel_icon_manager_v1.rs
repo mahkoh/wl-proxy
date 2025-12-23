@@ -504,12 +504,12 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<XdgToplevelIconManagerV1>,
+        slf: &Rc<XdgToplevelIconManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("xdg_toplevel_icon_manager_v1.destroy", &e);
@@ -527,13 +527,13 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
     #[inline]
     fn handle_create_icon(
         &mut self,
-        _slf: &Rc<XdgToplevelIconManagerV1>,
+        slf: &Rc<XdgToplevelIconManagerV1>,
         id: &Rc<XdgToplevelIconV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_icon(
+        let res = slf.try_send_create_icon(
             id,
         );
         if let Err(e) = res {
@@ -574,14 +574,14 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
     #[inline]
     fn handle_set_icon(
         &mut self,
-        _slf: &Rc<XdgToplevelIconManagerV1>,
+        slf: &Rc<XdgToplevelIconManagerV1>,
         toplevel: &Rc<XdgToplevel>,
         icon: Option<&Rc<XdgToplevelIconV1>>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_icon(
+        let res = slf.try_send_set_icon(
             toplevel,
             icon,
         );
@@ -611,13 +611,13 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
     #[inline]
     fn handle_icon_size(
         &mut self,
-        _slf: &Rc<XdgToplevelIconManagerV1>,
+        slf: &Rc<XdgToplevelIconManagerV1>,
         size: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_icon_size(
+        let res = slf.try_send_icon_size(
             size,
         );
         if let Err(e) = res {
@@ -631,12 +631,12 @@ pub trait XdgToplevelIconManagerV1Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<XdgToplevelIconManagerV1>,
+        slf: &Rc<XdgToplevelIconManagerV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
         );
         if let Err(e) = res {
             log_forward("xdg_toplevel_icon_manager_v1.done", &e);

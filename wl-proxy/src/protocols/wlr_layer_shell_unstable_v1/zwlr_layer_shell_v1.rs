@@ -417,17 +417,17 @@ pub trait ZwlrLayerShellV1Handler: Any {
     #[inline]
     fn handle_get_layer_surface(
         &mut self,
-        _slf: &Rc<ZwlrLayerShellV1>,
+        slf: &Rc<ZwlrLayerShellV1>,
         id: &Rc<ZwlrLayerSurfaceV1>,
         surface: &Rc<WlSurface>,
         output: Option<&Rc<WlOutput>>,
         layer: ZwlrLayerShellV1Layer,
         namespace: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_layer_surface(
+        let res = slf.try_send_get_layer_surface(
             id,
             surface,
             output,
@@ -447,12 +447,12 @@ pub trait ZwlrLayerShellV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwlrLayerShellV1>,
+        slf: &Rc<ZwlrLayerShellV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwlr_layer_shell_v1.destroy", &e);

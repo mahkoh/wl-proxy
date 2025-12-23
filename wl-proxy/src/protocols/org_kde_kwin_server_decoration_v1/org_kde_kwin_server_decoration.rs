@@ -269,12 +269,12 @@ pub trait OrgKdeKwinServerDecorationHandler: Any {
     #[inline]
     fn handle_release(
         &mut self,
-        _slf: &Rc<OrgKdeKwinServerDecoration>,
+        slf: &Rc<OrgKdeKwinServerDecoration>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_release(
+        let res = slf.try_send_release(
         );
         if let Err(e) = res {
             log_forward("org_kde_kwin_server_decoration.release", &e);
@@ -289,13 +289,13 @@ pub trait OrgKdeKwinServerDecorationHandler: Any {
     #[inline]
     fn handle_request_mode(
         &mut self,
-        _slf: &Rc<OrgKdeKwinServerDecoration>,
+        slf: &Rc<OrgKdeKwinServerDecoration>,
         mode: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_request_mode(
+        let res = slf.try_send_request_mode(
             mode,
         );
         if let Err(e) = res {
@@ -325,13 +325,13 @@ pub trait OrgKdeKwinServerDecorationHandler: Any {
     #[inline]
     fn handle_mode(
         &mut self,
-        _slf: &Rc<OrgKdeKwinServerDecoration>,
+        slf: &Rc<OrgKdeKwinServerDecoration>,
         mode: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_mode(
+        let res = slf.try_send_mode(
             mode,
         );
         if let Err(e) = res {

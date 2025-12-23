@@ -278,13 +278,13 @@ pub trait ExtTransientSeatV1Handler: Any {
     #[inline]
     fn handle_ready(
         &mut self,
-        _slf: &Rc<ExtTransientSeatV1>,
+        slf: &Rc<ExtTransientSeatV1>,
         global_name: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_ready(
+        let res = slf.try_send_ready(
             global_name,
         );
         if let Err(e) = res {
@@ -304,12 +304,12 @@ pub trait ExtTransientSeatV1Handler: Any {
     #[inline]
     fn handle_denied(
         &mut self,
-        _slf: &Rc<ExtTransientSeatV1>,
+        slf: &Rc<ExtTransientSeatV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_denied(
+        let res = slf.try_send_denied(
         );
         if let Err(e) = res {
             log_forward("ext_transient_seat_v1.denied", &e);
@@ -323,12 +323,12 @@ pub trait ExtTransientSeatV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtTransientSeatV1>,
+        slf: &Rc<ExtTransientSeatV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_transient_seat_v1.destroy", &e);

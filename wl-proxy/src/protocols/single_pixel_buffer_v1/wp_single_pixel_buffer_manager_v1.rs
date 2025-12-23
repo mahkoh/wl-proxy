@@ -338,12 +338,12 @@ pub trait WpSinglePixelBufferManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpSinglePixelBufferManagerV1>,
+        slf: &Rc<WpSinglePixelBufferManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_single_pixel_buffer_manager_v1.destroy", &e);
@@ -376,17 +376,17 @@ pub trait WpSinglePixelBufferManagerV1Handler: Any {
     #[inline]
     fn handle_create_u32_rgba_buffer(
         &mut self,
-        _slf: &Rc<WpSinglePixelBufferManagerV1>,
+        slf: &Rc<WpSinglePixelBufferManagerV1>,
         id: &Rc<WlBuffer>,
         r: u32,
         g: u32,
         b: u32,
         a: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_u32_rgba_buffer(
+        let res = slf.try_send_create_u32_rgba_buffer(
             id,
             r,
             g,

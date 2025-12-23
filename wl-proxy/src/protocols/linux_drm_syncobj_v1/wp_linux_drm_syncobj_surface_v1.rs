@@ -464,12 +464,12 @@ pub trait WpLinuxDrmSyncobjSurfaceV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpLinuxDrmSyncobjSurfaceV1>,
+        slf: &Rc<WpLinuxDrmSyncobjSurfaceV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_linux_drm_syncobj_surface_v1.destroy", &e);
@@ -512,15 +512,15 @@ pub trait WpLinuxDrmSyncobjSurfaceV1Handler: Any {
     #[inline]
     fn handle_set_acquire_point(
         &mut self,
-        _slf: &Rc<WpLinuxDrmSyncobjSurfaceV1>,
+        slf: &Rc<WpLinuxDrmSyncobjSurfaceV1>,
         timeline: &Rc<WpLinuxDrmSyncobjTimelineV1>,
         point_hi: u32,
         point_lo: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_acquire_point(
+        let res = slf.try_send_set_acquire_point(
             timeline,
             point_hi,
             point_lo,
@@ -587,15 +587,15 @@ pub trait WpLinuxDrmSyncobjSurfaceV1Handler: Any {
     #[inline]
     fn handle_set_release_point(
         &mut self,
-        _slf: &Rc<WpLinuxDrmSyncobjSurfaceV1>,
+        slf: &Rc<WpLinuxDrmSyncobjSurfaceV1>,
         timeline: &Rc<WpLinuxDrmSyncobjTimelineV1>,
         point_hi: u32,
         point_lo: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_release_point(
+        let res = slf.try_send_set_release_point(
             timeline,
             point_hi,
             point_lo,

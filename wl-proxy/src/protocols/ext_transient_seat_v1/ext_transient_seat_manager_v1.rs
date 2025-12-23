@@ -251,13 +251,13 @@ pub trait ExtTransientSeatManagerV1Handler: Any {
     #[inline]
     fn handle_create(
         &mut self,
-        _slf: &Rc<ExtTransientSeatManagerV1>,
+        slf: &Rc<ExtTransientSeatManagerV1>,
         seat: &Rc<ExtTransientSeatV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create(
+        let res = slf.try_send_create(
             seat,
         );
         if let Err(e) = res {
@@ -274,12 +274,12 @@ pub trait ExtTransientSeatManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtTransientSeatManagerV1>,
+        slf: &Rc<ExtTransientSeatManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_transient_seat_manager_v1.destroy", &e);

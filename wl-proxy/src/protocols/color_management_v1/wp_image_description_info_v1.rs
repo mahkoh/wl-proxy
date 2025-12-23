@@ -1109,12 +1109,12 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<WpImageDescriptionInfoV1>,
+        slf: &Rc<WpImageDescriptionInfoV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
         );
         if let Err(e) = res {
             log_forward("wp_image_description_info_v1.done", &e);
@@ -1139,14 +1139,14 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
     #[inline]
     fn handle_icc_file(
         &mut self,
-        _slf: &Rc<WpImageDescriptionInfoV1>,
+        slf: &Rc<WpImageDescriptionInfoV1>,
         icc: &Rc<OwnedFd>,
         icc_size: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_icc_file(
+        let res = slf.try_send_icc_file(
             icc,
             icc_size,
         );
@@ -1176,7 +1176,7 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
     #[inline]
     fn handle_primaries(
         &mut self,
-        _slf: &Rc<WpImageDescriptionInfoV1>,
+        slf: &Rc<WpImageDescriptionInfoV1>,
         r_x: i32,
         r_y: i32,
         g_x: i32,
@@ -1186,10 +1186,10 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         w_x: i32,
         w_y: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_primaries(
+        let res = slf.try_send_primaries(
             r_x,
             r_y,
             g_x,
@@ -1215,13 +1215,13 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
     #[inline]
     fn handle_primaries_named(
         &mut self,
-        _slf: &Rc<WpImageDescriptionInfoV1>,
+        slf: &Rc<WpImageDescriptionInfoV1>,
         primaries: WpColorManagerV1Primaries,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_primaries_named(
+        let res = slf.try_send_primaries_named(
             primaries,
         );
         if let Err(e) = res {
@@ -1245,13 +1245,13 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
     #[inline]
     fn handle_tf_power(
         &mut self,
-        _slf: &Rc<WpImageDescriptionInfoV1>,
+        slf: &Rc<WpImageDescriptionInfoV1>,
         eexp: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_tf_power(
+        let res = slf.try_send_tf_power(
             eexp,
         );
         if let Err(e) = res {
@@ -1270,13 +1270,13 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
     #[inline]
     fn handle_tf_named(
         &mut self,
-        _slf: &Rc<WpImageDescriptionInfoV1>,
+        slf: &Rc<WpImageDescriptionInfoV1>,
         tf: WpColorManagerV1TransferFunction,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_tf_named(
+        let res = slf.try_send_tf_named(
             tf,
         );
         if let Err(e) = res {
@@ -1303,15 +1303,15 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
     #[inline]
     fn handle_luminances(
         &mut self,
-        _slf: &Rc<WpImageDescriptionInfoV1>,
+        slf: &Rc<WpImageDescriptionInfoV1>,
         min_lum: u32,
         max_lum: u32,
         reference_lum: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_luminances(
+        let res = slf.try_send_luminances(
             min_lum,
             max_lum,
             reference_lum,
@@ -1348,7 +1348,7 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
     #[inline]
     fn handle_target_primaries(
         &mut self,
-        _slf: &Rc<WpImageDescriptionInfoV1>,
+        slf: &Rc<WpImageDescriptionInfoV1>,
         r_x: i32,
         r_y: i32,
         g_x: i32,
@@ -1358,10 +1358,10 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
         w_x: i32,
         w_y: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_target_primaries(
+        let res = slf.try_send_target_primaries(
             r_x,
             r_y,
             g_x,
@@ -1398,14 +1398,14 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
     #[inline]
     fn handle_target_luminance(
         &mut self,
-        _slf: &Rc<WpImageDescriptionInfoV1>,
+        slf: &Rc<WpImageDescriptionInfoV1>,
         min_lum: u32,
         max_lum: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_target_luminance(
+        let res = slf.try_send_target_luminance(
             min_lum,
             max_lum,
         );
@@ -1428,13 +1428,13 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
     #[inline]
     fn handle_target_max_cll(
         &mut self,
-        _slf: &Rc<WpImageDescriptionInfoV1>,
+        slf: &Rc<WpImageDescriptionInfoV1>,
         max_cll: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_target_max_cll(
+        let res = slf.try_send_target_max_cll(
             max_cll,
         );
         if let Err(e) = res {
@@ -1456,13 +1456,13 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
     #[inline]
     fn handle_target_max_fall(
         &mut self,
-        _slf: &Rc<WpImageDescriptionInfoV1>,
+        slf: &Rc<WpImageDescriptionInfoV1>,
         max_fall: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_target_max_fall(
+        let res = slf.try_send_target_max_fall(
             max_fall,
         );
         if let Err(e) = res {

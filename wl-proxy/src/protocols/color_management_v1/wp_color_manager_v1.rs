@@ -1610,12 +1610,12 @@ pub trait WpColorManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpColorManagerV1>,
+        slf: &Rc<WpColorManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_color_manager_v1.destroy", &e);
@@ -1639,14 +1639,14 @@ pub trait WpColorManagerV1Handler: Any {
     #[inline]
     fn handle_get_output(
         &mut self,
-        _slf: &Rc<WpColorManagerV1>,
+        slf: &Rc<WpColorManagerV1>,
         id: &Rc<WpColorManagementOutputV1>,
         output: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_output(
+        let res = slf.try_send_get_output(
             id,
             output,
         );
@@ -1675,14 +1675,14 @@ pub trait WpColorManagerV1Handler: Any {
     #[inline]
     fn handle_get_surface(
         &mut self,
-        _slf: &Rc<WpColorManagerV1>,
+        slf: &Rc<WpColorManagerV1>,
         id: &Rc<WpColorManagementSurfaceV1>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_surface(
+        let res = slf.try_send_get_surface(
             id,
             surface,
         );
@@ -1709,14 +1709,14 @@ pub trait WpColorManagerV1Handler: Any {
     #[inline]
     fn handle_get_surface_feedback(
         &mut self,
-        _slf: &Rc<WpColorManagerV1>,
+        slf: &Rc<WpColorManagerV1>,
         id: &Rc<WpColorManagementSurfaceFeedbackV1>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_surface_feedback(
+        let res = slf.try_send_get_surface_feedback(
             id,
             surface,
         );
@@ -1742,13 +1742,13 @@ pub trait WpColorManagerV1Handler: Any {
     #[inline]
     fn handle_create_icc_creator(
         &mut self,
-        _slf: &Rc<WpColorManagerV1>,
+        slf: &Rc<WpColorManagerV1>,
         obj: &Rc<WpImageDescriptionCreatorIccV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_icc_creator(
+        let res = slf.try_send_create_icc_creator(
             obj,
         );
         if let Err(e) = res {
@@ -1773,13 +1773,13 @@ pub trait WpColorManagerV1Handler: Any {
     #[inline]
     fn handle_create_parametric_creator(
         &mut self,
-        _slf: &Rc<WpColorManagerV1>,
+        slf: &Rc<WpColorManagerV1>,
         obj: &Rc<WpImageDescriptionCreatorParamsV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_parametric_creator(
+        let res = slf.try_send_create_parametric_creator(
             obj,
         );
         if let Err(e) = res {
@@ -1840,13 +1840,13 @@ pub trait WpColorManagerV1Handler: Any {
     #[inline]
     fn handle_create_windows_scrgb(
         &mut self,
-        _slf: &Rc<WpColorManagerV1>,
+        slf: &Rc<WpColorManagerV1>,
         image_description: &Rc<WpImageDescriptionV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_windows_scrgb(
+        let res = slf.try_send_create_windows_scrgb(
             image_description,
         );
         if let Err(e) = res {
@@ -1868,13 +1868,13 @@ pub trait WpColorManagerV1Handler: Any {
     #[inline]
     fn handle_supported_intent(
         &mut self,
-        _slf: &Rc<WpColorManagerV1>,
+        slf: &Rc<WpColorManagerV1>,
         render_intent: WpColorManagerV1RenderIntent,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_supported_intent(
+        let res = slf.try_send_supported_intent(
             render_intent,
         );
         if let Err(e) = res {
@@ -1896,13 +1896,13 @@ pub trait WpColorManagerV1Handler: Any {
     #[inline]
     fn handle_supported_feature(
         &mut self,
-        _slf: &Rc<WpColorManagerV1>,
+        slf: &Rc<WpColorManagerV1>,
         feature: WpColorManagerV1Feature,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_supported_feature(
+        let res = slf.try_send_supported_feature(
             feature,
         );
         if let Err(e) = res {
@@ -1925,13 +1925,13 @@ pub trait WpColorManagerV1Handler: Any {
     #[inline]
     fn handle_supported_tf_named(
         &mut self,
-        _slf: &Rc<WpColorManagerV1>,
+        slf: &Rc<WpColorManagerV1>,
         tf: WpColorManagerV1TransferFunction,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_supported_tf_named(
+        let res = slf.try_send_supported_tf_named(
             tf,
         );
         if let Err(e) = res {
@@ -1954,13 +1954,13 @@ pub trait WpColorManagerV1Handler: Any {
     #[inline]
     fn handle_supported_primaries_named(
         &mut self,
-        _slf: &Rc<WpColorManagerV1>,
+        slf: &Rc<WpColorManagerV1>,
         primaries: WpColorManagerV1Primaries,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_supported_primaries_named(
+        let res = slf.try_send_supported_primaries_named(
             primaries,
         );
         if let Err(e) = res {
@@ -1975,12 +1975,12 @@ pub trait WpColorManagerV1Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<WpColorManagerV1>,
+        slf: &Rc<WpColorManagerV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
         );
         if let Err(e) = res {
             log_forward("wp_color_manager_v1.done", &e);
@@ -2004,14 +2004,14 @@ pub trait WpColorManagerV1Handler: Any {
     #[inline]
     fn handle_get_image_description(
         &mut self,
-        _slf: &Rc<WpColorManagerV1>,
+        slf: &Rc<WpColorManagerV1>,
         image_description: &Rc<WpImageDescriptionV1>,
         reference: &Rc<WpImageDescriptionReferenceV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_image_description(
+        let res = slf.try_send_get_image_description(
             image_description,
             reference,
         );

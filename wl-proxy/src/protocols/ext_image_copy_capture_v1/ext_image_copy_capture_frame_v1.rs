@@ -844,12 +844,12 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureFrameV1>,
+        slf: &Rc<ExtImageCopyCaptureFrameV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_image_copy_capture_frame_v1.destroy", &e);
@@ -876,13 +876,13 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     #[inline]
     fn handle_attach_buffer(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureFrameV1>,
+        slf: &Rc<ExtImageCopyCaptureFrameV1>,
         buffer: &Rc<WlBuffer>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_attach_buffer(
+        let res = slf.try_send_attach_buffer(
             buffer,
         );
         if let Err(e) = res {
@@ -923,16 +923,16 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     #[inline]
     fn handle_damage_buffer(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureFrameV1>,
+        slf: &Rc<ExtImageCopyCaptureFrameV1>,
         x: i32,
         y: i32,
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_damage_buffer(
+        let res = slf.try_send_damage_buffer(
             x,
             y,
             width,
@@ -957,12 +957,12 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     #[inline]
     fn handle_capture(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureFrameV1>,
+        slf: &Rc<ExtImageCopyCaptureFrameV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_capture(
+        let res = slf.try_send_capture(
         );
         if let Err(e) = res {
             log_forward("ext_image_copy_capture_frame_v1.capture", &e);
@@ -980,13 +980,13 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     #[inline]
     fn handle_transform(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureFrameV1>,
+        slf: &Rc<ExtImageCopyCaptureFrameV1>,
         transform: WlOutputTransform,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_transform(
+        let res = slf.try_send_transform(
             transform,
         );
         if let Err(e) = res {
@@ -1014,16 +1014,16 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     #[inline]
     fn handle_damage(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureFrameV1>,
+        slf: &Rc<ExtImageCopyCaptureFrameV1>,
         x: i32,
         y: i32,
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_damage(
+        let res = slf.try_send_damage(
             x,
             y,
             width,
@@ -1054,15 +1054,15 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     #[inline]
     fn handle_presentation_time(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureFrameV1>,
+        slf: &Rc<ExtImageCopyCaptureFrameV1>,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
         tv_nsec: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_presentation_time(
+        let res = slf.try_send_presentation_time(
             tv_sec_hi,
             tv_sec_lo,
             tv_nsec,
@@ -1083,12 +1083,12 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     #[inline]
     fn handle_ready(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureFrameV1>,
+        slf: &Rc<ExtImageCopyCaptureFrameV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_ready(
+        let res = slf.try_send_ready(
         );
         if let Err(e) = res {
             log_forward("ext_image_copy_capture_frame_v1.ready", &e);
@@ -1107,13 +1107,13 @@ pub trait ExtImageCopyCaptureFrameV1Handler: Any {
     #[inline]
     fn handle_failed(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureFrameV1>,
+        slf: &Rc<ExtImageCopyCaptureFrameV1>,
         reason: ExtImageCopyCaptureFrameV1FailureReason,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_failed(
+        let res = slf.try_send_failed(
             reason,
         );
         if let Err(e) = res {

@@ -555,12 +555,12 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtForeignToplevelHandleV1>,
+        slf: &Rc<ExtForeignToplevelHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_foreign_toplevel_handle_v1.destroy", &e);
@@ -578,12 +578,12 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_closed(
         &mut self,
-        _slf: &Rc<ExtForeignToplevelHandleV1>,
+        slf: &Rc<ExtForeignToplevelHandleV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_closed(
+        let res = slf.try_send_closed(
         );
         if let Err(e) = res {
             log_forward("ext_foreign_toplevel_handle_v1.closed", &e);
@@ -605,12 +605,12 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<ExtForeignToplevelHandleV1>,
+        slf: &Rc<ExtForeignToplevelHandleV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
         );
         if let Err(e) = res {
             log_forward("ext_foreign_toplevel_handle_v1.done", &e);
@@ -630,13 +630,13 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_title(
         &mut self,
-        _slf: &Rc<ExtForeignToplevelHandleV1>,
+        slf: &Rc<ExtForeignToplevelHandleV1>,
         title: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_title(
+        let res = slf.try_send_title(
             title,
         );
         if let Err(e) = res {
@@ -657,13 +657,13 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_app_id(
         &mut self,
-        _slf: &Rc<ExtForeignToplevelHandleV1>,
+        slf: &Rc<ExtForeignToplevelHandleV1>,
         app_id: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_app_id(
+        let res = slf.try_send_app_id(
             app_id,
         );
         if let Err(e) = res {
@@ -700,13 +700,13 @@ pub trait ExtForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_identifier(
         &mut self,
-        _slf: &Rc<ExtForeignToplevelHandleV1>,
+        slf: &Rc<ExtForeignToplevelHandleV1>,
         identifier: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_identifier(
+        let res = slf.try_send_identifier(
             identifier,
         );
         if let Err(e) = res {

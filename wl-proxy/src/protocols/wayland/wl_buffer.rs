@@ -222,12 +222,12 @@ pub trait WlBufferHandler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WlBuffer>,
+        slf: &Rc<WlBuffer>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wl_buffer.destroy", &e);
@@ -253,12 +253,12 @@ pub trait WlBufferHandler: Any {
     #[inline]
     fn handle_release(
         &mut self,
-        _slf: &Rc<WlBuffer>,
+        slf: &Rc<WlBuffer>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_release(
+        let res = slf.try_send_release(
         );
         if let Err(e) = res {
             log_forward("wl_buffer.release", &e);

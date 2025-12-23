@@ -1622,16 +1622,16 @@ pub trait WlPointerHandler: Any {
     #[inline]
     fn handle_set_cursor(
         &mut self,
-        _slf: &Rc<WlPointer>,
+        slf: &Rc<WlPointer>,
         serial: u32,
         surface: Option<&Rc<WlSurface>>,
         hotspot_x: i32,
         hotspot_y: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_cursor(
+        let res = slf.try_send_set_cursor(
             serial,
             surface,
             hotspot_x,
@@ -1663,23 +1663,23 @@ pub trait WlPointerHandler: Any {
     #[inline]
     fn handle_enter(
         &mut self,
-        _slf: &Rc<WlPointer>,
+        slf: &Rc<WlPointer>,
         serial: u32,
         surface: &Rc<WlSurface>,
         surface_x: Fixed,
         surface_y: Fixed,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_enter(
+        let res = slf.try_send_enter(
             serial,
             surface,
             surface_x,
@@ -1708,21 +1708,21 @@ pub trait WlPointerHandler: Any {
     #[inline]
     fn handle_leave(
         &mut self,
-        _slf: &Rc<WlPointer>,
+        slf: &Rc<WlPointer>,
         serial: u32,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_leave(
+        let res = slf.try_send_leave(
             serial,
             surface,
         );
@@ -1745,15 +1745,15 @@ pub trait WlPointerHandler: Any {
     #[inline]
     fn handle_motion(
         &mut self,
-        _slf: &Rc<WlPointer>,
+        slf: &Rc<WlPointer>,
         time: u32,
         surface_x: Fixed,
         surface_y: Fixed,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_motion(
+        let res = slf.try_send_motion(
             time,
             surface_x,
             surface_y,
@@ -1789,16 +1789,16 @@ pub trait WlPointerHandler: Any {
     #[inline]
     fn handle_button(
         &mut self,
-        _slf: &Rc<WlPointer>,
+        slf: &Rc<WlPointer>,
         serial: u32,
         time: u32,
         button: u32,
         state: WlPointerButtonState,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_button(
+        let res = slf.try_send_button(
             serial,
             time,
             button,
@@ -1836,15 +1836,15 @@ pub trait WlPointerHandler: Any {
     #[inline]
     fn handle_axis(
         &mut self,
-        _slf: &Rc<WlPointer>,
+        slf: &Rc<WlPointer>,
         time: u32,
         axis: WlPointerAxis,
         value: Fixed,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_axis(
+        let res = slf.try_send_axis(
             time,
             axis,
             value,
@@ -1864,12 +1864,12 @@ pub trait WlPointerHandler: Any {
     #[inline]
     fn handle_release(
         &mut self,
-        _slf: &Rc<WlPointer>,
+        slf: &Rc<WlPointer>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_release(
+        let res = slf.try_send_release(
         );
         if let Err(e) = res {
             log_forward("wl_pointer.release", &e);
@@ -1915,12 +1915,12 @@ pub trait WlPointerHandler: Any {
     #[inline]
     fn handle_frame(
         &mut self,
-        _slf: &Rc<WlPointer>,
+        slf: &Rc<WlPointer>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_frame(
+        let res = slf.try_send_frame(
         );
         if let Err(e) = res {
             log_forward("wl_pointer.frame", &e);
@@ -1961,13 +1961,13 @@ pub trait WlPointerHandler: Any {
     #[inline]
     fn handle_axis_source(
         &mut self,
-        _slf: &Rc<WlPointer>,
+        slf: &Rc<WlPointer>,
         axis_source: WlPointerAxisSource,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_axis_source(
+        let res = slf.try_send_axis_source(
             axis_source,
         );
         if let Err(e) = res {
@@ -1999,14 +1999,14 @@ pub trait WlPointerHandler: Any {
     #[inline]
     fn handle_axis_stop(
         &mut self,
-        _slf: &Rc<WlPointer>,
+        slf: &Rc<WlPointer>,
         time: u32,
         axis: WlPointerAxis,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_axis_stop(
+        let res = slf.try_send_axis_stop(
             time,
             axis,
         );
@@ -2055,14 +2055,14 @@ pub trait WlPointerHandler: Any {
     #[inline]
     fn handle_axis_discrete(
         &mut self,
-        _slf: &Rc<WlPointer>,
+        slf: &Rc<WlPointer>,
         axis: WlPointerAxis,
         discrete: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_axis_discrete(
+        let res = slf.try_send_axis_discrete(
             axis,
             discrete,
         );
@@ -2102,14 +2102,14 @@ pub trait WlPointerHandler: Any {
     #[inline]
     fn handle_axis_value120(
         &mut self,
-        _slf: &Rc<WlPointer>,
+        slf: &Rc<WlPointer>,
         axis: WlPointerAxis,
         value120: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_axis_value120(
+        let res = slf.try_send_axis_value120(
             axis,
             value120,
         );
@@ -2163,14 +2163,14 @@ pub trait WlPointerHandler: Any {
     #[inline]
     fn handle_axis_relative_direction(
         &mut self,
-        _slf: &Rc<WlPointer>,
+        slf: &Rc<WlPointer>,
         axis: WlPointerAxis,
         direction: WlPointerAxisRelativeDirection,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_axis_relative_direction(
+        let res = slf.try_send_axis_relative_direction(
             axis,
             direction,
         );

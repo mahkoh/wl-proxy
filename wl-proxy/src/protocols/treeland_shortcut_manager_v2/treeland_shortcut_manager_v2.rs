@@ -964,12 +964,12 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<TreelandShortcutManagerV2>,
+        slf: &Rc<TreelandShortcutManagerV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("treeland_shortcut_manager_v2.destroy", &e);
@@ -988,12 +988,12 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     #[inline]
     fn handle_acquire(
         &mut self,
-        _slf: &Rc<TreelandShortcutManagerV2>,
+        slf: &Rc<TreelandShortcutManagerV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_acquire(
+        let res = slf.try_send_acquire(
         );
         if let Err(e) = res {
             log_forward("treeland_shortcut_manager_v2.acquire", &e);
@@ -1036,16 +1036,16 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     #[inline]
     fn handle_bind_key(
         &mut self,
-        _slf: &Rc<TreelandShortcutManagerV2>,
+        slf: &Rc<TreelandShortcutManagerV2>,
         name: &str,
         key: &str,
         mode: TreelandShortcutManagerV2KeybindMode,
         action: TreelandShortcutManagerV2Action,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_bind_key(
+        let res = slf.try_send_bind_key(
             name,
             key,
             mode,
@@ -1085,16 +1085,16 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     #[inline]
     fn handle_bind_swipe_gesture(
         &mut self,
-        _slf: &Rc<TreelandShortcutManagerV2>,
+        slf: &Rc<TreelandShortcutManagerV2>,
         name: &str,
         finger: u32,
         direction: TreelandShortcutManagerV2Direction,
         action: TreelandShortcutManagerV2Action,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_bind_swipe_gesture(
+        let res = slf.try_send_bind_swipe_gesture(
             name,
             finger,
             direction,
@@ -1130,15 +1130,15 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     #[inline]
     fn handle_bind_hold_gesture(
         &mut self,
-        _slf: &Rc<TreelandShortcutManagerV2>,
+        slf: &Rc<TreelandShortcutManagerV2>,
         name: &str,
         finger: u32,
         action: TreelandShortcutManagerV2Action,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_bind_hold_gesture(
+        let res = slf.try_send_bind_hold_gesture(
             name,
             finger,
             action,
@@ -1169,12 +1169,12 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     #[inline]
     fn handle_commit(
         &mut self,
-        _slf: &Rc<TreelandShortcutManagerV2>,
+        slf: &Rc<TreelandShortcutManagerV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_commit(
+        let res = slf.try_send_commit(
         );
         if let Err(e) = res {
             log_forward("treeland_shortcut_manager_v2.commit", &e);
@@ -1194,13 +1194,13 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     #[inline]
     fn handle_unbind(
         &mut self,
-        _slf: &Rc<TreelandShortcutManagerV2>,
+        slf: &Rc<TreelandShortcutManagerV2>,
         name: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_unbind(
+        let res = slf.try_send_unbind(
             name,
         );
         if let Err(e) = res {
@@ -1221,14 +1221,14 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     #[inline]
     fn handle_activated(
         &mut self,
-        _slf: &Rc<TreelandShortcutManagerV2>,
+        slf: &Rc<TreelandShortcutManagerV2>,
         name: &str,
         repeat: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_activated(
+        let res = slf.try_send_activated(
             name,
             repeat,
         );
@@ -1244,12 +1244,12 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     #[inline]
     fn handle_commit_success(
         &mut self,
-        _slf: &Rc<TreelandShortcutManagerV2>,
+        slf: &Rc<TreelandShortcutManagerV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_commit_success(
+        let res = slf.try_send_commit_success(
         );
         if let Err(e) = res {
             log_forward("treeland_shortcut_manager_v2.commit_success", &e);
@@ -1270,14 +1270,14 @@ pub trait TreelandShortcutManagerV2Handler: Any {
     #[inline]
     fn handle_commit_failure(
         &mut self,
-        _slf: &Rc<TreelandShortcutManagerV2>,
+        slf: &Rc<TreelandShortcutManagerV2>,
         name: &str,
         error: TreelandShortcutManagerV2BindError,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_commit_failure(
+        let res = slf.try_send_commit_failure(
             name,
             error,
         );

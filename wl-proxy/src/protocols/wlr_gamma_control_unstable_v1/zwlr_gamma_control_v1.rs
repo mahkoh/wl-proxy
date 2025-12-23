@@ -360,13 +360,13 @@ pub trait ZwlrGammaControlV1Handler: Any {
     #[inline]
     fn handle_gamma_size(
         &mut self,
-        _slf: &Rc<ZwlrGammaControlV1>,
+        slf: &Rc<ZwlrGammaControlV1>,
         size: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_gamma_size(
+        let res = slf.try_send_gamma_size(
             size,
         );
         if let Err(e) = res {
@@ -390,13 +390,13 @@ pub trait ZwlrGammaControlV1Handler: Any {
     #[inline]
     fn handle_set_gamma(
         &mut self,
-        _slf: &Rc<ZwlrGammaControlV1>,
+        slf: &Rc<ZwlrGammaControlV1>,
         fd: &Rc<OwnedFd>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_gamma(
+        let res = slf.try_send_set_gamma(
             fd,
         );
         if let Err(e) = res {
@@ -417,12 +417,12 @@ pub trait ZwlrGammaControlV1Handler: Any {
     #[inline]
     fn handle_failed(
         &mut self,
-        _slf: &Rc<ZwlrGammaControlV1>,
+        slf: &Rc<ZwlrGammaControlV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_failed(
+        let res = slf.try_send_failed(
         );
         if let Err(e) = res {
             log_forward("zwlr_gamma_control_v1.failed", &e);
@@ -436,12 +436,12 @@ pub trait ZwlrGammaControlV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwlrGammaControlV1>,
+        slf: &Rc<ZwlrGammaControlV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwlr_gamma_control_v1.destroy", &e);

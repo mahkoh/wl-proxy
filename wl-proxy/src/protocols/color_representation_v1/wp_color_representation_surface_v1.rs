@@ -463,12 +463,12 @@ pub trait WpColorRepresentationSurfaceV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpColorRepresentationSurfaceV1>,
+        slf: &Rc<WpColorRepresentationSurfaceV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_color_representation_surface_v1.destroy", &e);
@@ -495,13 +495,13 @@ pub trait WpColorRepresentationSurfaceV1Handler: Any {
     #[inline]
     fn handle_set_alpha_mode(
         &mut self,
-        _slf: &Rc<WpColorRepresentationSurfaceV1>,
+        slf: &Rc<WpColorRepresentationSurfaceV1>,
         alpha_mode: WpColorRepresentationSurfaceV1AlphaMode,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_alpha_mode(
+        let res = slf.try_send_set_alpha_mode(
             alpha_mode,
         );
         if let Err(e) = res {
@@ -545,14 +545,14 @@ pub trait WpColorRepresentationSurfaceV1Handler: Any {
     #[inline]
     fn handle_set_coefficients_and_range(
         &mut self,
-        _slf: &Rc<WpColorRepresentationSurfaceV1>,
+        slf: &Rc<WpColorRepresentationSurfaceV1>,
         coefficients: WpColorRepresentationSurfaceV1Coefficients,
         range: WpColorRepresentationSurfaceV1Range,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_coefficients_and_range(
+        let res = slf.try_send_set_coefficients_and_range(
             coefficients,
             range,
         );
@@ -587,13 +587,13 @@ pub trait WpColorRepresentationSurfaceV1Handler: Any {
     #[inline]
     fn handle_set_chroma_location(
         &mut self,
-        _slf: &Rc<WpColorRepresentationSurfaceV1>,
+        slf: &Rc<WpColorRepresentationSurfaceV1>,
         chroma_location: WpColorRepresentationSurfaceV1ChromaLocation,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_chroma_location(
+        let res = slf.try_send_set_chroma_location(
             chroma_location,
         );
         if let Err(e) = res {

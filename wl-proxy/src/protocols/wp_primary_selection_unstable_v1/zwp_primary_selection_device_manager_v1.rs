@@ -355,13 +355,13 @@ pub trait ZwpPrimarySelectionDeviceManagerV1Handler: Any {
     #[inline]
     fn handle_create_source(
         &mut self,
-        _slf: &Rc<ZwpPrimarySelectionDeviceManagerV1>,
+        slf: &Rc<ZwpPrimarySelectionDeviceManagerV1>,
         id: &Rc<ZwpPrimarySelectionSourceV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_source(
+        let res = slf.try_send_create_source(
             id,
         );
         if let Err(e) = res {
@@ -383,14 +383,14 @@ pub trait ZwpPrimarySelectionDeviceManagerV1Handler: Any {
     #[inline]
     fn handle_get_device(
         &mut self,
-        _slf: &Rc<ZwpPrimarySelectionDeviceManagerV1>,
+        slf: &Rc<ZwpPrimarySelectionDeviceManagerV1>,
         id: &Rc<ZwpPrimarySelectionDeviceV1>,
         seat: &Rc<WlSeat>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_device(
+        let res = slf.try_send_get_device(
             id,
             seat,
         );
@@ -405,12 +405,12 @@ pub trait ZwpPrimarySelectionDeviceManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpPrimarySelectionDeviceManagerV1>,
+        slf: &Rc<ZwpPrimarySelectionDeviceManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_primary_selection_device_manager_v1.destroy", &e);

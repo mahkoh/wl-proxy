@@ -1,5 +1,6 @@
+#![expect(clippy::single_char_add_str)]
+
 mod ast;
-// mod builder;
 mod collector;
 mod formatter;
 pub mod generate;

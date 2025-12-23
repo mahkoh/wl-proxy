@@ -1552,12 +1552,12 @@ pub trait ZwpInputMethodV2Handler: Any {
     #[inline]
     fn handle_activate(
         &mut self,
-        _slf: &Rc<ZwpInputMethodV2>,
+        slf: &Rc<ZwpInputMethodV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_activate(
+        let res = slf.try_send_activate(
         );
         if let Err(e) = res {
             log_forward("zwp_input_method_v2.activate", &e);
@@ -1578,12 +1578,12 @@ pub trait ZwpInputMethodV2Handler: Any {
     #[inline]
     fn handle_deactivate(
         &mut self,
-        _slf: &Rc<ZwpInputMethodV2>,
+        slf: &Rc<ZwpInputMethodV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_deactivate(
+        let res = slf.try_send_deactivate(
         );
         if let Err(e) = res {
             log_forward("zwp_input_method_v2.deactivate", &e);
@@ -1630,15 +1630,15 @@ pub trait ZwpInputMethodV2Handler: Any {
     #[inline]
     fn handle_surrounding_text(
         &mut self,
-        _slf: &Rc<ZwpInputMethodV2>,
+        slf: &Rc<ZwpInputMethodV2>,
         text: &str,
         cursor: u32,
         anchor: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_surrounding_text(
+        let res = slf.try_send_surrounding_text(
             text,
             cursor,
             anchor,
@@ -1672,13 +1672,13 @@ pub trait ZwpInputMethodV2Handler: Any {
     #[inline]
     fn handle_text_change_cause(
         &mut self,
-        _slf: &Rc<ZwpInputMethodV2>,
+        slf: &Rc<ZwpInputMethodV2>,
         cause: ZwpTextInputV3ChangeCause,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_text_change_cause(
+        let res = slf.try_send_text_change_cause(
             cause,
         );
         if let Err(e) = res {
@@ -1704,14 +1704,14 @@ pub trait ZwpInputMethodV2Handler: Any {
     #[inline]
     fn handle_content_type(
         &mut self,
-        _slf: &Rc<ZwpInputMethodV2>,
+        slf: &Rc<ZwpInputMethodV2>,
         hint: ZwpTextInputV3ContentHint,
         purpose: ZwpTextInputV3ContentPurpose,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_content_type(
+        let res = slf.try_send_content_type(
             hint,
             purpose,
         );
@@ -1742,12 +1742,12 @@ pub trait ZwpInputMethodV2Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<ZwpInputMethodV2>,
+        slf: &Rc<ZwpInputMethodV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
         );
         if let Err(e) = res {
             log_forward("zwp_input_method_v2.done", &e);
@@ -1777,13 +1777,13 @@ pub trait ZwpInputMethodV2Handler: Any {
     #[inline]
     fn handle_commit_string(
         &mut self,
-        _slf: &Rc<ZwpInputMethodV2>,
+        slf: &Rc<ZwpInputMethodV2>,
         text: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_commit_string(
+        let res = slf.try_send_commit_string(
             text,
         );
         if let Err(e) = res {
@@ -1826,15 +1826,15 @@ pub trait ZwpInputMethodV2Handler: Any {
     #[inline]
     fn handle_set_preedit_string(
         &mut self,
-        _slf: &Rc<ZwpInputMethodV2>,
+        slf: &Rc<ZwpInputMethodV2>,
         text: &str,
         cursor_begin: i32,
         cursor_end: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_preedit_string(
+        let res = slf.try_send_set_preedit_string(
             text,
             cursor_begin,
             cursor_end,
@@ -1868,14 +1868,14 @@ pub trait ZwpInputMethodV2Handler: Any {
     #[inline]
     fn handle_delete_surrounding_text(
         &mut self,
-        _slf: &Rc<ZwpInputMethodV2>,
+        slf: &Rc<ZwpInputMethodV2>,
         before_length: u32,
         after_length: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_delete_surrounding_text(
+        let res = slf.try_send_delete_surrounding_text(
             before_length,
             after_length,
         );
@@ -1916,13 +1916,13 @@ pub trait ZwpInputMethodV2Handler: Any {
     #[inline]
     fn handle_commit(
         &mut self,
-        _slf: &Rc<ZwpInputMethodV2>,
+        slf: &Rc<ZwpInputMethodV2>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_commit(
+        let res = slf.try_send_commit(
             serial,
         );
         if let Err(e) = res {
@@ -1949,14 +1949,14 @@ pub trait ZwpInputMethodV2Handler: Any {
     #[inline]
     fn handle_get_input_popup_surface(
         &mut self,
-        _slf: &Rc<ZwpInputMethodV2>,
+        slf: &Rc<ZwpInputMethodV2>,
         id: &Rc<ZwpInputPopupSurfaceV2>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_input_popup_surface(
+        let res = slf.try_send_get_input_popup_surface(
             id,
             surface,
         );
@@ -1986,13 +1986,13 @@ pub trait ZwpInputMethodV2Handler: Any {
     #[inline]
     fn handle_grab_keyboard(
         &mut self,
-        _slf: &Rc<ZwpInputMethodV2>,
+        slf: &Rc<ZwpInputMethodV2>,
         keyboard: &Rc<ZwpInputMethodKeyboardGrabV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_grab_keyboard(
+        let res = slf.try_send_grab_keyboard(
             keyboard,
         );
         if let Err(e) = res {
@@ -2017,12 +2017,12 @@ pub trait ZwpInputMethodV2Handler: Any {
     #[inline]
     fn handle_unavailable(
         &mut self,
-        _slf: &Rc<ZwpInputMethodV2>,
+        slf: &Rc<ZwpInputMethodV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_unavailable(
+        let res = slf.try_send_unavailable(
         );
         if let Err(e) = res {
             log_forward("zwp_input_method_v2.unavailable", &e);
@@ -2037,12 +2037,12 @@ pub trait ZwpInputMethodV2Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpInputMethodV2>,
+        slf: &Rc<ZwpInputMethodV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_input_method_v2.destroy", &e);

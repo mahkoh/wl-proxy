@@ -887,12 +887,12 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpTabletPadGroupV2>,
+        slf: &Rc<ZwpTabletPadGroupV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_pad_group_v2.destroy", &e);
@@ -920,13 +920,13 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
     #[inline]
     fn handle_buttons(
         &mut self,
-        _slf: &Rc<ZwpTabletPadGroupV2>,
+        slf: &Rc<ZwpTabletPadGroupV2>,
         buttons: &[u8],
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_buttons(
+        let res = slf.try_send_buttons(
             buttons,
         );
         if let Err(e) = res {
@@ -948,13 +948,13 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
     #[inline]
     fn handle_ring(
         &mut self,
-        _slf: &Rc<ZwpTabletPadGroupV2>,
+        slf: &Rc<ZwpTabletPadGroupV2>,
         ring: &Rc<ZwpTabletPadRingV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_ring(
+        let res = slf.try_send_ring(
             ring,
         );
         if let Err(e) = res {
@@ -976,13 +976,13 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
     #[inline]
     fn handle_strip(
         &mut self,
-        _slf: &Rc<ZwpTabletPadGroupV2>,
+        slf: &Rc<ZwpTabletPadGroupV2>,
         strip: &Rc<ZwpTabletPadStripV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_strip(
+        let res = slf.try_send_strip(
             strip,
         );
         if let Err(e) = res {
@@ -1011,13 +1011,13 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
     #[inline]
     fn handle_modes(
         &mut self,
-        _slf: &Rc<ZwpTabletPadGroupV2>,
+        slf: &Rc<ZwpTabletPadGroupV2>,
         modes: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_modes(
+        let res = slf.try_send_modes(
             modes,
         );
         if let Err(e) = res {
@@ -1034,12 +1034,12 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<ZwpTabletPadGroupV2>,
+        slf: &Rc<ZwpTabletPadGroupV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_pad_group_v2.done", &e);
@@ -1084,15 +1084,15 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
     #[inline]
     fn handle_mode_switch(
         &mut self,
-        _slf: &Rc<ZwpTabletPadGroupV2>,
+        slf: &Rc<ZwpTabletPadGroupV2>,
         time: u32,
         serial: u32,
         mode: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_mode_switch(
+        let res = slf.try_send_mode_switch(
             time,
             serial,
             mode,
@@ -1116,13 +1116,13 @@ pub trait ZwpTabletPadGroupV2Handler: Any {
     #[inline]
     fn handle_dial(
         &mut self,
-        _slf: &Rc<ZwpTabletPadGroupV2>,
+        slf: &Rc<ZwpTabletPadGroupV2>,
         dial: &Rc<ZwpTabletPadDialV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_dial(
+        let res = slf.try_send_dial(
             dial,
         );
         if let Err(e) = res {

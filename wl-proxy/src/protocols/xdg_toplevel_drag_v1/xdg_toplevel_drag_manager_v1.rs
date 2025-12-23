@@ -320,12 +320,12 @@ pub trait XdgToplevelDragManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<XdgToplevelDragManagerV1>,
+        slf: &Rc<XdgToplevelDragManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("xdg_toplevel_drag_manager_v1.destroy", &e);
@@ -355,14 +355,14 @@ pub trait XdgToplevelDragManagerV1Handler: Any {
     #[inline]
     fn handle_get_xdg_toplevel_drag(
         &mut self,
-        _slf: &Rc<XdgToplevelDragManagerV1>,
+        slf: &Rc<XdgToplevelDragManagerV1>,
         id: &Rc<XdgToplevelDragV1>,
         data_source: &Rc<WlDataSource>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_xdg_toplevel_drag(
+        let res = slf.try_send_get_xdg_toplevel_drag(
             id,
             data_source,
         );

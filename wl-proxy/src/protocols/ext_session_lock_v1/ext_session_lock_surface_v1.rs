@@ -369,12 +369,12 @@ pub trait ExtSessionLockSurfaceV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtSessionLockSurfaceV1>,
+        slf: &Rc<ExtSessionLockSurfaceV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_session_lock_surface_v1.destroy", &e);
@@ -414,13 +414,13 @@ pub trait ExtSessionLockSurfaceV1Handler: Any {
     #[inline]
     fn handle_ack_configure(
         &mut self,
-        _slf: &Rc<ExtSessionLockSurfaceV1>,
+        slf: &Rc<ExtSessionLockSurfaceV1>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_ack_configure(
+        let res = slf.try_send_ack_configure(
             serial,
         );
         if let Err(e) = res {
@@ -445,15 +445,15 @@ pub trait ExtSessionLockSurfaceV1Handler: Any {
     #[inline]
     fn handle_configure(
         &mut self,
-        _slf: &Rc<ExtSessionLockSurfaceV1>,
+        slf: &Rc<ExtSessionLockSurfaceV1>,
         serial: u32,
         width: u32,
         height: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_configure(
+        let res = slf.try_send_configure(
             serial,
             width,
             height,

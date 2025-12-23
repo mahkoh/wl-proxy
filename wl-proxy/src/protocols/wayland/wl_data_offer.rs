@@ -858,14 +858,14 @@ pub trait WlDataOfferHandler: Any {
     #[inline]
     fn handle_accept(
         &mut self,
-        _slf: &Rc<WlDataOffer>,
+        slf: &Rc<WlDataOffer>,
         serial: u32,
         mime_type: Option<&str>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_accept(
+        let res = slf.try_send_accept(
             serial,
             mime_type,
         );
@@ -899,14 +899,14 @@ pub trait WlDataOfferHandler: Any {
     #[inline]
     fn handle_receive(
         &mut self,
-        _slf: &Rc<WlDataOffer>,
+        slf: &Rc<WlDataOffer>,
         mime_type: &str,
         fd: &Rc<OwnedFd>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_receive(
+        let res = slf.try_send_receive(
             mime_type,
             fd,
         );
@@ -921,12 +921,12 @@ pub trait WlDataOfferHandler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WlDataOffer>,
+        slf: &Rc<WlDataOffer>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wl_data_offer.destroy", &e);
@@ -944,13 +944,13 @@ pub trait WlDataOfferHandler: Any {
     #[inline]
     fn handle_offer(
         &mut self,
-        _slf: &Rc<WlDataOffer>,
+        slf: &Rc<WlDataOffer>,
         mime_type: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_offer(
+        let res = slf.try_send_offer(
             mime_type,
         );
         if let Err(e) = res {
@@ -977,12 +977,12 @@ pub trait WlDataOfferHandler: Any {
     #[inline]
     fn handle_finish(
         &mut self,
-        _slf: &Rc<WlDataOffer>,
+        slf: &Rc<WlDataOffer>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_finish(
+        let res = slf.try_send_finish(
         );
         if let Err(e) = res {
             log_forward("wl_data_offer.finish", &e);
@@ -1030,14 +1030,14 @@ pub trait WlDataOfferHandler: Any {
     #[inline]
     fn handle_set_actions(
         &mut self,
-        _slf: &Rc<WlDataOffer>,
+        slf: &Rc<WlDataOffer>,
         dnd_actions: WlDataDeviceManagerDndAction,
         preferred_action: WlDataDeviceManagerDndAction,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_actions(
+        let res = slf.try_send_set_actions(
             dnd_actions,
             preferred_action,
         );
@@ -1059,13 +1059,13 @@ pub trait WlDataOfferHandler: Any {
     #[inline]
     fn handle_source_actions(
         &mut self,
-        _slf: &Rc<WlDataOffer>,
+        slf: &Rc<WlDataOffer>,
         source_actions: WlDataDeviceManagerDndAction,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_source_actions(
+        let res = slf.try_send_source_actions(
             source_actions,
         );
         if let Err(e) = res {
@@ -1117,13 +1117,13 @@ pub trait WlDataOfferHandler: Any {
     #[inline]
     fn handle_action(
         &mut self,
-        _slf: &Rc<WlDataOffer>,
+        slf: &Rc<WlDataOffer>,
         dnd_action: WlDataDeviceManagerDndAction,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_action(
+        let res = slf.try_send_action(
             dnd_action,
         );
         if let Err(e) = res {

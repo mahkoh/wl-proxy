@@ -373,13 +373,13 @@ pub trait TreelandOutputManagerV1Handler: Any {
     #[inline]
     fn handle_set_primary_output(
         &mut self,
-        _slf: &Rc<TreelandOutputManagerV1>,
+        slf: &Rc<TreelandOutputManagerV1>,
         output: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_primary_output(
+        let res = slf.try_send_set_primary_output(
             output,
         );
         if let Err(e) = res {
@@ -397,13 +397,13 @@ pub trait TreelandOutputManagerV1Handler: Any {
     #[inline]
     fn handle_primary_output(
         &mut self,
-        _slf: &Rc<TreelandOutputManagerV1>,
+        slf: &Rc<TreelandOutputManagerV1>,
         output_name: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_primary_output(
+        let res = slf.try_send_primary_output(
             output_name,
         );
         if let Err(e) = res {
@@ -423,14 +423,14 @@ pub trait TreelandOutputManagerV1Handler: Any {
     #[inline]
     fn handle_get_color_control(
         &mut self,
-        _slf: &Rc<TreelandOutputManagerV1>,
+        slf: &Rc<TreelandOutputManagerV1>,
         id: &Rc<TreelandOutputColorControlV1>,
         output: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_color_control(
+        let res = slf.try_send_get_color_control(
             id,
             output,
         );
@@ -443,12 +443,12 @@ pub trait TreelandOutputManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<TreelandOutputManagerV1>,
+        slf: &Rc<TreelandOutputManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("treeland_output_manager_v1.destroy", &e);

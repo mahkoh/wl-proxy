@@ -264,12 +264,12 @@ pub trait WpFractionalScaleManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpFractionalScaleManagerV1>,
+        slf: &Rc<WpFractionalScaleManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_fractional_scale_manager_v1.destroy", &e);
@@ -293,14 +293,14 @@ pub trait WpFractionalScaleManagerV1Handler: Any {
     #[inline]
     fn handle_get_fractional_scale(
         &mut self,
-        _slf: &Rc<WpFractionalScaleManagerV1>,
+        slf: &Rc<WpFractionalScaleManagerV1>,
         id: &Rc<WpFractionalScaleV1>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_fractional_scale(
+        let res = slf.try_send_get_fractional_scale(
             id,
             surface,
         );

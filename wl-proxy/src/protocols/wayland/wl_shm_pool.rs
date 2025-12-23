@@ -457,7 +457,7 @@ pub trait WlShmPoolHandler: Any {
     #[inline]
     fn handle_create_buffer(
         &mut self,
-        _slf: &Rc<WlShmPool>,
+        slf: &Rc<WlShmPool>,
         id: &Rc<WlBuffer>,
         offset: i32,
         width: i32,
@@ -465,10 +465,10 @@ pub trait WlShmPoolHandler: Any {
         stride: i32,
         format: WlShmFormat,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_buffer(
+        let res = slf.try_send_create_buffer(
             id,
             offset,
             width,
@@ -491,12 +491,12 @@ pub trait WlShmPoolHandler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WlShmPool>,
+        slf: &Rc<WlShmPool>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wl_shm_pool.destroy", &e);
@@ -522,13 +522,13 @@ pub trait WlShmPoolHandler: Any {
     #[inline]
     fn handle_resize(
         &mut self,
-        _slf: &Rc<WlShmPool>,
+        slf: &Rc<WlShmPool>,
         size: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_resize(
+        let res = slf.try_send_resize(
             size,
         );
         if let Err(e) = res {

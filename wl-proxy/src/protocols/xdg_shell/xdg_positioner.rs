@@ -907,12 +907,12 @@ pub trait XdgPositionerHandler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<XdgPositioner>,
+        slf: &Rc<XdgPositioner>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("xdg_positioner.destroy", &e);
@@ -934,14 +934,14 @@ pub trait XdgPositionerHandler: Any {
     #[inline]
     fn handle_set_size(
         &mut self,
-        _slf: &Rc<XdgPositioner>,
+        slf: &Rc<XdgPositioner>,
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_size(
+        let res = slf.try_send_set_size(
             width,
             height,
         );
@@ -972,16 +972,16 @@ pub trait XdgPositionerHandler: Any {
     #[inline]
     fn handle_set_anchor_rect(
         &mut self,
-        _slf: &Rc<XdgPositioner>,
+        slf: &Rc<XdgPositioner>,
         x: i32,
         y: i32,
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_anchor_rect(
+        let res = slf.try_send_set_anchor_rect(
             x,
             y,
             width,
@@ -1007,13 +1007,13 @@ pub trait XdgPositionerHandler: Any {
     #[inline]
     fn handle_set_anchor(
         &mut self,
-        _slf: &Rc<XdgPositioner>,
+        slf: &Rc<XdgPositioner>,
         anchor: XdgPositionerAnchor,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_anchor(
+        let res = slf.try_send_set_anchor(
             anchor,
         );
         if let Err(e) = res {
@@ -1037,13 +1037,13 @@ pub trait XdgPositionerHandler: Any {
     #[inline]
     fn handle_set_gravity(
         &mut self,
-        _slf: &Rc<XdgPositioner>,
+        slf: &Rc<XdgPositioner>,
         gravity: XdgPositionerGravity,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_gravity(
+        let res = slf.try_send_set_gravity(
             gravity,
         );
         if let Err(e) = res {
@@ -1073,13 +1073,13 @@ pub trait XdgPositionerHandler: Any {
     #[inline]
     fn handle_set_constraint_adjustment(
         &mut self,
-        _slf: &Rc<XdgPositioner>,
+        slf: &Rc<XdgPositioner>,
         constraint_adjustment: XdgPositionerConstraintAdjustment,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_constraint_adjustment(
+        let res = slf.try_send_set_constraint_adjustment(
             constraint_adjustment,
         );
         if let Err(e) = res {
@@ -1108,14 +1108,14 @@ pub trait XdgPositionerHandler: Any {
     #[inline]
     fn handle_set_offset(
         &mut self,
-        _slf: &Rc<XdgPositioner>,
+        slf: &Rc<XdgPositioner>,
         x: i32,
         y: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_offset(
+        let res = slf.try_send_set_offset(
             x,
             y,
         );
@@ -1135,12 +1135,12 @@ pub trait XdgPositionerHandler: Any {
     #[inline]
     fn handle_set_reactive(
         &mut self,
-        _slf: &Rc<XdgPositioner>,
+        slf: &Rc<XdgPositioner>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_reactive(
+        let res = slf.try_send_set_reactive(
         );
         if let Err(e) = res {
             log_forward("xdg_positioner.set_reactive", &e);
@@ -1163,14 +1163,14 @@ pub trait XdgPositionerHandler: Any {
     #[inline]
     fn handle_set_parent_size(
         &mut self,
-        _slf: &Rc<XdgPositioner>,
+        slf: &Rc<XdgPositioner>,
         parent_width: i32,
         parent_height: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_parent_size(
+        let res = slf.try_send_set_parent_size(
             parent_width,
             parent_height,
         );
@@ -1192,13 +1192,13 @@ pub trait XdgPositionerHandler: Any {
     #[inline]
     fn handle_set_parent_configure(
         &mut self,
-        _slf: &Rc<XdgPositioner>,
+        slf: &Rc<XdgPositioner>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_parent_configure(
+        let res = slf.try_send_set_parent_configure(
             serial,
         );
         if let Err(e) = res {

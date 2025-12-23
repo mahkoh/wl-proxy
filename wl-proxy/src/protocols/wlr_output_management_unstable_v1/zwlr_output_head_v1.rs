@@ -1395,13 +1395,13 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     #[inline]
     fn handle_name(
         &mut self,
-        _slf: &Rc<ZwlrOutputHeadV1>,
+        slf: &Rc<ZwlrOutputHeadV1>,
         name: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_name(
+        let res = slf.try_send_name(
             name,
         );
         if let Err(e) = res {
@@ -1432,13 +1432,13 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     #[inline]
     fn handle_description(
         &mut self,
-        _slf: &Rc<ZwlrOutputHeadV1>,
+        slf: &Rc<ZwlrOutputHeadV1>,
         description: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_description(
+        let res = slf.try_send_description(
             description,
         );
         if let Err(e) = res {
@@ -1463,14 +1463,14 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     #[inline]
     fn handle_physical_size(
         &mut self,
-        _slf: &Rc<ZwlrOutputHeadV1>,
+        slf: &Rc<ZwlrOutputHeadV1>,
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_physical_size(
+        let res = slf.try_send_physical_size(
             width,
             height,
         );
@@ -1490,13 +1490,13 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     #[inline]
     fn handle_mode(
         &mut self,
-        _slf: &Rc<ZwlrOutputHeadV1>,
+        slf: &Rc<ZwlrOutputHeadV1>,
         mode: &Rc<ZwlrOutputModeV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_mode(
+        let res = slf.try_send_mode(
             mode,
         );
         if let Err(e) = res {
@@ -1518,13 +1518,13 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     #[inline]
     fn handle_enabled(
         &mut self,
-        _slf: &Rc<ZwlrOutputHeadV1>,
+        slf: &Rc<ZwlrOutputHeadV1>,
         enabled: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_enabled(
+        let res = slf.try_send_enabled(
             enabled,
         );
         if let Err(e) = res {
@@ -1546,20 +1546,20 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     #[inline]
     fn handle_current_mode(
         &mut self,
-        _slf: &Rc<ZwlrOutputHeadV1>,
+        slf: &Rc<ZwlrOutputHeadV1>,
         mode: &Rc<ZwlrOutputModeV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = mode.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_current_mode(
+        let res = slf.try_send_current_mode(
             mode,
         );
         if let Err(e) = res {
@@ -1579,14 +1579,14 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     #[inline]
     fn handle_position(
         &mut self,
-        _slf: &Rc<ZwlrOutputHeadV1>,
+        slf: &Rc<ZwlrOutputHeadV1>,
         x: i32,
         y: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_position(
+        let res = slf.try_send_position(
             x,
             y,
         );
@@ -1606,13 +1606,13 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     #[inline]
     fn handle_transform(
         &mut self,
-        _slf: &Rc<ZwlrOutputHeadV1>,
+        slf: &Rc<ZwlrOutputHeadV1>,
         transform: WlOutputTransform,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_transform(
+        let res = slf.try_send_transform(
             transform,
         );
         if let Err(e) = res {
@@ -1631,13 +1631,13 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     #[inline]
     fn handle_scale(
         &mut self,
-        _slf: &Rc<ZwlrOutputHeadV1>,
+        slf: &Rc<ZwlrOutputHeadV1>,
         scale: Fixed,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_scale(
+        let res = slf.try_send_scale(
             scale,
         );
         if let Err(e) = res {
@@ -1653,12 +1653,12 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     #[inline]
     fn handle_finished(
         &mut self,
-        _slf: &Rc<ZwlrOutputHeadV1>,
+        slf: &Rc<ZwlrOutputHeadV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_finished(
+        let res = slf.try_send_finished(
         );
         if let Err(e) = res {
             log_forward("zwlr_output_head_v1.finished", &e);
@@ -1693,13 +1693,13 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     #[inline]
     fn handle_make(
         &mut self,
-        _slf: &Rc<ZwlrOutputHeadV1>,
+        slf: &Rc<ZwlrOutputHeadV1>,
         make: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_make(
+        let res = slf.try_send_make(
             make,
         );
         if let Err(e) = res {
@@ -1735,13 +1735,13 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     #[inline]
     fn handle_model(
         &mut self,
-        _slf: &Rc<ZwlrOutputHeadV1>,
+        slf: &Rc<ZwlrOutputHeadV1>,
         model: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_model(
+        let res = slf.try_send_model(
             model,
         );
         if let Err(e) = res {
@@ -1778,13 +1778,13 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     #[inline]
     fn handle_serial_number(
         &mut self,
-        _slf: &Rc<ZwlrOutputHeadV1>,
+        slf: &Rc<ZwlrOutputHeadV1>,
         serial_number: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_serial_number(
+        let res = slf.try_send_serial_number(
             serial_number,
         );
         if let Err(e) = res {
@@ -1799,12 +1799,12 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     #[inline]
     fn handle_release(
         &mut self,
-        _slf: &Rc<ZwlrOutputHeadV1>,
+        slf: &Rc<ZwlrOutputHeadV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_release(
+        let res = slf.try_send_release(
         );
         if let Err(e) = res {
             log_forward("zwlr_output_head_v1.release", &e);
@@ -1823,13 +1823,13 @@ pub trait ZwlrOutputHeadV1Handler: Any {
     #[inline]
     fn handle_adaptive_sync(
         &mut self,
-        _slf: &Rc<ZwlrOutputHeadV1>,
+        slf: &Rc<ZwlrOutputHeadV1>,
         state: ZwlrOutputHeadV1AdaptiveSyncState,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_adaptive_sync(
+        let res = slf.try_send_adaptive_sync(
             state,
         );
         if let Err(e) = res {

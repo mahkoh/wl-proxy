@@ -352,12 +352,12 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
     #[inline]
     fn handle_enter(
         &mut self,
-        _slf: &Rc<TreelandWindowOverlapChecker>,
+        slf: &Rc<TreelandWindowOverlapChecker>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_enter(
+        let res = slf.try_send_enter(
         );
         if let Err(e) = res {
             log_forward("treeland_window_overlap_checker.enter", &e);
@@ -371,12 +371,12 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
     #[inline]
     fn handle_leave(
         &mut self,
-        _slf: &Rc<TreelandWindowOverlapChecker>,
+        slf: &Rc<TreelandWindowOverlapChecker>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_leave(
+        let res = slf.try_send_leave(
         );
         if let Err(e) = res {
             log_forward("treeland_window_overlap_checker.leave", &e);
@@ -403,16 +403,16 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
     #[inline]
     fn handle_update(
         &mut self,
-        _slf: &Rc<TreelandWindowOverlapChecker>,
+        slf: &Rc<TreelandWindowOverlapChecker>,
         width: i32,
         height: i32,
         anchor: TreelandWindowOverlapCheckerAnchor,
         output: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_update(
+        let res = slf.try_send_update(
             width,
             height,
             anchor,
@@ -433,12 +433,12 @@ pub trait TreelandWindowOverlapCheckerHandler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<TreelandWindowOverlapChecker>,
+        slf: &Rc<TreelandWindowOverlapChecker>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("treeland_window_overlap_checker.destroy", &e);

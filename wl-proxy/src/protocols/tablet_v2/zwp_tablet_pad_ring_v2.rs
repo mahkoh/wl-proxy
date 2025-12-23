@@ -598,14 +598,14 @@ pub trait ZwpTabletPadRingV2Handler: Any {
     #[inline]
     fn handle_set_feedback(
         &mut self,
-        _slf: &Rc<ZwpTabletPadRingV2>,
+        slf: &Rc<ZwpTabletPadRingV2>,
         description: &str,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_feedback(
+        let res = slf.try_send_set_feedback(
             description,
             serial,
         );
@@ -620,12 +620,12 @@ pub trait ZwpTabletPadRingV2Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpTabletPadRingV2>,
+        slf: &Rc<ZwpTabletPadRingV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_pad_ring_v2.destroy", &e);
@@ -653,13 +653,13 @@ pub trait ZwpTabletPadRingV2Handler: Any {
     #[inline]
     fn handle_source(
         &mut self,
-        _slf: &Rc<ZwpTabletPadRingV2>,
+        slf: &Rc<ZwpTabletPadRingV2>,
         source: ZwpTabletPadRingV2Source,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_source(
+        let res = slf.try_send_source(
             source,
         );
         if let Err(e) = res {
@@ -680,13 +680,13 @@ pub trait ZwpTabletPadRingV2Handler: Any {
     #[inline]
     fn handle_angle(
         &mut self,
-        _slf: &Rc<ZwpTabletPadRingV2>,
+        slf: &Rc<ZwpTabletPadRingV2>,
         degrees: Fixed,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_angle(
+        let res = slf.try_send_angle(
             degrees,
         );
         if let Err(e) = res {
@@ -709,12 +709,12 @@ pub trait ZwpTabletPadRingV2Handler: Any {
     #[inline]
     fn handle_stop(
         &mut self,
-        _slf: &Rc<ZwpTabletPadRingV2>,
+        slf: &Rc<ZwpTabletPadRingV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_stop(
+        let res = slf.try_send_stop(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_pad_ring_v2.stop", &e);
@@ -743,13 +743,13 @@ pub trait ZwpTabletPadRingV2Handler: Any {
     #[inline]
     fn handle_frame(
         &mut self,
-        _slf: &Rc<ZwpTabletPadRingV2>,
+        slf: &Rc<ZwpTabletPadRingV2>,
         time: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_frame(
+        let res = slf.try_send_frame(
             time,
         );
         if let Err(e) = res {

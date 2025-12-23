@@ -347,12 +347,12 @@ pub trait TreelandDdeActiveV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<TreelandDdeActiveV1>,
+        slf: &Rc<TreelandDdeActiveV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("treeland_dde_active_v1.destroy", &e);
@@ -367,13 +367,13 @@ pub trait TreelandDdeActiveV1Handler: Any {
     #[inline]
     fn handle_active_in(
         &mut self,
-        _slf: &Rc<TreelandDdeActiveV1>,
+        slf: &Rc<TreelandDdeActiveV1>,
         reason: TreelandDdeActiveV1Reason,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_active_in(
+        let res = slf.try_send_active_in(
             reason,
         );
         if let Err(e) = res {
@@ -389,13 +389,13 @@ pub trait TreelandDdeActiveV1Handler: Any {
     #[inline]
     fn handle_active_out(
         &mut self,
-        _slf: &Rc<TreelandDdeActiveV1>,
+        slf: &Rc<TreelandDdeActiveV1>,
         reason: TreelandDdeActiveV1Reason,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_active_out(
+        let res = slf.try_send_active_out(
             reason,
         );
         if let Err(e) = res {
@@ -407,12 +407,12 @@ pub trait TreelandDdeActiveV1Handler: Any {
     #[inline]
     fn handle_start_drag(
         &mut self,
-        _slf: &Rc<TreelandDdeActiveV1>,
+        slf: &Rc<TreelandDdeActiveV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_start_drag(
+        let res = slf.try_send_start_drag(
         );
         if let Err(e) = res {
             log_forward("treeland_dde_active_v1.start_drag", &e);
@@ -423,12 +423,12 @@ pub trait TreelandDdeActiveV1Handler: Any {
     #[inline]
     fn handle_drop(
         &mut self,
-        _slf: &Rc<TreelandDdeActiveV1>,
+        slf: &Rc<TreelandDdeActiveV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_drop(
+        let res = slf.try_send_drop(
         );
         if let Err(e) = res {
             log_forward("treeland_dde_active_v1.drop", &e);

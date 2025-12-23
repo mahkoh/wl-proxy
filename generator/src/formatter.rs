@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use {
     crate::{
         ast::{Arg, ArgType, Description, Interface, Message, MessageType, Protocol},
@@ -548,12 +549,20 @@ fn format_interface_message_handler(w: &mut impl Write, interface: &Interface) -
     wl!(r#"        slf.core.delete_id();"#)?;
     wl!(r#"    }}"#)?;
     for msg in &interface.messages {
+        let mut arg_names = HashSet::new();
+        for arg in &msg.args {
+            arg_names.insert(escape_name(&arg.name).to_string());
+        }
+        let mut slf = "slf".to_string();
+        while arg_names.contains(&slf) {
+            slf.push_str("_");
+        }
         wl!()?;
         format_message_doc(w, false, false, msg)?;
         wl!(r#"    #[inline]"#)?;
         wl!(r#"    fn handle_{}("#, msg.name)?;
         wl!(r#"        &mut self,"#)?;
-        wl!(r#"        _slf: &Rc<{PREFIX}{camel}>,"#)?;
+        wl!(r#"        {slf}: &Rc<{PREFIX}{camel}>,"#)?;
         for (idx, arg) in msg.args.iter().enumerate() {
             let name = escape_name(&arg.name);
             if interface.is_wl_registry && msg.name == "global" && idx == 1 {
@@ -564,16 +573,16 @@ fn format_interface_message_handler(w: &mut impl Write, interface: &Interface) -
         }
         wl!(r#"    ) {{"#)?;
         if msg.is_request {
-            wl!(r#"        if !_slf.core.forward_to_server.get() {{"#)?;
+            wl!(r#"        if !{slf}.core.forward_to_server.get() {{"#)?;
             wl!(r#"            return;"#)?;
             wl!(r#"        }}"#)?;
         } else {
-            wl!(r#"        if !_slf.core.forward_to_client.get() {{"#)?;
+            wl!(r#"        if !{slf}.core.forward_to_client.get() {{"#)?;
             wl!(r#"            return;"#)?;
             wl!(r#"        }}"#)?;
         }
         if !msg.is_request && msg.args.iter().any(|a| matches!(a.ty, ArgType::Object)) {
-            wl!(r#"        if let Some(client_id) = _slf.core.client_id.get() {{"#)?;
+            wl!(r#"        if let Some(client_id) = {slf}.core.client_id.get() {{"#)?;
             for arg in &msg.args {
                 if arg.ty == ArgType::Object {
                     let mut prefix = "";
@@ -600,7 +609,7 @@ fn format_interface_message_handler(w: &mut impl Write, interface: &Interface) -
             }
             wl!(r#"        }}"#)?;
         }
-        wl!(r#"        let res = _slf.try_send_{}("#, &msg.name)?;
+        wl!(r#"        let res = {slf}.try_send_{}("#, &msg.name)?;
         for arg in &msg.args {
             wl!(r#"            {},"#, escape_name(&arg.name))?;
         }

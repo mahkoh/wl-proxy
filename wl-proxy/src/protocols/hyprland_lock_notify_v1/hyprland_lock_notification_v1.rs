@@ -253,12 +253,12 @@ pub trait HyprlandLockNotificationV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<HyprlandLockNotificationV1>,
+        slf: &Rc<HyprlandLockNotificationV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("hyprland_lock_notification_v1.destroy", &e);
@@ -274,12 +274,12 @@ pub trait HyprlandLockNotificationV1Handler: Any {
     #[inline]
     fn handle_locked(
         &mut self,
-        _slf: &Rc<HyprlandLockNotificationV1>,
+        slf: &Rc<HyprlandLockNotificationV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_locked(
+        let res = slf.try_send_locked(
         );
         if let Err(e) = res {
             log_forward("hyprland_lock_notification_v1.locked", &e);
@@ -296,12 +296,12 @@ pub trait HyprlandLockNotificationV1Handler: Any {
     #[inline]
     fn handle_unlocked(
         &mut self,
-        _slf: &Rc<HyprlandLockNotificationV1>,
+        slf: &Rc<HyprlandLockNotificationV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_unlocked(
+        let res = slf.try_send_unlocked(
         );
         if let Err(e) = res {
             log_forward("hyprland_lock_notification_v1.unlocked", &e);

@@ -311,14 +311,14 @@ pub trait TreelandVirtualOutputV1Handler: Any {
     #[inline]
     fn handle_outputs(
         &mut self,
-        _slf: &Rc<TreelandVirtualOutputV1>,
+        slf: &Rc<TreelandVirtualOutputV1>,
         name: &str,
         outputs: &[u8],
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_outputs(
+        let res = slf.try_send_outputs(
             name,
             outputs,
         );
@@ -339,14 +339,14 @@ pub trait TreelandVirtualOutputV1Handler: Any {
     #[inline]
     fn handle_error(
         &mut self,
-        _slf: &Rc<TreelandVirtualOutputV1>,
+        slf: &Rc<TreelandVirtualOutputV1>,
         code: u32,
         message: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_error(
+        let res = slf.try_send_error(
             code,
             message,
         );
@@ -361,12 +361,12 @@ pub trait TreelandVirtualOutputV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<TreelandVirtualOutputV1>,
+        slf: &Rc<TreelandVirtualOutputV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("treeland_virtual_output_v1.destroy", &e);

@@ -264,14 +264,14 @@ pub trait ExtForeignToplevelImageCaptureSourceManagerV1Handler: Any {
     #[inline]
     fn handle_create_source(
         &mut self,
-        _slf: &Rc<ExtForeignToplevelImageCaptureSourceManagerV1>,
+        slf: &Rc<ExtForeignToplevelImageCaptureSourceManagerV1>,
         source: &Rc<ExtImageCaptureSourceV1>,
         toplevel_handle: &Rc<ExtForeignToplevelHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_source(
+        let res = slf.try_send_create_source(
             source,
             toplevel_handle,
         );
@@ -288,12 +288,12 @@ pub trait ExtForeignToplevelImageCaptureSourceManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtForeignToplevelImageCaptureSourceManagerV1>,
+        slf: &Rc<ExtForeignToplevelImageCaptureSourceManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_foreign_toplevel_image_capture_source_manager_v1.destroy", &e);

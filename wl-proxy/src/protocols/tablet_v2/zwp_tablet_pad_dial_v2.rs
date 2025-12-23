@@ -440,14 +440,14 @@ pub trait ZwpTabletPadDialV2Handler: Any {
     #[inline]
     fn handle_set_feedback(
         &mut self,
-        _slf: &Rc<ZwpTabletPadDialV2>,
+        slf: &Rc<ZwpTabletPadDialV2>,
         description: &str,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_feedback(
+        let res = slf.try_send_set_feedback(
             description,
             serial,
         );
@@ -462,12 +462,12 @@ pub trait ZwpTabletPadDialV2Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpTabletPadDialV2>,
+        slf: &Rc<ZwpTabletPadDialV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_pad_dial_v2.destroy", &e);
@@ -493,13 +493,13 @@ pub trait ZwpTabletPadDialV2Handler: Any {
     #[inline]
     fn handle_delta(
         &mut self,
-        _slf: &Rc<ZwpTabletPadDialV2>,
+        slf: &Rc<ZwpTabletPadDialV2>,
         value120: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_delta(
+        let res = slf.try_send_delta(
             value120,
         );
         if let Err(e) = res {
@@ -527,13 +527,13 @@ pub trait ZwpTabletPadDialV2Handler: Any {
     #[inline]
     fn handle_frame(
         &mut self,
-        _slf: &Rc<ZwpTabletPadDialV2>,
+        slf: &Rc<ZwpTabletPadDialV2>,
         time: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_frame(
+        let res = slf.try_send_frame(
             time,
         );
         if let Err(e) = res {

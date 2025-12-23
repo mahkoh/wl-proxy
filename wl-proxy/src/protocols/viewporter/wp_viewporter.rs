@@ -269,12 +269,12 @@ pub trait WpViewporterHandler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpViewporter>,
+        slf: &Rc<WpViewporter>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_viewporter.destroy", &e);
@@ -298,14 +298,14 @@ pub trait WpViewporterHandler: Any {
     #[inline]
     fn handle_get_viewport(
         &mut self,
-        _slf: &Rc<WpViewporter>,
+        slf: &Rc<WpViewporter>,
         id: &Rc<WpViewport>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_viewport(
+        let res = slf.try_send_get_viewport(
             id,
             surface,
         );

@@ -308,13 +308,13 @@ pub trait WlDataDeviceManagerHandler: Any {
     #[inline]
     fn handle_create_data_source(
         &mut self,
-        _slf: &Rc<WlDataDeviceManager>,
+        slf: &Rc<WlDataDeviceManager>,
         id: &Rc<WlDataSource>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_data_source(
+        let res = slf.try_send_create_data_source(
             id,
         );
         if let Err(e) = res {
@@ -336,14 +336,14 @@ pub trait WlDataDeviceManagerHandler: Any {
     #[inline]
     fn handle_get_data_device(
         &mut self,
-        _slf: &Rc<WlDataDeviceManager>,
+        slf: &Rc<WlDataDeviceManager>,
         id: &Rc<WlDataDevice>,
         seat: &Rc<WlSeat>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_data_device(
+        let res = slf.try_send_get_data_device(
             id,
             seat,
         );

@@ -244,12 +244,12 @@ pub trait XdgToplevelDragV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<XdgToplevelDragV1>,
+        slf: &Rc<XdgToplevelDragV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("xdg_toplevel_drag_v1.destroy", &e);
@@ -285,15 +285,15 @@ pub trait XdgToplevelDragV1Handler: Any {
     #[inline]
     fn handle_attach(
         &mut self,
-        _slf: &Rc<XdgToplevelDragV1>,
+        slf: &Rc<XdgToplevelDragV1>,
         toplevel: &Rc<XdgToplevel>,
         x_offset: i32,
         y_offset: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_attach(
+        let res = slf.try_send_attach(
             toplevel,
             x_offset,
             y_offset,

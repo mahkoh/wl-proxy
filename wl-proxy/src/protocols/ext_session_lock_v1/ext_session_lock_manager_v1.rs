@@ -239,12 +239,12 @@ pub trait ExtSessionLockManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtSessionLockManagerV1>,
+        slf: &Rc<ExtSessionLockManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_session_lock_manager_v1.destroy", &e);
@@ -264,13 +264,13 @@ pub trait ExtSessionLockManagerV1Handler: Any {
     #[inline]
     fn handle_lock(
         &mut self,
-        _slf: &Rc<ExtSessionLockManagerV1>,
+        slf: &Rc<ExtSessionLockManagerV1>,
         id: &Rc<ExtSessionLockV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_lock(
+        let res = slf.try_send_lock(
             id,
         );
         if let Err(e) = res {

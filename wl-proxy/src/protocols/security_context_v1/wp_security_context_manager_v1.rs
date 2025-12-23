@@ -331,12 +331,12 @@ pub trait WpSecurityContextManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpSecurityContextManagerV1>,
+        slf: &Rc<WpSecurityContextManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_security_context_manager_v1.destroy", &e);
@@ -369,15 +369,15 @@ pub trait WpSecurityContextManagerV1Handler: Any {
     #[inline]
     fn handle_create_listener(
         &mut self,
-        _slf: &Rc<WpSecurityContextManagerV1>,
+        slf: &Rc<WpSecurityContextManagerV1>,
         id: &Rc<WpSecurityContextV1>,
         listen_fd: &Rc<OwnedFd>,
         close_fd: &Rc<OwnedFd>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_listener(
+        let res = slf.try_send_create_listener(
             id,
             listen_fd,
             close_fd,

@@ -645,12 +645,12 @@ pub trait ZxdgOutputV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZxdgOutputV1>,
+        slf: &Rc<ZxdgOutputV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zxdg_output_v1.destroy", &e);
@@ -673,14 +673,14 @@ pub trait ZxdgOutputV1Handler: Any {
     #[inline]
     fn handle_logical_position(
         &mut self,
-        _slf: &Rc<ZxdgOutputV1>,
+        slf: &Rc<ZxdgOutputV1>,
         x: i32,
         y: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_logical_position(
+        let res = slf.try_send_logical_position(
             x,
             y,
         );
@@ -729,14 +729,14 @@ pub trait ZxdgOutputV1Handler: Any {
     #[inline]
     fn handle_logical_size(
         &mut self,
-        _slf: &Rc<ZxdgOutputV1>,
+        slf: &Rc<ZxdgOutputV1>,
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_logical_size(
+        let res = slf.try_send_logical_size(
             width,
             height,
         );
@@ -759,12 +759,12 @@ pub trait ZxdgOutputV1Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<ZxdgOutputV1>,
+        slf: &Rc<ZxdgOutputV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
         );
         if let Err(e) = res {
             log_forward("zxdg_output_v1.done", &e);
@@ -801,13 +801,13 @@ pub trait ZxdgOutputV1Handler: Any {
     #[inline]
     fn handle_name(
         &mut self,
-        _slf: &Rc<ZxdgOutputV1>,
+        slf: &Rc<ZxdgOutputV1>,
         name: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_name(
+        let res = slf.try_send_name(
             name,
         );
         if let Err(e) = res {
@@ -842,13 +842,13 @@ pub trait ZxdgOutputV1Handler: Any {
     #[inline]
     fn handle_description(
         &mut self,
-        _slf: &Rc<ZxdgOutputV1>,
+        slf: &Rc<ZxdgOutputV1>,
         description: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_description(
+        let res = slf.try_send_description(
             description,
         );
         if let Err(e) = res {

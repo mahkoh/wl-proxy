@@ -612,12 +612,12 @@ pub trait ZwpTabletV2Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpTabletV2>,
+        slf: &Rc<ZwpTabletV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_v2.destroy", &e);
@@ -639,13 +639,13 @@ pub trait ZwpTabletV2Handler: Any {
     #[inline]
     fn handle_name(
         &mut self,
-        _slf: &Rc<ZwpTabletV2>,
+        slf: &Rc<ZwpTabletV2>,
         name: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_name(
+        let res = slf.try_send_name(
             name,
         );
         if let Err(e) = res {
@@ -675,14 +675,14 @@ pub trait ZwpTabletV2Handler: Any {
     #[inline]
     fn handle_id(
         &mut self,
-        _slf: &Rc<ZwpTabletV2>,
+        slf: &Rc<ZwpTabletV2>,
         vid: u32,
         pid: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_id(
+        let res = slf.try_send_id(
             vid,
             pid,
         );
@@ -714,13 +714,13 @@ pub trait ZwpTabletV2Handler: Any {
     #[inline]
     fn handle_path(
         &mut self,
-        _slf: &Rc<ZwpTabletV2>,
+        slf: &Rc<ZwpTabletV2>,
         path: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_path(
+        let res = slf.try_send_path(
             path,
         );
         if let Err(e) = res {
@@ -737,12 +737,12 @@ pub trait ZwpTabletV2Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<ZwpTabletV2>,
+        slf: &Rc<ZwpTabletV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_v2.done", &e);
@@ -759,12 +759,12 @@ pub trait ZwpTabletV2Handler: Any {
     #[inline]
     fn handle_removed(
         &mut self,
-        _slf: &Rc<ZwpTabletV2>,
+        slf: &Rc<ZwpTabletV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_removed(
+        let res = slf.try_send_removed(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_v2.removed", &e);
@@ -788,13 +788,13 @@ pub trait ZwpTabletV2Handler: Any {
     #[inline]
     fn handle_bustype(
         &mut self,
-        _slf: &Rc<ZwpTabletV2>,
+        slf: &Rc<ZwpTabletV2>,
         bustype: ZwpTabletV2Bustype,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_bustype(
+        let res = slf.try_send_bustype(
             bustype,
         );
         if let Err(e) = res {

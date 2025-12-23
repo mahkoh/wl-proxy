@@ -336,12 +336,12 @@ pub trait XdgToplevelTagManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<XdgToplevelTagManagerV1>,
+        slf: &Rc<XdgToplevelTagManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("xdg_toplevel_tag_manager_v1.destroy", &e);
@@ -375,14 +375,14 @@ pub trait XdgToplevelTagManagerV1Handler: Any {
     #[inline]
     fn handle_set_toplevel_tag(
         &mut self,
-        _slf: &Rc<XdgToplevelTagManagerV1>,
+        slf: &Rc<XdgToplevelTagManagerV1>,
         toplevel: &Rc<XdgToplevel>,
         tag: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_toplevel_tag(
+        let res = slf.try_send_set_toplevel_tag(
             toplevel,
             tag,
         );
@@ -412,14 +412,14 @@ pub trait XdgToplevelTagManagerV1Handler: Any {
     #[inline]
     fn handle_set_toplevel_description(
         &mut self,
-        _slf: &Rc<XdgToplevelTagManagerV1>,
+        slf: &Rc<XdgToplevelTagManagerV1>,
         toplevel: &Rc<XdgToplevel>,
         description: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_toplevel_description(
+        let res = slf.try_send_set_toplevel_description(
             toplevel,
             description,
         );

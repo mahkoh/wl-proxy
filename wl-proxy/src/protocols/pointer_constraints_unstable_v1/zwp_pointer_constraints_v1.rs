@@ -694,12 +694,12 @@ pub trait ZwpPointerConstraintsV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpPointerConstraintsV1>,
+        slf: &Rc<ZwpPointerConstraintsV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_pointer_constraints_v1.destroy", &e);
@@ -756,17 +756,17 @@ pub trait ZwpPointerConstraintsV1Handler: Any {
     #[inline]
     fn handle_lock_pointer(
         &mut self,
-        _slf: &Rc<ZwpPointerConstraintsV1>,
+        slf: &Rc<ZwpPointerConstraintsV1>,
         id: &Rc<ZwpLockedPointerV1>,
         surface: &Rc<WlSurface>,
         pointer: &Rc<WlPointer>,
         region: Option<&Rc<WlRegion>>,
         lifetime: ZwpPointerConstraintsV1Lifetime,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_lock_pointer(
+        let res = slf.try_send_lock_pointer(
             id,
             surface,
             pointer,
@@ -811,17 +811,17 @@ pub trait ZwpPointerConstraintsV1Handler: Any {
     #[inline]
     fn handle_confine_pointer(
         &mut self,
-        _slf: &Rc<ZwpPointerConstraintsV1>,
+        slf: &Rc<ZwpPointerConstraintsV1>,
         id: &Rc<ZwpConfinedPointerV1>,
         surface: &Rc<WlSurface>,
         pointer: &Rc<WlPointer>,
         region: Option<&Rc<WlRegion>>,
         lifetime: ZwpPointerConstraintsV1Lifetime,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_confine_pointer(
+        let res = slf.try_send_confine_pointer(
             id,
             surface,
             pointer,

@@ -246,12 +246,12 @@ pub trait ZwpTextInputManagerV3Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpTextInputManagerV3>,
+        slf: &Rc<ZwpTextInputManagerV3>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_text_input_manager_v3.destroy", &e);
@@ -272,14 +272,14 @@ pub trait ZwpTextInputManagerV3Handler: Any {
     #[inline]
     fn handle_get_text_input(
         &mut self,
-        _slf: &Rc<ZwpTextInputManagerV3>,
+        slf: &Rc<ZwpTextInputManagerV3>,
         id: &Rc<ZwpTextInputV3>,
         seat: &Rc<WlSeat>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_text_input(
+        let res = slf.try_send_get_text_input(
             id,
             seat,
         );

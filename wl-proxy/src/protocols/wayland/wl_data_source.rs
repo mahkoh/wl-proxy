@@ -803,13 +803,13 @@ pub trait WlDataSourceHandler: Any {
     #[inline]
     fn handle_offer(
         &mut self,
-        _slf: &Rc<WlDataSource>,
+        slf: &Rc<WlDataSource>,
         mime_type: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_offer(
+        let res = slf.try_send_offer(
             mime_type,
         );
         if let Err(e) = res {
@@ -823,12 +823,12 @@ pub trait WlDataSourceHandler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WlDataSource>,
+        slf: &Rc<WlDataSource>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wl_data_source.destroy", &e);
@@ -848,13 +848,13 @@ pub trait WlDataSourceHandler: Any {
     #[inline]
     fn handle_target(
         &mut self,
-        _slf: &Rc<WlDataSource>,
+        slf: &Rc<WlDataSource>,
         mime_type: Option<&str>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_target(
+        let res = slf.try_send_target(
             mime_type,
         );
         if let Err(e) = res {
@@ -875,14 +875,14 @@ pub trait WlDataSourceHandler: Any {
     #[inline]
     fn handle_send(
         &mut self,
-        _slf: &Rc<WlDataSource>,
+        slf: &Rc<WlDataSource>,
         mime_type: &str,
         fd: &Rc<OwnedFd>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_send(
+        let res = slf.try_send_send(
             mime_type,
             fd,
         );
@@ -916,12 +916,12 @@ pub trait WlDataSourceHandler: Any {
     #[inline]
     fn handle_cancelled(
         &mut self,
-        _slf: &Rc<WlDataSource>,
+        slf: &Rc<WlDataSource>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_cancelled(
+        let res = slf.try_send_cancelled(
         );
         if let Err(e) = res {
             log_forward("wl_data_source.cancelled", &e);
@@ -950,13 +950,13 @@ pub trait WlDataSourceHandler: Any {
     #[inline]
     fn handle_set_actions(
         &mut self,
-        _slf: &Rc<WlDataSource>,
+        slf: &Rc<WlDataSource>,
         dnd_actions: WlDataDeviceManagerDndAction,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_actions(
+        let res = slf.try_send_set_actions(
             dnd_actions,
         );
         if let Err(e) = res {
@@ -978,12 +978,12 @@ pub trait WlDataSourceHandler: Any {
     #[inline]
     fn handle_dnd_drop_performed(
         &mut self,
-        _slf: &Rc<WlDataSource>,
+        slf: &Rc<WlDataSource>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_dnd_drop_performed(
+        let res = slf.try_send_dnd_drop_performed(
         );
         if let Err(e) = res {
             log_forward("wl_data_source.dnd_drop_performed", &e);
@@ -1001,12 +1001,12 @@ pub trait WlDataSourceHandler: Any {
     #[inline]
     fn handle_dnd_finished(
         &mut self,
-        _slf: &Rc<WlDataSource>,
+        slf: &Rc<WlDataSource>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_dnd_finished(
+        let res = slf.try_send_dnd_finished(
         );
         if let Err(e) = res {
             log_forward("wl_data_source.dnd_finished", &e);
@@ -1047,13 +1047,13 @@ pub trait WlDataSourceHandler: Any {
     #[inline]
     fn handle_action(
         &mut self,
-        _slf: &Rc<WlDataSource>,
+        slf: &Rc<WlDataSource>,
         dnd_action: WlDataDeviceManagerDndAction,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_action(
+        let res = slf.try_send_action(
             dnd_action,
         );
         if let Err(e) = res {

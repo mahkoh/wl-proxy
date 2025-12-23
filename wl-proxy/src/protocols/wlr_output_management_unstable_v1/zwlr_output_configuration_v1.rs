@@ -686,14 +686,14 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
     #[inline]
     fn handle_enable_head(
         &mut self,
-        _slf: &Rc<ZwlrOutputConfigurationV1>,
+        slf: &Rc<ZwlrOutputConfigurationV1>,
         id: &Rc<ZwlrOutputConfigurationHeadV1>,
         head: &Rc<ZwlrOutputHeadV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_enable_head(
+        let res = slf.try_send_enable_head(
             id,
             head,
         );
@@ -715,13 +715,13 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
     #[inline]
     fn handle_disable_head(
         &mut self,
-        _slf: &Rc<ZwlrOutputConfigurationV1>,
+        slf: &Rc<ZwlrOutputConfigurationV1>,
         head: &Rc<ZwlrOutputHeadV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_disable_head(
+        let res = slf.try_send_disable_head(
             head,
         );
         if let Err(e) = res {
@@ -744,12 +744,12 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
     #[inline]
     fn handle_apply(
         &mut self,
-        _slf: &Rc<ZwlrOutputConfigurationV1>,
+        slf: &Rc<ZwlrOutputConfigurationV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_apply(
+        let res = slf.try_send_apply(
         );
         if let Err(e) = res {
             log_forward("zwlr_output_configuration_v1.apply", &e);
@@ -770,12 +770,12 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
     #[inline]
     fn handle_test(
         &mut self,
-        _slf: &Rc<ZwlrOutputConfigurationV1>,
+        slf: &Rc<ZwlrOutputConfigurationV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_test(
+        let res = slf.try_send_test(
         );
         if let Err(e) = res {
             log_forward("zwlr_output_configuration_v1.test", &e);
@@ -794,12 +794,12 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
     #[inline]
     fn handle_succeeded(
         &mut self,
-        _slf: &Rc<ZwlrOutputConfigurationV1>,
+        slf: &Rc<ZwlrOutputConfigurationV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_succeeded(
+        let res = slf.try_send_succeeded(
         );
         if let Err(e) = res {
             log_forward("zwlr_output_configuration_v1.succeeded", &e);
@@ -816,12 +816,12 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
     #[inline]
     fn handle_failed(
         &mut self,
-        _slf: &Rc<ZwlrOutputConfigurationV1>,
+        slf: &Rc<ZwlrOutputConfigurationV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_failed(
+        let res = slf.try_send_failed(
         );
         if let Err(e) = res {
             log_forward("zwlr_output_configuration_v1.failed", &e);
@@ -841,12 +841,12 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
     #[inline]
     fn handle_cancelled(
         &mut self,
-        _slf: &Rc<ZwlrOutputConfigurationV1>,
+        slf: &Rc<ZwlrOutputConfigurationV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_cancelled(
+        let res = slf.try_send_cancelled(
         );
         if let Err(e) = res {
             log_forward("zwlr_output_configuration_v1.cancelled", &e);
@@ -864,12 +864,12 @@ pub trait ZwlrOutputConfigurationV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwlrOutputConfigurationV1>,
+        slf: &Rc<ZwlrOutputConfigurationV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwlr_output_configuration_v1.destroy", &e);

@@ -271,15 +271,15 @@ pub trait ZwlrExportDmabufManagerV1Handler: Any {
     #[inline]
     fn handle_capture_output(
         &mut self,
-        _slf: &Rc<ZwlrExportDmabufManagerV1>,
+        slf: &Rc<ZwlrExportDmabufManagerV1>,
         frame: &Rc<ZwlrExportDmabufFrameV1>,
         overlay_cursor: i32,
         output: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_capture_output(
+        let res = slf.try_send_capture_output(
             frame,
             overlay_cursor,
             output,
@@ -296,12 +296,12 @@ pub trait ZwlrExportDmabufManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwlrExportDmabufManagerV1>,
+        slf: &Rc<ZwlrExportDmabufManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwlr_export_dmabuf_manager_v1.destroy", &e);

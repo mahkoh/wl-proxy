@@ -216,13 +216,13 @@ pub trait WpTearingControlV1Handler: Any {
     #[inline]
     fn handle_set_presentation_hint(
         &mut self,
-        _slf: &Rc<WpTearingControlV1>,
+        slf: &Rc<WpTearingControlV1>,
         hint: WpTearingControlV1PresentationHint,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_presentation_hint(
+        let res = slf.try_send_set_presentation_hint(
             hint,
         );
         if let Err(e) = res {
@@ -237,12 +237,12 @@ pub trait WpTearingControlV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpTearingControlV1>,
+        slf: &Rc<WpTearingControlV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_tearing_control_v1.destroy", &e);

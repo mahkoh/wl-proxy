@@ -423,12 +423,12 @@ pub trait WpPresentationHandler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpPresentation>,
+        slf: &Rc<WpPresentation>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_presentation.destroy", &e);
@@ -456,14 +456,14 @@ pub trait WpPresentationHandler: Any {
     #[inline]
     fn handle_feedback(
         &mut self,
-        _slf: &Rc<WpPresentation>,
+        slf: &Rc<WpPresentation>,
         surface: &Rc<WlSurface>,
         callback: &Rc<WpPresentationFeedback>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_feedback(
+        let res = slf.try_send_feedback(
             surface,
             callback,
         );
@@ -509,13 +509,13 @@ pub trait WpPresentationHandler: Any {
     #[inline]
     fn handle_clock_id(
         &mut self,
-        _slf: &Rc<WpPresentation>,
+        slf: &Rc<WpPresentation>,
         clk_id: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_clock_id(
+        let res = slf.try_send_clock_id(
             clk_id,
         );
         if let Err(e) = res {

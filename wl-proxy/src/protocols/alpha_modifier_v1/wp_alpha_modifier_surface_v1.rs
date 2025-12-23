@@ -224,12 +224,12 @@ pub trait WpAlphaModifierSurfaceV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpAlphaModifierSurfaceV1>,
+        slf: &Rc<WpAlphaModifierSurfaceV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_alpha_modifier_surface_v1.destroy", &e);
@@ -258,13 +258,13 @@ pub trait WpAlphaModifierSurfaceV1Handler: Any {
     #[inline]
     fn handle_set_multiplier(
         &mut self,
-        _slf: &Rc<WpAlphaModifierSurfaceV1>,
+        slf: &Rc<WpAlphaModifierSurfaceV1>,
         factor: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_multiplier(
+        let res = slf.try_send_set_multiplier(
             factor,
         );
         if let Err(e) = res {

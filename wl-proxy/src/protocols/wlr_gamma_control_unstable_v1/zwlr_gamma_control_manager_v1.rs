@@ -262,14 +262,14 @@ pub trait ZwlrGammaControlManagerV1Handler: Any {
     #[inline]
     fn handle_get_gamma_control(
         &mut self,
-        _slf: &Rc<ZwlrGammaControlManagerV1>,
+        slf: &Rc<ZwlrGammaControlManagerV1>,
         id: &Rc<ZwlrGammaControlV1>,
         output: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_gamma_control(
+        let res = slf.try_send_get_gamma_control(
             id,
             output,
         );
@@ -285,12 +285,12 @@ pub trait ZwlrGammaControlManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwlrGammaControlManagerV1>,
+        slf: &Rc<ZwlrGammaControlManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwlr_gamma_control_manager_v1.destroy", &e);

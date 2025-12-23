@@ -267,12 +267,12 @@ pub trait JayPopupExtManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<JayPopupExtManagerV1>,
+        slf: &Rc<JayPopupExtManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("jay_popup_ext_manager_v1.destroy", &e);
@@ -298,14 +298,14 @@ pub trait JayPopupExtManagerV1Handler: Any {
     #[inline]
     fn handle_get_ext(
         &mut self,
-        _slf: &Rc<JayPopupExtManagerV1>,
+        slf: &Rc<JayPopupExtManagerV1>,
         id: &Rc<JayPopupExtV1>,
         popup: &Rc<XdgPopup>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_ext(
+        let res = slf.try_send_get_ext(
             id,
             popup,
         );

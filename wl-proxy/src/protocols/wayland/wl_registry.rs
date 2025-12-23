@@ -366,14 +366,14 @@ pub trait WlRegistryHandler: Any {
     #[inline]
     fn handle_bind(
         &mut self,
-        _slf: &Rc<WlRegistry>,
+        slf: &Rc<WlRegistry>,
         name: u32,
         id: Rc<dyn Object>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_bind(
+        let res = slf.try_send_bind(
             name,
             id,
         );
@@ -398,15 +398,15 @@ pub trait WlRegistryHandler: Any {
     #[inline]
     fn handle_global(
         &mut self,
-        _slf: &Rc<WlRegistry>,
+        slf: &Rc<WlRegistry>,
         name: u32,
         interface: ObjectInterface,
         version: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_global(
+        let res = slf.try_send_global(
             name,
             interface,
             version,
@@ -435,13 +435,13 @@ pub trait WlRegistryHandler: Any {
     #[inline]
     fn handle_global_remove(
         &mut self,
-        _slf: &Rc<WlRegistry>,
+        slf: &Rc<WlRegistry>,
         name: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_global_remove(
+        let res = slf.try_send_global_remove(
             name,
         );
         if let Err(e) = res {

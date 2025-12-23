@@ -871,7 +871,7 @@ pub trait WlOutputHandler: Any {
     #[inline]
     fn handle_geometry(
         &mut self,
-        _slf: &Rc<WlOutput>,
+        slf: &Rc<WlOutput>,
         x: i32,
         y: i32,
         physical_width: i32,
@@ -881,10 +881,10 @@ pub trait WlOutputHandler: Any {
         model: &str,
         transform: WlOutputTransform,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_geometry(
+        let res = slf.try_send_geometry(
             x,
             y,
             physical_width,
@@ -944,16 +944,16 @@ pub trait WlOutputHandler: Any {
     #[inline]
     fn handle_mode(
         &mut self,
-        _slf: &Rc<WlOutput>,
+        slf: &Rc<WlOutput>,
         flags: WlOutputMode,
         width: i32,
         height: i32,
         refresh: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_mode(
+        let res = slf.try_send_mode(
             flags,
             width,
             height,
@@ -974,12 +974,12 @@ pub trait WlOutputHandler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<WlOutput>,
+        slf: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
         );
         if let Err(e) = res {
             log_forward("wl_output.done", &e);
@@ -1013,13 +1013,13 @@ pub trait WlOutputHandler: Any {
     #[inline]
     fn handle_scale(
         &mut self,
-        _slf: &Rc<WlOutput>,
+        slf: &Rc<WlOutput>,
         factor: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_scale(
+        let res = slf.try_send_scale(
             factor,
         );
         if let Err(e) = res {
@@ -1034,12 +1034,12 @@ pub trait WlOutputHandler: Any {
     #[inline]
     fn handle_release(
         &mut self,
-        _slf: &Rc<WlOutput>,
+        slf: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_release(
+        let res = slf.try_send_release(
         );
         if let Err(e) = res {
             log_forward("wl_output.release", &e);
@@ -1083,13 +1083,13 @@ pub trait WlOutputHandler: Any {
     #[inline]
     fn handle_name(
         &mut self,
-        _slf: &Rc<WlOutput>,
+        slf: &Rc<WlOutput>,
         name: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_name(
+        let res = slf.try_send_name(
             name,
         );
         if let Err(e) = res {
@@ -1120,13 +1120,13 @@ pub trait WlOutputHandler: Any {
     #[inline]
     fn handle_description(
         &mut self,
-        _slf: &Rc<WlOutput>,
+        slf: &Rc<WlOutput>,
         description: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_description(
+        let res = slf.try_send_description(
             description,
         );
         if let Err(e) = res {

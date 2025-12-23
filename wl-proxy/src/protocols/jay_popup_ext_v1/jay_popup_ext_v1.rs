@@ -376,12 +376,12 @@ pub trait JayPopupExtV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<JayPopupExtV1>,
+        slf: &Rc<JayPopupExtV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("jay_popup_ext_v1.destroy", &e);
@@ -416,14 +416,14 @@ pub trait JayPopupExtV1Handler: Any {
     #[inline]
     fn handle_move(
         &mut self,
-        _slf: &Rc<JayPopupExtV1>,
+        slf: &Rc<JayPopupExtV1>,
         seat: &Rc<WlSeat>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_move(
+        let res = slf.try_send_move(
             seat,
             serial,
         );
@@ -474,15 +474,15 @@ pub trait JayPopupExtV1Handler: Any {
     #[inline]
     fn handle_resize(
         &mut self,
-        _slf: &Rc<JayPopupExtV1>,
+        slf: &Rc<JayPopupExtV1>,
         seat: &Rc<WlSeat>,
         serial: u32,
         edges: XdgToplevelResizeEdge,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_resize(
+        let res = slf.try_send_resize(
             seat,
             serial,
             edges,

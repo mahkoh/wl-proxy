@@ -357,12 +357,12 @@ pub trait XdgToplevelIconV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<XdgToplevelIconV1>,
+        slf: &Rc<XdgToplevelIconV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("xdg_toplevel_icon_v1.destroy", &e);
@@ -393,13 +393,13 @@ pub trait XdgToplevelIconV1Handler: Any {
     #[inline]
     fn handle_set_name(
         &mut self,
-        _slf: &Rc<XdgToplevelIconV1>,
+        slf: &Rc<XdgToplevelIconV1>,
         icon_name: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_name(
+        let res = slf.try_send_set_name(
             icon_name,
         );
         if let Err(e) = res {
@@ -444,14 +444,14 @@ pub trait XdgToplevelIconV1Handler: Any {
     #[inline]
     fn handle_add_buffer(
         &mut self,
-        _slf: &Rc<XdgToplevelIconV1>,
+        slf: &Rc<XdgToplevelIconV1>,
         buffer: &Rc<WlBuffer>,
         scale: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_add_buffer(
+        let res = slf.try_send_add_buffer(
             buffer,
             scale,
         );

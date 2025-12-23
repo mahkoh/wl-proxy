@@ -253,12 +253,12 @@ pub trait TreelandWindowPickerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<TreelandWindowPickerV1>,
+        slf: &Rc<TreelandWindowPickerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("treeland_window_picker_v1.destroy", &e);
@@ -275,13 +275,13 @@ pub trait TreelandWindowPickerV1Handler: Any {
     #[inline]
     fn handle_pick(
         &mut self,
-        _slf: &Rc<TreelandWindowPickerV1>,
+        slf: &Rc<TreelandWindowPickerV1>,
         hint: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_pick(
+        let res = slf.try_send_pick(
             hint,
         );
         if let Err(e) = res {
@@ -299,13 +299,13 @@ pub trait TreelandWindowPickerV1Handler: Any {
     #[inline]
     fn handle_window(
         &mut self,
-        _slf: &Rc<TreelandWindowPickerV1>,
+        slf: &Rc<TreelandWindowPickerV1>,
         pid: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_window(
+        let res = slf.try_send_window(
             pid,
         );
         if let Err(e) = res {

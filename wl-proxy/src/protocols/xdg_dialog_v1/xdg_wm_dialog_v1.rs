@@ -275,12 +275,12 @@ pub trait XdgWmDialogV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<XdgWmDialogV1>,
+        slf: &Rc<XdgWmDialogV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("xdg_wm_dialog_v1.destroy", &e);
@@ -305,14 +305,14 @@ pub trait XdgWmDialogV1Handler: Any {
     #[inline]
     fn handle_get_xdg_dialog(
         &mut self,
-        _slf: &Rc<XdgWmDialogV1>,
+        slf: &Rc<XdgWmDialogV1>,
         id: &Rc<XdgDialogV1>,
         toplevel: &Rc<XdgToplevel>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_xdg_dialog(
+        let res = slf.try_send_get_xdg_dialog(
             id,
             toplevel,
         );

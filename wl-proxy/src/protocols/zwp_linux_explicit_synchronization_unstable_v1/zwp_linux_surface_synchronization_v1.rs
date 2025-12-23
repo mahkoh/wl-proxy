@@ -448,12 +448,12 @@ pub trait ZwpLinuxSurfaceSynchronizationV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpLinuxSurfaceSynchronizationV1>,
+        slf: &Rc<ZwpLinuxSurfaceSynchronizationV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_linux_surface_synchronization_v1.destroy", &e);
@@ -492,13 +492,13 @@ pub trait ZwpLinuxSurfaceSynchronizationV1Handler: Any {
     #[inline]
     fn handle_set_acquire_fence(
         &mut self,
-        _slf: &Rc<ZwpLinuxSurfaceSynchronizationV1>,
+        slf: &Rc<ZwpLinuxSurfaceSynchronizationV1>,
         fd: &Rc<OwnedFd>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_acquire_fence(
+        let res = slf.try_send_set_acquire_fence(
             fd,
         );
         if let Err(e) = res {
@@ -532,13 +532,13 @@ pub trait ZwpLinuxSurfaceSynchronizationV1Handler: Any {
     #[inline]
     fn handle_get_release(
         &mut self,
-        _slf: &Rc<ZwpLinuxSurfaceSynchronizationV1>,
+        slf: &Rc<ZwpLinuxSurfaceSynchronizationV1>,
         release: &Rc<ZwpLinuxBufferReleaseV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_release(
+        let res = slf.try_send_get_release(
             release,
         );
         if let Err(e) = res {

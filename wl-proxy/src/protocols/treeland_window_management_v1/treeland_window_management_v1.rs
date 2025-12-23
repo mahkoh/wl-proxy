@@ -272,13 +272,13 @@ pub trait TreelandWindowManagementV1Handler: Any {
     #[inline]
     fn handle_set_desktop(
         &mut self,
-        _slf: &Rc<TreelandWindowManagementV1>,
+        slf: &Rc<TreelandWindowManagementV1>,
         state: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_desktop(
+        let res = slf.try_send_set_desktop(
             state,
         );
         if let Err(e) = res {
@@ -300,13 +300,13 @@ pub trait TreelandWindowManagementV1Handler: Any {
     #[inline]
     fn handle_show_desktop(
         &mut self,
-        _slf: &Rc<TreelandWindowManagementV1>,
+        slf: &Rc<TreelandWindowManagementV1>,
         state: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_show_desktop(
+        let res = slf.try_send_show_desktop(
             state,
         );
         if let Err(e) = res {
@@ -318,12 +318,12 @@ pub trait TreelandWindowManagementV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<TreelandWindowManagementV1>,
+        slf: &Rc<TreelandWindowManagementV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("treeland_window_management_v1.destroy", &e);

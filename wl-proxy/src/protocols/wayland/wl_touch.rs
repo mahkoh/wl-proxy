@@ -839,7 +839,7 @@ pub trait WlTouchHandler: Any {
     #[inline]
     fn handle_down(
         &mut self,
-        _slf: &Rc<WlTouch>,
+        slf: &Rc<WlTouch>,
         serial: u32,
         time: u32,
         surface: &Rc<WlSurface>,
@@ -847,17 +847,17 @@ pub trait WlTouchHandler: Any {
         x: Fixed,
         y: Fixed,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_down(
+        let res = slf.try_send_down(
             serial,
             time,
             surface,
@@ -884,15 +884,15 @@ pub trait WlTouchHandler: Any {
     #[inline]
     fn handle_up(
         &mut self,
-        _slf: &Rc<WlTouch>,
+        slf: &Rc<WlTouch>,
         serial: u32,
         time: u32,
         id: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_up(
+        let res = slf.try_send_up(
             serial,
             time,
             id,
@@ -915,16 +915,16 @@ pub trait WlTouchHandler: Any {
     #[inline]
     fn handle_motion(
         &mut self,
-        _slf: &Rc<WlTouch>,
+        slf: &Rc<WlTouch>,
         time: u32,
         id: i32,
         x: Fixed,
         y: Fixed,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_motion(
+        let res = slf.try_send_motion(
             time,
             id,
             x,
@@ -948,12 +948,12 @@ pub trait WlTouchHandler: Any {
     #[inline]
     fn handle_frame(
         &mut self,
-        _slf: &Rc<WlTouch>,
+        slf: &Rc<WlTouch>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_frame(
+        let res = slf.try_send_frame(
         );
         if let Err(e) = res {
             log_forward("wl_touch.frame", &e);
@@ -973,12 +973,12 @@ pub trait WlTouchHandler: Any {
     #[inline]
     fn handle_cancel(
         &mut self,
-        _slf: &Rc<WlTouch>,
+        slf: &Rc<WlTouch>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_cancel(
+        let res = slf.try_send_cancel(
         );
         if let Err(e) = res {
             log_forward("wl_touch.cancel", &e);
@@ -989,12 +989,12 @@ pub trait WlTouchHandler: Any {
     #[inline]
     fn handle_release(
         &mut self,
-        _slf: &Rc<WlTouch>,
+        slf: &Rc<WlTouch>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_release(
+        let res = slf.try_send_release(
         );
         if let Err(e) = res {
             log_forward("wl_touch.release", &e);
@@ -1037,15 +1037,15 @@ pub trait WlTouchHandler: Any {
     #[inline]
     fn handle_shape(
         &mut self,
-        _slf: &Rc<WlTouch>,
+        slf: &Rc<WlTouch>,
         id: i32,
         major: Fixed,
         minor: Fixed,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_shape(
+        let res = slf.try_send_shape(
             id,
             major,
             minor,
@@ -1088,14 +1088,14 @@ pub trait WlTouchHandler: Any {
     #[inline]
     fn handle_orientation(
         &mut self,
-        _slf: &Rc<WlTouch>,
+        slf: &Rc<WlTouch>,
         id: i32,
         orientation: Fixed,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_orientation(
+        let res = slf.try_send_orientation(
             id,
             orientation,
         );

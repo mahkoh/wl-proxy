@@ -238,12 +238,12 @@ pub trait TreelandPrelaunchSplashManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<TreelandPrelaunchSplashManagerV1>,
+        slf: &Rc<TreelandPrelaunchSplashManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("treeland_prelaunch_splash_manager_v1.destroy", &e);
@@ -277,15 +277,15 @@ pub trait TreelandPrelaunchSplashManagerV1Handler: Any {
     #[inline]
     fn handle_create_splash(
         &mut self,
-        _slf: &Rc<TreelandPrelaunchSplashManagerV1>,
+        slf: &Rc<TreelandPrelaunchSplashManagerV1>,
         app_id: &str,
         sandbox_engine_name: &str,
         icon_buffer: Option<&Rc<WlBuffer>>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_splash(
+        let res = slf.try_send_create_splash(
             app_id,
             sandbox_engine_name,
             icon_buffer,

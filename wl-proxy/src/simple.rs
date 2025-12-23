@@ -124,7 +124,7 @@ impl SimpleProxy {
                             _destructor: state.create_destructor(),
                         });
                         let handler = display_handler();
-                        client.display.set_handler(handler);
+                        client.display().set_handler(handler);
                         while state.is_not_destroyed() {
                             if let Err(e) = state.dispatch_blocking() {
                                 log::error!("Could not dispatch state: {}", Report::new(e));

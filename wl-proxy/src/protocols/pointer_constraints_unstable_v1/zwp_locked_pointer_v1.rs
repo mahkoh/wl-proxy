@@ -442,12 +442,12 @@ pub trait ZwpLockedPointerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpLockedPointerV1>,
+        slf: &Rc<ZwpLockedPointerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_locked_pointer_v1.destroy", &e);
@@ -474,14 +474,14 @@ pub trait ZwpLockedPointerV1Handler: Any {
     #[inline]
     fn handle_set_cursor_position_hint(
         &mut self,
-        _slf: &Rc<ZwpLockedPointerV1>,
+        slf: &Rc<ZwpLockedPointerV1>,
         surface_x: Fixed,
         surface_y: Fixed,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_cursor_position_hint(
+        let res = slf.try_send_set_cursor_position_hint(
             surface_x,
             surface_y,
         );
@@ -507,13 +507,13 @@ pub trait ZwpLockedPointerV1Handler: Any {
     #[inline]
     fn handle_set_region(
         &mut self,
-        _slf: &Rc<ZwpLockedPointerV1>,
+        slf: &Rc<ZwpLockedPointerV1>,
         region: Option<&Rc<WlRegion>>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_region(
+        let res = slf.try_send_set_region(
             region,
         );
         if let Err(e) = res {
@@ -527,12 +527,12 @@ pub trait ZwpLockedPointerV1Handler: Any {
     #[inline]
     fn handle_locked(
         &mut self,
-        _slf: &Rc<ZwpLockedPointerV1>,
+        slf: &Rc<ZwpLockedPointerV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_locked(
+        let res = slf.try_send_locked(
         );
         if let Err(e) = res {
             log_forward("zwp_locked_pointer_v1.locked", &e);
@@ -550,12 +550,12 @@ pub trait ZwpLockedPointerV1Handler: Any {
     #[inline]
     fn handle_unlocked(
         &mut self,
-        _slf: &Rc<ZwpLockedPointerV1>,
+        slf: &Rc<ZwpLockedPointerV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_unlocked(
+        let res = slf.try_send_unlocked(
         );
         if let Err(e) = res {
             log_forward("zwp_locked_pointer_v1.unlocked", &e);

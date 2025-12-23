@@ -496,12 +496,12 @@ pub trait ZwpTabletSeatV2Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpTabletSeatV2>,
+        slf: &Rc<ZwpTabletSeatV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_seat_v2.destroy", &e);
@@ -521,13 +521,13 @@ pub trait ZwpTabletSeatV2Handler: Any {
     #[inline]
     fn handle_tablet_added(
         &mut self,
-        _slf: &Rc<ZwpTabletSeatV2>,
+        slf: &Rc<ZwpTabletSeatV2>,
         id: &Rc<ZwpTabletV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_tablet_added(
+        let res = slf.try_send_tablet_added(
             id,
         );
         if let Err(e) = res {
@@ -548,13 +548,13 @@ pub trait ZwpTabletSeatV2Handler: Any {
     #[inline]
     fn handle_tool_added(
         &mut self,
-        _slf: &Rc<ZwpTabletSeatV2>,
+        slf: &Rc<ZwpTabletSeatV2>,
         id: &Rc<ZwpTabletToolV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_tool_added(
+        let res = slf.try_send_tool_added(
             id,
         );
         if let Err(e) = res {
@@ -581,13 +581,13 @@ pub trait ZwpTabletSeatV2Handler: Any {
     #[inline]
     fn handle_pad_added(
         &mut self,
-        _slf: &Rc<ZwpTabletSeatV2>,
+        slf: &Rc<ZwpTabletSeatV2>,
         id: &Rc<ZwpTabletPadV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_pad_added(
+        let res = slf.try_send_pad_added(
             id,
         );
         if let Err(e) = res {

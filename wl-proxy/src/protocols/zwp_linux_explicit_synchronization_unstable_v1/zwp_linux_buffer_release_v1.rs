@@ -269,13 +269,13 @@ pub trait ZwpLinuxBufferReleaseV1Handler: Any {
     #[inline]
     fn handle_fenced_release(
         &mut self,
-        _slf: &Rc<ZwpLinuxBufferReleaseV1>,
+        slf: &Rc<ZwpLinuxBufferReleaseV1>,
         fence: &Rc<OwnedFd>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_fenced_release(
+        let res = slf.try_send_fenced_release(
             fence,
         );
         if let Err(e) = res {
@@ -299,12 +299,12 @@ pub trait ZwpLinuxBufferReleaseV1Handler: Any {
     #[inline]
     fn handle_immediate_release(
         &mut self,
-        _slf: &Rc<ZwpLinuxBufferReleaseV1>,
+        slf: &Rc<ZwpLinuxBufferReleaseV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_immediate_release(
+        let res = slf.try_send_immediate_release(
         );
         if let Err(e) = res {
             log_forward("zwp_linux_buffer_release_v1.immediate_release", &e);

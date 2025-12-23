@@ -631,14 +631,14 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     #[inline]
     fn handle_set_fd(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
+        slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         fd: &Rc<OwnedFd>,
         metadata: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_fd(
+        let res = slf.try_send_set_fd(
             fd,
             metadata,
         );
@@ -655,13 +655,13 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     #[inline]
     fn handle_set_identifier(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
+        slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         identifier: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_identifier(
+        let res = slf.try_send_set_identifier(
             identifier,
         );
         if let Err(e) = res {
@@ -677,13 +677,13 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     #[inline]
     fn handle_set_output(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
+        slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         output: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_output(
+        let res = slf.try_send_set_output(
             output,
         );
         if let Err(e) = res {
@@ -699,13 +699,13 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     #[inline]
     fn handle_set_on(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
+        slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         options: TreelandPersonalizationWallpaperContextV1Options,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_on(
+        let res = slf.try_send_set_on(
             options,
         );
         if let Err(e) = res {
@@ -721,13 +721,13 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     #[inline]
     fn handle_set_isdark(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
+        slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         isdark: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_isdark(
+        let res = slf.try_send_set_isdark(
             isdark,
         );
         if let Err(e) = res {
@@ -739,12 +739,12 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     #[inline]
     fn handle_commit(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
+        slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_commit(
+        let res = slf.try_send_commit(
         );
         if let Err(e) = res {
             log_forward("treeland_personalization_wallpaper_context_v1.commit", &e);
@@ -757,12 +757,12 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     #[inline]
     fn handle_get_metadata(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
+        slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_metadata(
+        let res = slf.try_send_get_metadata(
         );
         if let Err(e) = res {
             log_forward("treeland_personalization_wallpaper_context_v1.get_metadata", &e);
@@ -775,12 +775,12 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
+        slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("treeland_personalization_wallpaper_context_v1.destroy", &e);
@@ -797,13 +797,13 @@ pub trait TreelandPersonalizationWallpaperContextV1Handler: Any {
     #[inline]
     fn handle_metadata(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
+        slf: &Rc<TreelandPersonalizationWallpaperContextV1>,
         metadata: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_metadata(
+        let res = slf.try_send_metadata(
             metadata,
         );
         if let Err(e) = res {

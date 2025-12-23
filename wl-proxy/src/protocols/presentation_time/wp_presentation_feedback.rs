@@ -447,20 +447,20 @@ pub trait WpPresentationFeedbackHandler: Any {
     #[inline]
     fn handle_sync_output(
         &mut self,
-        _slf: &Rc<WpPresentationFeedback>,
+        slf: &Rc<WpPresentationFeedback>,
         output: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_sync_output(
+        let res = slf.try_send_sync_output(
             output,
         );
         if let Err(e) = res {
@@ -527,7 +527,7 @@ pub trait WpPresentationFeedbackHandler: Any {
     #[inline]
     fn handle_presented(
         &mut self,
-        _slf: &Rc<WpPresentationFeedback>,
+        slf: &Rc<WpPresentationFeedback>,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
         tv_nsec: u32,
@@ -536,10 +536,10 @@ pub trait WpPresentationFeedbackHandler: Any {
         seq_lo: u32,
         flags: WpPresentationFeedbackKind,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_presented(
+        let res = slf.try_send_presented(
             tv_sec_hi,
             tv_sec_lo,
             tv_nsec,
@@ -559,12 +559,12 @@ pub trait WpPresentationFeedbackHandler: Any {
     #[inline]
     fn handle_discarded(
         &mut self,
-        _slf: &Rc<WpPresentationFeedback>,
+        slf: &Rc<WpPresentationFeedback>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_discarded(
+        let res = slf.try_send_discarded(
         );
         if let Err(e) = res {
             log_forward("wp_presentation_feedback.discarded", &e);

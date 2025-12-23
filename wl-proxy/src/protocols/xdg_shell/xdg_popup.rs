@@ -708,12 +708,12 @@ pub trait XdgPopupHandler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<XdgPopup>,
+        slf: &Rc<XdgPopup>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("xdg_popup.destroy", &e);
@@ -770,14 +770,14 @@ pub trait XdgPopupHandler: Any {
     #[inline]
     fn handle_grab(
         &mut self,
-        _slf: &Rc<XdgPopup>,
+        slf: &Rc<XdgPopup>,
         seat: &Rc<WlSeat>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_grab(
+        let res = slf.try_send_grab(
             seat,
             serial,
         );
@@ -810,16 +810,16 @@ pub trait XdgPopupHandler: Any {
     #[inline]
     fn handle_configure(
         &mut self,
-        _slf: &Rc<XdgPopup>,
+        slf: &Rc<XdgPopup>,
         x: i32,
         y: i32,
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_configure(
+        let res = slf.try_send_configure(
             x,
             y,
             width,
@@ -838,12 +838,12 @@ pub trait XdgPopupHandler: Any {
     #[inline]
     fn handle_popup_done(
         &mut self,
-        _slf: &Rc<XdgPopup>,
+        slf: &Rc<XdgPopup>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_popup_done(
+        let res = slf.try_send_popup_done(
         );
         if let Err(e) = res {
             log_forward("xdg_popup.popup_done", &e);
@@ -886,14 +886,14 @@ pub trait XdgPopupHandler: Any {
     #[inline]
     fn handle_reposition(
         &mut self,
-        _slf: &Rc<XdgPopup>,
+        slf: &Rc<XdgPopup>,
         positioner: &Rc<XdgPositioner>,
         token: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_reposition(
+        let res = slf.try_send_reposition(
             positioner,
             token,
         );
@@ -926,13 +926,13 @@ pub trait XdgPopupHandler: Any {
     #[inline]
     fn handle_repositioned(
         &mut self,
-        _slf: &Rc<XdgPopup>,
+        slf: &Rc<XdgPopup>,
         token: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_repositioned(
+        let res = slf.try_send_repositioned(
             token,
         );
         if let Err(e) = res {

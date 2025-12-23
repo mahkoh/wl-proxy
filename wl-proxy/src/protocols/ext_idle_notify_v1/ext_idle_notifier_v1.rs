@@ -471,12 +471,12 @@ pub trait ExtIdleNotifierV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtIdleNotifierV1>,
+        slf: &Rc<ExtIdleNotifierV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_idle_notifier_v1.destroy", &e);
@@ -505,15 +505,15 @@ pub trait ExtIdleNotifierV1Handler: Any {
     #[inline]
     fn handle_get_idle_notification(
         &mut self,
-        _slf: &Rc<ExtIdleNotifierV1>,
+        slf: &Rc<ExtIdleNotifierV1>,
         id: &Rc<ExtIdleNotificationV1>,
         timeout: u32,
         seat: &Rc<WlSeat>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_idle_notification(
+        let res = slf.try_send_get_idle_notification(
             id,
             timeout,
             seat,
@@ -547,15 +547,15 @@ pub trait ExtIdleNotifierV1Handler: Any {
     #[inline]
     fn handle_get_input_idle_notification(
         &mut self,
-        _slf: &Rc<ExtIdleNotifierV1>,
+        slf: &Rc<ExtIdleNotifierV1>,
         id: &Rc<ExtIdleNotificationV1>,
         timeout: u32,
         seat: &Rc<WlSeat>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_input_idle_notification(
+        let res = slf.try_send_get_input_idle_notification(
             id,
             timeout,
             seat,

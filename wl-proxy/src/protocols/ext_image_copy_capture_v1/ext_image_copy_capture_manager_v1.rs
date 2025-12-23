@@ -459,15 +459,15 @@ pub trait ExtImageCopyCaptureManagerV1Handler: Any {
     #[inline]
     fn handle_create_session(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureManagerV1>,
+        slf: &Rc<ExtImageCopyCaptureManagerV1>,
         session: &Rc<ExtImageCopyCaptureSessionV1>,
         source: &Rc<ExtImageCaptureSourceV1>,
         options: ExtImageCopyCaptureManagerV1Options,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_session(
+        let res = slf.try_send_create_session(
             session,
             source,
             options,
@@ -493,15 +493,15 @@ pub trait ExtImageCopyCaptureManagerV1Handler: Any {
     #[inline]
     fn handle_create_pointer_cursor_session(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureManagerV1>,
+        slf: &Rc<ExtImageCopyCaptureManagerV1>,
         session: &Rc<ExtImageCopyCaptureCursorSessionV1>,
         source: &Rc<ExtImageCaptureSourceV1>,
         pointer: &Rc<WlPointer>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_pointer_cursor_session(
+        let res = slf.try_send_create_pointer_cursor_session(
             session,
             source,
             pointer,
@@ -519,12 +519,12 @@ pub trait ExtImageCopyCaptureManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureManagerV1>,
+        slf: &Rc<ExtImageCopyCaptureManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_image_copy_capture_manager_v1.destroy", &e);

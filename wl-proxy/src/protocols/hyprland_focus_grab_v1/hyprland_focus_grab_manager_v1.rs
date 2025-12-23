@@ -227,13 +227,13 @@ pub trait HyprlandFocusGrabManagerV1Handler: Any {
     #[inline]
     fn handle_create_grab(
         &mut self,
-        _slf: &Rc<HyprlandFocusGrabManagerV1>,
+        slf: &Rc<HyprlandFocusGrabManagerV1>,
         grab: &Rc<HyprlandFocusGrabV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_grab(
+        let res = slf.try_send_create_grab(
             grab,
         );
         if let Err(e) = res {
@@ -248,12 +248,12 @@ pub trait HyprlandFocusGrabManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<HyprlandFocusGrabManagerV1>,
+        slf: &Rc<HyprlandFocusGrabManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("hyprland_focus_grab_manager_v1.destroy", &e);

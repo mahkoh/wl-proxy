@@ -215,14 +215,14 @@ pub trait TreelandShortcutManagerV1Handler: Any {
     #[inline]
     fn handle_register_shortcut_context(
         &mut self,
-        _slf: &Rc<TreelandShortcutManagerV1>,
+        slf: &Rc<TreelandShortcutManagerV1>,
         key: &str,
         id: &Rc<TreelandShortcutContextV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_register_shortcut_context(
+        let res = slf.try_send_register_shortcut_context(
             key,
             id,
         );

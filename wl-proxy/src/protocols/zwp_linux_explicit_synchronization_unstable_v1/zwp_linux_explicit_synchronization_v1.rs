@@ -309,12 +309,12 @@ pub trait ZwpLinuxExplicitSynchronizationV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpLinuxExplicitSynchronizationV1>,
+        slf: &Rc<ZwpLinuxExplicitSynchronizationV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_linux_explicit_synchronization_v1.destroy", &e);
@@ -345,14 +345,14 @@ pub trait ZwpLinuxExplicitSynchronizationV1Handler: Any {
     #[inline]
     fn handle_get_synchronization(
         &mut self,
-        _slf: &Rc<ZwpLinuxExplicitSynchronizationV1>,
+        slf: &Rc<ZwpLinuxExplicitSynchronizationV1>,
         id: &Rc<ZwpLinuxSurfaceSynchronizationV1>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_synchronization(
+        let res = slf.try_send_get_synchronization(
             id,
             surface,
         );

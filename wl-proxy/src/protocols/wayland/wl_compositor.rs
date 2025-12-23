@@ -276,13 +276,13 @@ pub trait WlCompositorHandler: Any {
     #[inline]
     fn handle_create_surface(
         &mut self,
-        _slf: &Rc<WlCompositor>,
+        slf: &Rc<WlCompositor>,
         id: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_surface(
+        let res = slf.try_send_create_surface(
             id,
         );
         if let Err(e) = res {
@@ -300,13 +300,13 @@ pub trait WlCompositorHandler: Any {
     #[inline]
     fn handle_create_region(
         &mut self,
-        _slf: &Rc<WlCompositor>,
+        slf: &Rc<WlCompositor>,
         id: &Rc<WlRegion>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_region(
+        let res = slf.try_send_create_region(
             id,
         );
         if let Err(e) = res {

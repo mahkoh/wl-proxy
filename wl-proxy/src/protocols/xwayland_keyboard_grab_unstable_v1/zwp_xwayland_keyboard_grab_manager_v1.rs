@@ -337,12 +337,12 @@ pub trait ZwpXwaylandKeyboardGrabManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpXwaylandKeyboardGrabManagerV1>,
+        slf: &Rc<ZwpXwaylandKeyboardGrabManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_xwayland_keyboard_grab_manager_v1.destroy", &e);
@@ -382,15 +382,15 @@ pub trait ZwpXwaylandKeyboardGrabManagerV1Handler: Any {
     #[inline]
     fn handle_grab_keyboard(
         &mut self,
-        _slf: &Rc<ZwpXwaylandKeyboardGrabManagerV1>,
+        slf: &Rc<ZwpXwaylandKeyboardGrabManagerV1>,
         id: &Rc<ZwpXwaylandKeyboardGrabV1>,
         surface: &Rc<WlSurface>,
         seat: &Rc<WlSeat>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_grab_keyboard(
+        let res = slf.try_send_grab_keyboard(
             id,
             surface,
             seat,

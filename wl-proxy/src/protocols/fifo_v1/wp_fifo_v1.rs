@@ -309,12 +309,12 @@ pub trait WpFifoV1Handler: Any {
     #[inline]
     fn handle_set_barrier(
         &mut self,
-        _slf: &Rc<WpFifoV1>,
+        slf: &Rc<WpFifoV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_barrier(
+        let res = slf.try_send_set_barrier(
         );
         if let Err(e) = res {
             log_forward("wp_fifo_v1.set_barrier", &e);
@@ -346,12 +346,12 @@ pub trait WpFifoV1Handler: Any {
     #[inline]
     fn handle_wait_barrier(
         &mut self,
-        _slf: &Rc<WpFifoV1>,
+        slf: &Rc<WpFifoV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_wait_barrier(
+        let res = slf.try_send_wait_barrier(
         );
         if let Err(e) = res {
             log_forward("wp_fifo_v1.wait_barrier", &e);
@@ -368,12 +368,12 @@ pub trait WpFifoV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpFifoV1>,
+        slf: &Rc<WpFifoV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_fifo_v1.destroy", &e);

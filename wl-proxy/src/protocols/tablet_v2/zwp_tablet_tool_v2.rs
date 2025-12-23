@@ -1957,16 +1957,16 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_set_cursor(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
         serial: u32,
         surface: Option<&Rc<WlSurface>>,
         hotspot_x: i32,
         hotspot_y: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_cursor(
+        let res = slf.try_send_set_cursor(
             serial,
             surface,
             hotspot_x,
@@ -1983,12 +1983,12 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_tool_v2.destroy", &e);
@@ -2009,13 +2009,13 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_type(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
         tool_type: ZwpTabletToolV2Type,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_type(
+        let res = slf.try_send_type(
             tool_type,
         );
         if let Err(e) = res {
@@ -2048,14 +2048,14 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_hardware_serial(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
         hardware_serial_hi: u32,
         hardware_serial_lo: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_hardware_serial(
+        let res = slf.try_send_hardware_serial(
             hardware_serial_hi,
             hardware_serial_lo,
         );
@@ -2084,14 +2084,14 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_hardware_id_wacom(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
         hardware_id_hi: u32,
         hardware_id_lo: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_hardware_id_wacom(
+        let res = slf.try_send_hardware_id_wacom(
             hardware_id_hi,
             hardware_id_lo,
         );
@@ -2116,13 +2116,13 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_capability(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
         capability: ZwpTabletToolV2Capability,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_capability(
+        let res = slf.try_send_capability(
             capability,
         );
         if let Err(e) = res {
@@ -2138,12 +2138,12 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_tool_v2.done", &e);
@@ -2169,12 +2169,12 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_removed(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_removed(
+        let res = slf.try_send_removed(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_tool_v2.removed", &e);
@@ -2204,15 +2204,15 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_proximity_in(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
         serial: u32,
         tablet: &Rc<ZwpTabletV2>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = tablet.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
@@ -2224,7 +2224,7 @@ pub trait ZwpTabletToolV2Handler: Any {
                 }
             }
         }
-        let res = _slf.try_send_proximity_in(
+        let res = slf.try_send_proximity_in(
             serial,
             tablet,
             surface,
@@ -2251,12 +2251,12 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_proximity_out(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_proximity_out(
+        let res = slf.try_send_proximity_out(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_tool_v2.proximity_out", &e);
@@ -2284,13 +2284,13 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_down(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_down(
+        let res = slf.try_send_down(
             serial,
         );
         if let Err(e) = res {
@@ -2319,12 +2319,12 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_up(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_up(
+        let res = slf.try_send_up(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_tool_v2.up", &e);
@@ -2342,14 +2342,14 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_motion(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
         x: Fixed,
         y: Fixed,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_motion(
+        let res = slf.try_send_motion(
             x,
             y,
         );
@@ -2372,13 +2372,13 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_pressure(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
         pressure: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_pressure(
+        let res = slf.try_send_pressure(
             pressure,
         );
         if let Err(e) = res {
@@ -2400,13 +2400,13 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_distance(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
         distance: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_distance(
+        let res = slf.try_send_distance(
             distance,
         );
         if let Err(e) = res {
@@ -2428,14 +2428,14 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_tilt(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
         tilt_x: Fixed,
         tilt_y: Fixed,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_tilt(
+        let res = slf.try_send_tilt(
             tilt_x,
             tilt_y,
         );
@@ -2456,13 +2456,13 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_rotation(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
         degrees: Fixed,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_rotation(
+        let res = slf.try_send_rotation(
             degrees,
         );
         if let Err(e) = res {
@@ -2484,13 +2484,13 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_slider(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
         position: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_slider(
+        let res = slf.try_send_slider(
             position,
         );
         if let Err(e) = res {
@@ -2520,14 +2520,14 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_wheel(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
         degrees: Fixed,
         clicks: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_wheel(
+        let res = slf.try_send_wheel(
             degrees,
             clicks,
         );
@@ -2553,15 +2553,15 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_button(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
         serial: u32,
         button: u32,
         state: ZwpTabletToolV2ButtonState,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_button(
+        let res = slf.try_send_button(
             serial,
             button,
             state,
@@ -2584,13 +2584,13 @@ pub trait ZwpTabletToolV2Handler: Any {
     #[inline]
     fn handle_frame(
         &mut self,
-        _slf: &Rc<ZwpTabletToolV2>,
+        slf: &Rc<ZwpTabletToolV2>,
         time: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_frame(
+        let res = slf.try_send_frame(
             time,
         );
         if let Err(e) = res {

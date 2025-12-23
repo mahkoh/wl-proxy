@@ -262,14 +262,14 @@ pub trait ZwlrOutputPowerManagerV1Handler: Any {
     #[inline]
     fn handle_get_output_power(
         &mut self,
-        _slf: &Rc<ZwlrOutputPowerManagerV1>,
+        slf: &Rc<ZwlrOutputPowerManagerV1>,
         id: &Rc<ZwlrOutputPowerV1>,
         output: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_output_power(
+        let res = slf.try_send_get_output_power(
             id,
             output,
         );
@@ -285,12 +285,12 @@ pub trait ZwlrOutputPowerManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwlrOutputPowerManagerV1>,
+        slf: &Rc<ZwlrOutputPowerManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwlr_output_power_manager_v1.destroy", &e);

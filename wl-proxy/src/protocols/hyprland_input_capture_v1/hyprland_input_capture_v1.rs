@@ -711,12 +711,12 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     #[inline]
     fn handle_clear_barriers(
         &mut self,
-        _slf: &Rc<HyprlandInputCaptureV1>,
+        slf: &Rc<HyprlandInputCaptureV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_clear_barriers(
+        let res = slf.try_send_clear_barriers(
         );
         if let Err(e) = res {
             log_forward("hyprland_input_capture_v1.clear_barriers", &e);
@@ -738,7 +738,7 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     #[inline]
     fn handle_add_barrier(
         &mut self,
-        _slf: &Rc<HyprlandInputCaptureV1>,
+        slf: &Rc<HyprlandInputCaptureV1>,
         zone_set: u32,
         id: u32,
         x1: u32,
@@ -746,10 +746,10 @@ pub trait HyprlandInputCaptureV1Handler: Any {
         x2: u32,
         y2: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_add_barrier(
+        let res = slf.try_send_add_barrier(
             zone_set,
             id,
             x1,
@@ -768,12 +768,12 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     #[inline]
     fn handle_enable(
         &mut self,
-        _slf: &Rc<HyprlandInputCaptureV1>,
+        slf: &Rc<HyprlandInputCaptureV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_enable(
+        let res = slf.try_send_enable(
         );
         if let Err(e) = res {
             log_forward("hyprland_input_capture_v1.enable", &e);
@@ -786,12 +786,12 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     #[inline]
     fn handle_disable(
         &mut self,
-        _slf: &Rc<HyprlandInputCaptureV1>,
+        slf: &Rc<HyprlandInputCaptureV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_disable(
+        let res = slf.try_send_disable(
         );
         if let Err(e) = res {
             log_forward("hyprland_input_capture_v1.disable", &e);
@@ -811,15 +811,15 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     #[inline]
     fn handle_release(
         &mut self,
-        _slf: &Rc<HyprlandInputCaptureV1>,
+        slf: &Rc<HyprlandInputCaptureV1>,
         activation_id: u32,
         x: Fixed,
         y: Fixed,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_release(
+        let res = slf.try_send_release(
             activation_id,
             x,
             y,
@@ -839,13 +839,13 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     #[inline]
     fn handle_eis_fd(
         &mut self,
-        _slf: &Rc<HyprlandInputCaptureV1>,
+        slf: &Rc<HyprlandInputCaptureV1>,
         fd: &Rc<OwnedFd>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_eis_fd(
+        let res = slf.try_send_eis_fd(
             fd,
         );
         if let Err(e) = res {
@@ -859,12 +859,12 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     #[inline]
     fn handle_disabled(
         &mut self,
-        _slf: &Rc<HyprlandInputCaptureV1>,
+        slf: &Rc<HyprlandInputCaptureV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_disabled(
+        let res = slf.try_send_disabled(
         );
         if let Err(e) = res {
             log_forward("hyprland_input_capture_v1.disabled", &e);
@@ -884,16 +884,16 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     #[inline]
     fn handle_activated(
         &mut self,
-        _slf: &Rc<HyprlandInputCaptureV1>,
+        slf: &Rc<HyprlandInputCaptureV1>,
         activation_id: u32,
         x: Fixed,
         y: Fixed,
         barrier_id: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_activated(
+        let res = slf.try_send_activated(
             activation_id,
             x,
             y,
@@ -914,13 +914,13 @@ pub trait HyprlandInputCaptureV1Handler: Any {
     #[inline]
     fn handle_deactivated(
         &mut self,
-        _slf: &Rc<HyprlandInputCaptureV1>,
+        slf: &Rc<HyprlandInputCaptureV1>,
         activation_id: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_deactivated(
+        let res = slf.try_send_deactivated(
             activation_id,
         );
         if let Err(e) = res {

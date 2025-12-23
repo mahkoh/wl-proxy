@@ -540,13 +540,13 @@ pub trait WlDisplayHandler: Any {
     #[inline]
     fn handle_sync(
         &mut self,
-        _slf: &Rc<WlDisplay>,
+        slf: &Rc<WlDisplay>,
         callback: &Rc<WlCallback>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_sync(
+        let res = slf.try_send_sync(
             callback,
         );
         if let Err(e) = res {
@@ -572,13 +572,13 @@ pub trait WlDisplayHandler: Any {
     #[inline]
     fn handle_get_registry(
         &mut self,
-        _slf: &Rc<WlDisplay>,
+        slf: &Rc<WlDisplay>,
         registry: &Rc<WlRegistry>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_registry(
+        let res = slf.try_send_get_registry(
             registry,
         );
         if let Err(e) = res {
@@ -607,22 +607,22 @@ pub trait WlDisplayHandler: Any {
     #[inline]
     fn handle_error(
         &mut self,
-        _slf: &Rc<WlDisplay>,
+        slf: &Rc<WlDisplay>,
         object_id: Rc<dyn Object>,
         code: u32,
         message: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = object_id.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_error(
+        let res = slf.try_send_error(
             object_id,
             code,
             message,
@@ -646,13 +646,13 @@ pub trait WlDisplayHandler: Any {
     #[inline]
     fn handle_delete_id(
         &mut self,
-        _slf: &Rc<WlDisplay>,
+        slf: &Rc<WlDisplay>,
         id: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_delete_id(
+        let res = slf.try_send_delete_id(
             id,
         );
         if let Err(e) = res {

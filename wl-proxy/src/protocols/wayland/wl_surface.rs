@@ -1928,12 +1928,12 @@ pub trait WlSurfaceHandler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WlSurface>,
+        slf: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wl_surface.destroy", &e);
@@ -2019,15 +2019,15 @@ pub trait WlSurfaceHandler: Any {
     #[inline]
     fn handle_attach(
         &mut self,
-        _slf: &Rc<WlSurface>,
+        slf: &Rc<WlSurface>,
         buffer: Option<&Rc<WlBuffer>>,
         x: i32,
         y: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_attach(
+        let res = slf.try_send_attach(
             buffer,
             x,
             y,
@@ -2070,16 +2070,16 @@ pub trait WlSurfaceHandler: Any {
     #[inline]
     fn handle_damage(
         &mut self,
-        _slf: &Rc<WlSurface>,
+        slf: &Rc<WlSurface>,
         x: i32,
         y: i32,
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_damage(
+        let res = slf.try_send_damage(
             x,
             y,
             width,
@@ -2131,13 +2131,13 @@ pub trait WlSurfaceHandler: Any {
     #[inline]
     fn handle_frame(
         &mut self,
-        _slf: &Rc<WlSurface>,
+        slf: &Rc<WlSurface>,
         callback: &Rc<WlCallback>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_frame(
+        let res = slf.try_send_frame(
             callback,
         );
         if let Err(e) = res {
@@ -2181,13 +2181,13 @@ pub trait WlSurfaceHandler: Any {
     #[inline]
     fn handle_set_opaque_region(
         &mut self,
-        _slf: &Rc<WlSurface>,
+        slf: &Rc<WlSurface>,
         region: Option<&Rc<WlRegion>>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_opaque_region(
+        let res = slf.try_send_set_opaque_region(
             region,
         );
         if let Err(e) = res {
@@ -2229,13 +2229,13 @@ pub trait WlSurfaceHandler: Any {
     #[inline]
     fn handle_set_input_region(
         &mut self,
-        _slf: &Rc<WlSurface>,
+        slf: &Rc<WlSurface>,
         region: Option<&Rc<WlRegion>>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_input_region(
+        let res = slf.try_send_set_input_region(
             region,
         );
         if let Err(e) = res {
@@ -2267,12 +2267,12 @@ pub trait WlSurfaceHandler: Any {
     #[inline]
     fn handle_commit(
         &mut self,
-        _slf: &Rc<WlSurface>,
+        slf: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_commit(
+        let res = slf.try_send_commit(
         );
         if let Err(e) = res {
             log_forward("wl_surface.commit", &e);
@@ -2296,20 +2296,20 @@ pub trait WlSurfaceHandler: Any {
     #[inline]
     fn handle_enter(
         &mut self,
-        _slf: &Rc<WlSurface>,
+        slf: &Rc<WlSurface>,
         output: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_enter(
+        let res = slf.try_send_enter(
             output,
         );
         if let Err(e) = res {
@@ -2338,20 +2338,20 @@ pub trait WlSurfaceHandler: Any {
     #[inline]
     fn handle_leave(
         &mut self,
-        _slf: &Rc<WlSurface>,
+        slf: &Rc<WlSurface>,
         output: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_leave(
+        let res = slf.try_send_leave(
             output,
         );
         if let Err(e) = res {
@@ -2399,13 +2399,13 @@ pub trait WlSurfaceHandler: Any {
     #[inline]
     fn handle_set_buffer_transform(
         &mut self,
-        _slf: &Rc<WlSurface>,
+        slf: &Rc<WlSurface>,
         transform: WlOutputTransform,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_buffer_transform(
+        let res = slf.try_send_set_buffer_transform(
             transform,
         );
         if let Err(e) = res {
@@ -2445,13 +2445,13 @@ pub trait WlSurfaceHandler: Any {
     #[inline]
     fn handle_set_buffer_scale(
         &mut self,
-        _slf: &Rc<WlSurface>,
+        slf: &Rc<WlSurface>,
         scale: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_buffer_scale(
+        let res = slf.try_send_set_buffer_scale(
             scale,
         );
         if let Err(e) = res {
@@ -2503,16 +2503,16 @@ pub trait WlSurfaceHandler: Any {
     #[inline]
     fn handle_damage_buffer(
         &mut self,
-        _slf: &Rc<WlSurface>,
+        slf: &Rc<WlSurface>,
         x: i32,
         y: i32,
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_damage_buffer(
+        let res = slf.try_send_damage_buffer(
             x,
             y,
             width,
@@ -2548,14 +2548,14 @@ pub trait WlSurfaceHandler: Any {
     #[inline]
     fn handle_offset(
         &mut self,
-        _slf: &Rc<WlSurface>,
+        slf: &Rc<WlSurface>,
         x: i32,
         y: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_offset(
+        let res = slf.try_send_offset(
             x,
             y,
         );
@@ -2585,13 +2585,13 @@ pub trait WlSurfaceHandler: Any {
     #[inline]
     fn handle_preferred_buffer_scale(
         &mut self,
-        _slf: &Rc<WlSurface>,
+        slf: &Rc<WlSurface>,
         factor: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_preferred_buffer_scale(
+        let res = slf.try_send_preferred_buffer_scale(
             factor,
         );
         if let Err(e) = res {
@@ -2617,13 +2617,13 @@ pub trait WlSurfaceHandler: Any {
     #[inline]
     fn handle_preferred_buffer_transform(
         &mut self,
-        _slf: &Rc<WlSurface>,
+        slf: &Rc<WlSurface>,
         transform: WlOutputTransform,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_preferred_buffer_transform(
+        let res = slf.try_send_preferred_buffer_transform(
             transform,
         );
         if let Err(e) = res {

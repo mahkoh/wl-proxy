@@ -240,12 +240,12 @@ pub trait ZwpInputTimestampsV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpInputTimestampsV1>,
+        slf: &Rc<ZwpInputTimestampsV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_input_timestamps_v1.destroy", &e);
@@ -277,15 +277,15 @@ pub trait ZwpInputTimestampsV1Handler: Any {
     #[inline]
     fn handle_timestamp(
         &mut self,
-        _slf: &Rc<ZwpInputTimestampsV1>,
+        slf: &Rc<ZwpInputTimestampsV1>,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
         tv_nsec: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_timestamp(
+        let res = slf.try_send_timestamp(
             tv_sec_hi,
             tv_sec_lo,
             tv_nsec,

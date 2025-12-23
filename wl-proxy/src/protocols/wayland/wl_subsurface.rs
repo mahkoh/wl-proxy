@@ -620,12 +620,12 @@ pub trait WlSubsurfaceHandler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WlSubsurface>,
+        slf: &Rc<WlSubsurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wl_subsurface.destroy", &e);
@@ -656,14 +656,14 @@ pub trait WlSubsurfaceHandler: Any {
     #[inline]
     fn handle_set_position(
         &mut self,
-        _slf: &Rc<WlSubsurface>,
+        slf: &Rc<WlSubsurface>,
         x: i32,
         y: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_position(
+        let res = slf.try_send_set_position(
             x,
             y,
         );
@@ -697,13 +697,13 @@ pub trait WlSubsurfaceHandler: Any {
     #[inline]
     fn handle_place_above(
         &mut self,
-        _slf: &Rc<WlSubsurface>,
+        slf: &Rc<WlSubsurface>,
         sibling: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_place_above(
+        let res = slf.try_send_place_above(
             sibling,
         );
         if let Err(e) = res {
@@ -725,13 +725,13 @@ pub trait WlSubsurfaceHandler: Any {
     #[inline]
     fn handle_place_below(
         &mut self,
-        _slf: &Rc<WlSubsurface>,
+        slf: &Rc<WlSubsurface>,
         sibling: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_place_below(
+        let res = slf.try_send_place_below(
             sibling,
         );
         if let Err(e) = res {
@@ -757,12 +757,12 @@ pub trait WlSubsurfaceHandler: Any {
     #[inline]
     fn handle_set_sync(
         &mut self,
-        _slf: &Rc<WlSubsurface>,
+        slf: &Rc<WlSubsurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_sync(
+        let res = slf.try_send_set_sync(
         );
         if let Err(e) = res {
             log_forward("wl_subsurface.set_sync", &e);
@@ -793,12 +793,12 @@ pub trait WlSubsurfaceHandler: Any {
     #[inline]
     fn handle_set_desync(
         &mut self,
-        _slf: &Rc<WlSubsurface>,
+        slf: &Rc<WlSubsurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_desync(
+        let res = slf.try_send_set_desync(
         );
         if let Err(e) = res {
             log_forward("wl_subsurface.set_desync", &e);

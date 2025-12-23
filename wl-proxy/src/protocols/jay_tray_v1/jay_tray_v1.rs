@@ -292,12 +292,12 @@ pub trait JayTrayV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<JayTrayV1>,
+        slf: &Rc<JayTrayV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("jay_tray_v1.destroy", &e);
@@ -324,14 +324,14 @@ pub trait JayTrayV1Handler: Any {
     #[inline]
     fn handle_get_tray_item(
         &mut self,
-        _slf: &Rc<JayTrayV1>,
+        slf: &Rc<JayTrayV1>,
         id: &Rc<JayTrayItemV1>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_tray_item(
+        let res = slf.try_send_get_tray_item(
             id,
             surface,
         );

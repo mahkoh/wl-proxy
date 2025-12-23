@@ -285,12 +285,12 @@ pub trait ZwpRelativePointerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpRelativePointerV1>,
+        slf: &Rc<ZwpRelativePointerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_relative_pointer_v1.destroy", &e);
@@ -341,7 +341,7 @@ pub trait ZwpRelativePointerV1Handler: Any {
     #[inline]
     fn handle_relative_motion(
         &mut self,
-        _slf: &Rc<ZwpRelativePointerV1>,
+        slf: &Rc<ZwpRelativePointerV1>,
         utime_hi: u32,
         utime_lo: u32,
         dx: Fixed,
@@ -349,10 +349,10 @@ pub trait ZwpRelativePointerV1Handler: Any {
         dx_unaccel: Fixed,
         dy_unaccel: Fixed,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_relative_motion(
+        let res = slf.try_send_relative_motion(
             utime_hi,
             utime_lo,
             dx,

@@ -707,13 +707,13 @@ pub trait ExtWorkspaceGroupHandleV1Handler: Any {
     #[inline]
     fn handle_capabilities(
         &mut self,
-        _slf: &Rc<ExtWorkspaceGroupHandleV1>,
+        slf: &Rc<ExtWorkspaceGroupHandleV1>,
         capabilities: ExtWorkspaceGroupHandleV1GroupCapabilities,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_capabilities(
+        let res = slf.try_send_capabilities(
             capabilities,
         );
         if let Err(e) = res {
@@ -736,20 +736,20 @@ pub trait ExtWorkspaceGroupHandleV1Handler: Any {
     #[inline]
     fn handle_output_enter(
         &mut self,
-        _slf: &Rc<ExtWorkspaceGroupHandleV1>,
+        slf: &Rc<ExtWorkspaceGroupHandleV1>,
         output: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_output_enter(
+        let res = slf.try_send_output_enter(
             output,
         );
         if let Err(e) = res {
@@ -771,20 +771,20 @@ pub trait ExtWorkspaceGroupHandleV1Handler: Any {
     #[inline]
     fn handle_output_leave(
         &mut self,
-        _slf: &Rc<ExtWorkspaceGroupHandleV1>,
+        slf: &Rc<ExtWorkspaceGroupHandleV1>,
         output: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_output_leave(
+        let res = slf.try_send_output_leave(
             output,
         );
         if let Err(e) = res {
@@ -807,20 +807,20 @@ pub trait ExtWorkspaceGroupHandleV1Handler: Any {
     #[inline]
     fn handle_workspace_enter(
         &mut self,
-        _slf: &Rc<ExtWorkspaceGroupHandleV1>,
+        slf: &Rc<ExtWorkspaceGroupHandleV1>,
         workspace: &Rc<ExtWorkspaceHandleV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = workspace.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_workspace_enter(
+        let res = slf.try_send_workspace_enter(
             workspace,
         );
         if let Err(e) = res {
@@ -841,20 +841,20 @@ pub trait ExtWorkspaceGroupHandleV1Handler: Any {
     #[inline]
     fn handle_workspace_leave(
         &mut self,
-        _slf: &Rc<ExtWorkspaceGroupHandleV1>,
+        slf: &Rc<ExtWorkspaceGroupHandleV1>,
         workspace: &Rc<ExtWorkspaceHandleV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = workspace.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_workspace_leave(
+        let res = slf.try_send_workspace_leave(
             workspace,
         );
         if let Err(e) = res {
@@ -875,12 +875,12 @@ pub trait ExtWorkspaceGroupHandleV1Handler: Any {
     #[inline]
     fn handle_removed(
         &mut self,
-        _slf: &Rc<ExtWorkspaceGroupHandleV1>,
+        slf: &Rc<ExtWorkspaceGroupHandleV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_removed(
+        let res = slf.try_send_removed(
         );
         if let Err(e) = res {
             log_forward("ext_workspace_group_handle_v1.removed", &e);
@@ -901,13 +901,13 @@ pub trait ExtWorkspaceGroupHandleV1Handler: Any {
     #[inline]
     fn handle_create_workspace(
         &mut self,
-        _slf: &Rc<ExtWorkspaceGroupHandleV1>,
+        slf: &Rc<ExtWorkspaceGroupHandleV1>,
         workspace: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_workspace(
+        let res = slf.try_send_create_workspace(
             workspace,
         );
         if let Err(e) = res {
@@ -925,12 +925,12 @@ pub trait ExtWorkspaceGroupHandleV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtWorkspaceGroupHandleV1>,
+        slf: &Rc<ExtWorkspaceGroupHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_workspace_group_handle_v1.destroy", &e);

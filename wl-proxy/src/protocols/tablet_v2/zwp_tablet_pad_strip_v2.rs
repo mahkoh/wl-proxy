@@ -602,14 +602,14 @@ pub trait ZwpTabletPadStripV2Handler: Any {
     #[inline]
     fn handle_set_feedback(
         &mut self,
-        _slf: &Rc<ZwpTabletPadStripV2>,
+        slf: &Rc<ZwpTabletPadStripV2>,
         description: &str,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_feedback(
+        let res = slf.try_send_set_feedback(
             description,
             serial,
         );
@@ -624,12 +624,12 @@ pub trait ZwpTabletPadStripV2Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpTabletPadStripV2>,
+        slf: &Rc<ZwpTabletPadStripV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_pad_strip_v2.destroy", &e);
@@ -657,13 +657,13 @@ pub trait ZwpTabletPadStripV2Handler: Any {
     #[inline]
     fn handle_source(
         &mut self,
-        _slf: &Rc<ZwpTabletPadStripV2>,
+        slf: &Rc<ZwpTabletPadStripV2>,
         source: ZwpTabletPadStripV2Source,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_source(
+        let res = slf.try_send_source(
             source,
         );
         if let Err(e) = res {
@@ -685,13 +685,13 @@ pub trait ZwpTabletPadStripV2Handler: Any {
     #[inline]
     fn handle_position(
         &mut self,
-        _slf: &Rc<ZwpTabletPadStripV2>,
+        slf: &Rc<ZwpTabletPadStripV2>,
         position: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_position(
+        let res = slf.try_send_position(
             position,
         );
         if let Err(e) = res {
@@ -714,12 +714,12 @@ pub trait ZwpTabletPadStripV2Handler: Any {
     #[inline]
     fn handle_stop(
         &mut self,
-        _slf: &Rc<ZwpTabletPadStripV2>,
+        slf: &Rc<ZwpTabletPadStripV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_stop(
+        let res = slf.try_send_stop(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_pad_strip_v2.stop", &e);
@@ -749,13 +749,13 @@ pub trait ZwpTabletPadStripV2Handler: Any {
     #[inline]
     fn handle_frame(
         &mut self,
-        _slf: &Rc<ZwpTabletPadStripV2>,
+        slf: &Rc<ZwpTabletPadStripV2>,
         time: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_frame(
+        let res = slf.try_send_frame(
             time,
         );
         if let Err(e) = res {

@@ -1339,13 +1339,13 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_title(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
         title: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_title(
+        let res = slf.try_send_title(
             title,
         );
         if let Err(e) = res {
@@ -1363,13 +1363,13 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_app_id(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
         app_id: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_app_id(
+        let res = slf.try_send_app_id(
             app_id,
         );
         if let Err(e) = res {
@@ -1391,20 +1391,20 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_output_enter(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
         output: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_output_enter(
+        let res = slf.try_send_output_enter(
             output,
         );
         if let Err(e) = res {
@@ -1427,20 +1427,20 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_output_leave(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
         output: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = output.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_output_leave(
+        let res = slf.try_send_output_leave(
             output,
         );
         if let Err(e) = res {
@@ -1455,12 +1455,12 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_set_maximized(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_maximized(
+        let res = slf.try_send_set_maximized(
         );
         if let Err(e) = res {
             log_forward("zwlr_foreign_toplevel_handle_v1.set_maximized", &e);
@@ -1474,12 +1474,12 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_unset_maximized(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_unset_maximized(
+        let res = slf.try_send_unset_maximized(
         );
         if let Err(e) = res {
             log_forward("zwlr_foreign_toplevel_handle_v1.unset_maximized", &e);
@@ -1493,12 +1493,12 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_set_minimized(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_minimized(
+        let res = slf.try_send_set_minimized(
         );
         if let Err(e) = res {
             log_forward("zwlr_foreign_toplevel_handle_v1.set_minimized", &e);
@@ -1512,12 +1512,12 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_unset_minimized(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_unset_minimized(
+        let res = slf.try_send_unset_minimized(
         );
         if let Err(e) = res {
             log_forward("zwlr_foreign_toplevel_handle_v1.unset_minimized", &e);
@@ -1538,13 +1538,13 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_activate(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
         seat: &Rc<WlSeat>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_activate(
+        let res = slf.try_send_activate(
             seat,
         );
         if let Err(e) = res {
@@ -1564,13 +1564,13 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_state(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
         state: &[u8],
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_state(
+        let res = slf.try_send_state(
             state,
         );
         if let Err(e) = res {
@@ -1588,12 +1588,12 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
         );
         if let Err(e) = res {
             log_forward("zwlr_foreign_toplevel_handle_v1.done", &e);
@@ -1611,12 +1611,12 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_close(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_close(
+        let res = slf.try_send_close(
         );
         if let Err(e) = res {
             log_forward("zwlr_foreign_toplevel_handle_v1.close", &e);
@@ -1650,17 +1650,17 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_set_rectangle(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
         surface: &Rc<WlSurface>,
         x: i32,
         y: i32,
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_rectangle(
+        let res = slf.try_send_set_rectangle(
             surface,
             x,
             y,
@@ -1681,12 +1681,12 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_closed(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_closed(
+        let res = slf.try_send_closed(
         );
         if let Err(e) = res {
             log_forward("zwlr_foreign_toplevel_handle_v1.closed", &e);
@@ -1703,12 +1703,12 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwlr_foreign_toplevel_handle_v1.destroy", &e);
@@ -1735,13 +1735,13 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_set_fullscreen(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
         output: Option<&Rc<WlOutput>>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_fullscreen(
+        let res = slf.try_send_set_fullscreen(
             output,
         );
         if let Err(e) = res {
@@ -1756,12 +1756,12 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_unset_fullscreen(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_unset_fullscreen(
+        let res = slf.try_send_unset_fullscreen(
         );
         if let Err(e) = res {
             log_forward("zwlr_foreign_toplevel_handle_v1.unset_fullscreen", &e);
@@ -1783,13 +1783,13 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
     #[inline]
     fn handle_parent(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelHandleV1>,
+        slf: &Rc<ZwlrForeignToplevelHandleV1>,
         parent: Option<&Rc<ZwlrForeignToplevelHandleV1>>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(parent) = parent {
                 if let Some(client_id_2) = parent.core().client_id.get() {
                     if client_id != client_id_2 {
@@ -1798,7 +1798,7 @@ pub trait ZwlrForeignToplevelHandleV1Handler: Any {
                 }
             }
         }
-        let res = _slf.try_send_parent(
+        let res = slf.try_send_parent(
             parent,
         );
         if let Err(e) = res {

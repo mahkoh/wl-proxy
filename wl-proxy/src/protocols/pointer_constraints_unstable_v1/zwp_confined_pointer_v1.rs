@@ -360,12 +360,12 @@ pub trait ZwpConfinedPointerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpConfinedPointerV1>,
+        slf: &Rc<ZwpConfinedPointerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_confined_pointer_v1.destroy", &e);
@@ -398,13 +398,13 @@ pub trait ZwpConfinedPointerV1Handler: Any {
     #[inline]
     fn handle_set_region(
         &mut self,
-        _slf: &Rc<ZwpConfinedPointerV1>,
+        slf: &Rc<ZwpConfinedPointerV1>,
         region: Option<&Rc<WlRegion>>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_region(
+        let res = slf.try_send_set_region(
             region,
         );
         if let Err(e) = res {
@@ -419,12 +419,12 @@ pub trait ZwpConfinedPointerV1Handler: Any {
     #[inline]
     fn handle_confined(
         &mut self,
-        _slf: &Rc<ZwpConfinedPointerV1>,
+        slf: &Rc<ZwpConfinedPointerV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_confined(
+        let res = slf.try_send_confined(
         );
         if let Err(e) = res {
             log_forward("zwp_confined_pointer_v1.confined", &e);
@@ -442,12 +442,12 @@ pub trait ZwpConfinedPointerV1Handler: Any {
     #[inline]
     fn handle_unconfined(
         &mut self,
-        _slf: &Rc<ZwpConfinedPointerV1>,
+        slf: &Rc<ZwpConfinedPointerV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_unconfined(
+        let res = slf.try_send_unconfined(
         );
         if let Err(e) = res {
             log_forward("zwp_confined_pointer_v1.unconfined", &e);

@@ -501,12 +501,12 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpColorRepresentationManagerV1>,
+        slf: &Rc<WpColorRepresentationManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_color_representation_manager_v1.destroy", &e);
@@ -533,14 +533,14 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
     #[inline]
     fn handle_get_surface(
         &mut self,
-        _slf: &Rc<WpColorRepresentationManagerV1>,
+        slf: &Rc<WpColorRepresentationManagerV1>,
         id: &Rc<WpColorRepresentationSurfaceV1>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_surface(
+        let res = slf.try_send_get_surface(
             id,
             surface,
         );
@@ -563,13 +563,13 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
     #[inline]
     fn handle_supported_alpha_mode(
         &mut self,
-        _slf: &Rc<WpColorRepresentationManagerV1>,
+        slf: &Rc<WpColorRepresentationManagerV1>,
         alpha_mode: WpColorRepresentationSurfaceV1AlphaMode,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_supported_alpha_mode(
+        let res = slf.try_send_supported_alpha_mode(
             alpha_mode,
         );
         if let Err(e) = res {
@@ -594,14 +594,14 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
     #[inline]
     fn handle_supported_coefficients_and_ranges(
         &mut self,
-        _slf: &Rc<WpColorRepresentationManagerV1>,
+        slf: &Rc<WpColorRepresentationManagerV1>,
         coefficients: WpColorRepresentationSurfaceV1Coefficients,
         range: WpColorRepresentationSurfaceV1Range,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_supported_coefficients_and_ranges(
+        let res = slf.try_send_supported_coefficients_and_ranges(
             coefficients,
             range,
         );
@@ -616,12 +616,12 @@ pub trait WpColorRepresentationManagerV1Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<WpColorRepresentationManagerV1>,
+        slf: &Rc<WpColorRepresentationManagerV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
         );
         if let Err(e) = res {
             log_forward("wp_color_representation_manager_v1.done", &e);

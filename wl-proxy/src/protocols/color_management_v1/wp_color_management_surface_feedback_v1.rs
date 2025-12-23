@@ -660,12 +660,12 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
+        slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_color_management_surface_feedback_v1.destroy", &e);
@@ -683,13 +683,13 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
     #[inline]
     fn handle_preferred_changed(
         &mut self,
-        _slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
+        slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
         identity: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_preferred_changed(
+        let res = slf.try_send_preferred_changed(
             identity,
         );
         if let Err(e) = res {
@@ -739,13 +739,13 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
     #[inline]
     fn handle_get_preferred(
         &mut self,
-        _slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
+        slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
         image_description: &Rc<WpImageDescriptionV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_preferred(
+        let res = slf.try_send_get_preferred(
             image_description,
         );
         if let Err(e) = res {
@@ -768,13 +768,13 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
     #[inline]
     fn handle_get_preferred_parametric(
         &mut self,
-        _slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
+        slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
         image_description: &Rc<WpImageDescriptionV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_preferred_parametric(
+        let res = slf.try_send_get_preferred_parametric(
             image_description,
         );
         if let Err(e) = res {
@@ -808,14 +808,14 @@ pub trait WpColorManagementSurfaceFeedbackV1Handler: Any {
     #[inline]
     fn handle_preferred_changed2(
         &mut self,
-        _slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
+        slf: &Rc<WpColorManagementSurfaceFeedbackV1>,
         identity_hi: u32,
         identity_lo: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_preferred_changed2(
+        let res = slf.try_send_preferred_changed2(
             identity_hi,
             identity_lo,
         );

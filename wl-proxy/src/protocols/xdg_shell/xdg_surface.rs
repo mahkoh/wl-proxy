@@ -870,12 +870,12 @@ pub trait XdgSurfaceHandler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<XdgSurface>,
+        slf: &Rc<XdgSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("xdg_surface.destroy", &e);
@@ -896,13 +896,13 @@ pub trait XdgSurfaceHandler: Any {
     #[inline]
     fn handle_get_toplevel(
         &mut self,
-        _slf: &Rc<XdgSurface>,
+        slf: &Rc<XdgSurface>,
         id: &Rc<XdgToplevel>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_toplevel(
+        let res = slf.try_send_get_toplevel(
             id,
         );
         if let Err(e) = res {
@@ -932,15 +932,15 @@ pub trait XdgSurfaceHandler: Any {
     #[inline]
     fn handle_get_popup(
         &mut self,
-        _slf: &Rc<XdgSurface>,
+        slf: &Rc<XdgSurface>,
         id: &Rc<XdgPopup>,
         parent: Option<&Rc<XdgSurface>>,
         positioner: &Rc<XdgPositioner>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_popup(
+        let res = slf.try_send_get_popup(
             id,
             parent,
             positioner,
@@ -1002,16 +1002,16 @@ pub trait XdgSurfaceHandler: Any {
     #[inline]
     fn handle_set_window_geometry(
         &mut self,
-        _slf: &Rc<XdgSurface>,
+        slf: &Rc<XdgSurface>,
         x: i32,
         y: i32,
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_window_geometry(
+        let res = slf.try_send_set_window_geometry(
             x,
             y,
             width,
@@ -1063,13 +1063,13 @@ pub trait XdgSurfaceHandler: Any {
     #[inline]
     fn handle_ack_configure(
         &mut self,
-        _slf: &Rc<XdgSurface>,
+        slf: &Rc<XdgSurface>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_ack_configure(
+        let res = slf.try_send_ack_configure(
             serial,
         );
         if let Err(e) = res {
@@ -1102,13 +1102,13 @@ pub trait XdgSurfaceHandler: Any {
     #[inline]
     fn handle_configure(
         &mut self,
-        _slf: &Rc<XdgSurface>,
+        slf: &Rc<XdgSurface>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_configure(
+        let res = slf.try_send_configure(
             serial,
         );
         if let Err(e) = res {

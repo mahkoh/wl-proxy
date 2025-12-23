@@ -710,12 +710,12 @@ pub trait JayTrayItemV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<JayTrayItemV1>,
+        slf: &Rc<JayTrayItemV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("jay_tray_item_v1.destroy", &e);
@@ -734,13 +734,13 @@ pub trait JayTrayItemV1Handler: Any {
     #[inline]
     fn handle_ack_configure(
         &mut self,
-        _slf: &Rc<JayTrayItemV1>,
+        slf: &Rc<JayTrayItemV1>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_ack_configure(
+        let res = slf.try_send_ack_configure(
             serial,
         );
         if let Err(e) = res {
@@ -779,16 +779,16 @@ pub trait JayTrayItemV1Handler: Any {
     #[inline]
     fn handle_get_popup(
         &mut self,
-        _slf: &Rc<JayTrayItemV1>,
+        slf: &Rc<JayTrayItemV1>,
         popup: &Rc<XdgPopup>,
         seat: &Rc<WlSeat>,
         serial: u32,
         focus_hint: JayTrayItemV1KeyboardFocusHint,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_popup(
+        let res = slf.try_send_get_popup(
             popup,
             seat,
             serial,
@@ -826,14 +826,14 @@ pub trait JayTrayItemV1Handler: Any {
     #[inline]
     fn handle_configure_size(
         &mut self,
-        _slf: &Rc<JayTrayItemV1>,
+        slf: &Rc<JayTrayItemV1>,
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_configure_size(
+        let res = slf.try_send_configure_size(
             width,
             height,
         );
@@ -859,13 +859,13 @@ pub trait JayTrayItemV1Handler: Any {
     #[inline]
     fn handle_preferred_anchor(
         &mut self,
-        _slf: &Rc<JayTrayItemV1>,
+        slf: &Rc<JayTrayItemV1>,
         anchor: XdgPositionerAnchor,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_preferred_anchor(
+        let res = slf.try_send_preferred_anchor(
             anchor,
         );
         if let Err(e) = res {
@@ -890,13 +890,13 @@ pub trait JayTrayItemV1Handler: Any {
     #[inline]
     fn handle_preferred_gravity(
         &mut self,
-        _slf: &Rc<JayTrayItemV1>,
+        slf: &Rc<JayTrayItemV1>,
         gravity: XdgPositionerGravity,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_preferred_gravity(
+        let res = slf.try_send_preferred_gravity(
             gravity,
         );
         if let Err(e) = res {
@@ -918,13 +918,13 @@ pub trait JayTrayItemV1Handler: Any {
     #[inline]
     fn handle_configure(
         &mut self,
-        _slf: &Rc<JayTrayItemV1>,
+        slf: &Rc<JayTrayItemV1>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_configure(
+        let res = slf.try_send_configure(
             serial,
         );
         if let Err(e) = res {

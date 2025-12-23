@@ -214,12 +214,12 @@ pub trait WpContentTypeV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpContentTypeV1>,
+        slf: &Rc<WpContentTypeV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_content_type_v1.destroy", &e);
@@ -243,13 +243,13 @@ pub trait WpContentTypeV1Handler: Any {
     #[inline]
     fn handle_set_content_type(
         &mut self,
-        _slf: &Rc<WpContentTypeV1>,
+        slf: &Rc<WpContentTypeV1>,
         content_type: WpContentTypeV1Type,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_content_type(
+        let res = slf.try_send_set_content_type(
             content_type,
         );
         if let Err(e) = res {

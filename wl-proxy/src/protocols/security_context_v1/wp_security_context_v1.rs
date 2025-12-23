@@ -463,12 +463,12 @@ pub trait WpSecurityContextV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpSecurityContextV1>,
+        slf: &Rc<WpSecurityContextV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_security_context_v1.destroy", &e);
@@ -492,13 +492,13 @@ pub trait WpSecurityContextV1Handler: Any {
     #[inline]
     fn handle_set_sandbox_engine(
         &mut self,
-        _slf: &Rc<WpSecurityContextV1>,
+        slf: &Rc<WpSecurityContextV1>,
         name: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_sandbox_engine(
+        let res = slf.try_send_set_sandbox_engine(
             name,
         );
         if let Err(e) = res {
@@ -528,13 +528,13 @@ pub trait WpSecurityContextV1Handler: Any {
     #[inline]
     fn handle_set_app_id(
         &mut self,
-        _slf: &Rc<WpSecurityContextV1>,
+        slf: &Rc<WpSecurityContextV1>,
         app_id: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_app_id(
+        let res = slf.try_send_set_app_id(
             app_id,
         );
         if let Err(e) = res {
@@ -562,13 +562,13 @@ pub trait WpSecurityContextV1Handler: Any {
     #[inline]
     fn handle_set_instance_id(
         &mut self,
-        _slf: &Rc<WpSecurityContextV1>,
+        slf: &Rc<WpSecurityContextV1>,
         instance_id: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_instance_id(
+        let res = slf.try_send_set_instance_id(
             instance_id,
         );
         if let Err(e) = res {
@@ -591,12 +591,12 @@ pub trait WpSecurityContextV1Handler: Any {
     #[inline]
     fn handle_commit(
         &mut self,
-        _slf: &Rc<WpSecurityContextV1>,
+        slf: &Rc<WpSecurityContextV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_commit(
+        let res = slf.try_send_commit(
         );
         if let Err(e) = res {
             log_forward("wp_security_context_v1.commit", &e);

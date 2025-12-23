@@ -1503,12 +1503,12 @@ pub trait ZwpTextInputV3Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpTextInputV3>,
+        slf: &Rc<ZwpTextInputV3>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_text_input_v3.destroy", &e);
@@ -1548,12 +1548,12 @@ pub trait ZwpTextInputV3Handler: Any {
     #[inline]
     fn handle_enable(
         &mut self,
-        _slf: &Rc<ZwpTextInputV3>,
+        slf: &Rc<ZwpTextInputV3>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_enable(
+        let res = slf.try_send_enable(
         );
         if let Err(e) = res {
             log_forward("zwp_text_input_v3.enable", &e);
@@ -1570,12 +1570,12 @@ pub trait ZwpTextInputV3Handler: Any {
     #[inline]
     fn handle_disable(
         &mut self,
-        _slf: &Rc<ZwpTextInputV3>,
+        slf: &Rc<ZwpTextInputV3>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_disable(
+        let res = slf.try_send_disable(
         );
         if let Err(e) = res {
             log_forward("zwp_text_input_v3.disable", &e);
@@ -1624,15 +1624,15 @@ pub trait ZwpTextInputV3Handler: Any {
     #[inline]
     fn handle_set_surrounding_text(
         &mut self,
-        _slf: &Rc<ZwpTextInputV3>,
+        slf: &Rc<ZwpTextInputV3>,
         text: &str,
         cursor: i32,
         anchor: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_surrounding_text(
+        let res = slf.try_send_set_surrounding_text(
             text,
             cursor,
             anchor,
@@ -1665,13 +1665,13 @@ pub trait ZwpTextInputV3Handler: Any {
     #[inline]
     fn handle_set_text_change_cause(
         &mut self,
-        _slf: &Rc<ZwpTextInputV3>,
+        slf: &Rc<ZwpTextInputV3>,
         cause: ZwpTextInputV3ChangeCause,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_text_change_cause(
+        let res = slf.try_send_set_text_change_cause(
             cause,
         );
         if let Err(e) = res {
@@ -1700,14 +1700,14 @@ pub trait ZwpTextInputV3Handler: Any {
     #[inline]
     fn handle_set_content_type(
         &mut self,
-        _slf: &Rc<ZwpTextInputV3>,
+        slf: &Rc<ZwpTextInputV3>,
         hint: ZwpTextInputV3ContentHint,
         purpose: ZwpTextInputV3ContentPurpose,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_content_type(
+        let res = slf.try_send_set_content_type(
             hint,
             purpose,
         );
@@ -1745,16 +1745,16 @@ pub trait ZwpTextInputV3Handler: Any {
     #[inline]
     fn handle_set_cursor_rectangle(
         &mut self,
-        _slf: &Rc<ZwpTextInputV3>,
+        slf: &Rc<ZwpTextInputV3>,
         x: i32,
         y: i32,
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_cursor_rectangle(
+        let res = slf.try_send_set_cursor_rectangle(
             x,
             y,
             width,
@@ -1793,12 +1793,12 @@ pub trait ZwpTextInputV3Handler: Any {
     #[inline]
     fn handle_commit(
         &mut self,
-        _slf: &Rc<ZwpTextInputV3>,
+        slf: &Rc<ZwpTextInputV3>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_commit(
+        let res = slf.try_send_commit(
         );
         if let Err(e) = res {
             log_forward("zwp_text_input_v3.commit", &e);
@@ -1825,20 +1825,20 @@ pub trait ZwpTextInputV3Handler: Any {
     #[inline]
     fn handle_enter(
         &mut self,
-        _slf: &Rc<ZwpTextInputV3>,
+        slf: &Rc<ZwpTextInputV3>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_enter(
+        let res = slf.try_send_enter(
             surface,
         );
         if let Err(e) = res {
@@ -1869,20 +1869,20 @@ pub trait ZwpTextInputV3Handler: Any {
     #[inline]
     fn handle_leave(
         &mut self,
-        _slf: &Rc<ZwpTextInputV3>,
+        slf: &Rc<ZwpTextInputV3>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_leave(
+        let res = slf.try_send_leave(
             surface,
         );
         if let Err(e) = res {
@@ -1919,15 +1919,15 @@ pub trait ZwpTextInputV3Handler: Any {
     #[inline]
     fn handle_preedit_string(
         &mut self,
-        _slf: &Rc<ZwpTextInputV3>,
+        slf: &Rc<ZwpTextInputV3>,
         text: Option<&str>,
         cursor_begin: i32,
         cursor_end: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_preedit_string(
+        let res = slf.try_send_preedit_string(
             text,
             cursor_begin,
             cursor_end,
@@ -1954,13 +1954,13 @@ pub trait ZwpTextInputV3Handler: Any {
     #[inline]
     fn handle_commit_string(
         &mut self,
-        _slf: &Rc<ZwpTextInputV3>,
+        slf: &Rc<ZwpTextInputV3>,
         text: Option<&str>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_commit_string(
+        let res = slf.try_send_commit_string(
             text,
         );
         if let Err(e) = res {
@@ -1992,14 +1992,14 @@ pub trait ZwpTextInputV3Handler: Any {
     #[inline]
     fn handle_delete_surrounding_text(
         &mut self,
-        _slf: &Rc<ZwpTextInputV3>,
+        slf: &Rc<ZwpTextInputV3>,
         before_length: u32,
         after_length: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_delete_surrounding_text(
+        let res = slf.try_send_delete_surrounding_text(
             before_length,
             after_length,
         );
@@ -2044,13 +2044,13 @@ pub trait ZwpTextInputV3Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<ZwpTextInputV3>,
+        slf: &Rc<ZwpTextInputV3>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
             serial,
         );
         if let Err(e) = res {

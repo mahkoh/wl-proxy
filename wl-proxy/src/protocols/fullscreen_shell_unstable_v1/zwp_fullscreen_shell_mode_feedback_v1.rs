@@ -271,12 +271,12 @@ pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
     #[inline]
     fn handle_mode_successful(
         &mut self,
-        _slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
+        slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_mode_successful(
+        let res = slf.try_send_mode_successful(
         );
         if let Err(e) = res {
             log_forward("zwp_fullscreen_shell_mode_feedback_v1.mode_successful", &e);
@@ -294,12 +294,12 @@ pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
     #[inline]
     fn handle_mode_failed(
         &mut self,
-        _slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
+        slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_mode_failed(
+        let res = slf.try_send_mode_failed(
         );
         if let Err(e) = res {
             log_forward("zwp_fullscreen_shell_mode_feedback_v1.mode_failed", &e);
@@ -317,12 +317,12 @@ pub trait ZwpFullscreenShellModeFeedbackV1Handler: Any {
     #[inline]
     fn handle_present_cancelled(
         &mut self,
-        _slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
+        slf: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_present_cancelled(
+        let res = slf.try_send_present_cancelled(
         );
         if let Err(e) = res {
             log_forward("zwp_fullscreen_shell_mode_feedback_v1.present_cancelled", &e);

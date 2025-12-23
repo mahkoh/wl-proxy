@@ -762,13 +762,13 @@ pub trait WlSeatHandler: Any {
     #[inline]
     fn handle_capabilities(
         &mut self,
-        _slf: &Rc<WlSeat>,
+        slf: &Rc<WlSeat>,
         capabilities: WlSeatCapability,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_capabilities(
+        let res = slf.try_send_capabilities(
             capabilities,
         );
         if let Err(e) = res {
@@ -793,13 +793,13 @@ pub trait WlSeatHandler: Any {
     #[inline]
     fn handle_get_pointer(
         &mut self,
-        _slf: &Rc<WlSeat>,
+        slf: &Rc<WlSeat>,
         id: &Rc<WlPointer>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_pointer(
+        let res = slf.try_send_get_pointer(
             id,
         );
         if let Err(e) = res {
@@ -824,13 +824,13 @@ pub trait WlSeatHandler: Any {
     #[inline]
     fn handle_get_keyboard(
         &mut self,
-        _slf: &Rc<WlSeat>,
+        slf: &Rc<WlSeat>,
         id: &Rc<WlKeyboard>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_keyboard(
+        let res = slf.try_send_get_keyboard(
             id,
         );
         if let Err(e) = res {
@@ -855,13 +855,13 @@ pub trait WlSeatHandler: Any {
     #[inline]
     fn handle_get_touch(
         &mut self,
-        _slf: &Rc<WlSeat>,
+        slf: &Rc<WlSeat>,
         id: &Rc<WlTouch>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_touch(
+        let res = slf.try_send_get_touch(
             id,
         );
         if let Err(e) = res {
@@ -894,13 +894,13 @@ pub trait WlSeatHandler: Any {
     #[inline]
     fn handle_name(
         &mut self,
-        _slf: &Rc<WlSeat>,
+        slf: &Rc<WlSeat>,
         name: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_name(
+        let res = slf.try_send_name(
             name,
         );
         if let Err(e) = res {
@@ -915,12 +915,12 @@ pub trait WlSeatHandler: Any {
     #[inline]
     fn handle_release(
         &mut self,
-        _slf: &Rc<WlSeat>,
+        slf: &Rc<WlSeat>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_release(
+        let res = slf.try_send_release(
         );
         if let Err(e) = res {
             log_forward("wl_seat.release", &e);

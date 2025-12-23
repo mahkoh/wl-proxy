@@ -149,13 +149,13 @@ pub trait WlCallbackHandler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<WlCallback>,
+        slf: &Rc<WlCallback>,
         callback_data: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
             callback_data,
         );
         if let Err(e) = res {

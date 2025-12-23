@@ -333,13 +333,13 @@ pub trait ZwlrForeignToplevelManagerV1Handler: Any {
     #[inline]
     fn handle_toplevel(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelManagerV1>,
+        slf: &Rc<ZwlrForeignToplevelManagerV1>,
         toplevel: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_toplevel(
+        let res = slf.try_send_toplevel(
             toplevel,
         );
         if let Err(e) = res {
@@ -357,12 +357,12 @@ pub trait ZwlrForeignToplevelManagerV1Handler: Any {
     #[inline]
     fn handle_stop(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelManagerV1>,
+        slf: &Rc<ZwlrForeignToplevelManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_stop(
+        let res = slf.try_send_stop(
         );
         if let Err(e) = res {
             log_forward("zwlr_foreign_toplevel_manager_v1.stop", &e);
@@ -378,12 +378,12 @@ pub trait ZwlrForeignToplevelManagerV1Handler: Any {
     #[inline]
     fn handle_finished(
         &mut self,
-        _slf: &Rc<ZwlrForeignToplevelManagerV1>,
+        slf: &Rc<ZwlrForeignToplevelManagerV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_finished(
+        let res = slf.try_send_finished(
         );
         if let Err(e) = res {
             log_forward("zwlr_foreign_toplevel_manager_v1.finished", &e);

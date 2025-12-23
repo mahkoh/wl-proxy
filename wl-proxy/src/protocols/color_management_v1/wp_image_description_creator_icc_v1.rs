@@ -441,13 +441,13 @@ pub trait WpImageDescriptionCreatorIccV1Handler: Any {
     #[inline]
     fn handle_create(
         &mut self,
-        _slf: &Rc<WpImageDescriptionCreatorIccV1>,
+        slf: &Rc<WpImageDescriptionCreatorIccV1>,
         image_description: &Rc<WpImageDescriptionV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create(
+        let res = slf.try_send_create(
             image_description,
         );
         if let Err(e) = res {
@@ -505,15 +505,15 @@ pub trait WpImageDescriptionCreatorIccV1Handler: Any {
     #[inline]
     fn handle_set_icc_file(
         &mut self,
-        _slf: &Rc<WpImageDescriptionCreatorIccV1>,
+        slf: &Rc<WpImageDescriptionCreatorIccV1>,
         icc_profile: &Rc<OwnedFd>,
         offset: u32,
         length: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_icc_file(
+        let res = slf.try_send_set_icc_file(
             icc_profile,
             offset,
             length,

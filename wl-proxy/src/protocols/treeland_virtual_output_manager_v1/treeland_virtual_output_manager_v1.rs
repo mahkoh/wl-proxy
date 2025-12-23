@@ -509,15 +509,15 @@ pub trait TreelandVirtualOutputManagerV1Handler: Any {
     #[inline]
     fn handle_create_virtual_output(
         &mut self,
-        _slf: &Rc<TreelandVirtualOutputManagerV1>,
+        slf: &Rc<TreelandVirtualOutputManagerV1>,
         id: &Rc<TreelandVirtualOutputV1>,
         name: &str,
         outputs: &[u8],
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_virtual_output(
+        let res = slf.try_send_create_virtual_output(
             id,
             name,
             outputs,
@@ -533,12 +533,12 @@ pub trait TreelandVirtualOutputManagerV1Handler: Any {
     #[inline]
     fn handle_get_virtual_output_list(
         &mut self,
-        _slf: &Rc<TreelandVirtualOutputManagerV1>,
+        slf: &Rc<TreelandVirtualOutputManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_virtual_output_list(
+        let res = slf.try_send_get_virtual_output_list(
         );
         if let Err(e) = res {
             log_forward("treeland_virtual_output_manager_v1.get_virtual_output_list", &e);
@@ -555,13 +555,13 @@ pub trait TreelandVirtualOutputManagerV1Handler: Any {
     #[inline]
     fn handle_virtual_output_list(
         &mut self,
-        _slf: &Rc<TreelandVirtualOutputManagerV1>,
+        slf: &Rc<TreelandVirtualOutputManagerV1>,
         names: &[u8],
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_virtual_output_list(
+        let res = slf.try_send_virtual_output_list(
             names,
         );
         if let Err(e) = res {
@@ -581,14 +581,14 @@ pub trait TreelandVirtualOutputManagerV1Handler: Any {
     #[inline]
     fn handle_get_virtual_output(
         &mut self,
-        _slf: &Rc<TreelandVirtualOutputManagerV1>,
+        slf: &Rc<TreelandVirtualOutputManagerV1>,
         name: &str,
         id: &Rc<TreelandVirtualOutputV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_virtual_output(
+        let res = slf.try_send_get_virtual_output(
             name,
             id,
         );

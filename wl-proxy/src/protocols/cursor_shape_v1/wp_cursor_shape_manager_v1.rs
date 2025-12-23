@@ -404,12 +404,12 @@ pub trait WpCursorShapeManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpCursorShapeManagerV1>,
+        slf: &Rc<WpCursorShapeManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_cursor_shape_manager_v1.destroy", &e);
@@ -433,14 +433,14 @@ pub trait WpCursorShapeManagerV1Handler: Any {
     #[inline]
     fn handle_get_pointer(
         &mut self,
-        _slf: &Rc<WpCursorShapeManagerV1>,
+        slf: &Rc<WpCursorShapeManagerV1>,
         cursor_shape_device: &Rc<WpCursorShapeDeviceV1>,
         pointer: &Rc<WlPointer>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_pointer(
+        let res = slf.try_send_get_pointer(
             cursor_shape_device,
             pointer,
         );
@@ -466,14 +466,14 @@ pub trait WpCursorShapeManagerV1Handler: Any {
     #[inline]
     fn handle_get_tablet_tool_v2(
         &mut self,
-        _slf: &Rc<WpCursorShapeManagerV1>,
+        slf: &Rc<WpCursorShapeManagerV1>,
         cursor_shape_device: &Rc<WpCursorShapeDeviceV1>,
         tablet_tool: &Rc<ZwpTabletToolV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_tablet_tool_v2(
+        let res = slf.try_send_get_tablet_tool_v2(
             cursor_shape_device,
             tablet_tool,
         );

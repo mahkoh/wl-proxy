@@ -217,12 +217,12 @@ pub trait XdgSystemBellV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<XdgSystemBellV1>,
+        slf: &Rc<XdgSystemBellV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("xdg_system_bell_v1.destroy", &e);
@@ -250,13 +250,13 @@ pub trait XdgSystemBellV1Handler: Any {
     #[inline]
     fn handle_ring(
         &mut self,
-        _slf: &Rc<XdgSystemBellV1>,
+        slf: &Rc<XdgSystemBellV1>,
         surface: Option<&Rc<WlSurface>>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_ring(
+        let res = slf.try_send_ring(
             surface,
         );
         if let Err(e) = res {

@@ -284,12 +284,12 @@ pub trait WlproxySyncV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WlproxySyncV1>,
+        slf: &Rc<WlproxySyncV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wlproxy_sync_v1.destroy", &e);
@@ -310,14 +310,14 @@ pub trait WlproxySyncV1Handler: Any {
     #[inline]
     fn handle_sync_with_proxy(
         &mut self,
-        _slf: &Rc<WlproxySyncV1>,
+        slf: &Rc<WlproxySyncV1>,
         id_hi: u32,
         id_lo: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_sync_with_proxy(
+        let res = slf.try_send_sync_with_proxy(
             id_hi,
             id_lo,
         );
@@ -340,14 +340,14 @@ pub trait WlproxySyncV1Handler: Any {
     #[inline]
     fn handle_sync_with_client(
         &mut self,
-        _slf: &Rc<WlproxySyncV1>,
+        slf: &Rc<WlproxySyncV1>,
         id_hi: u32,
         id_lo: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_sync_with_client(
+        let res = slf.try_send_sync_with_client(
             id_hi,
             id_lo,
         );

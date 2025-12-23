@@ -346,12 +346,12 @@ pub trait WpColorManagementSurfaceV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpColorManagementSurfaceV1>,
+        slf: &Rc<WpColorManagementSurfaceV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_color_management_surface_v1.destroy", &e);
@@ -410,14 +410,14 @@ pub trait WpColorManagementSurfaceV1Handler: Any {
     #[inline]
     fn handle_set_image_description(
         &mut self,
-        _slf: &Rc<WpColorManagementSurfaceV1>,
+        slf: &Rc<WpColorManagementSurfaceV1>,
         image_description: &Rc<WpImageDescriptionV1>,
         render_intent: WpColorManagerV1RenderIntent,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_image_description(
+        let res = slf.try_send_set_image_description(
             image_description,
             render_intent,
         );
@@ -437,12 +437,12 @@ pub trait WpColorManagementSurfaceV1Handler: Any {
     #[inline]
     fn handle_unset_image_description(
         &mut self,
-        _slf: &Rc<WpColorManagementSurfaceV1>,
+        slf: &Rc<WpColorManagementSurfaceV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_unset_image_description(
+        let res = slf.try_send_unset_image_description(
         );
         if let Err(e) = res {
             log_forward("wp_color_management_surface_v1.unset_image_description", &e);

@@ -269,12 +269,12 @@ pub trait TreelandLockscreenV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<TreelandLockscreenV1>,
+        slf: &Rc<TreelandLockscreenV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("treeland_lockscreen_v1.destroy", &e);
@@ -287,12 +287,12 @@ pub trait TreelandLockscreenV1Handler: Any {
     #[inline]
     fn handle_lock(
         &mut self,
-        _slf: &Rc<TreelandLockscreenV1>,
+        slf: &Rc<TreelandLockscreenV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_lock(
+        let res = slf.try_send_lock(
         );
         if let Err(e) = res {
             log_forward("treeland_lockscreen_v1.lock", &e);
@@ -305,12 +305,12 @@ pub trait TreelandLockscreenV1Handler: Any {
     #[inline]
     fn handle_shutdown(
         &mut self,
-        _slf: &Rc<TreelandLockscreenV1>,
+        slf: &Rc<TreelandLockscreenV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_shutdown(
+        let res = slf.try_send_shutdown(
         );
         if let Err(e) = res {
             log_forward("treeland_lockscreen_v1.shutdown", &e);
@@ -323,12 +323,12 @@ pub trait TreelandLockscreenV1Handler: Any {
     #[inline]
     fn handle_switch_user(
         &mut self,
-        _slf: &Rc<TreelandLockscreenV1>,
+        slf: &Rc<TreelandLockscreenV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_switch_user(
+        let res = slf.try_send_switch_user(
         );
         if let Err(e) = res {
             log_forward("treeland_lockscreen_v1.switch_user", &e);

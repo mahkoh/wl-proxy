@@ -304,13 +304,13 @@ pub trait WpDrmLeaseRequestV1Handler: Any {
     #[inline]
     fn handle_request_connector(
         &mut self,
-        _slf: &Rc<WpDrmLeaseRequestV1>,
+        slf: &Rc<WpDrmLeaseRequestV1>,
         connector: &Rc<WpDrmLeaseConnectorV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_request_connector(
+        let res = slf.try_send_request_connector(
             connector,
         );
         if let Err(e) = res {
@@ -334,13 +334,13 @@ pub trait WpDrmLeaseRequestV1Handler: Any {
     #[inline]
     fn handle_submit(
         &mut self,
-        _slf: &Rc<WpDrmLeaseRequestV1>,
+        slf: &Rc<WpDrmLeaseRequestV1>,
         id: &Rc<WpDrmLeaseV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_submit(
+        let res = slf.try_send_submit(
             id,
         );
         if let Err(e) = res {

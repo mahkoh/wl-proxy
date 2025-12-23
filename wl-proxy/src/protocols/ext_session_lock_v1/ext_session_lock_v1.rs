@@ -639,12 +639,12 @@ pub trait ExtSessionLockV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtSessionLockV1>,
+        slf: &Rc<ExtSessionLockV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_session_lock_v1.destroy", &e);
@@ -665,12 +665,12 @@ pub trait ExtSessionLockV1Handler: Any {
     #[inline]
     fn handle_locked(
         &mut self,
-        _slf: &Rc<ExtSessionLockV1>,
+        slf: &Rc<ExtSessionLockV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_locked(
+        let res = slf.try_send_locked(
         );
         if let Err(e) = res {
             log_forward("ext_session_lock_v1.locked", &e);
@@ -704,12 +704,12 @@ pub trait ExtSessionLockV1Handler: Any {
     #[inline]
     fn handle_finished(
         &mut self,
-        _slf: &Rc<ExtSessionLockV1>,
+        slf: &Rc<ExtSessionLockV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_finished(
+        let res = slf.try_send_finished(
         );
         if let Err(e) = res {
             log_forward("ext_session_lock_v1.finished", &e);
@@ -741,15 +741,15 @@ pub trait ExtSessionLockV1Handler: Any {
     #[inline]
     fn handle_get_lock_surface(
         &mut self,
-        _slf: &Rc<ExtSessionLockV1>,
+        slf: &Rc<ExtSessionLockV1>,
         id: &Rc<ExtSessionLockSurfaceV1>,
         surface: &Rc<WlSurface>,
         output: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_lock_surface(
+        let res = slf.try_send_get_lock_surface(
             id,
             surface,
             output,
@@ -787,12 +787,12 @@ pub trait ExtSessionLockV1Handler: Any {
     #[inline]
     fn handle_unlock_and_destroy(
         &mut self,
-        _slf: &Rc<ExtSessionLockV1>,
+        slf: &Rc<ExtSessionLockV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_unlock_and_destroy(
+        let res = slf.try_send_unlock_and_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_session_lock_v1.unlock_and_destroy", &e);

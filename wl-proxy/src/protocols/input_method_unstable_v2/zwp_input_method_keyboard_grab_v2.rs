@@ -517,15 +517,15 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
     #[inline]
     fn handle_keymap(
         &mut self,
-        _slf: &Rc<ZwpInputMethodKeyboardGrabV2>,
+        slf: &Rc<ZwpInputMethodKeyboardGrabV2>,
         format: WlKeyboardKeymapFormat,
         fd: &Rc<OwnedFd>,
         size: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_keymap(
+        let res = slf.try_send_keymap(
             format,
             fd,
             size,
@@ -550,16 +550,16 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
     #[inline]
     fn handle_key(
         &mut self,
-        _slf: &Rc<ZwpInputMethodKeyboardGrabV2>,
+        slf: &Rc<ZwpInputMethodKeyboardGrabV2>,
         serial: u32,
         time: u32,
         key: u32,
         state: WlKeyboardKeyState,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_key(
+        let res = slf.try_send_key(
             serial,
             time,
             key,
@@ -585,17 +585,17 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
     #[inline]
     fn handle_modifiers(
         &mut self,
-        _slf: &Rc<ZwpInputMethodKeyboardGrabV2>,
+        slf: &Rc<ZwpInputMethodKeyboardGrabV2>,
         serial: u32,
         mods_depressed: u32,
         mods_latched: u32,
         mods_locked: u32,
         group: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_modifiers(
+        let res = slf.try_send_modifiers(
             serial,
             mods_depressed,
             mods_latched,
@@ -611,12 +611,12 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
     #[inline]
     fn handle_release(
         &mut self,
-        _slf: &Rc<ZwpInputMethodKeyboardGrabV2>,
+        slf: &Rc<ZwpInputMethodKeyboardGrabV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_release(
+        let res = slf.try_send_release(
         );
         if let Err(e) = res {
             log_forward("zwp_input_method_keyboard_grab_v2.release", &e);
@@ -645,14 +645,14 @@ pub trait ZwpInputMethodKeyboardGrabV2Handler: Any {
     #[inline]
     fn handle_repeat_info(
         &mut self,
-        _slf: &Rc<ZwpInputMethodKeyboardGrabV2>,
+        slf: &Rc<ZwpInputMethodKeyboardGrabV2>,
         rate: i32,
         delay: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_repeat_info(
+        let res = slf.try_send_repeat_info(
             rate,
             delay,
         );

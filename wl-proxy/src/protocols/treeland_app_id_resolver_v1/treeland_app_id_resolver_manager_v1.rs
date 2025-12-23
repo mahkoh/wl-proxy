@@ -237,12 +237,12 @@ pub trait TreelandAppIdResolverManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<TreelandAppIdResolverManagerV1>,
+        slf: &Rc<TreelandAppIdResolverManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("treeland_app_id_resolver_manager_v1.destroy", &e);
@@ -264,13 +264,13 @@ pub trait TreelandAppIdResolverManagerV1Handler: Any {
     #[inline]
     fn handle_get_resolver(
         &mut self,
-        _slf: &Rc<TreelandAppIdResolverManagerV1>,
+        slf: &Rc<TreelandAppIdResolverManagerV1>,
         id: &Rc<TreelandAppIdResolverV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_resolver(
+        let res = slf.try_send_get_resolver(
             id,
         );
         if let Err(e) = res {

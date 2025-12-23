@@ -259,12 +259,12 @@ pub trait XdgDialogV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<XdgDialogV1>,
+        slf: &Rc<XdgDialogV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("xdg_dialog_v1.destroy", &e);
@@ -287,12 +287,12 @@ pub trait XdgDialogV1Handler: Any {
     #[inline]
     fn handle_set_modal(
         &mut self,
-        _slf: &Rc<XdgDialogV1>,
+        slf: &Rc<XdgDialogV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_modal(
+        let res = slf.try_send_set_modal(
         );
         if let Err(e) = res {
             log_forward("xdg_dialog_v1.set_modal", &e);
@@ -306,12 +306,12 @@ pub trait XdgDialogV1Handler: Any {
     #[inline]
     fn handle_unset_modal(
         &mut self,
-        _slf: &Rc<XdgDialogV1>,
+        slf: &Rc<XdgDialogV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_unset_modal(
+        let res = slf.try_send_unset_modal(
         );
         if let Err(e) = res {
             log_forward("xdg_dialog_v1.unset_modal", &e);

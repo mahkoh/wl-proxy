@@ -551,13 +551,13 @@ pub trait ZwlrOutputManagerV1Handler: Any {
     #[inline]
     fn handle_head(
         &mut self,
-        _slf: &Rc<ZwlrOutputManagerV1>,
+        slf: &Rc<ZwlrOutputManagerV1>,
         head: &Rc<ZwlrOutputHeadV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_head(
+        let res = slf.try_send_head(
             head,
         );
         if let Err(e) = res {
@@ -585,13 +585,13 @@ pub trait ZwlrOutputManagerV1Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<ZwlrOutputManagerV1>,
+        slf: &Rc<ZwlrOutputManagerV1>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
             serial,
         );
         if let Err(e) = res {
@@ -611,14 +611,14 @@ pub trait ZwlrOutputManagerV1Handler: Any {
     #[inline]
     fn handle_create_configuration(
         &mut self,
-        _slf: &Rc<ZwlrOutputManagerV1>,
+        slf: &Rc<ZwlrOutputManagerV1>,
         id: &Rc<ZwlrOutputConfigurationV1>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_configuration(
+        let res = slf.try_send_create_configuration(
             id,
             serial,
         );
@@ -637,12 +637,12 @@ pub trait ZwlrOutputManagerV1Handler: Any {
     #[inline]
     fn handle_stop(
         &mut self,
-        _slf: &Rc<ZwlrOutputManagerV1>,
+        slf: &Rc<ZwlrOutputManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_stop(
+        let res = slf.try_send_stop(
         );
         if let Err(e) = res {
             log_forward("zwlr_output_manager_v1.stop", &e);
@@ -658,12 +658,12 @@ pub trait ZwlrOutputManagerV1Handler: Any {
     #[inline]
     fn handle_finished(
         &mut self,
-        _slf: &Rc<ZwlrOutputManagerV1>,
+        slf: &Rc<ZwlrOutputManagerV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_finished(
+        let res = slf.try_send_finished(
         );
         if let Err(e) = res {
             log_forward("zwlr_output_manager_v1.finished", &e);

@@ -406,14 +406,14 @@ pub trait ZwlrOutputModeV1Handler: Any {
     #[inline]
     fn handle_size(
         &mut self,
-        _slf: &Rc<ZwlrOutputModeV1>,
+        slf: &Rc<ZwlrOutputModeV1>,
         width: i32,
         height: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_size(
+        let res = slf.try_send_size(
             width,
             height,
         );
@@ -433,13 +433,13 @@ pub trait ZwlrOutputModeV1Handler: Any {
     #[inline]
     fn handle_refresh(
         &mut self,
-        _slf: &Rc<ZwlrOutputModeV1>,
+        slf: &Rc<ZwlrOutputModeV1>,
         refresh: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_refresh(
+        let res = slf.try_send_refresh(
             refresh,
         );
         if let Err(e) = res {
@@ -453,12 +453,12 @@ pub trait ZwlrOutputModeV1Handler: Any {
     #[inline]
     fn handle_preferred(
         &mut self,
-        _slf: &Rc<ZwlrOutputModeV1>,
+        slf: &Rc<ZwlrOutputModeV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_preferred(
+        let res = slf.try_send_preferred(
         );
         if let Err(e) = res {
             log_forward("zwlr_output_mode_v1.preferred", &e);
@@ -473,12 +473,12 @@ pub trait ZwlrOutputModeV1Handler: Any {
     #[inline]
     fn handle_finished(
         &mut self,
-        _slf: &Rc<ZwlrOutputModeV1>,
+        slf: &Rc<ZwlrOutputModeV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_finished(
+        let res = slf.try_send_finished(
         );
         if let Err(e) = res {
             log_forward("zwlr_output_mode_v1.finished", &e);
@@ -492,12 +492,12 @@ pub trait ZwlrOutputModeV1Handler: Any {
     #[inline]
     fn handle_release(
         &mut self,
-        _slf: &Rc<ZwlrOutputModeV1>,
+        slf: &Rc<ZwlrOutputModeV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_release(
+        let res = slf.try_send_release(
         );
         if let Err(e) = res {
             log_forward("zwlr_output_mode_v1.release", &e);

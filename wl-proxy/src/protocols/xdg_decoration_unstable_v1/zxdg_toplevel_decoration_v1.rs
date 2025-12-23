@@ -377,12 +377,12 @@ pub trait ZxdgToplevelDecorationV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZxdgToplevelDecorationV1>,
+        slf: &Rc<ZxdgToplevelDecorationV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zxdg_toplevel_decoration_v1.destroy", &e);
@@ -419,13 +419,13 @@ pub trait ZxdgToplevelDecorationV1Handler: Any {
     #[inline]
     fn handle_set_mode(
         &mut self,
-        _slf: &Rc<ZxdgToplevelDecorationV1>,
+        slf: &Rc<ZxdgToplevelDecorationV1>,
         mode: ZxdgToplevelDecorationV1Mode,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_mode(
+        let res = slf.try_send_set_mode(
             mode,
         );
         if let Err(e) = res {
@@ -442,12 +442,12 @@ pub trait ZxdgToplevelDecorationV1Handler: Any {
     #[inline]
     fn handle_unset_mode(
         &mut self,
-        _slf: &Rc<ZxdgToplevelDecorationV1>,
+        slf: &Rc<ZxdgToplevelDecorationV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_unset_mode(
+        let res = slf.try_send_unset_mode(
         );
         if let Err(e) = res {
             log_forward("zxdg_toplevel_decoration_v1.unset_mode", &e);
@@ -470,13 +470,13 @@ pub trait ZxdgToplevelDecorationV1Handler: Any {
     #[inline]
     fn handle_configure(
         &mut self,
-        _slf: &Rc<ZxdgToplevelDecorationV1>,
+        slf: &Rc<ZxdgToplevelDecorationV1>,
         mode: ZxdgToplevelDecorationV1Mode,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_configure(
+        let res = slf.try_send_configure(
             mode,
         );
         if let Err(e) = res {

@@ -539,14 +539,14 @@ pub trait XdgActivationTokenV1Handler: Any {
     #[inline]
     fn handle_set_serial(
         &mut self,
-        _slf: &Rc<XdgActivationTokenV1>,
+        slf: &Rc<XdgActivationTokenV1>,
         serial: u32,
         seat: &Rc<WlSeat>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_serial(
+        let res = slf.try_send_set_serial(
             serial,
             seat,
         );
@@ -568,13 +568,13 @@ pub trait XdgActivationTokenV1Handler: Any {
     #[inline]
     fn handle_set_app_id(
         &mut self,
-        _slf: &Rc<XdgActivationTokenV1>,
+        slf: &Rc<XdgActivationTokenV1>,
         app_id: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_app_id(
+        let res = slf.try_send_set_app_id(
             app_id,
         );
         if let Err(e) = res {
@@ -601,13 +601,13 @@ pub trait XdgActivationTokenV1Handler: Any {
     #[inline]
     fn handle_set_surface(
         &mut self,
-        _slf: &Rc<XdgActivationTokenV1>,
+        slf: &Rc<XdgActivationTokenV1>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_surface(
+        let res = slf.try_send_set_surface(
             surface,
         );
         if let Err(e) = res {
@@ -622,12 +622,12 @@ pub trait XdgActivationTokenV1Handler: Any {
     #[inline]
     fn handle_commit(
         &mut self,
-        _slf: &Rc<XdgActivationTokenV1>,
+        slf: &Rc<XdgActivationTokenV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_commit(
+        let res = slf.try_send_commit(
         );
         if let Err(e) = res {
             log_forward("xdg_activation_token_v1.commit", &e);
@@ -645,13 +645,13 @@ pub trait XdgActivationTokenV1Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<XdgActivationTokenV1>,
+        slf: &Rc<XdgActivationTokenV1>,
         token: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
             token,
         );
         if let Err(e) = res {
@@ -666,12 +666,12 @@ pub trait XdgActivationTokenV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<XdgActivationTokenV1>,
+        slf: &Rc<XdgActivationTokenV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("xdg_activation_token_v1.destroy", &e);

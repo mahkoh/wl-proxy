@@ -537,13 +537,13 @@ pub trait TreelandOutputColorControlV1Handler: Any {
     #[inline]
     fn handle_set_color_temperature(
         &mut self,
-        _slf: &Rc<TreelandOutputColorControlV1>,
+        slf: &Rc<TreelandOutputColorControlV1>,
         temperature: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_color_temperature(
+        let res = slf.try_send_set_color_temperature(
             temperature,
         );
         if let Err(e) = res {
@@ -562,13 +562,13 @@ pub trait TreelandOutputColorControlV1Handler: Any {
     #[inline]
     fn handle_set_brightness(
         &mut self,
-        _slf: &Rc<TreelandOutputColorControlV1>,
+        slf: &Rc<TreelandOutputColorControlV1>,
         brightness: Fixed,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_brightness(
+        let res = slf.try_send_set_brightness(
             brightness,
         );
         if let Err(e) = res {
@@ -580,12 +580,12 @@ pub trait TreelandOutputColorControlV1Handler: Any {
     #[inline]
     fn handle_commit(
         &mut self,
-        _slf: &Rc<TreelandOutputColorControlV1>,
+        slf: &Rc<TreelandOutputColorControlV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_commit(
+        let res = slf.try_send_commit(
         );
         if let Err(e) = res {
             log_forward("treeland_output_color_control_v1.commit", &e);
@@ -600,13 +600,13 @@ pub trait TreelandOutputColorControlV1Handler: Any {
     #[inline]
     fn handle_result(
         &mut self,
-        _slf: &Rc<TreelandOutputColorControlV1>,
+        slf: &Rc<TreelandOutputColorControlV1>,
         success: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_result(
+        let res = slf.try_send_result(
             success,
         );
         if let Err(e) = res {
@@ -630,13 +630,13 @@ pub trait TreelandOutputColorControlV1Handler: Any {
     #[inline]
     fn handle_color_temperature(
         &mut self,
-        _slf: &Rc<TreelandOutputColorControlV1>,
+        slf: &Rc<TreelandOutputColorControlV1>,
         temperature: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_color_temperature(
+        let res = slf.try_send_color_temperature(
             temperature,
         );
         if let Err(e) = res {
@@ -657,13 +657,13 @@ pub trait TreelandOutputColorControlV1Handler: Any {
     #[inline]
     fn handle_brightness(
         &mut self,
-        _slf: &Rc<TreelandOutputColorControlV1>,
+        slf: &Rc<TreelandOutputColorControlV1>,
         brightness: Fixed,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_brightness(
+        let res = slf.try_send_brightness(
             brightness,
         );
         if let Err(e) = res {
@@ -675,12 +675,12 @@ pub trait TreelandOutputColorControlV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<TreelandOutputColorControlV1>,
+        slf: &Rc<TreelandOutputColorControlV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("treeland_output_color_control_v1.destroy", &e);

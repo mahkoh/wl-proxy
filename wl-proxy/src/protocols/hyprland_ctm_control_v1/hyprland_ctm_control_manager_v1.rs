@@ -438,7 +438,7 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
     #[inline]
     fn handle_set_ctm_for_output(
         &mut self,
-        _slf: &Rc<HyprlandCtmControlManagerV1>,
+        slf: &Rc<HyprlandCtmControlManagerV1>,
         output: &Rc<WlOutput>,
         mat0: Fixed,
         mat1: Fixed,
@@ -450,10 +450,10 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
         mat7: Fixed,
         mat8: Fixed,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_ctm_for_output(
+        let res = slf.try_send_set_ctm_for_output(
             output,
             mat0,
             mat1,
@@ -476,12 +476,12 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
     #[inline]
     fn handle_commit(
         &mut self,
-        _slf: &Rc<HyprlandCtmControlManagerV1>,
+        slf: &Rc<HyprlandCtmControlManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_commit(
+        let res = slf.try_send_commit(
         );
         if let Err(e) = res {
             log_forward("hyprland_ctm_control_manager_v1.commit", &e);
@@ -497,12 +497,12 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<HyprlandCtmControlManagerV1>,
+        slf: &Rc<HyprlandCtmControlManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("hyprland_ctm_control_manager_v1.destroy", &e);
@@ -518,12 +518,12 @@ pub trait HyprlandCtmControlManagerV1Handler: Any {
     #[inline]
     fn handle_blocked(
         &mut self,
-        _slf: &Rc<HyprlandCtmControlManagerV1>,
+        slf: &Rc<HyprlandCtmControlManagerV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_blocked(
+        let res = slf.try_send_blocked(
         );
         if let Err(e) = res {
             log_forward("hyprland_ctm_control_manager_v1.blocked", &e);

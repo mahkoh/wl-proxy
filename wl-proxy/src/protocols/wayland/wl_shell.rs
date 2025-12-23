@@ -229,14 +229,14 @@ pub trait WlShellHandler: Any {
     #[inline]
     fn handle_get_shell_surface(
         &mut self,
-        _slf: &Rc<WlShell>,
+        slf: &Rc<WlShell>,
         id: &Rc<WlShellSurface>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_shell_surface(
+        let res = slf.try_send_get_shell_surface(
             id,
             surface,
         );

@@ -986,15 +986,15 @@ pub trait ZwpTabletPadV2Handler: Any {
     #[inline]
     fn handle_set_feedback(
         &mut self,
-        _slf: &Rc<ZwpTabletPadV2>,
+        slf: &Rc<ZwpTabletPadV2>,
         button: u32,
         description: &str,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_feedback(
+        let res = slf.try_send_set_feedback(
             button,
             description,
             serial,
@@ -1011,12 +1011,12 @@ pub trait ZwpTabletPadV2Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpTabletPadV2>,
+        slf: &Rc<ZwpTabletPadV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_pad_v2.destroy", &e);
@@ -1037,13 +1037,13 @@ pub trait ZwpTabletPadV2Handler: Any {
     #[inline]
     fn handle_group(
         &mut self,
-        _slf: &Rc<ZwpTabletPadV2>,
+        slf: &Rc<ZwpTabletPadV2>,
         pad_group: &Rc<ZwpTabletPadGroupV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_group(
+        let res = slf.try_send_group(
             pad_group,
         );
         if let Err(e) = res {
@@ -1070,13 +1070,13 @@ pub trait ZwpTabletPadV2Handler: Any {
     #[inline]
     fn handle_path(
         &mut self,
-        _slf: &Rc<ZwpTabletPadV2>,
+        slf: &Rc<ZwpTabletPadV2>,
         path: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_path(
+        let res = slf.try_send_path(
             path,
         );
         if let Err(e) = res {
@@ -1099,13 +1099,13 @@ pub trait ZwpTabletPadV2Handler: Any {
     #[inline]
     fn handle_buttons(
         &mut self,
-        _slf: &Rc<ZwpTabletPadV2>,
+        slf: &Rc<ZwpTabletPadV2>,
         buttons: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_buttons(
+        let res = slf.try_send_buttons(
             buttons,
         );
         if let Err(e) = res {
@@ -1121,12 +1121,12 @@ pub trait ZwpTabletPadV2Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<ZwpTabletPadV2>,
+        slf: &Rc<ZwpTabletPadV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_pad_v2.done", &e);
@@ -1145,15 +1145,15 @@ pub trait ZwpTabletPadV2Handler: Any {
     #[inline]
     fn handle_button(
         &mut self,
-        _slf: &Rc<ZwpTabletPadV2>,
+        slf: &Rc<ZwpTabletPadV2>,
         time: u32,
         button: u32,
         state: ZwpTabletPadV2ButtonState,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_button(
+        let res = slf.try_send_button(
             time,
             button,
             state,
@@ -1178,15 +1178,15 @@ pub trait ZwpTabletPadV2Handler: Any {
     #[inline]
     fn handle_enter(
         &mut self,
-        _slf: &Rc<ZwpTabletPadV2>,
+        slf: &Rc<ZwpTabletPadV2>,
         serial: u32,
         tablet: &Rc<ZwpTabletV2>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = tablet.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
@@ -1198,7 +1198,7 @@ pub trait ZwpTabletPadV2Handler: Any {
                 }
             }
         }
-        let res = _slf.try_send_enter(
+        let res = slf.try_send_enter(
             serial,
             tablet,
             surface,
@@ -1223,21 +1223,21 @@ pub trait ZwpTabletPadV2Handler: Any {
     #[inline]
     fn handle_leave(
         &mut self,
-        _slf: &Rc<ZwpTabletPadV2>,
+        slf: &Rc<ZwpTabletPadV2>,
         serial: u32,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(client_id_2) = surface.core().client_id.get() {
                 if client_id != client_id_2 {
                     return;
                 }
             }
         }
-        let res = _slf.try_send_leave(
+        let res = slf.try_send_leave(
             serial,
             surface,
         );
@@ -1257,12 +1257,12 @@ pub trait ZwpTabletPadV2Handler: Any {
     #[inline]
     fn handle_removed(
         &mut self,
-        _slf: &Rc<ZwpTabletPadV2>,
+        slf: &Rc<ZwpTabletPadV2>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_removed(
+        let res = slf.try_send_removed(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_pad_v2.removed", &e);

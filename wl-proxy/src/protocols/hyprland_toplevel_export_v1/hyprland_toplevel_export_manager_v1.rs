@@ -450,15 +450,15 @@ pub trait HyprlandToplevelExportManagerV1Handler: Any {
     #[inline]
     fn handle_capture_toplevel(
         &mut self,
-        _slf: &Rc<HyprlandToplevelExportManagerV1>,
+        slf: &Rc<HyprlandToplevelExportManagerV1>,
         frame: &Rc<HyprlandToplevelExportFrameV1>,
         overlay_cursor: i32,
         handle: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_capture_toplevel(
+        let res = slf.try_send_capture_toplevel(
             frame,
             overlay_cursor,
             handle,
@@ -475,12 +475,12 @@ pub trait HyprlandToplevelExportManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<HyprlandToplevelExportManagerV1>,
+        slf: &Rc<HyprlandToplevelExportManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("hyprland_toplevel_export_manager_v1.destroy", &e);
@@ -502,15 +502,15 @@ pub trait HyprlandToplevelExportManagerV1Handler: Any {
     #[inline]
     fn handle_capture_toplevel_with_wlr_toplevel_handle(
         &mut self,
-        _slf: &Rc<HyprlandToplevelExportManagerV1>,
+        slf: &Rc<HyprlandToplevelExportManagerV1>,
         frame: &Rc<HyprlandToplevelExportFrameV1>,
         overlay_cursor: i32,
         handle: &Rc<ZwlrForeignToplevelHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_capture_toplevel_with_wlr_toplevel_handle(
+        let res = slf.try_send_capture_toplevel_with_wlr_toplevel_handle(
             frame,
             overlay_cursor,
             handle,

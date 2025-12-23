@@ -431,14 +431,14 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
     #[inline]
     fn handle_set_selection(
         &mut self,
-        _slf: &Rc<ZwpPrimarySelectionDeviceV1>,
+        slf: &Rc<ZwpPrimarySelectionDeviceV1>,
         source: Option<&Rc<ZwpPrimarySelectionSourceV1>>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_selection(
+        let res = slf.try_send_set_selection(
             source,
             serial,
         );
@@ -461,13 +461,13 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
     #[inline]
     fn handle_data_offer(
         &mut self,
-        _slf: &Rc<ZwpPrimarySelectionDeviceV1>,
+        slf: &Rc<ZwpPrimarySelectionDeviceV1>,
         offer: &Rc<ZwpPrimarySelectionOfferV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_data_offer(
+        let res = slf.try_send_data_offer(
             offer,
         );
         if let Err(e) = res {
@@ -496,13 +496,13 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
     #[inline]
     fn handle_selection(
         &mut self,
-        _slf: &Rc<ZwpPrimarySelectionDeviceV1>,
+        slf: &Rc<ZwpPrimarySelectionDeviceV1>,
         id: Option<&Rc<ZwpPrimarySelectionOfferV1>>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {
                     if client_id != client_id_2 {
@@ -511,7 +511,7 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
                 }
             }
         }
-        let res = _slf.try_send_selection(
+        let res = slf.try_send_selection(
             id,
         );
         if let Err(e) = res {
@@ -525,12 +525,12 @@ pub trait ZwpPrimarySelectionDeviceV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpPrimarySelectionDeviceV1>,
+        slf: &Rc<ZwpPrimarySelectionDeviceV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_primary_selection_device_v1.destroy", &e);

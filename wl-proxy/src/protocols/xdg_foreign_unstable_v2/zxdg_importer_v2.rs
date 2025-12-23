@@ -262,12 +262,12 @@ pub trait ZxdgImporterV2Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZxdgImporterV2>,
+        slf: &Rc<ZxdgImporterV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zxdg_importer_v2.destroy", &e);
@@ -289,14 +289,14 @@ pub trait ZxdgImporterV2Handler: Any {
     #[inline]
     fn handle_import_toplevel(
         &mut self,
-        _slf: &Rc<ZxdgImporterV2>,
+        slf: &Rc<ZxdgImporterV2>,
         id: &Rc<ZxdgImportedV2>,
         handle: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_import_toplevel(
+        let res = slf.try_send_import_toplevel(
             id,
             handle,
         );

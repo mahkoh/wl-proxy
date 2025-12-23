@@ -422,12 +422,12 @@ pub trait WpLinuxDrmSyncobjManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpLinuxDrmSyncobjManagerV1>,
+        slf: &Rc<WpLinuxDrmSyncobjManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_linux_drm_syncobj_manager_v1.destroy", &e);
@@ -458,14 +458,14 @@ pub trait WpLinuxDrmSyncobjManagerV1Handler: Any {
     #[inline]
     fn handle_get_surface(
         &mut self,
-        _slf: &Rc<WpLinuxDrmSyncobjManagerV1>,
+        slf: &Rc<WpLinuxDrmSyncobjManagerV1>,
         id: &Rc<WpLinuxDrmSyncobjSurfaceV1>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_surface(
+        let res = slf.try_send_get_surface(
             id,
             surface,
         );
@@ -487,14 +487,14 @@ pub trait WpLinuxDrmSyncobjManagerV1Handler: Any {
     #[inline]
     fn handle_import_timeline(
         &mut self,
-        _slf: &Rc<WpLinuxDrmSyncobjManagerV1>,
+        slf: &Rc<WpLinuxDrmSyncobjManagerV1>,
         id: &Rc<WpLinuxDrmSyncobjTimelineV1>,
         fd: &Rc<OwnedFd>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_import_timeline(
+        let res = slf.try_send_import_timeline(
             id,
             fd,
         );

@@ -370,15 +370,15 @@ pub trait WlShmHandler: Any {
     #[inline]
     fn handle_create_pool(
         &mut self,
-        _slf: &Rc<WlShm>,
+        slf: &Rc<WlShm>,
         id: &Rc<WlShmPool>,
         fd: &Rc<OwnedFd>,
         size: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_pool(
+        let res = slf.try_send_create_pool(
             id,
             fd,
             size,
@@ -400,13 +400,13 @@ pub trait WlShmHandler: Any {
     #[inline]
     fn handle_format(
         &mut self,
-        _slf: &Rc<WlShm>,
+        slf: &Rc<WlShm>,
         format: WlShmFormat,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_format(
+        let res = slf.try_send_format(
             format,
         );
         if let Err(e) = res {
@@ -423,12 +423,12 @@ pub trait WlShmHandler: Any {
     #[inline]
     fn handle_release(
         &mut self,
-        _slf: &Rc<WlShm>,
+        slf: &Rc<WlShm>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_release(
+        let res = slf.try_send_release(
         );
         if let Err(e) = res {
             log_forward("wl_shm.release", &e);

@@ -323,17 +323,17 @@ pub trait HyprlandGlobalShortcutsManagerV1Handler: Any {
     #[inline]
     fn handle_register_shortcut(
         &mut self,
-        _slf: &Rc<HyprlandGlobalShortcutsManagerV1>,
+        slf: &Rc<HyprlandGlobalShortcutsManagerV1>,
         shortcut: &Rc<HyprlandGlobalShortcutV1>,
         id: &str,
         app_id: &str,
         description: &str,
         trigger_description: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_register_shortcut(
+        let res = slf.try_send_register_shortcut(
             shortcut,
             id,
             app_id,
@@ -352,12 +352,12 @@ pub trait HyprlandGlobalShortcutsManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<HyprlandGlobalShortcutsManagerV1>,
+        slf: &Rc<HyprlandGlobalShortcutsManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("hyprland_global_shortcuts_manager_v1.destroy", &e);

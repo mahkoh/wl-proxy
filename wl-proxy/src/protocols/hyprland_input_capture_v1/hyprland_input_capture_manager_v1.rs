@@ -193,14 +193,14 @@ pub trait HyprlandInputCaptureManagerV1Handler: Any {
     #[inline]
     fn handle_create_session(
         &mut self,
-        _slf: &Rc<HyprlandInputCaptureManagerV1>,
+        slf: &Rc<HyprlandInputCaptureManagerV1>,
         session: &Rc<HyprlandInputCaptureV1>,
         handle: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_session(
+        let res = slf.try_send_create_session(
             session,
             handle,
         );

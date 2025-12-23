@@ -567,13 +567,13 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
     #[inline]
     fn handle_set_blend_mode(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationWindowContextV1>,
+        slf: &Rc<TreelandPersonalizationWindowContextV1>,
         mode: TreelandPersonalizationWindowContextV1BlendMode,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_blend_mode(
+        let res = slf.try_send_set_blend_mode(
             mode,
         );
         if let Err(e) = res {
@@ -595,13 +595,13 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
     #[inline]
     fn handle_set_round_corner_radius(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationWindowContextV1>,
+        slf: &Rc<TreelandPersonalizationWindowContextV1>,
         radius: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_round_corner_radius(
+        let res = slf.try_send_set_round_corner_radius(
             radius,
         );
         if let Err(e) = res {
@@ -628,7 +628,7 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
     #[inline]
     fn handle_set_shadow(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationWindowContextV1>,
+        slf: &Rc<TreelandPersonalizationWindowContextV1>,
         radius: i32,
         offset_x: i32,
         offset_y: i32,
@@ -637,10 +637,10 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
         b: i32,
         a: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_shadow(
+        let res = slf.try_send_set_shadow(
             radius,
             offset_x,
             offset_y,
@@ -668,17 +668,17 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
     #[inline]
     fn handle_set_border(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationWindowContextV1>,
+        slf: &Rc<TreelandPersonalizationWindowContextV1>,
         width: i32,
         r: i32,
         g: i32,
         b: i32,
         a: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_border(
+        let res = slf.try_send_set_border(
             width,
             r,
             g,
@@ -700,13 +700,13 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
     #[inline]
     fn handle_set_titlebar(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationWindowContextV1>,
+        slf: &Rc<TreelandPersonalizationWindowContextV1>,
         mode: TreelandPersonalizationWindowContextV1EnableMode,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_titlebar(
+        let res = slf.try_send_set_titlebar(
             mode,
         );
         if let Err(e) = res {
@@ -720,12 +720,12 @@ pub trait TreelandPersonalizationWindowContextV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationWindowContextV1>,
+        slf: &Rc<TreelandPersonalizationWindowContextV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("treeland_personalization_window_context_v1.destroy", &e);

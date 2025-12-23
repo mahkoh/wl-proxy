@@ -348,13 +348,13 @@ pub trait ExtDataControlSourceV1Handler: Any {
     #[inline]
     fn handle_offer(
         &mut self,
-        _slf: &Rc<ExtDataControlSourceV1>,
+        slf: &Rc<ExtDataControlSourceV1>,
         mime_type: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_offer(
+        let res = slf.try_send_offer(
             mime_type,
         );
         if let Err(e) = res {
@@ -368,12 +368,12 @@ pub trait ExtDataControlSourceV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtDataControlSourceV1>,
+        slf: &Rc<ExtDataControlSourceV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_data_control_source_v1.destroy", &e);
@@ -392,14 +392,14 @@ pub trait ExtDataControlSourceV1Handler: Any {
     #[inline]
     fn handle_send(
         &mut self,
-        _slf: &Rc<ExtDataControlSourceV1>,
+        slf: &Rc<ExtDataControlSourceV1>,
         mime_type: &str,
         fd: &Rc<OwnedFd>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_send(
+        let res = slf.try_send_send(
             mime_type,
             fd,
         );
@@ -417,12 +417,12 @@ pub trait ExtDataControlSourceV1Handler: Any {
     #[inline]
     fn handle_cancelled(
         &mut self,
-        _slf: &Rc<ExtDataControlSourceV1>,
+        slf: &Rc<ExtDataControlSourceV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_cancelled(
+        let res = slf.try_send_cancelled(
         );
         if let Err(e) = res {
             log_forward("ext_data_control_source_v1.cancelled", &e);

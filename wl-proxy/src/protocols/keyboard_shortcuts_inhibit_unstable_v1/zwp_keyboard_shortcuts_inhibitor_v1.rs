@@ -281,12 +281,12 @@ pub trait ZwpKeyboardShortcutsInhibitorV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpKeyboardShortcutsInhibitorV1>,
+        slf: &Rc<ZwpKeyboardShortcutsInhibitorV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_keyboard_shortcuts_inhibitor_v1.destroy", &e);
@@ -309,12 +309,12 @@ pub trait ZwpKeyboardShortcutsInhibitorV1Handler: Any {
     #[inline]
     fn handle_active(
         &mut self,
-        _slf: &Rc<ZwpKeyboardShortcutsInhibitorV1>,
+        slf: &Rc<ZwpKeyboardShortcutsInhibitorV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_active(
+        let res = slf.try_send_active(
         );
         if let Err(e) = res {
             log_forward("zwp_keyboard_shortcuts_inhibitor_v1.active", &e);
@@ -328,12 +328,12 @@ pub trait ZwpKeyboardShortcutsInhibitorV1Handler: Any {
     #[inline]
     fn handle_inactive(
         &mut self,
-        _slf: &Rc<ZwpKeyboardShortcutsInhibitorV1>,
+        slf: &Rc<ZwpKeyboardShortcutsInhibitorV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_inactive(
+        let res = slf.try_send_inactive(
         );
         if let Err(e) = res {
             log_forward("zwp_keyboard_shortcuts_inhibitor_v1.inactive", &e);

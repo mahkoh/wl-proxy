@@ -986,13 +986,13 @@ pub trait WlDrmHandler: Any {
     #[inline]
     fn handle_authenticate(
         &mut self,
-        _slf: &Rc<WlDrm>,
+        slf: &Rc<WlDrm>,
         id: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_authenticate(
+        let res = slf.try_send_authenticate(
             id,
         );
         if let Err(e) = res {
@@ -1011,7 +1011,7 @@ pub trait WlDrmHandler: Any {
     #[inline]
     fn handle_create_buffer(
         &mut self,
-        _slf: &Rc<WlDrm>,
+        slf: &Rc<WlDrm>,
         id: &Rc<WlBuffer>,
         name: u32,
         width: i32,
@@ -1019,10 +1019,10 @@ pub trait WlDrmHandler: Any {
         stride: u32,
         format: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_buffer(
+        let res = slf.try_send_create_buffer(
             id,
             name,
             width,
@@ -1051,7 +1051,7 @@ pub trait WlDrmHandler: Any {
     #[inline]
     fn handle_create_planar_buffer(
         &mut self,
-        _slf: &Rc<WlDrm>,
+        slf: &Rc<WlDrm>,
         id: &Rc<WlBuffer>,
         name: u32,
         width: i32,
@@ -1064,10 +1064,10 @@ pub trait WlDrmHandler: Any {
         offset2: i32,
         stride2: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_planar_buffer(
+        let res = slf.try_send_create_planar_buffer(
             id,
             name,
             width,
@@ -1091,13 +1091,13 @@ pub trait WlDrmHandler: Any {
     #[inline]
     fn handle_device(
         &mut self,
-        _slf: &Rc<WlDrm>,
+        slf: &Rc<WlDrm>,
         name: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_device(
+        let res = slf.try_send_device(
             name,
         );
         if let Err(e) = res {
@@ -1111,13 +1111,13 @@ pub trait WlDrmHandler: Any {
     #[inline]
     fn handle_format(
         &mut self,
-        _slf: &Rc<WlDrm>,
+        slf: &Rc<WlDrm>,
         format: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_format(
+        let res = slf.try_send_format(
             format,
         );
         if let Err(e) = res {
@@ -1128,12 +1128,12 @@ pub trait WlDrmHandler: Any {
     #[inline]
     fn handle_authenticated(
         &mut self,
-        _slf: &Rc<WlDrm>,
+        slf: &Rc<WlDrm>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_authenticated(
+        let res = slf.try_send_authenticated(
         );
         if let Err(e) = res {
             log_forward("wl_drm.authenticated", &e);
@@ -1146,13 +1146,13 @@ pub trait WlDrmHandler: Any {
     #[inline]
     fn handle_capabilities(
         &mut self,
-        _slf: &Rc<WlDrm>,
+        slf: &Rc<WlDrm>,
         value: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_capabilities(
+        let res = slf.try_send_capabilities(
             value,
         );
         if let Err(e) = res {
@@ -1176,7 +1176,7 @@ pub trait WlDrmHandler: Any {
     #[inline]
     fn handle_create_prime_buffer(
         &mut self,
-        _slf: &Rc<WlDrm>,
+        slf: &Rc<WlDrm>,
         id: &Rc<WlBuffer>,
         name: &Rc<OwnedFd>,
         width: i32,
@@ -1189,10 +1189,10 @@ pub trait WlDrmHandler: Any {
         offset2: i32,
         stride2: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_prime_buffer(
+        let res = slf.try_send_create_prime_buffer(
             id,
             name,
             width,

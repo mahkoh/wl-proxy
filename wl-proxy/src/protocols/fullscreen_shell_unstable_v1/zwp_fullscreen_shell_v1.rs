@@ -709,12 +709,12 @@ pub trait ZwpFullscreenShellV1Handler: Any {
     #[inline]
     fn handle_release(
         &mut self,
-        _slf: &Rc<ZwpFullscreenShellV1>,
+        slf: &Rc<ZwpFullscreenShellV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_release(
+        let res = slf.try_send_release(
         );
         if let Err(e) = res {
             log_forward("zwp_fullscreen_shell_v1.release", &e);
@@ -738,13 +738,13 @@ pub trait ZwpFullscreenShellV1Handler: Any {
     #[inline]
     fn handle_capability(
         &mut self,
-        _slf: &Rc<ZwpFullscreenShellV1>,
+        slf: &Rc<ZwpFullscreenShellV1>,
         capability: ZwpFullscreenShellV1Capability,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_capability(
+        let res = slf.try_send_capability(
             capability,
         );
         if let Err(e) = res {
@@ -787,15 +787,15 @@ pub trait ZwpFullscreenShellV1Handler: Any {
     #[inline]
     fn handle_present_surface(
         &mut self,
-        _slf: &Rc<ZwpFullscreenShellV1>,
+        slf: &Rc<ZwpFullscreenShellV1>,
         surface: Option<&Rc<WlSurface>>,
         method: ZwpFullscreenShellV1PresentMethod,
         output: Option<&Rc<WlOutput>>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_present_surface(
+        let res = slf.try_send_present_surface(
             surface,
             method,
             output,
@@ -861,16 +861,16 @@ pub trait ZwpFullscreenShellV1Handler: Any {
     #[inline]
     fn handle_present_surface_for_mode(
         &mut self,
-        _slf: &Rc<ZwpFullscreenShellV1>,
+        slf: &Rc<ZwpFullscreenShellV1>,
         surface: &Rc<WlSurface>,
         output: &Rc<WlOutput>,
         framerate: i32,
         feedback: &Rc<ZwpFullscreenShellModeFeedbackV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_present_surface_for_mode(
+        let res = slf.try_send_present_surface_for_mode(
             surface,
             output,
             framerate,

@@ -515,13 +515,13 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
     #[inline]
     fn handle_name(
         &mut self,
-        _slf: &Rc<WpDrmLeaseConnectorV1>,
+        slf: &Rc<WpDrmLeaseConnectorV1>,
         name: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_name(
+        let res = slf.try_send_name(
             name,
         );
         if let Err(e) = res {
@@ -542,13 +542,13 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
     #[inline]
     fn handle_description(
         &mut self,
-        _slf: &Rc<WpDrmLeaseConnectorV1>,
+        slf: &Rc<WpDrmLeaseConnectorV1>,
         description: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_description(
+        let res = slf.try_send_description(
             description,
         );
         if let Err(e) = res {
@@ -569,13 +569,13 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
     #[inline]
     fn handle_connector_id(
         &mut self,
-        _slf: &Rc<WpDrmLeaseConnectorV1>,
+        slf: &Rc<WpDrmLeaseConnectorV1>,
         connector_id: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_connector_id(
+        let res = slf.try_send_connector_id(
             connector_id,
         );
         if let Err(e) = res {
@@ -591,12 +591,12 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<WpDrmLeaseConnectorV1>,
+        slf: &Rc<WpDrmLeaseConnectorV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
         );
         if let Err(e) = res {
             log_forward("wp_drm_lease_connector_v1.done", &e);
@@ -619,12 +619,12 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
     #[inline]
     fn handle_withdrawn(
         &mut self,
-        _slf: &Rc<WpDrmLeaseConnectorV1>,
+        slf: &Rc<WpDrmLeaseConnectorV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_withdrawn(
+        let res = slf.try_send_withdrawn(
         );
         if let Err(e) = res {
             log_forward("wp_drm_lease_connector_v1.withdrawn", &e);
@@ -641,12 +641,12 @@ pub trait WpDrmLeaseConnectorV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpDrmLeaseConnectorV1>,
+        slf: &Rc<WpDrmLeaseConnectorV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_drm_lease_connector_v1.destroy", &e);

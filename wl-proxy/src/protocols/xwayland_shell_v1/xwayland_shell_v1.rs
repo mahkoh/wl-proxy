@@ -298,12 +298,12 @@ pub trait XwaylandShellV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<XwaylandShellV1>,
+        slf: &Rc<XwaylandShellV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("xwayland_shell_v1.destroy", &e);
@@ -332,14 +332,14 @@ pub trait XwaylandShellV1Handler: Any {
     #[inline]
     fn handle_get_xwayland_surface(
         &mut self,
-        _slf: &Rc<XwaylandShellV1>,
+        slf: &Rc<XwaylandShellV1>,
         id: &Rc<XwaylandSurfaceV1>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_xwayland_surface(
+        let res = slf.try_send_get_xwayland_surface(
             id,
             surface,
         );

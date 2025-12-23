@@ -262,12 +262,12 @@ pub trait ExtIdleNotificationV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtIdleNotificationV1>,
+        slf: &Rc<ExtIdleNotificationV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_idle_notification_v1.destroy", &e);
@@ -283,12 +283,12 @@ pub trait ExtIdleNotificationV1Handler: Any {
     #[inline]
     fn handle_idled(
         &mut self,
-        _slf: &Rc<ExtIdleNotificationV1>,
+        slf: &Rc<ExtIdleNotificationV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_idled(
+        let res = slf.try_send_idled(
         );
         if let Err(e) = res {
             log_forward("ext_idle_notification_v1.idled", &e);
@@ -305,12 +305,12 @@ pub trait ExtIdleNotificationV1Handler: Any {
     #[inline]
     fn handle_resumed(
         &mut self,
-        _slf: &Rc<ExtIdleNotificationV1>,
+        slf: &Rc<ExtIdleNotificationV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_resumed(
+        let res = slf.try_send_resumed(
         );
         if let Err(e) = res {
             log_forward("ext_idle_notification_v1.resumed", &e);

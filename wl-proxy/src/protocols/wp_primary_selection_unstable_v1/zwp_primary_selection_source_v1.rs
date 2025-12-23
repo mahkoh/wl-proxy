@@ -336,13 +336,13 @@ pub trait ZwpPrimarySelectionSourceV1Handler: Any {
     #[inline]
     fn handle_offer(
         &mut self,
-        _slf: &Rc<ZwpPrimarySelectionSourceV1>,
+        slf: &Rc<ZwpPrimarySelectionSourceV1>,
         mime_type: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_offer(
+        let res = slf.try_send_offer(
             mime_type,
         );
         if let Err(e) = res {
@@ -356,12 +356,12 @@ pub trait ZwpPrimarySelectionSourceV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpPrimarySelectionSourceV1>,
+        slf: &Rc<ZwpPrimarySelectionSourceV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_primary_selection_source_v1.destroy", &e);
@@ -381,14 +381,14 @@ pub trait ZwpPrimarySelectionSourceV1Handler: Any {
     #[inline]
     fn handle_send(
         &mut self,
-        _slf: &Rc<ZwpPrimarySelectionSourceV1>,
+        slf: &Rc<ZwpPrimarySelectionSourceV1>,
         mime_type: &str,
         fd: &Rc<OwnedFd>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_send(
+        let res = slf.try_send_send(
             mime_type,
             fd,
         );
@@ -404,12 +404,12 @@ pub trait ZwpPrimarySelectionSourceV1Handler: Any {
     #[inline]
     fn handle_cancelled(
         &mut self,
-        _slf: &Rc<ZwpPrimarySelectionSourceV1>,
+        slf: &Rc<ZwpPrimarySelectionSourceV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_cancelled(
+        let res = slf.try_send_cancelled(
         );
         if let Err(e) = res {
             log_forward("zwp_primary_selection_source_v1.cancelled", &e);

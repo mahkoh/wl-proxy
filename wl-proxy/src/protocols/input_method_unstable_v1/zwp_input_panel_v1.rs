@@ -181,14 +181,14 @@ pub trait ZwpInputPanelV1Handler: Any {
     #[inline]
     fn handle_get_input_panel_surface(
         &mut self,
-        _slf: &Rc<ZwpInputPanelV1>,
+        slf: &Rc<ZwpInputPanelV1>,
         id: &Rc<ZwpInputPanelSurfaceV1>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_input_panel_surface(
+        let res = slf.try_send_get_input_panel_surface(
             id,
             surface,
         );

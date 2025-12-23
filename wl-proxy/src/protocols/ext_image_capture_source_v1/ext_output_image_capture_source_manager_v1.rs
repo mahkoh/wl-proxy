@@ -273,14 +273,14 @@ pub trait ExtOutputImageCaptureSourceManagerV1Handler: Any {
     #[inline]
     fn handle_create_source(
         &mut self,
-        _slf: &Rc<ExtOutputImageCaptureSourceManagerV1>,
+        slf: &Rc<ExtOutputImageCaptureSourceManagerV1>,
         source: &Rc<ExtImageCaptureSourceV1>,
         output: &Rc<WlOutput>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_source(
+        let res = slf.try_send_create_source(
             source,
             output,
         );
@@ -297,12 +297,12 @@ pub trait ExtOutputImageCaptureSourceManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtOutputImageCaptureSourceManagerV1>,
+        slf: &Rc<ExtOutputImageCaptureSourceManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_output_image_capture_source_manager_v1.destroy", &e);

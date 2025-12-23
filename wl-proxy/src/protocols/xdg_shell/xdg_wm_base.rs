@@ -588,12 +588,12 @@ pub trait XdgWmBaseHandler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<XdgWmBase>,
+        slf: &Rc<XdgWmBase>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("xdg_wm_base.destroy", &e);
@@ -612,13 +612,13 @@ pub trait XdgWmBaseHandler: Any {
     #[inline]
     fn handle_create_positioner(
         &mut self,
-        _slf: &Rc<XdgWmBase>,
+        slf: &Rc<XdgWmBase>,
         id: &Rc<XdgPositioner>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_positioner(
+        let res = slf.try_send_create_positioner(
             id,
         );
         if let Err(e) = res {
@@ -652,14 +652,14 @@ pub trait XdgWmBaseHandler: Any {
     #[inline]
     fn handle_get_xdg_surface(
         &mut self,
-        _slf: &Rc<XdgWmBase>,
+        slf: &Rc<XdgWmBase>,
         id: &Rc<XdgSurface>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_xdg_surface(
+        let res = slf.try_send_get_xdg_surface(
             id,
             surface,
         );
@@ -680,13 +680,13 @@ pub trait XdgWmBaseHandler: Any {
     #[inline]
     fn handle_pong(
         &mut self,
-        _slf: &Rc<XdgWmBase>,
+        slf: &Rc<XdgWmBase>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_pong(
+        let res = slf.try_send_pong(
             serial,
         );
         if let Err(e) = res {
@@ -716,13 +716,13 @@ pub trait XdgWmBaseHandler: Any {
     #[inline]
     fn handle_ping(
         &mut self,
-        _slf: &Rc<XdgWmBase>,
+        slf: &Rc<XdgWmBase>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_ping(
+        let res = slf.try_send_ping(
             serial,
         );
         if let Err(e) = res {

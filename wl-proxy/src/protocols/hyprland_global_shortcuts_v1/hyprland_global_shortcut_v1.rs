@@ -309,15 +309,15 @@ pub trait HyprlandGlobalShortcutV1Handler: Any {
     #[inline]
     fn handle_pressed(
         &mut self,
-        _slf: &Rc<HyprlandGlobalShortcutV1>,
+        slf: &Rc<HyprlandGlobalShortcutV1>,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
         tv_nsec: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_pressed(
+        let res = slf.try_send_pressed(
             tv_sec_hi,
             tv_sec_lo,
             tv_nsec,
@@ -341,15 +341,15 @@ pub trait HyprlandGlobalShortcutV1Handler: Any {
     #[inline]
     fn handle_released(
         &mut self,
-        _slf: &Rc<HyprlandGlobalShortcutV1>,
+        slf: &Rc<HyprlandGlobalShortcutV1>,
         tv_sec_hi: u32,
         tv_sec_lo: u32,
         tv_nsec: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_released(
+        let res = slf.try_send_released(
             tv_sec_hi,
             tv_sec_lo,
             tv_nsec,
@@ -365,12 +365,12 @@ pub trait HyprlandGlobalShortcutV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<HyprlandGlobalShortcutV1>,
+        slf: &Rc<HyprlandGlobalShortcutV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("hyprland_global_shortcut_v1.destroy", &e);

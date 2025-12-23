@@ -931,12 +931,12 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpLinuxBufferParamsV1>,
+        slf: &Rc<ZwpLinuxBufferParamsV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_linux_buffer_params_v1.destroy", &e);
@@ -976,7 +976,7 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
     #[inline]
     fn handle_add(
         &mut self,
-        _slf: &Rc<ZwpLinuxBufferParamsV1>,
+        slf: &Rc<ZwpLinuxBufferParamsV1>,
         fd: &Rc<OwnedFd>,
         plane_idx: u32,
         offset: u32,
@@ -984,10 +984,10 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
         modifier_hi: u32,
         modifier_lo: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_add(
+        let res = slf.try_send_add(
             fd,
             plane_idx,
             offset,
@@ -1071,16 +1071,16 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
     #[inline]
     fn handle_create(
         &mut self,
-        _slf: &Rc<ZwpLinuxBufferParamsV1>,
+        slf: &Rc<ZwpLinuxBufferParamsV1>,
         width: i32,
         height: i32,
         format: u32,
         flags: ZwpLinuxBufferParamsV1Flags,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create(
+        let res = slf.try_send_create(
             width,
             height,
             format,
@@ -1105,13 +1105,13 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
     #[inline]
     fn handle_created(
         &mut self,
-        _slf: &Rc<ZwpLinuxBufferParamsV1>,
+        slf: &Rc<ZwpLinuxBufferParamsV1>,
         buffer: &Rc<WlBuffer>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_created(
+        let res = slf.try_send_created(
             buffer,
         );
         if let Err(e) = res {
@@ -1130,12 +1130,12 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
     #[inline]
     fn handle_failed(
         &mut self,
-        _slf: &Rc<ZwpLinuxBufferParamsV1>,
+        slf: &Rc<ZwpLinuxBufferParamsV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_failed(
+        let res = slf.try_send_failed(
         );
         if let Err(e) = res {
             log_forward("zwp_linux_buffer_params_v1.failed", &e);
@@ -1179,17 +1179,17 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
     #[inline]
     fn handle_create_immed(
         &mut self,
-        _slf: &Rc<ZwpLinuxBufferParamsV1>,
+        slf: &Rc<ZwpLinuxBufferParamsV1>,
         buffer_id: &Rc<WlBuffer>,
         width: i32,
         height: i32,
         format: u32,
         flags: ZwpLinuxBufferParamsV1Flags,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_immed(
+        let res = slf.try_send_create_immed(
             buffer_id,
             width,
             height,

@@ -312,13 +312,13 @@ pub trait WpDrmLeaseV1Handler: Any {
     #[inline]
     fn handle_lease_fd(
         &mut self,
-        _slf: &Rc<WpDrmLeaseV1>,
+        slf: &Rc<WpDrmLeaseV1>,
         leased_fd: &Rc<OwnedFd>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_lease_fd(
+        let res = slf.try_send_lease_fd(
             leased_fd,
         );
         if let Err(e) = res {
@@ -341,12 +341,12 @@ pub trait WpDrmLeaseV1Handler: Any {
     #[inline]
     fn handle_finished(
         &mut self,
-        _slf: &Rc<WpDrmLeaseV1>,
+        slf: &Rc<WpDrmLeaseV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_finished(
+        let res = slf.try_send_finished(
         );
         if let Err(e) = res {
             log_forward("wp_drm_lease_v1.finished", &e);
@@ -365,12 +365,12 @@ pub trait WpDrmLeaseV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<WpDrmLeaseV1>,
+        slf: &Rc<WpDrmLeaseV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("wp_drm_lease_v1.destroy", &e);

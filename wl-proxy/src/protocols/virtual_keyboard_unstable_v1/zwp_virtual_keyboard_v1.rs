@@ -423,15 +423,15 @@ pub trait ZwpVirtualKeyboardV1Handler: Any {
     #[inline]
     fn handle_keymap(
         &mut self,
-        _slf: &Rc<ZwpVirtualKeyboardV1>,
+        slf: &Rc<ZwpVirtualKeyboardV1>,
         format: u32,
         fd: &Rc<OwnedFd>,
         size: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_keymap(
+        let res = slf.try_send_keymap(
             format,
             fd,
             size,
@@ -460,15 +460,15 @@ pub trait ZwpVirtualKeyboardV1Handler: Any {
     #[inline]
     fn handle_key(
         &mut self,
-        _slf: &Rc<ZwpVirtualKeyboardV1>,
+        slf: &Rc<ZwpVirtualKeyboardV1>,
         time: u32,
         key: u32,
         state: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_key(
+        let res = slf.try_send_key(
             time,
             key,
             state,
@@ -497,16 +497,16 @@ pub trait ZwpVirtualKeyboardV1Handler: Any {
     #[inline]
     fn handle_modifiers(
         &mut self,
-        _slf: &Rc<ZwpVirtualKeyboardV1>,
+        slf: &Rc<ZwpVirtualKeyboardV1>,
         mods_depressed: u32,
         mods_latched: u32,
         mods_locked: u32,
         group: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_modifiers(
+        let res = slf.try_send_modifiers(
             mods_depressed,
             mods_latched,
             mods_locked,
@@ -521,12 +521,12 @@ pub trait ZwpVirtualKeyboardV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpVirtualKeyboardV1>,
+        slf: &Rc<ZwpVirtualKeyboardV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_virtual_keyboard_v1.destroy", &e);

@@ -355,13 +355,13 @@ pub trait ZwlrDataControlManagerV1Handler: Any {
     #[inline]
     fn handle_create_data_source(
         &mut self,
-        _slf: &Rc<ZwlrDataControlManagerV1>,
+        slf: &Rc<ZwlrDataControlManagerV1>,
         id: &Rc<ZwlrDataControlSourceV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_data_source(
+        let res = slf.try_send_create_data_source(
             id,
         );
         if let Err(e) = res {
@@ -383,14 +383,14 @@ pub trait ZwlrDataControlManagerV1Handler: Any {
     #[inline]
     fn handle_get_data_device(
         &mut self,
-        _slf: &Rc<ZwlrDataControlManagerV1>,
+        slf: &Rc<ZwlrDataControlManagerV1>,
         id: &Rc<ZwlrDataControlDeviceV1>,
         seat: &Rc<WlSeat>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_data_device(
+        let res = slf.try_send_get_data_device(
             id,
             seat,
         );
@@ -406,12 +406,12 @@ pub trait ZwlrDataControlManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwlrDataControlManagerV1>,
+        slf: &Rc<ZwlrDataControlManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwlr_data_control_manager_v1.destroy", &e);

@@ -1176,14 +1176,14 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     #[inline]
     fn handle_set_size(
         &mut self,
-        _slf: &Rc<ZwlrLayerSurfaceV1>,
+        slf: &Rc<ZwlrLayerSurfaceV1>,
         width: u32,
         height: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_size(
+        let res = slf.try_send_set_size(
             width,
             height,
         );
@@ -1208,13 +1208,13 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     #[inline]
     fn handle_set_anchor(
         &mut self,
-        _slf: &Rc<ZwlrLayerSurfaceV1>,
+        slf: &Rc<ZwlrLayerSurfaceV1>,
         anchor: ZwlrLayerSurfaceV1Anchor,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_anchor(
+        let res = slf.try_send_set_anchor(
             anchor,
         );
         if let Err(e) = res {
@@ -1263,13 +1263,13 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     #[inline]
     fn handle_set_exclusive_zone(
         &mut self,
-        _slf: &Rc<ZwlrLayerSurfaceV1>,
+        slf: &Rc<ZwlrLayerSurfaceV1>,
         zone: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_exclusive_zone(
+        let res = slf.try_send_set_exclusive_zone(
             zone,
         );
         if let Err(e) = res {
@@ -1296,16 +1296,16 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     #[inline]
     fn handle_set_margin(
         &mut self,
-        _slf: &Rc<ZwlrLayerSurfaceV1>,
+        slf: &Rc<ZwlrLayerSurfaceV1>,
         top: i32,
         right: i32,
         bottom: i32,
         left: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_margin(
+        let res = slf.try_send_set_margin(
             top,
             right,
             bottom,
@@ -1337,13 +1337,13 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     #[inline]
     fn handle_set_keyboard_interactivity(
         &mut self,
-        _slf: &Rc<ZwlrLayerSurfaceV1>,
+        slf: &Rc<ZwlrLayerSurfaceV1>,
         keyboard_interactivity: ZwlrLayerSurfaceV1KeyboardInteractivity,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_keyboard_interactivity(
+        let res = slf.try_send_set_keyboard_interactivity(
             keyboard_interactivity,
         );
         if let Err(e) = res {
@@ -1370,13 +1370,13 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     #[inline]
     fn handle_get_popup(
         &mut self,
-        _slf: &Rc<ZwlrLayerSurfaceV1>,
+        slf: &Rc<ZwlrLayerSurfaceV1>,
         popup: &Rc<XdgPopup>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_popup(
+        let res = slf.try_send_get_popup(
             popup,
         );
         if let Err(e) = res {
@@ -1408,13 +1408,13 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     #[inline]
     fn handle_ack_configure(
         &mut self,
-        _slf: &Rc<ZwlrLayerSurfaceV1>,
+        slf: &Rc<ZwlrLayerSurfaceV1>,
         serial: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_ack_configure(
+        let res = slf.try_send_ack_configure(
             serial,
         );
         if let Err(e) = res {
@@ -1428,12 +1428,12 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwlrLayerSurfaceV1>,
+        slf: &Rc<ZwlrLayerSurfaceV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwlr_layer_surface_v1.destroy", &e);
@@ -1471,15 +1471,15 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     #[inline]
     fn handle_configure(
         &mut self,
-        _slf: &Rc<ZwlrLayerSurfaceV1>,
+        slf: &Rc<ZwlrLayerSurfaceV1>,
         serial: u32,
         width: u32,
         height: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_configure(
+        let res = slf.try_send_configure(
             serial,
             width,
             height,
@@ -1499,12 +1499,12 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     #[inline]
     fn handle_closed(
         &mut self,
-        _slf: &Rc<ZwlrLayerSurfaceV1>,
+        slf: &Rc<ZwlrLayerSurfaceV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_closed(
+        let res = slf.try_send_closed(
         );
         if let Err(e) = res {
             log_forward("zwlr_layer_surface_v1.closed", &e);
@@ -1523,13 +1523,13 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     #[inline]
     fn handle_set_layer(
         &mut self,
-        _slf: &Rc<ZwlrLayerSurfaceV1>,
+        slf: &Rc<ZwlrLayerSurfaceV1>,
         layer: ZwlrLayerShellV1Layer,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_layer(
+        let res = slf.try_send_set_layer(
             layer,
         );
         if let Err(e) = res {
@@ -1554,13 +1554,13 @@ pub trait ZwlrLayerSurfaceV1Handler: Any {
     #[inline]
     fn handle_set_exclusive_edge(
         &mut self,
-        _slf: &Rc<ZwlrLayerSurfaceV1>,
+        slf: &Rc<ZwlrLayerSurfaceV1>,
         edge: ZwlrLayerSurfaceV1Anchor,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_exclusive_edge(
+        let res = slf.try_send_set_exclusive_edge(
             edge,
         );
         if let Err(e) = res {

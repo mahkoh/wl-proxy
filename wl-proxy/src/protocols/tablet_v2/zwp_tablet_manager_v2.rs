@@ -263,14 +263,14 @@ pub trait ZwpTabletManagerV2Handler: Any {
     #[inline]
     fn handle_get_tablet_seat(
         &mut self,
-        _slf: &Rc<ZwpTabletManagerV2>,
+        slf: &Rc<ZwpTabletManagerV2>,
         tablet_seat: &Rc<ZwpTabletSeatV2>,
         seat: &Rc<WlSeat>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_tablet_seat(
+        let res = slf.try_send_get_tablet_seat(
             tablet_seat,
             seat,
         );
@@ -286,12 +286,12 @@ pub trait ZwpTabletManagerV2Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwpTabletManagerV2>,
+        slf: &Rc<ZwpTabletManagerV2>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwp_tablet_manager_v2.destroy", &e);

@@ -935,13 +935,13 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     #[inline]
     fn handle_id(
         &mut self,
-        _slf: &Rc<ExtWorkspaceHandleV1>,
+        slf: &Rc<ExtWorkspaceHandleV1>,
         id: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_id(
+        let res = slf.try_send_id(
             id,
         );
         if let Err(e) = res {
@@ -963,13 +963,13 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     #[inline]
     fn handle_name(
         &mut self,
-        _slf: &Rc<ExtWorkspaceHandleV1>,
+        slf: &Rc<ExtWorkspaceHandleV1>,
         name: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_name(
+        let res = slf.try_send_name(
             name,
         );
         if let Err(e) = res {
@@ -1004,13 +1004,13 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     #[inline]
     fn handle_coordinates(
         &mut self,
-        _slf: &Rc<ExtWorkspaceHandleV1>,
+        slf: &Rc<ExtWorkspaceHandleV1>,
         coordinates: &[u8],
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_coordinates(
+        let res = slf.try_send_coordinates(
             coordinates,
         );
         if let Err(e) = res {
@@ -1033,13 +1033,13 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     #[inline]
     fn handle_state(
         &mut self,
-        _slf: &Rc<ExtWorkspaceHandleV1>,
+        slf: &Rc<ExtWorkspaceHandleV1>,
         state: ExtWorkspaceHandleV1State,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_state(
+        let res = slf.try_send_state(
             state,
         );
         if let Err(e) = res {
@@ -1069,13 +1069,13 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     #[inline]
     fn handle_capabilities(
         &mut self,
-        _slf: &Rc<ExtWorkspaceHandleV1>,
+        slf: &Rc<ExtWorkspaceHandleV1>,
         capabilities: ExtWorkspaceHandleV1WorkspaceCapabilities,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_capabilities(
+        let res = slf.try_send_capabilities(
             capabilities,
         );
         if let Err(e) = res {
@@ -1097,12 +1097,12 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     #[inline]
     fn handle_removed(
         &mut self,
-        _slf: &Rc<ExtWorkspaceHandleV1>,
+        slf: &Rc<ExtWorkspaceHandleV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_removed(
+        let res = slf.try_send_removed(
         );
         if let Err(e) = res {
             log_forward("ext_workspace_handle_v1.removed", &e);
@@ -1119,12 +1119,12 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtWorkspaceHandleV1>,
+        slf: &Rc<ExtWorkspaceHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_workspace_handle_v1.destroy", &e);
@@ -1142,12 +1142,12 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     #[inline]
     fn handle_activate(
         &mut self,
-        _slf: &Rc<ExtWorkspaceHandleV1>,
+        slf: &Rc<ExtWorkspaceHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_activate(
+        let res = slf.try_send_activate(
         );
         if let Err(e) = res {
             log_forward("ext_workspace_handle_v1.activate", &e);
@@ -1162,12 +1162,12 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     #[inline]
     fn handle_deactivate(
         &mut self,
-        _slf: &Rc<ExtWorkspaceHandleV1>,
+        slf: &Rc<ExtWorkspaceHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_deactivate(
+        let res = slf.try_send_deactivate(
         );
         if let Err(e) = res {
             log_forward("ext_workspace_handle_v1.deactivate", &e);
@@ -1189,13 +1189,13 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     #[inline]
     fn handle_assign(
         &mut self,
-        _slf: &Rc<ExtWorkspaceHandleV1>,
+        slf: &Rc<ExtWorkspaceHandleV1>,
         workspace_group: &Rc<ExtWorkspaceGroupHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_assign(
+        let res = slf.try_send_assign(
             workspace_group,
         );
         if let Err(e) = res {
@@ -1211,12 +1211,12 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     #[inline]
     fn handle_remove(
         &mut self,
-        _slf: &Rc<ExtWorkspaceHandleV1>,
+        slf: &Rc<ExtWorkspaceHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_remove(
+        let res = slf.try_send_remove(
         );
         if let Err(e) = res {
             log_forward("ext_workspace_handle_v1.remove", &e);

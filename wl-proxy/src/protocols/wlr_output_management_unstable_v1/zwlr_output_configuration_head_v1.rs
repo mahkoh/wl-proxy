@@ -528,13 +528,13 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
     #[inline]
     fn handle_set_mode(
         &mut self,
-        _slf: &Rc<ZwlrOutputConfigurationHeadV1>,
+        slf: &Rc<ZwlrOutputConfigurationHeadV1>,
         mode: &Rc<ZwlrOutputModeV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_mode(
+        let res = slf.try_send_set_mode(
             mode,
         );
         if let Err(e) = res {
@@ -558,15 +558,15 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
     #[inline]
     fn handle_set_custom_mode(
         &mut self,
-        _slf: &Rc<ZwlrOutputConfigurationHeadV1>,
+        slf: &Rc<ZwlrOutputConfigurationHeadV1>,
         width: i32,
         height: i32,
         refresh: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_custom_mode(
+        let res = slf.try_send_set_custom_mode(
             width,
             height,
             refresh,
@@ -587,14 +587,14 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
     #[inline]
     fn handle_set_position(
         &mut self,
-        _slf: &Rc<ZwlrOutputConfigurationHeadV1>,
+        slf: &Rc<ZwlrOutputConfigurationHeadV1>,
         x: i32,
         y: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_position(
+        let res = slf.try_send_set_position(
             x,
             y,
         );
@@ -613,13 +613,13 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
     #[inline]
     fn handle_set_transform(
         &mut self,
-        _slf: &Rc<ZwlrOutputConfigurationHeadV1>,
+        slf: &Rc<ZwlrOutputConfigurationHeadV1>,
         transform: WlOutputTransform,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_transform(
+        let res = slf.try_send_set_transform(
             transform,
         );
         if let Err(e) = res {
@@ -637,13 +637,13 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
     #[inline]
     fn handle_set_scale(
         &mut self,
-        _slf: &Rc<ZwlrOutputConfigurationHeadV1>,
+        slf: &Rc<ZwlrOutputConfigurationHeadV1>,
         scale: Fixed,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_scale(
+        let res = slf.try_send_set_scale(
             scale,
         );
         if let Err(e) = res {
@@ -662,13 +662,13 @@ pub trait ZwlrOutputConfigurationHeadV1Handler: Any {
     #[inline]
     fn handle_set_adaptive_sync(
         &mut self,
-        _slf: &Rc<ZwlrOutputConfigurationHeadV1>,
+        slf: &Rc<ZwlrOutputConfigurationHeadV1>,
         state: ZwlrOutputHeadV1AdaptiveSyncState,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_adaptive_sync(
+        let res = slf.try_send_set_adaptive_sync(
             state,
         );
         if let Err(e) = res {

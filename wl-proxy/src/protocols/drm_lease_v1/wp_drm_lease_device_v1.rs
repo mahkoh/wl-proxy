@@ -628,13 +628,13 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
     #[inline]
     fn handle_create_lease_request(
         &mut self,
-        _slf: &Rc<WpDrmLeaseDeviceV1>,
+        slf: &Rc<WpDrmLeaseDeviceV1>,
         id: &Rc<WpDrmLeaseRequestV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_create_lease_request(
+        let res = slf.try_send_create_lease_request(
             id,
         );
         if let Err(e) = res {
@@ -653,12 +653,12 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
     #[inline]
     fn handle_release(
         &mut self,
-        _slf: &Rc<WpDrmLeaseDeviceV1>,
+        slf: &Rc<WpDrmLeaseDeviceV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_release(
+        let res = slf.try_send_release(
         );
         if let Err(e) = res {
             log_forward("wp_drm_lease_device_v1.release", &e);
@@ -682,13 +682,13 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
     #[inline]
     fn handle_drm_fd(
         &mut self,
-        _slf: &Rc<WpDrmLeaseDeviceV1>,
+        slf: &Rc<WpDrmLeaseDeviceV1>,
         fd: &Rc<OwnedFd>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_drm_fd(
+        let res = slf.try_send_drm_fd(
             fd,
         );
         if let Err(e) = res {
@@ -715,13 +715,13 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
     #[inline]
     fn handle_connector(
         &mut self,
-        _slf: &Rc<WpDrmLeaseDeviceV1>,
+        slf: &Rc<WpDrmLeaseDeviceV1>,
         id: &Rc<WpDrmLeaseConnectorV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_connector(
+        let res = slf.try_send_connector(
             id,
         );
         if let Err(e) = res {
@@ -740,12 +740,12 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
     #[inline]
     fn handle_done(
         &mut self,
-        _slf: &Rc<WpDrmLeaseDeviceV1>,
+        slf: &Rc<WpDrmLeaseDeviceV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_done(
+        let res = slf.try_send_done(
         );
         if let Err(e) = res {
             log_forward("wp_drm_lease_device_v1.done", &e);
@@ -762,12 +762,12 @@ pub trait WpDrmLeaseDeviceV1Handler: Any {
     #[inline]
     fn handle_released(
         &mut self,
-        _slf: &Rc<WpDrmLeaseDeviceV1>,
+        slf: &Rc<WpDrmLeaseDeviceV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_released(
+        let res = slf.try_send_released(
         );
         if let Err(e) = res {
             log_forward("wp_drm_lease_device_v1.released", &e);

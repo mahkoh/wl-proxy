@@ -266,14 +266,14 @@ pub trait HyprlandToplevelWindowMappingHandleV1Handler: Any {
     #[inline]
     fn handle_window_address(
         &mut self,
-        _slf: &Rc<HyprlandToplevelWindowMappingHandleV1>,
+        slf: &Rc<HyprlandToplevelWindowMappingHandleV1>,
         address_hi: u32,
         address: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_window_address(
+        let res = slf.try_send_window_address(
             address_hi,
             address,
         );
@@ -289,12 +289,12 @@ pub trait HyprlandToplevelWindowMappingHandleV1Handler: Any {
     #[inline]
     fn handle_failed(
         &mut self,
-        _slf: &Rc<HyprlandToplevelWindowMappingHandleV1>,
+        slf: &Rc<HyprlandToplevelWindowMappingHandleV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_failed(
+        let res = slf.try_send_failed(
         );
         if let Err(e) = res {
             log_forward("hyprland_toplevel_window_mapping_handle_v1.failed", &e);
@@ -307,12 +307,12 @@ pub trait HyprlandToplevelWindowMappingHandleV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<HyprlandToplevelWindowMappingHandleV1>,
+        slf: &Rc<HyprlandToplevelWindowMappingHandleV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("hyprland_toplevel_window_mapping_handle_v1.destroy", &e);

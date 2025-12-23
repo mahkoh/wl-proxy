@@ -719,13 +719,13 @@ pub trait ExtDataControlDeviceV1Handler: Any {
     #[inline]
     fn handle_set_selection(
         &mut self,
-        _slf: &Rc<ExtDataControlDeviceV1>,
+        slf: &Rc<ExtDataControlDeviceV1>,
         source: Option<&Rc<ExtDataControlSourceV1>>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_selection(
+        let res = slf.try_send_set_selection(
             source,
         );
         if let Err(e) = res {
@@ -739,12 +739,12 @@ pub trait ExtDataControlDeviceV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtDataControlDeviceV1>,
+        slf: &Rc<ExtDataControlDeviceV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_data_control_device_v1.destroy", &e);
@@ -768,13 +768,13 @@ pub trait ExtDataControlDeviceV1Handler: Any {
     #[inline]
     fn handle_data_offer(
         &mut self,
-        _slf: &Rc<ExtDataControlDeviceV1>,
+        slf: &Rc<ExtDataControlDeviceV1>,
         id: &Rc<ExtDataControlOfferV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_data_offer(
+        let res = slf.try_send_data_offer(
             id,
         );
         if let Err(e) = res {
@@ -807,13 +807,13 @@ pub trait ExtDataControlDeviceV1Handler: Any {
     #[inline]
     fn handle_selection(
         &mut self,
-        _slf: &Rc<ExtDataControlDeviceV1>,
+        slf: &Rc<ExtDataControlDeviceV1>,
         id: Option<&Rc<ExtDataControlOfferV1>>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {
                     if client_id != client_id_2 {
@@ -822,7 +822,7 @@ pub trait ExtDataControlDeviceV1Handler: Any {
                 }
             }
         }
-        let res = _slf.try_send_selection(
+        let res = slf.try_send_selection(
             id,
         );
         if let Err(e) = res {
@@ -837,12 +837,12 @@ pub trait ExtDataControlDeviceV1Handler: Any {
     #[inline]
     fn handle_finished(
         &mut self,
-        _slf: &Rc<ExtDataControlDeviceV1>,
+        slf: &Rc<ExtDataControlDeviceV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_finished(
+        let res = slf.try_send_finished(
         );
         if let Err(e) = res {
             log_forward("ext_data_control_device_v1.finished", &e);
@@ -876,13 +876,13 @@ pub trait ExtDataControlDeviceV1Handler: Any {
     #[inline]
     fn handle_primary_selection(
         &mut self,
-        _slf: &Rc<ExtDataControlDeviceV1>,
+        slf: &Rc<ExtDataControlDeviceV1>,
         id: Option<&Rc<ExtDataControlOfferV1>>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        if let Some(client_id) = _slf.core.client_id.get() {
+        if let Some(client_id) = slf.core.client_id.get() {
             if let Some(id) = id {
                 if let Some(client_id_2) = id.core().client_id.get() {
                     if client_id != client_id_2 {
@@ -891,7 +891,7 @@ pub trait ExtDataControlDeviceV1Handler: Any {
                 }
             }
         }
-        let res = _slf.try_send_primary_selection(
+        let res = slf.try_send_primary_selection(
             id,
         );
         if let Err(e) = res {
@@ -922,13 +922,13 @@ pub trait ExtDataControlDeviceV1Handler: Any {
     #[inline]
     fn handle_set_primary_selection(
         &mut self,
-        _slf: &Rc<ExtDataControlDeviceV1>,
+        slf: &Rc<ExtDataControlDeviceV1>,
         source: Option<&Rc<ExtDataControlSourceV1>>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_primary_selection(
+        let res = slf.try_send_set_primary_selection(
             source,
         );
         if let Err(e) = res {

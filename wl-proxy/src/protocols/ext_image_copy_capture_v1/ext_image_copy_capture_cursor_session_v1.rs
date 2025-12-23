@@ -570,12 +570,12 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
+        slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("ext_image_copy_capture_cursor_session_v1.destroy", &e);
@@ -598,13 +598,13 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
     #[inline]
     fn handle_get_capture_session(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
+        slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
         session: &Rc<ExtImageCopyCaptureSessionV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_capture_session(
+        let res = slf.try_send_get_capture_session(
             session,
         );
         if let Err(e) = res {
@@ -624,12 +624,12 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
     #[inline]
     fn handle_enter(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
+        slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_enter(
+        let res = slf.try_send_enter(
         );
         if let Err(e) = res {
             log_forward("ext_image_copy_capture_cursor_session_v1.enter", &e);
@@ -644,12 +644,12 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
     #[inline]
     fn handle_leave(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
+        slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_leave(
+        let res = slf.try_send_leave(
         );
         if let Err(e) = res {
             log_forward("ext_image_copy_capture_cursor_session_v1.leave", &e);
@@ -673,14 +673,14 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
     #[inline]
     fn handle_position(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
+        slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
         x: i32,
         y: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_position(
+        let res = slf.try_send_position(
             x,
             y,
         );
@@ -709,14 +709,14 @@ pub trait ExtImageCopyCaptureCursorSessionV1Handler: Any {
     #[inline]
     fn handle_hotspot(
         &mut self,
-        _slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
+        slf: &Rc<ExtImageCopyCaptureCursorSessionV1>,
         x: i32,
         y: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_hotspot(
+        let res = slf.try_send_hotspot(
             x,
             y,
         );

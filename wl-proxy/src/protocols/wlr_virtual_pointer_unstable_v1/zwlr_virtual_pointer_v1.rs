@@ -787,15 +787,15 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
     #[inline]
     fn handle_motion(
         &mut self,
-        _slf: &Rc<ZwlrVirtualPointerV1>,
+        slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
         dx: Fixed,
         dy: Fixed,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_motion(
+        let res = slf.try_send_motion(
             time,
             dx,
             dy,
@@ -822,17 +822,17 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
     #[inline]
     fn handle_motion_absolute(
         &mut self,
-        _slf: &Rc<ZwlrVirtualPointerV1>,
+        slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
         x: u32,
         y: u32,
         x_extent: u32,
         y_extent: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_motion_absolute(
+        let res = slf.try_send_motion_absolute(
             time,
             x,
             y,
@@ -856,15 +856,15 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
     #[inline]
     fn handle_button(
         &mut self,
-        _slf: &Rc<ZwlrVirtualPointerV1>,
+        slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
         button: u32,
         state: WlPointerButtonState,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_button(
+        let res = slf.try_send_button(
             time,
             button,
             state,
@@ -886,15 +886,15 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
     #[inline]
     fn handle_axis(
         &mut self,
-        _slf: &Rc<ZwlrVirtualPointerV1>,
+        slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
         axis: WlPointerAxis,
         value: Fixed,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_axis(
+        let res = slf.try_send_axis(
             time,
             axis,
             value,
@@ -910,12 +910,12 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
     #[inline]
     fn handle_frame(
         &mut self,
-        _slf: &Rc<ZwlrVirtualPointerV1>,
+        slf: &Rc<ZwlrVirtualPointerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_frame(
+        let res = slf.try_send_frame(
         );
         if let Err(e) = res {
             log_forward("zwlr_virtual_pointer_v1.frame", &e);
@@ -932,13 +932,13 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
     #[inline]
     fn handle_axis_source(
         &mut self,
-        _slf: &Rc<ZwlrVirtualPointerV1>,
+        slf: &Rc<ZwlrVirtualPointerV1>,
         axis_source: WlPointerAxisSource,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_axis_source(
+        let res = slf.try_send_axis_source(
             axis_source,
         );
         if let Err(e) = res {
@@ -957,14 +957,14 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
     #[inline]
     fn handle_axis_stop(
         &mut self,
-        _slf: &Rc<ZwlrVirtualPointerV1>,
+        slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
         axis: WlPointerAxis,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_axis_stop(
+        let res = slf.try_send_axis_stop(
             time,
             axis,
         );
@@ -989,16 +989,16 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
     #[inline]
     fn handle_axis_discrete(
         &mut self,
-        _slf: &Rc<ZwlrVirtualPointerV1>,
+        slf: &Rc<ZwlrVirtualPointerV1>,
         time: u32,
         axis: WlPointerAxis,
         value: Fixed,
         discrete: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_axis_discrete(
+        let res = slf.try_send_axis_discrete(
             time,
             axis,
             value,
@@ -1013,12 +1013,12 @@ pub trait ZwlrVirtualPointerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<ZwlrVirtualPointerV1>,
+        slf: &Rc<ZwlrVirtualPointerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("zwlr_virtual_pointer_v1.destroy", &e);

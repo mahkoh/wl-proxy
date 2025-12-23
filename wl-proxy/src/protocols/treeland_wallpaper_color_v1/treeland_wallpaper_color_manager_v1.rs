@@ -340,13 +340,13 @@ pub trait TreelandWallpaperColorManagerV1Handler: Any {
     #[inline]
     fn handle_watch(
         &mut self,
-        _slf: &Rc<TreelandWallpaperColorManagerV1>,
+        slf: &Rc<TreelandWallpaperColorManagerV1>,
         output: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_watch(
+        let res = slf.try_send_watch(
             output,
         );
         if let Err(e) = res {
@@ -364,13 +364,13 @@ pub trait TreelandWallpaperColorManagerV1Handler: Any {
     #[inline]
     fn handle_unwatch(
         &mut self,
-        _slf: &Rc<TreelandWallpaperColorManagerV1>,
+        slf: &Rc<TreelandWallpaperColorManagerV1>,
         output: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_unwatch(
+        let res = slf.try_send_unwatch(
             output,
         );
         if let Err(e) = res {
@@ -384,12 +384,12 @@ pub trait TreelandWallpaperColorManagerV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<TreelandWallpaperColorManagerV1>,
+        slf: &Rc<TreelandWallpaperColorManagerV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("treeland_wallpaper_color_manager_v1.destroy", &e);
@@ -408,14 +408,14 @@ pub trait TreelandWallpaperColorManagerV1Handler: Any {
     #[inline]
     fn handle_output_color(
         &mut self,
-        _slf: &Rc<TreelandWallpaperColorManagerV1>,
+        slf: &Rc<TreelandWallpaperColorManagerV1>,
         output: &str,
         isdark: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_output_color(
+        let res = slf.try_send_output_color(
             output,
             isdark,
         );

@@ -428,13 +428,13 @@ pub trait HyprlandFocusGrabV1Handler: Any {
     #[inline]
     fn handle_add_surface(
         &mut self,
-        _slf: &Rc<HyprlandFocusGrabV1>,
+        slf: &Rc<HyprlandFocusGrabV1>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_add_surface(
+        let res = slf.try_send_add_surface(
             surface,
         );
         if let Err(e) = res {
@@ -461,13 +461,13 @@ pub trait HyprlandFocusGrabV1Handler: Any {
     #[inline]
     fn handle_remove_surface(
         &mut self,
-        _slf: &Rc<HyprlandFocusGrabV1>,
+        slf: &Rc<HyprlandFocusGrabV1>,
         surface: &Rc<WlSurface>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_remove_surface(
+        let res = slf.try_send_remove_surface(
             surface,
         );
         if let Err(e) = res {
@@ -485,12 +485,12 @@ pub trait HyprlandFocusGrabV1Handler: Any {
     #[inline]
     fn handle_commit(
         &mut self,
-        _slf: &Rc<HyprlandFocusGrabV1>,
+        slf: &Rc<HyprlandFocusGrabV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_commit(
+        let res = slf.try_send_commit(
         );
         if let Err(e) = res {
             log_forward("hyprland_focus_grab_v1.commit", &e);
@@ -503,12 +503,12 @@ pub trait HyprlandFocusGrabV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<HyprlandFocusGrabV1>,
+        slf: &Rc<HyprlandFocusGrabV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("hyprland_focus_grab_v1.destroy", &e);
@@ -522,12 +522,12 @@ pub trait HyprlandFocusGrabV1Handler: Any {
     #[inline]
     fn handle_cleared(
         &mut self,
-        _slf: &Rc<HyprlandFocusGrabV1>,
+        slf: &Rc<HyprlandFocusGrabV1>,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_cleared(
+        let res = slf.try_send_cleared(
         );
         if let Err(e) = res {
             log_forward("hyprland_focus_grab_v1.cleared", &e);

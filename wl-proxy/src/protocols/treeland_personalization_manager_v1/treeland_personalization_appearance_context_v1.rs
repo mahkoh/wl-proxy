@@ -1280,13 +1280,13 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_round_corner_radius(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         radius: i32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_round_corner_radius(
+        let res = slf.try_send_round_corner_radius(
             radius,
         );
         if let Err(e) = res {
@@ -1304,13 +1304,13 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_icon_theme(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         theme_name: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_icon_theme(
+        let res = slf.try_send_icon_theme(
             theme_name,
         );
         if let Err(e) = res {
@@ -1328,13 +1328,13 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_active_color(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         active_color: &str,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_active_color(
+        let res = slf.try_send_active_color(
             active_color,
         );
         if let Err(e) = res {
@@ -1352,13 +1352,13 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_window_opacity(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         opacity: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_window_opacity(
+        let res = slf.try_send_window_opacity(
             opacity,
         );
         if let Err(e) = res {
@@ -1376,13 +1376,13 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_window_theme_type(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         r#type: TreelandPersonalizationAppearanceContextV1ThemeType,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_window_theme_type(
+        let res = slf.try_send_window_theme_type(
             r#type,
         );
         if let Err(e) = res {
@@ -1400,13 +1400,13 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_window_titlebar_height(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         height: u32,
     ) {
-        if !_slf.core.forward_to_client.get() {
+        if !slf.core.forward_to_client.get() {
             return;
         }
-        let res = _slf.try_send_window_titlebar_height(
+        let res = slf.try_send_window_titlebar_height(
             height,
         );
         if let Err(e) = res {
@@ -1424,13 +1424,13 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_set_round_corner_radius(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         radius: i32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_round_corner_radius(
+        let res = slf.try_send_set_round_corner_radius(
             radius,
         );
         if let Err(e) = res {
@@ -1444,12 +1444,12 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_get_round_corner_radius(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_round_corner_radius(
+        let res = slf.try_send_get_round_corner_radius(
         );
         if let Err(e) = res {
             log_forward("treeland_personalization_appearance_context_v1.get_round_corner_radius", &e);
@@ -1466,13 +1466,13 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_set_icon_theme(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         theme: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_icon_theme(
+        let res = slf.try_send_set_icon_theme(
             theme,
         );
         if let Err(e) = res {
@@ -1486,12 +1486,12 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_get_icon_theme(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_icon_theme(
+        let res = slf.try_send_get_icon_theme(
         );
         if let Err(e) = res {
             log_forward("treeland_personalization_appearance_context_v1.get_icon_theme", &e);
@@ -1508,13 +1508,13 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_set_active_color(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         color: &str,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_active_color(
+        let res = slf.try_send_set_active_color(
             color,
         );
         if let Err(e) = res {
@@ -1528,12 +1528,12 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_get_active_color(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_active_color(
+        let res = slf.try_send_get_active_color(
         );
         if let Err(e) = res {
             log_forward("treeland_personalization_appearance_context_v1.get_active_color", &e);
@@ -1550,13 +1550,13 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_set_window_opacity(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         opacity: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_window_opacity(
+        let res = slf.try_send_set_window_opacity(
             opacity,
         );
         if let Err(e) = res {
@@ -1570,12 +1570,12 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_get_window_opacity(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_window_opacity(
+        let res = slf.try_send_get_window_opacity(
         );
         if let Err(e) = res {
             log_forward("treeland_personalization_appearance_context_v1.get_window_opacity", &e);
@@ -1592,13 +1592,13 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_set_window_theme_type(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         r#type: TreelandPersonalizationAppearanceContextV1ThemeType,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_window_theme_type(
+        let res = slf.try_send_set_window_theme_type(
             r#type,
         );
         if let Err(e) = res {
@@ -1612,12 +1612,12 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_get_window_theme_type(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_window_theme_type(
+        let res = slf.try_send_get_window_theme_type(
         );
         if let Err(e) = res {
             log_forward("treeland_personalization_appearance_context_v1.get_window_theme_type", &e);
@@ -1634,13 +1634,13 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_set_window_titlebar_height(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
         height: u32,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_set_window_titlebar_height(
+        let res = slf.try_send_set_window_titlebar_height(
             height,
         );
         if let Err(e) = res {
@@ -1654,12 +1654,12 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_get_window_titlebar_height(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_get_window_titlebar_height(
+        let res = slf.try_send_get_window_titlebar_height(
         );
         if let Err(e) = res {
             log_forward("treeland_personalization_appearance_context_v1.get_window_titlebar_height", &e);
@@ -1672,12 +1672,12 @@ pub trait TreelandPersonalizationAppearanceContextV1Handler: Any {
     #[inline]
     fn handle_destroy(
         &mut self,
-        _slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
+        slf: &Rc<TreelandPersonalizationAppearanceContextV1>,
     ) {
-        if !_slf.core.forward_to_server.get() {
+        if !slf.core.forward_to_server.get() {
             return;
         }
-        let res = _slf.try_send_destroy(
+        let res = slf.try_send_destroy(
         );
         if let Err(e) = res {
             log_forward("treeland_personalization_appearance_context_v1.destroy", &e);
