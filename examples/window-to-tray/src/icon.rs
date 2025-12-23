@@ -25,7 +25,7 @@ use {
     thiserror::Error,
     uapi::c,
     wl_proxy::{
-        object::{ObjectCoreApi, ObjectUtils},
+        object::ObjectCoreApi,
         protocols::wayland::{wl_buffer::WlBuffer, wl_shm::WlShmFormat},
     },
 };

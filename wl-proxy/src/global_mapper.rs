@@ -94,23 +94,23 @@ impl GlobalMapper {
 
     /// Handles a server-sent global event.
     ///
-    /// This function is similar to [`GlobalMapper::try_handle_server_global`] but logs
+    /// This function is similar to [`GlobalMapper::try_forward_global`] but logs
     /// a message instead of returning an error if the global could not be sent to the
     /// client.
-    pub fn handle_server_global(
+    pub fn forward_global(
         &mut self,
         registry: &WlRegistry,
         server_name: u32,
         interface: ObjectInterface,
         version: u32,
     ) {
-        if let Err(e) = self.try_handle_server_global(registry, server_name, interface, version) {
+        if let Err(e) = self.try_forward_global(registry, server_name, interface, version) {
             log::warn!("Could not handle server global: {}", Report::new(e));
         }
     }
 
     /// Tries to handle a server-sent global event.
-    pub fn try_handle_server_global(
+    pub fn try_forward_global(
         &mut self,
         registry: &WlRegistry,
         server_name: u32,
@@ -127,23 +127,23 @@ impl GlobalMapper {
     ///
     /// This function should be used so that global_remove events can be filtered
     /// properly.
-    pub fn ignore_server_global(&mut self, name: u32) {
+    pub fn ignore_global(&mut self, name: u32) {
         self.server_to_client.insert(name, None);
     }
 
     /// Handles a server-sent global_remove event.
     ///
-    /// This function is similar to [`GlobalMapper::try_handle_server_global_remove`] but
+    /// This function is similar to [`GlobalMapper::try_forward_global_remove`] but
     /// logs a message instead of returning an error if the event could not be sent to the
     /// client.
-    pub fn handle_server_global_remove(&mut self, registry: &WlRegistry, server_name: u32) {
-        if let Err(e) = self.try_handle_server_global_remove(registry, server_name) {
+    pub fn forward_global_remove(&mut self, registry: &WlRegistry, server_name: u32) {
+        if let Err(e) = self.try_forward_global_remove(registry, server_name) {
             log::warn!("Could not handle server global remove: {}", Report::new(e));
         }
     }
 
     /// Tries to handle a server-sent global_remove event.
-    pub fn try_handle_server_global_remove(
+    pub fn try_forward_global_remove(
         &mut self,
         registry: &WlRegistry,
         server_name: u32,
@@ -162,22 +162,22 @@ impl GlobalMapper {
 
     /// Handles a client-sent bind request.
     ///
-    /// This function is similar to [`GlobalMapper::try_handle_client_bind`] but logs a
+    /// This function is similar to [`GlobalMapper::try_forward_bind`] but logs a
     /// message instead of returning an error if the request could not be forwarded to the
     /// server.
-    pub fn handle_client_bind(
+    pub fn forward_bind(
         &mut self,
         registry: &WlRegistry,
         client_name: u32,
         object: &Rc<dyn Object>,
     ) {
-        if let Err(e) = self.try_handle_client_bind(registry, client_name, object) {
+        if let Err(e) = self.try_forward_bind(registry, client_name, object) {
             log::warn!("Could not handle client bind: {}", Report::new(e));
         }
     }
 
     /// Tries to handle a client-sent bind request.
-    pub fn try_handle_client_bind(
+    pub fn try_forward_bind(
         &mut self,
         registry: &WlRegistry,
         client_name: u32,

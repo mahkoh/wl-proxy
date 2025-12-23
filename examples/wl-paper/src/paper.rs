@@ -284,7 +284,7 @@ impl WlRegistryHandler for ClientWlRegistry {
             }
             _ => {}
         }
-        self.filter.handle_client_bind(slf, name, &id);
+        self.filter.forward_bind(slf, name, &id);
     }
 
     fn handle_global(
@@ -311,17 +311,16 @@ impl WlRegistryHandler for ClientWlRegistry {
             | ObjectInterface::XdgToplevelDragManagerV1
             | ObjectInterface::XdgToplevelIconManagerV1
             | ObjectInterface::XdgToplevelTagManagerV1 => {
-                self.filter.ignore_server_global(name);
+                self.filter.ignore_global(name);
             }
             _ => {
-                self.filter
-                    .handle_server_global(slf, name, interface, version);
+                self.filter.forward_global(slf, name, interface, version);
             }
         }
     }
 
     fn handle_global_remove(&mut self, slf: &Rc<WlRegistry>, name: u32) {
-        self.filter.handle_server_global_remove(slf, name);
+        self.filter.forward_global_remove(slf, name);
     }
 }
 
