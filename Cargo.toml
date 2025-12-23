@@ -7,4 +7,5 @@ members = [
     "examples/wl-paper",
     "update-protocols",
     "examples/window-to-tray",
+    "examples/wl-format-filter",
 ]

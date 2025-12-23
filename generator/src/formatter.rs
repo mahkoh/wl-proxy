@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use {
     crate::{
         ast::{Arg, ArgType, Description, Interface, Message, MessageType, Protocol},
@@ -8,6 +7,7 @@ use {
     isnt::std_1::primitive::IsntSliceExt,
     phf::phf_set,
     std::{
+        collections::HashSet,
         fmt::{Display, Write as FmtWrite},
         io::{self, Write},
     },

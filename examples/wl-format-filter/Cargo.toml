@@ -1,0 +1,15 @@
+[package]
+name = "wl-format-filter"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+wl-proxy = { path = "../../wl-proxy", features = ["all-protocols"] }
+clap = { version = "4.5.53", features = ["derive"] }
+clap_complete = "4.5.61"
+thiserror = "2.0.17"
+error_reporter = "1.0.0"
+memmap2 = "0.9.9"
+log = "0.4.29"
+uapi = "0.2.13"
+phf = { version = "0.13.1", features = ["macros"] }

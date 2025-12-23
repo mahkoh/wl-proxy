@@ -1310,6 +1310,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "wl-format-filter"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "clap_complete",
+ "error_reporter",
+ "log",
+ "memmap2",
+ "phf",
+ "thiserror",
+ "uapi",
+ "wl-proxy",
+]
+
+[[package]]
 name = "wl-paper"
 version = "0.1.0"
 dependencies = [
