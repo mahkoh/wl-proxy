@@ -69,6 +69,8 @@ pub enum TransError {
     WriteToSocket(#[source] io::Error),
     #[error("the connection is closed")]
     Closed,
+    #[error("message has a supposed length {0} < {HEADER_SIZE}")]
+    MessageTooSmall(usize),
     #[error("message has a supposed length {0} > {MAX_MESSAGE_SIZE}")]
     MessageTooLarge(usize),
     #[error("message has a supposed length {0} that is not a multiple of {WORD_SIZE}")]
@@ -97,6 +99,9 @@ pub(crate) fn read_message<'a>(
         }
     }
     let size = (buffer.buffer[buffer.valid_from_word + 1] >> 16) as usize;
+    if size < HEADER_SIZE {
+        return Err(TransError::MessageTooSmall(size));
+    }
     if size > MAX_MESSAGE_SIZE {
         return Err(TransError::MessageTooLarge(size));
     }
