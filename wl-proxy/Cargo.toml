@@ -33,6 +33,7 @@ all-protocols = [
     "suite-wlr-protocols",
     "suite-wlproxy",
     "suite-river-protocols",
+    "suite-weston-protocols",
 ]
 
 suite-hyprland-protocols = [
@@ -145,6 +146,17 @@ suite-river-protocols = [
     "protocol-river_window_management_v1",
     "protocol-river_xkb_bindings_v1",
 ]
+suite-weston-protocols = [
+    "protocol-ivi_application",
+    "protocol-ivi_hmi_controller",
+    "protocol-weston_content_protection",
+    "protocol-weston_debug",
+    "protocol-weston_desktop",
+    "protocol-weston_direct_display",
+    "protocol-weston_output_capture",
+    "protocol-weston_test",
+    "protocol-weston_touch_calibration",
+]
 
 protocol-hyprland_ctm_control_v1 = []
 protocol-hyprland_focus_grab_v1 = []
@@ -240,4 +252,13 @@ protocol-river_layer_shell_v1 = ["protocol-river_window_management_v1"]
 protocol-river_libinput_config_v1 = ["protocol-river_input_management_v1"]
 protocol-river_window_management_v1 = []
 protocol-river_xkb_bindings_v1 = ["protocol-river_window_management_v1"]
+protocol-ivi_application = []
+protocol-ivi_hmi_controller = []
+protocol-weston_content_protection = []
+protocol-weston_debug = []
+protocol-weston_desktop = []
+protocol-weston_direct_display = ["protocol-linux_dmabuf_v1"]
+protocol-weston_output_capture = []
+protocol-weston_test = []
+protocol-weston_touch_calibration = []
 # --generated end--

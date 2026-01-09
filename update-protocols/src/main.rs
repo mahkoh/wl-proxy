@@ -200,6 +200,24 @@ fn main() {
             ],
             block: &[],
         },
+        Repo {
+            name: "weston",
+            dir: "weston-protocols",
+            allow: &[
+                "ivi_application",
+                "ivi_hmi_controller",
+                "weston_content_protection",
+                "weston_debug",
+                "weston_desktop",
+                "weston_direct_display",
+                "weston_output_capture",
+                "weston_test",
+                "weston_touch_calibration",
+            ],
+            block: &[
+                "text_cursor_position",
+            ],
+        },
     ];
     let db = Connection::open(".wayland.db").unwrap();
     let mut query_protocols = db

@@ -187,6 +187,24 @@ pub mod river_libinput_config_v1;
 pub mod river_window_management_v1;
 #[cfg(feature = "protocol-river_xkb_bindings_v1")]
 pub mod river_xkb_bindings_v1;
+#[cfg(feature = "protocol-ivi_application")]
+pub mod ivi_application;
+#[cfg(feature = "protocol-ivi_hmi_controller")]
+pub mod ivi_hmi_controller;
+#[cfg(feature = "protocol-weston_content_protection")]
+pub mod weston_content_protection;
+#[cfg(feature = "protocol-weston_debug")]
+pub mod weston_debug;
+#[cfg(feature = "protocol-weston_desktop")]
+pub mod weston_desktop;
+#[cfg(feature = "protocol-weston_direct_display")]
+pub mod weston_direct_display;
+#[cfg(feature = "protocol-weston_output_capture")]
+pub mod weston_output_capture;
+#[cfg(feature = "protocol-weston_test")]
+pub mod weston_test;
+#[cfg(feature = "protocol-weston_touch_calibration")]
+pub mod weston_touch_calibration;
 
 #[allow(unused_imports)]
 mod all_types {
@@ -1121,6 +1139,74 @@ mod all_types {
     pub(super) use super::river_xkb_bindings_v1::river_xkb_binding_v1::RiverXkbBindingV1;
     #[cfg(feature = "protocol-river_xkb_bindings_v1")]
     pub(super) use super::river_xkb_bindings_v1::river_xkb_bindings_v1::RiverXkbBindingsV1;
+    #[cfg(feature = "protocol-ivi_application")]
+    pub(super) use super::ivi_application::ivi_application::IviApplication;
+    #[cfg(feature = "protocol-ivi_application")]
+    pub(super) use super::ivi_application::ivi_application::IviApplicationError;
+    #[cfg(feature = "protocol-ivi_application")]
+    pub(super) use super::ivi_application::ivi_surface::IviSurface;
+    #[cfg(feature = "protocol-ivi_hmi_controller")]
+    pub(super) use super::ivi_hmi_controller::ivi_hmi_controller::IviHmiController;
+    #[cfg(feature = "protocol-ivi_hmi_controller")]
+    pub(super) use super::ivi_hmi_controller::ivi_hmi_controller::IviHmiControllerLayoutMode;
+    #[cfg(feature = "protocol-ivi_hmi_controller")]
+    pub(super) use super::ivi_hmi_controller::ivi_hmi_controller::IviHmiControllerHome;
+    #[cfg(feature = "protocol-weston_content_protection")]
+    pub(super) use super::weston_content_protection::weston_content_protection::WestonContentProtection;
+    #[cfg(feature = "protocol-weston_content_protection")]
+    pub(super) use super::weston_content_protection::weston_content_protection::WestonContentProtectionError;
+    #[cfg(feature = "protocol-weston_content_protection")]
+    pub(super) use super::weston_content_protection::weston_protected_surface::WestonProtectedSurface;
+    #[cfg(feature = "protocol-weston_content_protection")]
+    pub(super) use super::weston_content_protection::weston_protected_surface::WestonProtectedSurfaceError;
+    #[cfg(feature = "protocol-weston_content_protection")]
+    pub(super) use super::weston_content_protection::weston_protected_surface::WestonProtectedSurfaceType;
+    #[cfg(feature = "protocol-weston_debug")]
+    pub(super) use super::weston_debug::weston_debug_stream_v1::WestonDebugStreamV1;
+    #[cfg(feature = "protocol-weston_debug")]
+    pub(super) use super::weston_debug::weston_debug_v1::WestonDebugV1;
+    #[cfg(feature = "protocol-weston_desktop")]
+    pub(super) use super::weston_desktop::weston_desktop_shell::WestonDesktopShell;
+    #[cfg(feature = "protocol-weston_desktop")]
+    pub(super) use super::weston_desktop::weston_desktop_shell::WestonDesktopShellCursor;
+    #[cfg(feature = "protocol-weston_desktop")]
+    pub(super) use super::weston_desktop::weston_desktop_shell::WestonDesktopShellPanelPosition;
+    #[cfg(feature = "protocol-weston_desktop")]
+    pub(super) use super::weston_desktop::weston_desktop_shell::WestonDesktopShellError;
+    #[cfg(feature = "protocol-weston_desktop")]
+    pub(super) use super::weston_desktop::weston_screensaver::WestonScreensaver;
+    #[cfg(feature = "protocol-weston_direct_display")]
+    pub(super) use super::weston_direct_display::weston_direct_display_v1::WestonDirectDisplayV1;
+    #[cfg(feature = "protocol-weston_output_capture")]
+    pub(super) use super::weston_output_capture::weston_capture_source_v1::WestonCaptureSourceV1;
+    #[cfg(feature = "protocol-weston_output_capture")]
+    pub(super) use super::weston_output_capture::weston_capture_source_v1::WestonCaptureSourceV1Error;
+    #[cfg(feature = "protocol-weston_output_capture")]
+    pub(super) use super::weston_output_capture::weston_capture_v1::WestonCaptureV1;
+    #[cfg(feature = "protocol-weston_output_capture")]
+    pub(super) use super::weston_output_capture::weston_capture_v1::WestonCaptureV1Error;
+    #[cfg(feature = "protocol-weston_output_capture")]
+    pub(super) use super::weston_output_capture::weston_capture_v1::WestonCaptureV1Source;
+    #[cfg(feature = "protocol-weston_test")]
+    pub(super) use super::weston_test::weston_test::WestonTest;
+    #[cfg(feature = "protocol-weston_test")]
+    pub(super) use super::weston_test::weston_test::WestonTestError;
+    #[cfg(feature = "protocol-weston_test")]
+    pub(super) use super::weston_test::weston_test::WestonTestBreakpoint;
+    #[cfg(feature = "protocol-weston_test")]
+    pub(super) use super::weston_test::weston_test_runner::WestonTestRunner;
+    #[cfg(feature = "protocol-weston_test")]
+    pub(super) use super::weston_test::weston_test_runner::WestonTestRunnerError;
+    #[cfg(feature = "protocol-weston_touch_calibration")]
+    pub(super) use super::weston_touch_calibration::weston_touch_calibration::WestonTouchCalibration;
+    #[cfg(feature = "protocol-weston_touch_calibration")]
+    pub(super) use super::weston_touch_calibration::weston_touch_calibration::WestonTouchCalibrationError;
+    #[cfg(feature = "protocol-weston_touch_calibration")]
+    pub(super) use super::weston_touch_calibration::weston_touch_calibrator::WestonTouchCalibrator;
+    #[cfg(feature = "protocol-weston_touch_calibration")]
+    pub(super) use super::weston_touch_calibration::weston_touch_calibrator::WestonTouchCalibratorError;
+    #[cfg(feature = "protocol-weston_touch_calibration")]
+    pub(super) use super::weston_touch_calibration::weston_touch_coordinate::WestonTouchCoordinate;
 
     use crate::protocol_helpers::prelude::*;
 
@@ -2112,6 +2198,74 @@ mod all_types {
                 "river_xkb_bindings_v1" => {
                     #[cfg(feature = "protocol-river_xkb_bindings_v1")] { Some(ObjectInterface::RiverXkbBindingsV1) }
                     #[cfg(not(feature = "protocol-river_xkb_bindings_v1"))] { None }
+                },
+                "ivi_application" => {
+                    #[cfg(feature = "protocol-ivi_application")] { Some(ObjectInterface::IviApplication) }
+                    #[cfg(not(feature = "protocol-ivi_application"))] { None }
+                },
+                "ivi_surface" => {
+                    #[cfg(feature = "protocol-ivi_application")] { Some(ObjectInterface::IviSurface) }
+                    #[cfg(not(feature = "protocol-ivi_application"))] { None }
+                },
+                "ivi_hmi_controller" => {
+                    #[cfg(feature = "protocol-ivi_hmi_controller")] { Some(ObjectInterface::IviHmiController) }
+                    #[cfg(not(feature = "protocol-ivi_hmi_controller"))] { None }
+                },
+                "weston_content_protection" => {
+                    #[cfg(feature = "protocol-weston_content_protection")] { Some(ObjectInterface::WestonContentProtection) }
+                    #[cfg(not(feature = "protocol-weston_content_protection"))] { None }
+                },
+                "weston_protected_surface" => {
+                    #[cfg(feature = "protocol-weston_content_protection")] { Some(ObjectInterface::WestonProtectedSurface) }
+                    #[cfg(not(feature = "protocol-weston_content_protection"))] { None }
+                },
+                "weston_debug_stream_v1" => {
+                    #[cfg(feature = "protocol-weston_debug")] { Some(ObjectInterface::WestonDebugStreamV1) }
+                    #[cfg(not(feature = "protocol-weston_debug"))] { None }
+                },
+                "weston_debug_v1" => {
+                    #[cfg(feature = "protocol-weston_debug")] { Some(ObjectInterface::WestonDebugV1) }
+                    #[cfg(not(feature = "protocol-weston_debug"))] { None }
+                },
+                "weston_desktop_shell" => {
+                    #[cfg(feature = "protocol-weston_desktop")] { Some(ObjectInterface::WestonDesktopShell) }
+                    #[cfg(not(feature = "protocol-weston_desktop"))] { None }
+                },
+                "weston_screensaver" => {
+                    #[cfg(feature = "protocol-weston_desktop")] { Some(ObjectInterface::WestonScreensaver) }
+                    #[cfg(not(feature = "protocol-weston_desktop"))] { None }
+                },
+                "weston_direct_display_v1" => {
+                    #[cfg(feature = "protocol-weston_direct_display")] { Some(ObjectInterface::WestonDirectDisplayV1) }
+                    #[cfg(not(feature = "protocol-weston_direct_display"))] { None }
+                },
+                "weston_capture_source_v1" => {
+                    #[cfg(feature = "protocol-weston_output_capture")] { Some(ObjectInterface::WestonCaptureSourceV1) }
+                    #[cfg(not(feature = "protocol-weston_output_capture"))] { None }
+                },
+                "weston_capture_v1" => {
+                    #[cfg(feature = "protocol-weston_output_capture")] { Some(ObjectInterface::WestonCaptureV1) }
+                    #[cfg(not(feature = "protocol-weston_output_capture"))] { None }
+                },
+                "weston_test" => {
+                    #[cfg(feature = "protocol-weston_test")] { Some(ObjectInterface::WestonTest) }
+                    #[cfg(not(feature = "protocol-weston_test"))] { None }
+                },
+                "weston_test_runner" => {
+                    #[cfg(feature = "protocol-weston_test")] { Some(ObjectInterface::WestonTestRunner) }
+                    #[cfg(not(feature = "protocol-weston_test"))] { None }
+                },
+                "weston_touch_calibration" => {
+                    #[cfg(feature = "protocol-weston_touch_calibration")] { Some(ObjectInterface::WestonTouchCalibration) }
+                    #[cfg(not(feature = "protocol-weston_touch_calibration"))] { None }
+                },
+                "weston_touch_calibrator" => {
+                    #[cfg(feature = "protocol-weston_touch_calibration")] { Some(ObjectInterface::WestonTouchCalibrator) }
+                    #[cfg(not(feature = "protocol-weston_touch_calibration"))] { None }
+                },
+                "weston_touch_coordinate" => {
+                    #[cfg(feature = "protocol-weston_touch_calibration")] { Some(ObjectInterface::WestonTouchCoordinate) }
+                    #[cfg(not(feature = "protocol-weston_touch_calibration"))] { None }
                 },
             };
             INTERFACES.get(interface).copied().flatten()
@@ -3930,6 +4084,125 @@ mod all_types {
                     }
                     Ok(RiverXkbBindingsV1::new(state, version))
                 }
+                #[cfg(feature = "protocol-ivi_application")]
+                Self::IviApplication => {
+                    if version > IviApplication::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(IviApplication::new(state, version))
+                }
+                #[cfg(feature = "protocol-ivi_application")]
+                Self::IviSurface => {
+                    if version > IviSurface::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(IviSurface::new(state, version))
+                }
+                #[cfg(feature = "protocol-ivi_hmi_controller")]
+                Self::IviHmiController => {
+                    if version > IviHmiController::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(IviHmiController::new(state, version))
+                }
+                #[cfg(feature = "protocol-weston_content_protection")]
+                Self::WestonContentProtection => {
+                    if version > WestonContentProtection::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(WestonContentProtection::new(state, version))
+                }
+                #[cfg(feature = "protocol-weston_content_protection")]
+                Self::WestonProtectedSurface => {
+                    if version > WestonProtectedSurface::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(WestonProtectedSurface::new(state, version))
+                }
+                #[cfg(feature = "protocol-weston_debug")]
+                Self::WestonDebugStreamV1 => {
+                    if version > WestonDebugStreamV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(WestonDebugStreamV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-weston_debug")]
+                Self::WestonDebugV1 => {
+                    if version > WestonDebugV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(WestonDebugV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-weston_desktop")]
+                Self::WestonDesktopShell => {
+                    if version > WestonDesktopShell::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(WestonDesktopShell::new(state, version))
+                }
+                #[cfg(feature = "protocol-weston_desktop")]
+                Self::WestonScreensaver => {
+                    if version > WestonScreensaver::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(WestonScreensaver::new(state, version))
+                }
+                #[cfg(feature = "protocol-weston_direct_display")]
+                Self::WestonDirectDisplayV1 => {
+                    if version > WestonDirectDisplayV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(WestonDirectDisplayV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-weston_output_capture")]
+                Self::WestonCaptureSourceV1 => {
+                    if version > WestonCaptureSourceV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(WestonCaptureSourceV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-weston_output_capture")]
+                Self::WestonCaptureV1 => {
+                    if version > WestonCaptureV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(WestonCaptureV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-weston_test")]
+                Self::WestonTest => {
+                    if version > WestonTest::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(WestonTest::new(state, version))
+                }
+                #[cfg(feature = "protocol-weston_test")]
+                Self::WestonTestRunner => {
+                    if version > WestonTestRunner::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(WestonTestRunner::new(state, version))
+                }
+                #[cfg(feature = "protocol-weston_touch_calibration")]
+                Self::WestonTouchCalibration => {
+                    if version > WestonTouchCalibration::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(WestonTouchCalibration::new(state, version))
+                }
+                #[cfg(feature = "protocol-weston_touch_calibration")]
+                Self::WestonTouchCalibrator => {
+                    if version > WestonTouchCalibrator::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(WestonTouchCalibrator::new(state, version))
+                }
+                #[cfg(feature = "protocol-weston_touch_calibration")]
+                Self::WestonTouchCoordinate => {
+                    if version > WestonTouchCoordinate::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(WestonTouchCoordinate::new(state, version))
+                }
             }
         }
     }
@@ -4701,6 +4974,57 @@ pub enum ObjectInterface {
     /// river_xkb_bindings_v1
     #[cfg(feature = "protocol-river_xkb_bindings_v1")]
     RiverXkbBindingsV1,
+    /// ivi_application
+    #[cfg(feature = "protocol-ivi_application")]
+    IviApplication,
+    /// ivi_surface
+    #[cfg(feature = "protocol-ivi_application")]
+    IviSurface,
+    /// ivi_hmi_controller
+    #[cfg(feature = "protocol-ivi_hmi_controller")]
+    IviHmiController,
+    /// weston_content_protection
+    #[cfg(feature = "protocol-weston_content_protection")]
+    WestonContentProtection,
+    /// weston_protected_surface
+    #[cfg(feature = "protocol-weston_content_protection")]
+    WestonProtectedSurface,
+    /// weston_debug_stream_v1
+    #[cfg(feature = "protocol-weston_debug")]
+    WestonDebugStreamV1,
+    /// weston_debug_v1
+    #[cfg(feature = "protocol-weston_debug")]
+    WestonDebugV1,
+    /// weston_desktop_shell
+    #[cfg(feature = "protocol-weston_desktop")]
+    WestonDesktopShell,
+    /// weston_screensaver
+    #[cfg(feature = "protocol-weston_desktop")]
+    WestonScreensaver,
+    /// weston_direct_display_v1
+    #[cfg(feature = "protocol-weston_direct_display")]
+    WestonDirectDisplayV1,
+    /// weston_capture_source_v1
+    #[cfg(feature = "protocol-weston_output_capture")]
+    WestonCaptureSourceV1,
+    /// weston_capture_v1
+    #[cfg(feature = "protocol-weston_output_capture")]
+    WestonCaptureV1,
+    /// weston_test
+    #[cfg(feature = "protocol-weston_test")]
+    WestonTest,
+    /// weston_test_runner
+    #[cfg(feature = "protocol-weston_test")]
+    WestonTestRunner,
+    /// weston_touch_calibration
+    #[cfg(feature = "protocol-weston_touch_calibration")]
+    WestonTouchCalibration,
+    /// weston_touch_calibrator
+    #[cfg(feature = "protocol-weston_touch_calibration")]
+    WestonTouchCalibrator,
+    /// weston_touch_coordinate
+    #[cfg(feature = "protocol-weston_touch_calibration")]
+    WestonTouchCoordinate,
 }
 
 impl ObjectInterface {
@@ -5207,6 +5531,40 @@ impl ObjectInterface {
             Self::RiverXkbBindingV1 => "river_xkb_binding_v1",
             #[cfg(feature = "protocol-river_xkb_bindings_v1")]
             Self::RiverXkbBindingsV1 => "river_xkb_bindings_v1",
+            #[cfg(feature = "protocol-ivi_application")]
+            Self::IviApplication => "ivi_application",
+            #[cfg(feature = "protocol-ivi_application")]
+            Self::IviSurface => "ivi_surface",
+            #[cfg(feature = "protocol-ivi_hmi_controller")]
+            Self::IviHmiController => "ivi_hmi_controller",
+            #[cfg(feature = "protocol-weston_content_protection")]
+            Self::WestonContentProtection => "weston_content_protection",
+            #[cfg(feature = "protocol-weston_content_protection")]
+            Self::WestonProtectedSurface => "weston_protected_surface",
+            #[cfg(feature = "protocol-weston_debug")]
+            Self::WestonDebugStreamV1 => "weston_debug_stream_v1",
+            #[cfg(feature = "protocol-weston_debug")]
+            Self::WestonDebugV1 => "weston_debug_v1",
+            #[cfg(feature = "protocol-weston_desktop")]
+            Self::WestonDesktopShell => "weston_desktop_shell",
+            #[cfg(feature = "protocol-weston_desktop")]
+            Self::WestonScreensaver => "weston_screensaver",
+            #[cfg(feature = "protocol-weston_direct_display")]
+            Self::WestonDirectDisplayV1 => "weston_direct_display_v1",
+            #[cfg(feature = "protocol-weston_output_capture")]
+            Self::WestonCaptureSourceV1 => "weston_capture_source_v1",
+            #[cfg(feature = "protocol-weston_output_capture")]
+            Self::WestonCaptureV1 => "weston_capture_v1",
+            #[cfg(feature = "protocol-weston_test")]
+            Self::WestonTest => "weston_test",
+            #[cfg(feature = "protocol-weston_test")]
+            Self::WestonTestRunner => "weston_test_runner",
+            #[cfg(feature = "protocol-weston_touch_calibration")]
+            Self::WestonTouchCalibration => "weston_touch_calibration",
+            #[cfg(feature = "protocol-weston_touch_calibration")]
+            Self::WestonTouchCalibrator => "weston_touch_calibrator",
+            #[cfg(feature = "protocol-weston_touch_calibration")]
+            Self::WestonTouchCoordinate => "weston_touch_coordinate",
         }
     }
 
@@ -5713,6 +6071,40 @@ impl ObjectInterface {
             Self::RiverXkbBindingV1 => 1,
             #[cfg(feature = "protocol-river_xkb_bindings_v1")]
             Self::RiverXkbBindingsV1 => 1,
+            #[cfg(feature = "protocol-ivi_application")]
+            Self::IviApplication => 1,
+            #[cfg(feature = "protocol-ivi_application")]
+            Self::IviSurface => 1,
+            #[cfg(feature = "protocol-ivi_hmi_controller")]
+            Self::IviHmiController => 1,
+            #[cfg(feature = "protocol-weston_content_protection")]
+            Self::WestonContentProtection => 1,
+            #[cfg(feature = "protocol-weston_content_protection")]
+            Self::WestonProtectedSurface => 1,
+            #[cfg(feature = "protocol-weston_debug")]
+            Self::WestonDebugStreamV1 => 1,
+            #[cfg(feature = "protocol-weston_debug")]
+            Self::WestonDebugV1 => 1,
+            #[cfg(feature = "protocol-weston_desktop")]
+            Self::WestonDesktopShell => 1,
+            #[cfg(feature = "protocol-weston_desktop")]
+            Self::WestonScreensaver => 1,
+            #[cfg(feature = "protocol-weston_direct_display")]
+            Self::WestonDirectDisplayV1 => 1,
+            #[cfg(feature = "protocol-weston_output_capture")]
+            Self::WestonCaptureSourceV1 => 2,
+            #[cfg(feature = "protocol-weston_output_capture")]
+            Self::WestonCaptureV1 => 2,
+            #[cfg(feature = "protocol-weston_test")]
+            Self::WestonTest => 1,
+            #[cfg(feature = "protocol-weston_test")]
+            Self::WestonTestRunner => 1,
+            #[cfg(feature = "protocol-weston_touch_calibration")]
+            Self::WestonTouchCalibration => 1,
+            #[cfg(feature = "protocol-weston_touch_calibration")]
+            Self::WestonTouchCalibrator => 1,
+            #[cfg(feature = "protocol-weston_touch_calibration")]
+            Self::WestonTouchCoordinate => 1,
         }
     }
 }
