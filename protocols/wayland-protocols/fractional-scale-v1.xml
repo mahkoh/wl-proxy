@@ -22,7 +22,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <description summary="Protocol for requesting fractional surface scales">
     This protocol allows a compositor to suggest for surfaces to render at
     fractional scales.
@@ -43,12 +42,10 @@
     For toplevel surfaces, the size is rounded halfway away from zero. The
     rounding algorithm for subsurface position and size is not defined.
   </description>
-
   <interface name="wp_fractional_scale_manager_v1" version="1">
     <description summary="fractional surface scale information">
       A global interface for requesting surfaces to use fractional scales.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="unbind the fractional surface scale interface">
         Informs the server that the client will not be using this protocol
@@ -56,12 +53,6 @@
         wp_fractional_scale_v1 objects included.
       </description>
     </request>
-
-    <enum name="error">
-      <entry name="fractional_scale_exists" value="0"
-        summary="the surface already has a fractional_scale object associated"/>
-    </enum>
-
     <request name="get_fractional_scale">
       <description summary="extend surface interface for scale information">
         Create an add-on object for the the wl_surface to let the compositor
@@ -69,26 +60,24 @@
         wp_fractional_scale_v1 object associated, the fractional_scale_exists
         protocol error is raised.
       </description>
-      <arg name="id" type="new_id" interface="wp_fractional_scale_v1"
-           summary="the new surface scale info interface id"/>
-      <arg name="surface" type="object" interface="wl_surface"
-           summary="the surface"/>
+      <arg name="id" type="new_id" interface="wp_fractional_scale_v1" summary="the new surface scale info interface id"/>
+      <arg name="surface" type="object" interface="wl_surface" summary="the surface"/>
     </request>
+    <enum name="error">
+      <entry name="fractional_scale_exists" value="0" summary="the surface already has a fractional_scale object associated"/>
+    </enum>
   </interface>
-
   <interface name="wp_fractional_scale_v1" version="1">
     <description summary="fractional scale interface to a wl_surface">
       An additional interface to a wl_surface object which allows the compositor
       to inform the client of the preferred scale.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="remove surface scale information for surface">
         Destroy the fractional scale object. When this object is destroyed,
         preferred_scale events will no longer be sent.
       </description>
     </request>
-
     <event name="preferred_scale">
       <description summary="notify of new preferred scale">
         Notification of a new preferred scale for this surface that the

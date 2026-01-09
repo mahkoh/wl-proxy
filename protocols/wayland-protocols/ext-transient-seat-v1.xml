@@ -22,7 +22,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <description summary="protocol for creating temporary seats">
     The transient seat protocol can be used by privileged clients to create
     independent seats that will be removed from the compositor when the client
@@ -43,12 +42,10 @@
      * Locate a "wl_seat" global with a matching name
      * Create virtual inputs using the resulting "wl_seat" global
   </description>
-
   <interface name="ext_transient_seat_manager_v1" version="1">
     <description summary="transient seat manager">
       The transient seat manager creates short-lived seats.
     </description>
-
     <request name="create">
       <description summary="create a transient seat">
         Create a new seat that is removed when the client side transient seat
@@ -59,7 +56,6 @@
       </description>
       <arg name="seat" type="new_id" interface="ext_transient_seat_v1"/>
     </request>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the manager">
         Destroy the manager.
@@ -69,13 +65,11 @@
       </description>
     </request>
   </interface>
-
   <interface name="ext_transient_seat_v1" version="1">
     <description summary="transient seat handle">
       When the transient seat handle is destroyed, the seat itself will also be
       destroyed.
     </description>
-
     <event name="ready">
       <description summary="transient seat is ready">
         This event advertises the global name for the wl_seat to be used with
@@ -87,7 +81,6 @@
       </description>
       <arg name="global_name" type="uint"/>
     </event>
-
     <event name="denied">
       <description summary="transient seat creation denied">
         The event informs the client that the compositor denied its request to
@@ -99,7 +92,6 @@
         After receiving this event, the client should destroy the object.
       </description>
     </event>
-
     <request name="destroy" type="destructor">
       <description summary="destroy transient seat">
         When the transient seat object is destroyed by the client, the

@@ -22,7 +22,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <description summary="Control power management modes of outputs">
     This protocol allows clients to control power management modes
     of outputs that are currently part of the compositor space. The
@@ -41,13 +40,11 @@
     version number in the protocol and interface names are removed and the
     interface version number is reset.
   </description>
-
   <interface name="zwlr_output_power_manager_v1" version="1">
     <description summary="manager to create per-output power management">
       This interface is a manager that allows creating per-output power
       management mode controls.
     </description>
-
     <request name="get_output_power">
       <description summary="get a power management for an output">
         Create an output power management mode control that can be used to
@@ -56,7 +53,6 @@
       <arg name="id" type="new_id" interface="zwlr_output_power_v1"/>
       <arg name="output" type="object" interface="wl_output"/>
     </request>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the manager">
         All objects created by the manager will still remain valid, until their
@@ -64,24 +60,11 @@
       </description>
     </request>
   </interface>
-
   <interface name="zwlr_output_power_v1" version="1">
     <description summary="adjust power management mode for an output">
       This object offers requests to set the power management mode of
       an output.
     </description>
-
-    <enum name="mode">
-      <entry name="off" value="0"
-             summary="Output is turned off."/>
-      <entry name="on" value="1"
-             summary="Output is turned on, no power saving"/>
-    </enum>
-
-    <enum name="error">
-      <entry name="invalid_mode" value="1" summary="nonexistent power save mode"/>
-    </enum>
-
     <request name="set_mode">
       <description summary="Set an outputs power save mode">
         Set an output's power save mode to the given mode. The mode change
@@ -90,7 +73,6 @@
       </description>
       <arg name="mode" type="uint" enum="mode" summary="the power save mode to set"/>
     </request>
-
     <event name="mode">
       <description summary="Report a power management mode change">
         Report the power management mode change of an output.
@@ -101,10 +83,8 @@
         This event is also sent immediately when the object is created
         so the client is informed about the current power management mode.
       </description>
-      <arg name="mode" type="uint" enum="mode"
-           summary="the output's new power management mode"/>
+      <arg name="mode" type="uint" enum="mode" summary="the output&apos;s new power management mode"/>
     </event>
-
     <event name="failed">
       <description summary="object no longer valid">
         This event indicates that the output power management mode control
@@ -118,11 +98,17 @@
         Upon receiving this event, the client should destroy this object.
       </description>
     </event>
-
     <request name="destroy" type="destructor">
       <description summary="destroy this power management">
         Destroys the output power management mode control object.
       </description>
     </request>
+    <enum name="mode">
+      <entry name="off" value="0" summary="Output is turned off."/>
+      <entry name="on" value="1" summary="Output is turned on, no power saving"/>
+    </enum>
+    <enum name="error">
+      <entry name="invalid_mode" value="1" summary="nonexistent power save mode"/>
+    </enum>
   </interface>
 </protocol>

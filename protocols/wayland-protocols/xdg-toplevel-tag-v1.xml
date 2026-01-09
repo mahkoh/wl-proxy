@@ -22,7 +22,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <interface name="xdg_toplevel_tag_manager_v1" version="1">
     <description summary="protocol for setting toplevel tags">
       In order to make some window properties like position, size,
@@ -37,14 +36,12 @@
       corresponding interface version bump. Backward incompatible changes can
       only be done by creating a new major version of the extension.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy toplevel tag object">
         Destroy this toplevel tag manager object. This request has no other
         effects.
       </description>
     </request>
-
     <request name="set_toplevel_tag">
       <description summary="set tag">
         Set a tag for a toplevel. The tag may be shown to the user in UI, so
@@ -65,7 +62,6 @@
       <arg name="toplevel" type="object" interface="xdg_toplevel"/>
       <arg name="tag" type="string" summary="untranslated tag"/>
     </request>
-
     <request name="set_toplevel_description">
       <description summary="set description">
         Set a description for a toplevel. This description may be shown to the
@@ -81,5 +77,4 @@
       <arg name="description" type="string" summary="translated description"/>
     </request>
   </interface>
-
 </protocol>

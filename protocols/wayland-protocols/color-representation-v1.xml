@@ -25,7 +25,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <description summary="color representation protocol extension">
     This protocol extension delivers the metadata required to define alpha mode,
     the color model, sub-sampling and quantization range used when interpreting
@@ -43,7 +42,6 @@
     "Coding-independent code points for video signal type identification"
     shall be referred to as simply H.273 here.
   </description>
-
   <interface name="wp_color_representation_manager_v1" version="1">
     <description summary="color representation manager singleton">
       A singleton global interface used for getting color representation
@@ -52,21 +50,12 @@
 
       Compositors should never remove this global.
     </description>
-
-    <enum name="error">
-      <description summary="protocol errors"/>
-      <entry name="surface_exists" value="1"
-             summary="color representation surface exists already"/>
-    </enum>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the manager">
         Destroy the wp_color_representation_manager_v1 object. This does not
         affect any other objects in any way.
       </description>
-
     </request>
-
     <request name="get_surface">
       <description summary="create a color representation interface for a wl_surface">
         If a wp_color_representation_surface_v1 object already exists for the
@@ -77,12 +66,9 @@
 
         See the wp_color_representation_surface_v1 interface for more details.
       </description>
-      <arg name="id"
-           type="new_id" interface="wp_color_representation_surface_v1"/>
-      <arg name="surface"
-           type="object" interface="wl_surface"/>
+      <arg name="id" type="new_id" interface="wp_color_representation_surface_v1"/>
+      <arg name="surface" type="object" interface="wl_surface"/>
     </request>
-
     <event name="supported_alpha_mode">
       <description summary="supported alpha modes">
         When this object is created, it shall immediately send this event once
@@ -91,11 +77,8 @@
         For the definition of the supported values, see the
         wp_color_representation_surface_v1::alpha_mode enum.
       </description>
-      <arg name="alpha_mode"
-           type="uint" enum="wp_color_representation_surface_v1.alpha_mode"
-           summary="supported alpha mode"/>
+      <arg name="alpha_mode" type="uint" enum="wp_color_representation_surface_v1.alpha_mode" summary="supported alpha mode"/>
     </event>
-
     <event name="supported_coefficients_and_ranges">
       <description summary="supported matrix coefficients and ranges">
         When this object is created, it shall immediately send this event once
@@ -106,21 +89,19 @@
         wp_color_representation_surface_v1::coefficients and
         wp_color_representation_surface_v1::range enums.
       </description>
-      <arg name="coefficients"
-           type="uint" enum="wp_color_representation_surface_v1.coefficients"
-           summary="supported matrix coefficients"/>
-      <arg name="range"
-           type="uint" enum="wp_color_representation_surface_v1.range"
-           summary="full range flag"/>
+      <arg name="coefficients" type="uint" enum="wp_color_representation_surface_v1.coefficients" summary="supported matrix coefficients"/>
+      <arg name="range" type="uint" enum="wp_color_representation_surface_v1.range" summary="full range flag"/>
     </event>
-
     <event name="done">
       <description summary="all features have been sent">
         This event is sent when all supported features have been sent.
       </description>
     </event>
+    <enum name="error">
+      <description summary="protocol errors"/>
+      <entry name="surface_exists" value="1" summary="color representation surface exists already"/>
+    </enum>
   </interface>
-
   <interface name="wp_color_representation_surface_v1" version="1">
     <description summary="color representation extension to a surface">
       A wp_color_representation_surface_v1 allows the client to set the color
@@ -134,21 +115,6 @@
       If the wl_surface associated with the wp_color_representation_surface_v1
       is destroyed, the wp_color_representation_surface_v1 object becomes inert.
     </description>
-
-    <enum name="error">
-      <description summary="protocol errors"/>
-      <entry name="alpha_mode" value="1"
-             summary="unsupported alpha mode"/>
-      <entry name="coefficients" value="2"
-             summary="unsupported coefficients"/>
-      <entry name="pixel_format" value="3"
-             summary="the pixel format and a set value are incompatible"/>
-      <entry name="inert" value="4"
-             summary="forbidden request on inert object"/>
-      <entry name="chroma_location" value="5"
-             summary="invalid chroma location"/>
-    </enum>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the color representation">
         Destroy the wp_color_representation_surface_v1 object.
@@ -160,7 +126,84 @@
         wl_surface.commit.
       </description>
     </request>
+    <request name="set_alpha_mode">
+      <description summary="set the surface alpha mode">
+        If this protocol object is inert, the protocol error inert is raised.
 
+        Assuming an alpha channel exists, it is always linear. The alpha mode
+        determines whether and how the color channels include pre-multiplied
+        alpha. Using straight alpha might have performance benefits.
+
+        Only alpha modes advertised by the compositor are allowed to be used as
+        argument for this request. The "alpha_mode" protocol error is raised
+        otherwise.
+
+        Alpha mode is double buffered, see wl_surface.commit.
+      </description>
+      <arg name="alpha_mode" type="uint" enum="alpha_mode" summary="alpha mode"/>
+    </request>
+    <request name="set_coefficients_and_range">
+      <description summary="set the matrix coefficients and range">
+        If this protocol object is inert, the protocol error inert is raised.
+
+        Set the matrix coefficients and video range which defines the formula
+        and the related constants used to derive red, green and blue signals.
+        Usually coefficients correspond to MatrixCoefficients code points in
+        H.273.
+
+        Only combinations advertised by the compositor are allowed to be used as
+        argument for this request. The "coefficients" protocol error is raised
+        otherwise.
+
+        A call to wl_surface.commit verifies that the pixel format and the
+        coefficients-range combination in the committed surface contents are
+        compatible, if contents exist. The "pixel_format" protocol error is
+        raised otherwise.
+
+        A pixel format is compatible with the coefficients-range combination if
+        the related equations and conventions as defined in H.273 can produce
+        the color channels (RGB or YCbCr) of the pixel format.
+
+        For the definition of the supported combination, see the
+        wp_color_representation_surface_v1::coefficients and
+        wp_color_representation_surface_v1::range enums.
+
+        The coefficients-range combination is double-buffered, see
+        wl_surface.commit.
+      </description>
+      <arg name="coefficients" type="uint" enum="coefficients" summary="matrix coefficients"/>
+      <arg name="range" type="uint" enum="range" summary="range"/>
+    </request>
+    <request name="set_chroma_location">
+      <description summary="set the chroma location">
+        If this protocol object is inert, the protocol error inert is raised.
+
+        Set the chroma location type which defines the position of downsampled
+        chroma samples, corresponding to Chroma420SampleLocType code points in
+        H.273.
+
+        An invalid chroma location enum value raises the "chroma_location"
+        protocol error.
+
+        A call to wl_surface.commit verifies that the pixel format and chroma
+        location type in the committed surface contents are compatible, if
+        contents exist. The "pixel_format" protocol error is raised otherwise.
+
+        For the definition of the supported chroma location types, see the
+        wp_color_representation_surface_v1::chroma_location enum.
+
+        The chroma location type is double-buffered, see wl_surface.commit.
+      </description>
+      <arg name="chroma_location" type="uint" enum="chroma_location" summary="chroma sample location"/>
+    </request>
+    <enum name="error">
+      <description summary="protocol errors"/>
+      <entry name="alpha_mode" value="1" summary="unsupported alpha mode"/>
+      <entry name="coefficients" value="2" summary="unsupported coefficients"/>
+      <entry name="pixel_format" value="3" summary="the pixel format and a set value are incompatible"/>
+      <entry name="inert" value="4" summary="forbidden request on inert object"/>
+      <entry name="chroma_location" value="5" summary="invalid chroma location"/>
+    </enum>
     <enum name="alpha_mode">
       <description summary="alpha mode">
         Specifies how the alpha channel affects the color channels.
@@ -183,7 +226,6 @@
         </description>
       </entry>
     </enum>
-
     <enum name="coefficients">
       <description summary="named coefficients">
         Named matrix coefficients used to encode well-known sets of
@@ -285,7 +327,6 @@
         </description>
       </entry>
     </enum>
-
     <enum name="range">
       <description summary="Color range values">
         Possible color range values.
@@ -295,7 +336,6 @@
       <entry name="full" value="1" summary="Full color range"/>
       <entry name="limited" value="2" summary="Limited color range"/>
     </enum>
-
     <enum name="chroma_location">
       <description summary="Chroma sample location for 4:2:0 YCbCr">
         Chroma sample location as defined by H.273 Chroma420SampleLocType.
@@ -352,82 +392,5 @@
         </description>
       </entry>
     </enum>
-
-    <request name="set_alpha_mode">
-      <description summary="set the surface alpha mode">
-        If this protocol object is inert, the protocol error inert is raised.
-
-        Assuming an alpha channel exists, it is always linear. The alpha mode
-        determines whether and how the color channels include pre-multiplied
-        alpha. Using straight alpha might have performance benefits.
-
-        Only alpha modes advertised by the compositor are allowed to be used as
-        argument for this request. The "alpha_mode" protocol error is raised
-        otherwise.
-
-        Alpha mode is double buffered, see wl_surface.commit.
-      </description>
-      <arg name="alpha_mode" type="uint" enum="alpha_mode"
-           summary="alpha mode"/>
-    </request>
-
-    <request name="set_coefficients_and_range">
-      <description summary="set the matrix coefficients and range">
-        If this protocol object is inert, the protocol error inert is raised.
-
-        Set the matrix coefficients and video range which defines the formula
-        and the related constants used to derive red, green and blue signals.
-        Usually coefficients correspond to MatrixCoefficients code points in
-        H.273.
-
-        Only combinations advertised by the compositor are allowed to be used as
-        argument for this request. The "coefficients" protocol error is raised
-        otherwise.
-
-        A call to wl_surface.commit verifies that the pixel format and the
-        coefficients-range combination in the committed surface contents are
-        compatible, if contents exist. The "pixel_format" protocol error is
-        raised otherwise.
-
-        A pixel format is compatible with the coefficients-range combination if
-        the related equations and conventions as defined in H.273 can produce
-        the color channels (RGB or YCbCr) of the pixel format.
-
-        For the definition of the supported combination, see the
-        wp_color_representation_surface_v1::coefficients and
-        wp_color_representation_surface_v1::range enums.
-
-        The coefficients-range combination is double-buffered, see
-        wl_surface.commit.
-      </description>
-      <arg name="coefficients" type="uint" enum="coefficients"
-           summary="matrix coefficients"/>
-      <arg name="range" type="uint" enum="range"
-           summary="range"/>
-    </request>
-
-    <request name="set_chroma_location">
-      <description summary="set the chroma location">
-        If this protocol object is inert, the protocol error inert is raised.
-
-        Set the chroma location type which defines the position of downsampled
-        chroma samples, corresponding to Chroma420SampleLocType code points in
-        H.273.
-
-        An invalid chroma location enum value raises the "chroma_location"
-        protocol error.
-
-        A call to wl_surface.commit verifies that the pixel format and chroma
-        location type in the committed surface contents are compatible, if
-        contents exist. The "pixel_format" protocol error is raised otherwise.
-
-        For the definition of the supported chroma location types, see the
-        wp_color_representation_surface_v1::chroma_location enum.
-
-        The chroma location type is double-buffered, see wl_surface.commit.
-      </description>
-      <arg name="chroma_location" type="uint" enum="chroma_location"
-           summary="chroma sample location"/>
-    </request>
   </interface>
 </protocol>

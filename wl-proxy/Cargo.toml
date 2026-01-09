@@ -27,7 +27,7 @@ parking_lot = "0.12.5"
 all-protocols = [
     "suite-hyprland-protocols",
     "suite-jay-protocols",
-    "suite-other",
+    "suite-external",
     "suite-treeland-protocols",
     "suite-wayland-protocols",
     "suite-wlr-protocols",
@@ -48,7 +48,7 @@ suite-jay-protocols = [
     "protocol-jay_popup_ext_v1",
     "protocol-jay_tray_v1",
 ]
-suite-other = [
+suite-external = [
     "protocol-drm",
     "protocol-input_method_unstable_v2",
     "protocol-org_kde_kwin_server_decoration_v1",

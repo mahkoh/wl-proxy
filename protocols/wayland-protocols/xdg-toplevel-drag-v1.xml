@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <protocol name="xdg_toplevel_drag_v1">
-
   <copyright>
     Copyright 2023 David Redondo
 
@@ -23,7 +22,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <interface name="xdg_toplevel_drag_manager_v1" version="1">
     <description summary="Move a window during a drag">
       This protocol enhances normal drag and drop with the ability to move a
@@ -60,12 +58,6 @@
       corresponding interface version bump. Backward incompatible changes can
       only be done by creating a new major version of the extension.
     </description>
-
-    <enum name="error">
-      <entry name="invalid_source" value="0"
-             summary="data_source already used for toplevel drag"/>
-    </enum>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the xdg_toplevel_drag_manager_v1 object">
         Destroy this xdg_toplevel_drag_manager_v1 object. Other objects,
@@ -73,7 +65,6 @@
         affected by this request.
       </description>
     </request>
-
     <request name="get_xdg_toplevel_drag">
       <description summary="get an xdg_toplevel_drag for a wl_data_source">
         Create an xdg_toplevel_drag for a drag and drop operation that is going
@@ -87,23 +78,15 @@
         Destroying data_source while a toplevel is attached to the
         xdg_toplevel_drag is undefined.
       </description>
-
       <arg name="id" type="new_id" interface="xdg_toplevel_drag_v1"/>
       <arg name="data_source" type="object" interface="wl_data_source"/>
     </request>
-  </interface>
-
-  <interface name="xdg_toplevel_drag_v1" version="1">
-    <description summary="Object representing a toplevel move during a drag">
-    </description>
-
     <enum name="error">
-      <entry name="toplevel_attached" value="0"
-             summary="valid toplevel already attached"/>
-      <entry name="ongoing_drag" value="1"
-             summary="drag has not ended" />
+      <entry name="invalid_source" value="0" summary="data_source already used for toplevel drag"/>
     </enum>
-
+  </interface>
+  <interface name="xdg_toplevel_drag_v1" version="1">
+    <description summary="Object representing a toplevel move during a drag"/>
     <request name="destroy" type="destructor">
       <description summary="destroy an xdg_toplevel_drag_v1 object">
         Destroy this xdg_toplevel_drag_v1 object. This request must only be
@@ -112,7 +95,6 @@
         ongoing_drag error is raised.
       </description>
     </request>
-
     <request name="attach">
       <description summary="Move a toplevel with the drag operation">
         Request that the window will be moved with the cursor during the drag
@@ -131,12 +113,13 @@
         toplevel with an active role is attached raises a toplevel_attached
         error.
       </description>
-
       <arg name="toplevel" type="object" interface="xdg_toplevel"/>
       <arg name="x_offset" type="int" summary="dragged surface x offset"/>
       <arg name="y_offset" type="int" summary="dragged surface y offset"/>
     </request>
-
+    <enum name="error">
+      <entry name="toplevel_attached" value="0" summary="valid toplevel already attached"/>
+      <entry name="ongoing_drag" value="1" summary="drag has not ended"/>
+    </enum>
   </interface>
 </protocol>
-

@@ -22,7 +22,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <interface name="wp_alpha_modifier_v1" version="1">
     <description summary="surface alpha modifier manager">
       This interface allows a client to set a factor for the alpha values on a
@@ -34,19 +33,12 @@
       corresponding interface version bump. Backward incompatible changes can
       only be done by creating a new major version of the extension.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the alpha modifier manager object">
         Destroy the alpha modifier manager. This doesn't destroy objects
         created with the manager.
       </description>
     </request>
-
-    <enum name="error">
-      <entry name="already_constructed" value="0"
-             summary="wl_surface already has a alpha modifier object"/>
-    </enum>
-
     <request name="get_surface">
       <description summary="create a new alpha modifier surface object">
         Create a new alpha modifier surface object associated with the
@@ -56,8 +48,10 @@
       <arg name="id" type="new_id" interface="wp_alpha_modifier_surface_v1"/>
       <arg name="surface" type="object" interface="wl_surface"/>
     </request>
+    <enum name="error">
+      <entry name="already_constructed" value="0" summary="wl_surface already has a alpha modifier object"/>
+    </enum>
   </interface>
-
   <interface name="wp_alpha_modifier_surface_v1" version="1">
     <description summary="alpha modifier object for a surface">
       This interface allows the client to set a factor for the alpha values on
@@ -68,11 +62,6 @@
       wl_surface is destroyed, all request on this object will raise the
       no_surface error.
     </description>
-
-    <enum name="error">
-      <entry name="no_surface" value="0" summary="wl_surface was destroyed"/>
-    </enum>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the alpha modifier object">
         This destroys the object, and is equivalent to set_multiplier with
@@ -80,7 +69,6 @@
         set_multiplier.
       </description>
     </request>
-
     <request name="set_multiplier">
       <description summary="specify the alpha multiplier">
         Sets the alpha multiplier for the surface. The alpha multiplier is
@@ -99,5 +87,8 @@
       </description>
       <arg name="factor" type="uint"/>
     </request>
+    <enum name="error">
+      <entry name="no_surface" value="0" summary="wl_surface was destroyed"/>
+    </enum>
   </interface>
 </protocol>

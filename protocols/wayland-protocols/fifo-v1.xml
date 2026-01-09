@@ -22,7 +22,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <interface name="wp_fifo_manager_v1" version="1">
     <description summary="protocol for fifo constraints">
       When a Wayland compositor considers applying a content update,
@@ -37,16 +36,6 @@
       corresponding interface version bump. Backward incompatible changes can
       only be done by creating a new major version of the extension.
     </description>
-
-    <enum name="error">
-      <description summary="fatal presentation error">
-        These fatal protocol errors may be emitted in response to
-        illegal requests.
-      </description>
-      <entry name="already_exists" value="0"
-             summary="fifo manager already exists for surface"/>
-    </enum>
-
     <request name="destroy" type="destructor">
       <description summary="unbind from the manager interface">
         Informs the server that the client will no longer be using
@@ -54,7 +43,6 @@
         are not affected.
       </description>
     </request>
-
     <request name="get_fifo">
       <description summary="request fifo interface for surface">
         Establish a fifo object for a surface that may be used to add
@@ -69,23 +57,19 @@
       <arg name="id" type="new_id" interface="wp_fifo_v1"/>
       <arg name="surface" type="object" interface="wl_surface"/>
     </request>
+    <enum name="error">
+      <description summary="fatal presentation error">
+        These fatal protocol errors may be emitted in response to
+        illegal requests.
+      </description>
+      <entry name="already_exists" value="0" summary="fifo manager already exists for surface"/>
+    </enum>
   </interface>
-
   <interface name="wp_fifo_v1" version="1">
     <description summary="fifo interface">
       A fifo object for a surface that may be used to add
       display refresh constraints to content updates.
     </description>
-
-    <enum name="error">
-      <description summary="fatal error">
-        These fatal protocol errors may be emitted in response to
-        illegal requests.
-      </description>
-      <entry name="surface_destroyed" value="0"
-             summary="the associated surface no longer exists"/>
-    </enum>
-
     <request name="set_barrier">
       <description summary="sets the start point for a fifo constraint">
         When the content update containing the "set_barrier" is applied,
@@ -104,7 +88,6 @@
         destroyed will generate a "surface_destroyed" error.
       </description>
     </request>
-
     <request name="wait_barrier">
       <description summary="adds a fifo constraint to a content update">
         Indicate that this content update is not ready while a
@@ -129,7 +112,6 @@
         destroyed will generate a "surface_destroyed" error.
       </description>
     </request>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the fifo interface">
         Informs the server that the client will no longer be using
@@ -139,5 +121,12 @@
         unaffected by this object's destruction.
       </description>
     </request>
+    <enum name="error">
+      <description summary="fatal error">
+        These fatal protocol errors may be emitted in response to
+        illegal requests.
+      </description>
+      <entry name="surface_destroyed" value="0" summary="the associated surface no longer exists"/>
+    </enum>
   </interface>
 </protocol>

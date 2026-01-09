@@ -23,7 +23,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <interface name="ext_idle_notifier_v1" version="2">
     <description summary="idle notification manager">
       This interface allows clients to monitor user idle status.
@@ -31,14 +30,12 @@
       After binding to this global, clients can create ext_idle_notification_v1
       objects to get notified when the user is idle for a given amount of time.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the manager">
         Destroy the manager object. All objects created via this interface
         remain valid.
       </description>
     </request>
-
     <request name="get_idle_notification">
       <description summary="create a notification object">
         Create a new idle notification object.
@@ -54,9 +51,6 @@
       <arg name="timeout" type="uint" summary="minimum idle timeout in msec"/>
       <arg name="seat" type="object" interface="wl_seat"/>
     </request>
-
-    <!-- Version 2 additions -->
-
     <request name="get_input_idle_notification" since="2">
       <description summary="create a notification object">
         Create a new idle notification object to track input from the
@@ -74,9 +68,7 @@
       <arg name="timeout" type="uint" summary="minimum idle timeout in msec"/>
       <arg name="seat" type="object" interface="wl_seat"/>
     </request>
-    
   </interface>
-
   <interface name="ext_idle_notification_v1" version="2">
     <description summary="idle notification">
       This interface is used by the compositor to send idle notification events
@@ -102,13 +94,11 @@
       user activity starts again, the notification object stops being idle,
       a resumed event is sent and the timeout is restarted.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the notification object">
         Destroy the notification object.
       </description>
     </request>
-
     <event name="idled">
       <description summary="notification object is idle">
         This event is sent when the notification object becomes idle.
@@ -117,7 +107,6 @@
         resumed event in-between.
       </description>
     </event>
-
     <event name="resumed">
       <description summary="notification object is no longer idle">
         This event is sent when the notification object stops being idle.

@@ -22,7 +22,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <interface name="zxdg_decoration_manager_v1" version="1">
     <description summary="window decoration manager">
       This interface allows a compositor to announce support for server-side
@@ -48,14 +47,12 @@
       version number in the protocol and interface names are removed and the
       interface version number is reset.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the decoration manager object">
         Destroy the decoration manager. This doesn't destroy objects created
         with the manager.
       </description>
     </request>
-
     <request name="get_toplevel_decoration">
       <description summary="create a new toplevel decoration object">
         Create a new decoration object associated with the given toplevel.
@@ -70,7 +67,6 @@
       <arg name="toplevel" type="object" interface="xdg_toplevel"/>
     </request>
   </interface>
-
   <interface name="zxdg_toplevel_decoration_v1" version="1">
     <description summary="decoration object for a toplevel surface">
       The decoration object allows the compositor to toggle server-side window
@@ -80,34 +76,12 @@
       The xdg_toplevel_decoration object must be destroyed before its
       xdg_toplevel.
     </description>
-
-    <enum name="error">
-      <entry name="unconfigured_buffer" value="0"
-        summary="xdg_toplevel has a buffer attached before configure"/>
-      <entry name="already_constructed" value="1"
-        summary="xdg_toplevel already has a decoration object"/>
-      <entry name="orphaned" value="2"
-        summary="xdg_toplevel destroyed before the decoration object"/>
-      <entry name="invalid_mode" value="3" summary="invalid mode"/>
-    </enum>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the decoration object">
         Switch back to a mode without any server-side decorations at the next
         commit.
       </description>
     </request>
-
-    <enum name="mode">
-      <description summary="window decoration modes">
-        These values describe window decoration modes.
-      </description>
-      <entry name="client_side" value="1"
-        summary="no server-side window decoration"/>
-      <entry name="server_side" value="2"
-        summary="server-side window decoration"/>
-    </enum>
-
     <request name="set_mode">
       <description summary="set the decoration mode">
         Set the toplevel surface decoration mode. This informs the compositor
@@ -134,7 +108,6 @@
       </description>
       <arg name="mode" type="uint" enum="mode" summary="the decoration mode"/>
     </request>
-
     <request name="unset_mode">
       <description summary="unset the decoration mode">
         Unset the toplevel surface decoration mode. This informs the compositor
@@ -143,7 +116,6 @@
         This request has the same semantics as set_mode.
       </description>
     </request>
-
     <event name="configure">
       <description summary="notify a decoration mode change">
         The configure event configures the effective decoration mode. The
@@ -156,5 +128,18 @@
       </description>
       <arg name="mode" type="uint" enum="mode" summary="the decoration mode"/>
     </event>
+    <enum name="error">
+      <entry name="unconfigured_buffer" value="0" summary="xdg_toplevel has a buffer attached before configure"/>
+      <entry name="already_constructed" value="1" summary="xdg_toplevel already has a decoration object"/>
+      <entry name="orphaned" value="2" summary="xdg_toplevel destroyed before the decoration object"/>
+      <entry name="invalid_mode" value="3" summary="invalid mode"/>
+    </enum>
+    <enum name="mode">
+      <description summary="window decoration modes">
+        These values describe window decoration modes.
+      </description>
+      <entry name="client_side" value="1" summary="no server-side window decoration"/>
+      <entry name="server_side" value="2" summary="server-side window decoration"/>
+    </enum>
   </interface>
 </protocol>

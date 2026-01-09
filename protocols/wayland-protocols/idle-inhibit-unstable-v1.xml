@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <protocol name="idle_inhibit_unstable_v1">
-
   <copyright>
     Copyright © 2015 Samsung Electronics Co., Ltd
 
@@ -23,7 +22,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <interface name="zwp_idle_inhibit_manager_v1" version="1">
     <description summary="control behavior when display idles">
       This interface permits inhibiting the idle behavior such as screen
@@ -39,24 +37,19 @@
       version number in the protocol and interface names are removed and the
       interface version number is reset.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the idle inhibitor object">
-	Destroy the inhibit manager.
+        Destroy the inhibit manager.
       </description>
     </request>
-
     <request name="create_inhibitor">
       <description summary="create a new inhibitor object">
-	Create a new inhibitor object associated with the given surface.
+        Create a new inhibitor object associated with the given surface.
       </description>
       <arg name="id" type="new_id" interface="zwp_idle_inhibitor_v1"/>
-      <arg name="surface" type="object" interface="wl_surface"
-	   summary="the surface that inhibits the idle behavior"/>
+      <arg name="surface" type="object" interface="wl_surface" summary="the surface that inhibits the idle behavior"/>
     </request>
-
   </interface>
-
   <interface name="zwp_idle_inhibitor_v1" version="1">
     <description summary="context object for inhibiting idle behavior">
       An idle inhibitor prevents the output that the associated surface is
@@ -72,12 +65,10 @@
       the time the inhibitor was established, although if the system later
       de-idles and re-idles the inhibitor will take effect.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the idle inhibitor object">
-	Remove the inhibitor effect from the associated wl_surface.
+        Remove the inhibitor effect from the associated wl_surface.
       </description>
     </request>
-
   </interface>
 </protocol>

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <protocol name="text_input_unstable_v3">
   <copyright>
     Copyright © 2012, 2013 Intel Corporation
@@ -28,7 +27,6 @@
     ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
     THIS SOFTWARE.
   </copyright>
-
   <description summary="Protocol for composing text">
     This protocol allows compositors to act as input methods and to send text
     to applications. A text input object is used to manage state of what are
@@ -46,7 +44,6 @@
     version number in the protocol and interface names are removed and the
     interface version number is reset.
   </description>
-
   <interface name="zwp_text_input_v3" version="1">
     <description summary="text input">
       The zwp_text_input_v3 interface represents text input and input methods
@@ -76,14 +73,12 @@
       enter event or disable request all state information is invalidated and
       needs to be resent by the client.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="Destroy the wp_text_input">
         Destroy the wp_text_input object. Also disables all surfaces enabled
         through this wp_text_input object.
       </description>
     </request>
-
     <request name="enable">
       <description summary="Request text input to be enabled">
         Requests text input on the surface previously obtained from the enter
@@ -116,7 +111,6 @@
         zwp_text_input_v3.commit request.
       </description>
     </request>
-
     <request name="disable">
       <description summary="Disable text input on a surface">
         Explicitly disable text input on the current surface (typically when
@@ -126,7 +120,6 @@
         the next zwp_text_input_v3.commit request.
       </description>
     </request>
-
     <request name="set_surrounding_text">
       <description summary="sets the surrounding text">
         Sets the surrounding plain text around the input, excluding the preedit
@@ -165,15 +158,6 @@
       <arg name="cursor" type="int"/>
       <arg name="anchor" type="int"/>
     </request>
-
-    <enum name="change_cause">
-      <description summary="text change reason">
-        Reason for the change of surrounding text or cursor posision.
-      </description>
-      <entry name="input_method" value="0" summary="input method caused the change"/>
-      <entry name="other" value="1" summary="something else than the input method caused the change"/>
-    </enum>
-
     <request name="set_text_change_cause">
       <description summary="indicates the cause of surrounding text change">
         Tells the compositor why the text surrounding the cursor changed.
@@ -193,49 +177,6 @@
       </description>
       <arg name="cause" type="uint" enum="change_cause"/>
     </request>
-
-    <enum name="content_hint" bitfield="true">
-      <description summary="content hint">
-        Content hint is a bitmask to allow to modify the behavior of the text
-        input.
-      </description>
-      <entry name="none" value="0x0" summary="no special behavior"/>
-      <entry name="completion" value="0x1" summary="suggest word completions"/>
-      <entry name="spellcheck" value="0x2" summary="suggest word corrections"/>
-      <entry name="auto_capitalization" value="0x4" summary="switch to uppercase letters at the start of a sentence"/>
-      <entry name="lowercase" value="0x8" summary="prefer lowercase letters"/>
-      <entry name="uppercase" value="0x10" summary="prefer uppercase letters"/>
-      <entry name="titlecase" value="0x20" summary="prefer casing for titles and headings (can be language dependent)"/>
-      <entry name="hidden_text" value="0x40" summary="characters should be hidden"/>
-      <entry name="sensitive_data" value="0x80" summary="typed text should not be stored"/>
-      <entry name="latin" value="0x100" summary="just Latin characters should be entered"/>
-      <entry name="multiline" value="0x200" summary="the text input is multiline"/>
-    </enum>
-
-    <enum name="content_purpose">
-      <description summary="content purpose">
-        The content purpose allows to specify the primary purpose of a text
-        input.
-
-        This allows an input method to show special purpose input panels with
-        extra characters or to disallow some characters.
-      </description>
-      <entry name="normal" value="0" summary="default input, allowing all characters"/>
-      <entry name="alpha" value="1" summary="allow only alphabetic characters"/>
-      <entry name="digits" value="2" summary="allow only digits"/>
-      <entry name="number" value="3" summary="input a number (including decimal separator and sign)"/>
-      <entry name="phone" value="4" summary="input a phone number"/>
-      <entry name="url" value="5" summary="input an URL"/>
-      <entry name="email" value="6" summary="input an email address"/>
-      <entry name="name" value="7" summary="input a name of a person"/>
-      <entry name="password" value="8" summary="input a password (combine with sensitive_data hint)"/>
-      <entry name="pin" value="9" summary="input is a numeric password (combine with sensitive_data hint)"/>
-      <entry name="date" value="10" summary="input a date"/>
-      <entry name="time" value="11" summary="input a time"/>
-      <entry name="datetime" value="12" summary="input a date and time"/>
-      <entry name="terminal" value="13" summary="input for a terminal"/>
-    </enum>
-
     <request name="set_content_type">
       <description summary="set content purpose and hint">
         Sets the content purpose and content hint. While the purpose is the
@@ -253,7 +194,6 @@
       <arg name="hint" type="uint" enum="content_hint"/>
       <arg name="purpose" type="uint" enum="content_purpose"/>
     </request>
-
     <request name="set_cursor_rectangle">
       <description summary="set cursor position">
         Marks an area around the cursor as a x, y, width, height rectangle in
@@ -279,7 +219,6 @@
       <arg name="width" type="int"/>
       <arg name="height" type="int"/>
     </request>
-
     <request name="commit">
       <description summary="commit state">
         Atomically applies state changes recently sent to the compositor.
@@ -307,7 +246,6 @@
         events.
       </description>
     </request>
-
     <event name="enter">
       <description summary="enter event">
         Notification that this seat's text-input focus is on a certain surface.
@@ -321,7 +259,6 @@
       </description>
       <arg name="surface" type="object" interface="wl_surface"/>
     </event>
-
     <event name="leave">
       <description summary="leave event">
         Notification that this seat's text-input focus is no longer on a
@@ -338,7 +275,6 @@
       </description>
       <arg name="surface" type="object" interface="wl_surface"/>
     </event>
-
     <event name="preedit_string">
       <description summary="pre-edit">
         Notify when a new composing text (pre-edit) should be set at the
@@ -364,7 +300,6 @@
       <arg name="cursor_begin" type="int"/>
       <arg name="cursor_end" type="int"/>
     </event>
-
     <event name="commit_string">
       <description summary="text commit">
         Notify when text should be inserted into the editor widget. The text to
@@ -378,7 +313,6 @@
       </description>
       <arg name="text" type="string" allow-null="true"/>
     </event>
-
     <event name="delete_surrounding_text">
       <description summary="delete surrounding text">
         Notify when the text around the current cursor position should be
@@ -399,7 +333,6 @@
       <arg name="before_length" type="uint" summary="length of text before current cursor position"/>
       <arg name="after_length" type="uint" summary="length of text after current cursor position"/>
     </event>
-
     <event name="done">
       <description summary="apply changes">
         Instruct the application to apply changes to state requested by the
@@ -432,19 +365,63 @@
       </description>
       <arg name="serial" type="uint"/>
     </event>
-  </interface>
+    <enum name="change_cause">
+      <description summary="text change reason">
+        Reason for the change of surrounding text or cursor posision.
+      </description>
+      <entry name="input_method" value="0" summary="input method caused the change"/>
+      <entry name="other" value="1" summary="something else than the input method caused the change"/>
+    </enum>
+    <enum name="content_hint" bitfield="true">
+      <description summary="content hint">
+        Content hint is a bitmask to allow to modify the behavior of the text
+        input.
+      </description>
+      <entry name="none" value="0x0" summary="no special behavior"/>
+      <entry name="completion" value="0x1" summary="suggest word completions"/>
+      <entry name="spellcheck" value="0x2" summary="suggest word corrections"/>
+      <entry name="auto_capitalization" value="0x4" summary="switch to uppercase letters at the start of a sentence"/>
+      <entry name="lowercase" value="0x8" summary="prefer lowercase letters"/>
+      <entry name="uppercase" value="0x10" summary="prefer uppercase letters"/>
+      <entry name="titlecase" value="0x20" summary="prefer casing for titles and headings (can be language dependent)"/>
+      <entry name="hidden_text" value="0x40" summary="characters should be hidden"/>
+      <entry name="sensitive_data" value="0x80" summary="typed text should not be stored"/>
+      <entry name="latin" value="0x100" summary="just Latin characters should be entered"/>
+      <entry name="multiline" value="0x200" summary="the text input is multiline"/>
+    </enum>
+    <enum name="content_purpose">
+      <description summary="content purpose">
+        The content purpose allows to specify the primary purpose of a text
+        input.
 
+        This allows an input method to show special purpose input panels with
+        extra characters or to disallow some characters.
+      </description>
+      <entry name="normal" value="0" summary="default input, allowing all characters"/>
+      <entry name="alpha" value="1" summary="allow only alphabetic characters"/>
+      <entry name="digits" value="2" summary="allow only digits"/>
+      <entry name="number" value="3" summary="input a number (including decimal separator and sign)"/>
+      <entry name="phone" value="4" summary="input a phone number"/>
+      <entry name="url" value="5" summary="input an URL"/>
+      <entry name="email" value="6" summary="input an email address"/>
+      <entry name="name" value="7" summary="input a name of a person"/>
+      <entry name="password" value="8" summary="input a password (combine with sensitive_data hint)"/>
+      <entry name="pin" value="9" summary="input is a numeric password (combine with sensitive_data hint)"/>
+      <entry name="date" value="10" summary="input a date"/>
+      <entry name="time" value="11" summary="input a time"/>
+      <entry name="datetime" value="12" summary="input a date and time"/>
+      <entry name="terminal" value="13" summary="input for a terminal"/>
+    </enum>
+  </interface>
   <interface name="zwp_text_input_manager_v3" version="1">
     <description summary="text input manager">
       A factory for text-input objects. This object is a global singleton.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="Destroy the wp_text_input_manager">
         Destroy the wp_text_input_manager object.
       </description>
     </request>
-
     <request name="get_text_input">
       <description summary="create a new text input object">
         Creates a new text-input object for a given seat.

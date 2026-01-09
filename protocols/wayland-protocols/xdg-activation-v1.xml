@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <protocol name="xdg_activation_v1">
-
   <copyright>
-    Copyright © 2020 Aleix Pol Gonzalez &lt;aleixpol@kde.org&gt;
-    Copyright © 2020 Carlos Garnacho &lt;carlosg@gnome.org&gt;
+    Copyright © 2020 Aleix Pol Gonzalez aleixpol@kde.org
+    Copyright © 2020 Carlos Garnacho carlosg@gnome.org
 
     Permission is hereby granted, free of charge, to any person obtaining a
     copy of this software and associated documentation files (the "Software"),
@@ -24,7 +23,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <description summary="Protocol for requesting activation of surfaces">
     The way for a client to pass focus to another toplevel is as follows.
 
@@ -65,14 +63,12 @@
     corresponding interface version bump. Backward incompatible changes can
     only be done by creating a new major version of the extension.
   </description>
-
   <interface name="xdg_activation_v1" version="1">
     <description summary="interface for activating surfaces">
       A global interface used for informing the compositor about applications
       being activated or started, or for applications to request to be
       activated.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the xdg_activation object">
         Notify the compositor that the xdg_activation object will no longer be
@@ -82,17 +78,14 @@
         be destroyed separately.
       </description>
     </request>
-
     <request name="get_activation_token">
       <description summary="requests a token">
         Creates an xdg_activation_token_v1 object that will provide
         the initiating client with a unique token for this activation. This
         token should be offered to the clients to be activated.
       </description>
-
       <arg name="id" type="new_id" interface="xdg_activation_token_v1"/>
     </request>
-
     <request name="activate">
       <description summary="notify new interaction being available">
         Requests surface activation. It's up to the compositor to display
@@ -107,11 +100,9 @@
         token is passed.
       </description>
       <arg name="token" type="string" summary="the activation token of the initiating client"/>
-      <arg name="surface" type="object" interface="wl_surface"
-	   summary="the wl_surface to activate"/>
+      <arg name="surface" type="object" interface="wl_surface" summary="the wl_surface to activate"/>
     </request>
   </interface>
-
   <interface name="xdg_activation_token_v1" version="1">
     <description summary="an exported activation handle">
       An object for setting up a token and receiving a token handle that can
@@ -123,12 +114,6 @@
       done event with the token. In case the request's parameters are invalid,
       the compositor will provide an invalid token.
     </description>
-
-    <enum name="error">
-      <entry name="already_used" value="0"
-             summary="The token has already been used previously"/>
-    </enum>
-
     <request name="set_serial">
       <description summary="specifies the seat and serial of the activating event">
         Provides information about the seat and serial event that requested the
@@ -144,12 +129,9 @@
 
         Must be sent before commit. This information is optional.
       </description>
-      <arg name="serial" type="uint"
-           summary="the serial of the event that triggered the activation"/>
-      <arg name="seat" type="object" interface="wl_seat"
-           summary="the wl_seat of the event"/>
+      <arg name="serial" type="uint" summary="the serial of the event that triggered the activation"/>
+      <arg name="seat" type="object" interface="wl_seat" summary="the wl_seat of the event"/>
     </request>
-
     <request name="set_app_id">
       <description summary="specifies the application being activated">
         The requesting client can specify an app_id to associate the token
@@ -157,10 +139,8 @@
 
         Must be sent before commit. This information is optional.
       </description>
-      <arg name="app_id" type="string"
-           summary="the application id of the client being activated."/>
+      <arg name="app_id" type="string" summary="the application id of the client being activated."/>
     </request>
-
     <request name="set_surface">
       <description summary="specifies the surface requesting activation">
         This request sets the surface requesting the activation. Note, this is
@@ -171,17 +151,14 @@
 
         Must be sent before commit. This information is optional.
       </description>
-      <arg name="surface" type="object" interface="wl_surface"
-	   summary="the requesting surface"/>
+      <arg name="surface" type="object" interface="wl_surface" summary="the requesting surface"/>
     </request>
-
     <request name="commit">
       <description summary="issues the token request">
         Requests an activation token based on the different parameters that
         have been offered through set_serial, set_surface and set_app_id.
       </description>
     </request>
-
     <event name="done">
       <description summary="the exported activation token">
         The 'done' event contains the unique token of this activation request
@@ -189,12 +166,14 @@
       </description>
       <arg name="token" type="string" summary="the exported activation token"/>
     </event>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the xdg_activation_token_v1 object">
         Notify the compositor that the xdg_activation_token_v1 object will no
         longer be used. The received token stays valid.
       </description>
     </request>
+    <enum name="error">
+      <entry name="already_used" value="0" summary="The token has already been used previously"/>
+    </enum>
   </interface>
 </protocol>

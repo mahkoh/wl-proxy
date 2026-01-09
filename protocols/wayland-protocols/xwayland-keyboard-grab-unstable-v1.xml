@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <protocol name="xwayland_keyboard_grab_unstable_v1">
-
   <copyright>
     Copyright © 2017 Red Hat Inc.
 
@@ -23,7 +22,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <description summary="Protocol for grabbing the keyboard from Xwayland">
     This protocol is application-specific to meet the needs of the X11
     protocol through Xwayland. It provides a way for Xwayland to request
@@ -63,58 +61,50 @@
     interface names are removed and the interface version number is
     reset.
   </description>
-
   <interface name="zwp_xwayland_keyboard_grab_manager_v1" version="1">
     <description summary="context object for keyboard grab manager">
       A global interface used for grabbing the keyboard.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the keyboard grab manager">
-	Destroy the keyboard grab manager.
+        Destroy the keyboard grab manager.
       </description>
     </request>
-
     <request name="grab_keyboard">
       <description summary="grab the keyboard to a surface">
-	The grab_keyboard request asks for a grab of the keyboard, forcing
-	the keyboard focus for the given seat upon the given surface.
+        The grab_keyboard request asks for a grab of the keyboard, forcing
+        the keyboard focus for the given seat upon the given surface.
 
-	The protocol provides no guarantee that the grab is ever satisfied,
-	and does not require the compositor to send an error if the grab
-	cannot ever be satisfied. It is thus possible to request a keyboard
-	grab that will never be effective.
+        The protocol provides no guarantee that the grab is ever satisfied,
+        and does not require the compositor to send an error if the grab
+        cannot ever be satisfied. It is thus possible to request a keyboard
+        grab that will never be effective.
 
-	The protocol:
+        The protocol:
 
-	* does not guarantee that the grab itself is applied for a surface,
-	  the grab request may be silently ignored by the compositor,
-	* does not guarantee that any events are sent to this client even
-	  if the grab is applied to a surface,
-	* does not guarantee that events sent to this client are exhaustive,
-	  a compositor may filter some events for its own consumption,
-	* does not guarantee that events sent to this client are continuous,
-	  a compositor may change and reroute keyboard events while the grab
-	  is nominally active.
+        * does not guarantee that the grab itself is applied for a surface,
+          the grab request may be silently ignored by the compositor,
+        * does not guarantee that any events are sent to this client even
+          if the grab is applied to a surface,
+        * does not guarantee that events sent to this client are exhaustive,
+          a compositor may filter some events for its own consumption,
+        * does not guarantee that events sent to this client are continuous,
+          a compositor may change and reroute keyboard events while the grab
+          is nominally active.
       </description>
-
       <arg name="id" type="new_id" interface="zwp_xwayland_keyboard_grab_v1"/>
-      <arg name="surface" type="object" interface="wl_surface"
-	   summary="surface to report keyboard events to"/>
-      <arg name="seat" type="object" interface="wl_seat"
-	   summary="the seat for which the keyboard should be grabbed"/>
+      <arg name="surface" type="object" interface="wl_surface" summary="surface to report keyboard events to"/>
+      <arg name="seat" type="object" interface="wl_seat" summary="the seat for which the keyboard should be grabbed"/>
     </request>
   </interface>
-
   <interface name="zwp_xwayland_keyboard_grab_v1" version="1">
     <description summary="interface for grabbing the keyboard">
       A global interface used for grabbing the keyboard.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the grabbed keyboard object">
-	Destroy the grabbed keyboard object. If applicable, the compositor
-	will ungrab the keyboard.
+        Destroy the grabbed keyboard object. If applicable, the compositor
+        will ungrab the keyboard.
       </description>
     </request>
   </interface>

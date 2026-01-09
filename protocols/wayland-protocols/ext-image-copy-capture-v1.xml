@@ -23,7 +23,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <description summary="image capturing into client buffers">
     This protocol allows clients to ask the compositor to capture image sources
     such as outputs and toplevels into user submitted buffers.
@@ -33,21 +32,11 @@
     corresponding interface version bump. Backward incompatible changes can
     only be done by creating a new major version of the extension.
   </description>
-
   <interface name="ext_image_copy_capture_manager_v1" version="1">
     <description summary="manager to inform clients and begin capturing">
       This object is a manager which offers requests to start capturing from a
       source.
     </description>
-
-    <enum name="error">
-      <entry name="invalid_option" value="1" summary="invalid option flag"/>
-    </enum>
-
-    <enum name="options" bitfield="true">
-      <entry name="paint_cursors" value="1" summary="paint cursors onto captured frames"/>
-    </enum>
-
     <request name="create_session">
       <description summary="capture an image capture source">
         Create a capturing session for an image capture source.
@@ -63,7 +52,6 @@
       <arg name="source" type="object" interface="ext_image_capture_source_v1"/>
       <arg name="options" type="uint" enum="options"/>
     </request>
-
     <request name="create_pointer_cursor_session">
       <description summary="capture the pointer cursor of an image capture source">
         Create a cursor capturing session for the pointer of an image capture
@@ -73,7 +61,6 @@
       <arg name="source" type="object" interface="ext_image_capture_source_v1"/>
       <arg name="pointer" type="object" interface="wl_pointer"/>
     </request>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the manager">
         Destroy the manager object.
@@ -81,8 +68,13 @@
         Other objects created via this interface are unaffected.
       </description>
     </request>
+    <enum name="error">
+      <entry name="invalid_option" value="1" summary="invalid option flag"/>
+    </enum>
+    <enum name="options" bitfield="true">
+      <entry name="paint_cursors" value="1" summary="paint cursors onto captured frames"/>
+    </enum>
   </interface>
-
   <interface name="ext_image_copy_capture_session_v1" version="1">
     <description summary="image copy capture session">
       This object represents an active image copy capture session.
@@ -102,12 +94,6 @@
       attach_buffer request, set the buffer damage using the damage_buffer
       request and then send the capture request.
     </description>
-
-    <enum name="error">
-      <entry name="duplicate_frame" value="1"
-        summary="create_frame sent before destroying previous frame"/>
-    </enum>
-
     <event name="buffer_size">
       <description summary="image capture source dimensions">
         Provides the dimensions of the source image in buffer pixel coordinates.
@@ -117,7 +103,6 @@
       <arg name="width" type="uint" summary="buffer width"/>
       <arg name="height" type="uint" summary="buffer height"/>
     </event>
-
     <event name="shm_format">
       <description summary="shm buffer format">
         Provides the format that must be used for shared-memory buffers.
@@ -127,7 +112,6 @@
       </description>
       <arg name="format" type="uint" enum="wl_shm.format" summary="shm format"/>
     </event>
-
     <event name="dmabuf_device">
       <description summary="dma-buf device">
         This event advertises the device buffers must be allocated on for
@@ -140,7 +124,6 @@
       </description>
       <arg name="device" type="array" summary="device dev_t value"/>
     </event>
-
     <event name="dmabuf_format">
       <description summary="dma-buf format">
         Provides the format that must be used for dma-buf buffers.
@@ -154,7 +137,6 @@
       <arg name="format" type="uint" summary="drm format code"/>
       <arg name="modifiers" type="array" summary="drm format modifiers"/>
     </event>
-
     <event name="done">
       <description summary="all constraints have been sent">
         This event is sent once when all buffer constraint events have been
@@ -165,7 +147,6 @@
         an update.
       </description>
     </event>
-
     <event name="stopped">
       <description summary="session is no longer available">
         This event indicates that the capture session has stopped and is no
@@ -176,7 +157,6 @@
         The client should destroy the session after receiving this event.
       </description>
     </event>
-
     <request name="create_frame">
       <description summary="create a frame">
         Create a capture frame for this session.
@@ -187,7 +167,6 @@
       </description>
       <arg name="frame" type="new_id" interface="ext_image_copy_capture_frame_v1"/>
     </request>
-
     <request name="destroy" type="destructor">
       <description summary="delete this object">
         Destroys the session. This request can be sent at any time by the
@@ -197,8 +176,10 @@
         this object.
       </description>
     </request>
+    <enum name="error">
+      <entry name="duplicate_frame" value="1" summary="create_frame sent before destroying previous frame"/>
+    </enum>
   </interface>
-
   <interface name="ext_image_copy_capture_frame_v1" version="1">
     <description summary="image capture frame">
       This object represents an image capture frame.
@@ -212,20 +193,12 @@
 
       If the capture fails, the compositor must send the failed event.
     </description>
-
-    <enum name="error">
-      <entry name="no_buffer" value="1" summary="capture sent without attach_buffer"/>
-      <entry name="invalid_buffer_damage" value="2" summary="invalid buffer damage"/>
-      <entry name="already_captured" value="3" summary="capture request has been sent"/>
-    </enum>
-
     <request name="destroy" type="destructor">
       <description summary="destroy this object">
         Destroys the frame. This request can be sent at any time by the
         client.
       </description>
     </request>
-
     <request name="attach_buffer">
       <description summary="attach buffer to session">
         Attach a buffer to the session.
@@ -239,7 +212,6 @@
       </description>
       <arg name="buffer" type="object" interface="wl_buffer"/>
     </request>
-
     <request name="damage_buffer">
       <description summary="damage buffer">
         Apply damage to the buffer which is to be captured next. This request
@@ -269,7 +241,6 @@
       <arg name="width" type="int" summary="region width"/>
       <arg name="height" type="int" summary="region height"/>
     </request>
-
     <request name="capture">
       <description summary="capture a frame">
         Capture a frame.
@@ -283,7 +254,6 @@
         is sent, or else the no_buffer protocol error is raised.
       </description>
     </request>
-
     <event name="transform">
       <description summary="buffer transform">
         This event is sent before the ready event and holds the transform that
@@ -291,7 +261,6 @@
       </description>
       <arg name="transform" type="uint" enum="wl_output.transform"/>
     </event>
-
     <event name="damage">
       <description summary="buffer damaged region">
         This event is sent before the ready event. It may be generated multiple
@@ -308,7 +277,6 @@
       <arg name="width" type="int" summary="damage width"/>
       <arg name="height" type="int" summary="damage height"/>
     </event>
-
     <event name="presentation_time">
       <description summary="presentation time of the frame">
         This event indicates the time at which the frame is presented to the
@@ -321,14 +289,10 @@
         and the additional fractional part in tv_nsec as nanoseconds. Hence,
         for valid timestamps tv_nsec must be in [0, 999999999].
       </description>
-      <arg name="tv_sec_hi" type="uint"
-           summary="high 32 bits of the seconds part of the timestamp"/>
-      <arg name="tv_sec_lo" type="uint"
-           summary="low 32 bits of the seconds part of the timestamp"/>
-      <arg name="tv_nsec" type="uint"
-           summary="nanoseconds part of the timestamp"/>
+      <arg name="tv_sec_hi" type="uint" summary="high 32 bits of the seconds part of the timestamp"/>
+      <arg name="tv_sec_lo" type="uint" summary="low 32 bits of the seconds part of the timestamp"/>
+      <arg name="tv_nsec" type="uint" summary="nanoseconds part of the timestamp"/>
     </event>
-
     <event name="ready">
       <description summary="frame is available for reading">
         Called as soon as the frame is copied, indicating it is available
@@ -339,7 +303,19 @@
         After receiving this event, the client must destroy the object.
       </description>
     </event>
+    <event name="failed">
+      <description summary="capture failed">
+        This event indicates that the attempted frame copy has failed.
 
+        After receiving this event, the client must destroy the object.
+      </description>
+      <arg name="reason" type="uint" enum="failure_reason"/>
+    </event>
+    <enum name="error">
+      <entry name="no_buffer" value="1" summary="capture sent without attach_buffer"/>
+      <entry name="invalid_buffer_damage" value="2" summary="invalid buffer damage"/>
+      <entry name="already_captured" value="3" summary="capture request has been sent"/>
+    </enum>
     <enum name="failure_reason">
       <entry name="unknown" value="0">
         <description summary="unknown runtime error">
@@ -358,27 +334,12 @@
         </description>
       </entry>
     </enum>
-
-    <event name="failed">
-      <description summary="capture failed">
-        This event indicates that the attempted frame copy has failed.
-
-        After receiving this event, the client must destroy the object.
-      </description>
-      <arg name="reason" type="uint" enum="failure_reason"/>
-    </event>
   </interface>
-
   <interface name="ext_image_copy_capture_cursor_session_v1" version="1">
     <description summary="cursor capture session">
       This object represents a cursor capture session. It extends the base
       capture session with cursor-specific metadata.
     </description>
-
-    <enum name="error">
-      <entry name="duplicate_session" value="1" summary="get_capture_session sent twice"/>
-    </enum>
-
     <request name="destroy" type="destructor">
       <description summary="delete this object">
         Destroys the session. This request can be sent at any time by the
@@ -388,7 +349,6 @@
         this object.
       </description>
     </request>
-
     <request name="get_capture_session">
       <description summary="get image copy capturer session">
         Gets the image copy capture session for this cursor session.
@@ -401,7 +361,6 @@
       </description>
       <arg name="session" type="new_id" interface="ext_image_copy_capture_session_v1"/>
     </request>
-
     <event name="enter">
       <description summary="cursor entered captured area">
         Sent when a cursor enters the captured area. It shall be generated
@@ -413,7 +372,6 @@
         wl_pointer.enter.
       </description>
     </event>
-
     <event name="leave">
       <description summary="cursor left captured area">
         Sent when a cursor leaves the captured area. No "position" or "hotspot"
@@ -421,7 +379,6 @@
         area again.
       </description>
     </event>
-
     <event name="position">
       <description summary="position changed">
         Cursors outside the image capture source do not get captured and no
@@ -435,7 +392,6 @@
       <arg name="x" type="int" summary="position x coordinates"/>
       <arg name="y" type="int" summary="position y coordinates"/>
     </event>
-
     <event name="hotspot">
       <description summary="hotspot changed">
         The hotspot describes the offset between the cursor image and the
@@ -452,5 +408,8 @@
       <arg name="x" type="int" summary="hotspot x coordinates"/>
       <arg name="y" type="int" summary="hotspot y coordinates"/>
     </event>
+    <enum name="error">
+      <entry name="duplicate_session" value="1" summary="get_capture_session sent twice"/>
+    </enum>
   </interface>
 </protocol>

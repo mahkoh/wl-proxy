@@ -25,7 +25,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <description summary="protocol for providing explicit synchronization">
     This protocol allows clients to request explicit synchronization for
     buffers. It is tied to the Linux DRM synchronization object framework.
@@ -54,7 +53,6 @@
     corresponding interface version bump. Backward incompatible changes can
     only be done by creating a new major version of the extension.
   </description>
-
   <interface name="wp_linux_drm_syncobj_manager_v1" version="1">
     <description summary="global for providing explicit synchronization">
       This global is a factory interface, allowing clients to request
@@ -62,21 +60,12 @@
 
       See wp_linux_drm_syncobj_surface_v1 for more information.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy explicit synchronization factory object">
         Destroy this explicit synchronization factory object. Other objects
         shall not be affected by this request.
       </description>
     </request>
-
-    <enum name="error">
-      <entry name="surface_exists" value="0"
-        summary="the surface already has a synchronization object associated"/>
-      <entry name="invalid_timeline" value="1"
-        summary="the timeline object could not be imported"/>
-    </enum>
-
     <request name="get_surface">
       <description summary="extend surface interface for explicit synchronization">
         Instantiate an interface extension for the given wl_surface to provide
@@ -91,12 +80,9 @@
         wl_surface, it should not directly use this extension on that surface,
         to avoid raising a surface_exists protocol error.
       </description>
-      <arg name="id" type="new_id" interface="wp_linux_drm_syncobj_surface_v1"
-        summary="the new synchronization surface object id"/>
-      <arg name="surface" type="object" interface="wl_surface"
-        summary="the surface"/>
+      <arg name="id" type="new_id" interface="wp_linux_drm_syncobj_surface_v1" summary="the new synchronization surface object id"/>
+      <arg name="surface" type="object" interface="wl_surface" summary="the surface"/>
     </request>
-
     <request name="import_timeline">
       <description summary="import a DRM syncobj timeline">
         Import a DRM synchronization object timeline.
@@ -106,14 +92,16 @@
       <arg name="id" type="new_id" interface="wp_linux_drm_syncobj_timeline_v1"/>
       <arg name="fd" type="fd" summary="drm_syncobj file descriptor"/>
     </request>
+    <enum name="error">
+      <entry name="surface_exists" value="0" summary="the surface already has a synchronization object associated"/>
+      <entry name="invalid_timeline" value="1" summary="the timeline object could not be imported"/>
+    </enum>
   </interface>
-
   <interface name="wp_linux_drm_syncobj_timeline_v1" version="1">
     <description summary="synchronization object timeline">
       This object represents an explicit synchronization object timeline
       imported by the client to the compositor.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the timeline">
         Destroy the synchronization object timeline. Other objects are not
@@ -122,7 +110,6 @@
       </description>
     </request>
   </interface>
-
   <interface name="wp_linux_drm_syncobj_surface_v1" version="1">
     <description summary="per-surface explicit synchronization">
       This object is an add-on interface for wl_surface to enable explicit
@@ -151,7 +138,6 @@
       release point value, or else the conflicting_points protocol error is
       raised.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the surface synchronization object">
         Destroy this surface synchronization object.
@@ -162,21 +148,6 @@
         commit will not be affected.
       </description>
     </request>
-
-    <enum name="error">
-      <entry name="no_surface" value="1"
-        summary="the associated wl_surface was destroyed"/>
-      <entry name="unsupported_buffer" value="2"
-        summary="the buffer does not support explicit synchronization"/>
-      <entry name="no_buffer" value="3" summary="no buffer was attached"/>
-      <entry name="no_acquire_point" value="4"
-        summary="no acquire timeline point was set"/>
-      <entry name="no_release_point" value="5"
-        summary="no release timeline point was set"/>
-      <entry name="conflicting_points" value="6"
-        summary="acquire and release timeline points are in conflict"/>
-    </enum>
-
     <request name="set_acquire_point">
       <description summary="set the acquire timeline point">
         Set the timeline point that must be signalled before the compositor may
@@ -206,7 +177,6 @@
       <arg name="point_hi" type="uint" summary="high 32 bits of the point value"/>
       <arg name="point_lo" type="uint" summary="low 32 bits of the point value"/>
     </request>
-
     <request name="set_release_point">
       <description summary="set the release timeline point">
         Set the timeline point that must be signalled by the compositor when it
@@ -257,5 +227,13 @@
       <arg name="point_hi" type="uint" summary="high 32 bits of the point value"/>
       <arg name="point_lo" type="uint" summary="low 32 bits of the point value"/>
     </request>
+    <enum name="error">
+      <entry name="no_surface" value="1" summary="the associated wl_surface was destroyed"/>
+      <entry name="unsupported_buffer" value="2" summary="the buffer does not support explicit synchronization"/>
+      <entry name="no_buffer" value="3" summary="no buffer was attached"/>
+      <entry name="no_acquire_point" value="4" summary="no acquire timeline point was set"/>
+      <entry name="no_release_point" value="5" summary="no release timeline point was set"/>
+      <entry name="conflicting_points" value="6" summary="acquire and release timeline points are in conflict"/>
+    </enum>
   </interface>
 </protocol>

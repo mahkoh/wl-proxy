@@ -24,7 +24,6 @@
     ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
     THIS SOFTWARE.
   </copyright>
-
   <interface name="zwlr_input_inhibit_manager_v1" version="1">
     <description summary="inhibits input events to other clients">
       Clients can use this interface to prevent input events from being sent to
@@ -35,7 +34,6 @@
       Note! This protocol is deprecated and not intended for production use.
       For screen lockers, use the ext-session-lock-v1 protocol.
     </description>
-
     <request name="get_inhibitor">
       <description summary="inhibit input to other clients">
         Activates the input inhibitor. As long as the inhibitor is active, the
@@ -43,12 +41,10 @@
       </description>
       <arg name="id" type="new_id" interface="zwlr_input_inhibitor_v1"/>
     </request>
-
     <enum name="error">
       <entry name="already_inhibited" value="0" summary="an input inhibitor is already in use on the compositor"/>
     </enum>
   </interface>
-
   <interface name="zwlr_input_inhibitor_v1" version="1">
     <description summary="inhibits input to other clients">
       While this resource exists, input to clients other than the owner of the
@@ -61,7 +57,6 @@
       The compositor may continue to send input events to selected clients,
       such as an on-screen keyboard (via the input-method protocol).
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the input inhibitor object">
         Destroy the inhibitor and allow other clients to receive input.

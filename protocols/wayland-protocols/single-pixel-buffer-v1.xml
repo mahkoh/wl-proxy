@@ -22,7 +22,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <description summary="single pixel buffer factory">
     This protocol extension allows clients to create single-pixel buffers.
 
@@ -35,13 +34,11 @@
     corresponding interface version bump. Backward incompatible changes can
     only be done by creating a new major version of the extension.
   </description>
-
   <interface name="wp_single_pixel_buffer_manager_v1" version="1">
     <description summary="global factory for single-pixel buffers">
       The wp_single_pixel_buffer_manager_v1 interface is a factory for
       single-pixel buffers.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the manager">
         Destroy the wp_single_pixel_buffer_manager_v1 object.
@@ -49,7 +46,6 @@
         The child objects created via this interface are unaffected.
       </description>
     </request>
-
     <request name="create_u32_rgba_buffer">
       <description summary="create a 1×1 buffer from 32-bit RGBA values">
         Create a single-pixel buffer from four 32-bit RGBA values.
@@ -61,16 +57,16 @@
 
         The r, g, b and a arguments valid range is from UINT32_MIN (0)
         to UINT32_MAX (0xffffffff).
-        
+
         These arguments should be interpreted as a percentage, i.e.
         - UINT32_MIN = 0% of the given color component
         - UINT32_MAX = 100% of the given color component
       </description>
       <arg name="id" type="new_id" interface="wl_buffer"/>
-      <arg name="r" type="uint" summary="value of the buffer's red channel"/>
-      <arg name="g" type="uint" summary="value of the buffer's green channel"/>
-      <arg name="b" type="uint" summary="value of the buffer's blue channel"/>
-      <arg name="a" type="uint" summary="value of the buffer's alpha channel"/>
+      <arg name="r" type="uint" summary="value of the buffer&apos;s red channel"/>
+      <arg name="g" type="uint" summary="value of the buffer&apos;s green channel"/>
+      <arg name="b" type="uint" summary="value of the buffer&apos;s blue channel"/>
+      <arg name="a" type="uint" summary="value of the buffer&apos;s alpha channel"/>
     </request>
   </interface>
 </protocol>

@@ -35,7 +35,7 @@ pub(crate) fn collect() -> Result<Vec<Suite>, CollectorError> {
     let suite_names = [
         "hyprland-protocols",
         "jay-protocols",
-        "other",
+        "external",
         "treeland-protocols",
         "wayland",
         "wayland-protocols",

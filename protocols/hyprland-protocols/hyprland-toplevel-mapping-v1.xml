@@ -29,51 +29,28 @@
     OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </copyright>
-
   <description summary="mapping of toplevels to windows">
     This protocol allows clients to retrieve the mapping of toplevels to hyprland window addresses.
   </description>
-
   <interface name="hyprland_toplevel_mapping_manager_v1" version="1">
     <description summary="manager to request toplevel mappings">
       This object is a manager which offers requests to retrieve a window address
       for a toplevel.
     </description>
-
     <request name="get_window_for_toplevel">
       <description summary="get window address for toplevel">
         Get the window address for a toplevel.
       </description>
-      <arg
-        name="handle"
-        type="new_id"
-        interface="hyprland_toplevel_window_mapping_handle_v1"
-      />
-      <arg
-        name="toplevel"
-        type="object"
-        interface="ext_foreign_toplevel_handle_v1"
-        summary="toplevel to get the window address for"
-      />
+      <arg name="handle" type="new_id" interface="hyprland_toplevel_window_mapping_handle_v1"/>
+      <arg name="toplevel" type="object" interface="ext_foreign_toplevel_handle_v1" summary="toplevel to get the window address for"/>
     </request>
-
     <request name="get_window_for_toplevel_wlr">
       <description summary="get window address for wlr toplevel">
         Get the window address for a wlr toplevel.
       </description>
-      <arg
-        name="handle"
-        type="new_id"
-        interface="hyprland_toplevel_window_mapping_handle_v1"
-      />
-      <arg
-        name="toplevel"
-        type="object"
-        interface="zwlr_foreign_toplevel_handle_v1"
-        summary="wlr toplevel to get the window address for"
-      />
+      <arg name="handle" type="new_id" interface="hyprland_toplevel_window_mapping_handle_v1"/>
+      <arg name="toplevel" type="object" interface="zwlr_foreign_toplevel_handle_v1" summary="wlr toplevel to get the window address for"/>
     </request>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the manager">
         All objects created by the manager will still remain valid, until their appropriate destroy
@@ -81,7 +58,6 @@
       </description>
     </request>
   </interface>
-
   <interface name="hyprland_toplevel_window_mapping_handle_v1" version="1">
     <description summary="toplevel to window mapping">
       This object represents a mapping of a (wlr) toplevel to a window address.
@@ -90,31 +66,20 @@
       associated with the toplevel.
       Should the mapping fail, the `failed` event will be sent.
     </description>
-
     <event name="window_address">
       <description summary="address of the window">
         The full 64bit window address. The `address` field contains the lower 32 bits whilst the
         `address_hi` contains the upper 32 bits
       </description>
-      <arg
-        name="address_hi"
-        type="uint"
-        summary="upper 32 bits of the window address"
-      />
-      <arg
-        name="address"
-        type="uint"
-        summary="lower 32 bits of the window address"
-      />
+      <arg name="address_hi" type="uint" summary="upper 32 bits of the window address"/>
+      <arg name="address" type="uint" summary="lower 32 bits of the window address"/>
     </event>
-
     <event name="failed">
       <description summary="mapping failed">
         The mapping of the toplevel to a window address failed. Most likely the window does not
         exist (anymore).
       </description>
     </event>
-
     <request name="destroy" type="destructor">
       <description summary="destroy handle">
         Destroy the handle. This request can be sent at any time by the client.

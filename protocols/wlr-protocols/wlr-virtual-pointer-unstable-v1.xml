@@ -22,20 +22,11 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <interface name="zwlr_virtual_pointer_v1" version="2">
     <description summary="virtual pointer">
       This protocol allows clients to emulate a physical pointer device. The
       requests are mostly mirror opposites of those specified in wl_pointer.
     </description>
-
-    <enum name="error">
-      <entry name="invalid_axis" value="0"
-        summary="client sent invalid axis enumeration value" />
-      <entry name="invalid_axis_source" value="1"
-        summary="client sent invalid axis source enumeration value" />
-    </enum>
-
     <request name="motion">
       <description summary="pointer relative motion event">
         The pointer has moved by a relative amount to the previous request.
@@ -46,7 +37,6 @@
       <arg name="dx" type="fixed" summary="displacement on the x-axis"/>
       <arg name="dy" type="fixed" summary="displacement on the y-axis"/>
     </request>
-
     <request name="motion_absolute">
       <description summary="pointer absolute motion event">
         The pointer has moved in an absolute coordinate frame.
@@ -60,7 +50,6 @@
       <arg name="x_extent" type="uint" summary="extent of the x-axis"/>
       <arg name="y_extent" type="uint" summary="extent of the y-axis"/>
     </request>
-
     <request name="button">
       <description summary="button event">
         A button was pressed or released.
@@ -69,7 +58,6 @@
       <arg name="button" type="uint" summary="button that produced the event"/>
       <arg name="state" type="uint" enum="wl_pointer.button_state" summary="physical state of the button"/>
     </request>
-
     <request name="axis">
       <description summary="axis event">
         Scroll and other axis requests.
@@ -78,20 +66,17 @@
       <arg name="axis" type="uint" enum="wl_pointer.axis" summary="axis type"/>
       <arg name="value" type="fixed" summary="length of vector in touchpad coordinates"/>
     </request>
-
     <request name="frame">
       <description summary="end of a pointer event sequence">
         Indicates the set of events that logically belong together.
       </description>
     </request>
-
     <request name="axis_source">
       <description summary="axis source event">
         Source information for scroll and other axis.
       </description>
       <arg name="axis_source" type="uint" enum="wl_pointer.axis_source" summary="source of the axis event"/>
     </request>
-
     <request name="axis_stop">
       <description summary="axis stop event">
         Stop notification for scroll and other axes.
@@ -99,7 +84,6 @@
       <arg name="time" type="uint" summary="timestamp with millisecond granularity"/>
       <arg name="axis" type="uint" enum="wl_pointer.axis" summary="the axis stopped with this event"/>
     </request>
-
     <request name="axis_discrete">
       <description summary="axis click event">
         Discrete step information for scroll and other axes.
@@ -112,17 +96,18 @@
       <arg name="value" type="fixed" summary="length of vector in touchpad coordinates"/>
       <arg name="discrete" type="int" summary="number of steps"/>
     </request>
-
     <request name="destroy" type="destructor" since="1">
       <description summary="destroy the virtual pointer object"/>
     </request>
+    <enum name="error">
+      <entry name="invalid_axis" value="0" summary="client sent invalid axis enumeration value"/>
+      <entry name="invalid_axis_source" value="1" summary="client sent invalid axis source enumeration value"/>
+    </enum>
   </interface>
-
   <interface name="zwlr_virtual_pointer_manager_v1" version="2">
     <description summary="virtual pointer manager">
       This object allows clients to create individual virtual pointer objects.
     </description>
-
     <request name="create_virtual_pointer">
       <description summary="Create a new virtual pointer">
         Creates a new virtual pointer. The optional seat is a suggestion to the
@@ -131,12 +116,9 @@
       <arg name="seat" type="object" interface="wl_seat" allow-null="true"/>
       <arg name="id" type="new_id" interface="zwlr_virtual_pointer_v1"/>
     </request>
-
     <request name="destroy" type="destructor" since="1">
       <description summary="destroy the virtual pointer manager"/>
     </request>
-
-    <!-- Version 2 additions -->
     <request name="create_virtual_pointer_with_output" since="2">
       <description summary="Create a new virtual pointer">
         Creates a new virtual pointer. The seat and the output arguments are

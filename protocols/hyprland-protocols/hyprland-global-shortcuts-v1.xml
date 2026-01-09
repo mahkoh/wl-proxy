@@ -29,17 +29,14 @@
     OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </copyright>
-
   <description summary="registering global shortcuts">
     This protocol allows a client to register triggerable actions,
     meant to be global shortcuts.
   </description>
-
   <interface name="hyprland_global_shortcuts_manager_v1" version="1">
     <description summary="manager to register global shortcuts">
       This object is a manager which offers requests to create global shortcuts.
     </description>
-
     <request name="register_shortcut">
       <description summary="register a shortcut">
         Register a new global shortcut.
@@ -56,53 +53,40 @@
       <arg name="description" type="string" summary="user-readable text describing what the shortcut does."/>
       <arg name="trigger_description" type="string" summary="user-readable text describing how to trigger the shortcut for the client to render."/>
     </request>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the manager">
         All objects created by the manager will still remain valid, until their
         appropriate destroy request has been called.
       </description>
     </request>
-
     <enum name="error">
-      <entry name="already_taken" value="0"
-        summary="the app_id + id combination has already been registered."/>
+      <entry name="already_taken" value="0" summary="the app_id + id combination has already been registered."/>
     </enum>
   </interface>
-
   <interface name="hyprland_global_shortcut_v1" version="1">
     <description summary="a shortcut">
       This object represents a single shortcut.
     </description>
-
     <event name="pressed">
       <description summary="keystroke pressed">
         The keystroke was pressed.
 
         tv_ values hold the timestamp of the occurrence.
       </description>
-      <arg name="tv_sec_hi" type="uint"
-           summary="high 32 bits of the seconds part of the timestamp"/>
-      <arg name="tv_sec_lo" type="uint"
-           summary="low 32 bits of the seconds part of the timestamp"/>
-      <arg name="tv_nsec" type="uint"
-           summary="nanoseconds part of the timestamp"/>
+      <arg name="tv_sec_hi" type="uint" summary="high 32 bits of the seconds part of the timestamp"/>
+      <arg name="tv_sec_lo" type="uint" summary="low 32 bits of the seconds part of the timestamp"/>
+      <arg name="tv_nsec" type="uint" summary="nanoseconds part of the timestamp"/>
     </event>
-
     <event name="released">
       <description summary="keystroke released">
         The keystroke was released.
 
         tv_ values hold the timestamp of the occurrence.
       </description>
-      <arg name="tv_sec_hi" type="uint"
-           summary="high 32 bits of the seconds part of the timestamp"/>
-      <arg name="tv_sec_lo" type="uint"
-           summary="low 32 bits of the seconds part of the timestamp"/>
-      <arg name="tv_nsec" type="uint"
-           summary="nanoseconds part of the timestamp"/>
+      <arg name="tv_sec_hi" type="uint" summary="high 32 bits of the seconds part of the timestamp"/>
+      <arg name="tv_sec_lo" type="uint" summary="low 32 bits of the seconds part of the timestamp"/>
+      <arg name="tv_nsec" type="uint" summary="nanoseconds part of the timestamp"/>
     </event>
-
     <request name="destroy" type="destructor">
       <description summary="delete this object, used or not">
         Destroys the shortcut. Can be sent at any time by the client.

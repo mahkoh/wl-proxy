@@ -27,7 +27,6 @@
     ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
     THIS SOFTWARE.
   </copyright>
-
   <description summary="list toplevels">
     The purpose of this protocol is to provide protocol object handles for
     toplevels, possibly originating from another client.
@@ -50,7 +49,6 @@
     corresponding interface version bump. Backward incompatible changes can
     only be done by creating a new major version of the extension.
   </description>
-
   <interface name="ext_foreign_toplevel_list_v1" version="1">
     <description summary="list toplevels">
       A toplevel is defined as a surface with a role similar to xdg_toplevel.
@@ -70,7 +68,6 @@
       event after the global is bound, the compositor must not send any
       ext_foreign_toplevel_list_v1.toplevel events.
     </description>
-
     <event name="toplevel">
       <description summary="a toplevel has been created">
         This event is emitted whenever a new toplevel window is created. It is
@@ -84,7 +81,6 @@
       </description>
       <arg name="toplevel" type="new_id" interface="ext_foreign_toplevel_handle_v1"/>
     </event>
-
     <event name="finished">
       <description summary="the compositor has finished with the toplevel manager">
         This event indicates that the compositor is done sending events
@@ -94,7 +90,6 @@
         The compositor must not send any more toplevel events after this event.
       </description>
     </event>
-
     <request name="stop">
       <description summary="stop sending events">
         This request indicates that the client no longer wishes to receive
@@ -106,7 +101,6 @@
         event before destroying this object.
       </description>
     </request>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the ext_foreign_toplevel_list_v1 object">
         This request should be called either when the client will no longer
@@ -119,13 +113,11 @@
       </description>
     </request>
   </interface>
-
   <interface name="ext_foreign_toplevel_handle_v1" version="1">
     <description summary="a mapped toplevel">
       A ext_foreign_toplevel_handle_v1 object represents a mapped toplevel
       window. A single app may have multiple mapped toplevels.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the ext_foreign_toplevel_handle_v1 object">
         This request should be used when the client will no longer use the handle
@@ -143,7 +135,6 @@
         called before allowing the toplevel handle to be destroyed.
       </description>
     </request>
-
     <event name="closed">
       <description summary="the toplevel has been closed">
         The server will emit no further events on the ext_foreign_toplevel_handle_v1
@@ -154,7 +145,6 @@
         interface must also ignore requests other than destructors.
       </description>
     </event>
-
     <event name="done">
       <description summary="all information about the toplevel has been sent">
         This event is sent after all changes in the toplevel state have
@@ -169,7 +159,6 @@
         event.
       </description>
     </event>
-
     <event name="title">
       <description summary="title change">
         The title of the toplevel has changed.
@@ -179,7 +168,6 @@
       </description>
       <arg name="title" type="string"/>
     </event>
-
     <event name="app_id">
       <description summary="app_id change">
         The app id of the toplevel has changed.
@@ -189,7 +177,6 @@
       </description>
       <arg name="app_id" type="string"/>
     </event>
-
     <event name="identifier">
       <description summary="a stable identifier for a toplevel">
         This identifier is used to check if two or more toplevel handles belong

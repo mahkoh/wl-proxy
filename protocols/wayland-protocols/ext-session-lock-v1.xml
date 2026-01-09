@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
   </copyright>
-
   <description summary="secure session locking with arbitrary graphics">
     This protocol allows for a privileged Wayland client to lock the session
     and display arbitrary graphics while the session is locked.
@@ -44,12 +43,10 @@
     the corresponding interface version bump. Backward incompatible changes
     can only be done by creating a new major version of the extension.
   </description>
-
   <interface name="ext_session_lock_manager_v1" version="1">
     <description summary="used to lock the session">
       This interface is used to request that the session be locked.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the session lock manager object">
         This informs the compositor that the session lock manager object will
@@ -57,7 +54,6 @@
         remain valid.
       </description>
     </request>
-
     <request name="lock">
       <description summary="attempt to lock the session">
         This request creates a session lock and asks the compositor to lock the
@@ -68,7 +64,6 @@
       <arg name="id" type="new_id" interface="ext_session_lock_v1"/>
     </request>
   </interface>
-
   <interface name="ext_session_lock_v1" version="1">
     <description summary="manage lock state and create lock surfaces">
       In response to the creation of this object the compositor must send
@@ -120,20 +115,6 @@
       for unlocking the session, they may even start a new lock client
       instance automatically.
     </description>
-
-    <enum name="error">
-      <entry name="invalid_destroy" value="0"
-        summary="attempted to destroy session lock while locked"/>
-      <entry name="invalid_unlock" value="1"
-        summary="unlock requested but locked event was never sent"/>
-      <entry name="role" value="2"
-        summary="given wl_surface already has a role"/>
-      <entry name="duplicate_output" value="3"
-        summary="given output already has a lock surface"/>
-      <entry name="already_constructed" value="4"
-        summary="given wl_surface has a buffer attached or committed"/>
-    </enum>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the session lock">
         This informs the compositor that the lock object will no longer be
@@ -147,7 +128,6 @@
         sent, the unlock_and_destroy request must be used instead.
       </description>
     </request>
-
     <event name="locked">
       <description summary="session successfully locked">
         This client is now responsible for displaying graphics while the
@@ -161,7 +141,6 @@
         the lock object must be destroyed using the unlock_and_destroy request.
       </description>
     </event>
-
     <event name="finished">
       <description summary="the session lock object should be destroyed">
         The compositor has decided that the session lock should be destroyed
@@ -188,7 +167,6 @@
         not the locked event was received on this object.
       </description>
     </event>
-
     <request name="get_lock_surface">
       <description summary="create a lock surface for a given output">
         The client is expected to create lock surfaces for all outputs
@@ -207,7 +185,6 @@
       <arg name="surface" type="object" interface="wl_surface"/>
       <arg name="output" type="object" interface="wl_output"/>
     </request>
-
     <request name="unlock_and_destroy" type="destructor">
       <description summary="unlock the session, destroying the object">
         This request indicates that the session should be unlocked, for
@@ -235,8 +212,14 @@
         it processes the unlock_and_destroy request.
       </description>
     </request>
+    <enum name="error">
+      <entry name="invalid_destroy" value="0" summary="attempted to destroy session lock while locked"/>
+      <entry name="invalid_unlock" value="1" summary="unlock requested but locked event was never sent"/>
+      <entry name="role" value="2" summary="given wl_surface already has a role"/>
+      <entry name="duplicate_output" value="3" summary="given output already has a lock surface"/>
+      <entry name="already_constructed" value="4" summary="given wl_surface has a buffer attached or committed"/>
+    </enum>
   </interface>
-
   <interface name="ext_session_lock_surface_v1" version="1">
     <description summary="a surface displayed while the session is locked">
       The client may use lock surfaces to display a screensaver, render a
@@ -255,18 +238,6 @@
       give the first lock surface created keyboard focus and change keyboard
       focus if the user clicks on other surfaces.
     </description>
-
-    <enum name="error">
-      <entry name="commit_before_first_ack" value="0"
-        summary="surface committed before first ack_configure request"/>
-      <entry name="null_buffer" value="1"
-        summary="surface committed with a null buffer"/>
-      <entry name="dimensions_mismatch" value="2"
-        summary="failed to match ack'd width/height"/>
-      <entry name="invalid_serial" value="3"
-        summary="serial provided in ack_configure is invalid"/>
-    </enum>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the lock surface object">
         This informs the compositor that the lock surface object will no
@@ -280,7 +251,6 @@
         must fall back to rendering a solid color.
       </description>
     </request>
-
     <request name="ack_configure">
       <description summary="ack a configure event">
         When a configure event is received, if a client commits the surface
@@ -310,7 +280,6 @@
       </description>
       <arg name="serial" type="uint" summary="serial from the configure event"/>
     </request>
-
     <event name="configure">
       <description summary="the client should resize its surface">
         This event is sent once on binding the interface and may be sent again
@@ -324,5 +293,11 @@
       <arg name="width" type="uint"/>
       <arg name="height" type="uint"/>
     </event>
+    <enum name="error">
+      <entry name="commit_before_first_ack" value="0" summary="surface committed before first ack_configure request"/>
+      <entry name="null_buffer" value="1" summary="surface committed with a null buffer"/>
+      <entry name="dimensions_mismatch" value="2" summary="failed to match ack&apos;d width/height"/>
+      <entry name="invalid_serial" value="3" summary="serial provided in ack_configure is invalid"/>
+    </enum>
   </interface>
 </protocol>

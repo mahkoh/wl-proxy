@@ -28,19 +28,16 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <interface name="jay_popup_ext_manager_v1" version="1">
     <description summary="manager for xdg_popup extensions">
       This global allows clients to create jay_popup_ext_v1 extension objects
       for xdg_popups.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroys this manager">
         This request has no effect on any created extension objects.
       </description>
     </request>
-
     <request name="get_ext">
       <description summary="creates a jay_popup_ext_v1 extension object">
         Each xdg_popup can have at most one jay_popup_ext_v1 extension object.
@@ -50,34 +47,27 @@
         The extension object must be destroyed before the xdg_popup. Otherwise
         the has_extension error is emitted.
       </description>
-      <arg name="id" type="new_id" interface="jay_popup_ext_v1"
-           summary="the new jay_popup_ext_v1"/>
-      <arg name="popup" type="object" interface="xdg_popup"
-           summary="the xdg_popup"/>
+      <arg name="id" type="new_id" interface="jay_popup_ext_v1" summary="the new jay_popup_ext_v1"/>
+      <arg name="popup" type="object" interface="xdg_popup" summary="the xdg_popup"/>
     </request>
-
     <enum name="error">
       <description summary="fatal error">
         These fatal protocol errors may be emitted in response to
         invalid requests.
       </description>
-      <entry name="already_exists" value="1"
-             summary="extension object already exists for the xdg_popup"/>
+      <entry name="already_exists" value="1" summary="extension object already exists for the xdg_popup"/>
     </enum>
   </interface>
-
   <interface name="jay_popup_ext_v1" version="1">
     <description summary="xdg_popup extension object">
       This object can be used to perform additional operations on an xdg_popup.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroys this extension object">
         This request has no effect on ongoing operations started through this
         object.
       </description>
     </request>
-
     <request name="move">
       <description summary="start an interactive move">
         Start an interactive, user-driven move of the surface.
@@ -96,11 +86,9 @@
         updating a pointer cursor, during the move. There is no guarantee
         that the device focus will return when the move is completed.
       </description>
-      <arg name="seat" type="object" interface="wl_seat"
-           summary="the wl_seat of the user event"/>
+      <arg name="seat" type="object" interface="wl_seat" summary="the wl_seat of the user event"/>
       <arg name="serial" type="uint" summary="the serial of the user event"/>
     </request>
-
     <request name="resize">
       <description summary="start an interactive resize">
         Start a user-driven, interactive resize of the surface.
@@ -132,22 +120,17 @@
         use this information to adapt its behavior, e.g. choose an appropriate
         cursor image.
       </description>
-      <arg name="seat" type="object" interface="wl_seat"
-           summary="the wl_seat of the user event"/>
+      <arg name="seat" type="object" interface="wl_seat" summary="the wl_seat of the user event"/>
       <arg name="serial" type="uint" summary="the serial of the user event"/>
-      <arg name="edges" type="uint" enum="xdg_toplevel.resize_edge"
-           summary="which edge or corner is being dragged"/>
+      <arg name="edges" type="uint" enum="xdg_toplevel.resize_edge" summary="which edge or corner is being dragged"/>
     </request>
-
     <enum name="error">
       <description summary="fatal error">
         These fatal protocol errors may be emitted in response to
         invalid requests.
       </description>
-      <entry name="invalid_resize_edge" value="0"
-             summary="provided value is not a valid variant of the resize_edge enum"/>
-      <entry name="has_extension" value="1"
-             summary="the xdg_popup still has an extension object"/>
+      <entry name="invalid_resize_edge" value="0" summary="provided value is not a valid variant of the resize_edge enum"/>
+      <entry name="has_extension" value="1" summary="the xdg_popup still has an extension object"/>
     </enum>
   </interface>
 </protocol>

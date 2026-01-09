@@ -22,7 +22,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <description summary="Primary selection protocol">
     This protocol provides the ability to have a primary selection device to
     match that of the X server. This primary selection is a shortcut to the
@@ -66,7 +65,6 @@
     The primary selection owner should be checking for errors during
     writes, merely cancelling the ongoing transfer if any happened.
   </description>
-
   <interface name="zwp_primary_selection_device_manager_v1" version="1">
     <description summary="X primary selection emulation">
       The primary selection device manager is a singleton global object that
@@ -74,14 +72,12 @@
       wp_primary_selection_source objects, as well as retrieving the per-seat
       wp_primary_selection_device objects.
     </description>
-
     <request name="create_source">
       <description summary="create a new primary selection source">
         Create a new primary selection source.
       </description>
       <arg name="id" type="new_id" interface="zwp_primary_selection_source_v1"/>
     </request>
-
     <request name="get_device">
       <description summary="create a new primary selection device">
         Create a new data device for a given seat.
@@ -89,14 +85,12 @@
       <arg name="id" type="new_id" interface="zwp_primary_selection_device_v1"/>
       <arg name="seat" type="object" interface="wl_seat"/>
     </request>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the primary selection device manager">
         Destroy the primary selection device manager.
       </description>
     </request>
   </interface>
-
   <interface name="zwp_primary_selection_device_v1" version="1">
     <request name="set_selection">
       <description summary="set the primary selection">
@@ -108,7 +102,6 @@
       <arg name="source" type="object" interface="zwp_primary_selection_source_v1" allow-null="true"/>
       <arg name="serial" type="uint" summary="serial of the event that triggered this request"/>
     </request>
-
     <event name="data_offer">
       <description summary="introduce a new wp_primary_selection_offer">
         Introduces a new wp_primary_selection_offer object that may be used
@@ -119,7 +112,6 @@
       </description>
       <arg name="offer" type="new_id" interface="zwp_primary_selection_offer_v1"/>
     </event>
-
     <event name="selection">
       <description summary="advertise a new primary selection">
         The wp_primary_selection_device.selection event is sent to notify the
@@ -134,14 +126,12 @@
       </description>
       <arg name="id" type="object" interface="zwp_primary_selection_offer_v1" allow-null="true"/>
     </event>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the primary selection device">
         Destroy the primary selection device.
       </description>
     </request>
   </interface>
-
   <interface name="zwp_primary_selection_offer_v1" version="1">
     <description summary="offer to transfer primary selection contents">
       A wp_primary_selection_offer represents an offer to transfer the contents
@@ -150,7 +140,6 @@
       be converted to and provides the mechanisms for transferring the data
       directly to the client.
     </description>
-
     <request name="receive">
       <description summary="request that the data is transferred">
         To transfer the contents of the primary selection clipboard, the client
@@ -166,13 +155,11 @@
       <arg name="mime_type" type="string"/>
       <arg name="fd" type="fd"/>
     </request>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the primary selection offer">
         Destroy the primary selection offer.
       </description>
     </request>
-
     <event name="offer">
       <description summary="advertise offered mime type">
         Sent immediately after creating announcing the
@@ -183,14 +170,12 @@
       <arg name="mime_type" type="string"/>
     </event>
   </interface>
-
   <interface name="zwp_primary_selection_source_v1" version="1">
     <description summary="offer to replace the contents of the primary selection">
       The source side of a wp_primary_selection_offer, it provides a way to
       describe the offered data and respond to requests to transfer the
       requested contents of the primary selection clipboard.
     </description>
-
     <request name="offer">
       <description summary="add an offered mime type">
         This request adds a mime type to the set of mime types advertised to
@@ -198,13 +183,11 @@
       </description>
       <arg name="mime_type" type="string"/>
     </request>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the primary selection source">
         Destroy the primary selection source.
       </description>
     </request>
-
     <event name="send">
       <description summary="send the primary selection contents">
         Request for the current primary selection contents from the client.
@@ -214,7 +197,6 @@
       <arg name="mime_type" type="string"/>
       <arg name="fd" type="fd"/>
     </event>
-
     <event name="cancelled">
       <description summary="request for primary selection contents was canceled">
         This primary selection source is no longer valid. The client should

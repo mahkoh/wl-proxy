@@ -22,7 +22,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <interface name="wp_tearing_control_manager_v1" version="1">
     <description summary="protocol for tearing control">
       For some use cases like games or drawing tablets it can make sense to
@@ -41,7 +40,6 @@
       corresponding interface version bump. Backward incompatible changes can
       only be done by creating a new major version of the extension.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy tearing control factory object">
         Destroy this tearing control factory object. Other objects, including
@@ -49,12 +47,6 @@
         by this request.
       </description>
     </request>
-
-    <enum name="error">
-      <entry name="tearing_control_exists" value="0"
-             summary="the surface already has a tearing object associated"/>
-    </enum>
-
     <request name="get_tearing_control">
       <description summary="extend surface interface for tearing control">
         Instantiate an interface extension for the given wl_surface to request
@@ -66,8 +58,10 @@
       <arg name="id" type="new_id" interface="wp_tearing_control_v1"/>
       <arg name="surface" type="object" interface="wl_surface"/>
     </request>
+    <enum name="error">
+      <entry name="tearing_control_exists" value="0" summary="the surface already has a tearing object associated"/>
+    </enum>
   </interface>
-
   <interface name="wp_tearing_control_v1" version="1">
     <description summary="per-surface tearing control interface">
       An additional interface to a wl_surface object, which allows the client
@@ -79,7 +73,23 @@
       If the associated wl_surface is destroyed, this object becomes inert and
       should be destroyed.
     </description>
+    <request name="set_presentation_hint">
+      <description summary="set presentation hint">
+        Set the presentation hint for the associated wl_surface. This state is
+        double-buffered, see wl_surface.commit.
 
+        The compositor is free to dynamically respect or ignore this hint based
+        on various conditions like hardware capabilities, surface state and
+        user preferences.
+      </description>
+      <arg name="hint" type="uint" enum="presentation_hint"/>
+    </request>
+    <request name="destroy" type="destructor">
+      <description summary="destroy tearing control object">
+        Destroy this surface tearing object and revert the presentation hint to
+        vsync. The change will be applied on the next wl_surface.commit.
+      </description>
+    </request>
     <enum name="presentation_hint">
       <description summary="presentation hint values">
         This enum provides information for if submitted frames from the client
@@ -99,25 +109,5 @@
         </description>
       </entry>
     </enum>
-
-    <request name="set_presentation_hint">
-      <description summary="set presentation hint">
-        Set the presentation hint for the associated wl_surface. This state is
-        double-buffered, see wl_surface.commit.
-
-        The compositor is free to dynamically respect or ignore this hint based
-        on various conditions like hardware capabilities, surface state and
-        user preferences.
-      </description>
-      <arg name="hint" type="uint" enum="presentation_hint"/>
-    </request>
-
-    <request name="destroy" type="destructor">
-      <description summary="destroy tearing control object">
-        Destroy this surface tearing object and revert the presentation hint to
-        vsync. The change will be applied on the next wl_surface.commit.
-      </description>
-    </request>
   </interface>
-
 </protocol>

@@ -25,7 +25,6 @@
     ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
     THIS SOFTWARE.
   </copyright>
-
   <description summary="control data devices">
     This protocol allows a privileged client to control data devices. In
     particular, the client will be able to manage the current selection and take
@@ -43,21 +42,17 @@
     Note! This protocol is deprecated and not intended for production use.
     For clipboard management, use the ext-data-control-v1 protocol.
   </description>
-
   <interface name="zwlr_data_control_manager_v1" version="2">
     <description summary="manager to control data devices">
       This interface is a manager that allows creating per-seat data device
       controls.
     </description>
-
     <request name="create_data_source">
       <description summary="create a new data source">
         Create a new data source.
       </description>
-      <arg name="id" type="new_id" interface="zwlr_data_control_source_v1"
-        summary="data source to create"/>
+      <arg name="id" type="new_id" interface="zwlr_data_control_source_v1" summary="data source to create"/>
     </request>
-
     <request name="get_data_device">
       <description summary="get a data device for a seat">
         Create a data device that can be used to manage a seat's selection.
@@ -65,7 +60,6 @@
       <arg name="id" type="new_id" interface="zwlr_data_control_device_v1"/>
       <arg name="seat" type="object" interface="wl_seat"/>
     </request>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the manager">
         All objects created by the manager will still remain valid, until their
@@ -73,14 +67,12 @@
       </description>
     </request>
   </interface>
-
   <interface name="zwlr_data_control_device_v1" version="2">
     <description summary="manage a data device for a seat">
       This interface allows a client to manage a seat's selection.
 
       When the seat is destroyed, this object becomes inert.
     </description>
-
     <request name="set_selection">
       <description summary="copy data to the selection">
         This request asks the compositor to set the selection to the data from
@@ -92,16 +84,13 @@
 
         To unset the selection, set the source to NULL.
       </description>
-      <arg name="source" type="object" interface="zwlr_data_control_source_v1"
-        allow-null="true"/>
+      <arg name="source" type="object" interface="zwlr_data_control_source_v1" allow-null="true"/>
     </request>
-
     <request name="destroy" type="destructor">
       <description summary="destroy this data device">
         Destroys the data device object.
       </description>
     </request>
-
     <event name="data_offer">
       <description summary="introduce a new wlr_data_control_offer">
         The data_offer event introduces a new wlr_data_control_offer object,
@@ -115,7 +104,6 @@
       </description>
       <arg name="id" type="new_id" interface="zwlr_data_control_offer_v1"/>
     </event>
-
     <event name="selection">
       <description summary="advertise new selection">
         The selection event is sent out to notify the client of a new
@@ -131,19 +119,14 @@
         The first selection event is sent upon binding the
         wlr_data_control_device object.
       </description>
-      <arg name="id" type="object" interface="zwlr_data_control_offer_v1"
-        allow-null="true"/>
+      <arg name="id" type="object" interface="zwlr_data_control_offer_v1" allow-null="true"/>
     </event>
-
     <event name="finished">
       <description summary="this data control is no longer valid">
         This data control object is no longer valid and should be destroyed by
         the client.
       </description>
     </event>
-
-    <!-- Version 2 additions -->
-
     <event name="primary_selection" since="2">
       <description summary="advertise new primary selection">
         The primary_selection event is sent out to notify the client of a new
@@ -160,10 +143,8 @@
         primary_selection event is sent upon binding the
         wlr_data_control_device object.
       </description>
-      <arg name="id" type="object" interface="zwlr_data_control_offer_v1"
-        allow-null="true"/>
+      <arg name="id" type="object" interface="zwlr_data_control_offer_v1" allow-null="true"/>
     </event>
-
     <request name="set_primary_selection" since="2">
       <description summary="copy data to the primary selection">
         This request asks the compositor to set the primary selection to the
@@ -178,16 +159,12 @@
         The compositor will ignore this request if it does not support primary
         selection.
       </description>
-      <arg name="source" type="object" interface="zwlr_data_control_source_v1"
-        allow-null="true"/>
+      <arg name="source" type="object" interface="zwlr_data_control_source_v1" allow-null="true"/>
     </request>
-
     <enum name="error" since="2">
-      <entry name="used_source" value="1"
-        summary="source given to set_selection or set_primary_selection was already used before"/>
+      <entry name="used_source" value="1" summary="source given to set_selection or set_primary_selection was already used before"/>
     </enum>
   </interface>
-
   <interface name="zwlr_data_control_source_v1" version="1">
     <description summary="offer to transfer data">
       The wlr_data_control_source object is the source side of a
@@ -195,12 +172,6 @@
       transfer and provides a way to describe the offered data and a way to
       respond to requests to transfer the data.
     </description>
-
-    <enum name="error">
-      <entry name="invalid_offer" value="1"
-        summary="offer sent after wlr_data_control_device.set_selection"/>
-    </enum>
-
     <request name="offer">
       <description summary="add an offered MIME type">
         This request adds a MIME type to the set of MIME types advertised to
@@ -209,16 +180,13 @@
         Calling this after wlr_data_control_device.set_selection is a protocol
         error.
       </description>
-      <arg name="mime_type" type="string"
-        summary="MIME type offered by the data source"/>
+      <arg name="mime_type" type="string" summary="MIME type offered by the data source"/>
     </request>
-
     <request name="destroy" type="destructor">
       <description summary="destroy this source">
         Destroys the data source object.
       </description>
     </request>
-
     <event name="send">
       <description summary="send the data">
         Request for data from the client. Send the data as the specified MIME
@@ -227,7 +195,6 @@
       <arg name="mime_type" type="string" summary="MIME type for the data"/>
       <arg name="fd" type="fd" summary="file descriptor for the data"/>
     </event>
-
     <event name="cancelled">
       <description summary="selection was cancelled">
         This data source is no longer valid. The data source has been replaced
@@ -236,8 +203,10 @@
         The client should clean up and destroy this data source.
       </description>
     </event>
+    <enum name="error">
+      <entry name="invalid_offer" value="1" summary="offer sent after wlr_data_control_device.set_selection"/>
+    </enum>
   </interface>
-
   <interface name="zwlr_data_control_offer_v1" version="1">
     <description summary="offer to transfer data">
       A wlr_data_control_offer represents a piece of data offered for transfer
@@ -245,7 +214,6 @@
       MIME types that the data can be converted to and provides the mechanism
       for transferring the data directly from the source client.
     </description>
-
     <request name="receive">
       <description summary="request that the data is transferred">
         To transfer the offered data, the client issues this request and
@@ -259,17 +227,14 @@
 
         This request may happen multiple times for different MIME types.
       </description>
-      <arg name="mime_type" type="string"
-        summary="MIME type desired by receiver"/>
+      <arg name="mime_type" type="string" summary="MIME type desired by receiver"/>
       <arg name="fd" type="fd" summary="file descriptor for data transfer"/>
     </request>
-
     <request name="destroy" type="destructor">
       <description summary="destroy this offer">
         Destroys the data offer object.
       </description>
     </request>
-
     <event name="offer">
       <description summary="advertise offered MIME type">
         Sent immediately after creating the wlr_data_control_offer object.

@@ -25,7 +25,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <interface name="ext_background_effect_manager_v1" version="1">
     <description summary="background effect factory">
       This protocol provides a way to improve visuals of translucent surfaces
@@ -40,7 +39,6 @@
       corresponding interface version bump. Backward incompatible changes can
       only be done by creating a new major version of the extension.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the background effect manager">
         Informs the server that the client will no longer be using this
@@ -48,22 +46,10 @@
         affected.
       </description>
     </request>
-
-    <enum name="error">
-      <entry name="background_effect_exists" value="0"
-             summary="the surface already has a background effect object"/>
-    </enum>
-
-    <enum name="capability" bitfield="true">
-      <entry name="blur" value="1"
-             summary="the compositor supports applying blur"/>
-    </enum>
-
     <event name="capabilities">
       <description summary="capabilities of the compositor"/>
       <arg name="flags" type="uint" enum="capability"/>
     </event>
-
     <request name="get_background_effect">
       <description summary="get a background effects object">
         Instantiate an interface extension for the given wl_surface to add
@@ -73,13 +59,16 @@
         object associated, the background_effect_exists protocol error will be
         raised.
       </description>
-      <arg name="id" type="new_id" interface="ext_background_effect_surface_v1"
-           summary="the new ext_background_effect_surface_v1 object"/>
-      <arg name="surface" type="object" interface="wl_surface"
-           summary="the surface"/>
+      <arg name="id" type="new_id" interface="ext_background_effect_surface_v1" summary="the new ext_background_effect_surface_v1 object"/>
+      <arg name="surface" type="object" interface="wl_surface" summary="the surface"/>
     </request>
+    <enum name="error">
+      <entry name="background_effect_exists" value="0" summary="the surface already has a background effect object"/>
+    </enum>
+    <enum name="capability" bitfield="true">
+      <entry name="blur" value="1" summary="the compositor supports applying blur"/>
+    </enum>
   </interface>
-
   <interface name="ext_background_effect_surface_v1" version="1">
     <description summary="background effects for a surface">
       The background effect object provides a way to specify a region behind
@@ -88,19 +77,12 @@
       If the wl_surface associated with the ext_background_effect_surface_v1
       object has been destroyed, this object becomes inert.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="release the blur object">
         Informs the server that the client will no longer be using this protocol
         object. The effect regions will be removed on the next commit.
       </description>
     </request>
-
-    <enum name="error">
-      <entry name="surface_destroyed" value="0"
-             summary="the associated surface has been destroyed"/>
-    </enum>
-
     <request name="set_blur_region">
       <description summary="set blur region">
         This request sets the region of the surface that will have its
@@ -121,9 +103,10 @@
         If the associated surface has been destroyed, the surface_destroyed
         error will be raised.
       </description>
-      <arg name="region" type="object" interface="wl_region" allow-null="true"
-           summary="blur region of the surface"/>
+      <arg name="region" type="object" interface="wl_region" allow-null="true" summary="blur region of the surface"/>
     </request>
-
+    <enum name="error">
+      <entry name="surface_destroyed" value="0" summary="the associated surface has been destroyed"/>
+    </enum>
   </interface>
 </protocol>

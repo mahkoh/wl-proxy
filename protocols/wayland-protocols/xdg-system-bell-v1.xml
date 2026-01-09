@@ -22,7 +22,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <interface name="xdg_system_bell_v1" version="1">
     <description summary="system bell">
       This global interface enables clients to ring the system bell.
@@ -32,27 +31,24 @@
       corresponding interface version bump. Backward incompatible changes can
       only be done by creating a new major version of the extension.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the system bell object">
-	Notify that the object will no longer be used.
+        Notify that the object will no longer be used.
       </description>
     </request>
-
     <request name="ring">
       <description summary="ring the system bell">
-	This requests rings the system bell on behalf of a client. How ringing
-	the bell is implemented is up to the compositor. It may be an audible
-	sound, a visual feedback of some kind, or any other thing including
-	nothing.
+        This requests rings the system bell on behalf of a client. How ringing
+        the bell is implemented is up to the compositor. It may be an audible
+        sound, a visual feedback of some kind, or any other thing including
+        nothing.
 
         The passed surface should correspond to a toplevel like surface role,
         or be null, meaning the client doesn't have a particular toplevel it
         wants to associate the bell ringing with. See the xdg-shell protocol
         extension for a toplevel like surface role.
       </description>
-      <arg name="surface" type="object" interface="wl_surface"
-	   allow-null="true" summary="associated surface"/>
+      <arg name="surface" type="object" interface="wl_surface" allow-null="true" summary="associated surface"/>
     </request>
   </interface>
 </protocol>

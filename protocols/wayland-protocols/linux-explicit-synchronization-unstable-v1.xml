@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <protocol name="zwp_linux_explicit_synchronization_unstable_v1">
-
   <copyright>
     Copyright 2016 The Chromium Authors.
     Copyright 2017 Intel Corporation
@@ -25,7 +24,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <interface name="zwp_linux_explicit_synchronization_v1" version="2">
     <description summary="protocol for providing explicit synchronization">
       This global is a factory interface, allowing clients to request
@@ -47,7 +45,6 @@
       version number in the protocol and interface names are removed and the
       interface version number is reset.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy explicit synchronization factory object">
         Destroy this explicit synchronization factory object. Other objects,
@@ -55,12 +52,6 @@
         factory, shall not be affected by this request.
       </description>
     </request>
-
-    <enum name="error">
-      <entry name="synchronization_exists" value="0"
-             summary="the surface already has a synchronization object associated"/>
-    </enum>
-
     <request name="get_synchronization">
       <description summary="extend surface interface for explicit synchronization">
         Instantiate an interface extension for the given wl_surface to provide
@@ -75,15 +66,13 @@
         wl_surface, it should not directly use this extension on that surface,
         to avoid raising a synchronization_exists protocol error.
       </description>
-
-      <arg name="id" type="new_id"
-           interface="zwp_linux_surface_synchronization_v1"
-           summary="the new synchronization interface id"/>
-      <arg name="surface" type="object" interface="wl_surface"
-           summary="the surface"/>
+      <arg name="id" type="new_id" interface="zwp_linux_surface_synchronization_v1" summary="the new synchronization interface id"/>
+      <arg name="surface" type="object" interface="wl_surface" summary="the surface"/>
     </request>
+    <enum name="error">
+      <entry name="synchronization_exists" value="0" summary="the surface already has a synchronization object associated"/>
+    </enum>
   </interface>
-
   <interface name="zwp_linux_surface_synchronization_v1" version="2">
     <description summary="per-surface explicit synchronization support">
       This object implements per-surface explicit synchronization.
@@ -117,7 +106,6 @@
       extension. Compositors are free to support explicit synchronization for
       additional buffer types.
     </description>
-
     <request name="destroy" type="destructor">
       <description summary="destroy synchronization object">
         Destroy this explicit synchronization object.
@@ -130,22 +118,6 @@
         affected by this request.
       </description>
     </request>
-
-    <enum name="error">
-      <entry name="invalid_fence" value="0"
-             summary="the fence specified by the client could not be imported"/>
-      <entry name="duplicate_fence" value="1"
-             summary="multiple fences added for a single surface commit"/>
-      <entry name="duplicate_release" value="2"
-             summary="multiple releases added for a single surface commit"/>
-      <entry name="no_surface" value="3"
-             summary="the associated wl_surface was destroyed"/>
-      <entry name="unsupported_buffer" value="4"
-             summary="the buffer does not support explicit synchronization"/>
-      <entry name="no_buffer" value="5"
-             summary="no buffer was attached"/>
-    </enum>
-
     <request name="set_acquire_fence">
       <description summary="set the acquire fence">
         Set the acquire fence that must be signaled before the compositor
@@ -174,7 +146,6 @@
       </description>
       <arg name="fd" type="fd" summary="acquire fence fd"/>
     </request>
-
     <request name="get_release">
       <description summary="release fence for last-attached buffer">
         Create a listener for the release of the buffer attached by the
@@ -195,11 +166,17 @@
         If at surface commit time there is no buffer attached, a NO_BUFFER
         error is raised.
       </description>
-      <arg name="release" type="new_id" interface="zwp_linux_buffer_release_v1"
-           summary="new zwp_linux_buffer_release_v1 object"/>
+      <arg name="release" type="new_id" interface="zwp_linux_buffer_release_v1" summary="new zwp_linux_buffer_release_v1 object"/>
     </request>
+    <enum name="error">
+      <entry name="invalid_fence" value="0" summary="the fence specified by the client could not be imported"/>
+      <entry name="duplicate_fence" value="1" summary="multiple fences added for a single surface commit"/>
+      <entry name="duplicate_release" value="2" summary="multiple releases added for a single surface commit"/>
+      <entry name="no_surface" value="3" summary="the associated wl_surface was destroyed"/>
+      <entry name="unsupported_buffer" value="4" summary="the buffer does not support explicit synchronization"/>
+      <entry name="no_buffer" value="5" summary="no buffer was attached"/>
+    </enum>
   </interface>
-
   <interface name="zwp_linux_buffer_release_v1" version="1">
     <description summary="buffer release explicit synchronization">
       This object is instantiated in response to a
@@ -220,7 +197,6 @@
       Once a buffer release object has delivered a 'fenced_release' or an
       'immediate_release' event it is automatically destroyed.
     </description>
-
     <event name="fenced_release" type="destructor">
       <description summary="release buffer with fence">
         Sent when the compositor has finalised its usage of the associated
@@ -237,7 +213,6 @@
       </description>
       <arg name="fence" type="fd" summary="fence for last operation on buffer"/>
     </event>
-
     <event name="immediate_release" type="destructor">
       <description summary="release buffer immediately">
         Sent when the compositor has finalised its usage of the associated
@@ -254,5 +229,4 @@
       </description>
     </event>
   </interface>
-
 </protocol>

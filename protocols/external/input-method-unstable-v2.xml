@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <protocol name="input_method_unstable_v2">
-
   <copyright>
     Copyright © 2008-2011 Kristian Høgsberg
     Copyright © 2010-2011 Intel Corporation
@@ -29,7 +28,6 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
   </copyright>
-
   <description summary="Protocol for creating input methods">
     This protocol allows applications to act as input methods for compositors.
 
@@ -49,7 +47,6 @@
     version number in the protocol and interface names are removed and the
     interface version number is reset.
   </description>
-
   <interface name="zwp_input_method_v2" version="1">
     <description summary="input method">
       An input method object allows for clients to compose text.
@@ -69,11 +66,6 @@
 
       There must be no more than one input method object per seat.
     </description>
-
-    <enum name="error">
-      <entry name="role" value="0" summary="wl_surface has another role"/>
-    </enum>
-
     <event name="activate">
       <description summary="input method has been requested">
         Notification that a text input focused on this seat requested the input
@@ -97,7 +89,6 @@
         the next zwp_input_method_v2.done event, and stay valid until changed.
       </description>
     </event>
-
     <event name="deactivate">
       <description summary="deactivate event">
         Notification that no focused text input currently needs an active 
@@ -111,7 +102,6 @@
         the next zwp_input_method_v2.done event, and stay valid until changed.
       </description>
     </event>
-
     <event name="surrounding_text">
       <description summary="surrounding text event">
         Updates the surrounding plain text around the cursor, excluding the
@@ -148,7 +138,6 @@
       <arg name="cursor" type="uint"/>
       <arg name="anchor" type="uint"/>
     </event>
-
     <event name="text_change_cause">
       <description summary="indicates the cause of surrounding text change">
         Tells the input method why the text surrounding the cursor changed.
@@ -169,7 +158,6 @@
       </description>
       <arg name="cause" type="uint" enum="zwp_text_input_v3.change_cause"/>
     </event>
-
     <event name="content_type">
       <description summary="content purpose and hint">
         Indicates the content type and hint for the current
@@ -184,7 +172,6 @@
       <arg name="hint" type="uint" enum="zwp_text_input_v3.content_hint"/>
       <arg name="purpose" type="uint" enum="zwp_text_input_v3.content_purpose"/>
     </event>
-
     <event name="done">
       <description summary="apply state">
         Atomically applies state changes recently sent to the client.
@@ -206,7 +193,6 @@
         Neither current nor pending state are modified unless noted otherwise.
       </description>
     </event>
-
     <request name="commit_string">
       <description summary="commit string">
         Send the commit string text for insertion to the application.
@@ -226,7 +212,6 @@
       </description>
       <arg name="text" type="string"/>
     </request>
-
     <request name="set_preedit_string">
       <description summary="pre-edit string">
         Send the pre-edit string text to the application text input.
@@ -258,7 +243,6 @@
       <arg name="cursor_begin" type="int"/>
       <arg name="cursor_end" type="int"/>
     </request>
-
     <request name="delete_surrounding_text">
       <description summary="delete text">
         Remove the surrounding text.
@@ -279,7 +263,6 @@
       <arg name="before_length" type="uint"/>
       <arg name="after_length" type="uint"/>
     </request>
-
     <request name="commit">
       <description summary="apply state">
         Apply state changes from commit_string, set_preedit_string and
@@ -308,7 +291,6 @@
       </description>
       <arg name="serial" type="uint"/>
     </request>
-
     <request name="get_input_popup_surface">
       <description summary="create popup surface">
         Creates a new zwp_input_popup_surface_v2 object wrapping a given
@@ -321,7 +303,6 @@
       <arg name="id" type="new_id" interface="zwp_input_popup_surface_v2"/>
       <arg name="surface" type="object" interface="wl_surface"/>
     </request>
-
     <request name="grab_keyboard">
       <description summary="grab hardware keyboard">
         Allow an input method to receive hardware keyboard input and process
@@ -337,10 +318,8 @@
 
         Releasing the resulting wl_keyboard object releases the grab.
       </description>
-      <arg name="keyboard" type="new_id"
-        interface="zwp_input_method_keyboard_grab_v2"/>
+      <arg name="keyboard" type="new_id" interface="zwp_input_method_keyboard_grab_v2"/>
     </request>
-
     <event name="unavailable">
       <description summary="input method unavailable">
         The input method ceased to be available.
@@ -357,7 +336,6 @@
         destroy request must be ignored.
       </description>
     </event>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the text input">
         Destroys the zwp_text_input_v2 object and any associated child
@@ -365,8 +343,10 @@
         zwp_input_method_keyboard_grab_v2.
       </description>
     </request>
+    <enum name="error">
+      <entry name="role" value="0" summary="wl_surface has another role"/>
+    </enum>
   </interface>
-
   <interface name="zwp_input_popup_surface_v2" version="1">
     <description summary="popup surface">
       This interface marks a surface as a popup for interacting with an input
@@ -378,7 +358,6 @@
       The client must not destroy the underlying wl_surface while the
       zwp_input_popup_surface_v2 object exists.
     </description>
-
     <event name="text_input_rectangle">
       <description summary="set text input area position">
         Notify about the position of the area of the text input expressed as a
@@ -392,28 +371,23 @@
       <arg name="width" type="int"/>
       <arg name="height" type="int"/>
     </event>
-
-    <request name="destroy" type="destructor"/>
+    <request name="destroy" type="destructor">
+    </request>
   </interface>
-
   <interface name="zwp_input_method_keyboard_grab_v2" version="1">
-    <!-- Closely follows wl_keyboard version 6 -->
     <description summary="keyboard grab">
       The zwp_input_method_keyboard_grab_v2 interface represents an exclusive
       grab of the wl_keyboard interface associated with the seat.
     </description>
-
     <event name="keymap">
       <description summary="keyboard mapping">
         This event provides a file descriptor to the client which can be
         memory-mapped to provide a keyboard mapping description.
       </description>
-      <arg name="format" type="uint" enum="wl_keyboard.keymap_format"
-        summary="keymap format"/>
+      <arg name="format" type="uint" enum="wl_keyboard.keymap_format" summary="keymap format"/>
       <arg name="fd" type="fd" summary="keymap file descriptor"/>
       <arg name="size" type="uint" summary="keymap size, in bytes"/>
     </event>
-
     <event name="key">
       <description summary="key event">
         A key was pressed or released.
@@ -423,10 +397,8 @@
       <arg name="serial" type="uint" summary="serial number of the key event"/>
       <arg name="time" type="uint" summary="timestamp with millisecond granularity"/>
       <arg name="key" type="uint" summary="key that produced the event"/>
-      <arg name="state" type="uint" enum="wl_keyboard.key_state"
-        summary="physical state of the key"/>
+      <arg name="state" type="uint" enum="wl_keyboard.key_state" summary="physical state of the key"/>
     </event>
-
     <event name="modifiers">
       <description summary="modifier and group state">
         Notifies clients that the modifier and/or group state has changed, and
@@ -438,11 +410,9 @@
       <arg name="mods_locked" type="uint" summary="locked modifiers"/>
       <arg name="group" type="uint" summary="keyboard layout"/>
     </event>
-
     <request name="release" type="destructor">
       <description summary="release the grab object"/>
     </request>
-
     <event name="repeat_info">
       <description summary="repeat rate and delay">
         Informs the client about the keyboard's repeat rate and delay.
@@ -458,13 +428,10 @@
         so clients should continue listening for the event past the creation
         of zwp_input_method_keyboard_grab_v2.
       </description>
-      <arg name="rate" type="int"
-	   summary="the rate of repeating keys in characters per second"/>
-      <arg name="delay" type="int"
-	   summary="delay in milliseconds since key down until repeating starts"/>
+      <arg name="rate" type="int" summary="the rate of repeating keys in characters per second"/>
+      <arg name="delay" type="int" summary="delay in milliseconds since key down until repeating starts"/>
     </event>
   </interface>
-
   <interface name="zwp_input_method_manager_v2" version="1">
     <description summary="input method manager">
       The input method manager allows the client to become the input method on
@@ -473,7 +440,6 @@
       No more than one input method must be associated with any seat at any
       given time.
     </description>
-
     <request name="get_input_method">
       <description summary="request an input method object">
         Request a new input zwp_input_method_v2 object associated with a given
@@ -482,7 +448,6 @@
       <arg name="seat" type="object" interface="wl_seat"/>
       <arg name="input_method" type="new_id" interface="zwp_input_method_v2"/>
     </request>
-
     <request name="destroy" type="destructor">
       <description summary="destroy the input method manager">
         Destroys the zwp_input_method_manager_v2 object.
