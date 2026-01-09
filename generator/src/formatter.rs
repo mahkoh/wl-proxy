@@ -843,6 +843,22 @@ pub fn format_baseline_file(w: &mut impl Write, suits: &[Suite]) -> io::Result<(
     Ok(())
 }
 
+pub fn format_baseline_txt(w: &mut impl Write, suits: &[Suite]) -> io::Result<()> {
+    define_w!(w);
+    let mut interfaces: Vec<_> = suits
+        .iter()
+        .flat_map(|s| s.protocols.iter())
+        .flat_map(|p| p.interfaces.iter().map(move |i| (p, i)))
+        .collect();
+    interfaces.sort_by_key(|(_, i)| &i.name);
+    for (_, interface) in &interfaces {
+        let version = interface.version;
+        let snake = &interface.name;
+        wl!(r#"{snake} = {version}"#)?;
+    }
+    Ok(())
+}
+
 pub fn format_protocol_file(w: &mut impl Write, protocol: &Protocol) -> io::Result<()> {
     define_w!(w);
     if let Some(description) = &protocol.description {

@@ -2,7 +2,8 @@ use {
     crate::{
         collector::{CollectorError, collect},
         formatter::{
-            format_baseline_file, format_interface_file, format_mod_file, format_protocol_file,
+            format_baseline_file, format_baseline_txt, format_interface_file, format_mod_file,
+            format_protocol_file,
         },
     },
     std::{
@@ -65,6 +66,10 @@ pub fn main() -> Result<(), GeneratorError> {
 
     format_file(&src_dir.join("baseline/versions/prototyping.rs"), |f| {
         format_baseline_file(f, &suits)
+    })?;
+
+    format_file(&src_dir.join("baseline/versions/prototyping.txt"), |f| {
+        format_baseline_txt(f, &suits)
     })?;
 
     {
