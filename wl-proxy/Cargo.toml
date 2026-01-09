@@ -32,6 +32,7 @@ all-protocols = [
     "suite-wayland-protocols",
     "suite-wlr-protocols",
     "suite-wlproxy",
+    "suite-river-protocols",
 ]
 
 suite-hyprland-protocols = [
@@ -137,6 +138,13 @@ suite-wlr-protocols = [
 suite-wlproxy = [
     "protocol-wlproxy_sync_v1",
 ]
+suite-river-protocols = [
+    "protocol-river_input_management_v1",
+    "protocol-river_layer_shell_v1",
+    "protocol-river_libinput_config_v1",
+    "protocol-river_window_management_v1",
+    "protocol-river_xkb_bindings_v1",
+]
 
 protocol-hyprland_ctm_control_v1 = []
 protocol-hyprland_focus_grab_v1 = []
@@ -227,4 +235,9 @@ protocol-wlr_output_power_management_unstable_v1 = []
 protocol-wlr_screencopy_unstable_v1 = []
 protocol-wlr_virtual_pointer_unstable_v1 = []
 protocol-wlproxy_sync_v1 = []
+protocol-river_input_management_v1 = []
+protocol-river_layer_shell_v1 = ["protocol-river_window_management_v1"]
+protocol-river_libinput_config_v1 = ["protocol-river_input_management_v1"]
+protocol-river_window_management_v1 = []
+protocol-river_xkb_bindings_v1 = ["protocol-river_window_management_v1"]
 # --generated end--

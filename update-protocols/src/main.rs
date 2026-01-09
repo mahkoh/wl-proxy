@@ -188,6 +188,18 @@ fn main() {
             ],
             block: &[],
         },
+        Repo {
+            name: "river",
+            dir: "river-protocols",
+            allow: &[
+                "river_input_management_v1",
+                "river_layer_shell_v1",
+                "river_libinput_config_v1",
+                "river_window_management_v1",
+                "river_xkb_bindings_v1",
+            ],
+            block: &[],
+        },
     ];
     let db = Connection::open(".wayland.db").unwrap();
     let mut query_protocols = db

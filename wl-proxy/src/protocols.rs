@@ -177,6 +177,16 @@ pub mod wlr_screencopy_unstable_v1;
 pub mod wlr_virtual_pointer_unstable_v1;
 #[cfg(feature = "protocol-wlproxy_sync_v1")]
 pub mod wlproxy_sync_v1;
+#[cfg(feature = "protocol-river_input_management_v1")]
+pub mod river_input_management_v1;
+#[cfg(feature = "protocol-river_layer_shell_v1")]
+pub mod river_layer_shell_v1;
+#[cfg(feature = "protocol-river_libinput_config_v1")]
+pub mod river_libinput_config_v1;
+#[cfg(feature = "protocol-river_window_management_v1")]
+pub mod river_window_management_v1;
+#[cfg(feature = "protocol-river_xkb_bindings_v1")]
+pub mod river_xkb_bindings_v1;
 
 #[allow(unused_imports)]
 mod all_types {
@@ -1003,6 +1013,114 @@ mod all_types {
     pub(super) use super::wlr_virtual_pointer_unstable_v1::zwlr_virtual_pointer_v1::ZwlrVirtualPointerV1Error;
     #[cfg(feature = "protocol-wlproxy_sync_v1")]
     pub(super) use super::wlproxy_sync_v1::wlproxy_sync_v1::WlproxySyncV1;
+    #[cfg(feature = "protocol-river_input_management_v1")]
+    pub(super) use super::river_input_management_v1::river_input_device_v1::RiverInputDeviceV1;
+    #[cfg(feature = "protocol-river_input_management_v1")]
+    pub(super) use super::river_input_management_v1::river_input_device_v1::RiverInputDeviceV1Error;
+    #[cfg(feature = "protocol-river_input_management_v1")]
+    pub(super) use super::river_input_management_v1::river_input_device_v1::RiverInputDeviceV1Type;
+    #[cfg(feature = "protocol-river_input_management_v1")]
+    pub(super) use super::river_input_management_v1::river_input_manager_v1::RiverInputManagerV1;
+    #[cfg(feature = "protocol-river_input_management_v1")]
+    pub(super) use super::river_input_management_v1::river_input_manager_v1::RiverInputManagerV1Error;
+    #[cfg(feature = "protocol-river_layer_shell_v1")]
+    pub(super) use super::river_layer_shell_v1::river_layer_shell_output_v1::RiverLayerShellOutputV1;
+    #[cfg(feature = "protocol-river_layer_shell_v1")]
+    pub(super) use super::river_layer_shell_v1::river_layer_shell_seat_v1::RiverLayerShellSeatV1;
+    #[cfg(feature = "protocol-river_layer_shell_v1")]
+    pub(super) use super::river_layer_shell_v1::river_layer_shell_v1::RiverLayerShellV1;
+    #[cfg(feature = "protocol-river_layer_shell_v1")]
+    pub(super) use super::river_layer_shell_v1::river_layer_shell_v1::RiverLayerShellV1Error;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_accel_config_v1::RiverLibinputAccelConfigV1;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_accel_config_v1::RiverLibinputAccelConfigV1Error;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_accel_config_v1::RiverLibinputAccelConfigV1AccelType;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_config_v1::RiverLibinputConfigV1;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_config_v1::RiverLibinputConfigV1Error;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1Error;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1SendEventsModes;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1TapState;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1TapButtonMap;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1DragState;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1DragLockState;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1ThreeFingerDragState;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1AccelProfile;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1AccelProfiles;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1NaturalScrollState;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1LeftHandedState;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1ClickMethod;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1ClickMethods;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1ClickfingerButtonMap;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1MiddleEmulationState;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1ScrollMethod;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1ScrollMethods;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1ScrollButtonLockState;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1DwtState;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_device_v1::RiverLibinputDeviceV1DwtpState;
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    pub(super) use super::river_libinput_config_v1::river_libinput_result_v1::RiverLibinputResultV1;
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_decoration_v1::RiverDecorationV1;
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_decoration_v1::RiverDecorationV1Error;
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_node_v1::RiverNodeV1;
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_output_v1::RiverOutputV1;
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_pointer_binding_v1::RiverPointerBindingV1;
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_seat_v1::RiverSeatV1;
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_seat_v1::RiverSeatV1Modifiers;
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_shell_surface_v1::RiverShellSurfaceV1;
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_shell_surface_v1::RiverShellSurfaceV1Error;
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_window_manager_v1::RiverWindowManagerV1;
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_window_manager_v1::RiverWindowManagerV1Error;
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_window_v1::RiverWindowV1;
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_window_v1::RiverWindowV1Error;
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_window_v1::RiverWindowV1DecorationHint;
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_window_v1::RiverWindowV1Edges;
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_window_v1::RiverWindowV1Capabilities;
+    #[cfg(feature = "protocol-river_xkb_bindings_v1")]
+    pub(super) use super::river_xkb_bindings_v1::river_xkb_binding_v1::RiverXkbBindingV1;
+    #[cfg(feature = "protocol-river_xkb_bindings_v1")]
+    pub(super) use super::river_xkb_bindings_v1::river_xkb_bindings_v1::RiverXkbBindingsV1;
 
     use crate::protocol_helpers::prelude::*;
 
@@ -1918,6 +2036,82 @@ mod all_types {
                 "wlproxy_sync_v1" => {
                     #[cfg(feature = "protocol-wlproxy_sync_v1")] { Some(ObjectInterface::WlproxySyncV1) }
                     #[cfg(not(feature = "protocol-wlproxy_sync_v1"))] { None }
+                },
+                "river_input_device_v1" => {
+                    #[cfg(feature = "protocol-river_input_management_v1")] { Some(ObjectInterface::RiverInputDeviceV1) }
+                    #[cfg(not(feature = "protocol-river_input_management_v1"))] { None }
+                },
+                "river_input_manager_v1" => {
+                    #[cfg(feature = "protocol-river_input_management_v1")] { Some(ObjectInterface::RiverInputManagerV1) }
+                    #[cfg(not(feature = "protocol-river_input_management_v1"))] { None }
+                },
+                "river_layer_shell_output_v1" => {
+                    #[cfg(feature = "protocol-river_layer_shell_v1")] { Some(ObjectInterface::RiverLayerShellOutputV1) }
+                    #[cfg(not(feature = "protocol-river_layer_shell_v1"))] { None }
+                },
+                "river_layer_shell_seat_v1" => {
+                    #[cfg(feature = "protocol-river_layer_shell_v1")] { Some(ObjectInterface::RiverLayerShellSeatV1) }
+                    #[cfg(not(feature = "protocol-river_layer_shell_v1"))] { None }
+                },
+                "river_layer_shell_v1" => {
+                    #[cfg(feature = "protocol-river_layer_shell_v1")] { Some(ObjectInterface::RiverLayerShellV1) }
+                    #[cfg(not(feature = "protocol-river_layer_shell_v1"))] { None }
+                },
+                "river_libinput_accel_config_v1" => {
+                    #[cfg(feature = "protocol-river_libinput_config_v1")] { Some(ObjectInterface::RiverLibinputAccelConfigV1) }
+                    #[cfg(not(feature = "protocol-river_libinput_config_v1"))] { None }
+                },
+                "river_libinput_config_v1" => {
+                    #[cfg(feature = "protocol-river_libinput_config_v1")] { Some(ObjectInterface::RiverLibinputConfigV1) }
+                    #[cfg(not(feature = "protocol-river_libinput_config_v1"))] { None }
+                },
+                "river_libinput_device_v1" => {
+                    #[cfg(feature = "protocol-river_libinput_config_v1")] { Some(ObjectInterface::RiverLibinputDeviceV1) }
+                    #[cfg(not(feature = "protocol-river_libinput_config_v1"))] { None }
+                },
+                "river_libinput_result_v1" => {
+                    #[cfg(feature = "protocol-river_libinput_config_v1")] { Some(ObjectInterface::RiverLibinputResultV1) }
+                    #[cfg(not(feature = "protocol-river_libinput_config_v1"))] { None }
+                },
+                "river_decoration_v1" => {
+                    #[cfg(feature = "protocol-river_window_management_v1")] { Some(ObjectInterface::RiverDecorationV1) }
+                    #[cfg(not(feature = "protocol-river_window_management_v1"))] { None }
+                },
+                "river_node_v1" => {
+                    #[cfg(feature = "protocol-river_window_management_v1")] { Some(ObjectInterface::RiverNodeV1) }
+                    #[cfg(not(feature = "protocol-river_window_management_v1"))] { None }
+                },
+                "river_output_v1" => {
+                    #[cfg(feature = "protocol-river_window_management_v1")] { Some(ObjectInterface::RiverOutputV1) }
+                    #[cfg(not(feature = "protocol-river_window_management_v1"))] { None }
+                },
+                "river_pointer_binding_v1" => {
+                    #[cfg(feature = "protocol-river_window_management_v1")] { Some(ObjectInterface::RiverPointerBindingV1) }
+                    #[cfg(not(feature = "protocol-river_window_management_v1"))] { None }
+                },
+                "river_seat_v1" => {
+                    #[cfg(feature = "protocol-river_window_management_v1")] { Some(ObjectInterface::RiverSeatV1) }
+                    #[cfg(not(feature = "protocol-river_window_management_v1"))] { None }
+                },
+                "river_shell_surface_v1" => {
+                    #[cfg(feature = "protocol-river_window_management_v1")] { Some(ObjectInterface::RiverShellSurfaceV1) }
+                    #[cfg(not(feature = "protocol-river_window_management_v1"))] { None }
+                },
+                "river_window_manager_v1" => {
+                    #[cfg(feature = "protocol-river_window_management_v1")] { Some(ObjectInterface::RiverWindowManagerV1) }
+                    #[cfg(not(feature = "protocol-river_window_management_v1"))] { None }
+                },
+                "river_window_v1" => {
+                    #[cfg(feature = "protocol-river_window_management_v1")] { Some(ObjectInterface::RiverWindowV1) }
+                    #[cfg(not(feature = "protocol-river_window_management_v1"))] { None }
+                },
+                "river_xkb_binding_v1" => {
+                    #[cfg(feature = "protocol-river_xkb_bindings_v1")] { Some(ObjectInterface::RiverXkbBindingV1) }
+                    #[cfg(not(feature = "protocol-river_xkb_bindings_v1"))] { None }
+                },
+                "river_xkb_bindings_v1" => {
+                    #[cfg(feature = "protocol-river_xkb_bindings_v1")] { Some(ObjectInterface::RiverXkbBindingsV1) }
+                    #[cfg(not(feature = "protocol-river_xkb_bindings_v1"))] { None }
                 },
             };
             INTERFACES.get(interface).copied().flatten()
@@ -3603,6 +3797,139 @@ mod all_types {
                     }
                     Ok(WlproxySyncV1::new(state, version))
                 }
+                #[cfg(feature = "protocol-river_input_management_v1")]
+                Self::RiverInputDeviceV1 => {
+                    if version > RiverInputDeviceV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverInputDeviceV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_input_management_v1")]
+                Self::RiverInputManagerV1 => {
+                    if version > RiverInputManagerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverInputManagerV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_layer_shell_v1")]
+                Self::RiverLayerShellOutputV1 => {
+                    if version > RiverLayerShellOutputV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverLayerShellOutputV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_layer_shell_v1")]
+                Self::RiverLayerShellSeatV1 => {
+                    if version > RiverLayerShellSeatV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverLayerShellSeatV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_layer_shell_v1")]
+                Self::RiverLayerShellV1 => {
+                    if version > RiverLayerShellV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverLayerShellV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_libinput_config_v1")]
+                Self::RiverLibinputAccelConfigV1 => {
+                    if version > RiverLibinputAccelConfigV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverLibinputAccelConfigV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_libinput_config_v1")]
+                Self::RiverLibinputConfigV1 => {
+                    if version > RiverLibinputConfigV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverLibinputConfigV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_libinput_config_v1")]
+                Self::RiverLibinputDeviceV1 => {
+                    if version > RiverLibinputDeviceV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverLibinputDeviceV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_libinput_config_v1")]
+                Self::RiverLibinputResultV1 => {
+                    if version > RiverLibinputResultV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverLibinputResultV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_window_management_v1")]
+                Self::RiverDecorationV1 => {
+                    if version > RiverDecorationV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverDecorationV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_window_management_v1")]
+                Self::RiverNodeV1 => {
+                    if version > RiverNodeV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverNodeV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_window_management_v1")]
+                Self::RiverOutputV1 => {
+                    if version > RiverOutputV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverOutputV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_window_management_v1")]
+                Self::RiverPointerBindingV1 => {
+                    if version > RiverPointerBindingV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverPointerBindingV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_window_management_v1")]
+                Self::RiverSeatV1 => {
+                    if version > RiverSeatV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverSeatV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_window_management_v1")]
+                Self::RiverShellSurfaceV1 => {
+                    if version > RiverShellSurfaceV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverShellSurfaceV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_window_management_v1")]
+                Self::RiverWindowManagerV1 => {
+                    if version > RiverWindowManagerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverWindowManagerV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_window_management_v1")]
+                Self::RiverWindowV1 => {
+                    if version > RiverWindowV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverWindowV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_xkb_bindings_v1")]
+                Self::RiverXkbBindingV1 => {
+                    if version > RiverXkbBindingV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverXkbBindingV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_xkb_bindings_v1")]
+                Self::RiverXkbBindingsV1 => {
+                    if version > RiverXkbBindingsV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverXkbBindingsV1::new(state, version))
+                }
             }
         }
     }
@@ -4317,6 +4644,63 @@ pub enum ObjectInterface {
     /// wlproxy_sync_v1
     #[cfg(feature = "protocol-wlproxy_sync_v1")]
     WlproxySyncV1,
+    /// river_input_device_v1
+    #[cfg(feature = "protocol-river_input_management_v1")]
+    RiverInputDeviceV1,
+    /// river_input_manager_v1
+    #[cfg(feature = "protocol-river_input_management_v1")]
+    RiverInputManagerV1,
+    /// river_layer_shell_output_v1
+    #[cfg(feature = "protocol-river_layer_shell_v1")]
+    RiverLayerShellOutputV1,
+    /// river_layer_shell_seat_v1
+    #[cfg(feature = "protocol-river_layer_shell_v1")]
+    RiverLayerShellSeatV1,
+    /// river_layer_shell_v1
+    #[cfg(feature = "protocol-river_layer_shell_v1")]
+    RiverLayerShellV1,
+    /// river_libinput_accel_config_v1
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    RiverLibinputAccelConfigV1,
+    /// river_libinput_config_v1
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    RiverLibinputConfigV1,
+    /// river_libinput_device_v1
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    RiverLibinputDeviceV1,
+    /// river_libinput_result_v1
+    #[cfg(feature = "protocol-river_libinput_config_v1")]
+    RiverLibinputResultV1,
+    /// river_decoration_v1
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    RiverDecorationV1,
+    /// river_node_v1
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    RiverNodeV1,
+    /// river_output_v1
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    RiverOutputV1,
+    /// river_pointer_binding_v1
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    RiverPointerBindingV1,
+    /// river_seat_v1
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    RiverSeatV1,
+    /// river_shell_surface_v1
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    RiverShellSurfaceV1,
+    /// river_window_manager_v1
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    RiverWindowManagerV1,
+    /// river_window_v1
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    RiverWindowV1,
+    /// river_xkb_binding_v1
+    #[cfg(feature = "protocol-river_xkb_bindings_v1")]
+    RiverXkbBindingV1,
+    /// river_xkb_bindings_v1
+    #[cfg(feature = "protocol-river_xkb_bindings_v1")]
+    RiverXkbBindingsV1,
 }
 
 impl ObjectInterface {
@@ -4785,6 +5169,44 @@ impl ObjectInterface {
             Self::ZwlrVirtualPointerV1 => "zwlr_virtual_pointer_v1",
             #[cfg(feature = "protocol-wlproxy_sync_v1")]
             Self::WlproxySyncV1 => "wlproxy_sync_v1",
+            #[cfg(feature = "protocol-river_input_management_v1")]
+            Self::RiverInputDeviceV1 => "river_input_device_v1",
+            #[cfg(feature = "protocol-river_input_management_v1")]
+            Self::RiverInputManagerV1 => "river_input_manager_v1",
+            #[cfg(feature = "protocol-river_layer_shell_v1")]
+            Self::RiverLayerShellOutputV1 => "river_layer_shell_output_v1",
+            #[cfg(feature = "protocol-river_layer_shell_v1")]
+            Self::RiverLayerShellSeatV1 => "river_layer_shell_seat_v1",
+            #[cfg(feature = "protocol-river_layer_shell_v1")]
+            Self::RiverLayerShellV1 => "river_layer_shell_v1",
+            #[cfg(feature = "protocol-river_libinput_config_v1")]
+            Self::RiverLibinputAccelConfigV1 => "river_libinput_accel_config_v1",
+            #[cfg(feature = "protocol-river_libinput_config_v1")]
+            Self::RiverLibinputConfigV1 => "river_libinput_config_v1",
+            #[cfg(feature = "protocol-river_libinput_config_v1")]
+            Self::RiverLibinputDeviceV1 => "river_libinput_device_v1",
+            #[cfg(feature = "protocol-river_libinput_config_v1")]
+            Self::RiverLibinputResultV1 => "river_libinput_result_v1",
+            #[cfg(feature = "protocol-river_window_management_v1")]
+            Self::RiverDecorationV1 => "river_decoration_v1",
+            #[cfg(feature = "protocol-river_window_management_v1")]
+            Self::RiverNodeV1 => "river_node_v1",
+            #[cfg(feature = "protocol-river_window_management_v1")]
+            Self::RiverOutputV1 => "river_output_v1",
+            #[cfg(feature = "protocol-river_window_management_v1")]
+            Self::RiverPointerBindingV1 => "river_pointer_binding_v1",
+            #[cfg(feature = "protocol-river_window_management_v1")]
+            Self::RiverSeatV1 => "river_seat_v1",
+            #[cfg(feature = "protocol-river_window_management_v1")]
+            Self::RiverShellSurfaceV1 => "river_shell_surface_v1",
+            #[cfg(feature = "protocol-river_window_management_v1")]
+            Self::RiverWindowManagerV1 => "river_window_manager_v1",
+            #[cfg(feature = "protocol-river_window_management_v1")]
+            Self::RiverWindowV1 => "river_window_v1",
+            #[cfg(feature = "protocol-river_xkb_bindings_v1")]
+            Self::RiverXkbBindingV1 => "river_xkb_binding_v1",
+            #[cfg(feature = "protocol-river_xkb_bindings_v1")]
+            Self::RiverXkbBindingsV1 => "river_xkb_bindings_v1",
         }
     }
 
@@ -5253,6 +5675,44 @@ impl ObjectInterface {
             Self::ZwlrVirtualPointerV1 => 2,
             #[cfg(feature = "protocol-wlproxy_sync_v1")]
             Self::WlproxySyncV1 => 1,
+            #[cfg(feature = "protocol-river_input_management_v1")]
+            Self::RiverInputDeviceV1 => 1,
+            #[cfg(feature = "protocol-river_input_management_v1")]
+            Self::RiverInputManagerV1 => 1,
+            #[cfg(feature = "protocol-river_layer_shell_v1")]
+            Self::RiverLayerShellOutputV1 => 1,
+            #[cfg(feature = "protocol-river_layer_shell_v1")]
+            Self::RiverLayerShellSeatV1 => 1,
+            #[cfg(feature = "protocol-river_layer_shell_v1")]
+            Self::RiverLayerShellV1 => 1,
+            #[cfg(feature = "protocol-river_libinput_config_v1")]
+            Self::RiverLibinputAccelConfigV1 => 1,
+            #[cfg(feature = "protocol-river_libinput_config_v1")]
+            Self::RiverLibinputConfigV1 => 1,
+            #[cfg(feature = "protocol-river_libinput_config_v1")]
+            Self::RiverLibinputDeviceV1 => 1,
+            #[cfg(feature = "protocol-river_libinput_config_v1")]
+            Self::RiverLibinputResultV1 => 1,
+            #[cfg(feature = "protocol-river_window_management_v1")]
+            Self::RiverDecorationV1 => 3,
+            #[cfg(feature = "protocol-river_window_management_v1")]
+            Self::RiverNodeV1 => 3,
+            #[cfg(feature = "protocol-river_window_management_v1")]
+            Self::RiverOutputV1 => 3,
+            #[cfg(feature = "protocol-river_window_management_v1")]
+            Self::RiverPointerBindingV1 => 3,
+            #[cfg(feature = "protocol-river_window_management_v1")]
+            Self::RiverSeatV1 => 3,
+            #[cfg(feature = "protocol-river_window_management_v1")]
+            Self::RiverShellSurfaceV1 => 3,
+            #[cfg(feature = "protocol-river_window_management_v1")]
+            Self::RiverWindowManagerV1 => 3,
+            #[cfg(feature = "protocol-river_window_management_v1")]
+            Self::RiverWindowV1 => 3,
+            #[cfg(feature = "protocol-river_xkb_bindings_v1")]
+            Self::RiverXkbBindingV1 => 1,
+            #[cfg(feature = "protocol-river_xkb_bindings_v1")]
+            Self::RiverXkbBindingsV1 => 1,
         }
     }
 }
