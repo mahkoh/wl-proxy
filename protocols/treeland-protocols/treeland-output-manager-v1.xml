@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <protocol name="treeland_output_manager_v1">
-  <copyright/>
+  <copyright>
+    SPDX-FileCopyrightText: 2024-2025 UnionTech Software Technology Co., Ltd.
+    SPDX-License-Identifier: MIT
+  </copyright>
   <interface name="treeland_output_manager_v1" version="2">
     <description summary="expose which is the primary display">
       Protocol for telling which is the primary display among the selection of enabled

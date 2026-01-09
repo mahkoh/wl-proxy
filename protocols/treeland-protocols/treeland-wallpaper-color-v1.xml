@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <protocol name="treeland_wallpaper_color_v1">
-  <copyright/>
+  <copyright>
+    SPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.
+    SPDX-License-Identifier: MIT
+  </copyright>
   <interface name="treeland_wallpaper_color_manager_v1" version="1">
     <request name="watch">
       <description summary="watch wallpaper color">

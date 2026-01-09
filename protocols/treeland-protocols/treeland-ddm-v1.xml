@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <protocol name="treeland_ddm">
-  <copyright/>
+  <copyright>
+    SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd.
+    SPDX-License-Identifier: MIT
+  </copyright>
   <interface name="treeland_ddm" version="1">
     <description summary="core global for treeland - ddm connection">
       This object is primarily used for establish connection between

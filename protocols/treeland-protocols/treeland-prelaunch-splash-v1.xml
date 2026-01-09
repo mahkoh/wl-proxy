@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <protocol name="treeland_prelaunch_splash_v1">
-  <copyright/>
+  <copyright>
+    SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd.
+    SPDX-License-Identifier: MIT
+  </copyright>
   <interface name="treeland_prelaunch_splash_manager_v1" version="1">
     <description summary="prelaunch splash screen manager">
       This interface is a manager for creating prelaunch splash screens.

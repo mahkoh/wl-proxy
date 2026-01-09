@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <protocol name="treeland_screensaver">
-  <copyright/>
+  <copyright>
+    SPDX-FileCopyrightText: 2025 UnionTech Software Technology Co., Ltd.
+    SPDX-License-Identifier: MIT
+  </copyright>
   <interface name="treeland_screensaver" version="1">
     <description summary="Simple idle inhibit protocol">
       This object implements a simple idle inhibit protocol.

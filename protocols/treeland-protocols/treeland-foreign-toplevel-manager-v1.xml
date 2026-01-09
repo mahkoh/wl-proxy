@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <protocol name="treeland_foreign_toplevel_manager_v1">
-  <copyright/>
+  <copyright>
+    SPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.
+    SPDX-License-Identifier: MIT
+  </copyright>
   <interface name="treeland_foreign_toplevel_manager_v1" version="1">
     <description summary="foreign toplevel manager">
       This interface allows a client to get toplevel some info.
