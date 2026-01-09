@@ -43,6 +43,7 @@ pub(crate) fn collect() -> Result<Vec<Suite>, CollectorError> {
         "wlproxy",
         "river-protocols",
         "weston-protocols",
+        "cosmic-protocols",
     ];
     let protocols_dir = root_dir.join("protocols");
     let mut suits = vec![];

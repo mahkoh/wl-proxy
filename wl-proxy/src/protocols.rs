@@ -205,6 +205,18 @@ pub mod weston_output_capture;
 pub mod weston_test;
 #[cfg(feature = "protocol-weston_touch_calibration")]
 pub mod weston_touch_calibration;
+#[cfg(feature = "protocol-cosmic_a11y_v1")]
+pub mod cosmic_a11y_v1;
+#[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+pub mod cosmic_corner_radius_v1;
+#[cfg(feature = "protocol-cosmic_image_source_unstable_v1")]
+pub mod cosmic_image_source_unstable_v1;
+#[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+pub mod cosmic_output_management_unstable_v1;
+#[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")]
+pub mod cosmic_overlap_notify_unstable_v1;
+#[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
+pub mod cosmic_workspace_unstable_v2;
 
 #[allow(unused_imports)]
 mod all_types {
@@ -1207,6 +1219,56 @@ mod all_types {
     pub(super) use super::weston_touch_calibration::weston_touch_calibrator::WestonTouchCalibratorError;
     #[cfg(feature = "protocol-weston_touch_calibration")]
     pub(super) use super::weston_touch_calibration::weston_touch_coordinate::WestonTouchCoordinate;
+    #[cfg(feature = "protocol-cosmic_a11y_v1")]
+    pub(super) use super::cosmic_a11y_v1::cosmic_a11y_manager_v1::CosmicA11yManagerV1;
+    #[cfg(feature = "protocol-cosmic_a11y_v1")]
+    pub(super) use super::cosmic_a11y_v1::cosmic_a11y_manager_v1::CosmicA11yManagerV1ActiveState;
+    #[cfg(feature = "protocol-cosmic_a11y_v1")]
+    pub(super) use super::cosmic_a11y_v1::cosmic_a11y_manager_v1::CosmicA11yManagerV1Filter;
+    #[cfg(feature = "protocol-cosmic_a11y_v1")]
+    pub(super) use super::cosmic_a11y_v1::cosmic_a11y_manager_v1::CosmicA11yManagerV1Error;
+    #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+    pub(super) use super::cosmic_corner_radius_v1::cosmic_corner_radius_manager_v1::CosmicCornerRadiusManagerV1;
+    #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+    pub(super) use super::cosmic_corner_radius_v1::cosmic_corner_radius_manager_v1::CosmicCornerRadiusManagerV1Error;
+    #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+    pub(super) use super::cosmic_corner_radius_v1::cosmic_corner_radius_toplevel_v1::CosmicCornerRadiusToplevelV1;
+    #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+    pub(super) use super::cosmic_corner_radius_v1::cosmic_corner_radius_toplevel_v1::CosmicCornerRadiusToplevelV1Error;
+    #[cfg(feature = "protocol-cosmic_image_source_unstable_v1")]
+    pub(super) use super::cosmic_image_source_unstable_v1::zcosmic_workspace_image_capture_source_manager_v1::ZcosmicWorkspaceImageCaptureSourceManagerV1;
+    #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+    pub(super) use super::cosmic_output_management_unstable_v1::zcosmic_output_configuration_head_v1::ZcosmicOutputConfigurationHeadV1;
+    #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+    pub(super) use super::cosmic_output_management_unstable_v1::zcosmic_output_configuration_v1::ZcosmicOutputConfigurationV1;
+    #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+    pub(super) use super::cosmic_output_management_unstable_v1::zcosmic_output_configuration_v1::ZcosmicOutputConfigurationV1Error;
+    #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+    pub(super) use super::cosmic_output_management_unstable_v1::zcosmic_output_head_v1::ZcosmicOutputHeadV1;
+    #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+    pub(super) use super::cosmic_output_management_unstable_v1::zcosmic_output_head_v1::ZcosmicOutputHeadV1AdaptiveSyncAvailability;
+    #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+    pub(super) use super::cosmic_output_management_unstable_v1::zcosmic_output_head_v1::ZcosmicOutputHeadV1AdaptiveSyncStateExt;
+    #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+    pub(super) use super::cosmic_output_management_unstable_v1::zcosmic_output_manager_v1::ZcosmicOutputManagerV1;
+    #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+    pub(super) use super::cosmic_output_management_unstable_v1::zcosmic_output_manager_v1::ZcosmicOutputManagerV1Error;
+    #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")]
+    pub(super) use super::cosmic_overlap_notify_unstable_v1::zcosmic_overlap_notification_v1::ZcosmicOverlapNotificationV1;
+    #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")]
+    pub(super) use super::cosmic_overlap_notify_unstable_v1::zcosmic_overlap_notify_v1::ZcosmicOverlapNotifyV1;
+    #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
+    pub(super) use super::cosmic_workspace_unstable_v2::zcosmic_workspace_handle_v2::ZcosmicWorkspaceHandleV2;
+    #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
+    pub(super) use super::cosmic_workspace_unstable_v2::zcosmic_workspace_handle_v2::ZcosmicWorkspaceHandleV2WorkspaceCapabilities;
+    #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
+    pub(super) use super::cosmic_workspace_unstable_v2::zcosmic_workspace_handle_v2::ZcosmicWorkspaceHandleV2TilingState;
+    #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
+    pub(super) use super::cosmic_workspace_unstable_v2::zcosmic_workspace_handle_v2::ZcosmicWorkspaceHandleV2State;
+    #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
+    pub(super) use super::cosmic_workspace_unstable_v2::zcosmic_workspace_manager_v2::ZcosmicWorkspaceManagerV2;
+    #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
+    pub(super) use super::cosmic_workspace_unstable_v2::zcosmic_workspace_manager_v2::ZcosmicWorkspaceManagerV2Error;
 
     use crate::protocol_helpers::prelude::*;
 
@@ -2266,6 +2328,54 @@ mod all_types {
                 "weston_touch_coordinate" => {
                     #[cfg(feature = "protocol-weston_touch_calibration")] { Some(ObjectInterface::WestonTouchCoordinate) }
                     #[cfg(not(feature = "protocol-weston_touch_calibration"))] { None }
+                },
+                "cosmic_a11y_manager_v1" => {
+                    #[cfg(feature = "protocol-cosmic_a11y_v1")] { Some(ObjectInterface::CosmicA11yManagerV1) }
+                    #[cfg(not(feature = "protocol-cosmic_a11y_v1"))] { None }
+                },
+                "cosmic_corner_radius_manager_v1" => {
+                    #[cfg(feature = "protocol-cosmic_corner_radius_v1")] { Some(ObjectInterface::CosmicCornerRadiusManagerV1) }
+                    #[cfg(not(feature = "protocol-cosmic_corner_radius_v1"))] { None }
+                },
+                "cosmic_corner_radius_toplevel_v1" => {
+                    #[cfg(feature = "protocol-cosmic_corner_radius_v1")] { Some(ObjectInterface::CosmicCornerRadiusToplevelV1) }
+                    #[cfg(not(feature = "protocol-cosmic_corner_radius_v1"))] { None }
+                },
+                "zcosmic_workspace_image_capture_source_manager_v1" => {
+                    #[cfg(feature = "protocol-cosmic_image_source_unstable_v1")] { Some(ObjectInterface::ZcosmicWorkspaceImageCaptureSourceManagerV1) }
+                    #[cfg(not(feature = "protocol-cosmic_image_source_unstable_v1"))] { None }
+                },
+                "zcosmic_output_configuration_head_v1" => {
+                    #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")] { Some(ObjectInterface::ZcosmicOutputConfigurationHeadV1) }
+                    #[cfg(not(feature = "protocol-cosmic_output_management_unstable_v1"))] { None }
+                },
+                "zcosmic_output_configuration_v1" => {
+                    #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")] { Some(ObjectInterface::ZcosmicOutputConfigurationV1) }
+                    #[cfg(not(feature = "protocol-cosmic_output_management_unstable_v1"))] { None }
+                },
+                "zcosmic_output_head_v1" => {
+                    #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")] { Some(ObjectInterface::ZcosmicOutputHeadV1) }
+                    #[cfg(not(feature = "protocol-cosmic_output_management_unstable_v1"))] { None }
+                },
+                "zcosmic_output_manager_v1" => {
+                    #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")] { Some(ObjectInterface::ZcosmicOutputManagerV1) }
+                    #[cfg(not(feature = "protocol-cosmic_output_management_unstable_v1"))] { None }
+                },
+                "zcosmic_overlap_notification_v1" => {
+                    #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")] { Some(ObjectInterface::ZcosmicOverlapNotificationV1) }
+                    #[cfg(not(feature = "protocol-cosmic_overlap_notify_unstable_v1"))] { None }
+                },
+                "zcosmic_overlap_notify_v1" => {
+                    #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")] { Some(ObjectInterface::ZcosmicOverlapNotifyV1) }
+                    #[cfg(not(feature = "protocol-cosmic_overlap_notify_unstable_v1"))] { None }
+                },
+                "zcosmic_workspace_handle_v2" => {
+                    #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")] { Some(ObjectInterface::ZcosmicWorkspaceHandleV2) }
+                    #[cfg(not(feature = "protocol-cosmic_workspace_unstable_v2"))] { None }
+                },
+                "zcosmic_workspace_manager_v2" => {
+                    #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")] { Some(ObjectInterface::ZcosmicWorkspaceManagerV2) }
+                    #[cfg(not(feature = "protocol-cosmic_workspace_unstable_v2"))] { None }
                 },
             };
             INTERFACES.get(interface).copied().flatten()
@@ -4203,6 +4313,90 @@ mod all_types {
                     }
                     Ok(WestonTouchCoordinate::new(state, version))
                 }
+                #[cfg(feature = "protocol-cosmic_a11y_v1")]
+                Self::CosmicA11yManagerV1 => {
+                    if version > CosmicA11yManagerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(CosmicA11yManagerV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+                Self::CosmicCornerRadiusManagerV1 => {
+                    if version > CosmicCornerRadiusManagerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(CosmicCornerRadiusManagerV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+                Self::CosmicCornerRadiusToplevelV1 => {
+                    if version > CosmicCornerRadiusToplevelV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(CosmicCornerRadiusToplevelV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-cosmic_image_source_unstable_v1")]
+                Self::ZcosmicWorkspaceImageCaptureSourceManagerV1 => {
+                    if version > ZcosmicWorkspaceImageCaptureSourceManagerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(ZcosmicWorkspaceImageCaptureSourceManagerV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+                Self::ZcosmicOutputConfigurationHeadV1 => {
+                    if version > ZcosmicOutputConfigurationHeadV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(ZcosmicOutputConfigurationHeadV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+                Self::ZcosmicOutputConfigurationV1 => {
+                    if version > ZcosmicOutputConfigurationV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(ZcosmicOutputConfigurationV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+                Self::ZcosmicOutputHeadV1 => {
+                    if version > ZcosmicOutputHeadV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(ZcosmicOutputHeadV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+                Self::ZcosmicOutputManagerV1 => {
+                    if version > ZcosmicOutputManagerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(ZcosmicOutputManagerV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")]
+                Self::ZcosmicOverlapNotificationV1 => {
+                    if version > ZcosmicOverlapNotificationV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(ZcosmicOverlapNotificationV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")]
+                Self::ZcosmicOverlapNotifyV1 => {
+                    if version > ZcosmicOverlapNotifyV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(ZcosmicOverlapNotifyV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
+                Self::ZcosmicWorkspaceHandleV2 => {
+                    if version > ZcosmicWorkspaceHandleV2::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(ZcosmicWorkspaceHandleV2::new(state, version))
+                }
+                #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
+                Self::ZcosmicWorkspaceManagerV2 => {
+                    if version > ZcosmicWorkspaceManagerV2::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(ZcosmicWorkspaceManagerV2::new(state, version))
+                }
             }
         }
     }
@@ -5025,6 +5219,42 @@ pub enum ObjectInterface {
     /// weston_touch_coordinate
     #[cfg(feature = "protocol-weston_touch_calibration")]
     WestonTouchCoordinate,
+    /// cosmic_a11y_manager_v1
+    #[cfg(feature = "protocol-cosmic_a11y_v1")]
+    CosmicA11yManagerV1,
+    /// cosmic_corner_radius_manager_v1
+    #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+    CosmicCornerRadiusManagerV1,
+    /// cosmic_corner_radius_toplevel_v1
+    #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+    CosmicCornerRadiusToplevelV1,
+    /// zcosmic_workspace_image_capture_source_manager_v1
+    #[cfg(feature = "protocol-cosmic_image_source_unstable_v1")]
+    ZcosmicWorkspaceImageCaptureSourceManagerV1,
+    /// zcosmic_output_configuration_head_v1
+    #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+    ZcosmicOutputConfigurationHeadV1,
+    /// zcosmic_output_configuration_v1
+    #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+    ZcosmicOutputConfigurationV1,
+    /// zcosmic_output_head_v1
+    #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+    ZcosmicOutputHeadV1,
+    /// zcosmic_output_manager_v1
+    #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+    ZcosmicOutputManagerV1,
+    /// zcosmic_overlap_notification_v1
+    #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")]
+    ZcosmicOverlapNotificationV1,
+    /// zcosmic_overlap_notify_v1
+    #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")]
+    ZcosmicOverlapNotifyV1,
+    /// zcosmic_workspace_handle_v2
+    #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
+    ZcosmicWorkspaceHandleV2,
+    /// zcosmic_workspace_manager_v2
+    #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
+    ZcosmicWorkspaceManagerV2,
 }
 
 impl ObjectInterface {
@@ -5565,6 +5795,30 @@ impl ObjectInterface {
             Self::WestonTouchCalibrator => "weston_touch_calibrator",
             #[cfg(feature = "protocol-weston_touch_calibration")]
             Self::WestonTouchCoordinate => "weston_touch_coordinate",
+            #[cfg(feature = "protocol-cosmic_a11y_v1")]
+            Self::CosmicA11yManagerV1 => "cosmic_a11y_manager_v1",
+            #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+            Self::CosmicCornerRadiusManagerV1 => "cosmic_corner_radius_manager_v1",
+            #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+            Self::CosmicCornerRadiusToplevelV1 => "cosmic_corner_radius_toplevel_v1",
+            #[cfg(feature = "protocol-cosmic_image_source_unstable_v1")]
+            Self::ZcosmicWorkspaceImageCaptureSourceManagerV1 => "zcosmic_workspace_image_capture_source_manager_v1",
+            #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+            Self::ZcosmicOutputConfigurationHeadV1 => "zcosmic_output_configuration_head_v1",
+            #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+            Self::ZcosmicOutputConfigurationV1 => "zcosmic_output_configuration_v1",
+            #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+            Self::ZcosmicOutputHeadV1 => "zcosmic_output_head_v1",
+            #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+            Self::ZcosmicOutputManagerV1 => "zcosmic_output_manager_v1",
+            #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")]
+            Self::ZcosmicOverlapNotificationV1 => "zcosmic_overlap_notification_v1",
+            #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")]
+            Self::ZcosmicOverlapNotifyV1 => "zcosmic_overlap_notify_v1",
+            #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
+            Self::ZcosmicWorkspaceHandleV2 => "zcosmic_workspace_handle_v2",
+            #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
+            Self::ZcosmicWorkspaceManagerV2 => "zcosmic_workspace_manager_v2",
         }
     }
 
@@ -6105,6 +6359,30 @@ impl ObjectInterface {
             Self::WestonTouchCalibrator => 1,
             #[cfg(feature = "protocol-weston_touch_calibration")]
             Self::WestonTouchCoordinate => 1,
+            #[cfg(feature = "protocol-cosmic_a11y_v1")]
+            Self::CosmicA11yManagerV1 => 3,
+            #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+            Self::CosmicCornerRadiusManagerV1 => 1,
+            #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+            Self::CosmicCornerRadiusToplevelV1 => 1,
+            #[cfg(feature = "protocol-cosmic_image_source_unstable_v1")]
+            Self::ZcosmicWorkspaceImageCaptureSourceManagerV1 => 1,
+            #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+            Self::ZcosmicOutputConfigurationHeadV1 => 2,
+            #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+            Self::ZcosmicOutputConfigurationV1 => 1,
+            #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+            Self::ZcosmicOutputHeadV1 => 3,
+            #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
+            Self::ZcosmicOutputManagerV1 => 3,
+            #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")]
+            Self::ZcosmicOverlapNotificationV1 => 1,
+            #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")]
+            Self::ZcosmicOverlapNotifyV1 => 1,
+            #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
+            Self::ZcosmicWorkspaceHandleV2 => 2,
+            #[cfg(feature = "protocol-cosmic_workspace_unstable_v2")]
+            Self::ZcosmicWorkspaceManagerV2 => 2,
         }
     }
 }

@@ -860,6 +860,7 @@ pub fn format_protocol_file(w: &mut impl Write, protocol: &Protocol) -> io::Resu
     wl!("#![allow(clippy::collapsible_if)]")?;
     wl!("#![allow(clippy::doc_overindented_list_items)]")?;
     wl!("#![allow(unused_imports)]")?;
+    wl!("#![allow(non_snake_case)]")?;
     wl!("#![allow(rustdoc::broken_intra_doc_links)]")?;
     wl!("#![allow(rustdoc::bare_urls)]")?;
     wl!("#![allow(rustdoc::invalid_rust_codeblocks)]")?;

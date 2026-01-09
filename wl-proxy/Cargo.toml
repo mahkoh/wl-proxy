@@ -34,6 +34,7 @@ all-protocols = [
     "suite-wlproxy",
     "suite-river-protocols",
     "suite-weston-protocols",
+    "suite-cosmic-protocols",
 ]
 
 suite-hyprland-protocols = [
@@ -157,6 +158,14 @@ suite-weston-protocols = [
     "protocol-weston_test",
     "protocol-weston_touch_calibration",
 ]
+suite-cosmic-protocols = [
+    "protocol-cosmic_a11y_v1",
+    "protocol-cosmic_corner_radius_v1",
+    "protocol-cosmic_image_source_unstable_v1",
+    "protocol-cosmic_output_management_unstable_v1",
+    "protocol-cosmic_overlap_notify_unstable_v1",
+    "protocol-cosmic_workspace_unstable_v2",
+]
 
 protocol-hyprland_ctm_control_v1 = []
 protocol-hyprland_focus_grab_v1 = []
@@ -261,4 +270,10 @@ protocol-weston_direct_display = ["protocol-linux_dmabuf_v1"]
 protocol-weston_output_capture = []
 protocol-weston_test = []
 protocol-weston_touch_calibration = []
+protocol-cosmic_a11y_v1 = []
+protocol-cosmic_corner_radius_v1 = ["protocol-xdg_shell"]
+protocol-cosmic_image_source_unstable_v1 = ["protocol-ext_image_capture_source_v1", "protocol-ext_workspace_v1"]
+protocol-cosmic_output_management_unstable_v1 = ["protocol-wlr_output_management_unstable_v1"]
+protocol-cosmic_overlap_notify_unstable_v1 = ["protocol-ext_foreign_toplevel_list_v1", "protocol-wlr_layer_shell_unstable_v1"]
+protocol-cosmic_workspace_unstable_v2 = ["protocol-ext_workspace_v1"]
 # --generated end--

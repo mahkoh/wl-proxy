@@ -1,5 +1,3 @@
-#![expect(clippy::needless_update)]
-
 use {
     quick_xml::{
         ElementWriter, Writer,
@@ -214,8 +212,23 @@ fn main() {
                 "weston_test",
                 "weston_touch_calibration",
             ],
+            block: &["text_cursor_position"],
+        },
+        Repo {
+            name: "cosmic-protocols",
+            dir: "cosmic-protocols",
+            allow: &[
+                "cosmic_a11y_v1",
+                "cosmic_corner_radius_v1",
+                "cosmic_image_source_unstable_v1",
+                "cosmic_output_management_unstable_v1",
+                "cosmic_overlap_notify_unstable_v1",
+                "cosmic_workspace_unstable_v2",
+            ],
             block: &[
-                "text_cursor_position",
+                "cosmic_workspace_unstable_v1",
+                "cosmic_toplevel_info_unstable_v1",
+                "cosmic_toplevel_management_unstable_v1",
             ],
         },
     ];
