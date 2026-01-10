@@ -551,6 +551,9 @@ fn format_interface_message_handler(w: &mut impl Write, interface: &Interface) -
     wl!(r#"        slf.core.delete_id();"#)?;
     wl!(r#"    }}"#)?;
     for msg in &interface.messages {
+        if interface.is_wl_display && matches!(&*msg.name, "delete_id" | "error") {
+            continue;
+        }
         let mut arg_names = HashSet::new();
         for arg in &msg.args {
             arg_names.insert(escape_name(&arg.name).to_string());

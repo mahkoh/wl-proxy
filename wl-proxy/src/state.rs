@@ -576,6 +576,15 @@ impl State {
     {
         P::new(self, version)
     }
+
+    /// Returns a wl_display object.
+    pub fn display(self: &Rc<Self>) -> Rc<WlDisplay> {
+        let display = WlDisplay::new(self, 1);
+        if self.server.is_some() {
+            display.core().server_obj_id.set(Some(1));
+        }
+        display
+    }
 }
 
 /// These functions can be used to manage sockets associated with this state.
@@ -646,14 +655,10 @@ impl State {
         let endpoint = Endpoint::new(id, socket);
         self.change_interest(&endpoint, |i| i | poll::READABLE);
         self.update_interests()?;
-        let display = WlDisplay::new(self, 1);
-        if self.server.is_some() {
-            display.core().server_obj_id.set(Some(1));
-        }
         let client = Rc::new(Client {
             state: self.clone(),
             endpoint: endpoint.clone(),
-            display,
+            display: self.display(),
             destroyed: Cell::new(false),
             handler: Default::default(),
         });
