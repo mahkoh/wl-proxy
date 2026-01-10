@@ -1,12 +1,12 @@
-#[cfg(test)]
-mod tests;
-
 use std::{
     array,
     cell::UnsafeCell,
     fmt::{Debug, Formatter},
     marker::PhantomData,
 };
+
+#[cfg(test)]
+mod tests;
 
 type Seg = usize;
 const SEG_SIZE: usize = Seg::BITS as usize;

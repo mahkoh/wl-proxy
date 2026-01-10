@@ -4,6 +4,9 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
+#[cfg(test)]
+mod tests;
+
 pub(crate) struct Stash<T> {
     elements: Cell<Vec<T>>,
 }

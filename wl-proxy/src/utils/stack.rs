@@ -3,6 +3,9 @@ use std::{
     mem,
 };
 
+#[cfg(test)]
+mod tests;
+
 pub(crate) struct Stack<T> {
     vec: UnsafeCell<Vec<T>>,
     borrowed: Cell<bool>,
