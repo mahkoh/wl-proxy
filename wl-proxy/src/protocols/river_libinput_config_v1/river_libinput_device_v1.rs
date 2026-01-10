@@ -78,7 +78,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -508,7 +510,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -846,7 +850,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -1115,7 +1121,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -1385,7 +1393,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -1653,7 +1663,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -2002,7 +2014,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -2337,7 +2351,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -2672,7 +2688,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -2938,7 +2956,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -3071,7 +3091,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1_id);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -3406,7 +3428,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -3741,7 +3765,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -4076,7 +4102,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -4345,7 +4373,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -4685,7 +4715,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -5020,7 +5052,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -5289,7 +5323,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -5561,7 +5597,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -5901,7 +5939,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -6238,7 +6278,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -6574,7 +6616,9 @@ impl RiverLibinputDeviceV1 {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -9291,7 +9335,7 @@ impl ObjectPrivate for RiverLibinputDeviceV1 {
         Ok(())
     }
 
-    fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+    fn handle_event(self: Rc<Self>, server: &Endpoint, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
             return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
@@ -9334,11 +9378,11 @@ impl ObjectPrivate for RiverLibinputDeviceV1 {
                     log(&self.core.state, msg[0], arg0);
                 }
                 let arg0_id = arg0;
-                let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
+                let Some(arg0) = server.lookup(arg0_id) else {
                     return Err(ObjectError(ObjectErrorKind::NoServerObject(arg0_id)));
                 };
                 let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<RiverInputDeviceV1>() else {
-                    let o = self.core.state.server.lookup(arg0_id).unwrap();
+                    let o = server.lookup(arg0_id).unwrap();
                     return Err(ObjectError(ObjectErrorKind::WrongObjectType("device", o.core().interface, ObjectInterface::RiverInputDeviceV1)));
                 };
                 let arg0 = &arg0;
@@ -10564,6 +10608,7 @@ impl ObjectPrivate for RiverLibinputDeviceV1 {
                 }
             }
             n => {
+                let _ = server;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;

@@ -14,6 +14,7 @@ pub(crate) mod prelude {
         },
         crate::{
             client::Client,
+            endpoint::Endpoint,
             fixed::Fixed,
             handler::{HandlerAccessError, HandlerHolder, HandlerMut, HandlerRef},
             object::{

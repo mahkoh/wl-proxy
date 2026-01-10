@@ -143,7 +143,9 @@ impl ZwlrLayerShellV1 {
             }
             log(&self.core.state, id, arg0_id, arg1_id, arg2_id, arg3, arg4);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -338,7 +340,9 @@ impl ZwlrLayerShellV1 {
             }
             log(&self.core.state, id);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -586,13 +590,14 @@ impl ObjectPrivate for ZwlrLayerShellV1 {
         Ok(())
     }
 
-    fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+    fn handle_event(self: Rc<Self>, server: &Endpoint, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
             return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             n => {
+                let _ = server;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;

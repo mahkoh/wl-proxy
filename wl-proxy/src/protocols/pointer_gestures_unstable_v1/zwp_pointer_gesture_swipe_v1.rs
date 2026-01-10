@@ -85,7 +85,9 @@ impl ZwpPointerGestureSwipeV1 {
             }
             log(&self.core.state, id);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -608,7 +610,7 @@ impl ObjectPrivate for ZwpPointerGestureSwipeV1 {
         Ok(())
     }
 
-    fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+    fn handle_event(self: Rc<Self>, server: &Endpoint, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
             return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
@@ -634,11 +636,11 @@ impl ObjectPrivate for ZwpPointerGestureSwipeV1 {
                     log(&self.core.state, msg[0], arg0, arg1, arg2, arg3);
                 }
                 let arg2_id = arg2;
-                let Some(arg2) = self.core.state.server.lookup(arg2_id) else {
+                let Some(arg2) = server.lookup(arg2_id) else {
                     return Err(ObjectError(ObjectErrorKind::NoServerObject(arg2_id)));
                 };
                 let Ok(arg2) = (arg2 as Rc<dyn Any>).downcast::<WlSurface>() else {
-                    let o = self.core.state.server.lookup(arg2_id).unwrap();
+                    let o = server.lookup(arg2_id).unwrap();
                     return Err(ObjectError(ObjectErrorKind::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface)));
                 };
                 let arg2 = &arg2;
@@ -700,6 +702,7 @@ impl ObjectPrivate for ZwpPointerGestureSwipeV1 {
                 }
             }
             n => {
+                let _ = server;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;

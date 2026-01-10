@@ -148,7 +148,7 @@ pub struct State {
     pub(crate) baseline: Baseline,
     poller: Poller,
     next_pollable_id: Cell<u64>,
-    pub(crate) server: Rc<Endpoint>,
+    pub(crate) server: Option<Rc<Endpoint>>,
     pub(crate) destroyed: Cell<bool>,
     handler: HandlerHolder<dyn StateHandler>,
     pollables: RefCell<HashMap<u64, Pollable>>,
@@ -218,11 +218,11 @@ impl State {
         Ok(())
     }
 
-    pub(crate) fn handle_delete_id(&self, id: u32) {
-        let object = self.server.objects.borrow_mut().remove(&id).unwrap();
+    pub(crate) fn handle_delete_id(&self, server: &Endpoint, id: u32) {
+        let object = server.objects.borrow_mut().remove(&id).unwrap();
         let core = object.core();
         core.server_obj_id.take();
-        self.server.idl.release(id);
+        server.idl.release(id);
         if let Err((e, object)) = object.delete_id() {
             log::warn!(
                 "Could not handle a wl_display.delete_id message: {}",
@@ -647,7 +647,9 @@ impl State {
         self.change_interest(&endpoint, |i| i | poll::READABLE);
         self.update_interests()?;
         let display = WlDisplay::new(self, 1);
-        display.core().server_obj_id.set(Some(1));
+        if self.server.is_some() {
+            display.core().server_obj_id.set(Some(1));
+        }
         let client = Rc::new(Client {
             state: self.clone(),
             endpoint: endpoint.clone(),

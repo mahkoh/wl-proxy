@@ -99,7 +99,9 @@ impl WlDisplay {
             }
             log(&self.core.state, id, arg0_id);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -239,7 +241,9 @@ impl WlDisplay {
             }
             log(&self.core.state, id, arg0_id);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -752,7 +756,7 @@ impl ObjectPrivate for WlDisplay {
         Ok(())
     }
 
-    fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+    fn handle_event(self: Rc<Self>, server: &Endpoint, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
             return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
@@ -784,7 +788,7 @@ impl ObjectPrivate for WlDisplay {
                     log(&self.core.state, msg[0], arg0, arg1, arg2);
                 }
                 let arg0_id = arg0;
-                let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
+                let Some(arg0) = server.lookup(arg0_id) else {
                     return Err(ObjectError(ObjectErrorKind::NoServerObject(arg0_id)));
                 };
                 return Err(ObjectError(ObjectErrorKind::ServerError(arg0.core().interface, arg0_id, arg1, StringError(arg2.to_string()))));
@@ -805,9 +809,10 @@ impl ObjectPrivate for WlDisplay {
                     }
                     log(&self.core.state, msg[0], arg0);
                 }
-                self.core.state.handle_delete_id(arg0);
+                self.core.state.handle_delete_id(server, arg0);
             }
             n => {
+                let _ = server;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;

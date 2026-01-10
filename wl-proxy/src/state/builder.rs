@@ -38,6 +38,7 @@ pub struct StateBuilder {
 }
 
 enum Server {
+    None,
     Fd(Rc<OwnedFd>),
     DisplayName(String),
 }
@@ -66,7 +67,8 @@ impl StateBuilder {
         let server_fd = 'fd: {
             let display_name = match self.server {
                 None => None,
-                Some(Server::Fd(fd)) => break 'fd fd,
+                Some(Server::None) => break 'fd None,
+                Some(Server::Fd(fd)) => break 'fd Some(fd),
                 Some(Server::DisplayName(n)) => Some(n),
             };
             if display_name.is_none()
@@ -83,7 +85,8 @@ impl StateBuilder {
                 unsafe {
                     remove_var(WAYLAND_SOCKET);
                 }
-                break 'fd unsafe { Rc::new(OwnedFd::from_raw_fd(fd)) };
+                let fd = unsafe { Rc::new(OwnedFd::from_raw_fd(fd)) };
+                break 'fd Some(fd);
             }
             let mut name = match display_name {
                 Some(n) => n,
@@ -114,20 +117,24 @@ impl StateBuilder {
                 .map_err(|e| StateErrorKind::CreateSocket(e.into()))?;
             uapi::connect(socket.raw(), &addr)
                 .map_err(|e| StateErrorKind::Connect(name.to_string(), e.into()))?;
-            Rc::new(socket.into())
+            Some(Rc::new(socket.into()))
         };
         const SERVER_ENDPOINT_ID: u64 = 0;
-        let server = Endpoint::new(SERVER_ENDPOINT_ID, &server_fd);
-        server.idl.acquire();
-        server.idl.acquire();
         let mut endpoints = HashMap::new();
-        endpoints.insert(
-            SERVER_ENDPOINT_ID,
-            Pollable::Endpoint(EndpointWithClient {
-                endpoint: server.clone(),
-                client: None,
-            }),
-        );
+        let mut server = None;
+        if let Some(server_fd) = &server_fd {
+            let s = Endpoint::new(SERVER_ENDPOINT_ID, server_fd);
+            s.idl.acquire();
+            s.idl.acquire();
+            endpoints.insert(
+                SERVER_ENDPOINT_ID,
+                Pollable::Endpoint(EndpointWithClient {
+                    endpoint: s.clone(),
+                    client: None,
+                }),
+            );
+            server = Some(s);
+        }
         let poller = Poller::new().map_err(StateErrorKind::PollError)?;
         let mut log_prefix = String::new();
         if let Ok(prefix) = var(WL_PROXY_PREFIX) {
@@ -170,17 +177,25 @@ impl StateBuilder {
             global_lock_held: Default::default(),
             object_stash: Default::default(),
         });
-        state.change_interest(&state.server, |i| i | poll::READABLE);
-        state
-            .poller
-            .register(0, &state.server.socket)
-            .map_err(StateErrorKind::PollError)?;
-        let display = WlDisplay::new(&state, 1);
-        display
-            .core()
-            .set_server_id_unchecked(1, display.clone())
-            .unwrap();
+        if let Some(server) = &state.server {
+            state.change_interest(server, |i| i | poll::READABLE);
+            state
+                .poller
+                .register(0, &server.socket)
+                .map_err(StateErrorKind::PollError)?;
+            let display = WlDisplay::new(&state, 1);
+            display
+                .core()
+                .set_server_id_unchecked(1, display.clone())
+                .unwrap();
+        }
         Ok(state)
+    }
+
+    /// Constructs a state without a server.
+    pub fn without_server(mut self) -> Self {
+        self.server = Some(Server::None);
+        self
     }
 
     /// Sets the server file descriptor to connect to.

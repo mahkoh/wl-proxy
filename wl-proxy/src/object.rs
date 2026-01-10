@@ -3,6 +3,7 @@
 use {
     crate::{
         client::Client,
+        endpoint::Endpoint,
         handler::{HandlerAccessError, HandlerMut, HandlerRef},
         protocols::ObjectInterface,
         state::State,
@@ -31,6 +32,7 @@ pub(crate) trait ObjectPrivate: Any {
     ) -> Result<(), ObjectError>;
     fn handle_event(
         self: Rc<Self>,
+        server: &Endpoint,
         msg: &[u32],
         fds: &mut VecDeque<Rc<OwnedFd>>,
     ) -> Result<(), ObjectError>;
@@ -354,6 +356,8 @@ pub(crate) enum IdError {
     ClientDestroyed,
     #[error("object already has the server id {0}")]
     HasServerId(u32),
+    #[error("the state does not have a server")]
+    NoServer,
     #[error("there are no server ids available")]
     NoServerSpace,
     #[error("the id {0} is too small to be a server id")]
@@ -409,13 +413,16 @@ impl ObjectCore {
         if let Some(id) = self.server_obj_id.get() {
             return Err(IdError::HasServerId(id));
         }
-        let id = self.state.server.idl.acquire();
+        let Some(server) = &self.state.server else {
+            return Err(IdError::NoServer);
+        };
+        let id = server.idl.acquire();
         if id >= MIN_SERVER_ID {
-            self.state.server.idl.release(id);
+            server.idl.release(id);
             return Err(IdError::NoServerSpace);
         }
         self.server_obj_id.set(Some(id));
-        self.state.server.objects.borrow_mut().insert(id, slf);
+        server.objects.borrow_mut().insert(id, slf);
         Ok(())
     }
 
@@ -435,7 +442,10 @@ impl ObjectCore {
         if let Some(id) = self.server_obj_id.get() {
             return Err(IdError::HasServerId(id));
         }
-        let objects = &mut *self.state.server.objects.borrow_mut();
+        let Some(server) = &self.state.server else {
+            return Err(IdError::NoServer);
+        };
+        let objects = &mut *server.objects.borrow_mut();
         let Entry::Vacant(entry) = objects.entry(id) else {
             return Err(IdError::ServerIdInUse(id));
         };
@@ -518,7 +528,14 @@ impl ObjectCore {
             return;
         }
         self.server_obj_id.take();
-        let _object = self.state.server.objects.borrow_mut().remove(&id);
+        let _object = self
+            .state
+            .server
+            .as_ref()
+            .unwrap()
+            .objects
+            .borrow_mut()
+            .remove(&id);
     }
 }
 

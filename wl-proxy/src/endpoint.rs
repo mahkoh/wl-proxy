@@ -147,7 +147,7 @@ impl Endpoint {
             let res = if let Some(client) = client {
                 obj.handle_request(client, msg, fds)
             } else {
-                obj.handle_event(msg, fds)
+                obj.handle_event(self, msg, fds)
             };
             if let Err(e) = res {
                 let mut err = Box::new(MessageError {

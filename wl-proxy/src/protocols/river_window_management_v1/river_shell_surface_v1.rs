@@ -76,7 +76,9 @@ impl RiverShellSurfaceV1 {
             }
             log(&self.core.state, id);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -148,7 +150,9 @@ impl RiverShellSurfaceV1 {
             }
             log(&self.core.state, id, arg0_id);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -253,7 +257,9 @@ impl RiverShellSurfaceV1 {
             }
             log(&self.core.state, id);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -480,13 +486,14 @@ impl ObjectPrivate for RiverShellSurfaceV1 {
         Ok(())
     }
 
-    fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+    fn handle_event(self: Rc<Self>, server: &Endpoint, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
             return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
         let handler = &mut *handler;
         match msg[1] & 0xffff {
             n => {
+                let _ = server;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;

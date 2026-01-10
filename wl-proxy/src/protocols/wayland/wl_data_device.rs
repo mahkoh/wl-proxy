@@ -148,7 +148,9 @@ impl WlDataDevice {
             }
             log(&self.core.state, id, arg0_id, arg1_id, arg2_id, arg3);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -276,7 +278,9 @@ impl WlDataDevice {
             }
             log(&self.core.state, id, arg0_id, arg1);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -924,7 +928,9 @@ impl WlDataDevice {
             }
             log(&self.core.state, id);
         }
-        let endpoint = &self.core.state.server;
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
         if !endpoint.flush_queued.replace(true) {
             self.core.state.add_flushable_endpoint(endpoint, None);
         }
@@ -1457,7 +1463,7 @@ impl ObjectPrivate for WlDataDevice {
         Ok(())
     }
 
-    fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
+    fn handle_event(self: Rc<Self>, server: &Endpoint, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {
         let Some(mut handler) = self.handler.try_borrow_mut() else {
             return Err(ObjectError(ObjectErrorKind::HandlerBorrowed));
         };
@@ -1513,22 +1519,22 @@ impl ObjectPrivate for WlDataDevice {
                     log(&self.core.state, msg[0], arg0, arg1, arg2, arg3, arg4);
                 }
                 let arg1_id = arg1;
-                let Some(arg1) = self.core.state.server.lookup(arg1_id) else {
+                let Some(arg1) = server.lookup(arg1_id) else {
                     return Err(ObjectError(ObjectErrorKind::NoServerObject(arg1_id)));
                 };
                 let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<WlSurface>() else {
-                    let o = self.core.state.server.lookup(arg1_id).unwrap();
+                    let o = server.lookup(arg1_id).unwrap();
                     return Err(ObjectError(ObjectErrorKind::WrongObjectType("surface", o.core().interface, ObjectInterface::WlSurface)));
                 };
                 let arg4 = if arg4 == 0 {
                     None
                 } else {
                     let arg4_id = arg4;
-                    let Some(arg4) = self.core.state.server.lookup(arg4_id) else {
+                    let Some(arg4) = server.lookup(arg4_id) else {
                         return Err(ObjectError(ObjectErrorKind::NoServerObject(arg4_id)));
                     };
                     let Ok(arg4) = (arg4 as Rc<dyn Any>).downcast::<WlDataOffer>() else {
-                        let o = self.core.state.server.lookup(arg4_id).unwrap();
+                        let o = server.lookup(arg4_id).unwrap();
                         return Err(ObjectError(ObjectErrorKind::WrongObjectType("id", o.core().interface, ObjectInterface::WlDataOffer)));
                     };
                     Some(arg4)
@@ -1627,11 +1633,11 @@ impl ObjectPrivate for WlDataDevice {
                     None
                 } else {
                     let arg0_id = arg0;
-                    let Some(arg0) = self.core.state.server.lookup(arg0_id) else {
+                    let Some(arg0) = server.lookup(arg0_id) else {
                         return Err(ObjectError(ObjectErrorKind::NoServerObject(arg0_id)));
                     };
                     let Ok(arg0) = (arg0 as Rc<dyn Any>).downcast::<WlDataOffer>() else {
-                        let o = self.core.state.server.lookup(arg0_id).unwrap();
+                        let o = server.lookup(arg0_id).unwrap();
                         return Err(ObjectError(ObjectErrorKind::WrongObjectType("id", o.core().interface, ObjectInterface::WlDataOffer)));
                     };
                     Some(arg0)
@@ -1644,6 +1650,7 @@ impl ObjectPrivate for WlDataDevice {
                 }
             }
             n => {
+                let _ = server;
                 let _ = msg;
                 let _ = fds;
                 let _ = handler;

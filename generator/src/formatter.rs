@@ -306,7 +306,9 @@ fn format_interface_message_functions(w: &mut impl Write, interface: &Interface)
         }
         format_wayland_debug(w, interface, msg, true)?;
         if msg.is_request {
-            wl!(r#"        let endpoint = &self.core.state.server;"#)?;
+            wl!(r#"        let Some(endpoint) = &self.core.state.server else {{"#)?;
+            wl!(r#"            return Ok(());"#)?;
+            wl!(r#"        }};"#)?;
         } else {
             wl!(r#"        let endpoint = &client.endpoint;"#)?;
         }
@@ -1082,7 +1084,7 @@ fn format_object_impl(w: &mut impl Write, interface: &Interface) -> io::Result<(
     wl!(r#"    }}"#)?;
     wl!()?;
     wl!(
-        r#"    fn handle_event(self: Rc<Self>, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {{"#
+        r#"    fn handle_event(self: Rc<Self>, server: &Endpoint, msg: &[u32], fds: &mut VecDeque<Rc<OwnedFd>>) -> Result<(), ObjectError> {{"#
     )?;
     format_object_message_handler_body(w, interface, false)?;
     wl!(r#"    }}"#)?;
@@ -1550,7 +1552,7 @@ fn format_object_message_handler_body<W: Write>(
                         )?;
                     } else {
                         wl!(
-                            r#"{p}        {prefix}let Some(arg{idx}) = self.core.state.server.lookup(arg{idx}_id) else {{"#
+                            r#"{p}        {prefix}let Some(arg{idx}) = server.lookup(arg{idx}_id) else {{"#
                         )?;
                         wl!(
                             r#"{p}            {prefix}return Err(ObjectError(ObjectErrorKind::NoServerObject(arg{idx}_id)));"#
@@ -1568,7 +1570,7 @@ fn format_object_message_handler_body<W: Write>(
                             )?;
                         } else {
                             wl!(
-                                r#"{p}        {prefix}    let o = self.core.state.server.lookup(arg{idx}_id).unwrap();"#
+                                r#"{p}        {prefix}    let o = server.lookup(arg{idx}_id).unwrap();"#
                             )?;
                         }
                         wl!(
@@ -1612,7 +1614,7 @@ fn format_object_message_handler_body<W: Write>(
         }
         if interface.is_wl_display && !msg.is_request {
             if msg.name == "delete_id" {
-                wl!(r#"{p}        self.core.state.handle_delete_id(arg0);"#)?;
+                wl!(r#"{p}        self.core.state.handle_delete_id(server, arg0);"#)?;
             } else if msg.name == "error" {
                 wl!(
                     r#"{p}        return Err(ObjectError(ObjectErrorKind::ServerError(arg0.core().interface, arg0_id, arg1, StringError(arg2.to_string()))));"#
@@ -1650,6 +1652,8 @@ fn format_object_message_handler_body<W: Write>(
     wl!(r#"{p}    n => {{"#)?;
     if requests {
         wl!(r#"{p}        let _ = client;"#)?;
+    } else {
+        wl!(r#"{p}        let _ = server;"#)?;
     }
     wl!(r#"{p}        let _ = msg;"#)?;
     wl!(r#"{p}        let _ = fds;"#)?;
