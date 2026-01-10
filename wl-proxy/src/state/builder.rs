@@ -82,10 +82,11 @@ impl StateBuilder {
                     .map_err(|e| StateErrorKind::WaylandSocketGetFd(e.into()))?;
                 uapi::fcntl_setfd(fd, flags | c::FD_CLOEXEC)
                     .map_err(|e| StateErrorKind::WaylandSocketSetFd(e.into()))?;
-                unsafe {
+                // SAFETY: This is unsound.
+                let fd = unsafe {
                     remove_var(WAYLAND_SOCKET);
-                }
-                let fd = unsafe { Rc::new(OwnedFd::from_raw_fd(fd)) };
+                    Rc::new(OwnedFd::from_raw_fd(fd))
+                };
                 break 'fd Some(fd);
             }
             let mut name = match display_name {

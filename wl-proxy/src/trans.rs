@@ -161,6 +161,7 @@ fn read_from_socket(
             continue;
         }
         for fd in uapi::pod_iter::<RawFd, _>(data).unwrap() {
+            // SAFETY: The kernel guarantees that fd is valid
             unsafe {
                 fds.push_back(Rc::new(OwnedFd::from_raw_fd(fd)));
             }
@@ -201,6 +202,7 @@ fn write_to_socket(socket: RawFd, buffer: &mut OutputBuffer) -> Result<FlushResu
         let data_len = size_of::<RawFd>() * fdo.num_fds;
         let cmsg_space = uapi::cmsg_space(data_len);
         control_buf.reserve_exact(cmsg_space);
+        // SAFETY: control_buf contains only MaybeUninit elements.
         unsafe {
             control_buf.set_len(cmsg_space);
         }

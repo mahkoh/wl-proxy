@@ -27,27 +27,21 @@ impl<T, const N: usize> Default for FreeList<T, N> {
 
 impl<T, const N: usize> Debug for FreeList<T, N> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("FreeList")
-            .field("levels", self.get())
-            .finish()
+        let levels = unsafe { &mut *self.levels.get() };
+        f.debug_struct("FreeList").field("levels", levels).finish()
     }
 }
 
 impl<T, const N: usize> FreeList<T, N> {
-    #[expect(clippy::mut_from_ref)]
-    fn get(&self) -> &mut [Vec<Seg>; N] {
-        unsafe { &mut *self.levels.get() }
-    }
-
     pub(crate) fn release(&self, n: T)
     where
         T: Into<u32>,
     {
         let mut ext = n.into() as usize;
         let mut int;
-        let levels = self.get();
+        let levels = unsafe { &mut *self.levels.get() };
         assert!(ext / SEG_SIZE < levels[0].len());
-        for level in self.get() {
+        for level in levels {
             int = ext % SEG_SIZE;
             ext /= SEG_SIZE;
             unsafe {
@@ -60,8 +54,9 @@ impl<T, const N: usize> FreeList<T, N> {
     where
         u32: Into<T>,
     {
+        let levels = unsafe { &mut *self.levels.get() };
         let mut ext = 'last: {
-            let level = &mut self.get()[N - 1];
+            let level = &mut levels[N - 1];
             for (idx, &seg) in level.iter().enumerate() {
                 if seg != 0 {
                     break 'last idx;
@@ -69,7 +64,7 @@ impl<T, const N: usize> FreeList<T, N> {
             }
             level.len()
         };
-        for level in self.get().iter_mut().rev() {
+        for level in levels.iter_mut().rev() {
             if ext == level.len() {
                 level.push(!0);
             }
@@ -77,7 +72,7 @@ impl<T, const N: usize> FreeList<T, N> {
             ext = SEG_SIZE * ext + seg.trailing_zeros() as usize;
         }
         let id = ext as u32;
-        for level in self.get().iter_mut() {
+        for level in levels.iter_mut() {
             let int = ext % SEG_SIZE;
             ext /= SEG_SIZE;
             let seg = unsafe { level.get_unchecked_mut(ext) };

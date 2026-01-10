@@ -251,6 +251,7 @@ pub trait ObjectUtils: Object {
         handler
             .downcast_ref::<T>()
             .ok_or(HandlerAccessError::InvalidType)?;
+        // SAFETY: We've just verified that `h` has type `T`.
         Ok(HandlerRef::map(handler, |h| unsafe {
             &*(h as *const dyn Any as *const T)
         }))
@@ -275,6 +276,7 @@ pub trait ObjectUtils: Object {
         handler
             .downcast_mut::<T>()
             .ok_or(HandlerAccessError::InvalidType)?;
+        // SAFETY: We've just verified that `h` has type `T`.
         Ok(HandlerMut::map(handler, |h| unsafe {
             &mut *(h as *mut dyn Any as *mut T)
         }))

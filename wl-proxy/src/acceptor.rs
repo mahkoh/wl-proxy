@@ -195,6 +195,7 @@ impl Acceptor {
     /// # }
     /// ```
     pub unsafe fn setenv(&self) {
+        // SAFETY: The requirement is forwarded to the caller.
         unsafe {
             set_var(WAYLAND_DISPLAY, &self.display);
         }
