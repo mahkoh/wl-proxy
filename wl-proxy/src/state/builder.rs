@@ -17,7 +17,7 @@ use {
         env::{remove_var, var, var_os},
         io::BufWriter,
         os::{
-            fd::{FromRawFd, OwnedFd},
+            fd::{AsFd, FromRawFd, OwnedFd},
             unix::ffi::OsStrExt,
         },
         rc::Rc,
@@ -182,7 +182,7 @@ impl StateBuilder {
             state.change_interest(server, |i| i | poll::READABLE);
             state
                 .poller
-                .register(0, &server.socket)
+                .register(0, server.socket.as_fd())
                 .map_err(StateErrorKind::PollError)?;
             let display = WlDisplay::new(&state, 1);
             display

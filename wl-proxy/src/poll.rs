@@ -2,12 +2,15 @@ use {
     error_reporter::Report,
     std::{
         io,
-        os::fd::{AsRawFd, OwnedFd},
+        os::fd::{AsRawFd, BorrowedFd, OwnedFd},
         rc::Rc,
     },
     thiserror::Error,
     uapi::{Errno, c},
 };
+
+#[cfg(test)]
+mod tests;
 
 #[derive(Debug, Error)]
 pub(crate) enum PollError {
@@ -77,7 +80,7 @@ impl Poller {
         }
     }
 
-    pub(crate) fn register(&self, id: u64, fd: &OwnedFd) -> Result<(), PollError> {
+    pub(crate) fn register(&self, id: u64, fd: BorrowedFd<'_>) -> Result<(), PollError> {
         let event = c::epoll_event {
             events: ONESHOT,
             u64: id,
@@ -91,7 +94,7 @@ impl Poller {
         .map_err(|e| PollError::Add(e.into()))
     }
 
-    pub(crate) fn unregister(&self, fd: &OwnedFd) {
+    pub(crate) fn unregister(&self, fd: BorrowedFd<'_>) {
         let res = uapi::epoll_ctl(
             self.epoll.as_raw_fd(),
             c::EPOLL_CTL_DEL,
@@ -108,8 +111,8 @@ impl Poller {
 
     pub(crate) fn update_interests(
         &self,
-        socket: &OwnedFd,
         id: u64,
+        fd: BorrowedFd<'_>,
         events: u32,
     ) -> Result<(), PollError> {
         let event = c::epoll_event {
@@ -119,7 +122,7 @@ impl Poller {
         uapi::epoll_ctl(
             self.epoll.as_raw_fd(),
             c::EPOLL_CTL_MOD,
-            socket.as_raw_fd(),
+            fd.as_raw_fd(),
             Some(&event),
         )
         .map_err(|e| PollError::Update(e.into()))

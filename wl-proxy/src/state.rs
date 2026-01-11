@@ -27,7 +27,7 @@ use {
         collections::HashMap,
         fmt,
         io::{self, BufWriter, Write, pipe},
-        os::fd::OwnedFd,
+        os::fd::{AsFd, OwnedFd},
         rc::{Rc, Weak},
         sync::{
             Arc,
@@ -201,7 +201,7 @@ pub(crate) struct HandlerLock<'a> {
 impl State {
     pub(crate) fn remove_endpoint(&self, endpoint: &Endpoint) {
         self.pollables.borrow_mut().remove(&endpoint.id);
-        self.poller.unregister(&endpoint.socket);
+        self.poller.unregister(endpoint.socket.as_fd());
     }
 
     fn acquire_handler_lock(&self) -> Result<HandlerLock<'_>, StateErrorKind> {
@@ -393,7 +393,7 @@ impl State {
                     }
                     Pollable::Destructor(fd, destroy) => {
                         let destroy = destroy.load(Acquire);
-                        self.poller.unregister(fd);
+                        self.poller.unregister(fd.as_fd());
                         pollables.remove(&id);
                         if destroy {
                             return Err(StateErrorKind::RemoteDestroyed.into());
@@ -437,7 +437,7 @@ impl State {
                     continue;
                 }
                 self.poller
-                    .update_interests(&endpoint.socket, endpoint.id, desired)
+                    .update_interests(endpoint.id, endpoint.socket.as_fd(), desired)
                     .map_err(StateErrorKind::PollError)?;
                 endpoint.current_interest.set(desired);
             }
@@ -446,7 +446,7 @@ impl State {
         if self.has_interest_update_acceptors.get() {
             while let Some(acceptor) = self.interest_update_acceptors.pop() {
                 self.poller
-                    .update_interests(&acceptor.socket, acceptor.id, poll::READABLE)
+                    .update_interests(acceptor.id, acceptor.socket.as_fd(), poll::READABLE)
                     .map_err(StateErrorKind::PollError)?;
             }
             self.has_interest_update_acceptors.set(false);
@@ -631,7 +631,7 @@ impl State {
         let acceptor =
             Acceptor::create(id, max_tries, true).map_err(StateErrorKind::CreateAcceptor)?;
         self.poller
-            .register(id, &acceptor.socket)
+            .register(id, acceptor.socket.as_fd())
             .map_err(StateErrorKind::PollError)?;
         self.update_interests()?;
         self.interest_update_acceptors.push(acceptor.clone());
@@ -650,7 +650,7 @@ impl State {
         self.check_destroyed()?;
         let id = self.create_pollable_id();
         self.poller
-            .register(id, socket)
+            .register(id, socket.as_fd())
             .map_err(StateErrorKind::PollError)?;
         let endpoint = Endpoint::new(id, socket);
         self.change_interest(&endpoint, |i| i | poll::READABLE);
@@ -764,7 +764,7 @@ impl State {
                 Pollable::Acceptor(a) => &a.socket,
                 Pollable::Destructor(fd, _) => fd,
             };
-            self.poller.unregister(fd);
+            self.poller.unregister(fd.as_fd());
         }
         objects.clear();
         for object in self.all_objects.borrow().values() {
@@ -817,7 +817,7 @@ impl State {
         let r: OwnedFd = r.into();
         let id = self.create_pollable_id();
         self.poller
-            .register(id, &r)
+            .register(id, r.as_fd())
             .map_err(StateErrorKind::PollError)?;
         let destroy = Arc::new(AtomicBool::new(false));
         self.pollables
