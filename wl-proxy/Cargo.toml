@@ -21,6 +21,9 @@ run-on-drop = "1.0.0"
 linearize = { version = "0.1.5", features = ["derive"] }
 parking_lot = "0.12.5"
 
+[dev-dependencies]
+env_logger = "0.11.8"
+
 [features]
 
 # --generated start--

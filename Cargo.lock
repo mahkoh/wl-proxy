@@ -2851,6 +2851,7 @@ name = "wl-proxy"
 version = "0.1.0"
 dependencies = [
  "debug-fn",
+ "env_logger",
  "error_reporter",
  "isnt",
  "linearize",

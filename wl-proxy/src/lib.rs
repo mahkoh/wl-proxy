@@ -290,6 +290,10 @@ pub mod object;
 mod poll;
 pub mod simple;
 pub mod state;
+#[cfg(test)]
+mod test_framework;
+#[cfg(test)]
+mod tests;
 mod trans;
 mod utils;
 mod wire;

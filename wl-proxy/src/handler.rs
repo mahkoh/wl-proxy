@@ -15,6 +15,9 @@ use {
     thiserror::Error,
 };
 
+#[cfg(test)]
+mod tests;
+
 pub(crate) struct HandlerHolder<T: ?Sized> {
     handler: RefCell<Option<Box<T>>>,
     needs_update: Cell<bool>,

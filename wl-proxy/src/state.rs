@@ -107,9 +107,9 @@ enum StateErrorKind {
 /// # use wl_proxy::client::{Client, ClientHandler};
 /// # use wl_proxy::protocols::wayland::wl_display::{WlDisplay, WlDisplayHandler};
 /// # use wl_proxy::protocols::wayland::wl_registry::WlRegistry;
-/// # use wl_proxy::state::{StateBuilder, StateHandler};
+/// # use wl_proxy::state::{State, StateBuilder, StateHandler};
 /// # fn f() {
-/// let state = StateBuilder::new(Baseline::ALL_OF_THEM).build().unwrap();
+/// let state = State::builder(Baseline::ALL_OF_THEM).build().unwrap();
 /// let acceptor = state.create_acceptor(1000).unwrap();
 /// eprintln!("{}", acceptor.display());
 /// loop {
@@ -171,6 +171,8 @@ pub struct State {
     log_writer: RefCell<BufWriter<Fd>>,
     global_lock_held: Cell<bool>,
     pub(crate) object_stash: Stash<Rc<dyn Object>>,
+    pub(crate) forward_to_client: Cell<bool>,
+    pub(crate) forward_to_server: Cell<bool>,
 }
 
 /// A handler for events emitted by a [`State`].
@@ -211,11 +213,12 @@ impl State {
         Ok(HandlerLock { state: self })
     }
 
-    fn flush_locked(&self, lock: &HandlerLock<'_>) -> Result<(), StateError> {
-        self.perform_writes(lock)?;
-        self.kill_clients();
+    fn flush_locked(&self, lock: &HandlerLock<'_>) -> Result<bool, StateError> {
+        let mut did_work = false;
+        did_work |= self.perform_writes(lock)?;
+        did_work |= self.kill_clients();
         self.update_interests()?;
-        Ok(())
+        Ok(did_work)
     }
 
     pub(crate) fn handle_delete_id(&self, server: &Endpoint, id: u32) {
@@ -232,9 +235,9 @@ impl State {
         }
     }
 
-    fn perform_writes(&self, _: &HandlerLock<'_>) -> Result<(), StateError> {
+    fn perform_writes(&self, _: &HandlerLock<'_>) -> Result<bool, StateError> {
         if !self.has_flushable_endpoints.get() {
-            return Ok(());
+            return Ok(false);
         }
         while let Some(ewc) = self.flushable_endpoints.pop() {
             let res = match ewc.endpoint.flush() {
@@ -270,12 +273,12 @@ impl State {
             }
         }
         self.has_flushable_endpoints.set(false);
-        Ok(())
+        Ok(true)
     }
 
-    fn accept_connections(self: &Rc<Self>, lock: &HandlerLock<'_>) -> Result<(), StateError> {
+    fn accept_connections(self: &Rc<Self>, lock: &HandlerLock<'_>) -> Result<bool, StateError> {
         if !self.has_acceptable_acceptors.get() {
-            return Ok(());
+            return Ok(false);
         }
         self.check_destroyed()?;
         while let Some(acceptor) = self.acceptable_acceptors.pop() {
@@ -293,12 +296,12 @@ impl State {
             }
         }
         self.has_acceptable_acceptors.set(false);
-        Ok(())
+        Ok(true)
     }
 
-    fn read_messages(&self, lock: &HandlerLock<'_>) -> Result<(), StateError> {
+    fn read_messages(&self, lock: &HandlerLock<'_>) -> Result<bool, StateError> {
         if !self.has_readable_endpoints.get() {
-            return Ok(());
+            return Ok(false);
         }
         while let Some(ewc) = self.readable_endpoints.pop() {
             let res = ewc.endpoint.read_messages(lock, ewc.client.as_ref());
@@ -313,7 +316,7 @@ impl State {
             self.change_interest(&ewc.endpoint, |i| i | poll::READABLE);
         }
         self.has_readable_endpoints.set(false);
-        Ok(())
+        Ok(true)
     }
 
     fn change_interest(&self, endpoint: &Rc<Endpoint>, f: impl FnOnce(u32) -> u32) {
@@ -409,9 +412,9 @@ impl State {
         self.has_clients_to_kill.set(true);
     }
 
-    fn kill_clients(&self) {
+    fn kill_clients(&self) -> bool {
         if !self.has_clients_to_kill.get() {
-            return;
+            return false;
         }
         while let Some(client) = self.clients_to_kill.pop() {
             if let Some(handler) = client.handler.borrow_mut().take() {
@@ -420,6 +423,7 @@ impl State {
             client.disconnect();
         }
         self.has_clients_to_kill.set(false);
+        true
     }
 
     fn create_pollable_id(&self) -> u64 {
@@ -469,19 +473,27 @@ impl State {
     }
 }
 
+/// These functions can be used to create a new state.
+impl State {
+    /// Creates a new [`StateBuilder`].
+    pub fn builder(baseline: Baseline) -> StateBuilder {
+        StateBuilder::new(baseline)
+    }
+}
+
 /// These functions can be used to dispatch and flush messages.
 impl State {
     /// Performs a blocking dispatch.
     ///
     /// This is a shorthand for `self.dispatch(None)`.
-    pub fn dispatch_blocking(self: &Rc<Self>) -> Result<(), StateError> {
+    pub fn dispatch_blocking(self: &Rc<Self>) -> Result<bool, StateError> {
         self.dispatch(None)
     }
 
     /// Performs a non-blocking dispatch.
     ///
     /// This is a shorthand for `self.dispatch(Some(Duration::from_secs(0))`.
-    pub fn dispatch_available(self: &Rc<Self>) -> Result<(), StateError> {
+    pub fn dispatch_available(self: &Rc<Self>) -> Result<bool, StateError> {
         self.dispatch(Some(Duration::from_secs(0)))
     }
 
@@ -495,24 +507,27 @@ impl State {
     ///
     /// Outgoing messages will be flushed immediately before this function returns.
     ///
+    /// The return value indicates if any work was performed.
+    ///
     /// This function is not reentrant. It should not be called from within a callback.
     /// Trying to do so will cause it to return an error immediately and the state will
     /// be otherwise unchanged.
-    pub fn dispatch(self: &Rc<Self>, timeout: Option<Duration>) -> Result<(), StateError> {
+    pub fn dispatch(self: &Rc<Self>, timeout: Option<Duration>) -> Result<bool, StateError> {
+        let mut did_work = false;
         let lock = self.acquire_handler_lock()?;
         let timeout = timeout
             .and_then(|t| t.as_millis().try_into().ok())
             .unwrap_or(-1);
         let destroy_on_error = on_drop(|| self.destroy());
         if timeout != 0 {
-            self.flush_locked(&lock)?;
+            did_work |= self.flush_locked(&lock)?;
         }
         self.wait_for_work(&lock, timeout)?;
-        self.accept_connections(&lock)?;
-        self.read_messages(&lock)?;
-        self.flush_locked(&lock)?;
+        did_work |= self.accept_connections(&lock)?;
+        did_work |= self.read_messages(&lock)?;
+        did_work |= self.flush_locked(&lock)?;
         destroy_on_error.forget();
-        Ok(())
+        Ok(did_work)
     }
 }
 
@@ -584,6 +599,22 @@ impl State {
             display.core().server_obj_id.set(Some(1));
         }
         display
+    }
+
+    /// Changes the default forward-to-client setting.
+    ///
+    /// This affects objects created after this call. See
+    /// [`ObjectCoreApi::set_forward_to_client`].
+    pub fn set_default_forward_to_client(&self, enabled: bool) {
+        self.forward_to_client.set(enabled);
+    }
+
+    /// Changes the default forward-to-server setting.
+    ///
+    /// This affects objects created after this call. See
+    /// [`ObjectCoreApi::set_forward_to_server`].
+    pub fn set_default_forward_to_server(&self, enabled: bool) {
+        self.forward_to_server.set(enabled);
     }
 }
 

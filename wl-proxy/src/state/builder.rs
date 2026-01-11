@@ -30,6 +30,8 @@ use {
 };
 
 /// A builder for a [`State`].
+///
+/// This type can be constructed with [`State::builder`].
 pub struct StateBuilder {
     baseline: Baseline,
     server: Option<Server>,
@@ -44,7 +46,7 @@ enum Server {
 }
 
 impl StateBuilder {
-    pub fn new(baseline: Baseline) -> Self {
+    pub(super) fn new(baseline: Baseline) -> Self {
         Self {
             baseline,
             server: Default::default(),
@@ -177,6 +179,8 @@ impl StateBuilder {
             log_writer: RefCell::new(BufWriter::with_capacity(1024, Fd::new(c::STDERR_FILENO))),
             global_lock_held: Default::default(),
             object_stash: Default::default(),
+            forward_to_client: Cell::new(true),
+            forward_to_server: Cell::new(true),
         });
         if let Some(server) = &state.server {
             state.change_interest(server, |i| i | poll::READABLE);

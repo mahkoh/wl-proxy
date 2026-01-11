@@ -6,7 +6,7 @@ use {
         baseline::Baseline,
         client::ClientHandler,
         protocols::wayland::wl_display::WlDisplayHandler,
-        state::{Destructor, StateBuilder},
+        state::{Destructor, State},
         utils::env::WAYLAND_DISPLAY,
     },
     error_reporter::Report,
@@ -89,9 +89,7 @@ impl SimpleProxy {
                 let res = thread::Builder::new()
                     .name(name.clone())
                     .spawn_scoped(s, move || {
-                        let state = StateBuilder::new(self.baseline)
-                            .with_log_prefix(&name)
-                            .build();
+                        let state = State::builder(self.baseline).with_log_prefix(&name).build();
                         let state = match state {
                             Ok(s) => s,
                             Err(e) => {
