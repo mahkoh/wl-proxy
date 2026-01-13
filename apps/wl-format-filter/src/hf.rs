@@ -26,7 +26,7 @@ use {
 };
 
 pub fn main(allow: Vec<Filter>, deny: Vec<Filter>, program: Vec<String>) -> Result<(), HfError> {
-    let server = SimpleProxy::new(Baseline::V1_UNSTABLE).map_err(HfError::CreateServer)?;
+    let server = SimpleProxy::new(Baseline::V1).map_err(HfError::CreateServer)?;
     Command::new(&program[0])
         .args(&program[1..])
         .with_wayland_display(server.display())

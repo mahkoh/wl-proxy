@@ -54,7 +54,7 @@ use {
 
 pub fn main(config: Config, program: &[String]) -> Result<(), PaperError> {
     let config = Arc::new(config);
-    let server = SimpleProxy::new(Baseline::V1_UNSTABLE).map_err(PaperError::CreateServer)?;
+    let server = SimpleProxy::new(Baseline::V1).map_err(PaperError::CreateServer)?;
     Command::new(&program[0])
         .args(&program[1..])
         .with_wayland_display(server.display())
