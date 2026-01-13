@@ -116,7 +116,12 @@ pub fn main() -> Result<(), WttError> {
     if let Some(shell) = args.generate_completion {
         let stdout = stdout();
         let mut stdout = stdout.lock();
-        clap_complete::generate(shell, &mut WindowToTray::command(), "wl-veil", &mut stdout);
+        clap_complete::generate(
+            shell,
+            &mut WindowToTray::command(),
+            "window-to-tray",
+            &mut stdout,
+        );
         return Ok(());
     }
     let theme = Theme {
