@@ -292,7 +292,7 @@ pub fn main() -> Result<(), HfError> {
         clap_complete::generate(
             shell,
             &mut WlFormatFilter::command(),
-            "wl-veil",
+            "wl-format-filter",
             &mut stdout,
         );
         return Ok(());

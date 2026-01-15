@@ -66,7 +66,7 @@ pub fn main() -> Result<(), PaperError> {
     if let Some(shell) = args.generate_completion {
         let stdout = stdout();
         let mut stdout = stdout.lock();
-        clap_complete::generate(shell, &mut WlPaper::command(), "wl-veil", &mut stdout);
+        clap_complete::generate(shell, &mut WlPaper::command(), "wl-paper", &mut stdout);
         return Ok(());
     }
     let config = Config {
