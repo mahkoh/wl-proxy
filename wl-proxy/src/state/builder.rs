@@ -171,7 +171,7 @@ impl StateBuilder {
             interest_update_acceptors: Default::default(),
             has_interest_update_acceptors: Default::default(),
             all_objects: Default::default(),
-            next_object_id: Default::default(),
+            next_object_id: Cell::new(1),
             #[cfg(feature = "logging")]
             log: self.log,
             #[cfg(feature = "logging")]
