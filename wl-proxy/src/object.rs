@@ -109,6 +109,8 @@ pub trait ObjectCoreApi {
     /// Returns the unique ID of this object.
     ///
     /// This ID is not reused for any other object for the lifetime of the [`State`].
+    ///
+    /// This ID is never 0.
     fn unique_id(&self) -> u64;
 
     /// Returns the client ID of this object, if any.
