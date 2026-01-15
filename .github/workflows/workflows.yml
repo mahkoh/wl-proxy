@@ -56,3 +56,11 @@ jobs:
       - name: Test
         run: |
           cargo test --verbose --all-features
+  generator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Generator
+        run: |
+          cargo run -p generator
+          git diff --exit-code
