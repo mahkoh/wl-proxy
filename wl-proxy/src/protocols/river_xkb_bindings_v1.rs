@@ -30,4 +30,5 @@
 #![allow(rustdoc::invalid_rust_codeblocks)]
 
 pub mod river_xkb_binding_v1;
+pub mod river_xkb_bindings_seat_v1;
 pub mod river_xkb_bindings_v1;

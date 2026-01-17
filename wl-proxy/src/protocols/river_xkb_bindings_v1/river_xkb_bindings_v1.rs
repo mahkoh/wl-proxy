@@ -19,7 +19,7 @@ struct DefaultHandler;
 impl RiverXkbBindingsV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverXkbBindingsV1 {
-    const XML_VERSION: u32 = 1;
+    const XML_VERSION: u32 = 2;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverXkbBindingsV1;
     const INTERFACE_NAME: &str = "river_xkb_bindings_v1";
 }
@@ -281,6 +281,148 @@ impl RiverXkbBindingsV1 {
         );
         id
     }
+
+    /// Since when the get_seat message is available.
+    pub const MSG__GET_SEAT__SINCE: u32 = 2;
+
+    /// manage seat-specific state
+    ///
+    /// Create an object to manage seat-specific xkb bindings state.
+    ///
+    /// It is a protocol error to make this request more than once for a given
+    /// river_seat_v1 object.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `seat`:
+    #[inline]
+    pub fn try_send_get_seat(
+        &self,
+        id: &Rc<RiverXkbBindingsSeatV1>,
+        seat: &Rc<RiverSeatV1>,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            id,
+            seat,
+        );
+        let arg0_obj = arg0;
+        let arg0 = arg0_obj.core();
+        let arg1 = arg1.core();
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        let arg1_id = match arg1.server_obj_id.get() {
+            None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("seat"))),
+            Some(id) => id,
+        };
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("id", e)))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= river_xkb_bindings_v1#{}.get_seat(id: river_xkb_bindings_seat_v1#{}, seat: river_seat_v1#{})\n", id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id, arg1_id);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            2,
+            arg0_id,
+            arg1_id,
+        ]);
+        Ok(())
+    }
+
+    /// manage seat-specific state
+    ///
+    /// Create an object to manage seat-specific xkb bindings state.
+    ///
+    /// It is a protocol error to make this request more than once for a given
+    /// river_seat_v1 object.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `seat`:
+    #[inline]
+    pub fn send_get_seat(
+        &self,
+        id: &Rc<RiverXkbBindingsSeatV1>,
+        seat: &Rc<RiverSeatV1>,
+    ) {
+        let res = self.try_send_get_seat(
+            id,
+            seat,
+        );
+        if let Err(e) = res {
+            log_send("river_xkb_bindings_v1.get_seat", &e);
+        }
+    }
+
+    /// manage seat-specific state
+    ///
+    /// Create an object to manage seat-specific xkb bindings state.
+    ///
+    /// It is a protocol error to make this request more than once for a given
+    /// river_seat_v1 object.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`:
+    #[inline]
+    pub fn new_try_send_get_seat(
+        &self,
+        seat: &Rc<RiverSeatV1>,
+    ) -> Result<Rc<RiverXkbBindingsSeatV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_seat(
+            &id,
+            seat,
+        )?;
+        Ok(id)
+    }
+
+    /// manage seat-specific state
+    ///
+    /// Create an object to manage seat-specific xkb bindings state.
+    ///
+    /// It is a protocol error to make this request more than once for a given
+    /// river_seat_v1 object.
+    ///
+    /// # Arguments
+    ///
+    /// - `seat`:
+    #[inline]
+    pub fn new_send_get_seat(
+        &self,
+        seat: &Rc<RiverSeatV1>,
+    ) -> Rc<RiverXkbBindingsSeatV1> {
+        let id = self.core.create_child();
+        self.send_get_seat(
+            &id,
+            seat,
+        );
+        id
+    }
 }
 
 /// A message handler for [`RiverXkbBindingsV1`] proxies.
@@ -349,6 +491,39 @@ pub trait RiverXkbBindingsV1Handler: Any {
         );
         if let Err(e) = res {
             log_forward("river_xkb_bindings_v1.get_xkb_binding", &e);
+        }
+    }
+
+    /// manage seat-specific state
+    ///
+    /// Create an object to manage seat-specific xkb bindings state.
+    ///
+    /// It is a protocol error to make this request more than once for a given
+    /// river_seat_v1 object.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`:
+    /// - `seat`:
+    ///
+    /// All borrowed proxies passed to this function are guaranteed to be
+    /// immutable and non-null.
+    #[inline]
+    fn handle_get_seat(
+        &mut self,
+        slf: &Rc<RiverXkbBindingsV1>,
+        id: &Rc<RiverXkbBindingsSeatV1>,
+        seat: &Rc<RiverSeatV1>,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_get_seat(
+            id,
+            seat,
+        );
+        if let Err(e) = res {
+            log_forward("river_xkb_bindings_v1.get_seat", &e);
         }
     }
 }
@@ -442,6 +617,44 @@ impl ObjectPrivate for RiverXkbBindingsV1 {
                     DefaultHandler.handle_get_xkb_binding(&self, arg0, arg1, arg2, arg3);
                 }
             }
+            2 => {
+                let [
+                    arg0,
+                    arg1,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 16)));
+                };
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> river_xkb_bindings_v1#{}.get_seat(id: river_xkb_bindings_seat_v1#{}, seat: river_seat_v1#{})\n", client_id, id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1);
+                }
+                let arg0_id = arg0;
+                let arg0 = RiverXkbBindingsSeatV1::new(&self.core.state, self.core.version);
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg0_id, "id", e)))?;
+                let arg1_id = arg1;
+                let Some(arg1) = client.endpoint.lookup(arg1_id) else {
+                    return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg1_id)));
+                };
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<RiverSeatV1>() else {
+                    let o = client.endpoint.lookup(arg1_id).unwrap();
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("seat", o.core().interface, ObjectInterface::RiverSeatV1)));
+                };
+                let arg0 = &arg0;
+                let arg1 = &arg1;
+                if let Some(handler) = handler {
+                    (**handler).handle_get_seat(&self, arg0, arg1);
+                } else {
+                    DefaultHandler.handle_get_seat(&self, arg0, arg1);
+                }
+            }
             n => {
                 let _ = client;
                 let _ = msg;
@@ -473,6 +686,7 @@ impl ObjectPrivate for RiverXkbBindingsV1 {
         let name = match id {
             0 => "destroy",
             1 => "get_xkb_binding",
+            2 => "get_seat",
             _ => return None,
         };
         Some(name)
@@ -510,3 +724,24 @@ impl Object for RiverXkbBindingsV1 {
     }
 }
 
+impl RiverXkbBindingsV1 {
+    /// Since when the error.object_already_created enum variant is available.
+    pub const ENM__ERROR_OBJECT_ALREADY_CREATED__SINCE: u32 = 2;
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct RiverXkbBindingsV1Error(pub u32);
+
+impl RiverXkbBindingsV1Error {
+    pub const OBJECT_ALREADY_CREATED: Self = Self(0);
+}
+
+impl Debug for RiverXkbBindingsV1Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match *self {
+            Self::OBJECT_ALREADY_CREATED => "OBJECT_ALREADY_CREATED",
+            _ => return Debug::fmt(&self.0, f),
+        };
+        f.write_str(name)
+    }
+}

@@ -1038,7 +1038,11 @@ mod all_types {
     #[cfg(feature = "protocol-river_xkb_bindings_v1")]
     pub(super) use super::river_xkb_bindings_v1::river_xkb_binding_v1::RiverXkbBindingV1;
     #[cfg(feature = "protocol-river_xkb_bindings_v1")]
+    pub(super) use super::river_xkb_bindings_v1::river_xkb_bindings_seat_v1::RiverXkbBindingsSeatV1;
+    #[cfg(feature = "protocol-river_xkb_bindings_v1")]
     pub(super) use super::river_xkb_bindings_v1::river_xkb_bindings_v1::RiverXkbBindingsV1;
+    #[cfg(feature = "protocol-river_xkb_bindings_v1")]
+    pub(super) use super::river_xkb_bindings_v1::river_xkb_bindings_v1::RiverXkbBindingsV1Error;
     #[cfg(feature = "protocol-ivi_application")]
     pub(super) use super::ivi_application::ivi_application::IviApplication;
     #[cfg(feature = "protocol-ivi_application")]
@@ -2055,6 +2059,10 @@ mod all_types {
                 },
                 "river_xkb_binding_v1" => {
                     #[cfg(feature = "protocol-river_xkb_bindings_v1")] { Some(ObjectInterface::RiverXkbBindingV1) }
+                    #[cfg(not(feature = "protocol-river_xkb_bindings_v1"))] { None }
+                },
+                "river_xkb_bindings_seat_v1" => {
+                    #[cfg(feature = "protocol-river_xkb_bindings_v1")] { Some(ObjectInterface::RiverXkbBindingsSeatV1) }
                     #[cfg(not(feature = "protocol-river_xkb_bindings_v1"))] { None }
                 },
                 "river_xkb_bindings_v1" => {
@@ -3834,6 +3842,13 @@ mod all_types {
                     Ok(RiverXkbBindingV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-river_xkb_bindings_v1")]
+                Self::RiverXkbBindingsSeatV1 => {
+                    if version > RiverXkbBindingsSeatV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverXkbBindingsSeatV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_xkb_bindings_v1")]
                 Self::RiverXkbBindingsV1 => {
                     if version > RiverXkbBindingsV1::XML_VERSION {
                         return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
@@ -4745,6 +4760,9 @@ pub enum ObjectInterface {
     /// river_xkb_binding_v1
     #[cfg(feature = "protocol-river_xkb_bindings_v1")]
     RiverXkbBindingV1,
+    /// river_xkb_bindings_seat_v1
+    #[cfg(feature = "protocol-river_xkb_bindings_v1")]
+    RiverXkbBindingsSeatV1,
     /// river_xkb_bindings_v1
     #[cfg(feature = "protocol-river_xkb_bindings_v1")]
     RiverXkbBindingsV1,
@@ -5296,6 +5314,8 @@ impl ObjectInterface {
             #[cfg(feature = "protocol-river_xkb_bindings_v1")]
             Self::RiverXkbBindingV1 => "river_xkb_binding_v1",
             #[cfg(feature = "protocol-river_xkb_bindings_v1")]
+            Self::RiverXkbBindingsSeatV1 => "river_xkb_bindings_seat_v1",
+            #[cfg(feature = "protocol-river_xkb_bindings_v1")]
             Self::RiverXkbBindingsV1 => "river_xkb_bindings_v1",
             #[cfg(feature = "protocol-ivi_application")]
             Self::IviApplication => "ivi_application",
@@ -5814,9 +5834,11 @@ impl ObjectInterface {
             #[cfg(feature = "protocol-river_window_management_v1")]
             Self::RiverWindowV1 => 3,
             #[cfg(feature = "protocol-river_xkb_bindings_v1")]
-            Self::RiverXkbBindingV1 => 1,
+            Self::RiverXkbBindingV1 => 2,
             #[cfg(feature = "protocol-river_xkb_bindings_v1")]
-            Self::RiverXkbBindingsV1 => 1,
+            Self::RiverXkbBindingsSeatV1 => 2,
+            #[cfg(feature = "protocol-river_xkb_bindings_v1")]
+            Self::RiverXkbBindingsV1 => 2,
             #[cfg(feature = "protocol-ivi_application")]
             Self::IviApplication => 1,
             #[cfg(feature = "protocol-ivi_application")]
