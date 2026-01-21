@@ -119,7 +119,7 @@ fn acceptor() {
     state2.display().new_send_sync();
 
     loop {
-        if let Some(_) = clients.borrow_mut().pop_front() {
+        if clients.borrow_mut().pop_front().is_some() {
             break;
         }
         dispatch_blocking([&state1, &state2]);
