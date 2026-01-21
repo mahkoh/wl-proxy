@@ -703,9 +703,7 @@ impl WpImageDescriptionInfoV1 {
     /// SMPTE ST 2086 definition of HDR static metadata for mastering displays.
     ///
     /// While primary color volume is about how color is encoded, the target
-    /// color volume is the actually displayable color volume. If target color
-    /// volume is equal to the primary color volume, then this event is not
-    /// sent.
+    /// color volume is the actually displayable color volume.
     ///
     /// Each coordinate value is multiplied by 1 million to get the argument
     /// value to carry precision of 6 decimals.
@@ -797,9 +795,7 @@ impl WpImageDescriptionInfoV1 {
     /// SMPTE ST 2086 definition of HDR static metadata for mastering displays.
     ///
     /// While primary color volume is about how color is encoded, the target
-    /// color volume is the actually displayable color volume. If target color
-    /// volume is equal to the primary color volume, then this event is not
-    /// sent.
+    /// color volume is the actually displayable color volume.
     ///
     /// Each coordinate value is multiplied by 1 million to get the argument
     /// value to carry precision of 6 decimals.
@@ -1339,9 +1335,7 @@ pub trait WpImageDescriptionInfoV1Handler: Any {
     /// SMPTE ST 2086 definition of HDR static metadata for mastering displays.
     ///
     /// While primary color volume is about how color is encoded, the target
-    /// color volume is the actually displayable color volume. If target color
-    /// volume is equal to the primary color volume, then this event is not
-    /// sent.
+    /// color volume is the actually displayable color volume.
     ///
     /// Each coordinate value is multiplied by 1 million to get the argument
     /// value to carry precision of 6 decimals.

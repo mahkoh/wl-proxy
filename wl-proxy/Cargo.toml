@@ -135,6 +135,7 @@ suite-river-protocols = [
     "protocol-river_libinput_config_v1",
     "protocol-river_window_management_v1",
     "protocol-river_xkb_bindings_v1",
+    "protocol-river_xkb_config_v1",
 ]
 suite-weston-protocols = [
     "protocol-ivi_application",
@@ -237,6 +238,7 @@ protocol-river_layer_shell_v1 = ["protocol-river_window_management_v1"]
 protocol-river_libinput_config_v1 = ["protocol-river_input_management_v1"]
 protocol-river_window_management_v1 = []
 protocol-river_xkb_bindings_v1 = ["protocol-river_window_management_v1"]
+protocol-river_xkb_config_v1 = ["protocol-river_input_management_v1"]
 protocol-ivi_application = []
 protocol-ivi_hmi_controller = []
 protocol-weston_content_protection = []
