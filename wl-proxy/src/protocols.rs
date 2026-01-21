@@ -163,6 +163,8 @@ pub mod river_libinput_config_v1;
 pub mod river_window_management_v1;
 #[cfg(feature = "protocol-river_xkb_bindings_v1")]
 pub mod river_xkb_bindings_v1;
+#[cfg(feature = "protocol-river_xkb_config_v1")]
+pub mod river_xkb_config_v1;
 #[cfg(feature = "protocol-ivi_application")]
 pub mod ivi_application;
 #[cfg(feature = "protocol-ivi_hmi_controller")]
@@ -1043,6 +1045,18 @@ mod all_types {
     pub(super) use super::river_xkb_bindings_v1::river_xkb_bindings_v1::RiverXkbBindingsV1;
     #[cfg(feature = "protocol-river_xkb_bindings_v1")]
     pub(super) use super::river_xkb_bindings_v1::river_xkb_bindings_v1::RiverXkbBindingsV1Error;
+    #[cfg(feature = "protocol-river_xkb_config_v1")]
+    pub(super) use super::river_xkb_config_v1::river_xkb_config_v1::RiverXkbConfigV1;
+    #[cfg(feature = "protocol-river_xkb_config_v1")]
+    pub(super) use super::river_xkb_config_v1::river_xkb_config_v1::RiverXkbConfigV1Error;
+    #[cfg(feature = "protocol-river_xkb_config_v1")]
+    pub(super) use super::river_xkb_config_v1::river_xkb_config_v1::RiverXkbConfigV1KeymapFormat;
+    #[cfg(feature = "protocol-river_xkb_config_v1")]
+    pub(super) use super::river_xkb_config_v1::river_xkb_keyboard_v1::RiverXkbKeyboardV1;
+    #[cfg(feature = "protocol-river_xkb_config_v1")]
+    pub(super) use super::river_xkb_config_v1::river_xkb_keyboard_v1::RiverXkbKeyboardV1Error;
+    #[cfg(feature = "protocol-river_xkb_config_v1")]
+    pub(super) use super::river_xkb_config_v1::river_xkb_keymap_v1::RiverXkbKeymapV1;
     #[cfg(feature = "protocol-ivi_application")]
     pub(super) use super::ivi_application::ivi_application::IviApplication;
     #[cfg(feature = "protocol-ivi_application")]
@@ -2068,6 +2082,18 @@ mod all_types {
                 "river_xkb_bindings_v1" => {
                     #[cfg(feature = "protocol-river_xkb_bindings_v1")] { Some(ObjectInterface::RiverXkbBindingsV1) }
                     #[cfg(not(feature = "protocol-river_xkb_bindings_v1"))] { None }
+                },
+                "river_xkb_config_v1" => {
+                    #[cfg(feature = "protocol-river_xkb_config_v1")] { Some(ObjectInterface::RiverXkbConfigV1) }
+                    #[cfg(not(feature = "protocol-river_xkb_config_v1"))] { None }
+                },
+                "river_xkb_keyboard_v1" => {
+                    #[cfg(feature = "protocol-river_xkb_config_v1")] { Some(ObjectInterface::RiverXkbKeyboardV1) }
+                    #[cfg(not(feature = "protocol-river_xkb_config_v1"))] { None }
+                },
+                "river_xkb_keymap_v1" => {
+                    #[cfg(feature = "protocol-river_xkb_config_v1")] { Some(ObjectInterface::RiverXkbKeymapV1) }
+                    #[cfg(not(feature = "protocol-river_xkb_config_v1"))] { None }
                 },
                 "ivi_application" => {
                     #[cfg(feature = "protocol-ivi_application")] { Some(ObjectInterface::IviApplication) }
@@ -3855,6 +3881,27 @@ mod all_types {
                     }
                     Ok(RiverXkbBindingsV1::new(state, version))
                 }
+                #[cfg(feature = "protocol-river_xkb_config_v1")]
+                Self::RiverXkbConfigV1 => {
+                    if version > RiverXkbConfigV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverXkbConfigV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_xkb_config_v1")]
+                Self::RiverXkbKeyboardV1 => {
+                    if version > RiverXkbKeyboardV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverXkbKeyboardV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-river_xkb_config_v1")]
+                Self::RiverXkbKeymapV1 => {
+                    if version > RiverXkbKeymapV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(RiverXkbKeymapV1::new(state, version))
+                }
                 #[cfg(feature = "protocol-ivi_application")]
                 Self::IviApplication => {
                     if version > IviApplication::XML_VERSION {
@@ -4766,6 +4813,15 @@ pub enum ObjectInterface {
     /// river_xkb_bindings_v1
     #[cfg(feature = "protocol-river_xkb_bindings_v1")]
     RiverXkbBindingsV1,
+    /// river_xkb_config_v1
+    #[cfg(feature = "protocol-river_xkb_config_v1")]
+    RiverXkbConfigV1,
+    /// river_xkb_keyboard_v1
+    #[cfg(feature = "protocol-river_xkb_config_v1")]
+    RiverXkbKeyboardV1,
+    /// river_xkb_keymap_v1
+    #[cfg(feature = "protocol-river_xkb_config_v1")]
+    RiverXkbKeymapV1,
     /// ivi_application
     #[cfg(feature = "protocol-ivi_application")]
     IviApplication,
@@ -5317,6 +5373,12 @@ impl ObjectInterface {
             Self::RiverXkbBindingsSeatV1 => "river_xkb_bindings_seat_v1",
             #[cfg(feature = "protocol-river_xkb_bindings_v1")]
             Self::RiverXkbBindingsV1 => "river_xkb_bindings_v1",
+            #[cfg(feature = "protocol-river_xkb_config_v1")]
+            Self::RiverXkbConfigV1 => "river_xkb_config_v1",
+            #[cfg(feature = "protocol-river_xkb_config_v1")]
+            Self::RiverXkbKeyboardV1 => "river_xkb_keyboard_v1",
+            #[cfg(feature = "protocol-river_xkb_config_v1")]
+            Self::RiverXkbKeymapV1 => "river_xkb_keymap_v1",
             #[cfg(feature = "protocol-ivi_application")]
             Self::IviApplication => "ivi_application",
             #[cfg(feature = "protocol-ivi_application")]
@@ -5839,6 +5901,12 @@ impl ObjectInterface {
             Self::RiverXkbBindingsSeatV1 => 2,
             #[cfg(feature = "protocol-river_xkb_bindings_v1")]
             Self::RiverXkbBindingsV1 => 2,
+            #[cfg(feature = "protocol-river_xkb_config_v1")]
+            Self::RiverXkbConfigV1 => 1,
+            #[cfg(feature = "protocol-river_xkb_config_v1")]
+            Self::RiverXkbKeyboardV1 => 1,
+            #[cfg(feature = "protocol-river_xkb_config_v1")]
+            Self::RiverXkbKeymapV1 => 1,
             #[cfg(feature = "protocol-ivi_application")]
             Self::IviApplication => 1,
             #[cfg(feature = "protocol-ivi_application")]

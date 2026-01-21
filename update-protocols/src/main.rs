@@ -196,6 +196,7 @@ fn main() {
                 "river_libinput_config_v1",
                 "river_window_management_v1",
                 "river_xkb_bindings_v1",
+                "river_xkb_config_v1",
             ],
             block: &[],
         },
