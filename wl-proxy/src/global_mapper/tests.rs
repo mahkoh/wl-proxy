@@ -102,7 +102,7 @@ fn test() {
     let mut events = VecDeque::new();
     macro_rules! events {
         () => {
-            &mut RefCell::new(&mut events)
+            &RefCell::new(&mut events)
         };
     }
     let mut mapper = GlobalMapper::default();

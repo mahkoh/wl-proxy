@@ -55,7 +55,7 @@ fn many() {
             break;
         }
         for e in &events[..n] {
-            assert_eq!(seen_ids.insert(e.u64), true);
+            assert!(seen_ids.insert(e.u64));
         }
     }
     assert_eq!(seen_ids.len(), pipes.len());
