@@ -1575,15 +1575,22 @@ fn format_object_message_handler_body<W: Write>(
                         wl!(
                             r#"{p}            {prefix}return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg{idx}_id)));"#
                         )?;
+                        wl!(r#"{p}        {prefix}}};"#)?;
                     } else {
-                        wl!(
-                            r#"{p}        {prefix}let Some(arg{idx}) = server.lookup(arg{idx}_id) else {{"#
-                        )?;
-                        wl!(
-                            r#"{p}            {prefix}return Err(ObjectError(ObjectErrorKind::NoServerObject(arg{idx}_id)));"#
-                        )?;
+                        if interface.is_wl_display && msg.name == "error" {
+                            wl!(
+                                r#"{p}        {prefix}let arg{idx} = server.lookup(arg{idx}_id);"#
+                            )?;
+                        } else {
+                            wl!(
+                                r#"{p}        {prefix}let Some(arg{idx}) = server.lookup(arg{idx}_id) else {{"#
+                            )?;
+                            wl!(
+                                r#"{p}            {prefix}return Err(ObjectError(ObjectErrorKind::NoServerObject(arg{idx}_id)));"#
+                            )?;
+                            wl!(r#"{p}        {prefix}}};"#)?;
+                        }
                     }
-                    wl!(r#"{p}        {prefix}}};"#)?;
                     if let Some(interface) = &arg.interface {
                         let camel = format_camel(interface);
                         wl!(
@@ -1642,7 +1649,7 @@ fn format_object_message_handler_body<W: Write>(
                 wl!(r#"{p}        self.core.state.handle_delete_id(server, arg0);"#)?;
             } else if msg.name == "error" {
                 wl!(
-                    r#"{p}        return Err(ObjectError(ObjectErrorKind::ServerError(arg0.core().interface, arg0_id, arg1, StringError(arg2.to_string()))));"#
+                    r#"{p}        return Err(ObjectError(ObjectErrorKind::ServerError(arg0, arg0_id, arg1, StringError(arg2.to_string()))));"#
                 )?;
             }
         } else {

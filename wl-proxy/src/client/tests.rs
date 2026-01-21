@@ -38,7 +38,7 @@ fn disconnected() {
     proxy_client.set_handler(H(disconnected.clone()));
     assert!(!disconnected.get());
     while !disconnected.get() {
-        dispatch_blocking([&proxy_state]);
+        dispatch_blocking([&proxy_state]).unwrap();
     }
 
     struct H2(Rc<Cell<bool>>);

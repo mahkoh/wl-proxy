@@ -7,7 +7,7 @@ use {
         client::Client,
         endpoint::{Endpoint, EndpointError},
         handler::HandlerHolder,
-        object::{Object, ObjectCoreApi, ObjectPrivate},
+        object::{Object, ObjectCoreApi, ObjectErrorKind, ObjectPrivate},
         poll::{self, PollError, PollEvent, Poller},
         protocols::wayland::wl_display::WlDisplay,
         trans::{FlushResult, TransError},
@@ -188,6 +188,25 @@ pub trait StateHandler: 'static {
     fn new_client(&mut self, client: &Rc<Client>) {
         let _ = client;
     }
+
+    /// The server has sent a wl_display.error event.
+    ///
+    /// Such errors are fatal.
+    ///
+    /// The object can be `None` if the error is sent on an object that has already been
+    /// deleted.
+    fn display_error(
+        self: Box<Self>,
+        object: Option<&Rc<dyn Object>>,
+        server_id: u32,
+        error: u32,
+        msg: &str,
+    ) {
+        let _ = object;
+        let _ = server_id;
+        let _ = error;
+        let _ = msg;
+    }
 }
 
 enum Pollable {
@@ -317,6 +336,13 @@ impl State {
                     log::error!("Could not handle client message: {}", Report::new(e));
                     self.add_client_to_kill(client);
                 } else {
+                    if let EndpointError::HandleMessage(msg) = &e
+                        && let ObjectErrorKind::ServerError(object, server_id, error, msg) =
+                            &msg.source.0
+                        && let Some(handler) = self.handler.borrow_mut().take()
+                    {
+                        handler.display_error(object.as_ref(), *server_id, *error, &msg.0)
+                    }
                     return Err(StateErrorKind::DispatchEvents(e).into());
                 }
             }

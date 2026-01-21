@@ -59,7 +59,7 @@ pub struct MessageError {
     interface: Option<ObjectInterface>,
     message_id: u32,
     message_name: Option<&'static str>,
-    source: ObjectError,
+    pub(crate) source: ObjectError,
 }
 
 impl Display for MessageError {
