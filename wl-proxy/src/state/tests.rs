@@ -2,7 +2,7 @@ use {
     crate::{
         baseline::Baseline,
         client::Client,
-        object::ObjectUtils,
+        object::{Object, ObjectCoreApi, ObjectUtils},
         protocols::{
             wayland::{
                 wl_callback::WlCallback,
@@ -16,7 +16,13 @@ use {
         state::{State, StateHandler},
         test_framework::proxy::{dispatch_blocking, test_proxy, test_proxy_no_log},
     },
-    std::{cell::RefCell, collections::VecDeque, os::fd::AsRawFd, rc::Rc},
+    error_reporter::Report,
+    std::{
+        cell::{Cell, RefCell},
+        collections::VecDeque,
+        os::fd::AsRawFd,
+        rc::Rc,
+    },
     uapi::{c, poll},
 };
 
@@ -122,7 +128,7 @@ fn acceptor() {
         if clients.borrow_mut().pop_front().is_some() {
             break;
         }
-        dispatch_blocking([&state1, &state2]);
+        dispatch_blocking([&state1, &state2]).unwrap();
     }
 }
 
@@ -187,4 +193,38 @@ fn recursive_dispatch() {
         .set_handler(H(tp.proxy_state.clone(), false));
     tp.sync();
     assert!(tp.proxy_client.display().get_handler_mut::<H>().1);
+}
+
+#[test]
+fn display_error() {
+    struct H(Rc<WlproxyTest>, Rc<Cell<bool>>);
+    impl StateHandler for H {
+        fn display_error(
+            self: Box<Self>,
+            object: Option<&Rc<dyn Object>>,
+            server_id: u32,
+            error: u32,
+            msg: &str,
+        ) {
+            self.1.set(true);
+            assert_eq!(object.unwrap().unique_id(), self.0.unique_id());
+            assert_eq!(server_id, self.0.server_id().unwrap());
+            assert_eq!(error, 2);
+            assert_eq!(msg, "abcd");
+        }
+    }
+
+    let tp = test_proxy();
+    let saw_error = Rc::new(Cell::new(false));
+    tp.client_state
+        .set_handler(H(tp.client_test.clone(), saw_error.clone()));
+    tp.proxy_client
+        .display
+        .send_error(tp.proxy_test.clone(), 2, "abcd");
+    assert!(!saw_error.get());
+    while !saw_error.get() {
+        if let Err(e) = dispatch_blocking([&tp.proxy_state, &tp.client_state]) {
+            eprintln!("{}", Report::new(e));
+        }
+    }
 }

@@ -11,7 +11,7 @@ use {
             },
             wlproxy_test::wlproxy_test::WlproxyTest,
         },
-        state::{Destructor, State},
+        state::{Destructor, State, StateError},
         test_framework::{install_logger, server::test_server},
     },
     std::{
@@ -86,7 +86,7 @@ fn test_proxy_(log: bool) -> TestProxy {
         if let Some(obj) = proxy_test.borrow_mut().take() {
             break obj;
         }
-        dispatch_blocking([&client_state, &proxy_state]);
+        dispatch_blocking([&client_state, &proxy_state]).unwrap();
     };
     TestProxy {
         _proxy_destructor: proxy_state.create_destructor(),
@@ -101,13 +101,13 @@ fn test_proxy_(log: bool) -> TestProxy {
     }
 }
 
-pub fn dispatch_blocking<const N: usize>(states: [&Rc<State>; N]) {
+pub fn dispatch_blocking<const N: usize>(states: [&Rc<State>; N]) -> Result<(), StateError> {
     let mut did_work = false;
     for state in states {
-        did_work |= state.dispatch_available().unwrap();
+        did_work |= state.dispatch_available()?;
     }
     if did_work {
-        return;
+        return Ok(());
     }
     for state in states {
         state.before_poll().unwrap();
@@ -118,6 +118,7 @@ pub fn dispatch_blocking<const N: usize>(states: [&Rc<State>; N]) {
         revents: 0,
     });
     uapi::poll(&mut pollfd, -1).unwrap();
+    Ok(())
 }
 
 impl TestProxy {
@@ -138,7 +139,7 @@ impl TestProxy {
     }
 
     pub fn dispatch_blocking(&self) {
-        dispatch_blocking([&self.client_state, &self.proxy_state]);
+        dispatch_blocking([&self.client_state, &self.proxy_state]).unwrap();
     }
 
     pub fn await_client_disconnected(&self) {

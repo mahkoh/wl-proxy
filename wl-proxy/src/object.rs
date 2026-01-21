@@ -8,12 +8,13 @@ use {
         protocols::ObjectInterface,
         state::State,
     },
+    debug_fn::debug_fn,
     error_reporter::Report,
     std::{
         any::Any,
         cell::{Cell, RefCell},
         collections::{VecDeque, hash_map::Entry},
-        fmt::Debug,
+        fmt::{Debug, Display},
         os::fd::OwnedFd,
         rc::{Rc, Weak},
     },
@@ -616,8 +617,8 @@ pub(crate) enum ObjectErrorKind {
     NullString(&'static str),
     #[error("argument {0} is not valid UTF-8")]
     NonUtf8(&'static str),
-    #[error("server sent error {} on object {}#{}", .2, .0.name(), .1)]
-    ServerError(ObjectInterface, u32, u32, #[source] StringError),
+    #[error("{}", display_error(.0.as_ref(), *.1, *.2))]
+    ServerError(Option<Rc<dyn Object>>, u32, u32, #[source] StringError),
     #[error("the message handler is already borrowed")]
     HandlerBorrowed,
     #[error("the client is not waiting for a delete_id message")]
@@ -627,3 +628,33 @@ pub(crate) enum ObjectErrorKind {
 #[derive(Debug, Error)]
 #[error("{0}")]
 pub(crate) struct StringError(pub String);
+
+fn display_error<'a>(
+    object: Option<&'a Rc<dyn Object>>,
+    server_id: u32,
+    error: u32,
+) -> impl Display + use<'a> {
+    debug_fn(move |f| {
+        if let Some(object) = object {
+            let interface = object.interface().name();
+            let unique_id = object.unique_id();
+            write!(
+                f,
+                "server sent error {error} on object {interface}#{server_id} (unique id: {unique_id}",
+            )?;
+            if let Some(client) = object.client() {
+                write!(f, ", client: {}", client.endpoint.id)?;
+            }
+            if let Some(client_id) = object.client_id() {
+                write!(f, ", client id: {client_id}")?;
+            }
+            write!(f, ")")?;
+        } else {
+            write!(
+                f,
+                "server sent error {error} on a deleted object with server id {server_id}",
+            )?;
+        }
+        Ok(())
+    })
+}

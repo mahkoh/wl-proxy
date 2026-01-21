@@ -721,10 +721,8 @@ impl ObjectPrivate for WlDisplay {
                     log(&self.core.state, msg[0], arg0, arg1, arg2);
                 }
                 let arg0_id = arg0;
-                let Some(arg0) = server.lookup(arg0_id) else {
-                    return Err(ObjectError(ObjectErrorKind::NoServerObject(arg0_id)));
-                };
-                return Err(ObjectError(ObjectErrorKind::ServerError(arg0.core().interface, arg0_id, arg1, StringError(arg2.to_string()))));
+                let arg0 = server.lookup(arg0_id);
+                return Err(ObjectError(ObjectErrorKind::ServerError(arg0, arg0_id, arg1, StringError(arg2.to_string()))));
             }
             1 => {
                 let [
