@@ -992,21 +992,48 @@ impl WlSurface {
     /// etc.) is double-buffered. Protocol requests modify the pending state,
     /// as opposed to the active state in use by the compositor.
     ///
-    /// A commit request atomically creates a content update from the pending
-    /// state, even if the pending state has not been touched. The content
-    /// update is placed in a queue until it becomes active. After commit, the
-    /// new pending state is as documented for each related request.
-    ///
-    /// When the content update is applied, the wl_buffer is applied before all
-    /// other state. This means that all coordinates in double-buffered state
-    /// are relative to the newly attached wl_buffers, except for
-    /// wl_surface.attach itself. If there is no newly attached wl_buffer, the
-    /// coordinates are relative to the previous content update.
-    ///
     /// All requests that need a commit to become effective are documented
     /// to affect double-buffered state.
     ///
     /// Other interfaces may add further double-buffered surface state.
+    ///
+    /// A commit request atomically creates a Content Update (CU) from the
+    /// pending state, even if the pending state has not been touched. The
+    /// content update is placed at the end of a per-surface queue until it
+    /// becomes active. After commit, the new pending state is as documented for
+    /// each related request.
+    ///
+    /// A CU is either a Desync Content Update (DCU) or a Sync Content Update
+    /// (SCU). If the surface is effectively synchronized at the commit request,
+    /// it is a SCU, otherwise a DCU.
+    ///
+    /// When a surface transitions from effectively synchronized to effectively
+    /// desynchronized, all SCUs in its queue which are not reachable by any
+    /// DCU become DCUs and dependency edges from outside the queue to these CUs
+    /// are removed.
+    ///
+    /// See wl_subsurface for the definition of 'effectively synchronized' and
+    /// 'effectively desynchronized'.
+    ///
+    /// When a CU is placed in the queue, the CU has a dependency on the CU in
+    /// front of it and to the SCU at end of the queue of every direct child
+    /// surface if that SCU exists and does not have another dependent. This can
+    /// form a directed acyclic graph of CUs with dependencies as edges.
+    ///
+    /// In addition to surface state, the CU can have constraints that must be
+    /// satisfied before it can be applied. Other interfaces may add CU
+    /// constraints.
+    ///
+    /// All DCUs which do not have a SCU in front of themselves in their queue,
+    /// are candidates. If the graph that's reachable by a candidate does not
+    /// have any unsatisfied constraints, the entire graph must be applied
+    /// atomically.
+    ///
+    /// When a CU is applied, the wl_buffer is applied before all other state.
+    /// This means that all coordinates in double-buffered state are relative to
+    /// the newly attached wl_buffers, except for wl_surface.attach itself. If
+    /// there is no newly attached wl_buffer, the coordinates are relative to
+    /// the previous content update.
     #[inline]
     pub fn try_send_commit(
         &self,
@@ -1048,21 +1075,48 @@ impl WlSurface {
     /// etc.) is double-buffered. Protocol requests modify the pending state,
     /// as opposed to the active state in use by the compositor.
     ///
-    /// A commit request atomically creates a content update from the pending
-    /// state, even if the pending state has not been touched. The content
-    /// update is placed in a queue until it becomes active. After commit, the
-    /// new pending state is as documented for each related request.
-    ///
-    /// When the content update is applied, the wl_buffer is applied before all
-    /// other state. This means that all coordinates in double-buffered state
-    /// are relative to the newly attached wl_buffers, except for
-    /// wl_surface.attach itself. If there is no newly attached wl_buffer, the
-    /// coordinates are relative to the previous content update.
-    ///
     /// All requests that need a commit to become effective are documented
     /// to affect double-buffered state.
     ///
     /// Other interfaces may add further double-buffered surface state.
+    ///
+    /// A commit request atomically creates a Content Update (CU) from the
+    /// pending state, even if the pending state has not been touched. The
+    /// content update is placed at the end of a per-surface queue until it
+    /// becomes active. After commit, the new pending state is as documented for
+    /// each related request.
+    ///
+    /// A CU is either a Desync Content Update (DCU) or a Sync Content Update
+    /// (SCU). If the surface is effectively synchronized at the commit request,
+    /// it is a SCU, otherwise a DCU.
+    ///
+    /// When a surface transitions from effectively synchronized to effectively
+    /// desynchronized, all SCUs in its queue which are not reachable by any
+    /// DCU become DCUs and dependency edges from outside the queue to these CUs
+    /// are removed.
+    ///
+    /// See wl_subsurface for the definition of 'effectively synchronized' and
+    /// 'effectively desynchronized'.
+    ///
+    /// When a CU is placed in the queue, the CU has a dependency on the CU in
+    /// front of it and to the SCU at end of the queue of every direct child
+    /// surface if that SCU exists and does not have another dependent. This can
+    /// form a directed acyclic graph of CUs with dependencies as edges.
+    ///
+    /// In addition to surface state, the CU can have constraints that must be
+    /// satisfied before it can be applied. Other interfaces may add CU
+    /// constraints.
+    ///
+    /// All DCUs which do not have a SCU in front of themselves in their queue,
+    /// are candidates. If the graph that's reachable by a candidate does not
+    /// have any unsatisfied constraints, the entire graph must be applied
+    /// atomically.
+    ///
+    /// When a CU is applied, the wl_buffer is applied before all other state.
+    /// This means that all coordinates in double-buffered state are relative to
+    /// the newly attached wl_buffers, except for wl_surface.attach itself. If
+    /// there is no newly attached wl_buffer, the coordinates are relative to
+    /// the previous content update.
     #[inline]
     pub fn send_commit(
         &self,
@@ -2286,21 +2340,48 @@ pub trait WlSurfaceHandler: Any {
     /// etc.) is double-buffered. Protocol requests modify the pending state,
     /// as opposed to the active state in use by the compositor.
     ///
-    /// A commit request atomically creates a content update from the pending
-    /// state, even if the pending state has not been touched. The content
-    /// update is placed in a queue until it becomes active. After commit, the
-    /// new pending state is as documented for each related request.
-    ///
-    /// When the content update is applied, the wl_buffer is applied before all
-    /// other state. This means that all coordinates in double-buffered state
-    /// are relative to the newly attached wl_buffers, except for
-    /// wl_surface.attach itself. If there is no newly attached wl_buffer, the
-    /// coordinates are relative to the previous content update.
-    ///
     /// All requests that need a commit to become effective are documented
     /// to affect double-buffered state.
     ///
     /// Other interfaces may add further double-buffered surface state.
+    ///
+    /// A commit request atomically creates a Content Update (CU) from the
+    /// pending state, even if the pending state has not been touched. The
+    /// content update is placed at the end of a per-surface queue until it
+    /// becomes active. After commit, the new pending state is as documented for
+    /// each related request.
+    ///
+    /// A CU is either a Desync Content Update (DCU) or a Sync Content Update
+    /// (SCU). If the surface is effectively synchronized at the commit request,
+    /// it is a SCU, otherwise a DCU.
+    ///
+    /// When a surface transitions from effectively synchronized to effectively
+    /// desynchronized, all SCUs in its queue which are not reachable by any
+    /// DCU become DCUs and dependency edges from outside the queue to these CUs
+    /// are removed.
+    ///
+    /// See wl_subsurface for the definition of 'effectively synchronized' and
+    /// 'effectively desynchronized'.
+    ///
+    /// When a CU is placed in the queue, the CU has a dependency on the CU in
+    /// front of it and to the SCU at end of the queue of every direct child
+    /// surface if that SCU exists and does not have another dependent. This can
+    /// form a directed acyclic graph of CUs with dependencies as edges.
+    ///
+    /// In addition to surface state, the CU can have constraints that must be
+    /// satisfied before it can be applied. Other interfaces may add CU
+    /// constraints.
+    ///
+    /// All DCUs which do not have a SCU in front of themselves in their queue,
+    /// are candidates. If the graph that's reachable by a candidate does not
+    /// have any unsatisfied constraints, the entire graph must be applied
+    /// atomically.
+    ///
+    /// When a CU is applied, the wl_buffer is applied before all other state.
+    /// This means that all coordinates in double-buffered state are relative to
+    /// the newly attached wl_buffers, except for wl_surface.attach itself. If
+    /// there is no newly attached wl_buffer, the coordinates are relative to
+    /// the previous content update.
     #[inline]
     fn handle_commit(
         &mut self,
