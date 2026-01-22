@@ -12,23 +12,9 @@
 //! hidden, or if a NULL wl_buffer is applied. These rules apply
 //! recursively through the tree of surfaces.
 //!
-//! The behaviour of a wl_surface.commit request on a sub-surface
-//! depends on the sub-surface's mode. The possible modes are
-//! synchronized and desynchronized, see methods
-//! wl_subsurface.set_sync and wl_subsurface.set_desync. Synchronized
-//! mode caches the wl_surface state to be applied when the parent's
-//! state gets applied, and desynchronized mode applies the pending
-//! wl_surface state directly. A sub-surface is initially in the
-//! synchronized mode.
-//!
-//! Sub-surfaces also have another kind of state, which is managed by
-//! wl_subsurface requests, as opposed to wl_surface requests. This
-//! state includes the sub-surface position relative to the parent
-//! surface (wl_subsurface.set_position), and the stacking order of
-//! the parent and its sub-surfaces (wl_subsurface.place_above and
-//! .place_below). This state is applied when the parent surface's
-//! wl_surface state is applied, regardless of the sub-surface's mode.
-//! As the exception, set_sync and set_desync are effective immediately.
+//! A sub-surface can be in one of two modes. The possible modes are
+//! synchronized and desynchronized, see methods wl_subsurface.set_sync and
+//! wl_subsurface.set_desync.
 //!
 //! The main surface can be thought to be always in desynchronized mode,
 //! since it does not have a parent in the sub-surfaces sense.
@@ -39,6 +25,15 @@
 //! tree of surfaces. This means, that one can set a sub-surface into
 //! synchronized mode, and then assume that all its child and grand-child
 //! sub-surfaces are synchronized, too, without explicitly setting them.
+//!
+//! If a surface behaves as in synchronized mode, it is effectively
+//! synchronized, otherwise it is effectively desynchronized.
+//!
+//! A sub-surface is initially in the synchronized mode.
+//!
+//! The wl_subsurface interface has requests which modify double-buffered
+//! state of the parent surface (wl_subsurface.set_position, .place_above and
+//! .place_below).
 //!
 //! Destroying a sub-surface takes effect immediately. If you need to
 //! synchronize the removal of a sub-surface to the parent surface update,
@@ -167,20 +162,18 @@ impl WlSubsurface {
 
     /// reposition the sub-surface
     ///
-    /// This schedules a sub-surface position change.
+    /// This sets the position of the sub-surface, relative to the parent
+    /// surface.
+    ///
     /// The sub-surface will be moved so that its origin (top left
     /// corner pixel) will be at the location x, y of the parent surface
     /// coordinate system. The coordinates are not restricted to the parent
     /// surface area. Negative values are allowed.
     ///
-    /// The scheduled coordinates will take effect whenever the state of the
-    /// parent surface is applied.
-    ///
-    /// If more than one set_position request is invoked by the client before
-    /// the commit of the parent surface, the position of a new request always
-    /// replaces the scheduled position from any previous request.
-    ///
     /// The initial position is 0, 0.
+    ///
+    /// Position is double-buffered state on the parent surface, see
+    /// wl_subsurface and wl_surface.commit for more information.
     ///
     /// # Arguments
     ///
@@ -234,20 +227,18 @@ impl WlSubsurface {
 
     /// reposition the sub-surface
     ///
-    /// This schedules a sub-surface position change.
+    /// This sets the position of the sub-surface, relative to the parent
+    /// surface.
+    ///
     /// The sub-surface will be moved so that its origin (top left
     /// corner pixel) will be at the location x, y of the parent surface
     /// coordinate system. The coordinates are not restricted to the parent
     /// surface area. Negative values are allowed.
     ///
-    /// The scheduled coordinates will take effect whenever the state of the
-    /// parent surface is applied.
-    ///
-    /// If more than one set_position request is invoked by the client before
-    /// the commit of the parent surface, the position of a new request always
-    /// replaces the scheduled position from any previous request.
-    ///
     /// The initial position is 0, 0.
+    ///
+    /// Position is double-buffered state on the parent surface, see
+    /// wl_subsurface and wl_surface.commit for more information.
     ///
     /// # Arguments
     ///
@@ -279,13 +270,11 @@ impl WlSubsurface {
     /// parent surface. Using any other surface, including this sub-surface,
     /// will cause a protocol error.
     ///
-    /// The z-order is double-buffered. Requests are handled in order and
-    /// applied immediately to a pending state. The final pending state is
-    /// copied to the active state the next time the state of the parent
-    /// surface is applied.
-    ///
     /// A new sub-surface is initially added as the top-most in the stack
     /// of its siblings and parent.
+    ///
+    /// Z-order is double-buffered state on the parent surface, see
+    /// wl_subsurface and wl_surface.commit for more information.
     ///
     /// # Arguments
     ///
@@ -345,13 +334,11 @@ impl WlSubsurface {
     /// parent surface. Using any other surface, including this sub-surface,
     /// will cause a protocol error.
     ///
-    /// The z-order is double-buffered. Requests are handled in order and
-    /// applied immediately to a pending state. The final pending state is
-    /// copied to the active state the next time the state of the parent
-    /// surface is applied.
-    ///
     /// A new sub-surface is initially added as the top-most in the stack
     /// of its siblings and parent.
+    ///
+    /// Z-order is double-buffered state on the parent surface, see
+    /// wl_subsurface and wl_surface.commit for more information.
     ///
     /// # Arguments
     ///
@@ -375,6 +362,7 @@ impl WlSubsurface {
     /// restack the sub-surface
     ///
     /// The sub-surface is placed just below the reference surface.
+    ///
     /// See wl_subsurface.place_above.
     ///
     /// # Arguments
@@ -430,6 +418,7 @@ impl WlSubsurface {
     /// restack the sub-surface
     ///
     /// The sub-surface is placed just below the reference surface.
+    ///
     /// See wl_subsurface.place_above.
     ///
     /// # Arguments
@@ -454,18 +443,9 @@ impl WlSubsurface {
     /// set sub-surface to synchronized mode
     ///
     /// Change the commit behaviour of the sub-surface to synchronized
-    /// mode, also described as the parent dependent mode.
+    /// mode.
     ///
-    /// In synchronized mode, wl_surface.commit on a sub-surface will
-    /// accumulate the committed state in a cache, but the state will
-    /// not be applied and hence will not change the compositor output.
-    /// The cached state is applied to the sub-surface immediately after
-    /// the parent surface's state is applied. This ensures atomic
-    /// updates of the parent and all its synchronized sub-surfaces.
-    /// Applying the cached state will invalidate the cache, so further
-    /// parent surface commits do not (re-)apply old state.
-    ///
-    /// See wl_subsurface for the recursive effect of this mode.
+    /// See wl_subsurface and wl_surface.commit for more information.
     #[inline]
     pub fn try_send_set_sync(
         &self,
@@ -504,18 +484,9 @@ impl WlSubsurface {
     /// set sub-surface to synchronized mode
     ///
     /// Change the commit behaviour of the sub-surface to synchronized
-    /// mode, also described as the parent dependent mode.
+    /// mode.
     ///
-    /// In synchronized mode, wl_surface.commit on a sub-surface will
-    /// accumulate the committed state in a cache, but the state will
-    /// not be applied and hence will not change the compositor output.
-    /// The cached state is applied to the sub-surface immediately after
-    /// the parent surface's state is applied. This ensures atomic
-    /// updates of the parent and all its synchronized sub-surfaces.
-    /// Applying the cached state will invalidate the cache, so further
-    /// parent surface commits do not (re-)apply old state.
-    ///
-    /// See wl_subsurface for the recursive effect of this mode.
+    /// See wl_subsurface and wl_surface.commit for more information.
     #[inline]
     pub fn send_set_sync(
         &self,
@@ -533,24 +504,9 @@ impl WlSubsurface {
     /// set sub-surface to desynchronized mode
     ///
     /// Change the commit behaviour of the sub-surface to desynchronized
-    /// mode, also described as independent or freely running mode.
+    /// mode.
     ///
-    /// In desynchronized mode, wl_surface.commit on a sub-surface will
-    /// apply the pending state directly, without caching, as happens
-    /// normally with a wl_surface. Calling wl_surface.commit on the
-    /// parent surface has no effect on the sub-surface's wl_surface
-    /// state. This mode allows a sub-surface to be updated on its own.
-    ///
-    /// If cached state exists when wl_surface.commit is called in
-    /// desynchronized mode, the pending state is added to the cached
-    /// state, and applied as a whole. This invalidates the cache.
-    ///
-    /// Note: even if a sub-surface is set to desynchronized, a parent
-    /// sub-surface may override it to behave as synchronized. For details,
-    /// see wl_subsurface.
-    ///
-    /// If a surface's parent surface behaves as desynchronized, then
-    /// the cached state is applied on set_desync.
+    /// See wl_subsurface and wl_surface.commit for more information.
     #[inline]
     pub fn try_send_set_desync(
         &self,
@@ -589,24 +545,9 @@ impl WlSubsurface {
     /// set sub-surface to desynchronized mode
     ///
     /// Change the commit behaviour of the sub-surface to desynchronized
-    /// mode, also described as independent or freely running mode.
+    /// mode.
     ///
-    /// In desynchronized mode, wl_surface.commit on a sub-surface will
-    /// apply the pending state directly, without caching, as happens
-    /// normally with a wl_surface. Calling wl_surface.commit on the
-    /// parent surface has no effect on the sub-surface's wl_surface
-    /// state. This mode allows a sub-surface to be updated on its own.
-    ///
-    /// If cached state exists when wl_surface.commit is called in
-    /// desynchronized mode, the pending state is added to the cached
-    /// state, and applied as a whole. This invalidates the cache.
-    ///
-    /// Note: even if a sub-surface is set to desynchronized, a parent
-    /// sub-surface may override it to behave as synchronized. For details,
-    /// see wl_subsurface.
-    ///
-    /// If a surface's parent surface behaves as desynchronized, then
-    /// the cached state is applied on set_desync.
+    /// See wl_subsurface and wl_surface.commit for more information.
     #[inline]
     pub fn send_set_desync(
         &self,
@@ -652,20 +593,18 @@ pub trait WlSubsurfaceHandler: Any {
 
     /// reposition the sub-surface
     ///
-    /// This schedules a sub-surface position change.
+    /// This sets the position of the sub-surface, relative to the parent
+    /// surface.
+    ///
     /// The sub-surface will be moved so that its origin (top left
     /// corner pixel) will be at the location x, y of the parent surface
     /// coordinate system. The coordinates are not restricted to the parent
     /// surface area. Negative values are allowed.
     ///
-    /// The scheduled coordinates will take effect whenever the state of the
-    /// parent surface is applied.
-    ///
-    /// If more than one set_position request is invoked by the client before
-    /// the commit of the parent surface, the position of a new request always
-    /// replaces the scheduled position from any previous request.
-    ///
     /// The initial position is 0, 0.
+    ///
+    /// Position is double-buffered state on the parent surface, see
+    /// wl_subsurface and wl_surface.commit for more information.
     ///
     /// # Arguments
     ///
@@ -698,13 +637,11 @@ pub trait WlSubsurfaceHandler: Any {
     /// parent surface. Using any other surface, including this sub-surface,
     /// will cause a protocol error.
     ///
-    /// The z-order is double-buffered. Requests are handled in order and
-    /// applied immediately to a pending state. The final pending state is
-    /// copied to the active state the next time the state of the parent
-    /// surface is applied.
-    ///
     /// A new sub-surface is initially added as the top-most in the stack
     /// of its siblings and parent.
+    ///
+    /// Z-order is double-buffered state on the parent surface, see
+    /// wl_subsurface and wl_surface.commit for more information.
     ///
     /// # Arguments
     ///
@@ -732,6 +669,7 @@ pub trait WlSubsurfaceHandler: Any {
     /// restack the sub-surface
     ///
     /// The sub-surface is placed just below the reference surface.
+    ///
     /// See wl_subsurface.place_above.
     ///
     /// # Arguments
@@ -760,18 +698,9 @@ pub trait WlSubsurfaceHandler: Any {
     /// set sub-surface to synchronized mode
     ///
     /// Change the commit behaviour of the sub-surface to synchronized
-    /// mode, also described as the parent dependent mode.
+    /// mode.
     ///
-    /// In synchronized mode, wl_surface.commit on a sub-surface will
-    /// accumulate the committed state in a cache, but the state will
-    /// not be applied and hence will not change the compositor output.
-    /// The cached state is applied to the sub-surface immediately after
-    /// the parent surface's state is applied. This ensures atomic
-    /// updates of the parent and all its synchronized sub-surfaces.
-    /// Applying the cached state will invalidate the cache, so further
-    /// parent surface commits do not (re-)apply old state.
-    ///
-    /// See wl_subsurface for the recursive effect of this mode.
+    /// See wl_subsurface and wl_surface.commit for more information.
     #[inline]
     fn handle_set_sync(
         &mut self,
@@ -790,24 +719,9 @@ pub trait WlSubsurfaceHandler: Any {
     /// set sub-surface to desynchronized mode
     ///
     /// Change the commit behaviour of the sub-surface to desynchronized
-    /// mode, also described as independent or freely running mode.
+    /// mode.
     ///
-    /// In desynchronized mode, wl_surface.commit on a sub-surface will
-    /// apply the pending state directly, without caching, as happens
-    /// normally with a wl_surface. Calling wl_surface.commit on the
-    /// parent surface has no effect on the sub-surface's wl_surface
-    /// state. This mode allows a sub-surface to be updated on its own.
-    ///
-    /// If cached state exists when wl_surface.commit is called in
-    /// desynchronized mode, the pending state is added to the cached
-    /// state, and applied as a whole. This invalidates the cache.
-    ///
-    /// Note: even if a sub-surface is set to desynchronized, a parent
-    /// sub-surface may override it to behave as synchronized. For details,
-    /// see wl_subsurface.
-    ///
-    /// If a surface's parent surface behaves as desynchronized, then
-    /// the cached state is applied on set_desync.
+    /// See wl_subsurface and wl_surface.commit for more information.
     #[inline]
     fn handle_set_desync(
         &mut self,
