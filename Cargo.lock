@@ -2817,6 +2817,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f17a85883d4e6d00e8a97c586de764dabcc06133f7f1d55dce5cdc070ad7fe59"
 
 [[package]]
+name = "wl-cm-filter"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "clap_complete",
+ "error_reporter",
+ "phf",
+ "thiserror 2.0.17",
+ "wl-proxy",
+]
+
+[[package]]
 name = "wl-format-filter"
 version = "0.1.0"
 dependencies = [

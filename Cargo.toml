@@ -8,4 +8,5 @@ members = [
     "apps/wl-paper",
     "apps/window-to-tray",
     "apps/wl-format-filter",
+    "apps/wl-cm-filter",
 ]
