@@ -1,0 +1,12 @@
+[package]
+name = "wl-cm-filter"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+wl-proxy = { path = "../../wl-proxy", features = ["all-protocols"] }
+clap = { version = "4.5.53", features = ["derive"] }
+clap_complete = "4.5.61"
+thiserror = "2.0.17"
+error_reporter = "1.0.0"
+phf = { version = "0.13.1", features = ["macros"] }
