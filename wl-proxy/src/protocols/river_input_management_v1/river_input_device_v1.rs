@@ -503,8 +503,7 @@ impl RiverInputDeviceV1 {
     /// For example, a factor of 0.5 will make scrolling twice as slow while a
     /// factor of 3.0 will make scrolling 3 times as fast.
     ///
-    /// Negative values for either rate or delay are illegal. A rate of zero
-    /// will disable any repeating (regardless of the value of delay).
+    /// Setting a scroll factor less than 0 is a protocol error.
     ///
     /// # Arguments
     ///
@@ -559,8 +558,7 @@ impl RiverInputDeviceV1 {
     /// For example, a factor of 0.5 will make scrolling twice as slow while a
     /// factor of 3.0 will make scrolling 3 times as fast.
     ///
-    /// Negative values for either rate or delay are illegal. A rate of zero
-    /// will disable any repeating (regardless of the value of delay).
+    /// Setting a scroll factor less than 0 is a protocol error.
     ///
     /// # Arguments
     ///
@@ -951,8 +949,7 @@ pub trait RiverInputDeviceV1Handler: Any {
     /// For example, a factor of 0.5 will make scrolling twice as slow while a
     /// factor of 3.0 will make scrolling 3 times as fast.
     ///
-    /// Negative values for either rate or delay are illegal. A rate of zero
-    /// will disable any repeating (regardless of the value of delay).
+    /// Setting a scroll factor less than 0 is a protocol error.
     ///
     /// # Arguments
     ///

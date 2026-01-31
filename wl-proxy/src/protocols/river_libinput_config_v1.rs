@@ -17,11 +17,6 @@
 //! The key words "must", "must not", "required", "shall", "shall not",
 //! "should", "should not", "recommended", "may", and "optional" in this
 //! document are to be interpreted as described in IETF RFC 2119.
-//!
-//! Warning! The protocol described in this file is currently in the testing
-//! phase. Backward compatible changes may be added together with the
-//! corresponding interface version bump. Backward incompatible changes can only
-//! be done by creating a new major version of the extension.
 
 #![allow(clippy::tabs_in_doc_comments)]
 #![allow(clippy::doc_lazy_continuation)]

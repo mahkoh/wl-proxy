@@ -924,7 +924,7 @@ impl RiverXkbKeyboardV1 {
 
     /// numlock is currently enabled
     ///
-    /// Capslock is currently enabled for the keyboard.
+    /// Numlock is currently enabled for the keyboard.
     ///
     /// This event is sent once when the river_xkb_keyboard_v1 is created and
     /// again whenever the numlock state changes.
@@ -965,7 +965,7 @@ impl RiverXkbKeyboardV1 {
 
     /// numlock is currently enabled
     ///
-    /// Capslock is currently enabled for the keyboard.
+    /// Numlock is currently enabled for the keyboard.
     ///
     /// This event is sent once when the river_xkb_keyboard_v1 is created and
     /// again whenever the numlock state changes.
@@ -985,7 +985,7 @@ impl RiverXkbKeyboardV1 {
 
     /// numlock is currently disabled
     ///
-    /// Capslock is currently disabled for the keyboard.
+    /// Numlock is currently disabled for the keyboard.
     ///
     /// This event is sent once when the river_xkb_keyboard_v1 is created and
     /// again whenever the numlock state changes.
@@ -1026,7 +1026,7 @@ impl RiverXkbKeyboardV1 {
 
     /// numlock is currently disabled
     ///
-    /// Capslock is currently disabled for the keyboard.
+    /// Numlock is currently disabled for the keyboard.
     ///
     /// This event is sent once when the river_xkb_keyboard_v1 is created and
     /// again whenever the numlock state changes.
@@ -1357,7 +1357,7 @@ pub trait RiverXkbKeyboardV1Handler: Any {
 
     /// numlock is currently enabled
     ///
-    /// Capslock is currently enabled for the keyboard.
+    /// Numlock is currently enabled for the keyboard.
     ///
     /// This event is sent once when the river_xkb_keyboard_v1 is created and
     /// again whenever the numlock state changes.
@@ -1378,7 +1378,7 @@ pub trait RiverXkbKeyboardV1Handler: Any {
 
     /// numlock is currently disabled
     ///
-    /// Capslock is currently disabled for the keyboard.
+    /// Numlock is currently disabled for the keyboard.
     ///
     /// This event is sent once when the river_xkb_keyboard_v1 is created and
     /// again whenever the numlock state changes.

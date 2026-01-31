@@ -40,11 +40,6 @@
     The key words "must", "must not", "required", "shall", "shall not",
     "should", "should not", "recommended", "may", and "optional" in this
     document are to be interpreted as described in IETF RFC 2119.
-
-    Warning! The protocol described in this file is currently in the testing
-    phase. Backward compatible changes may be added together with the
-    corresponding interface version bump. Backward incompatible changes can only
-    be done by creating a new major version of the extension.
   </description>
   <interface name="river_libinput_config_v1" version="1">
     <description summary="libinput config global interface">
@@ -407,7 +402,7 @@
     </request>
     <event name="click_method_support">
       <description summary="supported click methods">
-        The click methods suppported by the device.
+        The click methods supported by the device.
       </description>
       <arg name="methods" type="uint" enum="click_methods"/>
     </event>
@@ -480,7 +475,7 @@
     </request>
     <event name="scroll_method_support">
       <description summary="supported scroll methods">
-        The scroll methods suppported by the device.
+        The scroll methods supported by the device.
       </description>
       <arg name="methods" type="uint" enum="scroll_methods"/>
     </event>

@@ -3895,7 +3895,7 @@ impl RiverLibinputDeviceV1 {
 
     /// supported click methods
     ///
-    /// The click methods suppported by the device.
+    /// The click methods supported by the device.
     ///
     /// # Arguments
     ///
@@ -3944,7 +3944,7 @@ impl RiverLibinputDeviceV1 {
 
     /// supported click methods
     ///
-    /// The click methods suppported by the device.
+    /// The click methods supported by the device.
     ///
     /// # Arguments
     ///
@@ -4856,7 +4856,7 @@ impl RiverLibinputDeviceV1 {
 
     /// supported scroll methods
     ///
-    /// The scroll methods suppported by the device.
+    /// The scroll methods supported by the device.
     ///
     /// # Arguments
     ///
@@ -4905,7 +4905,7 @@ impl RiverLibinputDeviceV1 {
 
     /// supported scroll methods
     ///
-    /// The scroll methods suppported by the device.
+    /// The scroll methods supported by the device.
     ///
     /// # Arguments
     ///
@@ -7902,7 +7902,7 @@ pub trait RiverLibinputDeviceV1Handler: Any {
 
     /// supported click methods
     ///
-    /// The click methods suppported by the device.
+    /// The click methods supported by the device.
     ///
     /// # Arguments
     ///
@@ -8179,7 +8179,7 @@ pub trait RiverLibinputDeviceV1Handler: Any {
 
     /// supported scroll methods
     ///
-    /// The scroll methods suppported by the device.
+    /// The scroll methods supported by the device.
     ///
     /// # Arguments
     ///

@@ -29,11 +29,6 @@
     The key words "must", "must not", "required", "shall", "shall not",
     "should", "should not", "recommended", "may", and "optional" in this
     document are to be interpreted as described in IETF RFC 2119.
-
-    Warning! The protocol described in this file is currently in the testing
-    phase. Backward compatible changes may be added together with the
-    corresponding interface version bump. Backward incompatible changes can only
-    be done by creating a new major version of the extension.
   </description>
   <interface name="river_input_manager_v1" version="1">
     <description summary="input manager global interface">
@@ -171,8 +166,7 @@
         For example, a factor of 0.5 will make scrolling twice as slow while a
         factor of 3.0 will make scrolling 3 times as fast.
 
-        Negative values for either rate or delay are illegal. A rate of zero
-        will disable any repeating (regardless of the value of delay).
+        Setting a scroll factor less than 0 is a protocol error.
       </description>
       <arg name="factor" type="fixed"/>
     </request>
