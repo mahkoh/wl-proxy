@@ -30,11 +30,6 @@
     The key words "must", "must not", "required", "shall", "shall not",
     "should", "should not", "recommended", "may", and "optional" in this
     document are to be interpreted as described in IETF RFC 2119.
-
-    Warning! The protocol described in this file is currently in the testing
-    phase. Backward compatible changes may be added together with the
-    corresponding interface version bump. Backward incompatible changes can only
-    be done by creating a new major version of the extension.
   </description>
   <interface name="river_xkb_config_v1" version="1">
     <description summary="xkb config global interface">
@@ -229,7 +224,7 @@
     </request>
     <event name="numlock_enabled">
       <description summary="numlock is currently enabled">
-        Capslock is currently enabled for the keyboard.
+        Numlock is currently enabled for the keyboard.
 
         This event is sent once when the river_xkb_keyboard_v1 is created and
         again whenever the numlock state changes.
@@ -237,7 +232,7 @@
     </event>
     <event name="numlock_disabled">
       <description summary="numlock is currently disabled">
-        Capslock is currently disabled for the keyboard.
+        Numlock is currently disabled for the keyboard.
 
         This event is sent once when the river_xkb_keyboard_v1 is created and
         again whenever the numlock state changes.
