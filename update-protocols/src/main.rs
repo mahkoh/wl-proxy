@@ -168,6 +168,7 @@ fn main() {
                 "keyboard_filter_experimental_v1",
                 "xx_session_management_v1",
                 "xx_text_input_unstable_v3",
+                "xx_cutouts_unstable_v1",
             ],
         },
         Repo {
