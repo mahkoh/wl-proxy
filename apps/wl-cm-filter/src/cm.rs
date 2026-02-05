@@ -22,7 +22,7 @@ use {
 
 pub fn main(args: &WlCmFilter) -> Result<(), CmError> {
     let program = args.program.as_ref().unwrap();
-    let server = SimpleProxy::new(Baseline::ALL_OF_THEM).map_err(CmError::CreateServer)?;
+    let server = SimpleProxy::new(Baseline::V2).map_err(CmError::CreateServer)?;
     Command::new(&program[0])
         .args(&program[1..])
         .with_wayland_display(server.display())

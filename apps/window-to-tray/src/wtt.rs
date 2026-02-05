@@ -118,7 +118,7 @@ use {
 };
 
 pub fn main(theme: Theme, program: &[String]) -> Result<(), WttError> {
-    let server = SimpleProxy::new(Baseline::V1).map_err(WttError::CreateServer)?;
+    let server = SimpleProxy::new(Baseline::V2).map_err(WttError::CreateServer)?;
     Command::new(&program[0])
         .args(&program[1..])
         .with_wayland_display(server.display())

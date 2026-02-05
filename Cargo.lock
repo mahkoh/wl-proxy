@@ -2860,7 +2860,7 @@ dependencies = [
 
 [[package]]
 name = "wl-proxy"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "debug-fn",
  "env_logger",
