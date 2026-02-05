@@ -23,7 +23,7 @@ struct DefaultHandler;
 impl ZxdgToplevelDecorationV1Handler for DefaultHandler { }
 
 impl ConcreteObject for ZxdgToplevelDecorationV1 {
-    const XML_VERSION: u32 = 1;
+    const XML_VERSION: u32 = 2;
     const INTERFACE: ObjectInterface = ObjectInterface::ZxdgToplevelDecorationV1;
     const INTERFACE_NAME: &str = "zxdg_toplevel_decoration_v1";
 }
@@ -60,7 +60,8 @@ impl ZxdgToplevelDecorationV1 {
     /// destroy the decoration object
     ///
     /// Switch back to a mode without any server-side decorations at the next
-    /// commit.
+    /// commit, unless a new xdg_toplevel_decoration is created for the surface
+    /// first.
     #[inline]
     pub fn try_send_destroy(
         &self,
@@ -100,7 +101,8 @@ impl ZxdgToplevelDecorationV1 {
     /// destroy the decoration object
     ///
     /// Switch back to a mode without any server-side decorations at the next
-    /// commit.
+    /// commit, unless a new xdg_toplevel_decoration is created for the surface
+    /// first.
     #[inline]
     pub fn send_destroy(
         &self,
@@ -383,7 +385,8 @@ pub trait ZxdgToplevelDecorationV1Handler: Any {
     /// destroy the decoration object
     ///
     /// Switch back to a mode without any server-side decorations at the next
-    /// commit.
+    /// commit, unless a new xdg_toplevel_decoration is created for the surface
+    /// first.
     #[inline]
     fn handle_destroy(
         &mut self,

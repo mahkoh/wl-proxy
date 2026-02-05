@@ -268,14 +268,14 @@ const zwp_virtual_keyboard_manager_v1: u32 = 1;
 const zwp_virtual_keyboard_v1: u32 = 1;
 const zwp_xwayland_keyboard_grab_manager_v1: u32 = 1;
 const zwp_xwayland_keyboard_grab_v1: u32 = 1;
-const zxdg_decoration_manager_v1: u32 = 1;
+const zxdg_decoration_manager_v1: u32 = 2;
 const zxdg_exported_v2: u32 = 1;
 const zxdg_exporter_v2: u32 = 1;
 const zxdg_imported_v2: u32 = 1;
 const zxdg_importer_v2: u32 = 1;
 const zxdg_output_manager_v1: u32 = 3;
 const zxdg_output_v1: u32 = 3;
-const zxdg_toplevel_decoration_v1: u32 = 1;
+const zxdg_toplevel_decoration_v1: u32 = 2;
 
 #[rustfmt::skip]
 pub(in super::super) const BASELINE: &StaticCopyMap<ObjectInterface, u32> = {
