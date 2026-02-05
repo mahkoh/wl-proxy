@@ -60,6 +60,14 @@ impl Baseline {
     #[doc(hidden)]
     pub const V1_UNSTABLE: Self = Self::V1;
 
+    /// Version 2.
+    pub const V2: Self = Self(2, v2::BASELINE);
+
+    /// Version 2 (deprecated alias).
+    #[deprecated]
+    #[doc(hidden)]
+    pub const V2_UNSTABLE: Self = Self::V2;
+
     /// The unreleased baseline.
     ///
     /// This is unstable and can change at any time.
@@ -70,7 +78,7 @@ impl Baseline {
     ///       - create Self::VN and Self::VN_UNSTABLE
     ///       - mark Self::VN_UNSTABLE as deprecated
     #[doc(hidden)]
-    pub const V2_UNSTABLE: Self = Self(2, prototyping::BASELINE);
+    pub const V3_UNSTABLE: Self = Self(3, prototyping::BASELINE);
 
     /// This baseline always contains all protocols supported by this crate in their
     /// highest supported version.
