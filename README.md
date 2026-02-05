@@ -13,6 +13,8 @@ wl-proxy:
   versions.
 - [wl-format-filter](apps/wl-format-filter): Can be used to hide buffer formats
   or modifiers.
+- [wl-cm-filter](apps/wl-cm-filter): Can be used to hide color-management
+  features.
 - [wl-paper](apps/wl-paper): Can be used to run arbitrary applications as
   layer-shell applications.
 - [window-to-tray](apps/window-to-tray): Can be used to run arbitrary
