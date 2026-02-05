@@ -5738,9 +5738,9 @@ impl ObjectInterface {
             #[cfg(feature = "protocol-xdg_activation_v1")]
             Self::XdgActivationV1 => 1,
             #[cfg(feature = "protocol-xdg_decoration_unstable_v1")]
-            Self::ZxdgDecorationManagerV1 => 1,
+            Self::ZxdgDecorationManagerV1 => 2,
             #[cfg(feature = "protocol-xdg_decoration_unstable_v1")]
-            Self::ZxdgToplevelDecorationV1 => 1,
+            Self::ZxdgToplevelDecorationV1 => 2,
             #[cfg(feature = "protocol-xdg_dialog_v1")]
             Self::XdgDialogV1 => 1,
             #[cfg(feature = "protocol-xdg_dialog_v1")]

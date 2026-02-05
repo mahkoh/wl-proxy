@@ -39,7 +39,7 @@ struct DefaultHandler;
 impl ZxdgDecorationManagerV1Handler for DefaultHandler { }
 
 impl ConcreteObject for ZxdgDecorationManagerV1 {
-    const XML_VERSION: u32 = 1;
+    const XML_VERSION: u32 = 2;
     const INTERFACE: ObjectInterface = ObjectInterface::ZxdgDecorationManagerV1;
     const INTERFACE_NAME: &str = "zxdg_decoration_manager_v1";
 }
@@ -135,11 +135,26 @@ impl ZxdgDecorationManagerV1 {
     ///
     /// Create a new decoration object associated with the given toplevel.
     ///
-    /// Creating an xdg_toplevel_decoration from an xdg_toplevel which has a
-    /// buffer attached or committed is a client error, and any attempts by a
-    /// client to attach or manipulate a buffer prior to the first
-    /// xdg_toplevel_decoration.configure event must also be treated as
-    /// errors.
+    /// For objects of version 1, creating an xdg_toplevel_decoration from an
+    /// xdg_toplevel which has a buffer attached or committed is a client
+    /// error, and any attempts by a client to attach or manipulate a buffer
+    /// prior to the first xdg_toplevel_decoration.configure event must also be
+    /// treated as errors.
+    ///
+    /// For objects of version 2 or newer, creating an xdg_toplevel_decoration
+    /// from an xdg_toplevel which has a buffer attached or committed is
+    /// allowed. The initial decoration mode of the surface if a buffer is
+    /// already attached depends on whether a xdg_toplevel_decoration object
+    /// has been associated with the surface or not prior to this request.
+    ///
+    /// If an xdg_toplevel_decoration was associated with the surface, then
+    /// destroyed without a surface commit, the previous decoration mode is
+    /// retained.
+    ///
+    /// If no xdg_toplevel_decoration was associated with the surface prior to
+    /// this request, or if a surface commit has been perfomed after a previous
+    /// xdg_toplevel_decoration object associated with the surface was
+    /// destroyed, the decoration mode is assumed to be client-side.
     ///
     /// # Arguments
     ///
@@ -205,11 +220,26 @@ impl ZxdgDecorationManagerV1 {
     ///
     /// Create a new decoration object associated with the given toplevel.
     ///
-    /// Creating an xdg_toplevel_decoration from an xdg_toplevel which has a
-    /// buffer attached or committed is a client error, and any attempts by a
-    /// client to attach or manipulate a buffer prior to the first
-    /// xdg_toplevel_decoration.configure event must also be treated as
-    /// errors.
+    /// For objects of version 1, creating an xdg_toplevel_decoration from an
+    /// xdg_toplevel which has a buffer attached or committed is a client
+    /// error, and any attempts by a client to attach or manipulate a buffer
+    /// prior to the first xdg_toplevel_decoration.configure event must also be
+    /// treated as errors.
+    ///
+    /// For objects of version 2 or newer, creating an xdg_toplevel_decoration
+    /// from an xdg_toplevel which has a buffer attached or committed is
+    /// allowed. The initial decoration mode of the surface if a buffer is
+    /// already attached depends on whether a xdg_toplevel_decoration object
+    /// has been associated with the surface or not prior to this request.
+    ///
+    /// If an xdg_toplevel_decoration was associated with the surface, then
+    /// destroyed without a surface commit, the previous decoration mode is
+    /// retained.
+    ///
+    /// If no xdg_toplevel_decoration was associated with the surface prior to
+    /// this request, or if a surface commit has been perfomed after a previous
+    /// xdg_toplevel_decoration object associated with the surface was
+    /// destroyed, the decoration mode is assumed to be client-side.
     ///
     /// # Arguments
     ///
@@ -234,11 +264,26 @@ impl ZxdgDecorationManagerV1 {
     ///
     /// Create a new decoration object associated with the given toplevel.
     ///
-    /// Creating an xdg_toplevel_decoration from an xdg_toplevel which has a
-    /// buffer attached or committed is a client error, and any attempts by a
-    /// client to attach or manipulate a buffer prior to the first
-    /// xdg_toplevel_decoration.configure event must also be treated as
-    /// errors.
+    /// For objects of version 1, creating an xdg_toplevel_decoration from an
+    /// xdg_toplevel which has a buffer attached or committed is a client
+    /// error, and any attempts by a client to attach or manipulate a buffer
+    /// prior to the first xdg_toplevel_decoration.configure event must also be
+    /// treated as errors.
+    ///
+    /// For objects of version 2 or newer, creating an xdg_toplevel_decoration
+    /// from an xdg_toplevel which has a buffer attached or committed is
+    /// allowed. The initial decoration mode of the surface if a buffer is
+    /// already attached depends on whether a xdg_toplevel_decoration object
+    /// has been associated with the surface or not prior to this request.
+    ///
+    /// If an xdg_toplevel_decoration was associated with the surface, then
+    /// destroyed without a surface commit, the previous decoration mode is
+    /// retained.
+    ///
+    /// If no xdg_toplevel_decoration was associated with the surface prior to
+    /// this request, or if a surface commit has been perfomed after a previous
+    /// xdg_toplevel_decoration object associated with the surface was
+    /// destroyed, the decoration mode is assumed to be client-side.
     ///
     /// # Arguments
     ///
@@ -260,11 +305,26 @@ impl ZxdgDecorationManagerV1 {
     ///
     /// Create a new decoration object associated with the given toplevel.
     ///
-    /// Creating an xdg_toplevel_decoration from an xdg_toplevel which has a
-    /// buffer attached or committed is a client error, and any attempts by a
-    /// client to attach or manipulate a buffer prior to the first
-    /// xdg_toplevel_decoration.configure event must also be treated as
-    /// errors.
+    /// For objects of version 1, creating an xdg_toplevel_decoration from an
+    /// xdg_toplevel which has a buffer attached or committed is a client
+    /// error, and any attempts by a client to attach or manipulate a buffer
+    /// prior to the first xdg_toplevel_decoration.configure event must also be
+    /// treated as errors.
+    ///
+    /// For objects of version 2 or newer, creating an xdg_toplevel_decoration
+    /// from an xdg_toplevel which has a buffer attached or committed is
+    /// allowed. The initial decoration mode of the surface if a buffer is
+    /// already attached depends on whether a xdg_toplevel_decoration object
+    /// has been associated with the surface or not prior to this request.
+    ///
+    /// If an xdg_toplevel_decoration was associated with the surface, then
+    /// destroyed without a surface commit, the previous decoration mode is
+    /// retained.
+    ///
+    /// If no xdg_toplevel_decoration was associated with the surface prior to
+    /// this request, or if a surface commit has been perfomed after a previous
+    /// xdg_toplevel_decoration object associated with the surface was
+    /// destroyed, the decoration mode is assumed to be client-side.
     ///
     /// # Arguments
     ///
@@ -316,11 +376,26 @@ pub trait ZxdgDecorationManagerV1Handler: Any {
     ///
     /// Create a new decoration object associated with the given toplevel.
     ///
-    /// Creating an xdg_toplevel_decoration from an xdg_toplevel which has a
-    /// buffer attached or committed is a client error, and any attempts by a
-    /// client to attach or manipulate a buffer prior to the first
-    /// xdg_toplevel_decoration.configure event must also be treated as
-    /// errors.
+    /// For objects of version 1, creating an xdg_toplevel_decoration from an
+    /// xdg_toplevel which has a buffer attached or committed is a client
+    /// error, and any attempts by a client to attach or manipulate a buffer
+    /// prior to the first xdg_toplevel_decoration.configure event must also be
+    /// treated as errors.
+    ///
+    /// For objects of version 2 or newer, creating an xdg_toplevel_decoration
+    /// from an xdg_toplevel which has a buffer attached or committed is
+    /// allowed. The initial decoration mode of the surface if a buffer is
+    /// already attached depends on whether a xdg_toplevel_decoration object
+    /// has been associated with the surface or not prior to this request.
+    ///
+    /// If an xdg_toplevel_decoration was associated with the surface, then
+    /// destroyed without a surface commit, the previous decoration mode is
+    /// retained.
+    ///
+    /// If no xdg_toplevel_decoration was associated with the surface prior to
+    /// this request, or if a surface commit has been perfomed after a previous
+    /// xdg_toplevel_decoration object associated with the surface was
+    /// destroyed, the decoration mode is assumed to be client-side.
     ///
     /// # Arguments
     ///
