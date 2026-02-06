@@ -133,7 +133,7 @@ impl XdgToplevelIconV1 {
     /// fall back to using pixel buffer data instead.
     ///
     /// If this request is made after the icon has been assigned to a toplevel
-    /// via 'set_icon', a 'immutable' error must be raised.
+    /// via 'set_icon', an 'immutable' error must be raised.
     ///
     /// [1]: https://specifications.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html
     ///
@@ -196,7 +196,7 @@ impl XdgToplevelIconV1 {
     /// fall back to using pixel buffer data instead.
     ///
     /// If this request is made after the icon has been assigned to a toplevel
-    /// via 'set_icon', a 'immutable' error must be raised.
+    /// via 'set_icon', an 'immutable' error must be raised.
     ///
     /// [1]: https://specifications.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html
     ///
@@ -244,7 +244,7 @@ impl XdgToplevelIconV1 {
     /// request is sent. The wl_buffer.release event is unused.
     ///
     /// If this request is made after the icon has been assigned to a toplevel
-    /// via 'set_icon', a 'immutable' error must be raised.
+    /// via 'set_icon', an 'immutable' error must be raised.
     ///
     /// # Arguments
     ///
@@ -326,7 +326,7 @@ impl XdgToplevelIconV1 {
     /// request is sent. The wl_buffer.release event is unused.
     ///
     /// If this request is made after the icon has been assigned to a toplevel
-    /// via 'set_icon', a 'immutable' error must be raised.
+    /// via 'set_icon', an 'immutable' error must be raised.
     ///
     /// # Arguments
     ///
@@ -392,7 +392,7 @@ pub trait XdgToplevelIconV1Handler: Any {
     /// fall back to using pixel buffer data instead.
     ///
     /// If this request is made after the icon has been assigned to a toplevel
-    /// via 'set_icon', a 'immutable' error must be raised.
+    /// via 'set_icon', an 'immutable' error must be raised.
     ///
     /// [1]: https://specifications.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html
     ///
@@ -441,7 +441,7 @@ pub trait XdgToplevelIconV1Handler: Any {
     /// request is sent. The wl_buffer.release event is unused.
     ///
     /// If this request is made after the icon has been assigned to a toplevel
-    /// via 'set_icon', a 'immutable' error must be raised.
+    /// via 'set_icon', an 'immutable' error must be raised.
     ///
     /// # Arguments
     ///
