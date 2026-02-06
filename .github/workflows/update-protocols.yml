@@ -22,7 +22,7 @@ jobs:
           cargo run -p update-protocols
           cargo run -p generator
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v8
+        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8.1.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: Update protocols
@@ -34,7 +34,7 @@ jobs:
           branch: bot/update-protocols
           base: master
       - name: Notify failed build
-        uses: jayqi/failed-build-issue-action@v1
+        uses: jayqi/failed-build-issue-action@1a893bbf43ef1c2a8705e2b115cd4f0fe3c5649b # v1.2
         if: failure()
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
