@@ -127,6 +127,8 @@ pub mod xdg_toplevel_tag_v1;
 pub mod xwayland_keyboard_grab_unstable_v1;
 #[cfg(feature = "protocol-xwayland_shell_v1")]
 pub mod xwayland_shell_v1;
+#[cfg(feature = "protocol-xx_zones_v1")]
+pub mod xx_zones_v1;
 #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
 pub mod zwp_linux_explicit_synchronization_unstable_v1;
 #[cfg(feature = "protocol-wlr_data_control_unstable_v1")]
@@ -813,6 +815,14 @@ mod all_types {
     pub(super) use super::xwayland_shell_v1::xwayland_surface_v1::XwaylandSurfaceV1;
     #[cfg(feature = "protocol-xwayland_shell_v1")]
     pub(super) use super::xwayland_shell_v1::xwayland_surface_v1::XwaylandSurfaceV1Error;
+    #[cfg(feature = "protocol-xx_zones_v1")]
+    pub(super) use super::xx_zones_v1::xx_zone_item_v1::XxZoneItemV1;
+    #[cfg(feature = "protocol-xx_zones_v1")]
+    pub(super) use super::xx_zones_v1::xx_zone_manager_v1::XxZoneManagerV1;
+    #[cfg(feature = "protocol-xx_zones_v1")]
+    pub(super) use super::xx_zones_v1::xx_zone_v1::XxZoneV1;
+    #[cfg(feature = "protocol-xx_zones_v1")]
+    pub(super) use super::xx_zones_v1::xx_zone_v1::XxZoneV1Error;
     #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
     pub(super) use super::zwp_linux_explicit_synchronization_unstable_v1::zwp_linux_buffer_release_v1::ZwpLinuxBufferReleaseV1;
     #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
@@ -1854,6 +1864,18 @@ mod all_types {
                 "xwayland_surface_v1" => {
                     #[cfg(feature = "protocol-xwayland_shell_v1")] { Some(ObjectInterface::XwaylandSurfaceV1) }
                     #[cfg(not(feature = "protocol-xwayland_shell_v1"))] { None }
+                },
+                "xx_zone_item_v1" => {
+                    #[cfg(feature = "protocol-xx_zones_v1")] { Some(ObjectInterface::XxZoneItemV1) }
+                    #[cfg(not(feature = "protocol-xx_zones_v1"))] { None }
+                },
+                "xx_zone_manager_v1" => {
+                    #[cfg(feature = "protocol-xx_zones_v1")] { Some(ObjectInterface::XxZoneManagerV1) }
+                    #[cfg(not(feature = "protocol-xx_zones_v1"))] { None }
+                },
+                "xx_zone_v1" => {
+                    #[cfg(feature = "protocol-xx_zones_v1")] { Some(ObjectInterface::XxZoneV1) }
+                    #[cfg(not(feature = "protocol-xx_zones_v1"))] { None }
                 },
                 "zwp_linux_buffer_release_v1" => {
                     #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")] { Some(ObjectInterface::ZwpLinuxBufferReleaseV1) }
@@ -3482,6 +3504,27 @@ mod all_types {
                     }
                     Ok(XwaylandSurfaceV1::new(state, version))
                 }
+                #[cfg(feature = "protocol-xx_zones_v1")]
+                Self::XxZoneItemV1 => {
+                    if version > XxZoneItemV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(XxZoneItemV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-xx_zones_v1")]
+                Self::XxZoneManagerV1 => {
+                    if version > XxZoneManagerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(XxZoneManagerV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-xx_zones_v1")]
+                Self::XxZoneV1 => {
+                    if version > XxZoneV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(XxZoneV1::new(state, version))
+                }
                 #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
                 Self::ZwpLinuxBufferReleaseV1 => {
                     if version > ZwpLinuxBufferReleaseV1::XML_VERSION {
@@ -4642,6 +4685,15 @@ pub enum ObjectInterface {
     /// xwayland_surface_v1
     #[cfg(feature = "protocol-xwayland_shell_v1")]
     XwaylandSurfaceV1,
+    /// xx_zone_item_v1
+    #[cfg(feature = "protocol-xx_zones_v1")]
+    XxZoneItemV1,
+    /// xx_zone_manager_v1
+    #[cfg(feature = "protocol-xx_zones_v1")]
+    XxZoneManagerV1,
+    /// xx_zone_v1
+    #[cfg(feature = "protocol-xx_zones_v1")]
+    XxZoneV1,
     /// zwp_linux_buffer_release_v1
     #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
     ZwpLinuxBufferReleaseV1,
@@ -5259,6 +5311,12 @@ impl ObjectInterface {
             Self::XwaylandShellV1 => "xwayland_shell_v1",
             #[cfg(feature = "protocol-xwayland_shell_v1")]
             Self::XwaylandSurfaceV1 => "xwayland_surface_v1",
+            #[cfg(feature = "protocol-xx_zones_v1")]
+            Self::XxZoneItemV1 => "xx_zone_item_v1",
+            #[cfg(feature = "protocol-xx_zones_v1")]
+            Self::XxZoneManagerV1 => "xx_zone_manager_v1",
+            #[cfg(feature = "protocol-xx_zones_v1")]
+            Self::XxZoneV1 => "xx_zone_v1",
             #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
             Self::ZwpLinuxBufferReleaseV1 => "zwp_linux_buffer_release_v1",
             #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
@@ -5787,6 +5845,12 @@ impl ObjectInterface {
             Self::XwaylandShellV1 => 1,
             #[cfg(feature = "protocol-xwayland_shell_v1")]
             Self::XwaylandSurfaceV1 => 1,
+            #[cfg(feature = "protocol-xx_zones_v1")]
+            Self::XxZoneItemV1 => 1,
+            #[cfg(feature = "protocol-xx_zones_v1")]
+            Self::XxZoneManagerV1 => 1,
+            #[cfg(feature = "protocol-xx_zones_v1")]
+            Self::XxZoneV1 => 1,
             #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]
             Self::ZwpLinuxBufferReleaseV1 => 1,
             #[cfg(feature = "protocol-zwp_linux_explicit_synchronization_unstable_v1")]

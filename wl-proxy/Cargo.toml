@@ -112,6 +112,7 @@ suite-wayland-protocols = [
     "protocol-xdg_toplevel_tag_v1",
     "protocol-xwayland_keyboard_grab_unstable_v1",
     "protocol-xwayland_shell_v1",
+    "protocol-xx_zones_v1",
     "protocol-zwp_linux_explicit_synchronization_unstable_v1",
 ]
 suite-wlr-protocols = [
@@ -221,6 +222,7 @@ protocol-xdg_toplevel_icon_v1 = ["protocol-xdg_shell"]
 protocol-xdg_toplevel_tag_v1 = ["protocol-xdg_shell"]
 protocol-xwayland_keyboard_grab_unstable_v1 = []
 protocol-xwayland_shell_v1 = []
+protocol-xx_zones_v1 = ["protocol-xdg_shell"]
 protocol-zwp_linux_explicit_synchronization_unstable_v1 = []
 protocol-wlr_data_control_unstable_v1 = []
 protocol-wlr_export_dmabuf_unstable_v1 = []
