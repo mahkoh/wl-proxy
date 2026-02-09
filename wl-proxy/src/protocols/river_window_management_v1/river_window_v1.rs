@@ -4,9 +4,9 @@
 //! an xdg_toplevel or Xwayland window.
 //!
 //! A newly created window will not be displayed until the window manager
-//! proposes window dimensions with the propose_dimensions request as part of
-//! a manage sequence, the server replies with a dimensions event as part of
-//! a render sequence, and that render sequence is finished.
+//! makes a propose_dimensions or fullscreen request as part of a manage
+//! sequence, the server replies with a dimensions event as part of a render
+//! sequence, and that render sequence is finished.
 
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
@@ -518,9 +518,12 @@ impl RiverWindowV1 {
     /// This event is sent as part of a render sequence before the render_start
     /// event.
     ///
-    /// It may be sent due to a propose_dimensions request in a previous manage
-    /// sequence or because a window independently decides to change its
-    /// dimensions.
+    /// It may be sent due to a propose_dimensions or fullscreen request in a
+    /// previous manage sequence or because a window independently decides to
+    /// change its dimensions.
+    ///
+    /// The window will not be displayed until the first dimensions event is
+    /// received and the render sequence is finished.
     ///
     /// # Arguments
     ///
@@ -585,9 +588,12 @@ impl RiverWindowV1 {
     /// This event is sent as part of a render sequence before the render_start
     /// event.
     ///
-    /// It may be sent due to a propose_dimensions request in a previous manage
-    /// sequence or because a window independently decides to change its
-    /// dimensions.
+    /// It may be sent due to a propose_dimensions or fullscreen request in a
+    /// previous manage sequence or because a window independently decides to
+    /// change its dimensions.
+    ///
+    /// The window will not be displayed until the first dimensions event is
+    /// received and the render sequence is finished.
     ///
     /// # Arguments
     ///
@@ -628,10 +634,9 @@ impl RiverWindowV1 {
     /// When a propose_dimensions request is made, the server must send a
     /// dimensions event in response as soon as possible. It may not be possible
     /// to send a dimensions event in the very next render sequence if, for
-    /// example, the window takes too long to respond to the first proposed
+    /// example, the window takes too long to respond to the proposed
     /// dimensions. In this case, the server will send the dimensions event in a
-    /// future render sequence. The window will not be displayed until the first
-    /// dimensions event is received and the render sequence is finished.
+    /// future render sequence.
     ///
     /// Note that the dimensions of a river_window_v1 refer to the dimensions of
     /// the window content and are unaffected by the presence of borders or
@@ -707,10 +712,9 @@ impl RiverWindowV1 {
     /// When a propose_dimensions request is made, the server must send a
     /// dimensions event in response as soon as possible. It may not be possible
     /// to send a dimensions event in the very next render sequence if, for
-    /// example, the window takes too long to respond to the first proposed
+    /// example, the window takes too long to respond to the proposed
     /// dimensions. In this case, the server will send the dimensions event in a
-    /// future render sequence. The window will not be displayed until the first
-    /// dimensions event is received and the render sequence is finished.
+    /// future render sequence.
     ///
     /// Note that the dimensions of a river_window_v1 refer to the dimensions of
     /// the window content and are unaffected by the presence of borders or
@@ -3100,6 +3104,12 @@ impl RiverWindowV1 {
     /// shall not affect the current position and dimensions of a fullscreen
     /// window.
     ///
+    /// When a fullscreen request is made, the server must send a dimensions
+    /// event in response as soon as possible. It may not be possible to send a
+    /// dimensions event in the very next render sequence if, for example, the
+    /// window takes too long to respond. In this case, the server will send the
+    /// dimensions event in a future render sequence.
+    ///
     /// The compositor will clip window content, decoration surfaces, and
     /// borders to the given output's dimensions while the window is fullscreen.
     /// The effects of set_clip_box and set_content_clip_box are ignored while
@@ -3178,6 +3188,12 @@ impl RiverWindowV1 {
     /// while it is fullscreen. The set_position and propose_dimensions requests
     /// shall not affect the current position and dimensions of a fullscreen
     /// window.
+    ///
+    /// When a fullscreen request is made, the server must send a dimensions
+    /// event in response as soon as possible. It may not be possible to send a
+    /// dimensions event in the very next render sequence if, for example, the
+    /// window takes too long to respond. In this case, the server will send the
+    /// dimensions event in a future render sequence.
     ///
     /// The compositor will clip window content, decoration surfaces, and
     /// borders to the given output's dimensions while the window is fullscreen.
@@ -3878,9 +3894,12 @@ pub trait RiverWindowV1Handler: Any {
     /// This event is sent as part of a render sequence before the render_start
     /// event.
     ///
-    /// It may be sent due to a propose_dimensions request in a previous manage
-    /// sequence or because a window independently decides to change its
-    /// dimensions.
+    /// It may be sent due to a propose_dimensions or fullscreen request in a
+    /// previous manage sequence or because a window independently decides to
+    /// change its dimensions.
+    ///
+    /// The window will not be displayed until the first dimensions event is
+    /// received and the render sequence is finished.
     ///
     /// # Arguments
     ///
@@ -3922,10 +3941,9 @@ pub trait RiverWindowV1Handler: Any {
     /// When a propose_dimensions request is made, the server must send a
     /// dimensions event in response as soon as possible. It may not be possible
     /// to send a dimensions event in the very next render sequence if, for
-    /// example, the window takes too long to respond to the first proposed
+    /// example, the window takes too long to respond to the proposed
     /// dimensions. In this case, the server will send the dimensions event in a
-    /// future render sequence. The window will not be displayed until the first
-    /// dimensions event is received and the render sequence is finished.
+    /// future render sequence.
     ///
     /// Note that the dimensions of a river_window_v1 refer to the dimensions of
     /// the window content and are unaffected by the presence of borders or
@@ -4828,6 +4846,12 @@ pub trait RiverWindowV1Handler: Any {
     /// while it is fullscreen. The set_position and propose_dimensions requests
     /// shall not affect the current position and dimensions of a fullscreen
     /// window.
+    ///
+    /// When a fullscreen request is made, the server must send a dimensions
+    /// event in response as soon as possible. It may not be possible to send a
+    /// dimensions event in the very next render sequence if, for example, the
+    /// window takes too long to respond. In this case, the server will send the
+    /// dimensions event in a future render sequence.
     ///
     /// The compositor will clip window content, decoration surfaces, and
     /// borders to the given output's dimensions while the window is fullscreen.
