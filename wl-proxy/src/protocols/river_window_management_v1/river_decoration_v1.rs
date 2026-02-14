@@ -131,8 +131,8 @@ impl RiverDecorationV1 {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
+    /// - `x`: x relative to top left window corner
+    /// - `y`: y relative to top left window corner
     #[inline]
     pub fn try_send_set_offset(
         &self,
@@ -192,8 +192,8 @@ impl RiverDecorationV1 {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
+    /// - `x`: x relative to top left window corner
+    /// - `y`: y relative to top left window corner
     #[inline]
     pub fn send_set_offset(
         &self,
@@ -325,8 +325,8 @@ pub trait RiverDecorationV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
+    /// - `x`: x relative to top left window corner
+    /// - `y`: y relative to top left window corner
     #[inline]
     fn handle_set_offset(
         &mut self,

@@ -323,8 +323,8 @@ impl RiverOutputV1 {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
+    /// - `x`: global x coordinate
+    /// - `y`: global y coordinate
     #[inline]
     pub fn try_send_position(
         &self,
@@ -389,8 +389,8 @@ impl RiverOutputV1 {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
+    /// - `x`: global x coordinate
+    /// - `y`: global y coordinate
     #[inline]
     pub fn send_position(
         &self,
@@ -427,8 +427,8 @@ impl RiverOutputV1 {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: output width
+    /// - `height`: output height
     #[inline]
     pub fn try_send_dimensions(
         &self,
@@ -493,8 +493,8 @@ impl RiverOutputV1 {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: output width
+    /// - `height`: output height
     #[inline]
     pub fn send_dimensions(
         &self,
@@ -632,8 +632,8 @@ pub trait RiverOutputV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
+    /// - `x`: global x coordinate
+    /// - `y`: global y coordinate
     #[inline]
     fn handle_position(
         &mut self,
@@ -671,8 +671,8 @@ pub trait RiverOutputV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: output width
+    /// - `height`: output height
     #[inline]
     fn handle_dimensions(
         &mut self,

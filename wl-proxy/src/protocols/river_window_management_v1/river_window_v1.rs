@@ -277,7 +277,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new node
     #[inline]
     pub fn try_send_get_node(
         &self,
@@ -334,7 +334,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new node
     #[inline]
     pub fn send_get_node(
         &self,
@@ -403,10 +403,10 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `min_width`:
-    /// - `min_height`:
-    /// - `max_width`:
-    /// - `max_height`:
+    /// - `min_width`: minimum width
+    /// - `min_height`: minimum height
+    /// - `max_width`: maximum width
+    /// - `max_height`: maximum height
     #[inline]
     pub fn try_send_dimensions_hint(
         &self,
@@ -479,10 +479,10 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `min_width`:
-    /// - `min_height`:
-    /// - `max_width`:
-    /// - `max_height`:
+    /// - `min_width`: minimum width
+    /// - `min_height`: minimum height
+    /// - `max_width`: maximum width
+    /// - `max_height`: maximum height
     #[inline]
     pub fn send_dimensions_hint(
         &self,
@@ -527,8 +527,8 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: window content width
+    /// - `height`: window content height
     #[inline]
     pub fn try_send_dimensions(
         &self,
@@ -597,8 +597,8 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: window content width
+    /// - `height`: window content height
     #[inline]
     pub fn send_dimensions(
         &self,
@@ -647,8 +647,8 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: proposed content width
+    /// - `height`: proposed content height
     #[inline]
     pub fn try_send_propose_dimensions(
         &self,
@@ -725,8 +725,8 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: proposed content width
+    /// - `height`: proposed content height
     #[inline]
     pub fn send_propose_dimensions(
         &self,
@@ -898,7 +898,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `app_id`:
+    /// - `app_id`: window application ID
     #[inline]
     pub fn try_send_app_id(
         &self,
@@ -958,7 +958,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `app_id`:
+    /// - `app_id`: window application ID
     #[inline]
     pub fn send_app_id(
         &self,
@@ -988,7 +988,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `title`:
+    /// - `title`: window title
     #[inline]
     pub fn try_send_title(
         &self,
@@ -1048,7 +1048,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `title`:
+    /// - `title`: window title
     #[inline]
     pub fn send_title(
         &self,
@@ -1083,7 +1083,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `parent`:
+    /// - `parent`: parent window, if any
     #[inline]
     pub fn try_send_parent(
         &self,
@@ -1151,7 +1151,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `parent`:
+    /// - `parent`: parent window, if any
     #[inline]
     pub fn send_parent(
         &self,
@@ -1181,7 +1181,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `hint`:
+    /// - `hint`: decoration hint
     #[inline]
     pub fn try_send_decoration_hint(
         &self,
@@ -1237,7 +1237,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `hint`:
+    /// - `hint`: decoration hint
     #[inline]
     pub fn send_decoration_hint(
         &self,
@@ -1423,12 +1423,12 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `edges`:
-    /// - `width`:
-    /// - `r`:
-    /// - `g`:
-    /// - `b`:
-    /// - `a`:
+    /// - `edges`: border edges
+    /// - `width`: border width
+    /// - `r`: 32-bit red value
+    /// - `g`: 32-bit green value
+    /// - `b`: 32-bit blue value
+    /// - `a`: 32-bit alpha value
     #[inline]
     pub fn try_send_set_borders(
         &self,
@@ -1522,12 +1522,12 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `edges`:
-    /// - `width`:
-    /// - `r`:
-    /// - `g`:
-    /// - `b`:
-    /// - `a`:
+    /// - `edges`: border edges
+    /// - `width`: border width
+    /// - `r`: 32-bit red value
+    /// - `g`: 32-bit green value
+    /// - `b`: 32-bit blue value
+    /// - `a`: 32-bit alpha value
     #[inline]
     pub fn send_set_borders(
         &self,
@@ -1572,7 +1572,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `edges`:
+    /// - `edges`: tiled edges
     #[inline]
     pub fn try_send_set_tiled(
         &self,
@@ -1633,7 +1633,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `edges`:
+    /// - `edges`: tiled edges
     #[inline]
     pub fn send_set_tiled(
         &self,
@@ -1661,8 +1661,8 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
-    /// - `surface`:
+    /// - `id`: new decoration surface
+    /// - `surface`: base surface
     #[inline]
     pub fn try_send_get_decoration_above(
         &self,
@@ -1730,8 +1730,8 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
-    /// - `surface`:
+    /// - `id`: new decoration surface
+    /// - `surface`: base surface
     #[inline]
     pub fn send_get_decoration_above(
         &self,
@@ -1758,7 +1758,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `surface`:
+    /// - `surface`: base surface
     #[inline]
     pub fn new_try_send_get_decoration_above(
         &self,
@@ -1783,7 +1783,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `surface`:
+    /// - `surface`: base surface
     #[inline]
     pub fn new_send_get_decoration_above(
         &self,
@@ -1811,8 +1811,8 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
-    /// - `surface`:
+    /// - `id`: new decoration surface
+    /// - `surface`: base surface
     #[inline]
     pub fn try_send_get_decoration_below(
         &self,
@@ -1880,8 +1880,8 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
-    /// - `surface`:
+    /// - `id`: new decoration surface
+    /// - `surface`: base surface
     #[inline]
     pub fn send_get_decoration_below(
         &self,
@@ -1908,7 +1908,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `surface`:
+    /// - `surface`: base surface
     #[inline]
     pub fn new_try_send_get_decoration_below(
         &self,
@@ -1933,7 +1933,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `surface`:
+    /// - `surface`: base surface
     #[inline]
     pub fn new_send_get_decoration_below(
         &self,
@@ -1968,7 +1968,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `seat`:
+    /// - `seat`: requested seat
     #[inline]
     pub fn try_send_pointer_move_requested(
         &self,
@@ -2034,7 +2034,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `seat`:
+    /// - `seat`: requested seat
     #[inline]
     pub fn send_pointer_move_requested(
         &self,
@@ -2073,8 +2073,8 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `seat`:
-    /// - `edges`:
+    /// - `seat`: requested seat
+    /// - `edges`: requested edges
     #[inline]
     pub fn try_send_pointer_resize_requested(
         &self,
@@ -2148,8 +2148,8 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `seat`:
-    /// - `edges`:
+    /// - `seat`: requested seat
+    /// - `edges`: requested edges
     #[inline]
     pub fn send_pointer_resize_requested(
         &self,
@@ -2323,7 +2323,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `caps`:
+    /// - `caps`: supported capabilities
     #[inline]
     pub fn try_send_set_capabilities(
         &self,
@@ -2385,7 +2385,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `caps`:
+    /// - `caps`: supported capabilities
     #[inline]
     pub fn send_set_capabilities(
         &self,
@@ -2795,7 +2795,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `output`:
+    /// - `output`: fullscreen output requested
     #[inline]
     pub fn try_send_fullscreen_requested(
         &self,
@@ -2858,7 +2858,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `output`:
+    /// - `output`: fullscreen output requested
     #[inline]
     pub fn send_fullscreen_requested(
         &self,
@@ -3127,7 +3127,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `output`:
+    /// - `output`: fullscreen output
     #[inline]
     pub fn try_send_fullscreen(
         &self,
@@ -3212,7 +3212,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `output`:
+    /// - `output`: fullscreen output
     #[inline]
     pub fn send_fullscreen(
         &self,
@@ -3400,10 +3400,10 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
-    /// - `width`:
-    /// - `height`:
+    /// - `x`: x relative to top left window corner
+    /// - `y`: y relative to top left window corner
+    /// - `width`: clip box width
+    /// - `height`: clip box height
     #[inline]
     pub fn try_send_set_clip_box(
         &self,
@@ -3477,10 +3477,10 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
-    /// - `width`:
-    /// - `height`:
+    /// - `x`: x relative to top left window corner
+    /// - `y`: y relative to top left window corner
+    /// - `width`: clip box width
+    /// - `height`: clip box height
     #[inline]
     pub fn send_set_clip_box(
         &self,
@@ -3518,7 +3518,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `unreliable_pid`:
+    /// - `unreliable_pid`: unreliable PID
     #[inline]
     pub fn try_send_unreliable_pid(
         &self,
@@ -3576,7 +3576,7 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `unreliable_pid`:
+    /// - `unreliable_pid`: unreliable PID
     #[inline]
     pub fn send_unreliable_pid(
         &self,
@@ -3617,10 +3617,10 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
-    /// - `width`:
-    /// - `height`:
+    /// - `x`: x relative to top left window corner
+    /// - `y`: y relative to top left window corner
+    /// - `width`: clip box width
+    /// - `height`: clip box height
     #[inline]
     pub fn try_send_set_content_clip_box(
         &self,
@@ -3699,10 +3699,10 @@ impl RiverWindowV1 {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
-    /// - `width`:
-    /// - `height`:
+    /// - `x`: x relative to top left window corner
+    /// - `y`: y relative to top left window corner
+    /// - `width`: clip box width
+    /// - `height`: clip box height
     #[inline]
     pub fn send_set_content_clip_box(
         &self,
@@ -3818,7 +3818,7 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new node
     #[inline]
     fn handle_get_node(
         &mut self,
@@ -3854,10 +3854,10 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `min_width`:
-    /// - `min_height`:
-    /// - `max_width`:
-    /// - `max_height`:
+    /// - `min_width`: minimum width
+    /// - `min_height`: minimum height
+    /// - `max_width`: maximum width
+    /// - `max_height`: maximum height
     #[inline]
     fn handle_dimensions_hint(
         &mut self,
@@ -3903,8 +3903,8 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: window content width
+    /// - `height`: window content height
     #[inline]
     fn handle_dimensions(
         &mut self,
@@ -3954,8 +3954,8 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: proposed content width
+    /// - `height`: proposed content height
     #[inline]
     fn handle_propose_dimensions(
         &mut self,
@@ -4039,7 +4039,7 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `app_id`:
+    /// - `app_id`: window application ID
     #[inline]
     fn handle_app_id(
         &mut self,
@@ -4070,7 +4070,7 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `title`:
+    /// - `title`: window title
     #[inline]
     fn handle_title(
         &mut self,
@@ -4106,7 +4106,7 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `parent`:
+    /// - `parent`: parent window, if any
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
@@ -4149,7 +4149,7 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `hint`:
+    /// - `hint`: decoration hint
     #[inline]
     fn handle_decoration_hint(
         &mut self,
@@ -4248,12 +4248,12 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `edges`:
-    /// - `width`:
-    /// - `r`:
-    /// - `g`:
-    /// - `b`:
-    /// - `a`:
+    /// - `edges`: border edges
+    /// - `width`: border width
+    /// - `r`: 32-bit red value
+    /// - `g`: 32-bit green value
+    /// - `b`: 32-bit blue value
+    /// - `a`: 32-bit alpha value
     #[inline]
     fn handle_set_borders(
         &mut self,
@@ -4299,7 +4299,7 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `edges`:
+    /// - `edges`: tiled edges
     #[inline]
     fn handle_set_tiled(
         &mut self,
@@ -4328,8 +4328,8 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `id`:
-    /// - `surface`:
+    /// - `id`: new decoration surface
+    /// - `surface`: base surface
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
@@ -4363,8 +4363,8 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `id`:
-    /// - `surface`:
+    /// - `id`: new decoration surface
+    /// - `surface`: base surface
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
@@ -4405,7 +4405,7 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `seat`:
+    /// - `seat`: requested seat
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
@@ -4455,8 +4455,8 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `seat`:
-    /// - `edges`:
+    /// - `seat`: requested seat
+    /// - `edges`: requested edges
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
@@ -4554,7 +4554,7 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `caps`:
+    /// - `caps`: supported capabilities
     #[inline]
     fn handle_set_capabilities(
         &mut self,
@@ -4724,7 +4724,7 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `output`:
+    /// - `output`: fullscreen output requested
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
@@ -4870,7 +4870,7 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `output`:
+    /// - `output`: fullscreen output
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
@@ -4967,10 +4967,10 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
-    /// - `width`:
-    /// - `height`:
+    /// - `x`: x relative to top left window corner
+    /// - `y`: y relative to top left window corner
+    /// - `width`: clip box width
+    /// - `height`: clip box height
     #[inline]
     fn handle_set_clip_box(
         &mut self,
@@ -5009,7 +5009,7 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `unreliable_pid`:
+    /// - `unreliable_pid`: unreliable PID
     #[inline]
     fn handle_unreliable_pid(
         &mut self,
@@ -5051,10 +5051,10 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
-    /// - `width`:
-    /// - `height`:
+    /// - `x`: x relative to top left window corner
+    /// - `y`: y relative to top left window corner
+    /// - `width`: clip box width
+    /// - `height`: clip box height
     #[inline]
     fn handle_set_content_clip_box(
         &mut self,

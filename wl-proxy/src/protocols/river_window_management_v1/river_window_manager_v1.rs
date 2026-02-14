@@ -888,7 +888,7 @@ impl RiverWindowManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new window
     #[inline]
     pub fn try_send_window(
         &self,
@@ -945,7 +945,7 @@ impl RiverWindowManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new window
     #[inline]
     pub fn send_window(
         &self,
@@ -1007,7 +1007,7 @@ impl RiverWindowManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new output
     #[inline]
     pub fn try_send_output(
         &self,
@@ -1066,7 +1066,7 @@ impl RiverWindowManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new output
     #[inline]
     pub fn send_output(
         &self,
@@ -1130,7 +1130,7 @@ impl RiverWindowManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new seat
     #[inline]
     pub fn try_send_seat(
         &self,
@@ -1187,7 +1187,7 @@ impl RiverWindowManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new seat
     #[inline]
     pub fn send_seat(
         &self,
@@ -1248,8 +1248,8 @@ impl RiverWindowManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
-    /// - `surface`:
+    /// - `id`: new river shell surface
+    /// - `surface`: base surface
     #[inline]
     pub fn try_send_get_shell_surface(
         &self,
@@ -1316,8 +1316,8 @@ impl RiverWindowManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
-    /// - `surface`:
+    /// - `id`: new river shell surface
+    /// - `surface`: base surface
     #[inline]
     pub fn send_get_shell_surface(
         &self,
@@ -1343,7 +1343,7 @@ impl RiverWindowManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `surface`:
+    /// - `surface`: base surface
     #[inline]
     pub fn new_try_send_get_shell_surface(
         &self,
@@ -1367,7 +1367,7 @@ impl RiverWindowManagerV1 {
     ///
     /// # Arguments
     ///
-    /// - `surface`:
+    /// - `surface`: base surface
     #[inline]
     pub fn new_send_get_shell_surface(
         &self,
@@ -1674,7 +1674,7 @@ pub trait RiverWindowManagerV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new window
     #[inline]
     fn handle_window(
         &mut self,
@@ -1703,7 +1703,7 @@ pub trait RiverWindowManagerV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new output
     #[inline]
     fn handle_output(
         &mut self,
@@ -1730,7 +1730,7 @@ pub trait RiverWindowManagerV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new seat
     #[inline]
     fn handle_seat(
         &mut self,
@@ -1758,8 +1758,8 @@ pub trait RiverWindowManagerV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `id`:
-    /// - `surface`:
+    /// - `id`: new river shell surface
+    /// - `surface`: base surface
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
