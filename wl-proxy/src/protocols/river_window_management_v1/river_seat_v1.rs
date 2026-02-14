@@ -311,7 +311,7 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `window`:
+    /// - `window`: window to focus
     #[inline]
     pub fn try_send_focus_window(
         &self,
@@ -368,7 +368,7 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `window`:
+    /// - `window`: window to focus
     #[inline]
     pub fn send_focus_window(
         &self,
@@ -395,7 +395,7 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `shell_surface`:
+    /// - `shell_surface`: shell surface to focus
     #[inline]
     pub fn try_send_focus_shell_surface(
         &self,
@@ -453,7 +453,7 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `shell_surface`:
+    /// - `shell_surface`: shell surface to focus
     #[inline]
     pub fn send_focus_shell_surface(
         &self,
@@ -550,7 +550,7 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `window`:
+    /// - `window`: window entered
     #[inline]
     pub fn try_send_pointer_enter(
         &self,
@@ -617,7 +617,7 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `window`:
+    /// - `window`: window entered
     #[inline]
     pub fn send_pointer_enter(
         &self,
@@ -717,7 +717,7 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `window`:
+    /// - `window`: window interacted with
     #[inline]
     pub fn try_send_window_interaction(
         &self,
@@ -785,7 +785,7 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `window`:
+    /// - `window`: window interacted with
     #[inline]
     pub fn send_window_interaction(
         &self,
@@ -823,7 +823,7 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `shell_surface`:
+    /// - `shell_surface`: shell surface interacted with
     #[inline]
     pub fn try_send_shell_surface_interaction(
         &self,
@@ -892,7 +892,7 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `shell_surface`:
+    /// - `shell_surface`: shell surface interacted with
     #[inline]
     pub fn send_shell_surface_interaction(
         &self,
@@ -1222,8 +1222,8 @@ impl RiverSeatV1 {
 
     /// define a new pointer binding
     ///
-    /// Define a pointer binding in terms of a pointer button, modifiers, and
-    /// other configurable properties.
+    /// Define a pointer binding in terms of a pointer button, keyboard
+    /// modifiers, and other configurable properties.
     ///
     /// The button argument is a Linux input event code defined in the
     /// linux/input-event-codes.h header file (e.g. BTN_RIGHT).
@@ -1233,9 +1233,9 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new pointer binding
     /// - `button`: a Linux input event code
-    /// - `modifiers`:
+    /// - `modifiers`: keyboard modifiers
     #[inline]
     pub fn try_send_get_pointer_binding(
         &self,
@@ -1293,8 +1293,8 @@ impl RiverSeatV1 {
 
     /// define a new pointer binding
     ///
-    /// Define a pointer binding in terms of a pointer button, modifiers, and
-    /// other configurable properties.
+    /// Define a pointer binding in terms of a pointer button, keyboard
+    /// modifiers, and other configurable properties.
     ///
     /// The button argument is a Linux input event code defined in the
     /// linux/input-event-codes.h header file (e.g. BTN_RIGHT).
@@ -1304,9 +1304,9 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new pointer binding
     /// - `button`: a Linux input event code
-    /// - `modifiers`:
+    /// - `modifiers`: keyboard modifiers
     #[inline]
     pub fn send_get_pointer_binding(
         &self,
@@ -1326,8 +1326,8 @@ impl RiverSeatV1 {
 
     /// define a new pointer binding
     ///
-    /// Define a pointer binding in terms of a pointer button, modifiers, and
-    /// other configurable properties.
+    /// Define a pointer binding in terms of a pointer button, keyboard
+    /// modifiers, and other configurable properties.
     ///
     /// The button argument is a Linux input event code defined in the
     /// linux/input-event-codes.h header file (e.g. BTN_RIGHT).
@@ -1338,7 +1338,7 @@ impl RiverSeatV1 {
     /// # Arguments
     ///
     /// - `button`: a Linux input event code
-    /// - `modifiers`:
+    /// - `modifiers`: keyboard modifiers
     #[inline]
     pub fn new_try_send_get_pointer_binding(
         &self,
@@ -1356,8 +1356,8 @@ impl RiverSeatV1 {
 
     /// define a new pointer binding
     ///
-    /// Define a pointer binding in terms of a pointer button, modifiers, and
-    /// other configurable properties.
+    /// Define a pointer binding in terms of a pointer button, keyboard
+    /// modifiers, and other configurable properties.
     ///
     /// The button argument is a Linux input event code defined in the
     /// linux/input-event-codes.h header file (e.g. BTN_RIGHT).
@@ -1368,7 +1368,7 @@ impl RiverSeatV1 {
     /// # Arguments
     ///
     /// - `button`: a Linux input event code
-    /// - `modifiers`:
+    /// - `modifiers`: keyboard modifiers
     #[inline]
     pub fn new_send_get_pointer_binding(
         &self,
@@ -1398,8 +1398,8 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `name`:
-    /// - `size`:
+    /// - `name`: xcursor theme name
+    /// - `size`: cursor size
     #[inline]
     pub fn try_send_set_xcursor_theme(
         &self,
@@ -1459,8 +1459,8 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `name`:
-    /// - `size`:
+    /// - `name`: xcursor theme name
+    /// - `size`: cursor size
     #[inline]
     pub fn send_set_xcursor_theme(
         &self,
@@ -1493,8 +1493,8 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
+    /// - `x`: global x coordinate
+    /// - `y`: global y coordinate
     #[inline]
     pub fn try_send_pointer_position(
         &self,
@@ -1555,8 +1555,8 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
+    /// - `x`: global x coordinate
+    /// - `y`: global y coordinate
     #[inline]
     pub fn send_pointer_position(
         &self,
@@ -1588,8 +1588,8 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
+    /// - `x`: global x coordinate
+    /// - `y`: global y coordinate
     #[inline]
     pub fn try_send_pointer_warp(
         &self,
@@ -1649,8 +1649,8 @@ impl RiverSeatV1 {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
+    /// - `x`: global x coordinate
+    /// - `y`: global y coordinate
     #[inline]
     pub fn send_pointer_warp(
         &self,
@@ -1776,7 +1776,7 @@ pub trait RiverSeatV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `window`:
+    /// - `window`: window to focus
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
@@ -1807,7 +1807,7 @@ pub trait RiverSeatV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `shell_surface`:
+    /// - `shell_surface`: shell surface to focus
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
@@ -1868,7 +1868,7 @@ pub trait RiverSeatV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `window`:
+    /// - `window`: window entered
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
@@ -1938,7 +1938,7 @@ pub trait RiverSeatV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `window`:
+    /// - `window`: window interacted with
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
@@ -1987,7 +1987,7 @@ pub trait RiverSeatV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `shell_surface`:
+    /// - `shell_surface`: shell surface interacted with
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
@@ -2131,8 +2131,8 @@ pub trait RiverSeatV1Handler: Any {
 
     /// define a new pointer binding
     ///
-    /// Define a pointer binding in terms of a pointer button, modifiers, and
-    /// other configurable properties.
+    /// Define a pointer binding in terms of a pointer button, keyboard
+    /// modifiers, and other configurable properties.
     ///
     /// The button argument is a Linux input event code defined in the
     /// linux/input-event-codes.h header file (e.g. BTN_RIGHT).
@@ -2142,9 +2142,9 @@ pub trait RiverSeatV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new pointer binding
     /// - `button`: a Linux input event code
-    /// - `modifiers`:
+    /// - `modifiers`: keyboard modifiers
     #[inline]
     fn handle_get_pointer_binding(
         &mut self,
@@ -2177,8 +2177,8 @@ pub trait RiverSeatV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `name`:
-    /// - `size`:
+    /// - `name`: xcursor theme name
+    /// - `size`: cursor size
     #[inline]
     fn handle_set_xcursor_theme(
         &mut self,
@@ -2212,8 +2212,8 @@ pub trait RiverSeatV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
+    /// - `x`: global x coordinate
+    /// - `y`: global y coordinate
     #[inline]
     fn handle_pointer_position(
         &mut self,
@@ -2246,8 +2246,8 @@ pub trait RiverSeatV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
+    /// - `x`: global x coordinate
+    /// - `y`: global y coordinate
     #[inline]
     fn handle_pointer_warp(
         &mut self,

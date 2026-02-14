@@ -121,7 +121,7 @@ impl RiverShellSurfaceV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new node
     #[inline]
     pub fn try_send_get_node(
         &self,
@@ -178,7 +178,7 @@ impl RiverShellSurfaceV1 {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new node
     #[inline]
     pub fn send_get_node(
         &self,
@@ -338,7 +338,7 @@ pub trait RiverShellSurfaceV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `id`:
+    /// - `id`: new node
     #[inline]
     fn handle_get_node(
         &mut self,

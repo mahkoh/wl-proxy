@@ -134,8 +134,8 @@ impl RiverNodeV1 {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
+    /// - `x`: global x coordinate
+    /// - `y`: global y coordinate
     #[inline]
     pub fn try_send_set_position(
         &self,
@@ -199,8 +199,8 @@ impl RiverNodeV1 {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
+    /// - `x`: global x coordinate
+    /// - `y`: global y coordinate
     #[inline]
     pub fn send_set_position(
         &self,
@@ -357,7 +357,7 @@ impl RiverNodeV1 {
     ///
     /// # Arguments
     ///
-    /// - `other`:
+    /// - `other`: other node
     #[inline]
     pub fn try_send_place_above(
         &self,
@@ -417,7 +417,7 @@ impl RiverNodeV1 {
     ///
     /// # Arguments
     ///
-    /// - `other`:
+    /// - `other`: other node
     #[inline]
     pub fn send_place_above(
         &self,
@@ -446,7 +446,7 @@ impl RiverNodeV1 {
     ///
     /// # Arguments
     ///
-    /// - `other`:
+    /// - `other`: other node
     #[inline]
     pub fn try_send_place_below(
         &self,
@@ -506,7 +506,7 @@ impl RiverNodeV1 {
     ///
     /// # Arguments
     ///
-    /// - `other`:
+    /// - `other`: other node
     #[inline]
     pub fn send_place_below(
         &self,
@@ -567,8 +567,8 @@ pub trait RiverNodeV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
+    /// - `x`: global x coordinate
+    /// - `y`: global y coordinate
     #[inline]
     fn handle_set_position(
         &mut self,
@@ -644,7 +644,7 @@ pub trait RiverNodeV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `other`:
+    /// - `other`: other node
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
@@ -677,7 +677,7 @@ pub trait RiverNodeV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `other`:
+    /// - `other`: other node
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
