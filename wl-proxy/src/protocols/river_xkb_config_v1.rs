@@ -1,4 +1,4 @@
-//! configure xkbcommon keyboard state
+//! configure xkbcommon keyboards
 //!
 //! This protocol allow a client to set the xkbcommon keymap of individual
 //! keyboard input devices. It also allows switching between the layouts of a
