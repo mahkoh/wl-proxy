@@ -1,7 +1,7 @@
-//! layer shell support for river
+//! optional layer shell support
 //!
 //! This protocol allows the river-window-management-v1 window manager to
-//! support the wlr-layer-shell-v1 protocol.
+//! support the wlr-layer-shell-unstable-v1 protocol.
 //!
 //! The key words "must", "must not", "required", "shall", "shall not",
 //! "should", "should not", "recommended", "may", and "optional" in this
