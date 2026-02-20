@@ -1,4 +1,4 @@
-//! configure input devices
+//! manage seats and input devices
 //!
 //! This protocol supports creating/destroying seats, assigning input devices to
 //! seats, and configuring input devices (e.g. setting keyboard repeat rate).
