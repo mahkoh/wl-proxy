@@ -1,4 +1,4 @@
-//! define xkbcommon-based key bindings
+//! xkbcommon-based key bindings
 //!
 //! This protocol allows the river-window-management-v1 window manager to
 //! define key bindings in terms of xkbcommon keysyms and other configurable

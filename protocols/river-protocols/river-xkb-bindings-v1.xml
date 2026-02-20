@@ -22,7 +22,7 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
     IN THE SOFTWARE.
   </copyright>
-  <description summary="define xkbcommon-based key bindings">
+  <description summary="xkbcommon-based key bindings">
     This protocol allows the river-window-management-v1 window manager to
     define key bindings in terms of xkbcommon keysyms and other configurable
     properties.
