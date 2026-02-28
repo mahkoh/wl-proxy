@@ -8,6 +8,7 @@ use {
         state::{EndpointWithClient, Pollable, State, StateError, StateErrorKind},
         utils::env::{WAYLAND_DISPLAY, WAYLAND_SOCKET, WL_PROXY_DEBUG, XDG_RUNTIME_DIR},
     },
+    linearize::Linearize,
     std::{
         cell::{Cell, RefCell},
         collections::HashMap,
@@ -36,6 +37,11 @@ enum Server {
     None,
     Fd(Rc<OwnedFd>),
     DisplayName(String),
+}
+
+#[derive(Copy, Clone, Linearize)]
+pub(crate) enum StaticPollableIds {
+    Server,
 }
 
 impl StateBuilder {
@@ -115,15 +121,14 @@ impl StateBuilder {
                 .map_err(|e| StateErrorKind::Connect(name.to_string(), e.into()))?;
             Some(Rc::new(socket.into()))
         };
-        const SERVER_ENDPOINT_ID: u64 = 0;
         let mut endpoints = HashMap::new();
         let mut server = None;
         if let Some(server_fd) = &server_fd {
-            let s = Endpoint::new(SERVER_ENDPOINT_ID, server_fd);
+            let s = Endpoint::new(StaticPollableIds::Server as u64, server_fd);
             s.idl.acquire();
             s.idl.acquire();
             endpoints.insert(
-                SERVER_ENDPOINT_ID,
+                StaticPollableIds::Server as u64,
                 Pollable::Endpoint(EndpointWithClient {
                     endpoint: s.clone(),
                     client: None,
@@ -153,7 +158,7 @@ impl StateBuilder {
         let state = Rc::new(State {
             baseline: self.baseline,
             poller,
-            next_pollable_id: Cell::new(SERVER_ENDPOINT_ID + 1),
+            next_pollable_id: Cell::new(StaticPollableIds::LENGTH as u64),
             server,
             destroyed: Default::default(),
             handler: Default::default(),
@@ -190,7 +195,7 @@ impl StateBuilder {
             state.change_interest(server, |i| i | poll::READABLE);
             state
                 .poller
-                .register(0, server.socket.as_fd())
+                .register(server.id, server.socket.as_fd())
                 .map_err(StateErrorKind::PollError)?;
             let display = WlDisplay::new(&state, 1);
             display
