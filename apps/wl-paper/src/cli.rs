@@ -37,6 +37,9 @@ struct WlPaper {
     /// The layer.
     #[clap(long, default_value = "background")]
     layer: Layer,
+    /// The namespace.
+    #[clap(long, default_value = "")]
+    namespace: String,
     /// The program to run.
     #[clap(
         trailing_var_arg = true,
@@ -85,6 +88,7 @@ pub fn main() -> Result<(), PaperError> {
         margin_right: args.margin_right,
         margin_bottom: args.margin_bottom,
         margin_left: args.margin_left,
+        namespace: args.namespace,
     };
     paper::main(config, &args.program.unwrap())
 }

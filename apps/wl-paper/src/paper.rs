@@ -77,6 +77,7 @@ pub struct Config {
     pub margin_right: i32,
     pub margin_bottom: i32,
     pub margin_left: i32,
+    pub namespace: String,
 }
 
 /// Handler for the client's wl_display object.
@@ -372,7 +373,7 @@ impl XdgSurfaceHandler for ClientXdgSurface {
             &self.wl_surface,
             None,
             c.layer,
-            "",
+            &c.namespace,
         );
         zwlr_layer_surface_v1.send_set_size(0, 0);
         zwlr_layer_surface_v1.send_set_margin(
