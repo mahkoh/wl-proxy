@@ -21,7 +21,7 @@ struct DefaultHandler;
 impl WlRegionHandler for DefaultHandler { }
 
 impl ConcreteObject for WlRegion {
-    const XML_VERSION: u32 = 1;
+    const XML_VERSION: u32 = 7;
     const INTERFACE: ObjectInterface = ObjectInterface::WlRegion;
     const INTERFACE_NAME: &str = "wl_region";
 }

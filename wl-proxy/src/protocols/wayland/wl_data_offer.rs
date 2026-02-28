@@ -23,7 +23,7 @@ struct DefaultHandler;
 impl WlDataOfferHandler for DefaultHandler { }
 
 impl ConcreteObject for WlDataOffer {
-    const XML_VERSION: u32 = 3;
+    const XML_VERSION: u32 = 4;
     const INTERFACE: ObjectInterface = ObjectInterface::WlDataOffer;
     const INTERFACE_NAME: &str = "wl_data_offer";
 }

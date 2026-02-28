@@ -20,7 +20,7 @@ struct DefaultHandler;
 impl WlCompositorHandler for DefaultHandler { }
 
 impl ConcreteObject for WlCompositor {
-    const XML_VERSION: u32 = 6;
+    const XML_VERSION: u32 = 7;
     const INTERFACE: ObjectInterface = ObjectInterface::WlCompositor;
     const INTERFACE_NAME: &str = "wl_compositor";
 }
@@ -260,6 +260,62 @@ impl WlCompositor {
         );
         id
     }
+
+    /// Since when the release message is available.
+    pub const MSG__RELEASE__SINCE: u32 = 7;
+
+    /// destroy wl_compositor
+    ///
+    /// This request destroys the wl_compositor. This has no effect on any other objects.
+    #[inline]
+    pub fn try_send_release(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_compositor#{}.release()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            2,
+        ]);
+        self.core.handle_server_destroy();
+        Ok(())
+    }
+
+    /// destroy wl_compositor
+    ///
+    /// This request destroys the wl_compositor. This has no effect on any other objects.
+    #[inline]
+    pub fn send_release(
+        &self,
+    ) {
+        let res = self.try_send_release(
+        );
+        if let Err(e) = res {
+            log_send("wl_compositor.release", &e);
+        }
+    }
 }
 
 /// A message handler for [`WlCompositor`] proxies.
@@ -317,6 +373,24 @@ pub trait WlCompositorHandler: Any {
         );
         if let Err(e) = res {
             log_forward("wl_compositor.create_region", &e);
+        }
+    }
+
+    /// destroy wl_compositor
+    ///
+    /// This request destroys the wl_compositor. This has no effect on any other objects.
+    #[inline]
+    fn handle_release(
+        &mut self,
+        slf: &Rc<WlCompositor>,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_release(
+        );
+        if let Err(e) = res {
+            log_forward("wl_compositor.release", &e);
         }
     }
 }
@@ -403,6 +477,28 @@ impl ObjectPrivate for WlCompositor {
                     DefaultHandler.handle_create_region(&self, arg0);
                 }
             }
+            2 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_compositor#{}.release()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
+                }
+                self.core.handle_client_destroy();
+                if let Some(handler) = handler {
+                    (**handler).handle_release(&self);
+                } else {
+                    DefaultHandler.handle_release(&self);
+                }
+            }
             n => {
                 let _ = client;
                 let _ = msg;
@@ -434,6 +530,7 @@ impl ObjectPrivate for WlCompositor {
         let name = match id {
             0 => "create_surface",
             1 => "create_region",
+            2 => "release",
             _ => return None,
         };
         Some(name)

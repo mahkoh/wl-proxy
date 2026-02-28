@@ -59,7 +59,7 @@ struct DefaultHandler;
 impl WlSurfaceHandler for DefaultHandler { }
 
 impl ConcreteObject for WlSurface {
-    const XML_VERSION: u32 = 6;
+    const XML_VERSION: u32 = 7;
     const INTERFACE: ObjectInterface = ObjectInterface::WlSurface;
     const INTERFACE_NAME: &str = "wl_surface";
 }
@@ -195,9 +195,11 @@ impl WlSurface {
     /// If a pending wl_buffer has been committed to more than one wl_surface,
     /// the delivery of wl_buffer.release events becomes undefined. A well
     /// behaved client should not rely on wl_buffer.release events in this
-    /// case. Alternatively, a client could create multiple wl_buffer objects
-    /// from the same backing storage or use a protocol extension providing
-    /// per-commit release notifications.
+    /// case. Instead, clients hitting this case should use
+    /// wl_surface.get_release or use a protocol extension providing per-commit
+    /// release notifications (if none of these options are available, a
+    /// fallback can be implemented by creating multiple wl_buffer objects from
+    /// the same backing storage).
     ///
     /// Destroying the wl_buffer after wl_buffer.release does not change
     /// the surface contents. Destroying the wl_buffer before wl_buffer.release
@@ -326,9 +328,11 @@ impl WlSurface {
     /// If a pending wl_buffer has been committed to more than one wl_surface,
     /// the delivery of wl_buffer.release events becomes undefined. A well
     /// behaved client should not rely on wl_buffer.release events in this
-    /// case. Alternatively, a client could create multiple wl_buffer objects
-    /// from the same backing storage or use a protocol extension providing
-    /// per-commit release notifications.
+    /// case. Instead, clients hitting this case should use
+    /// wl_surface.get_release or use a protocol extension providing per-commit
+    /// release notifications (if none of these options are available, a
+    /// fallback can be implemented by creating multiple wl_buffer objects from
+    /// the same backing storage).
     ///
     /// Destroying the wl_buffer after wl_buffer.release does not change
     /// the surface contents. Destroying the wl_buffer before wl_buffer.release
@@ -2001,6 +2005,179 @@ impl WlSurface {
             log_send("wl_surface.preferred_buffer_transform", &e);
         }
     }
+
+    /// Since when the get_release message is available.
+    pub const MSG__GET_RELEASE__SINCE: u32 = 7;
+
+    /// get a release callback
+    ///
+    /// Create a callback for the release of the buffer attached by the client
+    /// with wl_surface.attach.
+    ///
+    /// The compositor will release the buffer when it has finished its usage of
+    /// the underlying storage for the relevant commit. Once the client receives
+    /// this event, and assuming the associated buffer is not pending release
+    /// from other wl_surface.commit requests, the client can safely re-use the
+    /// buffer.
+    ///
+    /// Release callbacks are double-buffered state, and will be associated
+    /// with the pending buffer at wl_surface.commit time.
+    ///
+    /// The callback_data passed in the wl_callback.done event is unused and
+    /// is always zero.
+    ///
+    /// Sending this request without attaching a non-null buffer in the same
+    /// content update is a protocol error. The compositor will send the
+    /// no_buffer error in this case.
+    ///
+    /// # Arguments
+    ///
+    /// - `callback`: callback object for the release
+    #[inline]
+    pub fn try_send_get_release(
+        &self,
+        callback: &Rc<WlCallback>,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            callback,
+        );
+        let arg0_obj = arg0;
+        let arg0 = arg0_obj.core();
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("callback", e)))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wl_surface#{}.get_release(callback: wl_callback#{})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            11,
+            arg0_id,
+        ]);
+        Ok(())
+    }
+
+    /// get a release callback
+    ///
+    /// Create a callback for the release of the buffer attached by the client
+    /// with wl_surface.attach.
+    ///
+    /// The compositor will release the buffer when it has finished its usage of
+    /// the underlying storage for the relevant commit. Once the client receives
+    /// this event, and assuming the associated buffer is not pending release
+    /// from other wl_surface.commit requests, the client can safely re-use the
+    /// buffer.
+    ///
+    /// Release callbacks are double-buffered state, and will be associated
+    /// with the pending buffer at wl_surface.commit time.
+    ///
+    /// The callback_data passed in the wl_callback.done event is unused and
+    /// is always zero.
+    ///
+    /// Sending this request without attaching a non-null buffer in the same
+    /// content update is a protocol error. The compositor will send the
+    /// no_buffer error in this case.
+    ///
+    /// # Arguments
+    ///
+    /// - `callback`: callback object for the release
+    #[inline]
+    pub fn send_get_release(
+        &self,
+        callback: &Rc<WlCallback>,
+    ) {
+        let res = self.try_send_get_release(
+            callback,
+        );
+        if let Err(e) = res {
+            log_send("wl_surface.get_release", &e);
+        }
+    }
+
+    /// get a release callback
+    ///
+    /// Create a callback for the release of the buffer attached by the client
+    /// with wl_surface.attach.
+    ///
+    /// The compositor will release the buffer when it has finished its usage of
+    /// the underlying storage for the relevant commit. Once the client receives
+    /// this event, and assuming the associated buffer is not pending release
+    /// from other wl_surface.commit requests, the client can safely re-use the
+    /// buffer.
+    ///
+    /// Release callbacks are double-buffered state, and will be associated
+    /// with the pending buffer at wl_surface.commit time.
+    ///
+    /// The callback_data passed in the wl_callback.done event is unused and
+    /// is always zero.
+    ///
+    /// Sending this request without attaching a non-null buffer in the same
+    /// content update is a protocol error. The compositor will send the
+    /// no_buffer error in this case.
+    #[inline]
+    pub fn new_try_send_get_release(
+        &self,
+    ) -> Result<Rc<WlCallback>, ObjectError> {
+        let callback = self.core.create_child();
+        self.try_send_get_release(
+            &callback,
+        )?;
+        Ok(callback)
+    }
+
+    /// get a release callback
+    ///
+    /// Create a callback for the release of the buffer attached by the client
+    /// with wl_surface.attach.
+    ///
+    /// The compositor will release the buffer when it has finished its usage of
+    /// the underlying storage for the relevant commit. Once the client receives
+    /// this event, and assuming the associated buffer is not pending release
+    /// from other wl_surface.commit requests, the client can safely re-use the
+    /// buffer.
+    ///
+    /// Release callbacks are double-buffered state, and will be associated
+    /// with the pending buffer at wl_surface.commit time.
+    ///
+    /// The callback_data passed in the wl_callback.done event is unused and
+    /// is always zero.
+    ///
+    /// Sending this request without attaching a non-null buffer in the same
+    /// content update is a protocol error. The compositor will send the
+    /// no_buffer error in this case.
+    #[inline]
+    pub fn new_send_get_release(
+        &self,
+    ) -> Rc<WlCallback> {
+        let callback = self.core.create_child();
+        self.send_get_release(
+            &callback,
+        );
+        callback
+    }
 }
 
 /// A message handler for [`WlSurface`] proxies.
@@ -2077,9 +2254,11 @@ pub trait WlSurfaceHandler: Any {
     /// If a pending wl_buffer has been committed to more than one wl_surface,
     /// the delivery of wl_buffer.release events becomes undefined. A well
     /// behaved client should not rely on wl_buffer.release events in this
-    /// case. Alternatively, a client could create multiple wl_buffer objects
-    /// from the same backing storage or use a protocol extension providing
-    /// per-commit release notifications.
+    /// case. Instead, clients hitting this case should use
+    /// wl_surface.get_release or use a protocol extension providing per-commit
+    /// release notifications (if none of these options are available, a
+    /// fallback can be implemented by creating multiple wl_buffer objects from
+    /// the same backing storage).
     ///
     /// Destroying the wl_buffer after wl_buffer.release does not change
     /// the surface contents. Destroying the wl_buffer before wl_buffer.release
@@ -2748,6 +2927,47 @@ pub trait WlSurfaceHandler: Any {
             log_forward("wl_surface.preferred_buffer_transform", &e);
         }
     }
+
+    /// get a release callback
+    ///
+    /// Create a callback for the release of the buffer attached by the client
+    /// with wl_surface.attach.
+    ///
+    /// The compositor will release the buffer when it has finished its usage of
+    /// the underlying storage for the relevant commit. Once the client receives
+    /// this event, and assuming the associated buffer is not pending release
+    /// from other wl_surface.commit requests, the client can safely re-use the
+    /// buffer.
+    ///
+    /// Release callbacks are double-buffered state, and will be associated
+    /// with the pending buffer at wl_surface.commit time.
+    ///
+    /// The callback_data passed in the wl_callback.done event is unused and
+    /// is always zero.
+    ///
+    /// Sending this request without attaching a non-null buffer in the same
+    /// content update is a protocol error. The compositor will send the
+    /// no_buffer error in this case.
+    ///
+    /// # Arguments
+    ///
+    /// - `callback`: callback object for the release
+    #[inline]
+    fn handle_get_release(
+        &mut self,
+        slf: &Rc<WlSurface>,
+        callback: &Rc<WlCallback>,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_get_release(
+            callback,
+        );
+        if let Err(e) = res {
+            log_forward("wl_surface.get_release", &e);
+        }
+    }
 }
 
 impl ObjectPrivate for WlSurface {
@@ -3096,6 +3316,34 @@ impl ObjectPrivate for WlSurface {
                     DefaultHandler.handle_offset(&self, arg0, arg1);
                 }
             }
+            11 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
+                };
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wl_surface#{}.get_release(callback: wl_callback#{})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
+                }
+                let arg0_id = arg0;
+                let arg0 = WlCallback::new(&self.core.state, self.core.version);
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg0_id, "callback", e)))?;
+                let arg0 = &arg0;
+                if let Some(handler) = handler {
+                    (**handler).handle_get_release(&self, arg0);
+                } else {
+                    DefaultHandler.handle_get_release(&self, arg0);
+                }
+            }
             n => {
                 let _ = client;
                 let _ = msg;
@@ -3249,6 +3497,7 @@ impl ObjectPrivate for WlSurface {
             8 => "set_buffer_scale",
             9 => "damage_buffer",
             10 => "offset",
+            11 => "get_release",
             _ => return None,
         };
         Some(name)
@@ -3303,6 +3552,8 @@ impl WlSurface {
     pub const ENM__ERROR_INVALID_OFFSET__SINCE: u32 = 1;
     /// Since when the error.defunct_role_object enum variant is available.
     pub const ENM__ERROR_DEFUNCT_ROLE_OBJECT__SINCE: u32 = 1;
+    /// Since when the error.no_buffer enum variant is available.
+    pub const ENM__ERROR_NO_BUFFER__SINCE: u32 = 1;
 }
 
 /// wl_surface error values
@@ -3326,6 +3577,9 @@ impl WlSurfaceError {
 
     /// surface was destroyed before its role object
     pub const DEFUNCT_ROLE_OBJECT: Self = Self(4);
+
+    /// no buffer was attached
+    pub const NO_BUFFER: Self = Self(5);
 }
 
 impl Debug for WlSurfaceError {
@@ -3336,6 +3590,7 @@ impl Debug for WlSurfaceError {
             Self::INVALID_SIZE => "INVALID_SIZE",
             Self::INVALID_OFFSET => "INVALID_OFFSET",
             Self::DEFUNCT_ROLE_OBJECT => "DEFUNCT_ROLE_OBJECT",
+            Self::NO_BUFFER => "NO_BUFFER",
             _ => return Debug::fmt(&self.0, f),
         };
         f.write_str(name)

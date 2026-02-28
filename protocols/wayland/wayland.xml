@@ -170,7 +170,7 @@
       <arg name="callback_data" type="uint" summary="request-specific data for the callback"/>
     </event>
   </interface>
-  <interface name="wl_compositor" version="6">
+  <interface name="wl_compositor" version="7">
     <description summary="the compositor singleton">
       A compositor.  This object is a singleton global.  The
       compositor is in charge of combining the contents of multiple
@@ -187,6 +187,11 @@
         Ask the compositor to create a new region.
       </description>
       <arg name="id" type="new_id" interface="wl_region" summary="the new region"/>
+    </request>
+    <request name="release" type="destructor" since="7">
+      <description summary="destroy wl_compositor">
+        This request destroys the wl_compositor. This has no effect on any other objects.
+      </description>
     </request>
   </interface>
   <interface name="wl_shm_pool" version="2">
@@ -498,7 +503,7 @@
       </description>
     </event>
   </interface>
-  <interface name="wl_data_offer" version="3">
+  <interface name="wl_data_offer" version="4">
     <description summary="offer to transfer data">
       A wl_data_offer represents a piece of data offered for transfer
       by another client (the source client).  It is used by the
@@ -671,7 +676,7 @@
       <entry name="invalid_offer" value="3" summary="offer doesn&apos;t accept this request"/>
     </enum>
   </interface>
-  <interface name="wl_data_source" version="3">
+  <interface name="wl_data_source" version="4">
     <description summary="offer to transfer data">
       The wl_data_source object is the source side of a wl_data_offer.
       It is created by the source client in a data transfer and
@@ -809,7 +814,7 @@
       <entry name="invalid_source" value="1" summary="source doesn&apos;t accept this request"/>
     </enum>
   </interface>
-  <interface name="wl_data_device" version="3">
+  <interface name="wl_data_device" version="4">
     <description summary="data transfer device">
       There is one wl_data_device per seat which can be obtained
       from the global wl_data_device_manager singleton.
@@ -955,7 +960,7 @@
       <entry name="used_source" value="1" summary="source has already been used"/>
     </enum>
   </interface>
-  <interface name="wl_data_device_manager" version="3">
+  <interface name="wl_data_device_manager" version="4">
     <description summary="data transfer interface">
       The wl_data_device_manager is a singleton global object that
       provides access to inter-client data transfer mechanisms such as
@@ -980,6 +985,12 @@
       </description>
       <arg name="id" type="new_id" interface="wl_data_device" summary="data device to create"/>
       <arg name="seat" type="object" interface="wl_seat" summary="seat associated with the data device"/>
+    </request>
+    <request name="release" type="destructor" since="4">
+      <description summary="destroy wl_data_device_manager">
+        This request destroys the wl_data_device_manager. This has no effect on any other
+        objects.
+      </description>
     </request>
     <enum name="dnd_action" since="3" bitfield="true">
       <description summary="drag and drop actions">
@@ -1295,7 +1306,7 @@
       <entry name="fill" value="3" summary="no upscaling, center on output and add black borders to compensate size mismatch"/>
     </enum>
   </interface>
-  <interface name="wl_surface" version="6">
+  <interface name="wl_surface" version="7">
     <description summary="an onscreen surface">
       A surface is a rectangular area that may be displayed on zero
       or more outputs, and shown any number of times at the compositor's
@@ -1391,9 +1402,11 @@
         If a pending wl_buffer has been committed to more than one wl_surface,
         the delivery of wl_buffer.release events becomes undefined. A well
         behaved client should not rely on wl_buffer.release events in this
-        case. Alternatively, a client could create multiple wl_buffer objects
-        from the same backing storage or use a protocol extension providing
-        per-commit release notifications.
+        case. Instead, clients hitting this case should use
+        wl_surface.get_release or use a protocol extension providing per-commit
+        release notifications (if none of these options are available, a
+        fallback can be implemented by creating multiple wl_buffer objects from
+        the same backing storage).
 
         Destroying the wl_buffer after wl_buffer.release does not change
         the surface contents. Destroying the wl_buffer before wl_buffer.release
@@ -1769,6 +1782,29 @@
       </description>
       <arg name="transform" type="uint" enum="wl_output.transform" summary="preferred transform"/>
     </event>
+    <request name="get_release" since="7">
+      <description summary="get a release callback">
+        Create a callback for the release of the buffer attached by the client
+        with wl_surface.attach.
+
+        The compositor will release the buffer when it has finished its usage of
+        the underlying storage for the relevant commit. Once the client receives
+        this event, and assuming the associated buffer is not pending release
+        from other wl_surface.commit requests, the client can safely re-use the
+        buffer.
+
+        Release callbacks are double-buffered state, and will be associated
+        with the pending buffer at wl_surface.commit time.
+
+        The callback_data passed in the wl_callback.done event is unused and
+        is always zero.
+
+        Sending this request without attaching a non-null buffer in the same
+        content update is a protocol error. The compositor will send the
+        no_buffer error in this case.
+      </description>
+      <arg name="callback" type="new_id" interface="wl_callback" summary="callback object for the release"/>
+    </request>
     <enum name="error">
       <description summary="wl_surface error values">
         These errors can be emitted in response to wl_surface requests.
@@ -1778,6 +1814,7 @@
       <entry name="invalid_size" value="2" summary="buffer size is invalid"/>
       <entry name="invalid_offset" value="3" summary="buffer offset is invalid"/>
       <entry name="defunct_role_object" value="4" summary="surface was destroyed before its role object"/>
+      <entry name="no_buffer" value="5" summary="no buffer was attached"/>
     </enum>
   </interface>
   <interface name="wl_seat" version="10">
@@ -2794,7 +2831,7 @@
       <entry name="preferred" value="0x2" summary="indicates this is the preferred mode"/>
     </enum>
   </interface>
-  <interface name="wl_region" version="1">
+  <interface name="wl_region" version="7">
     <description summary="region interface">
       A region object describes an area.
 

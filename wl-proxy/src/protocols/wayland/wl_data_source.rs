@@ -21,7 +21,7 @@ struct DefaultHandler;
 impl WlDataSourceHandler for DefaultHandler { }
 
 impl ConcreteObject for WlDataSource {
-    const XML_VERSION: u32 = 3;
+    const XML_VERSION: u32 = 4;
     const INTERFACE: ObjectInterface = ObjectInterface::WlDataSource;
     const INTERFACE_NAME: &str = "wl_data_source";
 }

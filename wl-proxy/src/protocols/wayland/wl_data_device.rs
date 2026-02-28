@@ -22,7 +22,7 @@ struct DefaultHandler;
 impl WlDataDeviceHandler for DefaultHandler { }
 
 impl ConcreteObject for WlDataDevice {
-    const XML_VERSION: u32 = 3;
+    const XML_VERSION: u32 = 4;
     const INTERFACE: ObjectInterface = ObjectInterface::WlDataDevice;
     const INTERFACE_NAME: &str = "wl_data_device";
 }
