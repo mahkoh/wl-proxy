@@ -118,6 +118,7 @@ impl RiverLayerShellSeatV1 {
     /// Since when the focus_exclusive message is available.
     pub const MSG__FOCUS_EXCLUSIVE__SINCE: u32 = 1;
 
+    /// layer shell surface has exclusive focus
     ///
     /// A layer shell surface will be given exclusive keyboard focus at the end
     /// of the manage sequence in which this event is sent. The window manager
@@ -164,6 +165,7 @@ impl RiverLayerShellSeatV1 {
         Ok(())
     }
 
+    /// layer shell surface has exclusive focus
     ///
     /// A layer shell surface will be given exclusive keyboard focus at the end
     /// of the manage sequence in which this event is sent. The window manager
@@ -189,6 +191,7 @@ impl RiverLayerShellSeatV1 {
     /// Since when the focus_non_exclusive message is available.
     pub const MSG__FOCUS_NON_EXCLUSIVE__SINCE: u32 = 1;
 
+    /// layer shell surface wants non-exclusive focus
     ///
     /// A layer shell surface will be given non-exclusive keyboard focus at the
     /// end of the manage sequence in which this event is sent. The window
@@ -199,6 +202,10 @@ impl RiverLayerShellSeatV1 {
     /// different window/shell surface at any time. If the window manager sets
     /// focus during the same manage sequence in which this event is sent, the
     /// layer surface will not be focused.
+    ///
+    /// If the layer surface with non-exclusive focus is closed or the window
+    /// manager chooses to move focus away from the layer surface, a focus_none
+    /// event will be sent in the next manage sequence.
     ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.
@@ -237,6 +244,7 @@ impl RiverLayerShellSeatV1 {
         Ok(())
     }
 
+    /// layer shell surface wants non-exclusive focus
     ///
     /// A layer shell surface will be given non-exclusive keyboard focus at the
     /// end of the manage sequence in which this event is sent. The window
@@ -247,6 +255,10 @@ impl RiverLayerShellSeatV1 {
     /// different window/shell surface at any time. If the window manager sets
     /// focus during the same manage sequence in which this event is sent, the
     /// layer surface will not be focused.
+    ///
+    /// If the layer surface with non-exclusive focus is closed or the window
+    /// manager chooses to move focus away from the layer surface, a focus_none
+    /// event will be sent in the next manage sequence.
     ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.
@@ -264,6 +276,7 @@ impl RiverLayerShellSeatV1 {
     /// Since when the focus_none message is available.
     pub const MSG__FOCUS_NONE__SINCE: u32 = 1;
 
+    /// no layer shell surface has focus
     ///
     /// No layer shell surface will have keyboard focus at the end of the manage
     /// sequence in which this event is sent. The window manager may want to
@@ -306,6 +319,7 @@ impl RiverLayerShellSeatV1 {
         Ok(())
     }
 
+    /// no layer shell surface has focus
     ///
     /// No layer shell surface will have keyboard focus at the end of the manage
     /// sequence in which this event is sent. The window manager may want to
@@ -357,6 +371,7 @@ pub trait RiverLayerShellSeatV1Handler: Any {
         }
     }
 
+    /// layer shell surface has exclusive focus
     ///
     /// A layer shell surface will be given exclusive keyboard focus at the end
     /// of the manage sequence in which this event is sent. The window manager
@@ -383,6 +398,7 @@ pub trait RiverLayerShellSeatV1Handler: Any {
         }
     }
 
+    /// layer shell surface wants non-exclusive focus
     ///
     /// A layer shell surface will be given non-exclusive keyboard focus at the
     /// end of the manage sequence in which this event is sent. The window
@@ -393,6 +409,10 @@ pub trait RiverLayerShellSeatV1Handler: Any {
     /// different window/shell surface at any time. If the window manager sets
     /// focus during the same manage sequence in which this event is sent, the
     /// layer surface will not be focused.
+    ///
+    /// If the layer surface with non-exclusive focus is closed or the window
+    /// manager chooses to move focus away from the layer surface, a focus_none
+    /// event will be sent in the next manage sequence.
     ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.
@@ -411,6 +431,7 @@ pub trait RiverLayerShellSeatV1Handler: Any {
         }
     }
 
+    /// no layer shell surface has focus
     ///
     /// No layer shell surface will have keyboard focus at the end of the manage
     /// sequence in which this event is sent. The window manager may want to

@@ -132,10 +132,10 @@ impl RiverLayerShellOutputV1 {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
-    /// - `width`:
-    /// - `height`:
+    /// - `x`: global x coordinate
+    /// - `y`: global y coordinate
+    /// - `width`: area width
+    /// - `height`: area height
     #[inline]
     pub fn try_send_non_exclusive_area(
         &self,
@@ -204,10 +204,10 @@ impl RiverLayerShellOutputV1 {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
-    /// - `width`:
-    /// - `height`:
+    /// - `x`: global x coordinate
+    /// - `y`: global y coordinate
+    /// - `width`: area width
+    /// - `height`: area height
     #[inline]
     pub fn send_non_exclusive_area(
         &self,
@@ -345,10 +345,10 @@ pub trait RiverLayerShellOutputV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
-    /// - `width`:
-    /// - `height`:
+    /// - `x`: global x coordinate
+    /// - `y`: global y coordinate
+    /// - `width`: area width
+    /// - `height`: area height
     #[inline]
     fn handle_non_exclusive_area(
         &mut self,
