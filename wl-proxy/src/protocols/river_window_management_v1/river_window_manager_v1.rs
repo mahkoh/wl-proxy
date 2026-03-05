@@ -89,7 +89,7 @@ struct DefaultHandler;
 impl RiverWindowManagerV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverWindowManagerV1 {
-    const XML_VERSION: u32 = 3;
+    const XML_VERSION: u32 = 4;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverWindowManagerV1;
     const INTERFACE_NAME: &str = "river_window_manager_v1";
 }
@@ -1380,6 +1380,73 @@ impl RiverWindowManagerV1 {
         );
         id
     }
+
+    /// Since when the exit_session message is available.
+    pub const MSG__EXIT_SESSION__SINCE: u32 = 4;
+
+    /// exit the Wayland session
+    ///
+    /// End the current Wayland session and exit the compositor.
+    /// All Wayland clients running in the current session, including
+    /// the window manager, will be disconnected.
+    ///
+    /// Window managers should only make this request if the user explicitly
+    /// asks to exit the Wayland session, not for example on normal window
+    /// manager termination.
+    #[inline]
+    pub fn try_send_exit_session(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= river_window_manager_v1#{}.exit_session()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            6,
+        ]);
+        Ok(())
+    }
+
+    /// exit the Wayland session
+    ///
+    /// End the current Wayland session and exit the compositor.
+    /// All Wayland clients running in the current session, including
+    /// the window manager, will be disconnected.
+    ///
+    /// Window managers should only make this request if the user explicitly
+    /// asks to exit the Wayland session, not for example on normal window
+    /// manager termination.
+    #[inline]
+    pub fn send_exit_session(
+        &self,
+    ) {
+        let res = self.try_send_exit_session(
+        );
+        if let Err(e) = res {
+            log_send("river_window_manager_v1.exit_session", &e);
+        }
+    }
 }
 
 /// A message handler for [`RiverWindowManagerV1`] proxies.
@@ -1781,6 +1848,30 @@ pub trait RiverWindowManagerV1Handler: Any {
             log_forward("river_window_manager_v1.get_shell_surface", &e);
         }
     }
+
+    /// exit the Wayland session
+    ///
+    /// End the current Wayland session and exit the compositor.
+    /// All Wayland clients running in the current session, including
+    /// the window manager, will be disconnected.
+    ///
+    /// Window managers should only make this request if the user explicitly
+    /// asks to exit the Wayland session, not for example on normal window
+    /// manager termination.
+    #[inline]
+    fn handle_exit_session(
+        &mut self,
+        slf: &Rc<RiverWindowManagerV1>,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_exit_session(
+        );
+        if let Err(e) = res {
+            log_forward("river_window_manager_v1.exit_session", &e);
+        }
+    }
 }
 
 impl ObjectPrivate for RiverWindowManagerV1 {
@@ -1951,6 +2042,27 @@ impl ObjectPrivate for RiverWindowManagerV1 {
                     (**handler).handle_get_shell_surface(&self, arg0, arg1);
                 } else {
                     DefaultHandler.handle_get_shell_surface(&self, arg0, arg1);
+                }
+            }
+            6 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> river_window_manager_v1#{}.exit_session()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_exit_session(&self);
+                } else {
+                    DefaultHandler.handle_exit_session(&self);
                 }
             }
             n => {
@@ -2199,6 +2311,7 @@ impl ObjectPrivate for RiverWindowManagerV1 {
             3 => "manage_dirty",
             4 => "render_finish",
             5 => "get_shell_surface",
+            6 => "exit_session",
             _ => return None,
         };
         Some(name)

@@ -20,7 +20,7 @@ struct DefaultHandler;
 impl RiverShellSurfaceV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverShellSurfaceV1 {
-    const XML_VERSION: u32 = 3;
+    const XML_VERSION: u32 = 4;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverShellSurfaceV1;
     const INTERFACE_NAME: &str = "river_shell_surface_v1";
 }

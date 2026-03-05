@@ -322,7 +322,7 @@ impl ExtWorkspaceGroupHandleV1 {
     ///
     /// This event is emitted whenever a workspace is assigned to this group.
     /// A workspace may only ever be assigned to a single group at a single point
-    /// in time, but can be re-assigned during it's lifetime.
+    /// in time, but can be re-assigned during its lifetime.
     ///
     /// # Arguments
     ///
@@ -378,7 +378,7 @@ impl ExtWorkspaceGroupHandleV1 {
     ///
     /// This event is emitted whenever a workspace is assigned to this group.
     /// A workspace may only ever be assigned to a single group at a single point
-    /// in time, but can be re-assigned during it's lifetime.
+    /// in time, but can be re-assigned during its lifetime.
     ///
     /// # Arguments
     ///
@@ -808,7 +808,7 @@ pub trait ExtWorkspaceGroupHandleV1Handler: Any {
     ///
     /// This event is emitted whenever a workspace is assigned to this group.
     /// A workspace may only ever be assigned to a single group at a single point
-    /// in time, but can be re-assigned during it's lifetime.
+    /// in time, but can be re-assigned during its lifetime.
     ///
     /// # Arguments
     ///

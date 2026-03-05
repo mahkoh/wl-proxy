@@ -31,7 +31,7 @@ struct DefaultHandler;
 impl RiverPointerBindingV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverPointerBindingV1 {
-    const XML_VERSION: u32 = 3;
+    const XML_VERSION: u32 = 4;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverPointerBindingV1;
     const INTERFACE_NAME: &str = "river_pointer_binding_v1";
 }

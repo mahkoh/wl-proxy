@@ -152,7 +152,7 @@ impl ZxdgDecorationManagerV1 {
     /// retained.
     ///
     /// If no xdg_toplevel_decoration was associated with the surface prior to
-    /// this request, or if a surface commit has been perfomed after a previous
+    /// this request, or if a surface commit has been performed after a previous
     /// xdg_toplevel_decoration object associated with the surface was
     /// destroyed, the decoration mode is assumed to be client-side.
     ///
@@ -237,7 +237,7 @@ impl ZxdgDecorationManagerV1 {
     /// retained.
     ///
     /// If no xdg_toplevel_decoration was associated with the surface prior to
-    /// this request, or if a surface commit has been perfomed after a previous
+    /// this request, or if a surface commit has been performed after a previous
     /// xdg_toplevel_decoration object associated with the surface was
     /// destroyed, the decoration mode is assumed to be client-side.
     ///
@@ -281,7 +281,7 @@ impl ZxdgDecorationManagerV1 {
     /// retained.
     ///
     /// If no xdg_toplevel_decoration was associated with the surface prior to
-    /// this request, or if a surface commit has been perfomed after a previous
+    /// this request, or if a surface commit has been performed after a previous
     /// xdg_toplevel_decoration object associated with the surface was
     /// destroyed, the decoration mode is assumed to be client-side.
     ///
@@ -322,7 +322,7 @@ impl ZxdgDecorationManagerV1 {
     /// retained.
     ///
     /// If no xdg_toplevel_decoration was associated with the surface prior to
-    /// this request, or if a surface commit has been perfomed after a previous
+    /// this request, or if a surface commit has been performed after a previous
     /// xdg_toplevel_decoration object associated with the surface was
     /// destroyed, the decoration mode is assumed to be client-side.
     ///
@@ -393,7 +393,7 @@ pub trait ZxdgDecorationManagerV1Handler: Any {
     /// retained.
     ///
     /// If no xdg_toplevel_decoration was associated with the surface prior to
-    /// this request, or if a surface commit has been perfomed after a previous
+    /// this request, or if a surface commit has been performed after a previous
     /// xdg_toplevel_decoration object associated with the surface was
     /// destroyed, the decoration mode is assumed to be client-side.
     ///

@@ -2,12 +2,21 @@
 //!
 //! This object represents a single user's collection of input devices. It
 //! allows the window manager to route keyboard input to windows, get
-//! high-level information about pointer input, define keyboard and pointer
-//! bindings, etc.
+//! high-level information about pointer input, define pointer bindings, etc.
 //!
-//! TODO:
-//!   - touch input
-//!   - tablet input
+//! For keyboard bindings, see the river-xkb-bindings-v1 protocol.
+//!
+//! Since version 4: The cursor surface/shape set by the window manager on the
+//! wl_pointer of this seat is used when no client has pointer focus, for
+//! example during a pointer operation. Since the window manager is allowed to
+//! set cursor surface/shape even when it does not have pointer focus, the
+//! compositor must ignore the serial argument of wl_pointer.set_cursor and
+//! wp_cursor_shape_device_v1.set_shape requests made by the window manager.
+//!
+//! The most recent cursor surface/shape set by the window manager is
+//! remembered by the compositor and restored whenever no client has pointer
+//! focus. If the window manager never sets a cursor surface/shape, the
+//! "default" shape is used.
 
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
@@ -25,7 +34,7 @@ struct DefaultHandler;
 impl RiverSeatV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverSeatV1 {
-    const XML_VERSION: u32 = 3;
+    const XML_VERSION: u32 = 4;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverSeatV1;
     const INTERFACE_NAME: &str = "river_seat_v1";
 }
@@ -925,6 +934,11 @@ impl RiverSeatV1 {
     ///
     /// This request is ignored if an operation is already in progress.
     ///
+    /// The compositor must ensure that no client has pointer focus from this
+    /// seat during the pointer operation. This means that the window manager
+    /// has control over the pointer's cursor surface/shape during the pointer
+    /// operation. See the river_seat_v1 description.
+    ///
     /// This request modifies window management state and may only be made as
     /// part of a manage sequence, see the river_window_manager_v1 description.
     #[inline]
@@ -977,6 +991,11 @@ impl RiverSeatV1 {
     /// dimensions based off of the op_delta events.
     ///
     /// This request is ignored if an operation is already in progress.
+    ///
+    /// The compositor must ensure that no client has pointer focus from this
+    /// seat during the pointer operation. This means that the window manager
+    /// has control over the pointer's cursor surface/shape during the pointer
+    /// operation. See the river_seat_v1 description.
     ///
     /// This request modifies window management state and may only be made as
     /// part of a manage sequence, see the river_window_manager_v1 description.
@@ -2030,6 +2049,11 @@ pub trait RiverSeatV1Handler: Any {
     /// dimensions based off of the op_delta events.
     ///
     /// This request is ignored if an operation is already in progress.
+    ///
+    /// The compositor must ensure that no client has pointer focus from this
+    /// seat during the pointer operation. This means that the window manager
+    /// has control over the pointer's cursor surface/shape during the pointer
+    /// operation. See the river_seat_v1 description.
     ///
     /// This request modifies window management state and may only be made as
     /// part of a manage sequence, see the river_window_manager_v1 description.

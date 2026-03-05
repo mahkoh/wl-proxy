@@ -71,10 +71,10 @@ impl ExtWorkspaceHandleV1 {
     ///
     /// If this event is emitted, it will be send immediately after the
     /// ext_workspace_handle_v1 is created or when an id is assigned to
-    /// a workspace (at most once during it's lifetime).
+    /// a workspace (at most once during its lifetime).
     ///
     /// An id will never change during the lifetime of the `ext_workspace_handle_v1`
-    /// and is guaranteed to be unique during it's lifetime.
+    /// and is guaranteed to be unique during its lifetime.
     ///
     /// Ids are not human-readable and shouldn't be displayed, use `name` for that purpose.
     ///
@@ -132,10 +132,10 @@ impl ExtWorkspaceHandleV1 {
     ///
     /// If this event is emitted, it will be send immediately after the
     /// ext_workspace_handle_v1 is created or when an id is assigned to
-    /// a workspace (at most once during it's lifetime).
+    /// a workspace (at most once during its lifetime).
     ///
     /// An id will never change during the lifetime of the `ext_workspace_handle_v1`
-    /// and is guaranteed to be unique during it's lifetime.
+    /// and is guaranteed to be unique during its lifetime.
     ///
     /// Ids are not human-readable and shouldn't be displayed, use `name` for that purpose.
     ///
@@ -938,10 +938,10 @@ pub trait ExtWorkspaceHandleV1Handler: Any {
     ///
     /// If this event is emitted, it will be send immediately after the
     /// ext_workspace_handle_v1 is created or when an id is assigned to
-    /// a workspace (at most once during it's lifetime).
+    /// a workspace (at most once during its lifetime).
     ///
     /// An id will never change during the lifetime of the `ext_workspace_handle_v1`
-    /// and is guaranteed to be unique during it's lifetime.
+    /// and is guaranteed to be unique during its lifetime.
     ///
     /// Ids are not human-readable and shouldn't be displayed, use `name` for that purpose.
     ///

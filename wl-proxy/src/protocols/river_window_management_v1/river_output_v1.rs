@@ -22,7 +22,7 @@ struct DefaultHandler;
 impl RiverOutputV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverOutputV1 {
-    const XML_VERSION: u32 = 3;
+    const XML_VERSION: u32 = 4;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverOutputV1;
     const INTERFACE_NAME: &str = "river_output_v1";
 }
@@ -509,6 +509,88 @@ impl RiverOutputV1 {
             log_send("river_output_v1.dimensions", &e);
         }
     }
+
+    /// Since when the set_presentation_mode message is available.
+    pub const MSG__SET_PRESENTATION_MODE__SINCE: u32 = 4;
+
+    /// set the preferred presentation mode
+    ///
+    /// Set the preferred presentation mode of the output. The compositor should
+    /// always respect the preference of the window manager if possible. If this
+    /// request is never made, the preferred presentation mode is vsync.
+    ///
+    /// This request modifies rendering state and may only be made as part of a
+    /// render sequence, see the river_window_manager_v1 description.
+    ///
+    /// # Arguments
+    ///
+    /// - `mode`: preferred presentation mode
+    #[inline]
+    pub fn try_send_set_presentation_mode(
+        &self,
+        mode: RiverOutputV1PresentationMode,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            mode,
+        );
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: RiverOutputV1PresentationMode) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= river_output_v1#{}.set_presentation_mode(mode: {:?})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            1,
+            arg0.0,
+        ]);
+        Ok(())
+    }
+
+    /// set the preferred presentation mode
+    ///
+    /// Set the preferred presentation mode of the output. The compositor should
+    /// always respect the preference of the window manager if possible. If this
+    /// request is never made, the preferred presentation mode is vsync.
+    ///
+    /// This request modifies rendering state and may only be made as part of a
+    /// render sequence, see the river_window_manager_v1 description.
+    ///
+    /// # Arguments
+    ///
+    /// - `mode`: preferred presentation mode
+    #[inline]
+    pub fn send_set_presentation_mode(
+        &self,
+        mode: RiverOutputV1PresentationMode,
+    ) {
+        let res = self.try_send_set_presentation_mode(
+            mode,
+        );
+        if let Err(e) = res {
+            log_send("river_output_v1.set_presentation_mode", &e);
+        }
+    }
 }
 
 /// A message handler for [`RiverOutputV1`] proxies.
@@ -691,6 +773,35 @@ pub trait RiverOutputV1Handler: Any {
             log_forward("river_output_v1.dimensions", &e);
         }
     }
+
+    /// set the preferred presentation mode
+    ///
+    /// Set the preferred presentation mode of the output. The compositor should
+    /// always respect the preference of the window manager if possible. If this
+    /// request is never made, the preferred presentation mode is vsync.
+    ///
+    /// This request modifies rendering state and may only be made as part of a
+    /// render sequence, see the river_window_manager_v1 description.
+    ///
+    /// # Arguments
+    ///
+    /// - `mode`: preferred presentation mode
+    #[inline]
+    fn handle_set_presentation_mode(
+        &mut self,
+        slf: &Rc<RiverOutputV1>,
+        mode: RiverOutputV1PresentationMode,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_set_presentation_mode(
+            mode,
+        );
+        if let Err(e) = res {
+            log_forward("river_output_v1.set_presentation_mode", &e);
+        }
+    }
 }
 
 impl ObjectPrivate for RiverOutputV1 {
@@ -739,6 +850,30 @@ impl ObjectPrivate for RiverOutputV1 {
                     (**handler).handle_destroy(&self);
                 } else {
                     DefaultHandler.handle_destroy(&self);
+                }
+            }
+            1 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
+                };
+                let arg0 = RiverOutputV1PresentationMode(arg0);
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: RiverOutputV1PresentationMode) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> river_output_v1#{}.set_presentation_mode(mode: {:?})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_set_presentation_mode(&self, arg0);
+                } else {
+                    DefaultHandler.handle_set_presentation_mode(&self, arg0);
                 }
             }
             n => {
@@ -868,6 +1003,7 @@ impl ObjectPrivate for RiverOutputV1 {
     fn get_request_name(&self, id: u32) -> Option<&'static str> {
         let name = match id {
             0 => "destroy",
+            1 => "set_presentation_mode",
             _ => return None,
         };
         Some(name)
@@ -911,3 +1047,58 @@ impl Object for RiverOutputV1 {
     }
 }
 
+impl RiverOutputV1 {
+    /// Since when the error.invalid_presentation_mode enum variant is available.
+    pub const ENM__ERROR_INVALID_PRESENTATION_MODE__SINCE: u32 = 4;
+
+    /// Since when the presentation_mode.vsync enum variant is available.
+    pub const ENM__PRESENTATION_MODE_VSYNC__SINCE: u32 = 1;
+    /// Since when the presentation_mode.async enum variant is available.
+    pub const ENM__PRESENTATION_MODE_ASYNC__SINCE: u32 = 1;
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct RiverOutputV1Error(pub u32);
+
+impl RiverOutputV1Error {
+    /// invalid presentation mode enum value
+    pub const INVALID_PRESENTATION_MODE: Self = Self(0);
+}
+
+impl Debug for RiverOutputV1Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match *self {
+            Self::INVALID_PRESENTATION_MODE => "INVALID_PRESENTATION_MODE",
+            _ => return Debug::fmt(&self.0, f),
+        };
+        f.write_str(name)
+    }
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct RiverOutputV1PresentationMode(pub u32);
+
+impl RiverOutputV1PresentationMode {
+    /// tearing-free presentation
+    ///
+    /// Output page-flips should be synchronized to the vertical blanking
+    /// period, eliminating tearing. This is the default presentation mode.
+    pub const VSYNC: Self = Self(0);
+
+    /// asynchronous presentation
+    ///
+    /// Output page-flips should not be synchronized to the vertical blanking
+    /// period, visual screen tearing may occur.
+    pub const ASYNC: Self = Self(1);
+}
+
+impl Debug for RiverOutputV1PresentationMode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match *self {
+            Self::VSYNC => "VSYNC",
+            Self::ASYNC => "ASYNC",
+            _ => return Debug::fmt(&self.0, f),
+        };
+        f.write_str(name)
+    }
+}

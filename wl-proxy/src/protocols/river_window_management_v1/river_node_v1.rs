@@ -25,7 +25,7 @@ struct DefaultHandler;
 impl RiverNodeV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverNodeV1 {
-    const XML_VERSION: u32 = 3;
+    const XML_VERSION: u32 = 4;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverNodeV1;
     const INTERFACE_NAME: &str = "river_node_v1";
 }

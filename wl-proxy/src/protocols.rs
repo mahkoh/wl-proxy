@@ -1014,6 +1014,10 @@ mod all_types {
     #[cfg(feature = "protocol-river_window_management_v1")]
     pub(super) use super::river_window_management_v1::river_output_v1::RiverOutputV1;
     #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_output_v1::RiverOutputV1Error;
+    #[cfg(feature = "protocol-river_window_management_v1")]
+    pub(super) use super::river_window_management_v1::river_output_v1::RiverOutputV1PresentationMode;
+    #[cfg(feature = "protocol-river_window_management_v1")]
     pub(super) use super::river_window_management_v1::river_pointer_binding_v1::RiverPointerBindingV1;
     #[cfg(feature = "protocol-river_window_management_v1")]
     pub(super) use super::river_window_management_v1::river_seat_v1::RiverSeatV1;
@@ -5880,21 +5884,21 @@ impl ObjectInterface {
             #[cfg(feature = "protocol-river_libinput_config_v1")]
             Self::RiverLibinputResultV1 => 1,
             #[cfg(feature = "protocol-river_window_management_v1")]
-            Self::RiverDecorationV1 => 3,
+            Self::RiverDecorationV1 => 4,
             #[cfg(feature = "protocol-river_window_management_v1")]
-            Self::RiverNodeV1 => 3,
+            Self::RiverNodeV1 => 4,
             #[cfg(feature = "protocol-river_window_management_v1")]
-            Self::RiverOutputV1 => 3,
+            Self::RiverOutputV1 => 4,
             #[cfg(feature = "protocol-river_window_management_v1")]
-            Self::RiverPointerBindingV1 => 3,
+            Self::RiverPointerBindingV1 => 4,
             #[cfg(feature = "protocol-river_window_management_v1")]
-            Self::RiverSeatV1 => 3,
+            Self::RiverSeatV1 => 4,
             #[cfg(feature = "protocol-river_window_management_v1")]
-            Self::RiverShellSurfaceV1 => 3,
+            Self::RiverShellSurfaceV1 => 4,
             #[cfg(feature = "protocol-river_window_management_v1")]
-            Self::RiverWindowManagerV1 => 3,
+            Self::RiverWindowManagerV1 => 4,
             #[cfg(feature = "protocol-river_window_management_v1")]
-            Self::RiverWindowV1 => 3,
+            Self::RiverWindowV1 => 4,
             #[cfg(feature = "protocol-river_xkb_bindings_v1")]
             Self::RiverXkbBindingV1 => 2,
             #[cfg(feature = "protocol-river_xkb_bindings_v1")]

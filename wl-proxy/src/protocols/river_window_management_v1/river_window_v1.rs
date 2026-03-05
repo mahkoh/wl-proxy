@@ -24,7 +24,7 @@ struct DefaultHandler;
 impl RiverWindowV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverWindowV1 {
-    const XML_VERSION: u32 = 3;
+    const XML_VERSION: u32 = 4;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverWindowV1;
     const INTERFACE_NAME: &str = "river_window_v1";
 }
@@ -3721,6 +3721,296 @@ impl RiverWindowV1 {
             log_send("river_window_v1.set_content_clip_box", &e);
         }
     }
+
+    /// Since when the presentation_hint message is available.
+    pub const MSG__PRESENTATION_HINT__SINCE: u32 = 4;
+
+    /// presentation hint set by the window
+    ///
+    /// This event communicates the window's preferred presentation mode.
+    ///
+    /// This event will be followed by a render_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `hint`: presentation hint
+    #[inline]
+    pub fn try_send_presentation_hint(
+        &self,
+        hint: RiverOutputV1PresentationMode,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            hint,
+        );
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: RiverOutputV1PresentationMode) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= river_window_v1#{}.presentation_hint(hint: {:?})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            16,
+            arg0.0,
+        ]);
+        Ok(())
+    }
+
+    /// presentation hint set by the window
+    ///
+    /// This event communicates the window's preferred presentation mode.
+    ///
+    /// This event will be followed by a render_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `hint`: presentation hint
+    #[inline]
+    pub fn send_presentation_hint(
+        &self,
+        hint: RiverOutputV1PresentationMode,
+    ) {
+        let res = self.try_send_presentation_hint(
+            hint,
+        );
+        if let Err(e) = res {
+            log_send("river_window_v1.presentation_hint", &e);
+        }
+    }
+
+    /// Since when the identifier message is available.
+    pub const MSG__IDENTIFIER__SINCE: u32 = 4;
+
+    /// unique window identifier
+    ///
+    /// The identifier is a string that contains up to 32 printable ASCII bytes.
+    /// The identifier must not be an empty string.
+    ///
+    /// It is compositor policy how the identifier is generated, but the following
+    /// properties must be upheld:
+    ///
+    /// 1. The identifier must uniquely identify the window. Two windows must not
+    ///    share the same identifier.
+    ///
+    /// 2. The identifier must not be reused. This avoids races around window
+    ///    creation/destruction when identifiers are used in out-of-band IPC.
+    ///
+    /// If the compositor implements the ext-foreign-toplevel-list-v1 protocol,
+    /// the river_window_v1.identifier event must match the corresponding
+    /// ext_foreign_toplevel_handle_v1.identifier event.
+    ///
+    /// This event is sent once when the river_window_v1 is created and never
+    /// sent again.
+    ///
+    /// # Arguments
+    ///
+    /// - `identifier`: unique identifier
+    #[inline]
+    pub fn try_send_identifier(
+        &self,
+        identifier: &str,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            identifier,
+        );
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: &str) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= river_window_v1#{}.identifier(identifier: {:?})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            17,
+        ]);
+        fmt.string(arg0);
+        Ok(())
+    }
+
+    /// unique window identifier
+    ///
+    /// The identifier is a string that contains up to 32 printable ASCII bytes.
+    /// The identifier must not be an empty string.
+    ///
+    /// It is compositor policy how the identifier is generated, but the following
+    /// properties must be upheld:
+    ///
+    /// 1. The identifier must uniquely identify the window. Two windows must not
+    ///    share the same identifier.
+    ///
+    /// 2. The identifier must not be reused. This avoids races around window
+    ///    creation/destruction when identifiers are used in out-of-band IPC.
+    ///
+    /// If the compositor implements the ext-foreign-toplevel-list-v1 protocol,
+    /// the river_window_v1.identifier event must match the corresponding
+    /// ext_foreign_toplevel_handle_v1.identifier event.
+    ///
+    /// This event is sent once when the river_window_v1 is created and never
+    /// sent again.
+    ///
+    /// # Arguments
+    ///
+    /// - `identifier`: unique identifier
+    #[inline]
+    pub fn send_identifier(
+        &self,
+        identifier: &str,
+    ) {
+        let res = self.try_send_identifier(
+            identifier,
+        );
+        if let Err(e) = res {
+            log_send("river_window_v1.identifier", &e);
+        }
+    }
+
+    /// Since when the set_dimension_bounds message is available.
+    pub const MSG__SET_DIMENSION_BOUNDS__SINCE: u32 = 4;
+
+    /// recommend maximum dimensions to the window
+    ///
+    /// Recommend that the window keep its dimensions within a given
+    /// maximum width/height. This recommendation is only a hint and the window
+    /// may ignore it.
+    ///
+    /// Setting the width and height to 0 indicates that there are no bounds
+    /// and is equivalent to having never made this request.
+    ///
+    /// Setting width or height to a negative value is a protocol error.
+    ///
+    /// The server should communicate this hint to an xdg_toplevel window with
+    /// the xdg_toplevel.configure_bounds event for example.
+    ///
+    /// This request modifies window management state and may only be made as
+    /// part of a manage sequence, see the river_window_manager_v1 description.
+    ///
+    /// # Arguments
+    ///
+    /// - `max_width`: maximum width
+    /// - `max_height`: maximum height
+    #[inline]
+    pub fn try_send_set_dimension_bounds(
+        &self,
+        max_width: i32,
+        max_height: i32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            max_width,
+            max_height,
+        );
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: i32, arg1: i32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= river_window_v1#{}.set_dimension_bounds(max_width: {}, max_height: {})\n", id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0, arg1);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            23,
+            arg0 as u32,
+            arg1 as u32,
+        ]);
+        Ok(())
+    }
+
+    /// recommend maximum dimensions to the window
+    ///
+    /// Recommend that the window keep its dimensions within a given
+    /// maximum width/height. This recommendation is only a hint and the window
+    /// may ignore it.
+    ///
+    /// Setting the width and height to 0 indicates that there are no bounds
+    /// and is equivalent to having never made this request.
+    ///
+    /// Setting width or height to a negative value is a protocol error.
+    ///
+    /// The server should communicate this hint to an xdg_toplevel window with
+    /// the xdg_toplevel.configure_bounds event for example.
+    ///
+    /// This request modifies window management state and may only be made as
+    /// part of a manage sequence, see the river_window_manager_v1 description.
+    ///
+    /// # Arguments
+    ///
+    /// - `max_width`: maximum width
+    /// - `max_height`: maximum height
+    #[inline]
+    pub fn send_set_dimension_bounds(
+        &self,
+        max_width: i32,
+        max_height: i32,
+    ) {
+        let res = self.try_send_set_dimension_bounds(
+            max_width,
+            max_height,
+        );
+        if let Err(e) = res {
+            log_send("river_window_v1.set_dimension_bounds", &e);
+        }
+    }
 }
 
 /// A message handler for [`RiverWindowV1`] proxies.
@@ -5077,6 +5367,114 @@ pub trait RiverWindowV1Handler: Any {
             log_forward("river_window_v1.set_content_clip_box", &e);
         }
     }
+
+    /// presentation hint set by the window
+    ///
+    /// This event communicates the window's preferred presentation mode.
+    ///
+    /// This event will be followed by a render_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `hint`: presentation hint
+    #[inline]
+    fn handle_presentation_hint(
+        &mut self,
+        slf: &Rc<RiverWindowV1>,
+        hint: RiverOutputV1PresentationMode,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        let res = slf.try_send_presentation_hint(
+            hint,
+        );
+        if let Err(e) = res {
+            log_forward("river_window_v1.presentation_hint", &e);
+        }
+    }
+
+    /// unique window identifier
+    ///
+    /// The identifier is a string that contains up to 32 printable ASCII bytes.
+    /// The identifier must not be an empty string.
+    ///
+    /// It is compositor policy how the identifier is generated, but the following
+    /// properties must be upheld:
+    ///
+    /// 1. The identifier must uniquely identify the window. Two windows must not
+    ///    share the same identifier.
+    ///
+    /// 2. The identifier must not be reused. This avoids races around window
+    ///    creation/destruction when identifiers are used in out-of-band IPC.
+    ///
+    /// If the compositor implements the ext-foreign-toplevel-list-v1 protocol,
+    /// the river_window_v1.identifier event must match the corresponding
+    /// ext_foreign_toplevel_handle_v1.identifier event.
+    ///
+    /// This event is sent once when the river_window_v1 is created and never
+    /// sent again.
+    ///
+    /// # Arguments
+    ///
+    /// - `identifier`: unique identifier
+    #[inline]
+    fn handle_identifier(
+        &mut self,
+        slf: &Rc<RiverWindowV1>,
+        identifier: &str,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        let res = slf.try_send_identifier(
+            identifier,
+        );
+        if let Err(e) = res {
+            log_forward("river_window_v1.identifier", &e);
+        }
+    }
+
+    /// recommend maximum dimensions to the window
+    ///
+    /// Recommend that the window keep its dimensions within a given
+    /// maximum width/height. This recommendation is only a hint and the window
+    /// may ignore it.
+    ///
+    /// Setting the width and height to 0 indicates that there are no bounds
+    /// and is equivalent to having never made this request.
+    ///
+    /// Setting width or height to a negative value is a protocol error.
+    ///
+    /// The server should communicate this hint to an xdg_toplevel window with
+    /// the xdg_toplevel.configure_bounds event for example.
+    ///
+    /// This request modifies window management state and may only be made as
+    /// part of a manage sequence, see the river_window_manager_v1 description.
+    ///
+    /// # Arguments
+    ///
+    /// - `max_width`: maximum width
+    /// - `max_height`: maximum height
+    #[inline]
+    fn handle_set_dimension_bounds(
+        &mut self,
+        slf: &Rc<RiverWindowV1>,
+        max_width: i32,
+        max_height: i32,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_set_dimension_bounds(
+            max_width,
+            max_height,
+        );
+        if let Err(e) = res {
+            log_forward("river_window_v1.set_dimension_bounds", &e);
+        }
+    }
 }
 
 impl ObjectPrivate for RiverWindowV1 {
@@ -5679,6 +6077,32 @@ impl ObjectPrivate for RiverWindowV1 {
                     DefaultHandler.handle_set_content_clip_box(&self, arg0, arg1, arg2, arg3);
                 }
             }
+            23 => {
+                let [
+                    arg0,
+                    arg1,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 16)));
+                };
+                let arg0 = arg0 as i32;
+                let arg1 = arg1 as i32;
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: i32, arg1: i32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> river_window_v1#{}.set_dimension_bounds(max_width: {}, max_height: {})\n", client_id, id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_set_dimension_bounds(&self, arg0, arg1);
+                } else {
+                    DefaultHandler.handle_set_dimension_bounds(&self, arg0, arg1);
+                }
+            }
             n => {
                 let _ = client;
                 let _ = msg;
@@ -6119,6 +6543,54 @@ impl ObjectPrivate for RiverWindowV1 {
                     DefaultHandler.handle_unreliable_pid(&self, arg0);
                 }
             }
+            16 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
+                };
+                let arg0 = RiverOutputV1PresentationMode(arg0);
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: RiverOutputV1PresentationMode) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> river_window_v1#{}.presentation_hint(hint: {:?})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_presentation_hint(&self, arg0);
+                } else {
+                    DefaultHandler.handle_presentation_hint(&self, arg0);
+                }
+            }
+            17 => {
+                let mut offset = 2;
+                let arg0;
+                (arg0, offset) = parse_string::<NonNullString>(msg, offset, "identifier")?;
+                if offset != msg.len() {
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: &str) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> river_window_v1#{}.identifier(identifier: {:?})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_identifier(&self, arg0);
+                } else {
+                    DefaultHandler.handle_identifier(&self, arg0);
+                }
+            }
             n => {
                 let _ = server;
                 let _ = msg;
@@ -6155,6 +6627,7 @@ impl ObjectPrivate for RiverWindowV1 {
             20 => "exit_fullscreen",
             21 => "set_clip_box",
             22 => "set_content_clip_box",
+            23 => "set_dimension_bounds",
             _ => return None,
         };
         Some(name)
@@ -6178,6 +6651,8 @@ impl ObjectPrivate for RiverWindowV1 {
             13 => "exit_fullscreen_requested",
             14 => "minimize_requested",
             15 => "unreliable_pid",
+            16 => "presentation_hint",
+            17 => "identifier",
             _ => return None,
         };
         Some(name)
