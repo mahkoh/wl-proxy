@@ -1650,7 +1650,7 @@ impl RiverWindowV1 {
     /// Since when the get_decoration_above message is available.
     pub const MSG__GET_DECORATION_ABOVE__SINCE: u32 = 1;
 
-    /// create a decoration surface above the window
+    /// create a decoration above the window in z-order
     ///
     /// Create a decoration surface and assign the river_decoration_v1 role to
     /// the surface. The created decoration is placed above the window in
@@ -1719,7 +1719,7 @@ impl RiverWindowV1 {
         Ok(())
     }
 
-    /// create a decoration surface above the window
+    /// create a decoration above the window in z-order
     ///
     /// Create a decoration surface and assign the river_decoration_v1 role to
     /// the surface. The created decoration is placed above the window in
@@ -1747,7 +1747,7 @@ impl RiverWindowV1 {
         }
     }
 
-    /// create a decoration surface above the window
+    /// create a decoration above the window in z-order
     ///
     /// Create a decoration surface and assign the river_decoration_v1 role to
     /// the surface. The created decoration is placed above the window in
@@ -1772,7 +1772,7 @@ impl RiverWindowV1 {
         Ok(id)
     }
 
-    /// create a decoration surface above the window
+    /// create a decoration above the window in z-order
     ///
     /// Create a decoration surface and assign the river_decoration_v1 role to
     /// the surface. The created decoration is placed above the window in
@@ -1800,7 +1800,7 @@ impl RiverWindowV1 {
     /// Since when the get_decoration_below message is available.
     pub const MSG__GET_DECORATION_BELOW__SINCE: u32 = 1;
 
-    /// create a decoration surface below the window
+    /// create a decoration below the window in z-order
     ///
     /// Create a decoration surface and assign the river_decoration_v1 role to
     /// the surface. The created decoration is placed below the window in
@@ -1869,7 +1869,7 @@ impl RiverWindowV1 {
         Ok(())
     }
 
-    /// create a decoration surface below the window
+    /// create a decoration below the window in z-order
     ///
     /// Create a decoration surface and assign the river_decoration_v1 role to
     /// the surface. The created decoration is placed below the window in
@@ -1897,7 +1897,7 @@ impl RiverWindowV1 {
         }
     }
 
-    /// create a decoration surface below the window
+    /// create a decoration below the window in z-order
     ///
     /// Create a decoration surface and assign the river_decoration_v1 role to
     /// the surface. The created decoration is placed below the window in
@@ -1922,7 +1922,7 @@ impl RiverWindowV1 {
         Ok(id)
     }
 
-    /// create a decoration surface below the window
+    /// create a decoration below the window in z-order
     ///
     /// Create a decoration surface and assign the river_decoration_v1 role to
     /// the surface. The created decoration is placed below the window in
@@ -4613,7 +4613,7 @@ pub trait RiverWindowV1Handler: Any {
         }
     }
 
-    /// create a decoration surface above the window
+    /// create a decoration above the window in z-order
     ///
     /// Create a decoration surface and assign the river_decoration_v1 role to
     /// the surface. The created decoration is placed above the window in
@@ -4648,7 +4648,7 @@ pub trait RiverWindowV1Handler: Any {
         }
     }
 
-    /// create a decoration surface below the window
+    /// create a decoration below the window in z-order
     ///
     /// Create a decoration surface and assign the river_decoration_v1 role to
     /// the surface. The created decoration is placed below the window in
