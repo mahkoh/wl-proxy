@@ -541,7 +541,7 @@ impl ZwlrExportDmabufFrameV1 {
 
     /// delete this object, used or not
     ///
-    /// Unreferences the frame. This request must be called as soon as its no
+    /// Unreferences the frame. This request must be called as soon as it's no
     /// longer used.
     ///
     /// It can be called at any time by the client. The client will still have
@@ -584,7 +584,7 @@ impl ZwlrExportDmabufFrameV1 {
 
     /// delete this object, used or not
     ///
-    /// Unreferences the frame. This request must be called as soon as its no
+    /// Unreferences the frame. This request must be called as soon as it's no
     /// longer used.
     ///
     /// It can be called at any time by the client. The client will still have
@@ -786,7 +786,7 @@ pub trait ZwlrExportDmabufFrameV1Handler: Any {
 
     /// delete this object, used or not
     ///
-    /// Unreferences the frame. This request must be called as soon as its no
+    /// Unreferences the frame. This request must be called as soon as it's no
     /// longer used.
     ///
     /// It can be called at any time by the client. The client will still have
