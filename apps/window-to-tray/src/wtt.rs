@@ -547,6 +547,45 @@ struct ProxyJayTrayItemV1 {
 
 const SCALE_BASE: i32 = 120;
 
+fn round_scale(n: i32, scale: i32) -> i32 {
+    let scale = if scale <= 0 { SCALE_BASE } else { scale };
+    let num = n as i64 * scale as i64;
+    let denom = SCALE_BASE as i64;
+    let rounded = (num.abs() + denom / 2) / denom;
+    let signed = if num < 0 { -rounded } else { rounded };
+    signed.clamp(i32::MIN as i64, i32::MAX as i64) as i32
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{SCALE_BASE, round_scale};
+    #[test]
+    fn round_scale_is_symmetric_around_zero() {
+        assert_eq!(round_scale(-1, SCALE_BASE), -1);
+        assert_eq!(round_scale(0, SCALE_BASE), 0);
+        assert_eq!(round_scale(1, SCALE_BASE), 1);
+    }
+    #[test]
+    fn round_scale_preserves_small_negative_span() {
+        let scale = SCALE_BASE / 2;
+        let x1 = round_scale(-1, scale);
+        let x2 = round_scale(0, scale);
+        assert_eq!(x1, -1);
+        assert_eq!(x2, 0);
+        assert_eq!(x2 - x1, 1);
+    }
+    #[test]
+    fn round_scale_invalid_scale_defaults_to_1x() {
+        assert_eq!(round_scale(10, 0), 10);
+        assert_eq!(round_scale(-10, 0), -10);
+    }
+    #[test]
+    fn round_scale_saturates_to_i32() {
+        assert_eq!(round_scale(i32::MAX, i32::MAX), i32::MAX);
+        assert_eq!(round_scale(i32::MIN, i32::MAX), i32::MIN);
+    }
+}
+
 /// Handler for proxy-created wp_fractional_scale_v1 objects for tray icons.
 struct ProxyTrayIconWpFractionalScaleV1 {
     tray_item: Rc<JayTrayItemV1>,
@@ -1232,11 +1271,14 @@ impl ClientXdgSurface {
             .as_ref()
             .map(|p| p.get_handler_mut::<ProxyJayTrayItemV1>().needed_tray_edges)
             .unwrap_or(0);
+        let clear_border = |v: &mut TrayPopupBorder| {
+            v.wl_surface.send_attach(None, 0, 0);
+            v.wl_surface.send_commit();
+            v.buffer_size = [0, 0];
+        };
         for (k, v) in borders {
             if needed_tray_edges & (1 << k.linearize()) == 0 {
-                v.wl_surface.send_attach(None, 0, 0);
-                v.wl_surface.send_commit();
-                v.buffer_size = [0, 0];
+                clear_border(v);
                 continue;
             }
             let length = self.globals.theme.border_width as usize;
@@ -1277,11 +1319,22 @@ impl ClientXdgSurface {
                     | WindowEdge::BottomLeft
                     | WindowEdge::TopLeft => length as i32,
                 };
+            let dest_w = x2 - x1;
+            let dest_h = y2 - y1;
+            if dest_w <= 0 || dest_h <= 0 {
+                clear_border(v);
+                continue;
+            }
             v.wl_subsurface.send_set_position(x1, y1);
-            v.wp_viewport.send_set_destination(x2 - x1, y2 - y1);
-            let [x1, y1, x2, y2] =
-                [x1, y1, x2, y2].map(|n| (n * v.scale + SCALE_BASE / 2) / SCALE_BASE);
-            let mut required_size = [(x2 - x1) as usize, (y2 - y1) as usize];
+            v.wp_viewport.send_set_destination(dest_w, dest_h);
+            let [x1, y1, x2, y2] = [x1, y1, x2, y2].map(|n| round_scale(n, v.scale));
+            let required_w = x2 - x1;
+            let required_h = y2 - y1;
+            if required_w <= 0 || required_h <= 0 {
+                clear_border(v);
+                continue;
+            }
+            let mut required_size = [required_w as usize, required_h as usize];
             if let WindowEdge::Right | WindowEdge::Left = k {
                 required_size.swap(0, 1);
             };
