@@ -209,11 +209,9 @@ fn write_to_socket(socket: RawFd, buffer: &mut OutputBuffer) -> Result<FlushResu
         unsafe {
             control_buf.set_len(cmsg_space);
         }
-        let hdr = c::cmsghdr {
-            cmsg_len: 0,
-            cmsg_level: c::SOL_SOCKET,
-            cmsg_type: c::SCM_RIGHTS,
-        };
+        let mut hdr: c::cmsghdr = uapi::pod_zeroed();
+        hdr.cmsg_level = c::SOL_SOCKET;
+        hdr.cmsg_type = c::SCM_RIGHTS;
         let mut fds = SmallVec::<[RawFd; 128 / 4]>::new();
         for idx in 0..fdo.num_fds {
             fds.push(buffer.fds[idx].as_raw_fd());
