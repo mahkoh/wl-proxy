@@ -105,6 +105,7 @@ suite-wayland-protocols = [
     "protocol-xdg_dialog_v1",
     "protocol-xdg_foreign_unstable_v2",
     "protocol-xdg_output_unstable_v1",
+    "protocol-xdg_session_management_v1",
     "protocol-xdg_shell",
     "protocol-xdg_system_bell_v1",
     "protocol-xdg_toplevel_drag_v1",
@@ -214,6 +215,7 @@ protocol-xdg_decoration_unstable_v1 = ["protocol-xdg_shell"]
 protocol-xdg_dialog_v1 = ["protocol-xdg_shell"]
 protocol-xdg_foreign_unstable_v2 = []
 protocol-xdg_output_unstable_v1 = []
+protocol-xdg_session_management_v1 = ["protocol-xdg_shell"]
 protocol-xdg_shell = []
 protocol-xdg_system_bell_v1 = []
 protocol-xdg_toplevel_drag_v1 = ["protocol-xdg_shell"]

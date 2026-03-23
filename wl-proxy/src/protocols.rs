@@ -113,6 +113,8 @@ pub mod xdg_dialog_v1;
 pub mod xdg_foreign_unstable_v2;
 #[cfg(feature = "protocol-xdg_output_unstable_v1")]
 pub mod xdg_output_unstable_v1;
+#[cfg(feature = "protocol-xdg_session_management_v1")]
+pub mod xdg_session_management_v1;
 #[cfg(feature = "protocol-xdg_shell")]
 pub mod xdg_shell;
 #[cfg(feature = "protocol-xdg_system_bell_v1")]
@@ -751,6 +753,18 @@ mod all_types {
     pub(super) use super::xdg_output_unstable_v1::zxdg_output_manager_v1::ZxdgOutputManagerV1;
     #[cfg(feature = "protocol-xdg_output_unstable_v1")]
     pub(super) use super::xdg_output_unstable_v1::zxdg_output_v1::ZxdgOutputV1;
+    #[cfg(feature = "protocol-xdg_session_management_v1")]
+    pub(super) use super::xdg_session_management_v1::xdg_session_manager_v1::XdgSessionManagerV1;
+    #[cfg(feature = "protocol-xdg_session_management_v1")]
+    pub(super) use super::xdg_session_management_v1::xdg_session_manager_v1::XdgSessionManagerV1Error;
+    #[cfg(feature = "protocol-xdg_session_management_v1")]
+    pub(super) use super::xdg_session_management_v1::xdg_session_manager_v1::XdgSessionManagerV1Reason;
+    #[cfg(feature = "protocol-xdg_session_management_v1")]
+    pub(super) use super::xdg_session_management_v1::xdg_session_v1::XdgSessionV1;
+    #[cfg(feature = "protocol-xdg_session_management_v1")]
+    pub(super) use super::xdg_session_management_v1::xdg_session_v1::XdgSessionV1Error;
+    #[cfg(feature = "protocol-xdg_session_management_v1")]
+    pub(super) use super::xdg_session_management_v1::xdg_toplevel_session_v1::XdgToplevelSessionV1;
     #[cfg(feature = "protocol-xdg_shell")]
     pub(super) use super::xdg_shell::xdg_popup::XdgPopup;
     #[cfg(feature = "protocol-xdg_shell")]
@@ -1798,6 +1812,18 @@ mod all_types {
                 "zxdg_output_v1" => {
                     #[cfg(feature = "protocol-xdg_output_unstable_v1")] { Some(ObjectInterface::ZxdgOutputV1) }
                     #[cfg(not(feature = "protocol-xdg_output_unstable_v1"))] { None }
+                },
+                "xdg_session_manager_v1" => {
+                    #[cfg(feature = "protocol-xdg_session_management_v1")] { Some(ObjectInterface::XdgSessionManagerV1) }
+                    #[cfg(not(feature = "protocol-xdg_session_management_v1"))] { None }
+                },
+                "xdg_session_v1" => {
+                    #[cfg(feature = "protocol-xdg_session_management_v1")] { Some(ObjectInterface::XdgSessionV1) }
+                    #[cfg(not(feature = "protocol-xdg_session_management_v1"))] { None }
+                },
+                "xdg_toplevel_session_v1" => {
+                    #[cfg(feature = "protocol-xdg_session_management_v1")] { Some(ObjectInterface::XdgToplevelSessionV1) }
+                    #[cfg(not(feature = "protocol-xdg_session_management_v1"))] { None }
                 },
                 "xdg_popup" => {
                     #[cfg(feature = "protocol-xdg_shell")] { Some(ObjectInterface::XdgPopup) }
@@ -3381,6 +3407,27 @@ mod all_types {
                     }
                     Ok(ZxdgOutputV1::new(state, version))
                 }
+                #[cfg(feature = "protocol-xdg_session_management_v1")]
+                Self::XdgSessionManagerV1 => {
+                    if version > XdgSessionManagerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(XdgSessionManagerV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-xdg_session_management_v1")]
+                Self::XdgSessionV1 => {
+                    if version > XdgSessionV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(XdgSessionV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-xdg_session_management_v1")]
+                Self::XdgToplevelSessionV1 => {
+                    if version > XdgToplevelSessionV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(XdgToplevelSessionV1::new(state, version))
+                }
                 #[cfg(feature = "protocol-xdg_shell")]
                 Self::XdgPopup => {
                     if version > XdgPopup::XML_VERSION {
@@ -4601,6 +4648,15 @@ pub enum ObjectInterface {
     /// zxdg_output_v1
     #[cfg(feature = "protocol-xdg_output_unstable_v1")]
     ZxdgOutputV1,
+    /// xdg_session_manager_v1
+    #[cfg(feature = "protocol-xdg_session_management_v1")]
+    XdgSessionManagerV1,
+    /// xdg_session_v1
+    #[cfg(feature = "protocol-xdg_session_management_v1")]
+    XdgSessionV1,
+    /// xdg_toplevel_session_v1
+    #[cfg(feature = "protocol-xdg_session_management_v1")]
+    XdgToplevelSessionV1,
     /// xdg_popup
     #[cfg(feature = "protocol-xdg_shell")]
     XdgPopup,
@@ -5233,6 +5289,12 @@ impl ObjectInterface {
             Self::ZxdgOutputManagerV1 => "zxdg_output_manager_v1",
             #[cfg(feature = "protocol-xdg_output_unstable_v1")]
             Self::ZxdgOutputV1 => "zxdg_output_v1",
+            #[cfg(feature = "protocol-xdg_session_management_v1")]
+            Self::XdgSessionManagerV1 => "xdg_session_manager_v1",
+            #[cfg(feature = "protocol-xdg_session_management_v1")]
+            Self::XdgSessionV1 => "xdg_session_v1",
+            #[cfg(feature = "protocol-xdg_session_management_v1")]
+            Self::XdgToplevelSessionV1 => "xdg_toplevel_session_v1",
             #[cfg(feature = "protocol-xdg_shell")]
             Self::XdgPopup => "xdg_popup",
             #[cfg(feature = "protocol-xdg_shell")]
@@ -5761,6 +5823,12 @@ impl ObjectInterface {
             Self::ZxdgOutputManagerV1 => 3,
             #[cfg(feature = "protocol-xdg_output_unstable_v1")]
             Self::ZxdgOutputV1 => 3,
+            #[cfg(feature = "protocol-xdg_session_management_v1")]
+            Self::XdgSessionManagerV1 => 1,
+            #[cfg(feature = "protocol-xdg_session_management_v1")]
+            Self::XdgSessionV1 => 1,
+            #[cfg(feature = "protocol-xdg_session_management_v1")]
+            Self::XdgToplevelSessionV1 => 1,
             #[cfg(feature = "protocol-xdg_shell")]
             Self::XdgPopup => 7,
             #[cfg(feature = "protocol-xdg_shell")]
