@@ -148,6 +148,7 @@ fn main() {
                 "xdg_dialog_v1",
                 "xdg_foreign_unstable_v2",
                 "xdg_output_unstable_v1",
+                "xdg_session_management_v1",
                 "xdg_shell",
                 "xdg_system_bell_v1",
                 "xdg_toplevel_drag_v1",
