@@ -261,6 +261,8 @@ impl RiverXkbKeyboardV1 {
     ///
     /// Set the keymap for the keyboard.
     ///
+    /// Setting a keymap will reset all layout/modifier state.
+    ///
     /// It is a protocol error to pass a keymap object for which the
     /// river_xkb_keymap_v1.success event was not received.
     ///
@@ -317,6 +319,8 @@ impl RiverXkbKeyboardV1 {
     /// set the keymap
     ///
     /// Set the keymap for the keyboard.
+    ///
+    /// Setting a keymap will reset all layout/modifier state.
     ///
     /// It is a protocol error to pass a keymap object for which the
     /// river_xkb_keymap_v1.success event was not received.
@@ -1133,6 +1137,8 @@ pub trait RiverXkbKeyboardV1Handler: Any {
     /// set the keymap
     ///
     /// Set the keymap for the keyboard.
+    ///
+    /// Setting a keymap will reset all layout/modifier state.
     ///
     /// It is a protocol error to pass a keymap object for which the
     /// river_xkb_keymap_v1.success event was not received.
