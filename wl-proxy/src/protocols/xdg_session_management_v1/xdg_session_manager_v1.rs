@@ -131,6 +131,9 @@ impl XdgSessionManagerV1 {
     /// other client is currently using the same session, the new session will
     /// replace managing the associated state.
     ///
+    /// If the reason is not a valid enum entry, the 'invalid_reason' protocol
+    /// error is raised.
+    ///
     /// NULL is passed to initiate a new session. If a session_id is passed
     /// which does not represent a valid session, the compositor treats it as if
     /// NULL had been passed.
@@ -218,6 +221,9 @@ impl XdgSessionManagerV1 {
     /// other client is currently using the same session, the new session will
     /// replace managing the associated state.
     ///
+    /// If the reason is not a valid enum entry, the 'invalid_reason' protocol
+    /// error is raised.
+    ///
     /// NULL is passed to initiate a new session. If a session_id is passed
     /// which does not represent a valid session, the compositor treats it as if
     /// NULL had been passed.
@@ -263,6 +269,9 @@ impl XdgSessionManagerV1 {
     /// other client is currently using the same session, the new session will
     /// replace managing the associated state.
     ///
+    /// If the reason is not a valid enum entry, the 'invalid_reason' protocol
+    /// error is raised.
+    ///
     /// NULL is passed to initiate a new session. If a session_id is passed
     /// which does not represent a valid session, the compositor treats it as if
     /// NULL had been passed.
@@ -304,6 +313,9 @@ impl XdgSessionManagerV1 {
     /// in use by the the same client, an 'in_use' error is raised. If some
     /// other client is currently using the same session, the new session will
     /// replace managing the associated state.
+    ///
+    /// If the reason is not a valid enum entry, the 'invalid_reason' protocol
+    /// error is raised.
     ///
     /// NULL is passed to initiate a new session. If a session_id is passed
     /// which does not represent a valid session, the compositor treats it as if
@@ -376,6 +388,9 @@ pub trait XdgSessionManagerV1Handler: Any {
     /// in use by the the same client, an 'in_use' error is raised. If some
     /// other client is currently using the same session, the new session will
     /// replace managing the associated state.
+    ///
+    /// If the reason is not a valid enum entry, the 'invalid_reason' protocol
+    /// error is raised.
     ///
     /// NULL is passed to initiate a new session. If a session_id is passed
     /// which does not represent a valid session, the compositor treats it as if
@@ -574,6 +589,8 @@ impl XdgSessionManagerV1 {
     pub const ENM__ERROR_IN_USE__SINCE: u32 = 1;
     /// Since when the error.invalid_session_id enum variant is available.
     pub const ENM__ERROR_INVALID_SESSION_ID__SINCE: u32 = 1;
+    /// Since when the error.invalid_reason enum variant is available.
+    pub const ENM__ERROR_INVALID_REASON__SINCE: u32 = 1;
 
     /// Since when the reason.launch enum variant is available.
     pub const ENM__REASON_LAUNCH__SINCE: u32 = 1;
@@ -592,6 +609,9 @@ impl XdgSessionManagerV1Error {
 
     /// invalid session identifier
     pub const INVALID_SESSION_ID: Self = Self(2);
+
+    /// invalid reason
+    pub const INVALID_REASON: Self = Self(3);
 }
 
 impl Debug for XdgSessionManagerV1Error {
@@ -599,6 +619,7 @@ impl Debug for XdgSessionManagerV1Error {
         let name = match *self {
             Self::IN_USE => "IN_USE",
             Self::INVALID_SESSION_ID => "INVALID_SESSION_ID",
+            Self::INVALID_REASON => "INVALID_REASON",
             _ => return Debug::fmt(&self.0, f),
         };
         f.write_str(name)

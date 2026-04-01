@@ -189,6 +189,10 @@ impl XdgSessionV1 {
     /// known toplevel name in the session, a 'name_in_use' protocol error will
     /// be raised.
     ///
+    /// The toplevel object must not be added more than once to any session
+    /// created by the client, otherwise the 'already_added' protocol error
+    /// will be raised.
+    ///
     /// This request will return a xdg_toplevel_session_v1 for later
     /// manipulation. As this resource is created from an empty initial state,
     /// compositors must not emit a xdg_toplevel_session_v1.restored event for
@@ -274,6 +278,10 @@ impl XdgSessionV1 {
     /// known toplevel name in the session, a 'name_in_use' protocol error will
     /// be raised.
     ///
+    /// The toplevel object must not be added more than once to any session
+    /// created by the client, otherwise the 'already_added' protocol error
+    /// will be raised.
+    ///
     /// This request will return a xdg_toplevel_session_v1 for later
     /// manipulation. As this resource is created from an empty initial state,
     /// compositors must not emit a xdg_toplevel_session_v1.restored event for
@@ -316,6 +324,10 @@ impl XdgSessionV1 {
     /// known toplevel name in the session, a 'name_in_use' protocol error will
     /// be raised.
     ///
+    /// The toplevel object must not be added more than once to any session
+    /// created by the client, otherwise the 'already_added' protocol error
+    /// will be raised.
+    ///
     /// This request will return a xdg_toplevel_session_v1 for later
     /// manipulation. As this resource is created from an empty initial state,
     /// compositors must not emit a xdg_toplevel_session_v1.restored event for
@@ -355,6 +367,10 @@ impl XdgSessionV1 {
     /// known toplevel name in the session, a 'name_in_use' protocol error will
     /// be raised.
     ///
+    /// The toplevel object must not be added more than once to any session
+    /// created by the client, otherwise the 'already_added' protocol error
+    /// will be raised.
+    ///
     /// This request will return a xdg_toplevel_session_v1 for later
     /// manipulation. As this resource is created from an empty initial state,
     /// compositors must not emit a xdg_toplevel_session_v1.restored event for
@@ -393,6 +409,10 @@ impl XdgSessionV1 {
     ///
     /// If the toplevel name was previously granted to another xdg_toplevel,
     /// the 'name_in_use' protocol error will be raised.
+    ///
+    /// The toplevel object must not be added more than once to any session
+    /// created by the client, otherwise the 'already_added' protocol error
+    /// will be raised.
     ///
     /// This request must be called prior to the first commit on the associated
     /// wl_surface after creating the toplevel, otherwise an 'already_mapped'
@@ -482,6 +502,10 @@ impl XdgSessionV1 {
     /// If the toplevel name was previously granted to another xdg_toplevel,
     /// the 'name_in_use' protocol error will be raised.
     ///
+    /// The toplevel object must not be added more than once to any session
+    /// created by the client, otherwise the 'already_added' protocol error
+    /// will be raised.
+    ///
     /// This request must be called prior to the first commit on the associated
     /// wl_surface after creating the toplevel, otherwise an 'already_mapped'
     /// error is raised.
@@ -527,6 +551,10 @@ impl XdgSessionV1 {
     /// If the toplevel name was previously granted to another xdg_toplevel,
     /// the 'name_in_use' protocol error will be raised.
     ///
+    /// The toplevel object must not be added more than once to any session
+    /// created by the client, otherwise the 'already_added' protocol error
+    /// will be raised.
+    ///
     /// This request must be called prior to the first commit on the associated
     /// wl_surface after creating the toplevel, otherwise an 'already_mapped'
     /// error is raised.
@@ -568,6 +596,10 @@ impl XdgSessionV1 {
     ///
     /// If the toplevel name was previously granted to another xdg_toplevel,
     /// the 'name_in_use' protocol error will be raised.
+    ///
+    /// The toplevel object must not be added more than once to any session
+    /// created by the client, otherwise the 'already_added' protocol error
+    /// will be raised.
     ///
     /// This request must be called prior to the first commit on the associated
     /// wl_surface after creating the toplevel, otherwise an 'already_mapped'
@@ -947,6 +979,10 @@ pub trait XdgSessionV1Handler: Any {
     /// known toplevel name in the session, a 'name_in_use' protocol error will
     /// be raised.
     ///
+    /// The toplevel object must not be added more than once to any session
+    /// created by the client, otherwise the 'already_added' protocol error
+    /// will be raised.
+    ///
     /// This request will return a xdg_toplevel_session_v1 for later
     /// manipulation. As this resource is created from an empty initial state,
     /// compositors must not emit a xdg_toplevel_session_v1.restored event for
@@ -992,6 +1028,10 @@ pub trait XdgSessionV1Handler: Any {
     ///
     /// If the toplevel name was previously granted to another xdg_toplevel,
     /// the 'name_in_use' protocol error will be raised.
+    ///
+    /// The toplevel object must not be added more than once to any session
+    /// created by the client, otherwise the 'already_added' protocol error
+    /// will be raised.
     ///
     /// This request must be called prior to the first commit on the associated
     /// wl_surface after creating the toplevel, otherwise an 'already_mapped'
@@ -1472,6 +1512,8 @@ impl XdgSessionV1 {
     pub const ENM__ERROR_ALREADY_MAPPED__SINCE: u32 = 1;
     /// Since when the error.invalid_name enum variant is available.
     pub const ENM__ERROR_INVALID_NAME__SINCE: u32 = 1;
+    /// Since when the error.already_added enum variant is available.
+    pub const ENM__ERROR_ALREADY_ADDED__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -1486,6 +1528,9 @@ impl XdgSessionV1Error {
 
     /// provided toplevel name is invalid
     pub const INVALID_NAME: Self = Self(3);
+
+    /// toplevel already added
+    pub const ALREADY_ADDED: Self = Self(4);
 }
 
 impl Debug for XdgSessionV1Error {
@@ -1494,6 +1539,7 @@ impl Debug for XdgSessionV1Error {
             Self::NAME_IN_USE => "NAME_IN_USE",
             Self::ALREADY_MAPPED => "ALREADY_MAPPED",
             Self::INVALID_NAME => "INVALID_NAME",
+            Self::ALREADY_ADDED => "ALREADY_ADDED",
             _ => return Debug::fmt(&self.0, f),
         };
         f.write_str(name)
