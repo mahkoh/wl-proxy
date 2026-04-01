@@ -43,7 +43,7 @@ struct DefaultHandler;
 impl ZwpTextInputV3Handler for DefaultHandler { }
 
 impl ConcreteObject for ZwpTextInputV3 {
-    const XML_VERSION: u32 = 1;
+    const XML_VERSION: u32 = 2;
     const INTERFACE: ObjectInterface = ObjectInterface::ZwpTextInputV3;
     const INTERFACE_NAME: &str = "zwp_text_input_v3";
 }
@@ -675,6 +675,19 @@ impl ZwpTextInputV3 {
     /// empty values get applied, subsequent attempts to change them may have
     /// no effect.
     ///
+    /// As of version 2, the zwp_text_input_v3.commit request does not apply
+    /// values sent with this request. Instead, it stores them in a separate
+    /// "committed" area. The committed values, if still valid, get applied on
+    /// the next wl_surface.commit request on the surface with text-input focus.
+    /// Both committed and applied values get invalidated on:
+    ///
+    /// - the next committed enable or disable request, or
+    /// - a change of the focused surface of the text-input (leave or enter events).
+    ///
+    /// This double stage application allows the compositor to position
+    /// the input method popup in the same frame as the contents
+    /// of the text on the surface are updated.
+    ///
     /// # Arguments
     ///
     /// - `x`:
@@ -754,6 +767,19 @@ impl ZwpTextInputV3 {
     /// the text input does not support describing the cursor area. If the
     /// empty values get applied, subsequent attempts to change them may have
     /// no effect.
+    ///
+    /// As of version 2, the zwp_text_input_v3.commit request does not apply
+    /// values sent with this request. Instead, it stores them in a separate
+    /// "committed" area. The committed values, if still valid, get applied on
+    /// the next wl_surface.commit request on the surface with text-input focus.
+    /// Both committed and applied values get invalidated on:
+    ///
+    /// - the next committed enable or disable request, or
+    /// - a change of the focused surface of the text-input (leave or enter events).
+    ///
+    /// This double stage application allows the compositor to position
+    /// the input method popup in the same frame as the contents
+    /// of the text on the surface are updated.
     ///
     /// # Arguments
     ///
@@ -1397,8 +1423,10 @@ impl ZwpTextInputV3 {
     /// apply changes
     ///
     /// Instruct the application to apply changes to state requested by the
-    /// preedit_string, commit_string and delete_surrounding_text events. The
-    /// state relating to these events is double-buffered, and each one
+    /// preedit_string, commit_string delete_surrounding_text, and action
+    /// events.
+    ///
+    /// The state relating to these events is double-buffered, and each one
     /// modifies the pending state. This event replaces the current state with
     /// the pending state.
     ///
@@ -1411,6 +1439,7 @@ impl ZwpTextInputV3 {
     /// 4. Calculate surrounding text to send.
     /// 5. Insert new preedit text in cursor position.
     /// 6. Place cursor inside preedit text.
+    /// 7. Perform the requested action.
     ///
     /// The serial number reflects the last state of the zwp_text_input_v3
     /// object known to the compositor. The value of the serial argument must
@@ -1472,8 +1501,10 @@ impl ZwpTextInputV3 {
     /// apply changes
     ///
     /// Instruct the application to apply changes to state requested by the
-    /// preedit_string, commit_string and delete_surrounding_text events. The
-    /// state relating to these events is double-buffered, and each one
+    /// preedit_string, commit_string delete_surrounding_text, and action
+    /// events.
+    ///
+    /// The state relating to these events is double-buffered, and each one
     /// modifies the pending state. This event replaces the current state with
     /// the pending state.
     ///
@@ -1486,6 +1517,7 @@ impl ZwpTextInputV3 {
     /// 4. Calculate surrounding text to send.
     /// 5. Insert new preedit text in cursor position.
     /// 6. Place cursor inside preedit text.
+    /// 7. Perform the requested action.
     ///
     /// The serial number reflects the last state of the zwp_text_input_v3
     /// object known to the compositor. The value of the serial argument must
@@ -1512,6 +1544,522 @@ impl ZwpTextInputV3 {
         );
         if let Err(e) = res {
             log_send("zwp_text_input_v3.done", &e);
+        }
+    }
+
+    /// Since when the action message is available.
+    pub const MSG__ACTION__SINCE: u32 = 2;
+
+    /// action performed
+    ///
+    /// An action was performed on this text input.
+    ///
+    /// Values set with this event are double-buffered. They must be applied
+    /// and reset to initial on the next zwp_text_input_v3.done event.
+    ///
+    /// The initial value of action is none.
+    ///
+    /// # Arguments
+    ///
+    /// - `action`: action performed
+    /// - `serial`: serial number of the action event
+    #[inline]
+    pub fn try_send_action(
+        &self,
+        action: ZwpTextInputV3Action,
+        serial: u32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            action,
+            serial,
+        );
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: ZwpTextInputV3Action, arg1: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_text_input_v3#{}.action(action: {:?}, serial: {})\n", client_id, id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            6,
+            arg0.0,
+            arg1,
+        ]);
+        Ok(())
+    }
+
+    /// action performed
+    ///
+    /// An action was performed on this text input.
+    ///
+    /// Values set with this event are double-buffered. They must be applied
+    /// and reset to initial on the next zwp_text_input_v3.done event.
+    ///
+    /// The initial value of action is none.
+    ///
+    /// # Arguments
+    ///
+    /// - `action`: action performed
+    /// - `serial`: serial number of the action event
+    #[inline]
+    pub fn send_action(
+        &self,
+        action: ZwpTextInputV3Action,
+        serial: u32,
+    ) {
+        let res = self.try_send_action(
+            action,
+            serial,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.action", &e);
+        }
+    }
+
+    /// Since when the language message is available.
+    pub const MSG__LANGUAGE__SINCE: u32 = 2;
+
+    /// notify of language selection
+    ///
+    /// Notify the application of language used by the input method.
+    ///
+    /// This event will be sent on creation if known and for all subsequent changes.
+    ///
+    /// The language should be specified as an IETF BCP 47 tag.
+    /// Setting an empty string will reset any known language back to the default unknown state.
+    ///
+    /// # Arguments
+    ///
+    /// - `language`: new language set by IME
+    #[inline]
+    pub fn try_send_language(
+        &self,
+        language: &str,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            language,
+        );
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: &str) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_text_input_v3#{}.language(language: {:?})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            7,
+        ]);
+        fmt.string(arg0);
+        Ok(())
+    }
+
+    /// notify of language selection
+    ///
+    /// Notify the application of language used by the input method.
+    ///
+    /// This event will be sent on creation if known and for all subsequent changes.
+    ///
+    /// The language should be specified as an IETF BCP 47 tag.
+    /// Setting an empty string will reset any known language back to the default unknown state.
+    ///
+    /// # Arguments
+    ///
+    /// - `language`: new language set by IME
+    #[inline]
+    pub fn send_language(
+        &self,
+        language: &str,
+    ) {
+        let res = self.try_send_language(
+            language,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.language", &e);
+        }
+    }
+
+    /// Since when the set_available_actions message is available.
+    pub const MSG__SET_AVAILABLE_ACTIONS__SINCE: u32 = 2;
+
+    /// set the available actions
+    ///
+    /// Set the actions available for this text input.
+    ///
+    /// Values set with this request are double-buffered. They will get applied
+    /// on the next zwp_text_input_v3.commit request.
+    ///
+    /// If the available_actions array contains the none action, or contains the
+    /// same action multiple times, the compositor must raise the invalid_action
+    /// protocol error.
+    ///
+    /// Initially, no actions are available.
+    ///
+    /// # Arguments
+    ///
+    /// - `available_actions`: available actions
+    #[inline]
+    pub fn try_send_set_available_actions(
+        &self,
+        available_actions: &[u8],
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            available_actions,
+        );
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: &[u8]) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwp_text_input_v3#{}.set_available_actions(available_actions: {})\n", id, debug_array(arg0));
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            8,
+        ]);
+        fmt.array(arg0);
+        Ok(())
+    }
+
+    /// set the available actions
+    ///
+    /// Set the actions available for this text input.
+    ///
+    /// Values set with this request are double-buffered. They will get applied
+    /// on the next zwp_text_input_v3.commit request.
+    ///
+    /// If the available_actions array contains the none action, or contains the
+    /// same action multiple times, the compositor must raise the invalid_action
+    /// protocol error.
+    ///
+    /// Initially, no actions are available.
+    ///
+    /// # Arguments
+    ///
+    /// - `available_actions`: available actions
+    #[inline]
+    pub fn send_set_available_actions(
+        &self,
+        available_actions: &[u8],
+    ) {
+        let res = self.try_send_set_available_actions(
+            available_actions,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.set_available_actions", &e);
+        }
+    }
+
+    /// Since when the show_input_panel message is available.
+    pub const MSG__SHOW_INPUT_PANEL__SINCE: u32 = 2;
+
+    /// show input panel
+    ///
+    /// Requests an input panel to be shown (e.g. a on-screen keyboard).
+    ///
+    /// This request only hints the desired interaction pattern from the
+    /// client side, and its effect may be ignored by compositors given
+    /// other environmental factors. Repeated calls will be ignored.
+    #[inline]
+    pub fn try_send_show_input_panel(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwp_text_input_v3#{}.show_input_panel()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            9,
+        ]);
+        Ok(())
+    }
+
+    /// show input panel
+    ///
+    /// Requests an input panel to be shown (e.g. a on-screen keyboard).
+    ///
+    /// This request only hints the desired interaction pattern from the
+    /// client side, and its effect may be ignored by compositors given
+    /// other environmental factors. Repeated calls will be ignored.
+    #[inline]
+    pub fn send_show_input_panel(
+        &self,
+    ) {
+        let res = self.try_send_show_input_panel(
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.show_input_panel", &e);
+        }
+    }
+
+    /// Since when the hide_input_panel message is available.
+    pub const MSG__HIDE_INPUT_PANEL__SINCE: u32 = 2;
+
+    /// hide input panel
+    ///
+    /// Requests an input panel to be hidden.
+    ///
+    /// This request only hints the desired interaction pattern from the
+    /// client side, and its effect may be ignored by compositors given
+    /// other environmental factors. Repeated calls will be ignored.
+    #[inline]
+    pub fn try_send_hide_input_panel(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwp_text_input_v3#{}.hide_input_panel()\n", id);
+                state.log(args);
+            }
+            log(&self.core.state, id);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            10,
+        ]);
+        Ok(())
+    }
+
+    /// hide input panel
+    ///
+    /// Requests an input panel to be hidden.
+    ///
+    /// This request only hints the desired interaction pattern from the
+    /// client side, and its effect may be ignored by compositors given
+    /// other environmental factors. Repeated calls will be ignored.
+    #[inline]
+    pub fn send_hide_input_panel(
+        &self,
+    ) {
+        let res = self.try_send_hide_input_panel(
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.hide_input_panel", &e);
+        }
+    }
+
+    /// Since when the preedit_hint message is available.
+    pub const MSG__PREEDIT_HINT__SINCE: u32 = 2;
+
+    /// pre-edit
+    ///
+    /// Notify of contextual hints for the pre-edit string. This
+    /// event is always sent together with a zwp_text_input_v3.preedit_string
+    /// event.
+    ///
+    /// The parameters start and end are counted in bytes relative to the
+    /// beginning of the text buffer submitted through
+    /// zwp_text_input_v3.preedit_string, and represent the substring in the
+    /// pre-edit text affected by the hint.
+    ///
+    /// Multiple events may be submitted if the preedit string has different
+    /// sections. The extent of hints may overlap. The parts of the preedit
+    /// string that are not covered by any zwp_text_input_v3.preedit_hint event,
+    /// the text will be considered unhinted. This is also the case if no
+    /// preedit_hint event is sent.
+    ///
+    /// Clients should provide recognizable visuals to these hints. if they are
+    /// unable to comply with this requisition, it may be preferable for them
+    /// keep the preedit_shown content hint disabled.
+    ///
+    /// Values set with this event are double-buffered. They must be applied
+    /// and reset on the next zwp_text_input_v3.done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `start`: starting point of the affected substring
+    /// - `end`: end point of the affected substring
+    /// - `hint`: hint to apply
+    #[inline]
+    pub fn try_send_preedit_hint(
+        &self,
+        start: u32,
+        end: u32,
+        hint: ZwpTextInputV3PreeditHint,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+            arg2,
+        ) = (
+            start,
+            end,
+            hint,
+        );
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32, arg2: ZwpTextInputV3PreeditHint) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= zwp_text_input_v3#{}.preedit_hint(start: {}, end: {}, hint: {:?})\n", client_id, id, arg0, arg1, arg2);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1, arg2);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            8,
+            arg0,
+            arg1,
+            arg2.0,
+        ]);
+        Ok(())
+    }
+
+    /// pre-edit
+    ///
+    /// Notify of contextual hints for the pre-edit string. This
+    /// event is always sent together with a zwp_text_input_v3.preedit_string
+    /// event.
+    ///
+    /// The parameters start and end are counted in bytes relative to the
+    /// beginning of the text buffer submitted through
+    /// zwp_text_input_v3.preedit_string, and represent the substring in the
+    /// pre-edit text affected by the hint.
+    ///
+    /// Multiple events may be submitted if the preedit string has different
+    /// sections. The extent of hints may overlap. The parts of the preedit
+    /// string that are not covered by any zwp_text_input_v3.preedit_hint event,
+    /// the text will be considered unhinted. This is also the case if no
+    /// preedit_hint event is sent.
+    ///
+    /// Clients should provide recognizable visuals to these hints. if they are
+    /// unable to comply with this requisition, it may be preferable for them
+    /// keep the preedit_shown content hint disabled.
+    ///
+    /// Values set with this event are double-buffered. They must be applied
+    /// and reset on the next zwp_text_input_v3.done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `start`: starting point of the affected substring
+    /// - `end`: end point of the affected substring
+    /// - `hint`: hint to apply
+    #[inline]
+    pub fn send_preedit_hint(
+        &self,
+        start: u32,
+        end: u32,
+        hint: ZwpTextInputV3PreeditHint,
+    ) {
+        let res = self.try_send_preedit_hint(
+            start,
+            end,
+            hint,
+        );
+        if let Err(e) = res {
+            log_send("zwp_text_input_v3.preedit_hint", &e);
         }
     }
 }
@@ -1765,6 +2313,19 @@ pub trait ZwpTextInputV3Handler: Any {
     /// the text input does not support describing the cursor area. If the
     /// empty values get applied, subsequent attempts to change them may have
     /// no effect.
+    ///
+    /// As of version 2, the zwp_text_input_v3.commit request does not apply
+    /// values sent with this request. Instead, it stores them in a separate
+    /// "committed" area. The committed values, if still valid, get applied on
+    /// the next wl_surface.commit request on the surface with text-input focus.
+    /// Both committed and applied values get invalidated on:
+    ///
+    /// - the next committed enable or disable request, or
+    /// - a change of the focused surface of the text-input (leave or enter events).
+    ///
+    /// This double stage application allows the compositor to position
+    /// the input method popup in the same frame as the contents
+    /// of the text on the surface are updated.
     ///
     /// # Arguments
     ///
@@ -2041,8 +2602,10 @@ pub trait ZwpTextInputV3Handler: Any {
     /// apply changes
     ///
     /// Instruct the application to apply changes to state requested by the
-    /// preedit_string, commit_string and delete_surrounding_text events. The
-    /// state relating to these events is double-buffered, and each one
+    /// preedit_string, commit_string delete_surrounding_text, and action
+    /// events.
+    ///
+    /// The state relating to these events is double-buffered, and each one
     /// modifies the pending state. This event replaces the current state with
     /// the pending state.
     ///
@@ -2055,6 +2618,7 @@ pub trait ZwpTextInputV3Handler: Any {
     /// 4. Calculate surrounding text to send.
     /// 5. Insert new preedit text in cursor position.
     /// 6. Place cursor inside preedit text.
+    /// 7. Perform the requested action.
     ///
     /// The serial number reflects the last state of the zwp_text_input_v3
     /// object known to the compositor. The value of the serial argument must
@@ -2085,6 +2649,194 @@ pub trait ZwpTextInputV3Handler: Any {
         );
         if let Err(e) = res {
             log_forward("zwp_text_input_v3.done", &e);
+        }
+    }
+
+    /// action performed
+    ///
+    /// An action was performed on this text input.
+    ///
+    /// Values set with this event are double-buffered. They must be applied
+    /// and reset to initial on the next zwp_text_input_v3.done event.
+    ///
+    /// The initial value of action is none.
+    ///
+    /// # Arguments
+    ///
+    /// - `action`: action performed
+    /// - `serial`: serial number of the action event
+    #[inline]
+    fn handle_action(
+        &mut self,
+        slf: &Rc<ZwpTextInputV3>,
+        action: ZwpTextInputV3Action,
+        serial: u32,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        let res = slf.try_send_action(
+            action,
+            serial,
+        );
+        if let Err(e) = res {
+            log_forward("zwp_text_input_v3.action", &e);
+        }
+    }
+
+    /// notify of language selection
+    ///
+    /// Notify the application of language used by the input method.
+    ///
+    /// This event will be sent on creation if known and for all subsequent changes.
+    ///
+    /// The language should be specified as an IETF BCP 47 tag.
+    /// Setting an empty string will reset any known language back to the default unknown state.
+    ///
+    /// # Arguments
+    ///
+    /// - `language`: new language set by IME
+    #[inline]
+    fn handle_language(
+        &mut self,
+        slf: &Rc<ZwpTextInputV3>,
+        language: &str,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        let res = slf.try_send_language(
+            language,
+        );
+        if let Err(e) = res {
+            log_forward("zwp_text_input_v3.language", &e);
+        }
+    }
+
+    /// set the available actions
+    ///
+    /// Set the actions available for this text input.
+    ///
+    /// Values set with this request are double-buffered. They will get applied
+    /// on the next zwp_text_input_v3.commit request.
+    ///
+    /// If the available_actions array contains the none action, or contains the
+    /// same action multiple times, the compositor must raise the invalid_action
+    /// protocol error.
+    ///
+    /// Initially, no actions are available.
+    ///
+    /// # Arguments
+    ///
+    /// - `available_actions`: available actions
+    #[inline]
+    fn handle_set_available_actions(
+        &mut self,
+        slf: &Rc<ZwpTextInputV3>,
+        available_actions: &[u8],
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_set_available_actions(
+            available_actions,
+        );
+        if let Err(e) = res {
+            log_forward("zwp_text_input_v3.set_available_actions", &e);
+        }
+    }
+
+    /// show input panel
+    ///
+    /// Requests an input panel to be shown (e.g. a on-screen keyboard).
+    ///
+    /// This request only hints the desired interaction pattern from the
+    /// client side, and its effect may be ignored by compositors given
+    /// other environmental factors. Repeated calls will be ignored.
+    #[inline]
+    fn handle_show_input_panel(
+        &mut self,
+        slf: &Rc<ZwpTextInputV3>,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_show_input_panel(
+        );
+        if let Err(e) = res {
+            log_forward("zwp_text_input_v3.show_input_panel", &e);
+        }
+    }
+
+    /// hide input panel
+    ///
+    /// Requests an input panel to be hidden.
+    ///
+    /// This request only hints the desired interaction pattern from the
+    /// client side, and its effect may be ignored by compositors given
+    /// other environmental factors. Repeated calls will be ignored.
+    #[inline]
+    fn handle_hide_input_panel(
+        &mut self,
+        slf: &Rc<ZwpTextInputV3>,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_hide_input_panel(
+        );
+        if let Err(e) = res {
+            log_forward("zwp_text_input_v3.hide_input_panel", &e);
+        }
+    }
+
+    /// pre-edit
+    ///
+    /// Notify of contextual hints for the pre-edit string. This
+    /// event is always sent together with a zwp_text_input_v3.preedit_string
+    /// event.
+    ///
+    /// The parameters start and end are counted in bytes relative to the
+    /// beginning of the text buffer submitted through
+    /// zwp_text_input_v3.preedit_string, and represent the substring in the
+    /// pre-edit text affected by the hint.
+    ///
+    /// Multiple events may be submitted if the preedit string has different
+    /// sections. The extent of hints may overlap. The parts of the preedit
+    /// string that are not covered by any zwp_text_input_v3.preedit_hint event,
+    /// the text will be considered unhinted. This is also the case if no
+    /// preedit_hint event is sent.
+    ///
+    /// Clients should provide recognizable visuals to these hints. if they are
+    /// unable to comply with this requisition, it may be preferable for them
+    /// keep the preedit_shown content hint disabled.
+    ///
+    /// Values set with this event are double-buffered. They must be applied
+    /// and reset on the next zwp_text_input_v3.done event.
+    ///
+    /// # Arguments
+    ///
+    /// - `start`: starting point of the affected substring
+    /// - `end`: end point of the affected substring
+    /// - `hint`: hint to apply
+    #[inline]
+    fn handle_preedit_hint(
+        &mut self,
+        slf: &Rc<ZwpTextInputV3>,
+        start: u32,
+        end: u32,
+        hint: ZwpTextInputV3PreeditHint,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        let res = slf.try_send_preedit_hint(
+            start,
+            end,
+            hint,
+        );
+        if let Err(e) = res {
+            log_forward("zwp_text_input_v3.preedit_hint", &e);
         }
     }
 }
@@ -2314,6 +3066,72 @@ impl ObjectPrivate for ZwpTextInputV3 {
                     DefaultHandler.handle_commit(&self);
                 }
             }
+            8 => {
+                let mut offset = 2;
+                let arg0;
+                (arg0, offset) = parse_array(msg, offset, "available_actions")?;
+                if offset != msg.len() {
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: &[u8]) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_text_input_v3#{}.set_available_actions(available_actions: {})\n", client_id, id, debug_array(arg0));
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_set_available_actions(&self, arg0);
+                } else {
+                    DefaultHandler.handle_set_available_actions(&self, arg0);
+                }
+            }
+            9 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_text_input_v3#{}.show_input_panel()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_show_input_panel(&self);
+                } else {
+                    DefaultHandler.handle_show_input_panel(&self);
+                }
+            }
+            10 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_text_input_v3#{}.hide_input_panel()\n", client_id, id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0]);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_hide_input_panel(&self);
+                } else {
+                    DefaultHandler.handle_hide_input_panel(&self);
+                }
+            }
             n => {
                 let _ = client;
                 let _ = msg;
@@ -2500,6 +3318,81 @@ impl ObjectPrivate for ZwpTextInputV3 {
                     DefaultHandler.handle_done(&self, arg0);
                 }
             }
+            6 => {
+                let [
+                    arg0,
+                    arg1,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 16)));
+                };
+                let arg0 = ZwpTextInputV3Action(arg0);
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: ZwpTextInputV3Action, arg1: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_text_input_v3#{}.action(action: {:?}, serial: {})\n", id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_action(&self, arg0, arg1);
+                } else {
+                    DefaultHandler.handle_action(&self, arg0, arg1);
+                }
+            }
+            7 => {
+                let mut offset = 2;
+                let arg0;
+                (arg0, offset) = parse_string::<NonNullString>(msg, offset, "language")?;
+                if offset != msg.len() {
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: &str) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_text_input_v3#{}.language(language: {:?})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_language(&self, arg0);
+                } else {
+                    DefaultHandler.handle_language(&self, arg0);
+                }
+            }
+            8 => {
+                let [
+                    arg0,
+                    arg1,
+                    arg2,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 20)));
+                };
+                let arg2 = ZwpTextInputV3PreeditHint(arg2);
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32, arg1: u32, arg2: ZwpTextInputV3PreeditHint) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> zwp_text_input_v3#{}.preedit_hint(start: {}, end: {}, hint: {:?})\n", id, arg0, arg1, arg2);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1, arg2);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_preedit_hint(&self, arg0, arg1, arg2);
+                } else {
+                    DefaultHandler.handle_preedit_hint(&self, arg0, arg1, arg2);
+                }
+            }
             n => {
                 let _ = server;
                 let _ = msg;
@@ -2521,6 +3414,9 @@ impl ObjectPrivate for ZwpTextInputV3 {
             5 => "set_content_type",
             6 => "set_cursor_rectangle",
             7 => "commit",
+            8 => "set_available_actions",
+            9 => "show_input_panel",
+            10 => "hide_input_panel",
             _ => return None,
         };
         Some(name)
@@ -2534,6 +3430,9 @@ impl ObjectPrivate for ZwpTextInputV3 {
             3 => "commit_string",
             4 => "delete_surrounding_text",
             5 => "done",
+            6 => "action",
+            7 => "language",
+            8 => "preedit_hint",
             _ => return None,
         };
         Some(name)
@@ -2594,6 +3493,12 @@ impl ZwpTextInputV3 {
     pub const ENM__CONTENT_HINT_LATIN__SINCE: u32 = 1;
     /// Since when the content_hint.multiline enum variant is available.
     pub const ENM__CONTENT_HINT_MULTILINE__SINCE: u32 = 1;
+    /// Since when the content_hint.on_screen_input_provided enum variant is available.
+    pub const ENM__CONTENT_HINT_ON_SCREEN_INPUT_PROVIDED__SINCE: u32 = 2;
+    /// Since when the content_hint.no_emoji enum variant is available.
+    pub const ENM__CONTENT_HINT_NO_EMOJI__SINCE: u32 = 2;
+    /// Since when the content_hint.preedit_shown enum variant is available.
+    pub const ENM__CONTENT_HINT_PREEDIT_SHOWN__SINCE: u32 = 2;
 
     /// Since when the content_purpose.normal enum variant is available.
     pub const ENM__CONTENT_PURPOSE_NORMAL__SINCE: u32 = 1;
@@ -2623,6 +3528,29 @@ impl ZwpTextInputV3 {
     pub const ENM__CONTENT_PURPOSE_DATETIME__SINCE: u32 = 1;
     /// Since when the content_purpose.terminal enum variant is available.
     pub const ENM__CONTENT_PURPOSE_TERMINAL__SINCE: u32 = 1;
+
+    /// Since when the error.invalid_action enum variant is available.
+    pub const ENM__ERROR_INVALID_ACTION__SINCE: u32 = 1;
+
+    /// Since when the action.none enum variant is available.
+    pub const ENM__ACTION_NONE__SINCE: u32 = 1;
+    /// Since when the action.submit enum variant is available.
+    pub const ENM__ACTION_SUBMIT__SINCE: u32 = 1;
+
+    /// Since when the preedit_hint.whole enum variant is available.
+    pub const ENM__PREEDIT_HINT_WHOLE__SINCE: u32 = 1;
+    /// Since when the preedit_hint.selection enum variant is available.
+    pub const ENM__PREEDIT_HINT_SELECTION__SINCE: u32 = 1;
+    /// Since when the preedit_hint.prediction enum variant is available.
+    pub const ENM__PREEDIT_HINT_PREDICTION__SINCE: u32 = 1;
+    /// Since when the preedit_hint.prefix enum variant is available.
+    pub const ENM__PREEDIT_HINT_PREFIX__SINCE: u32 = 1;
+    /// Since when the preedit_hint.suffix enum variant is available.
+    pub const ENM__PREEDIT_HINT_SUFFIX__SINCE: u32 = 1;
+    /// Since when the preedit_hint.spelling_error enum variant is available.
+    pub const ENM__PREEDIT_HINT_SPELLING_ERROR__SINCE: u32 = 1;
+    /// Since when the preedit_hint.compose_error enum variant is available.
+    pub const ENM__PREEDIT_HINT_COMPOSE_ERROR__SINCE: u32 = 1;
 }
 
 /// text change reason
@@ -2697,6 +3625,15 @@ impl ZwpTextInputV3ContentHint {
 
     /// the text input is multiline
     pub const MULTILINE: Self = Self(0x200);
+
+    /// an on-screen way to fill in the input is already provided by the client
+    pub const ON_SCREEN_INPUT_PROVIDED: Self = Self(0x400);
+
+    /// prefer not offering emoji support
+    pub const NO_EMOJI: Self = Self(0x800);
+
+    /// the text input will display preedit text in place
+    pub const PREEDIT_SHOWN: Self = Self(0x1000);
 }
 
 impl ZwpTextInputV3ContentHint {
@@ -2780,7 +3717,7 @@ impl ZwpTextInputV3ContentHint {
     #[inline]
     pub const fn all_known() -> Self {
         #[allow(clippy::eq_op, clippy::identity_op)]
-        Self(0 | 0x0 | 0x1 | 0x2 | 0x4 | 0x8 | 0x10 | 0x20 | 0x40 | 0x80 | 0x100 | 0x200)
+        Self(0 | 0x0 | 0x1 | 0x2 | 0x4 | 0x8 | 0x10 | 0x20 | 0x40 | 0x80 | 0x100 | 0x200 | 0x400 | 0x800 | 0x1000)
     }
 }
 
@@ -2964,6 +3901,33 @@ impl Debug for ZwpTextInputV3ContentHint {
             }
             f.write_str("MULTILINE")?;
         }
+        if v & 0x400 == 0x400 {
+            v &= !0x400;
+            if first {
+                first = false;
+            } else {
+                f.write_str(" | ")?;
+            }
+            f.write_str("ON_SCREEN_INPUT_PROVIDED")?;
+        }
+        if v & 0x800 == 0x800 {
+            v &= !0x800;
+            if first {
+                first = false;
+            } else {
+                f.write_str(" | ")?;
+            }
+            f.write_str("NO_EMOJI")?;
+        }
+        if v & 0x1000 == 0x1000 {
+            v &= !0x1000;
+            if first {
+                first = false;
+            } else {
+                f.write_str(" | ")?;
+            }
+            f.write_str("PREEDIT_SHOWN")?;
+        }
         if v != 0 {
             if first {
                 first = false;
@@ -3050,6 +4014,97 @@ impl Debug for ZwpTextInputV3ContentPurpose {
             Self::TIME => "TIME",
             Self::DATETIME => "DATETIME",
             Self::TERMINAL => "TERMINAL",
+            _ => return Debug::fmt(&self.0, f),
+        };
+        f.write_str(name)
+    }
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct ZwpTextInputV3Error(pub u32);
+
+impl ZwpTextInputV3Error {
+    /// an invalid or duplicate action was specified
+    pub const INVALID_ACTION: Self = Self(0);
+}
+
+impl Debug for ZwpTextInputV3Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match *self {
+            Self::INVALID_ACTION => "INVALID_ACTION",
+            _ => return Debug::fmt(&self.0, f),
+        };
+        f.write_str(name)
+    }
+}
+
+/// action
+///
+/// A possible action to perform on a text input.
+///
+/// The submit action is intended for input entries that expect some sort of
+/// activation after user interaction, e.g. the URL entry in a browser.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct ZwpTextInputV3Action(pub u32);
+
+impl ZwpTextInputV3Action {
+    /// no action
+    pub const NONE: Self = Self(0);
+
+    /// the action is submitted
+    pub const SUBMIT: Self = Self(1);
+}
+
+impl Debug for ZwpTextInputV3Action {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match *self {
+            Self::NONE => "NONE",
+            Self::SUBMIT => "SUBMIT",
+            _ => return Debug::fmt(&self.0, f),
+        };
+        f.write_str(name)
+    }
+}
+
+/// preedit style hint
+///
+/// Style hints for the preedit string.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct ZwpTextInputV3PreeditHint(pub u32);
+
+impl ZwpTextInputV3PreeditHint {
+    /// simple pre-edit text style, typically underlined
+    pub const WHOLE: Self = Self(1);
+
+    /// hint for a selected piece of text, e.g. per-character navigation and composition
+    pub const SELECTION: Self = Self(2);
+
+    /// predicted text, not typed by the user
+    pub const PREDICTION: Self = Self(3);
+
+    /// prefixed text not being currently edited, e.g. prior to a 'selection' section
+    pub const PREFIX: Self = Self(4);
+
+    /// suffixed text not being currently edited, e.g. after a 'selection' section
+    pub const SUFFIX: Self = Self(5);
+
+    /// spelling error
+    pub const SPELLING_ERROR: Self = Self(6);
+
+    /// wrong composition, e.g. user input that can not be transliterated
+    pub const COMPOSE_ERROR: Self = Self(7);
+}
+
+impl Debug for ZwpTextInputV3PreeditHint {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match *self {
+            Self::WHOLE => "WHOLE",
+            Self::SELECTION => "SELECTION",
+            Self::PREDICTION => "PREDICTION",
+            Self::PREFIX => "PREFIX",
+            Self::SUFFIX => "SUFFIX",
+            Self::SPELLING_ERROR => "SPELLING_ERROR",
+            Self::COMPOSE_ERROR => "COMPOSE_ERROR",
             _ => return Debug::fmt(&self.0, f),
         };
         f.write_str(name)

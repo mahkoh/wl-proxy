@@ -702,6 +702,12 @@ mod all_types {
     pub(super) use super::text_input_unstable_v3::zwp_text_input_v3::ZwpTextInputV3ContentHint;
     #[cfg(feature = "protocol-text_input_unstable_v3")]
     pub(super) use super::text_input_unstable_v3::zwp_text_input_v3::ZwpTextInputV3ContentPurpose;
+    #[cfg(feature = "protocol-text_input_unstable_v3")]
+    pub(super) use super::text_input_unstable_v3::zwp_text_input_v3::ZwpTextInputV3Error;
+    #[cfg(feature = "protocol-text_input_unstable_v3")]
+    pub(super) use super::text_input_unstable_v3::zwp_text_input_v3::ZwpTextInputV3Action;
+    #[cfg(feature = "protocol-text_input_unstable_v3")]
+    pub(super) use super::text_input_unstable_v3::zwp_text_input_v3::ZwpTextInputV3PreeditHint;
     #[cfg(feature = "protocol-viewporter")]
     pub(super) use super::viewporter::wp_viewport::WpViewport;
     #[cfg(feature = "protocol-viewporter")]
@@ -5785,9 +5791,9 @@ impl ObjectInterface {
             #[cfg(feature = "protocol-text_input_unstable_v1")]
             Self::ZwpTextInputV1 => 1,
             #[cfg(feature = "protocol-text_input_unstable_v3")]
-            Self::ZwpTextInputManagerV3 => 1,
+            Self::ZwpTextInputManagerV3 => 2,
             #[cfg(feature = "protocol-text_input_unstable_v3")]
-            Self::ZwpTextInputV3 => 1,
+            Self::ZwpTextInputV3 => 2,
             #[cfg(feature = "protocol-viewporter")]
             Self::WpViewport => 1,
             #[cfg(feature = "protocol-viewporter")]
