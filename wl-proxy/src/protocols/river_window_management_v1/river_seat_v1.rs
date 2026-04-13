@@ -218,7 +218,7 @@ impl RiverSeatV1 {
     /// mapping between wl_seat and river_seat_v1 objects.
     ///
     /// The global_remove event for the corresponding wl_seat may be sent before
-    /// the river_seat_v1.remove event. This is due to the fact that
+    /// the river_seat_v1.removed event. This is due to the fact that
     /// river_seat_v1 state changes are synced to the river window management
     /// manage sequence while changes to globals are not.
     ///
@@ -284,7 +284,7 @@ impl RiverSeatV1 {
     /// mapping between wl_seat and river_seat_v1 objects.
     ///
     /// The global_remove event for the corresponding wl_seat may be sent before
-    /// the river_seat_v1.remove event. This is due to the fact that
+    /// the river_seat_v1.removed event. This is due to the fact that
     /// river_seat_v1 state changes are synced to the river window management
     /// manage sequence while changes to globals are not.
     ///
@@ -1758,7 +1758,7 @@ pub trait RiverSeatV1Handler: Any {
     /// mapping between wl_seat and river_seat_v1 objects.
     ///
     /// The global_remove event for the corresponding wl_seat may be sent before
-    /// the river_seat_v1.remove event. This is due to the fact that
+    /// the river_seat_v1.removed event. This is due to the fact that
     /// river_seat_v1 state changes are synced to the river window management
     /// manage sequence while changes to globals are not.
     ///
