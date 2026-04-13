@@ -212,7 +212,7 @@ impl RiverOutputV1 {
     /// mapping between wl_output and river_output_v1 objects.
     ///
     /// The global_remove event for the corresponding wl_output may be sent
-    /// before the river_output_v1.remove event. This is due to the fact that
+    /// before the river_output_v1.removed event. This is due to the fact that
     /// river_output_v1 state changes are synced to the river window management
     /// manage sequence while changes to globals are not.
     ///
@@ -278,7 +278,7 @@ impl RiverOutputV1 {
     /// mapping between wl_output and river_output_v1 objects.
     ///
     /// The global_remove event for the corresponding wl_output may be sent
-    /// before the river_output_v1.remove event. This is due to the fact that
+    /// before the river_output_v1.removed event. This is due to the fact that
     /// river_output_v1 state changes are synced to the river window management
     /// manage sequence while changes to globals are not.
     ///
@@ -668,7 +668,7 @@ pub trait RiverOutputV1Handler: Any {
     /// mapping between wl_output and river_output_v1 objects.
     ///
     /// The global_remove event for the corresponding wl_output may be sent
-    /// before the river_output_v1.remove event. This is due to the fact that
+    /// before the river_output_v1.removed event. This is due to the fact that
     /// river_output_v1 state changes are synced to the river window management
     /// manage sequence while changes to globals are not.
     ///

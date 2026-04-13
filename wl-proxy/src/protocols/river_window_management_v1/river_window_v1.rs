@@ -2514,7 +2514,7 @@ impl RiverWindowV1 {
     /// maximized.
     ///
     /// The window manager is free to honor this request using
-    /// river_window_v1.inform_maximize or ignore it.
+    /// river_window_v1.inform_maximized or ignore it.
     ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.
@@ -2559,7 +2559,7 @@ impl RiverWindowV1 {
     /// maximized.
     ///
     /// The window manager is free to honor this request using
-    /// river_window_v1.inform_maximize or ignore it.
+    /// river_window_v1.inform_maximized or ignore it.
     ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.
@@ -4914,7 +4914,7 @@ pub trait RiverWindowV1Handler: Any {
     /// maximized.
     ///
     /// The window manager is free to honor this request using
-    /// river_window_v1.inform_maximize or ignore it.
+    /// river_window_v1.inform_maximized or ignore it.
     ///
     /// This event will be followed by a manage_start event after all other new
     /// state has been sent by the server.

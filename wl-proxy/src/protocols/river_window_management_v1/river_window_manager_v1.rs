@@ -607,8 +607,8 @@ impl RiverWindowManagerV1 {
 
     /// start a render sequence
     ///
-    /// This event indicates that the server has sent all river_node_v1.position
-    /// and river_window_v1.dimensions events necessary.
+    /// This event indicates that the server has sent all
+    /// river_window_v1.dimensions events necessary.
     ///
     /// In response to this event, the client should make requests modifying
     /// rendering state as it chooses. Then, the client must make the
@@ -653,8 +653,8 @@ impl RiverWindowManagerV1 {
 
     /// start a render sequence
     ///
-    /// This event indicates that the server has sent all river_node_v1.position
-    /// and river_window_v1.dimensions events necessary.
+    /// This event indicates that the server has sent all
+    /// river_window_v1.dimensions events necessary.
     ///
     /// In response to this event, the client should make requests modifying
     /// rendering state as it chooses. Then, the client must make the
@@ -1635,8 +1635,8 @@ pub trait RiverWindowManagerV1Handler: Any {
 
     /// start a render sequence
     ///
-    /// This event indicates that the server has sent all river_node_v1.position
-    /// and river_window_v1.dimensions events necessary.
+    /// This event indicates that the server has sent all
+    /// river_window_v1.dimensions events necessary.
     ///
     /// In response to this event, the client should make requests modifying
     /// rendering state as it chooses. Then, the client must make the
