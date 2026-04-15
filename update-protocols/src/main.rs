@@ -171,6 +171,7 @@ fn main() {
                 "xx_text_input_unstable_v3",
                 "xx_cutouts_unstable_v1",
                 "xx_zones_v1",
+                "xx_fractional_scale_v2",
             ],
         },
         Repo {
