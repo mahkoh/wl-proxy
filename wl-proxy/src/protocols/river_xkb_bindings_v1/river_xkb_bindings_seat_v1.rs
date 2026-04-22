@@ -18,7 +18,7 @@ struct DefaultHandler;
 impl RiverXkbBindingsSeatV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverXkbBindingsSeatV1 {
-    const XML_VERSION: u32 = 2;
+    const XML_VERSION: u32 = 3;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverXkbBindingsSeatV1;
     const INTERFACE_NAME: &str = "river_xkb_bindings_seat_v1";
 }
@@ -341,6 +341,216 @@ impl RiverXkbBindingsSeatV1 {
             log_send("river_xkb_bindings_seat_v1.ate_unbound_key", &e);
         }
     }
+
+    /// Since when the modifiers_watch message is available.
+    pub const MSG__MODIFIERS_WATCH__SINCE: u32 = 3;
+
+    /// watch for change in active modifiers
+    ///
+    /// Request that the server send the modifiers_update event whenever a state
+    /// change occurs for at least one of the modifiers specified by the
+    /// modifiers argument.
+    ///
+    /// The window manager should make this request with the modifiers argument
+    /// set to 0 when it no longer wishes to take action based on a change in
+    /// modifiers.
+    ///
+    /// This request modifies window management state and may only be made as
+    /// part of a manage sequence, see the river_window_manager_v1 description.
+    ///
+    /// # Arguments
+    ///
+    /// - `modifiers`:
+    #[inline]
+    pub fn try_send_modifiers_watch(
+        &self,
+        modifiers: RiverSeatV1Modifiers,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            modifiers,
+        );
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: RiverSeatV1Modifiers) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= river_xkb_bindings_seat_v1#{}.modifiers_watch(modifiers: {:?})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            3,
+            arg0.0,
+        ]);
+        Ok(())
+    }
+
+    /// watch for change in active modifiers
+    ///
+    /// Request that the server send the modifiers_update event whenever a state
+    /// change occurs for at least one of the modifiers specified by the
+    /// modifiers argument.
+    ///
+    /// The window manager should make this request with the modifiers argument
+    /// set to 0 when it no longer wishes to take action based on a change in
+    /// modifiers.
+    ///
+    /// This request modifies window management state and may only be made as
+    /// part of a manage sequence, see the river_window_manager_v1 description.
+    ///
+    /// # Arguments
+    ///
+    /// - `modifiers`:
+    #[inline]
+    pub fn send_modifiers_watch(
+        &self,
+        modifiers: RiverSeatV1Modifiers,
+    ) {
+        let res = self.try_send_modifiers_watch(
+            modifiers,
+        );
+        if let Err(e) = res {
+            log_send("river_xkb_bindings_seat_v1.modifiers_watch", &e);
+        }
+    }
+
+    /// Since when the modifiers_update message is available.
+    pub const MSG__MODIFIERS_UPDATE__SINCE: u32 = 3;
+
+    /// active modifiers for the seat changed
+    ///
+    /// The set of currently active modifiers for the seat changed. This event
+    /// is only sent when there is a change in state for modifiers marked as
+    /// watched using the modifiers_watch request.
+    ///
+    /// The old and new arguments convey the set of modifiers active before and
+    /// after the change. All modifiers are included in the old and new
+    /// arguments, including modifiers that are not watched.
+    ///
+    /// Since this event is only sent when there is a change in state for
+    /// watched modifiers, it follows that at least one watched modifier is
+    /// active in old but inactive in new or vice-versa.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// The compositor should wait for the manage sequence to complete before
+    /// processing further input events. This allows the window manager client
+    /// to, for example, modify key bindings and keyboard focus without racing
+    /// against future input events. The window manager should of course respond
+    /// as soon as possible as the capacity of the compositor to buffer incoming
+    /// input events is finite.
+    ///
+    /// # Arguments
+    ///
+    /// - `old`: previously active modifiers
+    /// - `new`: currently active modifiers
+    #[inline]
+    pub fn try_send_modifiers_update(
+        &self,
+        old: RiverSeatV1Modifiers,
+        new: RiverSeatV1Modifiers,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            old,
+            new,
+        );
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: RiverSeatV1Modifiers, arg1: RiverSeatV1Modifiers) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= river_xkb_bindings_seat_v1#{}.modifiers_update(old: {:?}, new: {:?})\n", client_id, id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            1,
+            arg0.0,
+            arg1.0,
+        ]);
+        Ok(())
+    }
+
+    /// active modifiers for the seat changed
+    ///
+    /// The set of currently active modifiers for the seat changed. This event
+    /// is only sent when there is a change in state for modifiers marked as
+    /// watched using the modifiers_watch request.
+    ///
+    /// The old and new arguments convey the set of modifiers active before and
+    /// after the change. All modifiers are included in the old and new
+    /// arguments, including modifiers that are not watched.
+    ///
+    /// Since this event is only sent when there is a change in state for
+    /// watched modifiers, it follows that at least one watched modifier is
+    /// active in old but inactive in new or vice-versa.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// The compositor should wait for the manage sequence to complete before
+    /// processing further input events. This allows the window manager client
+    /// to, for example, modify key bindings and keyboard focus without racing
+    /// against future input events. The window manager should of course respond
+    /// as soon as possible as the capacity of the compositor to buffer incoming
+    /// input events is finite.
+    ///
+    /// # Arguments
+    ///
+    /// - `old`: previously active modifiers
+    /// - `new`: currently active modifiers
+    #[inline]
+    pub fn send_modifiers_update(
+        &self,
+        old: RiverSeatV1Modifiers,
+        new: RiverSeatV1Modifiers,
+    ) {
+        let res = self.try_send_modifiers_update(
+            old,
+            new,
+        );
+        if let Err(e) = res {
+            log_send("river_xkb_bindings_seat_v1.modifiers_update", &e);
+        }
+    }
 }
 
 /// A message handler for [`RiverXkbBindingsSeatV1`] proxies.
@@ -460,6 +670,86 @@ pub trait RiverXkbBindingsSeatV1Handler: Any {
             log_forward("river_xkb_bindings_seat_v1.ate_unbound_key", &e);
         }
     }
+
+    /// watch for change in active modifiers
+    ///
+    /// Request that the server send the modifiers_update event whenever a state
+    /// change occurs for at least one of the modifiers specified by the
+    /// modifiers argument.
+    ///
+    /// The window manager should make this request with the modifiers argument
+    /// set to 0 when it no longer wishes to take action based on a change in
+    /// modifiers.
+    ///
+    /// This request modifies window management state and may only be made as
+    /// part of a manage sequence, see the river_window_manager_v1 description.
+    ///
+    /// # Arguments
+    ///
+    /// - `modifiers`:
+    #[inline]
+    fn handle_modifiers_watch(
+        &mut self,
+        slf: &Rc<RiverXkbBindingsSeatV1>,
+        modifiers: RiverSeatV1Modifiers,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_modifiers_watch(
+            modifiers,
+        );
+        if let Err(e) = res {
+            log_forward("river_xkb_bindings_seat_v1.modifiers_watch", &e);
+        }
+    }
+
+    /// active modifiers for the seat changed
+    ///
+    /// The set of currently active modifiers for the seat changed. This event
+    /// is only sent when there is a change in state for modifiers marked as
+    /// watched using the modifiers_watch request.
+    ///
+    /// The old and new arguments convey the set of modifiers active before and
+    /// after the change. All modifiers are included in the old and new
+    /// arguments, including modifiers that are not watched.
+    ///
+    /// Since this event is only sent when there is a change in state for
+    /// watched modifiers, it follows that at least one watched modifier is
+    /// active in old but inactive in new or vice-versa.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// The compositor should wait for the manage sequence to complete before
+    /// processing further input events. This allows the window manager client
+    /// to, for example, modify key bindings and keyboard focus without racing
+    /// against future input events. The window manager should of course respond
+    /// as soon as possible as the capacity of the compositor to buffer incoming
+    /// input events is finite.
+    ///
+    /// # Arguments
+    ///
+    /// - `old`: previously active modifiers
+    /// - `new`: currently active modifiers
+    #[inline]
+    fn handle_modifiers_update(
+        &mut self,
+        slf: &Rc<RiverXkbBindingsSeatV1>,
+        old: RiverSeatV1Modifiers,
+        new: RiverSeatV1Modifiers,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        let res = slf.try_send_modifiers_update(
+            old,
+            new,
+        );
+        if let Err(e) = res {
+            log_forward("river_xkb_bindings_seat_v1.modifiers_update", &e);
+        }
+    }
 }
 
 impl ObjectPrivate for RiverXkbBindingsSeatV1 {
@@ -552,6 +842,30 @@ impl ObjectPrivate for RiverXkbBindingsSeatV1 {
                     DefaultHandler.handle_cancel_ensure_next_key_eaten(&self);
                 }
             }
+            3 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
+                };
+                let arg0 = RiverSeatV1Modifiers(arg0);
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: RiverSeatV1Modifiers) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> river_xkb_bindings_seat_v1#{}.modifiers_watch(modifiers: {:?})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_modifiers_watch(&self, arg0);
+                } else {
+                    DefaultHandler.handle_modifiers_watch(&self, arg0);
+                }
+            }
             n => {
                 let _ = client;
                 let _ = msg;
@@ -590,6 +904,32 @@ impl ObjectPrivate for RiverXkbBindingsSeatV1 {
                     DefaultHandler.handle_ate_unbound_key(&self);
                 }
             }
+            1 => {
+                let [
+                    arg0,
+                    arg1,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 16)));
+                };
+                let arg0 = RiverSeatV1Modifiers(arg0);
+                let arg1 = RiverSeatV1Modifiers(arg1);
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: RiverSeatV1Modifiers, arg1: RiverSeatV1Modifiers) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> river_xkb_bindings_seat_v1#{}.modifiers_update(old: {:?}, new: {:?})\n", id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_modifiers_update(&self, arg0, arg1);
+                } else {
+                    DefaultHandler.handle_modifiers_update(&self, arg0, arg1);
+                }
+            }
             n => {
                 let _ = server;
                 let _ = msg;
@@ -606,6 +946,7 @@ impl ObjectPrivate for RiverXkbBindingsSeatV1 {
             0 => "destroy",
             1 => "ensure_next_key_eaten",
             2 => "cancel_ensure_next_key_eaten",
+            3 => "modifiers_watch",
             _ => return None,
         };
         Some(name)
@@ -614,6 +955,7 @@ impl ObjectPrivate for RiverXkbBindingsSeatV1 {
     fn get_event_name(&self, id: u32) -> Option<&'static str> {
         let name = match id {
             0 => "ate_unbound_key",
+            1 => "modifiers_update",
             _ => return None,
         };
         Some(name)

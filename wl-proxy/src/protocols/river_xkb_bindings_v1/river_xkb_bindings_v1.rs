@@ -19,7 +19,7 @@ struct DefaultHandler;
 impl RiverXkbBindingsV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverXkbBindingsV1 {
-    const XML_VERSION: u32 = 2;
+    const XML_VERSION: u32 = 3;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverXkbBindingsV1;
     const INTERFACE_NAME: &str = "river_xkb_bindings_v1";
 }
