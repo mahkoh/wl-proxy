@@ -5975,11 +5975,11 @@ impl ObjectInterface {
             #[cfg(feature = "protocol-river_window_management_v1")]
             Self::RiverWindowV1 => 4,
             #[cfg(feature = "protocol-river_xkb_bindings_v1")]
-            Self::RiverXkbBindingV1 => 2,
+            Self::RiverXkbBindingV1 => 3,
             #[cfg(feature = "protocol-river_xkb_bindings_v1")]
-            Self::RiverXkbBindingsSeatV1 => 2,
+            Self::RiverXkbBindingsSeatV1 => 3,
             #[cfg(feature = "protocol-river_xkb_bindings_v1")]
-            Self::RiverXkbBindingsV1 => 2,
+            Self::RiverXkbBindingsV1 => 3,
             #[cfg(feature = "protocol-river_xkb_config_v1")]
             Self::RiverXkbConfigV1 => 1,
             #[cfg(feature = "protocol-river_xkb_config_v1")]
