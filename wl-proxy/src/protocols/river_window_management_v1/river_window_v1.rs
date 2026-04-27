@@ -1408,6 +1408,11 @@ impl RiverWindowV1 {
     /// The color is defined by four 32-bit RGBA values. Unless specified in
     /// another protocol extension, the RGBA values use pre-multiplied alpha.
     ///
+    /// The valid range for the RGBA values is from 0x00000000 to 0xffffffff.
+    /// These values are interpreted as a percentage:
+    /// - 0x00000000 means 0% of the given color component
+    /// - 0xffffffff means 100% of the given color component
+    ///
     /// Setting the edges to none or the width to 0 disables the borders.
     /// Setting a negative width is a protocol error.
     ///
@@ -1506,6 +1511,11 @@ impl RiverWindowV1 {
     ///
     /// The color is defined by four 32-bit RGBA values. Unless specified in
     /// another protocol extension, the RGBA values use pre-multiplied alpha.
+    ///
+    /// The valid range for the RGBA values is from 0x00000000 to 0xffffffff.
+    /// These values are interpreted as a percentage:
+    /// - 0x00000000 means 0% of the given color component
+    /// - 0xffffffff means 100% of the given color component
     ///
     /// Setting the edges to none or the width to 0 disables the borders.
     /// Setting a negative width is a protocol error.
@@ -4528,6 +4538,11 @@ pub trait RiverWindowV1Handler: Any {
     ///
     /// The color is defined by four 32-bit RGBA values. Unless specified in
     /// another protocol extension, the RGBA values use pre-multiplied alpha.
+    ///
+    /// The valid range for the RGBA values is from 0x00000000 to 0xffffffff.
+    /// These values are interpreted as a percentage:
+    /// - 0x00000000 means 0% of the given color component
+    /// - 0xffffffff means 100% of the given color component
     ///
     /// Setting the edges to none or the width to 0 disables the borders.
     /// Setting a negative width is a protocol error.
