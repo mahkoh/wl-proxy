@@ -331,7 +331,7 @@ impl XdgPositioner {
     /// set anchor rectangle anchor
     ///
     /// Defines the anchor point for the anchor rectangle. The specified anchor
-    /// is used derive an anchor point that the child surface will be
+    /// is used to derive an anchor point that the child surface will be
     /// positioned relative to. If a corner anchor is set (e.g. 'top_left' or
     /// 'bottom_right'), the anchor point will be at the specified corner;
     /// otherwise, the derived anchor point will be centered on the specified
@@ -385,7 +385,7 @@ impl XdgPositioner {
     /// set anchor rectangle anchor
     ///
     /// Defines the anchor point for the anchor rectangle. The specified anchor
-    /// is used derive an anchor point that the child surface will be
+    /// is used to derive an anchor point that the child surface will be
     /// positioned relative to. If a corner anchor is set (e.g. 'top_left' or
     /// 'bottom_right'), the anchor point will be at the specified corner;
     /// otherwise, the derived anchor point will be centered on the specified
@@ -1025,7 +1025,7 @@ pub trait XdgPositionerHandler: Any {
     /// set anchor rectangle anchor
     ///
     /// Defines the anchor point for the anchor rectangle. The specified anchor
-    /// is used derive an anchor point that the child surface will be
+    /// is used to derive an anchor point that the child surface will be
     /// positioned relative to. If a corner anchor is set (e.g. 'top_left' or
     /// 'bottom_right'), the anchor point will be at the specified corner;
     /// otherwise, the derived anchor point will be centered on the specified

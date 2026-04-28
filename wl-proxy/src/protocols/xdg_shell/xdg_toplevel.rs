@@ -6,7 +6,7 @@
 //! id, and well as trigger user interactive operations such as interactive
 //! resize and move.
 //!
-//! A xdg_toplevel by default is responsible for providing the full intended
+//! An xdg_toplevel by default is responsible for providing the full intended
 //! visual representation of the toplevel, which depending on the window
 //! state, may mean things like a title bar, window controls and drop shadow.
 //!
@@ -872,7 +872,7 @@ impl XdgToplevel {
     /// a surface is illegal and will result in an invalid_size error.
     ///
     /// The width and height must be greater than or equal to zero. Using
-    /// strictly negative values for width or height will result in a
+    /// strictly negative values for width or height will result in an
     /// invalid_size error.
     ///
     /// # Arguments
@@ -958,7 +958,7 @@ impl XdgToplevel {
     /// a surface is illegal and will result in an invalid_size error.
     ///
     /// The width and height must be greater than or equal to zero. Using
-    /// strictly negative values for width or height will result in a
+    /// strictly negative values for width or height will result in an
     /// invalid_size error.
     ///
     /// # Arguments
@@ -1016,7 +1016,7 @@ impl XdgToplevel {
     /// a surface is illegal and will result in an invalid_size error.
     ///
     /// The width and height must be greater than or equal to zero. Using
-    /// strictly negative values for width and height will result in a
+    /// strictly negative values for width and height will result in an
     /// invalid_size error.
     ///
     /// # Arguments
@@ -1102,7 +1102,7 @@ impl XdgToplevel {
     /// a surface is illegal and will result in an invalid_size error.
     ///
     /// The width and height must be greater than or equal to zero. Using
-    /// strictly negative values for width and height will result in a
+    /// strictly negative values for width and height will result in an
     /// invalid_size error.
     ///
     /// # Arguments
@@ -1330,7 +1330,7 @@ impl XdgToplevel {
     ///
     /// If the surface doesn't cover the whole output, the compositor will
     /// position the surface in the center of the output and compensate with
-    /// with border fill covering the rest of the output. The content of the
+    /// border fill covering the rest of the output. The content of the
     /// border fill is undefined, but should be assumed to be in some way that
     /// attempts to blend into the surrounding area (e.g. solid black).
     ///
@@ -1409,7 +1409,7 @@ impl XdgToplevel {
     ///
     /// If the surface doesn't cover the whole output, the compositor will
     /// position the surface in the center of the output and compensate with
-    /// with border fill covering the rest of the output. The content of the
+    /// border fill covering the rest of the output. The content of the
     /// border fill is undefined, but should be assumed to be in some way that
     /// attempts to blend into the surrounding area (e.g. solid black).
     ///
@@ -2341,7 +2341,7 @@ pub trait XdgToplevelHandler: Any {
     /// a surface is illegal and will result in an invalid_size error.
     ///
     /// The width and height must be greater than or equal to zero. Using
-    /// strictly negative values for width or height will result in a
+    /// strictly negative values for width or height will result in an
     /// invalid_size error.
     ///
     /// # Arguments
@@ -2400,7 +2400,7 @@ pub trait XdgToplevelHandler: Any {
     /// a surface is illegal and will result in an invalid_size error.
     ///
     /// The width and height must be greater than or equal to zero. Using
-    /// strictly negative values for width and height will result in a
+    /// strictly negative values for width and height will result in an
     /// invalid_size error.
     ///
     /// # Arguments
@@ -2517,7 +2517,7 @@ pub trait XdgToplevelHandler: Any {
     ///
     /// If the surface doesn't cover the whole output, the compositor will
     /// position the surface in the center of the output and compensate with
-    /// with border fill covering the rest of the output. The content of the
+    /// border fill covering the rest of the output. The content of the
     /// border fill is undefined, but should be assumed to be in some way that
     /// attempts to blend into the surrounding area (e.g. solid black).
     ///

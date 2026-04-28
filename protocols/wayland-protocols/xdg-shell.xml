@@ -166,7 +166,7 @@
     <request name="set_anchor">
       <description summary="set anchor rectangle anchor">
         Defines the anchor point for the anchor rectangle. The specified anchor
-        is used derive an anchor point that the child surface will be
+        is used to derive an anchor point that the child surface will be
         positioned relative to. If a corner anchor is set (e.g. 'top_left' or
         'bottom_right'), the anchor point will be at the specified corner;
         otherwise, the derived anchor point will be centered on the specified
@@ -575,7 +575,7 @@
       id, and well as trigger user interactive operations such as interactive
       resize and move.
 
-      A xdg_toplevel by default is responsible for providing the full intended
+      An xdg_toplevel by default is responsible for providing the full intended
       visual representation of the toplevel, which depending on the window
       state, may mean things like a title bar, window controls and drop shadow.
 
@@ -775,7 +775,7 @@
         a surface is illegal and will result in an invalid_size error.
 
         The width and height must be greater than or equal to zero. Using
-        strictly negative values for width or height will result in a
+        strictly negative values for width or height will result in an
         invalid_size error.
       </description>
       <arg name="width" type="int"/>
@@ -814,7 +814,7 @@
         a surface is illegal and will result in an invalid_size error.
 
         The width and height must be greater than or equal to zero. Using
-        strictly negative values for width and height will result in a
+        strictly negative values for width and height will result in an
         invalid_size error.
       </description>
       <arg name="width" type="int"/>
@@ -885,7 +885,7 @@
 
         If the surface doesn't cover the whole output, the compositor will
         position the surface in the center of the output and compensate with
-        with border fill covering the rest of the output. The content of the
+        border fill covering the rest of the output. The content of the
         border fill is undefined, but should be assumed to be in some way that
         attempts to blend into the surrounding area (e.g. solid black).
 
