@@ -18,7 +18,7 @@ struct DefaultHandler;
 impl RiverInputManagerV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverInputManagerV1 {
-    const XML_VERSION: u32 = 1;
+    const XML_VERSION: u32 = 2;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverInputManagerV1;
     const INTERFACE_NAME: &str = "river_input_manager_v1";
 }

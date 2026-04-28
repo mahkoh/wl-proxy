@@ -5941,9 +5941,9 @@ impl ObjectInterface {
             #[cfg(test)]
             Self::WlproxyTestServerSent => 1,
             #[cfg(feature = "protocol-river_input_management_v1")]
-            Self::RiverInputDeviceV1 => 1,
+            Self::RiverInputDeviceV1 => 2,
             #[cfg(feature = "protocol-river_input_management_v1")]
-            Self::RiverInputManagerV1 => 1,
+            Self::RiverInputManagerV1 => 2,
             #[cfg(feature = "protocol-river_layer_shell_v1")]
             Self::RiverLayerShellOutputV1 => 1,
             #[cfg(feature = "protocol-river_layer_shell_v1")]
@@ -5953,9 +5953,9 @@ impl ObjectInterface {
             #[cfg(feature = "protocol-river_libinput_config_v1")]
             Self::RiverLibinputAccelConfigV1 => 1,
             #[cfg(feature = "protocol-river_libinput_config_v1")]
-            Self::RiverLibinputConfigV1 => 1,
+            Self::RiverLibinputConfigV1 => 2,
             #[cfg(feature = "protocol-river_libinput_config_v1")]
-            Self::RiverLibinputDeviceV1 => 1,
+            Self::RiverLibinputDeviceV1 => 2,
             #[cfg(feature = "protocol-river_libinput_config_v1")]
             Self::RiverLibinputResultV1 => 1,
             #[cfg(feature = "protocol-river_window_management_v1")]
@@ -5981,11 +5981,11 @@ impl ObjectInterface {
             #[cfg(feature = "protocol-river_xkb_bindings_v1")]
             Self::RiverXkbBindingsV1 => 3,
             #[cfg(feature = "protocol-river_xkb_config_v1")]
-            Self::RiverXkbConfigV1 => 1,
+            Self::RiverXkbConfigV1 => 2,
             #[cfg(feature = "protocol-river_xkb_config_v1")]
-            Self::RiverXkbKeyboardV1 => 1,
+            Self::RiverXkbKeyboardV1 => 2,
             #[cfg(feature = "protocol-river_xkb_config_v1")]
-            Self::RiverXkbKeymapV1 => 1,
+            Self::RiverXkbKeymapV1 => 2,
             #[cfg(feature = "protocol-ivi_application")]
             Self::IviApplication => 1,
             #[cfg(feature = "protocol-ivi_application")]

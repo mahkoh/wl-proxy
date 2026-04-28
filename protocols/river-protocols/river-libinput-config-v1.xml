@@ -45,7 +45,7 @@
     "should", "should not", "recommended", "may", and "optional" in this
     document are to be interpreted as described in IETF RFC 2119.
   </description>
-  <interface name="river_libinput_config_v1" version="1">
+  <interface name="river_libinput_config_v1" version="2">
     <description summary="libinput config global interface">
       Global interface for configuring libinput devices. This global should
       only be advertised if river_input_manager_v1 is advertised as well.
@@ -103,7 +103,7 @@
       <entry name="invalid_destroy" value="1"/>
     </enum>
   </interface>
-  <interface name="river_libinput_device_v1" version="1">
+  <interface name="river_libinput_device_v1" version="2">
     <description summary="a libinput device">
       In general, *_support events will be sent exactly once directly after the
       river_libinput_device_v1 is created. *_default events will be sent after
@@ -624,6 +624,15 @@
       <arg name="result" type="new_id" interface="river_libinput_result_v1"/>
       <arg name="angle" type="uint"/>
     </request>
+    <event name="done" since="2">
+      <description summary="all information has been sent">
+        This event is sent after all information about the libinput device has
+        been sent.
+
+        This allows changes to one or more river_libinput_device_v1 properties
+        to be seen as atomic, even if they happen via multiple events.
+      </description>
+    </event>
     <enum name="error">
       <entry name="invalid_arg" value="0" summary="invalid enum value or similar"/>
     </enum>
