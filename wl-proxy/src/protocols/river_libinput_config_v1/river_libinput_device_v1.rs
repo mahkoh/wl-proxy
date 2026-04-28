@@ -22,7 +22,7 @@ struct DefaultHandler;
 impl RiverLibinputDeviceV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverLibinputDeviceV1 {
-    const XML_VERSION: u32 = 1;
+    const XML_VERSION: u32 = 2;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverLibinputDeviceV1;
     const INTERFACE_NAME: &str = "river_libinput_device_v1";
 }
@@ -6776,6 +6776,69 @@ impl RiverLibinputDeviceV1 {
         );
         result
     }
+
+    /// Since when the done message is available.
+    pub const MSG__DONE__SINCE: u32 = 2;
+
+    /// all information has been sent
+    ///
+    /// This event is sent after all information about the libinput device has
+    /// been sent.
+    ///
+    /// This allows changes to one or more river_libinput_device_v1 properties
+    /// to be seen as atomic, even if they happen via multiple events.
+    #[inline]
+    pub fn try_send_done(
+        &self,
+    ) -> Result<(), ObjectError> {
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= river_libinput_device_v1#{}.done()\n", client_id, id);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            55,
+        ]);
+        Ok(())
+    }
+
+    /// all information has been sent
+    ///
+    /// This event is sent after all information about the libinput device has
+    /// been sent.
+    ///
+    /// This allows changes to one or more river_libinput_device_v1 properties
+    /// to be seen as atomic, even if they happen via multiple events.
+    #[inline]
+    pub fn send_done(
+        &self,
+    ) {
+        let res = self.try_send_done(
+        );
+        if let Err(e) = res {
+            log_send("river_libinput_device_v1.done", &e);
+        }
+    }
 }
 
 /// A message handler for [`RiverLibinputDeviceV1`] proxies.
@@ -8729,6 +8792,28 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         );
         if let Err(e) = res {
             log_forward("river_libinput_device_v1.set_rotation", &e);
+        }
+    }
+
+    /// all information has been sent
+    ///
+    /// This event is sent after all information about the libinput device has
+    /// been sent.
+    ///
+    /// This allows changes to one or more river_libinput_device_v1 properties
+    /// to be seen as atomic, even if they happen via multiple events.
+    #[inline]
+    fn handle_done(
+        &mut self,
+        slf: &Rc<RiverLibinputDeviceV1>,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        let res = slf.try_send_done(
+        );
+        if let Err(e) = res {
+            log_forward("river_libinput_device_v1.done", &e);
         }
     }
 }
@@ -10761,6 +10846,27 @@ impl ObjectPrivate for RiverLibinputDeviceV1 {
                     DefaultHandler.handle_rotation_current(&self, arg0);
                 }
             }
+            55 => {
+                if msg.len() != 2 {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 8)));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> river_libinput_device_v1#{}.done()\n", id);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0]);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_done(&self);
+                } else {
+                    DefaultHandler.handle_done(&self);
+                }
+            }
             n => {
                 let _ = server;
                 let _ = msg;
@@ -10858,6 +10964,7 @@ impl ObjectPrivate for RiverLibinputDeviceV1 {
             52 => "rotation_support",
             53 => "rotation_default",
             54 => "rotation_current",
+            55 => "done",
             _ => return None,
         };
         Some(name)

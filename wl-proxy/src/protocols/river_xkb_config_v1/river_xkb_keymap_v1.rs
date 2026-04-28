@@ -18,7 +18,7 @@ struct DefaultHandler;
 impl RiverXkbKeymapV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverXkbKeymapV1 {
-    const XML_VERSION: u32 = 1;
+    const XML_VERSION: u32 = 2;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverXkbKeymapV1;
     const INTERFACE_NAME: &str = "river_xkb_keymap_v1";
 }

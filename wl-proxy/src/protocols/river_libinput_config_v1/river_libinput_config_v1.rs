@@ -19,7 +19,7 @@ struct DefaultHandler;
 impl RiverLibinputConfigV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverLibinputConfigV1 {
-    const XML_VERSION: u32 = 1;
+    const XML_VERSION: u32 = 2;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverLibinputConfigV1;
     const INTERFACE_NAME: &str = "river_libinput_config_v1";
 }
