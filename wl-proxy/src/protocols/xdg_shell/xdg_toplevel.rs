@@ -155,7 +155,7 @@ impl XdgToplevel {
     ///
     /// # Arguments
     ///
-    /// - `parent`:
+    /// - `parent`: parent surface for this surface
     #[inline]
     pub fn try_send_set_parent(
         &self,
@@ -231,7 +231,7 @@ impl XdgToplevel {
     ///
     /// # Arguments
     ///
-    /// - `parent`:
+    /// - `parent`: parent surface for this surface
     #[inline]
     pub fn send_set_parent(
         &self,
@@ -260,7 +260,7 @@ impl XdgToplevel {
     ///
     /// # Arguments
     ///
-    /// - `title`:
+    /// - `title`: title of the surface
     #[inline]
     pub fn try_send_set_title(
         &self,
@@ -315,7 +315,7 @@ impl XdgToplevel {
     ///
     /// # Arguments
     ///
-    /// - `title`:
+    /// - `title`: title of the surface
     #[inline]
     pub fn send_set_title(
         &self,
@@ -360,7 +360,7 @@ impl XdgToplevel {
     ///
     /// # Arguments
     ///
-    /// - `app_id`:
+    /// - `app_id`: application identifier surface belongs to
     #[inline]
     pub fn try_send_set_app_id(
         &self,
@@ -431,7 +431,7 @@ impl XdgToplevel {
     ///
     /// # Arguments
     ///
-    /// - `app_id`:
+    /// - `app_id`: application identifier surface belongs to
     #[inline]
     pub fn send_set_app_id(
         &self,
@@ -877,8 +877,8 @@ impl XdgToplevel {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: maximum width of the window
+    /// - `height`: maximum height of the window
     #[inline]
     pub fn try_send_set_max_size(
         &self,
@@ -963,8 +963,8 @@ impl XdgToplevel {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: maximum width of the window
+    /// - `height`: maximum height of the window
     #[inline]
     pub fn send_set_max_size(
         &self,
@@ -1021,8 +1021,8 @@ impl XdgToplevel {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: minimum width of the window
+    /// - `height`: minimum height of the window
     #[inline]
     pub fn try_send_set_min_size(
         &self,
@@ -1107,8 +1107,8 @@ impl XdgToplevel {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: minimum width of the window
+    /// - `height`: minimum height of the window
     #[inline]
     pub fn send_set_min_size(
         &self,
@@ -1341,7 +1341,7 @@ impl XdgToplevel {
     ///
     /// # Arguments
     ///
-    /// - `output`:
+    /// - `output`: preferred output to place surface on
     #[inline]
     pub fn try_send_set_fullscreen(
         &self,
@@ -1420,7 +1420,7 @@ impl XdgToplevel {
     ///
     /// # Arguments
     ///
-    /// - `output`:
+    /// - `output`: preferred output to place surface on
     #[inline]
     pub fn send_set_fullscreen(
         &self,
@@ -1617,9 +1617,9 @@ impl XdgToplevel {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
-    /// - `states`:
+    /// - `width`: suggested width of window
+    /// - `height`: suggested height of window
+    /// - `states`: suggested states of the window
     #[inline]
     pub fn try_send_configure(
         &self,
@@ -1694,9 +1694,9 @@ impl XdgToplevel {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
-    /// - `states`:
+    /// - `width`: suggested width of window
+    /// - `height`: suggested height of window
+    /// - `states`: suggested states of the window
     #[inline]
     pub fn send_configure(
         &self,
@@ -1806,8 +1806,8 @@ impl XdgToplevel {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: suggested maximum width of surface
+    /// - `height`: suggested maximum height of surface
     #[inline]
     pub fn try_send_configure_bounds(
         &self,
@@ -1874,8 +1874,8 @@ impl XdgToplevel {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: suggested maximum width of surface
+    /// - `height`: suggested maximum height of surface
     #[inline]
     pub fn send_configure_bounds(
         &self,
@@ -2056,7 +2056,7 @@ pub trait XdgToplevelHandler: Any {
     ///
     /// # Arguments
     ///
-    /// - `parent`:
+    /// - `parent`: parent surface for this surface
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
@@ -2089,7 +2089,7 @@ pub trait XdgToplevelHandler: Any {
     ///
     /// # Arguments
     ///
-    /// - `title`:
+    /// - `title`: title of the surface
     #[inline]
     fn handle_set_title(
         &mut self,
@@ -2135,7 +2135,7 @@ pub trait XdgToplevelHandler: Any {
     ///
     /// # Arguments
     ///
-    /// - `app_id`:
+    /// - `app_id`: application identifier surface belongs to
     #[inline]
     fn handle_set_app_id(
         &mut self,
@@ -2346,8 +2346,8 @@ pub trait XdgToplevelHandler: Any {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: maximum width of the window
+    /// - `height`: maximum height of the window
     #[inline]
     fn handle_set_max_size(
         &mut self,
@@ -2405,8 +2405,8 @@ pub trait XdgToplevelHandler: Any {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: minimum width of the window
+    /// - `height`: minimum height of the window
     #[inline]
     fn handle_set_min_size(
         &mut self,
@@ -2528,7 +2528,7 @@ pub trait XdgToplevelHandler: Any {
     ///
     /// # Arguments
     ///
-    /// - `output`:
+    /// - `output`: preferred output to place surface on
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
@@ -2632,9 +2632,9 @@ pub trait XdgToplevelHandler: Any {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
-    /// - `states`:
+    /// - `width`: suggested width of window
+    /// - `height`: suggested height of window
+    /// - `states`: suggested states of the window
     #[inline]
     fn handle_configure(
         &mut self,
@@ -2701,8 +2701,8 @@ pub trait XdgToplevelHandler: Any {
     ///
     /// # Arguments
     ///
-    /// - `width`:
-    /// - `height`:
+    /// - `width`: suggested maximum width of surface
+    /// - `height`: suggested maximum height of surface
     #[inline]
     fn handle_configure_bounds(
         &mut self,

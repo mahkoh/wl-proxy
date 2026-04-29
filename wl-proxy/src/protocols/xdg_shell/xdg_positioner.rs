@@ -339,7 +339,7 @@ impl XdgPositioner {
     ///
     /// # Arguments
     ///
-    /// - `anchor`: anchor
+    /// - `anchor`: anchor point
     #[inline]
     pub fn try_send_set_anchor(
         &self,
@@ -393,7 +393,7 @@ impl XdgPositioner {
     ///
     /// # Arguments
     ///
-    /// - `anchor`: anchor
+    /// - `anchor`: anchor point
     #[inline]
     pub fn send_set_anchor(
         &self,
@@ -755,6 +755,7 @@ impl XdgPositioner {
     /// Since when the set_parent_size message is available.
     pub const MSG__SET_PARENT_SIZE__SINCE: u32 = 3;
 
+    /// set parent size
     ///
     /// Set the parent window geometry the compositor should use when
     /// positioning the popup. The compositor may use this information to
@@ -814,6 +815,7 @@ impl XdgPositioner {
         Ok(())
     }
 
+    /// set parent size
     ///
     /// Set the parent window geometry the compositor should use when
     /// positioning the popup. The compositor may use this information to
@@ -1033,7 +1035,7 @@ pub trait XdgPositionerHandler: Any {
     ///
     /// # Arguments
     ///
-    /// - `anchor`: anchor
+    /// - `anchor`: anchor point
     #[inline]
     fn handle_set_anchor(
         &mut self,
@@ -1177,6 +1179,7 @@ pub trait XdgPositionerHandler: Any {
         }
     }
 
+    /// set parent size
     ///
     /// Set the parent window geometry the compositor should use when
     /// positioning the popup. The compositor may use this information to

@@ -294,8 +294,8 @@ impl XdgSurface {
     /// # Arguments
     ///
     /// - `id`:
-    /// - `parent`:
-    /// - `positioner`:
+    /// - `parent`: parent surface for this popup
+    /// - `positioner`: positioner for this popup
     #[inline]
     pub fn try_send_get_popup(
         &self,
@@ -378,8 +378,8 @@ impl XdgSurface {
     /// # Arguments
     ///
     /// - `id`:
-    /// - `parent`:
-    /// - `positioner`:
+    /// - `parent`: parent surface for this popup
+    /// - `positioner`: positioner for this popup
     #[inline]
     pub fn send_get_popup(
         &self,
@@ -410,8 +410,8 @@ impl XdgSurface {
     ///
     /// # Arguments
     ///
-    /// - `parent`:
-    /// - `positioner`:
+    /// - `parent`: parent surface for this popup
+    /// - `positioner`: positioner for this popup
     #[inline]
     pub fn new_try_send_get_popup(
         &self,
@@ -440,8 +440,8 @@ impl XdgSurface {
     ///
     /// # Arguments
     ///
-    /// - `parent`:
-    /// - `positioner`:
+    /// - `parent`: parent surface for this popup
+    /// - `positioner`: positioner for this popup
     #[inline]
     pub fn new_send_get_popup(
         &self,
@@ -505,10 +505,10 @@ impl XdgSurface {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
-    /// - `width`:
-    /// - `height`:
+    /// - `x`: x coordinate of the top-left corner of the window inside this surface
+    /// - `y`: y coordinate of the top-left corner of the window inside this surface
+    /// - `width`: width of the window
+    /// - `height`: height of the window
     #[inline]
     pub fn try_send_set_window_geometry(
         &self,
@@ -608,10 +608,10 @@ impl XdgSurface {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
-    /// - `width`:
-    /// - `height`:
+    /// - `x`: x coordinate of the top-left corner of the window inside this surface
+    /// - `y`: y coordinate of the top-left corner of the window inside this surface
+    /// - `width`: width of the window
+    /// - `height`: height of the window
     #[inline]
     pub fn send_set_window_geometry(
         &self,
@@ -940,8 +940,8 @@ pub trait XdgSurfaceHandler: Any {
     /// # Arguments
     ///
     /// - `id`:
-    /// - `parent`:
-    /// - `positioner`:
+    /// - `parent`: parent surface for this popup
+    /// - `positioner`: positioner for this popup
     ///
     /// All borrowed proxies passed to this function are guaranteed to be
     /// immutable and non-null.
@@ -1011,10 +1011,10 @@ pub trait XdgSurfaceHandler: Any {
     ///
     /// # Arguments
     ///
-    /// - `x`:
-    /// - `y`:
-    /// - `width`:
-    /// - `height`:
+    /// - `x`: x coordinate of the top-left corner of the window inside this surface
+    /// - `y`: y coordinate of the top-left corner of the window inside this surface
+    /// - `width`: width of the window
+    /// - `height`: height of the window
     #[inline]
     fn handle_set_window_geometry(
         &mut self,
