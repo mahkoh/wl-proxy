@@ -2607,7 +2607,7 @@ impl RiverLibinputDeviceV1 {
     /// Since when the accel_profile_current message is available.
     pub const MSG__ACCEL_PROFILE_CURRENT__SINCE: u32 = 1;
 
-    /// current send events mode
+    /// current acceleration profile
     ///
     /// Current acceleration profile.
     ///
@@ -2656,7 +2656,7 @@ impl RiverLibinputDeviceV1 {
         Ok(())
     }
 
-    /// current send events mode
+    /// current acceleration profile
     ///
     /// Current acceleration profile.
     ///
@@ -2679,7 +2679,7 @@ impl RiverLibinputDeviceV1 {
     /// Since when the set_accel_profile message is available.
     pub const MSG__SET_ACCEL_PROFILE__SINCE: u32 = 1;
 
-    /// set send events mode
+    /// set acceleration profile
     ///
     /// Set the acceleration profile.
     ///
@@ -2738,7 +2738,7 @@ impl RiverLibinputDeviceV1 {
         Ok(())
     }
 
-    /// set send events mode
+    /// set acceleration profile
     ///
     /// Set the acceleration profile.
     ///
@@ -2761,7 +2761,7 @@ impl RiverLibinputDeviceV1 {
         }
     }
 
-    /// set send events mode
+    /// set acceleration profile
     ///
     /// Set the acceleration profile.
     ///
@@ -2781,7 +2781,7 @@ impl RiverLibinputDeviceV1 {
         Ok(result)
     }
 
-    /// set send events mode
+    /// set acceleration profile
     ///
     /// Set the acceleration profile.
     ///
@@ -7607,7 +7607,7 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         }
     }
 
-    /// current send events mode
+    /// current acceleration profile
     ///
     /// Current acceleration profile.
     ///
@@ -7631,7 +7631,7 @@ pub trait RiverLibinputDeviceV1Handler: Any {
         }
     }
 
-    /// set send events mode
+    /// set acceleration profile
     ///
     /// Set the acceleration profile.
     ///
