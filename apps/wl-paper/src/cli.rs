@@ -20,16 +20,16 @@ struct WlPaper {
     #[clap(long, value_enum, value_name = "SHELL")]
     generate_completion: Option<Shell>,
     /// The top margin.
-    #[clap(long, default_value = "0")]
+    #[clap(long, default_value = "0", allow_hyphen_values = true)]
     margin_top: i32,
     /// The right margin.
-    #[clap(long, default_value = "0")]
+    #[clap(long, default_value = "0", allow_hyphen_values = true)]
     margin_right: i32,
     /// The bottom margin.
-    #[clap(long, default_value = "0")]
+    #[clap(long, default_value = "0", allow_hyphen_values = true)]
     margin_bottom: i32,
     /// The left margin.
-    #[clap(long, default_value = "0")]
+    #[clap(long, default_value = "0", allow_hyphen_values = true)]
     margin_left: i32,
     /// The keyboard interactivity.
     #[clap(long, default_value = "on-demand")]
