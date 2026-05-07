@@ -79,7 +79,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
     /// destroy the feedback object
     ///
     /// Using this request a client can tell the server that it is not going to
-    /// use the wp_linux_dmabuf_feedback object anymore.
+    /// use the zwp_linux_dmabuf_feedback_v1 object anymore.
     #[inline]
     pub fn try_send_destroy(
         &self,
@@ -119,7 +119,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
     /// destroy the feedback object
     ///
     /// Using this request a client can tell the server that it is not going to
-    /// use the wp_linux_dmabuf_feedback object anymore.
+    /// use the zwp_linux_dmabuf_feedback_v1 object anymore.
     #[inline]
     pub fn send_destroy(
         &self,
@@ -136,10 +136,10 @@ impl ZwpLinuxDmabufFeedbackV1 {
 
     /// all feedback has been sent
     ///
-    /// This event is sent after all parameters of a wp_linux_dmabuf_feedback
+    /// This event is sent after all parameters of a zwp_linux_dmabuf_feedback_v1
     /// object have been sent.
     ///
-    /// This allows changes to the wp_linux_dmabuf_feedback parameters to be
+    /// This allows changes to the zwp_linux_dmabuf_feedback_v1 parameters to be
     /// seen as atomic, even if they happen via multiple events.
     #[inline]
     pub fn try_send_done(
@@ -178,10 +178,10 @@ impl ZwpLinuxDmabufFeedbackV1 {
 
     /// all feedback has been sent
     ///
-    /// This event is sent after all parameters of a wp_linux_dmabuf_feedback
+    /// This event is sent after all parameters of a zwp_linux_dmabuf_feedback_v1
     /// object have been sent.
     ///
-    /// This allows changes to the wp_linux_dmabuf_feedback parameters to be
+    /// This allows changes to the zwp_linux_dmabuf_feedback_v1 parameters to be
     /// seen as atomic, even if they happen via multiple events.
     #[inline]
     pub fn send_done(
@@ -308,14 +308,14 @@ impl ZwpLinuxDmabufFeedbackV1 {
     /// This event advertises the main device that the server prefers to use
     /// when direct scan-out to the target device isn't possible. The
     /// advertised main device may be different for each
-    /// wp_linux_dmabuf_feedback object, and may change over time.
+    /// zwp_linux_dmabuf_feedback_v1 object, and may change over time.
     ///
     /// There is exactly one main device. The compositor must send at least
     /// one preference tranche with tranche_target_device equal to main_device.
     ///
     /// Clients need to create buffers that the main device can import and
     /// read from, otherwise creating the dmabuf wl_buffer will fail (see the
-    /// wp_linux_buffer_params.create and create_immed requests for details).
+    /// zwp_linux_buffer_params_v1.create and create_immed requests for details).
     /// The main device will also likely be kept active by the compositor,
     /// so clients can use it instead of waking up another device for power
     /// savings.
@@ -379,14 +379,14 @@ impl ZwpLinuxDmabufFeedbackV1 {
     /// This event advertises the main device that the server prefers to use
     /// when direct scan-out to the target device isn't possible. The
     /// advertised main device may be different for each
-    /// wp_linux_dmabuf_feedback object, and may change over time.
+    /// zwp_linux_dmabuf_feedback_v1 object, and may change over time.
     ///
     /// There is exactly one main device. The compositor must send at least
     /// one preference tranche with tranche_target_device equal to main_device.
     ///
     /// Clients need to create buffers that the main device can import and
     /// read from, otherwise creating the dmabuf wl_buffer will fail (see the
-    /// wp_linux_buffer_params.create and create_immed requests for details).
+    /// zwp_linux_buffer_params_v1.create and create_immed requests for details).
     /// The main device will also likely be kept active by the compositor,
     /// so clients can use it instead of waking up another device for power
     /// savings.
@@ -421,7 +421,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
 
     /// a preference tranche has been sent
     ///
-    /// This event splits tranche_target_device and tranche_formats events in
+    /// This event splits tranche_target_device and tranche_formats events into
     /// preference tranches. It is sent after a set of tranche_target_device
     /// and tranche_formats events; it represents the end of a tranche. The
     /// next tranche will have a lower preference.
@@ -462,7 +462,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
 
     /// a preference tranche has been sent
     ///
-    /// This event splits tranche_target_device and tranche_formats events in
+    /// This event splits tranche_target_device and tranche_formats events into
     /// preference tranches. It is sent after a set of tranche_target_device
     /// and tranche_formats events; it represents the end of a tranche. The
     /// next tranche will have a lower preference.
@@ -499,7 +499,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
     /// or through a potentially more expensive fallback path. If the buffer
     /// can't be directly imported from the main device then clients must be
     /// prepared for the compositor changing the tranche priority or making
-    /// wl_buffer creation fail (see the wp_linux_buffer_params.create and
+    /// wl_buffer creation fail (see the zwp_linux_buffer_params_v1.create and
     /// create_immed requests for details).
     ///
     /// If the device is a DRM node, the DRM node type (primary vs. render) is
@@ -573,7 +573,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
     /// or through a potentially more expensive fallback path. If the buffer
     /// can't be directly imported from the main device then clients must be
     /// prepared for the compositor changing the tranche priority or making
-    /// wl_buffer creation fail (see the wp_linux_buffer_params.create and
+    /// wl_buffer creation fail (see the zwp_linux_buffer_params_v1.create and
     /// create_immed requests for details).
     ///
     /// If the device is a DRM node, the DRM node type (primary vs. render) is
@@ -602,7 +602,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
     /// Since when the tranche_formats message is available.
     pub const MSG__TRANCHE_FORMATS__SINCE: u32 = 1;
 
-    /// supported buffer format modifier
+    /// supported buffer format modifiers
     ///
     /// This event advertises the format + modifier combinations that the
     /// compositor supports.
@@ -627,7 +627,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
     /// This event is tied to a preference tranche, see the tranche_done event.
     ///
     /// For the definition of the format and modifier codes, see the
-    /// wp_linux_buffer_params.create request.
+    /// zwp_linux_buffer_params_v1.create request.
     ///
     /// # Arguments
     ///
@@ -674,7 +674,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
         Ok(())
     }
 
-    /// supported buffer format modifier
+    /// supported buffer format modifiers
     ///
     /// This event advertises the format + modifier combinations that the
     /// compositor supports.
@@ -699,7 +699,7 @@ impl ZwpLinuxDmabufFeedbackV1 {
     /// This event is tied to a preference tranche, see the tranche_done event.
     ///
     /// For the definition of the format and modifier codes, see the
-    /// wp_linux_buffer_params.create request.
+    /// zwp_linux_buffer_params_v1.create request.
     ///
     /// # Arguments
     ///
@@ -817,7 +817,7 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
     /// destroy the feedback object
     ///
     /// Using this request a client can tell the server that it is not going to
-    /// use the wp_linux_dmabuf_feedback object anymore.
+    /// use the zwp_linux_dmabuf_feedback_v1 object anymore.
     #[inline]
     fn handle_destroy(
         &mut self,
@@ -835,10 +835,10 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
 
     /// all feedback has been sent
     ///
-    /// This event is sent after all parameters of a wp_linux_dmabuf_feedback
+    /// This event is sent after all parameters of a zwp_linux_dmabuf_feedback_v1
     /// object have been sent.
     ///
-    /// This allows changes to the wp_linux_dmabuf_feedback parameters to be
+    /// This allows changes to the zwp_linux_dmabuf_feedback_v1 parameters to be
     /// seen as atomic, even if they happen via multiple events.
     #[inline]
     fn handle_done(
@@ -900,14 +900,14 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
     /// This event advertises the main device that the server prefers to use
     /// when direct scan-out to the target device isn't possible. The
     /// advertised main device may be different for each
-    /// wp_linux_dmabuf_feedback object, and may change over time.
+    /// zwp_linux_dmabuf_feedback_v1 object, and may change over time.
     ///
     /// There is exactly one main device. The compositor must send at least
     /// one preference tranche with tranche_target_device equal to main_device.
     ///
     /// Clients need to create buffers that the main device can import and
     /// read from, otherwise creating the dmabuf wl_buffer will fail (see the
-    /// wp_linux_buffer_params.create and create_immed requests for details).
+    /// zwp_linux_buffer_params_v1.create and create_immed requests for details).
     /// The main device will also likely be kept active by the compositor,
     /// so clients can use it instead of waking up another device for power
     /// savings.
@@ -943,7 +943,7 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
 
     /// a preference tranche has been sent
     ///
-    /// This event splits tranche_target_device and tranche_formats events in
+    /// This event splits tranche_target_device and tranche_formats events into
     /// preference tranches. It is sent after a set of tranche_target_device
     /// and tranche_formats events; it represents the end of a tranche. The
     /// next tranche will have a lower preference.
@@ -981,7 +981,7 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
     /// or through a potentially more expensive fallback path. If the buffer
     /// can't be directly imported from the main device then clients must be
     /// prepared for the compositor changing the tranche priority or making
-    /// wl_buffer creation fail (see the wp_linux_buffer_params.create and
+    /// wl_buffer creation fail (see the zwp_linux_buffer_params_v1.create and
     /// create_immed requests for details).
     ///
     /// If the device is a DRM node, the DRM node type (primary vs. render) is
@@ -1011,7 +1011,7 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
         }
     }
 
-    /// supported buffer format modifier
+    /// supported buffer format modifiers
     ///
     /// This event advertises the format + modifier combinations that the
     /// compositor supports.
@@ -1036,7 +1036,7 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
     /// This event is tied to a preference tranche, see the tranche_done event.
     ///
     /// For the definition of the format and modifier codes, see the
-    /// wp_linux_buffer_params.create request.
+    /// zwp_linux_buffer_params_v1.create request.
     ///
     /// # Arguments
     ///

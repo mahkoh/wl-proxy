@@ -35,7 +35,7 @@
 //! import later fails.
 //!
 //! To create a wl_buffer from one or more dmabufs, a client creates a
-//! zwp_linux_dmabuf_params_v1 object with a zwp_linux_dmabuf_v1.create_params
+//! zwp_linux_buffer_params_v1 object with a zwp_linux_dmabuf_v1.create_params
 //! request. All planes required by the intended format are added with
 //! the 'add' request. Finally, a 'create' or 'create_immed' request is
 //! issued, which has the following outcome depending on the import success.
@@ -180,7 +180,7 @@ impl ZwpLinuxDmabufV1 {
     ///
     /// # Arguments
     ///
-    /// - `params_id`: the new temporary
+    /// - `params_id`: id for the newly created zwp_linux_buffer_params_v1
     #[inline]
     pub fn try_send_create_params(
         &self,
@@ -237,7 +237,7 @@ impl ZwpLinuxDmabufV1 {
     ///
     /// # Arguments
     ///
-    /// - `params_id`: the new temporary
+    /// - `params_id`: id for the newly created zwp_linux_buffer_params_v1
     #[inline]
     pub fn send_create_params(
         &self,
@@ -520,7 +520,7 @@ impl ZwpLinuxDmabufV1 {
 
     /// get default feedback
     ///
-    /// This request creates a new wp_linux_dmabuf_feedback object not bound
+    /// This request creates a new zwp_linux_dmabuf_feedback_v1 object not bound
     /// to a particular surface. This object will deliver feedback about dmabuf
     /// parameters to use if the client doesn't support per-surface feedback
     /// (see get_surface_feedback).
@@ -577,7 +577,7 @@ impl ZwpLinuxDmabufV1 {
 
     /// get default feedback
     ///
-    /// This request creates a new wp_linux_dmabuf_feedback object not bound
+    /// This request creates a new zwp_linux_dmabuf_feedback_v1 object not bound
     /// to a particular surface. This object will deliver feedback about dmabuf
     /// parameters to use if the client doesn't support per-surface feedback
     /// (see get_surface_feedback).
@@ -600,7 +600,7 @@ impl ZwpLinuxDmabufV1 {
 
     /// get default feedback
     ///
-    /// This request creates a new wp_linux_dmabuf_feedback object not bound
+    /// This request creates a new zwp_linux_dmabuf_feedback_v1 object not bound
     /// to a particular surface. This object will deliver feedback about dmabuf
     /// parameters to use if the client doesn't support per-surface feedback
     /// (see get_surface_feedback).
@@ -617,7 +617,7 @@ impl ZwpLinuxDmabufV1 {
 
     /// get default feedback
     ///
-    /// This request creates a new wp_linux_dmabuf_feedback object not bound
+    /// This request creates a new zwp_linux_dmabuf_feedback_v1 object not bound
     /// to a particular surface. This object will deliver feedback about dmabuf
     /// parameters to use if the client doesn't support per-surface feedback
     /// (see get_surface_feedback).
@@ -637,11 +637,11 @@ impl ZwpLinuxDmabufV1 {
 
     /// get feedback for a surface
     ///
-    /// This request creates a new wp_linux_dmabuf_feedback object for the
+    /// This request creates a new zwp_linux_dmabuf_feedback_v1 object for the
     /// specified wl_surface. This object will deliver feedback about dmabuf
     /// parameters to use for buffers attached to this surface.
     ///
-    /// If the surface is destroyed before the wp_linux_dmabuf_feedback object,
+    /// If the surface is destroyed before the zwp_linux_dmabuf_feedback_v1 object,
     /// the feedback object becomes inert.
     ///
     /// # Arguments
@@ -706,11 +706,11 @@ impl ZwpLinuxDmabufV1 {
 
     /// get feedback for a surface
     ///
-    /// This request creates a new wp_linux_dmabuf_feedback object for the
+    /// This request creates a new zwp_linux_dmabuf_feedback_v1 object for the
     /// specified wl_surface. This object will deliver feedback about dmabuf
     /// parameters to use for buffers attached to this surface.
     ///
-    /// If the surface is destroyed before the wp_linux_dmabuf_feedback object,
+    /// If the surface is destroyed before the zwp_linux_dmabuf_feedback_v1 object,
     /// the feedback object becomes inert.
     ///
     /// # Arguments
@@ -734,11 +734,11 @@ impl ZwpLinuxDmabufV1 {
 
     /// get feedback for a surface
     ///
-    /// This request creates a new wp_linux_dmabuf_feedback object for the
+    /// This request creates a new zwp_linux_dmabuf_feedback_v1 object for the
     /// specified wl_surface. This object will deliver feedback about dmabuf
     /// parameters to use for buffers attached to this surface.
     ///
-    /// If the surface is destroyed before the wp_linux_dmabuf_feedback object,
+    /// If the surface is destroyed before the zwp_linux_dmabuf_feedback_v1 object,
     /// the feedback object becomes inert.
     ///
     /// # Arguments
@@ -759,11 +759,11 @@ impl ZwpLinuxDmabufV1 {
 
     /// get feedback for a surface
     ///
-    /// This request creates a new wp_linux_dmabuf_feedback object for the
+    /// This request creates a new zwp_linux_dmabuf_feedback_v1 object for the
     /// specified wl_surface. This object will deliver feedback about dmabuf
     /// parameters to use for buffers attached to this surface.
     ///
-    /// If the surface is destroyed before the wp_linux_dmabuf_feedback object,
+    /// If the surface is destroyed before the zwp_linux_dmabuf_feedback_v1 object,
     /// the feedback object becomes inert.
     ///
     /// # Arguments
@@ -821,7 +821,7 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `params_id`: the new temporary
+    /// - `params_id`: id for the newly created zwp_linux_buffer_params_v1
     #[inline]
     fn handle_create_params(
         &mut self,
@@ -927,7 +927,7 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
 
     /// get default feedback
     ///
-    /// This request creates a new wp_linux_dmabuf_feedback object not bound
+    /// This request creates a new zwp_linux_dmabuf_feedback_v1 object not bound
     /// to a particular surface. This object will deliver feedback about dmabuf
     /// parameters to use if the client doesn't support per-surface feedback
     /// (see get_surface_feedback).
@@ -954,11 +954,11 @@ pub trait ZwpLinuxDmabufV1Handler: Any {
 
     /// get feedback for a surface
     ///
-    /// This request creates a new wp_linux_dmabuf_feedback object for the
+    /// This request creates a new zwp_linux_dmabuf_feedback_v1 object for the
     /// specified wl_surface. This object will deliver feedback about dmabuf
     /// parameters to use for buffers attached to this surface.
     ///
-    /// If the surface is destroyed before the wp_linux_dmabuf_feedback object,
+    /// If the surface is destroyed before the zwp_linux_dmabuf_feedback_v1 object,
     /// the feedback object becomes inert.
     ///
     /// # Arguments
