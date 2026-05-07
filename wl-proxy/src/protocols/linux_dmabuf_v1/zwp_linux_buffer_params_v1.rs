@@ -286,7 +286,7 @@ impl ZwpLinuxBufferParamsV1 {
     /// authoritative source on how the format codes should work.
     ///
     /// The 'flags' is a bitfield of the flags defined in enum "flags".
-    /// 'y_invert' means the that the image needs to be y-flipped.
+    /// 'y_invert' means that the image needs to be y-flipped.
     ///
     /// Flag 'interlaced' means that the frame in the buffer is not
     /// progressive as usual, but interlaced. An interlaced buffer as
@@ -330,7 +330,7 @@ impl ZwpLinuxBufferParamsV1 {
     /// This request can be sent only once in the object's lifetime, after
     /// which the only legal request is destroy. This object should be
     /// destroyed after issuing a 'create' request. Attempting to use this
-    /// object after issuing 'create' raises ALREADY_USED protocol error.
+    /// object after issuing 'create' raises the ALREADY_USED protocol error.
     ///
     /// It is not mandatory to issue 'create'. If a client wants to
     /// cancel the buffer creation, it can just destroy this object.
@@ -408,7 +408,7 @@ impl ZwpLinuxBufferParamsV1 {
     /// authoritative source on how the format codes should work.
     ///
     /// The 'flags' is a bitfield of the flags defined in enum "flags".
-    /// 'y_invert' means the that the image needs to be y-flipped.
+    /// 'y_invert' means that the image needs to be y-flipped.
     ///
     /// Flag 'interlaced' means that the frame in the buffer is not
     /// progressive as usual, but interlaced. An interlaced buffer as
@@ -452,7 +452,7 @@ impl ZwpLinuxBufferParamsV1 {
     /// This request can be sent only once in the object's lifetime, after
     /// which the only legal request is destroy. This object should be
     /// destroyed after issuing a 'create' request. Attempting to use this
-    /// object after issuing 'create' raises ALREADY_USED protocol error.
+    /// object after issuing 'create' raises the ALREADY_USED protocol error.
     ///
     /// It is not mandatory to issue 'create'. If a client wants to
     /// cancel the buffer creation, it can just destroy this object.
@@ -495,7 +495,7 @@ impl ZwpLinuxBufferParamsV1 {
     ///
     /// # Arguments
     ///
-    /// - `buffer`: the newly created wl_buffer
+    /// - `buffer`: id for the the newly created wl_buffer
     #[inline]
     pub fn try_send_created(
         &self,
@@ -553,7 +553,7 @@ impl ZwpLinuxBufferParamsV1 {
     ///
     /// # Arguments
     ///
-    /// - `buffer`: the newly created wl_buffer
+    /// - `buffer`: id for the the newly created wl_buffer
     #[inline]
     pub fn send_created(
         &self,
@@ -1027,7 +1027,7 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
     /// authoritative source on how the format codes should work.
     ///
     /// The 'flags' is a bitfield of the flags defined in enum "flags".
-    /// 'y_invert' means the that the image needs to be y-flipped.
+    /// 'y_invert' means that the image needs to be y-flipped.
     ///
     /// Flag 'interlaced' means that the frame in the buffer is not
     /// progressive as usual, but interlaced. An interlaced buffer as
@@ -1071,7 +1071,7 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
     /// This request can be sent only once in the object's lifetime, after
     /// which the only legal request is destroy. This object should be
     /// destroyed after issuing a 'create' request. Attempting to use this
-    /// object after issuing 'create' raises ALREADY_USED protocol error.
+    /// object after issuing 'create' raises the ALREADY_USED protocol error.
     ///
     /// It is not mandatory to issue 'create'. If a client wants to
     /// cancel the buffer creation, it can just destroy this object.
@@ -1115,7 +1115,7 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
     ///
     /// # Arguments
     ///
-    /// - `buffer`: the newly created wl_buffer
+    /// - `buffer`: id for the the newly created wl_buffer
     #[inline]
     fn handle_created(
         &mut self,
@@ -1513,7 +1513,7 @@ impl ZwpLinuxBufferParamsV1 {
 pub struct ZwpLinuxBufferParamsV1Error(pub u32);
 
 impl ZwpLinuxBufferParamsV1Error {
-    /// the dmabuf_batch object has already been used to create a wl_buffer
+    /// the zwp_linux_buffer_params_v1 object has already been used to create a wl_buffer
     pub const ALREADY_USED: Self = Self(0);
 
     /// plane index out of bounds

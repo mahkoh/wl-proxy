@@ -646,12 +646,12 @@ impl XdgSessionManagerV1Reason {
 
     /// an app recovered
     ///
-    /// A app instance is recovering from for example a compositor or app crash.
+    /// An app instance is recovering from for example a compositor or app crash.
     pub const RECOVER: Self = Self(2);
 
     /// an app restored
     ///
-    /// A app instance is restored, for example part of a restored session, or
+    /// An app instance is restored, for example part of a restored session, or
     /// restored from having been temporarily terminated due to resource
     /// constraints.
     pub const SESSION_RESTORE: Self = Self(3);

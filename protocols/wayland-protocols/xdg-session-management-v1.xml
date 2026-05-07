@@ -126,12 +126,12 @@
       </entry>
       <entry name="recover" value="2">
         <description summary="an app recovered">
-          A app instance is recovering from for example a compositor or app crash.
+          An app instance is recovering from for example a compositor or app crash.
         </description>
       </entry>
       <entry name="session_restore" value="3">
         <description summary="an app restored">
-          A app instance is restored, for example part of a restored session, or
+          An app instance is restored, for example part of a restored session, or
           restored from having been temporarily terminated due to resource
           constraints.
         </description>
