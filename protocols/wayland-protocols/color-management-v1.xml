@@ -75,7 +75,7 @@
     corresponding interface version bump. Backward incompatible changes can
     only be done by creating a new major version of the extension.
   </description>
-  <interface name="wp_color_manager_v1" version="2">
+  <interface name="wp_color_manager_v1" version="3">
     <description summary="color manager singleton">
       A singleton global interface used for getting color management extensions
       for wl_surface and wl_output objects, and for creating client defined
@@ -258,6 +258,35 @@
       <arg name="image_description" type="new_id" interface="wp_image_description_v1"/>
       <arg name="reference" type="object" interface="wp_image_description_reference_v1"/>
     </request>
+    <request name="create_windows_bt2100" since="3">
+      <description summary="create Windows-BT.2100 image description object">
+        This creates a pre-defined image description for the so-called
+        Windows-BT.2100 stimulus encoding. This comes from the Windows 10
+        handling of its own definition of a BT.2100 color space for an HDR
+        screen driven in BT.2100/PQ signalling mode.
+
+        Windows-BT.2100 uses BT.2020 color primaries and white point.
+        The transfer characteristic is st2084_pq.
+
+        Windows-BT.2100 is generally displayed by Windows 10 without any
+        adjustments to the signal to account for viewing conditions.
+
+        The reference white level of Windows-BT.2100 is unknown. If a
+        reference white level must be assumed for compositor processing, it
+        should be 203 cd/m² of Report ITU-R BT.2408-7.
+
+        The target color volume of Windows-BT.2100 is unknown. The color gamut
+        may be anything up to BT.2100.
+
+        This request can be used when the compositor advertises
+        wp_color_manager_v1.feature.windows_bt2100.
+        Otherwise this request raises the protocol error unsupported_feature.
+
+        The resulting image description object does not allow get_information
+        request. The wp_image_description_v1.ready event shall be sent.
+      </description>
+      <arg name="image_description" type="new_id" interface="wp_image_description_v1"/>
+    </request>
     <enum name="error">
       <entry name="unsupported_feature" value="0" summary="request not supported"/>
       <entry name="surface_exists" value="1" summary="color management surface exists already"/>
@@ -310,6 +339,7 @@
         </description>
       </entry>
       <entry name="windows_scrgb" value="7" summary="create_windows_scrgb request"/>
+      <entry name="windows_bt2100" value="8" summary="create_windows_bt2100 request"/>
     </enum>
     <enum name="primaries">
       <description summary="named color primaries">
@@ -536,7 +566,7 @@
       </entry>
     </enum>
   </interface>
-  <interface name="wp_color_management_output_v1" version="2">
+  <interface name="wp_color_management_output_v1" version="3">
     <description summary="output color properties">
       A wp_color_management_output_v1 describes the color properties of an
       output.
@@ -600,7 +630,7 @@
       <arg name="image_description" type="new_id" interface="wp_image_description_v1"/>
     </request>
   </interface>
-  <interface name="wp_color_management_surface_v1" version="2">
+  <interface name="wp_color_management_surface_v1" version="3">
     <description summary="color management extension to a surface">
       A wp_color_management_surface_v1 allows the client to set the color
       space and HDR properties of a surface.
@@ -676,7 +706,7 @@
       <entry name="inert" value="2" summary="forbidden request on inert object"/>
     </enum>
   </interface>
-  <interface name="wp_color_management_surface_feedback_v1" version="2">
+  <interface name="wp_color_management_surface_feedback_v1" version="3">
     <description summary="color management extension to a surface">
       A wp_color_management_surface_feedback_v1 allows the client to get the
       preferred image description of a surface.
@@ -773,7 +803,7 @@
       <entry name="unsupported_feature" value="1" summary="attempted to use an unsupported feature"/>
     </enum>
   </interface>
-  <interface name="wp_image_description_creator_icc_v1" version="2">
+  <interface name="wp_image_description_creator_icc_v1" version="3">
     <description summary="holder of image description ICC information">
       This type of object is used for collecting all the information required
       to create a wp_image_description_v1 object from an ICC file. A complete
@@ -873,7 +903,7 @@
       <entry name="out_of_file" value="4" summary="offset + length exceeds file size"/>
     </enum>
   </interface>
-  <interface name="wp_image_description_creator_params_v1" version="2">
+  <interface name="wp_image_description_creator_params_v1" version="3">
     <description summary="holder of image description parameters">
       This type of object is used for collecting all the parameters required
       to create a wp_image_description_v1 object. A complete set of required
@@ -1212,7 +1242,7 @@
       <entry name="invalid_luminance" value="5" summary="invalid luminance value or range"/>
     </enum>
   </interface>
-  <interface name="wp_image_description_v1" version="2">
+  <interface name="wp_image_description_v1" version="3">
     <description summary="Colorimetric image description">
       An image description carries information about the pixel color encoding
       and its intended display and viewing environment. The image description is
@@ -1331,7 +1361,7 @@
       <entry name="no_output" value="3" summary="the relevant output no longer exists"/>
     </enum>
   </interface>
-  <interface name="wp_image_description_info_v1" version="2">
+  <interface name="wp_image_description_info_v1" version="3">
     <description summary="Colorimetric image description information">
       Sends all matching events describing an image description object exactly
       once and finally sends the 'done' event.

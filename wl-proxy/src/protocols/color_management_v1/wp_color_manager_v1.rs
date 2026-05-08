@@ -24,7 +24,7 @@ struct DefaultHandler;
 impl WpColorManagerV1Handler for DefaultHandler { }
 
 impl ConcreteObject for WpColorManagerV1 {
-    const XML_VERSION: u32 = 2;
+    const XML_VERSION: u32 = 3;
     const INTERFACE: ObjectInterface = ObjectInterface::WpColorManagerV1;
     const INTERFACE_NAME: &str = "wp_color_manager_v1";
 }
@@ -1620,6 +1620,203 @@ impl WpColorManagerV1 {
         );
         image_description
     }
+
+    /// Since when the create_windows_bt2100 message is available.
+    pub const MSG__CREATE_WINDOWS_BT2100__SINCE: u32 = 3;
+
+    /// create Windows-BT.2100 image description object
+    ///
+    /// This creates a pre-defined image description for the so-called
+    /// Windows-BT.2100 stimulus encoding. This comes from the Windows 10
+    /// handling of its own definition of a BT.2100 color space for an HDR
+    /// screen driven in BT.2100/PQ signalling mode.
+    ///
+    /// Windows-BT.2100 uses BT.2020 color primaries and white point.
+    /// The transfer characteristic is st2084_pq.
+    ///
+    /// Windows-BT.2100 is generally displayed by Windows 10 without any
+    /// adjustments to the signal to account for viewing conditions.
+    ///
+    /// The reference white level of Windows-BT.2100 is unknown. If a
+    /// reference white level must be assumed for compositor processing, it
+    /// should be 203 cd/m² of Report ITU-R BT.2408-7.
+    ///
+    /// The target color volume of Windows-BT.2100 is unknown. The color gamut
+    /// may be anything up to BT.2100.
+    ///
+    /// This request can be used when the compositor advertises
+    /// wp_color_manager_v1.feature.windows_bt2100.
+    /// Otherwise this request raises the protocol error unsupported_feature.
+    ///
+    /// The resulting image description object does not allow get_information
+    /// request. The wp_image_description_v1.ready event shall be sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `image_description`:
+    #[inline]
+    pub fn try_send_create_windows_bt2100(
+        &self,
+        image_description: &Rc<WpImageDescriptionV1>,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            image_description,
+        );
+        let arg0_obj = arg0;
+        let arg0 = arg0_obj.core();
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("image_description", e)))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= wp_color_manager_v1#{}.create_windows_bt2100(image_description: wp_image_description_v1#{})\n", id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            8,
+            arg0_id,
+        ]);
+        Ok(())
+    }
+
+    /// create Windows-BT.2100 image description object
+    ///
+    /// This creates a pre-defined image description for the so-called
+    /// Windows-BT.2100 stimulus encoding. This comes from the Windows 10
+    /// handling of its own definition of a BT.2100 color space for an HDR
+    /// screen driven in BT.2100/PQ signalling mode.
+    ///
+    /// Windows-BT.2100 uses BT.2020 color primaries and white point.
+    /// The transfer characteristic is st2084_pq.
+    ///
+    /// Windows-BT.2100 is generally displayed by Windows 10 without any
+    /// adjustments to the signal to account for viewing conditions.
+    ///
+    /// The reference white level of Windows-BT.2100 is unknown. If a
+    /// reference white level must be assumed for compositor processing, it
+    /// should be 203 cd/m² of Report ITU-R BT.2408-7.
+    ///
+    /// The target color volume of Windows-BT.2100 is unknown. The color gamut
+    /// may be anything up to BT.2100.
+    ///
+    /// This request can be used when the compositor advertises
+    /// wp_color_manager_v1.feature.windows_bt2100.
+    /// Otherwise this request raises the protocol error unsupported_feature.
+    ///
+    /// The resulting image description object does not allow get_information
+    /// request. The wp_image_description_v1.ready event shall be sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `image_description`:
+    #[inline]
+    pub fn send_create_windows_bt2100(
+        &self,
+        image_description: &Rc<WpImageDescriptionV1>,
+    ) {
+        let res = self.try_send_create_windows_bt2100(
+            image_description,
+        );
+        if let Err(e) = res {
+            log_send("wp_color_manager_v1.create_windows_bt2100", &e);
+        }
+    }
+
+    /// create Windows-BT.2100 image description object
+    ///
+    /// This creates a pre-defined image description for the so-called
+    /// Windows-BT.2100 stimulus encoding. This comes from the Windows 10
+    /// handling of its own definition of a BT.2100 color space for an HDR
+    /// screen driven in BT.2100/PQ signalling mode.
+    ///
+    /// Windows-BT.2100 uses BT.2020 color primaries and white point.
+    /// The transfer characteristic is st2084_pq.
+    ///
+    /// Windows-BT.2100 is generally displayed by Windows 10 without any
+    /// adjustments to the signal to account for viewing conditions.
+    ///
+    /// The reference white level of Windows-BT.2100 is unknown. If a
+    /// reference white level must be assumed for compositor processing, it
+    /// should be 203 cd/m² of Report ITU-R BT.2408-7.
+    ///
+    /// The target color volume of Windows-BT.2100 is unknown. The color gamut
+    /// may be anything up to BT.2100.
+    ///
+    /// This request can be used when the compositor advertises
+    /// wp_color_manager_v1.feature.windows_bt2100.
+    /// Otherwise this request raises the protocol error unsupported_feature.
+    ///
+    /// The resulting image description object does not allow get_information
+    /// request. The wp_image_description_v1.ready event shall be sent.
+    #[inline]
+    pub fn new_try_send_create_windows_bt2100(
+        &self,
+    ) -> Result<Rc<WpImageDescriptionV1>, ObjectError> {
+        let image_description = self.core.create_child();
+        self.try_send_create_windows_bt2100(
+            &image_description,
+        )?;
+        Ok(image_description)
+    }
+
+    /// create Windows-BT.2100 image description object
+    ///
+    /// This creates a pre-defined image description for the so-called
+    /// Windows-BT.2100 stimulus encoding. This comes from the Windows 10
+    /// handling of its own definition of a BT.2100 color space for an HDR
+    /// screen driven in BT.2100/PQ signalling mode.
+    ///
+    /// Windows-BT.2100 uses BT.2020 color primaries and white point.
+    /// The transfer characteristic is st2084_pq.
+    ///
+    /// Windows-BT.2100 is generally displayed by Windows 10 without any
+    /// adjustments to the signal to account for viewing conditions.
+    ///
+    /// The reference white level of Windows-BT.2100 is unknown. If a
+    /// reference white level must be assumed for compositor processing, it
+    /// should be 203 cd/m² of Report ITU-R BT.2408-7.
+    ///
+    /// The target color volume of Windows-BT.2100 is unknown. The color gamut
+    /// may be anything up to BT.2100.
+    ///
+    /// This request can be used when the compositor advertises
+    /// wp_color_manager_v1.feature.windows_bt2100.
+    /// Otherwise this request raises the protocol error unsupported_feature.
+    ///
+    /// The resulting image description object does not allow get_information
+    /// request. The wp_image_description_v1.ready event shall be sent.
+    #[inline]
+    pub fn new_send_create_windows_bt2100(
+        &self,
+    ) -> Rc<WpImageDescriptionV1> {
+        let image_description = self.core.create_child();
+        self.send_create_windows_bt2100(
+            &image_description,
+        );
+        image_description
+    }
 }
 
 /// A message handler for [`WpColorManagerV1`] proxies.
@@ -2048,6 +2245,53 @@ pub trait WpColorManagerV1Handler: Any {
             log_forward("wp_color_manager_v1.get_image_description", &e);
         }
     }
+
+    /// create Windows-BT.2100 image description object
+    ///
+    /// This creates a pre-defined image description for the so-called
+    /// Windows-BT.2100 stimulus encoding. This comes from the Windows 10
+    /// handling of its own definition of a BT.2100 color space for an HDR
+    /// screen driven in BT.2100/PQ signalling mode.
+    ///
+    /// Windows-BT.2100 uses BT.2020 color primaries and white point.
+    /// The transfer characteristic is st2084_pq.
+    ///
+    /// Windows-BT.2100 is generally displayed by Windows 10 without any
+    /// adjustments to the signal to account for viewing conditions.
+    ///
+    /// The reference white level of Windows-BT.2100 is unknown. If a
+    /// reference white level must be assumed for compositor processing, it
+    /// should be 203 cd/m² of Report ITU-R BT.2408-7.
+    ///
+    /// The target color volume of Windows-BT.2100 is unknown. The color gamut
+    /// may be anything up to BT.2100.
+    ///
+    /// This request can be used when the compositor advertises
+    /// wp_color_manager_v1.feature.windows_bt2100.
+    /// Otherwise this request raises the protocol error unsupported_feature.
+    ///
+    /// The resulting image description object does not allow get_information
+    /// request. The wp_image_description_v1.ready event shall be sent.
+    ///
+    /// # Arguments
+    ///
+    /// - `image_description`:
+    #[inline]
+    fn handle_create_windows_bt2100(
+        &mut self,
+        slf: &Rc<WpColorManagerV1>,
+        image_description: &Rc<WpImageDescriptionV1>,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_create_windows_bt2100(
+            image_description,
+        );
+        if let Err(e) = res {
+            log_forward("wp_color_manager_v1.create_windows_bt2100", &e);
+        }
+    }
 }
 
 impl ObjectPrivate for WpColorManagerV1 {
@@ -2334,6 +2578,34 @@ impl ObjectPrivate for WpColorManagerV1 {
                     DefaultHandler.handle_get_image_description(&self, arg0, arg1);
                 }
             }
+            8 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
+                };
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> wp_color_manager_v1#{}.create_windows_bt2100(image_description: wp_image_description_v1#{})\n", client_id, id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
+                }
+                let arg0_id = arg0;
+                let arg0 = WpImageDescriptionV1::new(&self.core.state, self.core.version);
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg0_id, "image_description", e)))?;
+                let arg0 = &arg0;
+                if let Some(handler) = handler {
+                    (**handler).handle_create_windows_bt2100(&self, arg0);
+                } else {
+                    DefaultHandler.handle_create_windows_bt2100(&self, arg0);
+                }
+            }
             n => {
                 let _ = client;
                 let _ = msg;
@@ -2489,6 +2761,7 @@ impl ObjectPrivate for WpColorManagerV1 {
             5 => "create_parametric_creator",
             6 => "create_windows_scrgb",
             7 => "get_image_description",
+            8 => "create_windows_bt2100",
             _ => return None,
         };
         Some(name)
@@ -2568,6 +2841,8 @@ impl WpColorManagerV1 {
     pub const ENM__FEATURE_EXTENDED_TARGET_VOLUME__SINCE: u32 = 1;
     /// Since when the feature.windows_scrgb enum variant is available.
     pub const ENM__FEATURE_WINDOWS_SCRGB__SINCE: u32 = 1;
+    /// Since when the feature.windows_bt2100 enum variant is available.
+    pub const ENM__FEATURE_WINDOWS_BT2100__SINCE: u32 = 1;
 
     /// Since when the primaries.srgb enum variant is available.
     pub const ENM__PRIMARIES_SRGB__SINCE: u32 = 1;
@@ -2738,6 +3013,9 @@ impl WpColorManagerV1Feature {
 
     /// create_windows_scrgb request
     pub const WINDOWS_SCRGB: Self = Self(7);
+
+    /// create_windows_bt2100 request
+    pub const WINDOWS_BT2100: Self = Self(8);
 }
 
 impl Debug for WpColorManagerV1Feature {
@@ -2751,6 +3029,7 @@ impl Debug for WpColorManagerV1Feature {
             Self::SET_MASTERING_DISPLAY_PRIMARIES => "SET_MASTERING_DISPLAY_PRIMARIES",
             Self::EXTENDED_TARGET_VOLUME => "EXTENDED_TARGET_VOLUME",
             Self::WINDOWS_SCRGB => "WINDOWS_SCRGB",
+            Self::WINDOWS_BT2100 => "WINDOWS_BT2100",
             _ => return Debug::fmt(&self.0, f),
         };
         f.write_str(name)
