@@ -58,7 +58,7 @@ struct DefaultHandler;
 impl WpImageDescriptionCreatorParamsV1Handler for DefaultHandler { }
 
 impl ConcreteObject for WpImageDescriptionCreatorParamsV1 {
-    const XML_VERSION: u32 = 2;
+    const XML_VERSION: u32 = 3;
     const INTERFACE: ObjectInterface = ObjectInterface::WpImageDescriptionCreatorParamsV1;
     const INTERFACE_NAME: &str = "wp_image_description_creator_params_v1";
 }
