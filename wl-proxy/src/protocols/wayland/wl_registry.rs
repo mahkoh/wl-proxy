@@ -80,7 +80,7 @@ impl WlRegistry {
     /// # Arguments
     ///
     /// - `name`: unique numeric name of the object
-    /// - `id`: bounded object
+    /// - `id`: bound object
     #[inline]
     pub fn try_send_bind(
         &self,
@@ -144,7 +144,7 @@ impl WlRegistry {
     /// # Arguments
     ///
     /// - `name`: unique numeric name of the object
-    /// - `id`: bounded object
+    /// - `id`: bound object
     #[inline]
     pub fn send_bind(
         &self,
@@ -368,7 +368,7 @@ pub trait WlRegistryHandler: Any {
     /// # Arguments
     ///
     /// - `name`: unique numeric name of the object
-    /// - `id`: bounded object
+    /// - `id`: bound object
     #[inline]
     fn handle_bind(
         &mut self,
