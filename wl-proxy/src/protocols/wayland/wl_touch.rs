@@ -582,7 +582,7 @@ impl WlTouch {
     /// of the ellipse, while the minor axis length describes the shorter
     /// diameter. Major and minor are orthogonal and both are specified in
     /// surface-local coordinates. The center of the ellipse is always at the
-    /// touchpoint location as reported by wl_touch.down or wl_touch.move.
+    /// touchpoint location as reported by wl_touch.down or wl_touch.motion.
     ///
     /// This event is only sent by the compositor if the touch device supports
     /// shape reports. The client has to make reasonable assumptions about the
@@ -665,7 +665,7 @@ impl WlTouch {
     /// of the ellipse, while the minor axis length describes the shorter
     /// diameter. Major and minor are orthogonal and both are specified in
     /// surface-local coordinates. The center of the ellipse is always at the
-    /// touchpoint location as reported by wl_touch.down or wl_touch.move.
+    /// touchpoint location as reported by wl_touch.down or wl_touch.motion.
     ///
     /// This event is only sent by the compositor if the touch device supports
     /// shape reports. The client has to make reasonable assumptions about the
@@ -1033,7 +1033,7 @@ pub trait WlTouchHandler: Any {
     /// of the ellipse, while the minor axis length describes the shorter
     /// diameter. Major and minor are orthogonal and both are specified in
     /// surface-local coordinates. The center of the ellipse is always at the
-    /// touchpoint location as reported by wl_touch.down or wl_touch.move.
+    /// touchpoint location as reported by wl_touch.down or wl_touch.motion.
     ///
     /// This event is only sent by the compositor if the touch device supports
     /// shape reports. The client has to make reasonable assumptions about the
