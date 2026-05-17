@@ -22,6 +22,8 @@ pub mod jay_tray_v1;
 pub mod drm;
 #[cfg(feature = "protocol-input_method_unstable_v2")]
 pub mod input_method_unstable_v2;
+#[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
+pub mod org_kde_kwin_server_decoration_palette_v1;
 #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
 pub mod org_kde_kwin_server_decoration_v1;
 #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
@@ -280,6 +282,10 @@ mod all_types {
     pub(super) use super::input_method_unstable_v2::zwp_input_method_v2::ZwpInputMethodV2Error;
     #[cfg(feature = "protocol-input_method_unstable_v2")]
     pub(super) use super::input_method_unstable_v2::zwp_input_popup_surface_v2::ZwpInputPopupSurfaceV2;
+    #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
+    pub(super) use super::org_kde_kwin_server_decoration_palette_v1::org_kde_kwin_server_decoration_palette::OrgKdeKwinServerDecorationPalette;
+    #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
+    pub(super) use super::org_kde_kwin_server_decoration_palette_v1::org_kde_kwin_server_decoration_palette_manager::OrgKdeKwinServerDecorationPaletteManager;
     #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
     pub(super) use super::org_kde_kwin_server_decoration_v1::org_kde_kwin_server_decoration::OrgKdeKwinServerDecoration;
     #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
@@ -1308,6 +1314,14 @@ mod all_types {
                 "zwp_input_popup_surface_v2" => {
                     #[cfg(feature = "protocol-input_method_unstable_v2")] { Some(ObjectInterface::ZwpInputPopupSurfaceV2) }
                     #[cfg(not(feature = "protocol-input_method_unstable_v2"))] { None }
+                },
+                "org_kde_kwin_server_decoration_palette" => {
+                    #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")] { Some(ObjectInterface::OrgKdeKwinServerDecorationPalette) }
+                    #[cfg(not(feature = "protocol-org_kde_kwin_server_decoration_palette_v1"))] { None }
+                },
+                "org_kde_kwin_server_decoration_palette_manager" => {
+                    #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")] { Some(ObjectInterface::OrgKdeKwinServerDecorationPaletteManager) }
+                    #[cfg(not(feature = "protocol-org_kde_kwin_server_decoration_palette_v1"))] { None }
                 },
                 "org_kde_kwin_server_decoration" => {
                     #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")] { Some(ObjectInterface::OrgKdeKwinServerDecoration) }
@@ -2421,6 +2435,20 @@ mod all_types {
                         return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpInputPopupSurfaceV2::new(state, version))
+                }
+                #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
+                Self::OrgKdeKwinServerDecorationPalette => {
+                    if version > OrgKdeKwinServerDecorationPalette::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(OrgKdeKwinServerDecorationPalette::new(state, version))
+                }
+                #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
+                Self::OrgKdeKwinServerDecorationPaletteManager => {
+                    if version > OrgKdeKwinServerDecorationPaletteManager::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(OrgKdeKwinServerDecorationPaletteManager::new(state, version))
                 }
                 #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
                 Self::OrgKdeKwinServerDecoration => {
@@ -4243,6 +4271,12 @@ pub enum ObjectInterface {
     /// zwp_input_popup_surface_v2
     #[cfg(feature = "protocol-input_method_unstable_v2")]
     ZwpInputPopupSurfaceV2,
+    /// org_kde_kwin_server_decoration_palette
+    #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
+    OrgKdeKwinServerDecorationPalette,
+    /// org_kde_kwin_server_decoration_palette_manager
+    #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
+    OrgKdeKwinServerDecorationPaletteManager,
     /// org_kde_kwin_server_decoration
     #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
     OrgKdeKwinServerDecoration,
@@ -5029,6 +5063,10 @@ impl ObjectInterface {
             Self::ZwpInputMethodV2 => "zwp_input_method_v2",
             #[cfg(feature = "protocol-input_method_unstable_v2")]
             Self::ZwpInputPopupSurfaceV2 => "zwp_input_popup_surface_v2",
+            #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
+            Self::OrgKdeKwinServerDecorationPalette => "org_kde_kwin_server_decoration_palette",
+            #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
+            Self::OrgKdeKwinServerDecorationPaletteManager => "org_kde_kwin_server_decoration_palette_manager",
             #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
             Self::OrgKdeKwinServerDecoration => "org_kde_kwin_server_decoration",
             #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
@@ -5563,6 +5601,10 @@ impl ObjectInterface {
             Self::ZwpInputMethodV2 => 1,
             #[cfg(feature = "protocol-input_method_unstable_v2")]
             Self::ZwpInputPopupSurfaceV2 => 1,
+            #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
+            Self::OrgKdeKwinServerDecorationPalette => 1,
+            #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
+            Self::OrgKdeKwinServerDecorationPaletteManager => 1,
             #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
             Self::OrgKdeKwinServerDecoration => 1,
             #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
