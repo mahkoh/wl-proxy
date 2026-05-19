@@ -520,7 +520,7 @@ impl RiverXkbBindingV1 {
     /// the window manager has been repeating some action since the pressed
     /// event.
     ///
-    /// This event is generally sent when some other (possible unbound) key is
+    /// This event is generally sent when some other (possibly unbound) key is
     /// pressed after the pressed event is sent and before the released event
     /// is sent for this binding.
     ///
@@ -567,7 +567,7 @@ impl RiverXkbBindingV1 {
     /// the window manager has been repeating some action since the pressed
     /// event.
     ///
-    /// This event is generally sent when some other (possible unbound) key is
+    /// This event is generally sent when some other (possibly unbound) key is
     /// pressed after the pressed event is sent and before the released event
     /// is sent for this binding.
     ///
@@ -763,7 +763,7 @@ pub trait RiverXkbBindingV1Handler: Any {
     /// the window manager has been repeating some action since the pressed
     /// event.
     ///
-    /// This event is generally sent when some other (possible unbound) key is
+    /// This event is generally sent when some other (possibly unbound) key is
     /// pressed after the pressed event is sent and before the released event
     /// is sent for this binding.
     ///
