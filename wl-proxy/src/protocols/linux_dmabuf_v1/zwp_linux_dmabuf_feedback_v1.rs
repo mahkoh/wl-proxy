@@ -21,10 +21,13 @@
 //! descending order of preference. All formats and modifiers in the same
 //! tranche have the same preference.
 //!
-//! To send parameters, the compositor sends one main_device event, tranches
-//! (each consisting of one tranche_target_device event, one tranche_flags
-//! event, tranche_formats events and then a tranche_done event), then one
-//! done event.
+//! To send parameters, the compositor sends one main_device event (unless
+//! the client bound version 6 or above), tranches (each consisting of one
+//! tranche_target_device event, one tranche_flags event, tranche_formats
+//! events and then a tranche_done event), then one done event.
+//!
+//! With version 6 and above, the compositor must always advertise at least
+//! one tranche with the sampling flag set.
 
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
@@ -42,7 +45,7 @@ struct DefaultHandler;
 impl ZwpLinuxDmabufFeedbackV1Handler for DefaultHandler { }
 
 impl ConcreteObject for ZwpLinuxDmabufFeedbackV1 {
-    const XML_VERSION: u32 = 5;
+    const XML_VERSION: u32 = 6;
     const INTERFACE: ObjectInterface = ObjectInterface::ZwpLinuxDmabufFeedbackV1;
     const INTERFACE_NAME: &str = "zwp_linux_dmabuf_feedback_v1";
 }
@@ -303,6 +306,9 @@ impl ZwpLinuxDmabufFeedbackV1 {
     /// Since when the main_device message is available.
     pub const MSG__MAIN_DEVICE__SINCE: u32 = 1;
 
+    /// Since when the main_device message is deprecated.
+    pub const MSG__MAIN_DEVICE__DEPRECATED_SINCE: u32 = 6;
+
     /// preferred main device
     ///
     /// This event advertises the main device that the server prefers to use
@@ -328,6 +334,9 @@ impl ZwpLinuxDmabufFeedbackV1 {
     /// If explicit modifiers are not supported and the client performs buffer
     /// allocations on a different device than the main device, then the client
     /// must force the buffer to have a linear layout.
+    ///
+    /// With version 6 and above, this event is no longer sent. Clients should
+    /// use a device with the sampling flag in the tranches instead.
     ///
     /// # Arguments
     ///
@@ -399,6 +408,9 @@ impl ZwpLinuxDmabufFeedbackV1 {
     /// If explicit modifiers are not supported and the client performs buffer
     /// allocations on a different device than the main device, then the client
     /// must force the buffer to have a linear layout.
+    ///
+    /// With version 6 and above, this event is no longer sent. Clients should
+    /// use a device with the sampling flag in the tranches instead.
     ///
     /// # Arguments
     ///
@@ -495,9 +507,9 @@ impl ZwpLinuxDmabufFeedbackV1 {
     ///
     /// The client can use this hint to allocate the buffer in a way that makes
     /// it accessible from the target device, ideally directly. The buffer must
-    /// still be accessible from the main device, either through direct import
-    /// or through a potentially more expensive fallback path. If the buffer
-    /// can't be directly imported from the main device then clients must be
+    /// still be accessible from a device with the sampling flag, either through
+    /// direct import or a potentially more expensive fallback path. If the
+    /// buffer can't be directly imported for sampling, then clients must be
     /// prepared for the compositor changing the tranche priority or making
     /// wl_buffer creation fail (see the zwp_linux_buffer_params_v1.create and
     /// create_immed requests for details).
@@ -569,9 +581,9 @@ impl ZwpLinuxDmabufFeedbackV1 {
     ///
     /// The client can use this hint to allocate the buffer in a way that makes
     /// it accessible from the target device, ideally directly. The buffer must
-    /// still be accessible from the main device, either through direct import
-    /// or through a potentially more expensive fallback path. If the buffer
-    /// can't be directly imported from the main device then clients must be
+    /// still be accessible from a device with the sampling flag, either through
+    /// direct import or a potentially more expensive fallback path. If the
+    /// buffer can't be directly imported for sampling, then clients must be
     /// prepared for the compositor changing the tranche priority or making
     /// wl_buffer creation fail (see the zwp_linux_buffer_params_v1.create and
     /// create_immed requests for details).
@@ -722,14 +734,10 @@ impl ZwpLinuxDmabufFeedbackV1 {
 
     /// tranche flags
     ///
-    /// This event sets tranche-specific flags.
-    ///
-    /// The scanout flag is a hint that direct scan-out may be attempted by the
-    /// compositor on the target device if the client appropriately allocates a
-    /// buffer. How to allocate a buffer that can be scanned out on the target
-    /// device is implementation-defined.
-    ///
-    /// This event is tied to a preference tranche, see the tranche_done event.
+    /// This event sets tranche-specific flags. This event is tied to a
+    /// preference tranche, see the tranche_done event.
+    /// With version 6 and above, the compositor must set at least one flag
+    /// in each tranche.
     ///
     /// # Arguments
     ///
@@ -778,14 +786,10 @@ impl ZwpLinuxDmabufFeedbackV1 {
 
     /// tranche flags
     ///
-    /// This event sets tranche-specific flags.
-    ///
-    /// The scanout flag is a hint that direct scan-out may be attempted by the
-    /// compositor on the target device if the client appropriately allocates a
-    /// buffer. How to allocate a buffer that can be scanned out on the target
-    /// device is implementation-defined.
-    ///
-    /// This event is tied to a preference tranche, see the tranche_done event.
+    /// This event sets tranche-specific flags. This event is tied to a
+    /// preference tranche, see the tranche_done event.
+    /// With version 6 and above, the compositor must set at least one flag
+    /// in each tranche.
     ///
     /// # Arguments
     ///
@@ -921,6 +925,9 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
     /// allocations on a different device than the main device, then the client
     /// must force the buffer to have a linear layout.
     ///
+    /// With version 6 and above, this event is no longer sent. Clients should
+    /// use a device with the sampling flag in the tranches instead.
+    ///
     /// # Arguments
     ///
     /// - `device`: device dev_t value
@@ -977,9 +984,9 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
     ///
     /// The client can use this hint to allocate the buffer in a way that makes
     /// it accessible from the target device, ideally directly. The buffer must
-    /// still be accessible from the main device, either through direct import
-    /// or through a potentially more expensive fallback path. If the buffer
-    /// can't be directly imported from the main device then clients must be
+    /// still be accessible from a device with the sampling flag, either through
+    /// direct import or a potentially more expensive fallback path. If the
+    /// buffer can't be directly imported for sampling, then clients must be
     /// prepared for the compositor changing the tranche priority or making
     /// wl_buffer creation fail (see the zwp_linux_buffer_params_v1.create and
     /// create_immed requests for details).
@@ -1060,14 +1067,10 @@ pub trait ZwpLinuxDmabufFeedbackV1Handler: Any {
 
     /// tranche flags
     ///
-    /// This event sets tranche-specific flags.
-    ///
-    /// The scanout flag is a hint that direct scan-out may be attempted by the
-    /// compositor on the target device if the client appropriately allocates a
-    /// buffer. How to allocate a buffer that can be scanned out on the target
-    /// device is implementation-defined.
-    ///
-    /// This event is tied to a preference tranche, see the tranche_done event.
+    /// This event sets tranche-specific flags. This event is tied to a
+    /// preference tranche, see the tranche_done event.
+    /// With version 6 and above, the compositor must set at least one flag
+    /// in each tranche.
     ///
     /// # Arguments
     ///
@@ -1382,7 +1385,9 @@ impl Object for ZwpLinuxDmabufFeedbackV1 {
 
 impl ZwpLinuxDmabufFeedbackV1 {
     /// Since when the tranche_flags.scanout enum variant is available.
-    pub const ENM__TRANCHE_FLAGS_SCANOUT__SINCE: u32 = 1;
+    pub const ENM__TRANCHE_FLAGS_SCANOUT__SINCE: u32 = 4;
+    /// Since when the tranche_flags.sampling enum variant is available.
+    pub const ENM__TRANCHE_FLAGS_SAMPLING__SINCE: u32 = 6;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -1397,7 +1402,20 @@ pub struct ZwpLinuxDmabufFeedbackV1TrancheFlagsIter(pub u32);
 
 impl ZwpLinuxDmabufFeedbackV1TrancheFlags {
     /// direct scan-out tranche
+    ///
+    /// The scanout flag is a hint that direct scan-out may be attempted by
+    /// the compositor on the target device if the client appropriately
+    /// allocates a buffer. How to allocate a buffer that can be scanned out
+    /// on the target device is implementation-defined.
     pub const SCANOUT: Self = Self(1);
+
+    /// sampling tranche
+    ///
+    /// The sampling flag describes that the compositor is able to efficiently
+    /// sample from buffers imported to the target device if the client
+    /// appropriately allocates a buffer. How to allocate a buffer that can be
+    /// efficiently sampled on the target device is implementation defined.
+    pub const SAMPLING: Self = Self(2);
 }
 
 impl ZwpLinuxDmabufFeedbackV1TrancheFlags {
@@ -1481,7 +1499,7 @@ impl ZwpLinuxDmabufFeedbackV1TrancheFlags {
     #[inline]
     pub const fn all_known() -> Self {
         #[allow(clippy::eq_op, clippy::identity_op)]
-        Self(0 | 1)
+        Self(0 | 1 | 2)
     }
 }
 
@@ -1583,6 +1601,15 @@ impl Debug for ZwpLinuxDmabufFeedbackV1TrancheFlags {
                 f.write_str(" | ")?;
             }
             f.write_str("SCANOUT")?;
+        }
+        if v & 2 == 2 {
+            v &= !2;
+            if first {
+                first = false;
+            } else {
+                f.write_str(" | ")?;
+            }
+            f.write_str("SAMPLING")?;
         }
         if v != 0 {
             if first {

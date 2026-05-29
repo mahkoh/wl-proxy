@@ -33,7 +33,7 @@ struct DefaultHandler;
 impl ZwpLinuxBufferParamsV1Handler for DefaultHandler { }
 
 impl ConcreteObject for ZwpLinuxBufferParamsV1 {
-    const XML_VERSION: u32 = 5;
+    const XML_VERSION: u32 = 6;
     const INTERFACE: ObjectInterface = ObjectInterface::ZwpLinuxBufferParamsV1;
     const INTERFACE_NAME: &str = "zwp_linux_buffer_params_v1";
 }
@@ -926,6 +926,102 @@ impl ZwpLinuxBufferParamsV1 {
         );
         buffer_id
     }
+
+    /// Since when the set_sampling_device message is available.
+    pub const MSG__SET_SAMPLING_DEVICE__SINCE: u32 = 6;
+
+    /// set the target device of the wl_buffer
+    ///
+    /// Set the device the compositor should import the dmabufs to for sampling
+    /// in the next create or create_immed request.
+    ///
+    /// To avoid race conditions when the compositor removes a device from the
+    /// tranches, it is not a protocol error if the device hasn't been advertised
+    /// by the compositor in a tranche with the sampling flag, but the import is
+    /// likely to fail in that case.
+    ///
+    /// If the client doesn't know a suitable target device, it shouldn't set one,
+    /// and the compositor should attempt import on all devices it supports.
+    ///
+    /// If the array is too small to contain a dev_t or larger than required, the
+    /// invalid_dev_t_size error will be emitted.
+    ///
+    /// # Arguments
+    ///
+    /// - `device`: device dev_t value
+    #[inline]
+    pub fn try_send_set_sampling_device(
+        &self,
+        device: &[u8],
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            device,
+        );
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: &[u8]) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= zwp_linux_buffer_params_v1#{}.set_sampling_device(device: {})\n", id, debug_array(arg0));
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            4,
+        ]);
+        fmt.array(arg0);
+        Ok(())
+    }
+
+    /// set the target device of the wl_buffer
+    ///
+    /// Set the device the compositor should import the dmabufs to for sampling
+    /// in the next create or create_immed request.
+    ///
+    /// To avoid race conditions when the compositor removes a device from the
+    /// tranches, it is not a protocol error if the device hasn't been advertised
+    /// by the compositor in a tranche with the sampling flag, but the import is
+    /// likely to fail in that case.
+    ///
+    /// If the client doesn't know a suitable target device, it shouldn't set one,
+    /// and the compositor should attempt import on all devices it supports.
+    ///
+    /// If the array is too small to contain a dev_t or larger than required, the
+    /// invalid_dev_t_size error will be emitted.
+    ///
+    /// # Arguments
+    ///
+    /// - `device`: device dev_t value
+    #[inline]
+    pub fn send_set_sampling_device(
+        &self,
+        device: &[u8],
+    ) {
+        let res = self.try_send_set_sampling_device(
+            device,
+        );
+        if let Err(e) = res {
+            log_send("zwp_linux_buffer_params_v1.set_sampling_device", &e);
+        }
+    }
 }
 
 /// A message handler for [`ZwpLinuxBufferParamsV1`] proxies.
@@ -1214,6 +1310,42 @@ pub trait ZwpLinuxBufferParamsV1Handler: Any {
             log_forward("zwp_linux_buffer_params_v1.create_immed", &e);
         }
     }
+
+    /// set the target device of the wl_buffer
+    ///
+    /// Set the device the compositor should import the dmabufs to for sampling
+    /// in the next create or create_immed request.
+    ///
+    /// To avoid race conditions when the compositor removes a device from the
+    /// tranches, it is not a protocol error if the device hasn't been advertised
+    /// by the compositor in a tranche with the sampling flag, but the import is
+    /// likely to fail in that case.
+    ///
+    /// If the client doesn't know a suitable target device, it shouldn't set one,
+    /// and the compositor should attempt import on all devices it supports.
+    ///
+    /// If the array is too small to contain a dev_t or larger than required, the
+    /// invalid_dev_t_size error will be emitted.
+    ///
+    /// # Arguments
+    ///
+    /// - `device`: device dev_t value
+    #[inline]
+    fn handle_set_sampling_device(
+        &mut self,
+        slf: &Rc<ZwpLinuxBufferParamsV1>,
+        device: &[u8],
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_set_sampling_device(
+            device,
+        );
+        if let Err(e) = res {
+            log_forward("zwp_linux_buffer_params_v1.set_sampling_device", &e);
+        }
+    }
 }
 
 impl ObjectPrivate for ZwpLinuxBufferParamsV1 {
@@ -1359,6 +1491,30 @@ impl ObjectPrivate for ZwpLinuxBufferParamsV1 {
                     DefaultHandler.handle_create_immed(&self, arg0, arg1, arg2, arg3, arg4);
                 }
             }
+            4 => {
+                let mut offset = 2;
+                let arg0;
+                (arg0, offset) = parse_array(msg, offset, "device")?;
+                if offset != msg.len() {
+                    return Err(ObjectError(ObjectErrorKind::TrailingBytes));
+                }
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: &[u8]) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> zwp_linux_buffer_params_v1#{}.set_sampling_device(device: {})\n", client_id, id, debug_array(arg0));
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_set_sampling_device(&self, arg0);
+                } else {
+                    DefaultHandler.handle_set_sampling_device(&self, arg0);
+                }
+            }
             n => {
                 let _ = client;
                 let _ = msg;
@@ -1442,6 +1598,7 @@ impl ObjectPrivate for ZwpLinuxBufferParamsV1 {
             1 => "add",
             2 => "create",
             3 => "create_immed",
+            4 => "set_sampling_device",
             _ => return None,
         };
         Some(name)
@@ -1500,6 +1657,8 @@ impl ZwpLinuxBufferParamsV1 {
     pub const ENM__ERROR_OUT_OF_BOUNDS__SINCE: u32 = 1;
     /// Since when the error.invalid_wl_buffer enum variant is available.
     pub const ENM__ERROR_INVALID_WL_BUFFER__SINCE: u32 = 1;
+    /// Since when the error.invalid_dev_t_size enum variant is available.
+    pub const ENM__ERROR_INVALID_DEV_T_SIZE__SINCE: u32 = 1;
 
     /// Since when the flags.y_invert enum variant is available.
     pub const ENM__FLAGS_Y_INVERT__SINCE: u32 = 1;
@@ -1537,6 +1696,9 @@ impl ZwpLinuxBufferParamsV1Error {
     /// invalid wl_buffer resulted from importing dmabufs via
     ///                the create_immed request on given buffer_params
     pub const INVALID_WL_BUFFER: Self = Self(7);
+
+    /// an array with mismatching size for a dev_t was used
+    pub const INVALID_DEV_T_SIZE: Self = Self(8);
 }
 
 impl Debug for ZwpLinuxBufferParamsV1Error {
@@ -1550,6 +1712,7 @@ impl Debug for ZwpLinuxBufferParamsV1Error {
             Self::INVALID_DIMENSIONS => "INVALID_DIMENSIONS",
             Self::OUT_OF_BOUNDS => "OUT_OF_BOUNDS",
             Self::INVALID_WL_BUFFER => "INVALID_WL_BUFFER",
+            Self::INVALID_DEV_T_SIZE => "INVALID_DEV_T_SIZE",
             _ => return Debug::fmt(&self.0, f),
         };
         f.write_str(name)

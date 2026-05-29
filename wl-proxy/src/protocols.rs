@@ -5765,11 +5765,11 @@ impl ObjectInterface {
             #[cfg(feature = "protocol-keyboard_shortcuts_inhibit_unstable_v1")]
             Self::ZwpKeyboardShortcutsInhibitorV1 => 1,
             #[cfg(feature = "protocol-linux_dmabuf_v1")]
-            Self::ZwpLinuxBufferParamsV1 => 5,
+            Self::ZwpLinuxBufferParamsV1 => 6,
             #[cfg(feature = "protocol-linux_dmabuf_v1")]
-            Self::ZwpLinuxDmabufFeedbackV1 => 5,
+            Self::ZwpLinuxDmabufFeedbackV1 => 6,
             #[cfg(feature = "protocol-linux_dmabuf_v1")]
-            Self::ZwpLinuxDmabufV1 => 5,
+            Self::ZwpLinuxDmabufV1 => 6,
             #[cfg(feature = "protocol-linux_drm_syncobj_v1")]
             Self::WpLinuxDrmSyncobjManagerV1 => 1,
             #[cfg(feature = "protocol-linux_drm_syncobj_v1")]
