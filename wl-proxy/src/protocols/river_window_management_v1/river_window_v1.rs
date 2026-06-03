@@ -24,7 +24,7 @@ struct DefaultHandler;
 impl RiverWindowV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverWindowV1 {
-    const XML_VERSION: u32 = 4;
+    const XML_VERSION: u32 = 5;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverWindowV1;
     const INTERFACE_NAME: &str = "river_window_v1";
 }
@@ -4027,6 +4027,92 @@ impl RiverWindowV1 {
             log_send("river_window_v1.set_dimension_bounds", &e);
         }
     }
+
+    /// Since when the capture_sessions message is available.
+    pub const MSG__CAPTURE_SESSIONS__SINCE: u32 = 5;
+
+    /// window screen capture sessions
+    ///
+    /// This event informs the window manager of the number of active screen
+    /// capture sessions for the window.
+    ///
+    /// This event is sent once when the river_window_v1 is created and again
+    /// whenever the number of capture sessions changes.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `count`: count of screen capture sessions
+    #[inline]
+    pub fn try_send_capture_sessions(
+        &self,
+        count: u32,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+        ) = (
+            count,
+        );
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= river_window_v1#{}.capture_sessions(count: {})\n", client_id, id, arg0);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            18,
+            arg0,
+        ]);
+        Ok(())
+    }
+
+    /// window screen capture sessions
+    ///
+    /// This event informs the window manager of the number of active screen
+    /// capture sessions for the window.
+    ///
+    /// This event is sent once when the river_window_v1 is created and again
+    /// whenever the number of capture sessions changes.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `count`: count of screen capture sessions
+    #[inline]
+    pub fn send_capture_sessions(
+        &self,
+        count: u32,
+    ) {
+        let res = self.try_send_capture_sessions(
+            count,
+        );
+        if let Err(e) = res {
+            log_send("river_window_v1.capture_sessions", &e);
+        }
+    }
 }
 
 /// A message handler for [`RiverWindowV1`] proxies.
@@ -5499,6 +5585,37 @@ pub trait RiverWindowV1Handler: Any {
             log_forward("river_window_v1.set_dimension_bounds", &e);
         }
     }
+
+    /// window screen capture sessions
+    ///
+    /// This event informs the window manager of the number of active screen
+    /// capture sessions for the window.
+    ///
+    /// This event is sent once when the river_window_v1 is created and again
+    /// whenever the number of capture sessions changes.
+    ///
+    /// This event will be followed by a manage_start event after all other new
+    /// state has been sent by the server.
+    ///
+    /// # Arguments
+    ///
+    /// - `count`: count of screen capture sessions
+    #[inline]
+    fn handle_capture_sessions(
+        &mut self,
+        slf: &Rc<RiverWindowV1>,
+        count: u32,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        let res = slf.try_send_capture_sessions(
+            count,
+        );
+        if let Err(e) = res {
+            log_forward("river_window_v1.capture_sessions", &e);
+        }
+    }
 }
 
 impl ObjectPrivate for RiverWindowV1 {
@@ -6615,6 +6732,29 @@ impl ObjectPrivate for RiverWindowV1 {
                     DefaultHandler.handle_identifier(&self, arg0);
                 }
             }
+            18 => {
+                let [
+                    arg0,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 12)));
+                };
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> river_window_v1#{}.capture_sessions(count: {})\n", id, arg0);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_capture_sessions(&self, arg0);
+                } else {
+                    DefaultHandler.handle_capture_sessions(&self, arg0);
+                }
+            }
             n => {
                 let _ = server;
                 let _ = msg;
@@ -6677,6 +6817,7 @@ impl ObjectPrivate for RiverWindowV1 {
             15 => "unreliable_pid",
             16 => "presentation_hint",
             17 => "identifier",
+            18 => "capture_sessions",
             _ => return None,
         };
         Some(name)

@@ -34,7 +34,7 @@ struct DefaultHandler;
 impl RiverSeatV1Handler for DefaultHandler { }
 
 impl ConcreteObject for RiverSeatV1 {
-    const XML_VERSION: u32 = 4;
+    const XML_VERSION: u32 = 5;
     const INTERFACE: ObjectInterface = ObjectInterface::RiverSeatV1;
     const INTERFACE_NAME: &str = "river_seat_v1";
 }
