@@ -19,6 +19,8 @@ wl-proxy:
   layer-shell applications.
 - [window-to-tray](apps/window-to-tray): Can be used to run arbitrary
   applications as tray applications.
+- [log-dmabuf-feedback](apps/log-dmabuf-feedback): Can be used to log dma-buf
+  feedback sent to applications.
 
 ## License
 
