@@ -9,4 +9,5 @@ members = [
     "apps/window-to-tray",
     "apps/wl-format-filter",
     "apps/wl-cm-filter",
+    "apps/log-dmabuf-feedback",
 ]
