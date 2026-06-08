@@ -25,7 +25,7 @@ struct DefaultHandler;
 impl WlTouchHandler for DefaultHandler { }
 
 impl ConcreteObject for WlTouch {
-    const XML_VERSION: u32 = 10;
+    const XML_VERSION: u32 = 11;
     const INTERFACE: ObjectInterface = ObjectInterface::WlTouch;
     const INTERFACE_NAME: &str = "wl_touch";
 }

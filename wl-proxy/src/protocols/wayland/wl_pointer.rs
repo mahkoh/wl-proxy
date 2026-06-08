@@ -25,7 +25,7 @@ struct DefaultHandler;
 impl WlPointerHandler for DefaultHandler { }
 
 impl ConcreteObject for WlPointer {
-    const XML_VERSION: u32 = 10;
+    const XML_VERSION: u32 = 11;
     const INTERFACE: ObjectInterface = ObjectInterface::WlPointer;
     const INTERFACE_NAME: &str = "wl_pointer";
 }
@@ -527,7 +527,7 @@ impl WlPointer {
     ///
     /// Mouse button click and release notifications.
     ///
-    /// The location of the click is given by the last motion or
+    /// The location of the click is given by the last motion, warp or
     /// enter event.
     /// The time argument is a timestamp with millisecond
     /// granularity, with an undefined base.
@@ -604,7 +604,7 @@ impl WlPointer {
     ///
     /// Mouse button click and release notifications.
     ///
-    /// The location of the click is given by the last motion or
+    /// The location of the click is given by the last motion, warp or
     /// enter event.
     /// The time argument is a timestamp with millisecond
     /// granularity, with an undefined base.
@@ -1579,6 +1579,110 @@ impl WlPointer {
             log_send("wl_pointer.axis_relative_direction", &e);
         }
     }
+
+    /// Since when the warp message is available.
+    pub const MSG__WARP__SINCE: u32 = 11;
+
+    /// pointer warp event
+    ///
+    /// Notification of pointer location change within a surface.
+    ///
+    /// This location change is not due to events on the input device,
+    /// but because either the surface under the pointer was moved and
+    /// thus the relative position of the pointer changed, or because
+    /// the compositor changed the pointer position in response to an
+    /// event like pointer confinement being exited.
+    ///
+    /// The arguments surface_x and surface_y are the location relative to
+    /// the focused surface.
+    ///
+    /// This event must not occur in the same wl_pointer.frame as a
+    /// wl_pointer.enter or wl_pointer.motion event.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface_x`: surface-local x coordinate
+    /// - `surface_y`: surface-local y coordinate
+    #[inline]
+    pub fn try_send_warp(
+        &self,
+        surface_x: Fixed,
+        surface_y: Fixed,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            surface_x,
+            surface_y,
+        );
+        let core = self.core();
+        let client_ref = core.client.borrow();
+        let Some(client) = &*client_ref else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoClient));
+        };
+        let id = core.client_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, client_id: u64, id: u32, arg0: Fixed, arg1: Fixed) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} <= wl_pointer#{}.warp(surface_x: {}, surface_y: {})\n", client_id, id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, client.endpoint.id, id, arg0, arg1);
+        }
+        let endpoint = &client.endpoint;
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, Some(client));
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            11,
+            arg0.to_wire() as u32,
+            arg1.to_wire() as u32,
+        ]);
+        Ok(())
+    }
+
+    /// pointer warp event
+    ///
+    /// Notification of pointer location change within a surface.
+    ///
+    /// This location change is not due to events on the input device,
+    /// but because either the surface under the pointer was moved and
+    /// thus the relative position of the pointer changed, or because
+    /// the compositor changed the pointer position in response to an
+    /// event like pointer confinement being exited.
+    ///
+    /// The arguments surface_x and surface_y are the location relative to
+    /// the focused surface.
+    ///
+    /// This event must not occur in the same wl_pointer.frame as a
+    /// wl_pointer.enter or wl_pointer.motion event.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface_x`: surface-local x coordinate
+    /// - `surface_y`: surface-local y coordinate
+    #[inline]
+    pub fn send_warp(
+        &self,
+        surface_x: Fixed,
+        surface_y: Fixed,
+    ) {
+        let res = self.try_send_warp(
+            surface_x,
+            surface_y,
+        );
+        if let Err(e) = res {
+            log_send("wl_pointer.warp", &e);
+        }
+    }
 }
 
 /// A message handler for [`WlPointer`] proxies.
@@ -1784,7 +1888,7 @@ pub trait WlPointerHandler: Any {
     ///
     /// Mouse button click and release notifications.
     ///
-    /// The location of the click is given by the last motion or
+    /// The location of the click is given by the last motion, warp or
     /// enter event.
     /// The time argument is a timestamp with millisecond
     /// granularity, with an undefined base.
@@ -2195,6 +2299,45 @@ pub trait WlPointerHandler: Any {
             log_forward("wl_pointer.axis_relative_direction", &e);
         }
     }
+
+    /// pointer warp event
+    ///
+    /// Notification of pointer location change within a surface.
+    ///
+    /// This location change is not due to events on the input device,
+    /// but because either the surface under the pointer was moved and
+    /// thus the relative position of the pointer changed, or because
+    /// the compositor changed the pointer position in response to an
+    /// event like pointer confinement being exited.
+    ///
+    /// The arguments surface_x and surface_y are the location relative to
+    /// the focused surface.
+    ///
+    /// This event must not occur in the same wl_pointer.frame as a
+    /// wl_pointer.enter or wl_pointer.motion event.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface_x`: surface-local x coordinate
+    /// - `surface_y`: surface-local y coordinate
+    #[inline]
+    fn handle_warp(
+        &mut self,
+        slf: &Rc<WlPointer>,
+        surface_x: Fixed,
+        surface_y: Fixed,
+    ) {
+        if !slf.core.forward_to_client.get() {
+            return;
+        }
+        let res = slf.try_send_warp(
+            surface_x,
+            surface_y,
+        );
+        if let Err(e) = res {
+            log_forward("wl_pointer.warp", &e);
+        }
+    }
 }
 
 impl ObjectPrivate for WlPointer {
@@ -2603,6 +2746,32 @@ impl ObjectPrivate for WlPointer {
                     DefaultHandler.handle_axis_relative_direction(&self, arg0, arg1);
                 }
             }
+            11 => {
+                let [
+                    arg0,
+                    arg1,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 16)));
+                };
+                let arg0 = Fixed::from_wire(arg0 as i32);
+                let arg1 = Fixed::from_wire(arg1 as i32);
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, id: u32, arg0: Fixed, arg1: Fixed) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      -> wl_pointer#{}.warp(surface_x: {}, surface_y: {})\n", id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, msg[0], arg0, arg1);
+                }
+                if let Some(handler) = handler {
+                    (**handler).handle_warp(&self, arg0, arg1);
+                } else {
+                    DefaultHandler.handle_warp(&self, arg0, arg1);
+                }
+            }
             n => {
                 let _ = server;
                 let _ = msg;
@@ -2636,6 +2805,7 @@ impl ObjectPrivate for WlPointer {
             8 => "axis_discrete",
             9 => "axis_value120",
             10 => "axis_relative_direction",
+            11 => "warp",
             _ => return None,
         };
         Some(name)
