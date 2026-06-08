@@ -29,7 +29,7 @@ struct DefaultHandler;
 impl WlKeyboardHandler for DefaultHandler { }
 
 impl ConcreteObject for WlKeyboard {
-    const XML_VERSION: u32 = 10;
+    const XML_VERSION: u32 = 11;
     const INTERFACE: ObjectInterface = ObjectInterface::WlKeyboard;
     const INTERFACE_NAME: &str = "wl_keyboard";
 }
