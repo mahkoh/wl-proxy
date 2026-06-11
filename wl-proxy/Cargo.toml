@@ -58,6 +58,7 @@ suite-jay-protocols = [
 suite-external = [
     "protocol-drm",
     "protocol-input_method_unstable_v2",
+    "protocol-org_kde_kwin_blur_v1",
     "protocol-org_kde_kwin_server_decoration_palette_v1",
     "protocol-org_kde_kwin_server_decoration_v1",
     "protocol-virtual_keyboard_unstable_v1",
@@ -171,6 +172,7 @@ protocol-jay_popup_ext_v1 = ["protocol-xdg_shell"]
 protocol-jay_tray_v1 = ["protocol-xdg_shell"]
 protocol-drm = []
 protocol-input_method_unstable_v2 = ["protocol-text_input_unstable_v3"]
+protocol-org_kde_kwin_blur_v1 = []
 protocol-org_kde_kwin_server_decoration_palette_v1 = []
 protocol-org_kde_kwin_server_decoration_v1 = []
 protocol-virtual_keyboard_unstable_v1 = []

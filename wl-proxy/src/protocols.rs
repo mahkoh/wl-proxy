@@ -22,6 +22,8 @@ pub mod jay_tray_v1;
 pub mod drm;
 #[cfg(feature = "protocol-input_method_unstable_v2")]
 pub mod input_method_unstable_v2;
+#[cfg(feature = "protocol-org_kde_kwin_blur_v1")]
+pub mod org_kde_kwin_blur_v1;
 #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
 pub mod org_kde_kwin_server_decoration_palette_v1;
 #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
@@ -282,6 +284,10 @@ mod all_types {
     pub(super) use super::input_method_unstable_v2::zwp_input_method_v2::ZwpInputMethodV2Error;
     #[cfg(feature = "protocol-input_method_unstable_v2")]
     pub(super) use super::input_method_unstable_v2::zwp_input_popup_surface_v2::ZwpInputPopupSurfaceV2;
+    #[cfg(feature = "protocol-org_kde_kwin_blur_v1")]
+    pub(super) use super::org_kde_kwin_blur_v1::org_kde_kwin_blur::OrgKdeKwinBlur;
+    #[cfg(feature = "protocol-org_kde_kwin_blur_v1")]
+    pub(super) use super::org_kde_kwin_blur_v1::org_kde_kwin_blur_manager::OrgKdeKwinBlurManager;
     #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
     pub(super) use super::org_kde_kwin_server_decoration_palette_v1::org_kde_kwin_server_decoration_palette::OrgKdeKwinServerDecorationPalette;
     #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
@@ -1314,6 +1320,14 @@ mod all_types {
                 "zwp_input_popup_surface_v2" => {
                     #[cfg(feature = "protocol-input_method_unstable_v2")] { Some(ObjectInterface::ZwpInputPopupSurfaceV2) }
                     #[cfg(not(feature = "protocol-input_method_unstable_v2"))] { None }
+                },
+                "org_kde_kwin_blur" => {
+                    #[cfg(feature = "protocol-org_kde_kwin_blur_v1")] { Some(ObjectInterface::OrgKdeKwinBlur) }
+                    #[cfg(not(feature = "protocol-org_kde_kwin_blur_v1"))] { None }
+                },
+                "org_kde_kwin_blur_manager" => {
+                    #[cfg(feature = "protocol-org_kde_kwin_blur_v1")] { Some(ObjectInterface::OrgKdeKwinBlurManager) }
+                    #[cfg(not(feature = "protocol-org_kde_kwin_blur_v1"))] { None }
                 },
                 "org_kde_kwin_server_decoration_palette" => {
                     #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")] { Some(ObjectInterface::OrgKdeKwinServerDecorationPalette) }
@@ -2435,6 +2449,20 @@ mod all_types {
                         return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(ZwpInputPopupSurfaceV2::new(state, version))
+                }
+                #[cfg(feature = "protocol-org_kde_kwin_blur_v1")]
+                Self::OrgKdeKwinBlur => {
+                    if version > OrgKdeKwinBlur::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(OrgKdeKwinBlur::new(state, version))
+                }
+                #[cfg(feature = "protocol-org_kde_kwin_blur_v1")]
+                Self::OrgKdeKwinBlurManager => {
+                    if version > OrgKdeKwinBlurManager::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(OrgKdeKwinBlurManager::new(state, version))
                 }
                 #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
                 Self::OrgKdeKwinServerDecorationPalette => {
@@ -4271,6 +4299,12 @@ pub enum ObjectInterface {
     /// zwp_input_popup_surface_v2
     #[cfg(feature = "protocol-input_method_unstable_v2")]
     ZwpInputPopupSurfaceV2,
+    /// org_kde_kwin_blur
+    #[cfg(feature = "protocol-org_kde_kwin_blur_v1")]
+    OrgKdeKwinBlur,
+    /// org_kde_kwin_blur_manager
+    #[cfg(feature = "protocol-org_kde_kwin_blur_v1")]
+    OrgKdeKwinBlurManager,
     /// org_kde_kwin_server_decoration_palette
     #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
     OrgKdeKwinServerDecorationPalette,
@@ -5063,6 +5097,10 @@ impl ObjectInterface {
             Self::ZwpInputMethodV2 => "zwp_input_method_v2",
             #[cfg(feature = "protocol-input_method_unstable_v2")]
             Self::ZwpInputPopupSurfaceV2 => "zwp_input_popup_surface_v2",
+            #[cfg(feature = "protocol-org_kde_kwin_blur_v1")]
+            Self::OrgKdeKwinBlur => "org_kde_kwin_blur",
+            #[cfg(feature = "protocol-org_kde_kwin_blur_v1")]
+            Self::OrgKdeKwinBlurManager => "org_kde_kwin_blur_manager",
             #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
             Self::OrgKdeKwinServerDecorationPalette => "org_kde_kwin_server_decoration_palette",
             #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
@@ -5601,6 +5639,10 @@ impl ObjectInterface {
             Self::ZwpInputMethodV2 => 1,
             #[cfg(feature = "protocol-input_method_unstable_v2")]
             Self::ZwpInputPopupSurfaceV2 => 1,
+            #[cfg(feature = "protocol-org_kde_kwin_blur_v1")]
+            Self::OrgKdeKwinBlur => 1,
+            #[cfg(feature = "protocol-org_kde_kwin_blur_v1")]
+            Self::OrgKdeKwinBlurManager => 1,
             #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
             Self::OrgKdeKwinServerDecorationPalette => 1,
             #[cfg(feature = "protocol-org_kde_kwin_server_decoration_palette_v1")]
