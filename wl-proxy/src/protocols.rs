@@ -28,6 +28,8 @@ pub mod org_kde_kwin_blur_v1;
 pub mod org_kde_kwin_server_decoration_palette_v1;
 #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
 pub mod org_kde_kwin_server_decoration_v1;
+#[cfg(feature = "protocol-org_kde_kwin_shadow_v1")]
+pub mod org_kde_kwin_shadow_v1;
 #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
 pub mod virtual_keyboard_unstable_v1;
 pub mod wayland;
@@ -300,6 +302,10 @@ mod all_types {
     pub(super) use super::org_kde_kwin_server_decoration_v1::org_kde_kwin_server_decoration_manager::OrgKdeKwinServerDecorationManager;
     #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
     pub(super) use super::org_kde_kwin_server_decoration_v1::org_kde_kwin_server_decoration_manager::OrgKdeKwinServerDecorationManagerMode;
+    #[cfg(feature = "protocol-org_kde_kwin_shadow_v1")]
+    pub(super) use super::org_kde_kwin_shadow_v1::org_kde_kwin_shadow::OrgKdeKwinShadow;
+    #[cfg(feature = "protocol-org_kde_kwin_shadow_v1")]
+    pub(super) use super::org_kde_kwin_shadow_v1::org_kde_kwin_shadow_manager::OrgKdeKwinShadowManager;
     #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
     pub(super) use super::virtual_keyboard_unstable_v1::zwp_virtual_keyboard_manager_v1::ZwpVirtualKeyboardManagerV1;
     #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
@@ -1344,6 +1350,14 @@ mod all_types {
                 "org_kde_kwin_server_decoration_manager" => {
                     #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")] { Some(ObjectInterface::OrgKdeKwinServerDecorationManager) }
                     #[cfg(not(feature = "protocol-org_kde_kwin_server_decoration_v1"))] { None }
+                },
+                "org_kde_kwin_shadow" => {
+                    #[cfg(feature = "protocol-org_kde_kwin_shadow_v1")] { Some(ObjectInterface::OrgKdeKwinShadow) }
+                    #[cfg(not(feature = "protocol-org_kde_kwin_shadow_v1"))] { None }
+                },
+                "org_kde_kwin_shadow_manager" => {
+                    #[cfg(feature = "protocol-org_kde_kwin_shadow_v1")] { Some(ObjectInterface::OrgKdeKwinShadowManager) }
+                    #[cfg(not(feature = "protocol-org_kde_kwin_shadow_v1"))] { None }
                 },
                 "zwp_virtual_keyboard_manager_v1" => {
                     #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")] { Some(ObjectInterface::ZwpVirtualKeyboardManagerV1) }
@@ -2491,6 +2505,20 @@ mod all_types {
                         return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
                     }
                     Ok(OrgKdeKwinServerDecorationManager::new(state, version))
+                }
+                #[cfg(feature = "protocol-org_kde_kwin_shadow_v1")]
+                Self::OrgKdeKwinShadow => {
+                    if version > OrgKdeKwinShadow::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(OrgKdeKwinShadow::new(state, version))
+                }
+                #[cfg(feature = "protocol-org_kde_kwin_shadow_v1")]
+                Self::OrgKdeKwinShadowManager => {
+                    if version > OrgKdeKwinShadowManager::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(OrgKdeKwinShadowManager::new(state, version))
                 }
                 #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
                 Self::ZwpVirtualKeyboardManagerV1 => {
@@ -4317,6 +4345,12 @@ pub enum ObjectInterface {
     /// org_kde_kwin_server_decoration_manager
     #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
     OrgKdeKwinServerDecorationManager,
+    /// org_kde_kwin_shadow
+    #[cfg(feature = "protocol-org_kde_kwin_shadow_v1")]
+    OrgKdeKwinShadow,
+    /// org_kde_kwin_shadow_manager
+    #[cfg(feature = "protocol-org_kde_kwin_shadow_v1")]
+    OrgKdeKwinShadowManager,
     /// zwp_virtual_keyboard_manager_v1
     #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
     ZwpVirtualKeyboardManagerV1,
@@ -5109,6 +5143,10 @@ impl ObjectInterface {
             Self::OrgKdeKwinServerDecoration => "org_kde_kwin_server_decoration",
             #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
             Self::OrgKdeKwinServerDecorationManager => "org_kde_kwin_server_decoration_manager",
+            #[cfg(feature = "protocol-org_kde_kwin_shadow_v1")]
+            Self::OrgKdeKwinShadow => "org_kde_kwin_shadow",
+            #[cfg(feature = "protocol-org_kde_kwin_shadow_v1")]
+            Self::OrgKdeKwinShadowManager => "org_kde_kwin_shadow_manager",
             #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
             Self::ZwpVirtualKeyboardManagerV1 => "zwp_virtual_keyboard_manager_v1",
             #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
@@ -5651,6 +5689,10 @@ impl ObjectInterface {
             Self::OrgKdeKwinServerDecoration => 1,
             #[cfg(feature = "protocol-org_kde_kwin_server_decoration_v1")]
             Self::OrgKdeKwinServerDecorationManager => 1,
+            #[cfg(feature = "protocol-org_kde_kwin_shadow_v1")]
+            Self::OrgKdeKwinShadow => 2,
+            #[cfg(feature = "protocol-org_kde_kwin_shadow_v1")]
+            Self::OrgKdeKwinShadowManager => 2,
             #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
             Self::ZwpVirtualKeyboardManagerV1 => 1,
             #[cfg(feature = "protocol-virtual_keyboard_unstable_v1")]
