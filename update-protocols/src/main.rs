@@ -230,6 +230,7 @@ fn main() {
                 "cosmic_output_management_unstable_v1",
                 "cosmic_overlap_notify_unstable_v1",
                 "cosmic_workspace_unstable_v2",
+                "cosmic_keyboard_layout_unstable_v1",
             ],
             block: &[
                 "cosmic_workspace_unstable_v1",
