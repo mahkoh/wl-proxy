@@ -197,6 +197,8 @@ pub mod cosmic_a11y_v1;
 pub mod cosmic_corner_radius_v1;
 #[cfg(feature = "protocol-cosmic_image_source_unstable_v1")]
 pub mod cosmic_image_source_unstable_v1;
+#[cfg(feature = "protocol-cosmic_keyboard_layout_unstable_v1")]
+pub mod cosmic_keyboard_layout_unstable_v1;
 #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
 pub mod cosmic_output_management_unstable_v1;
 #[cfg(feature = "protocol-cosmic_overlap_notify_unstable_v1")]
@@ -1186,6 +1188,10 @@ mod all_types {
     pub(super) use super::cosmic_corner_radius_v1::cosmic_corner_radius_toplevel_v1::CosmicCornerRadiusToplevelV1Error;
     #[cfg(feature = "protocol-cosmic_image_source_unstable_v1")]
     pub(super) use super::cosmic_image_source_unstable_v1::zcosmic_workspace_image_capture_source_manager_v1::ZcosmicWorkspaceImageCaptureSourceManagerV1;
+    #[cfg(feature = "protocol-cosmic_keyboard_layout_unstable_v1")]
+    pub(super) use super::cosmic_keyboard_layout_unstable_v1::zcosmic_keyboard_layout_manager_v1::ZcosmicKeyboardLayoutManagerV1;
+    #[cfg(feature = "protocol-cosmic_keyboard_layout_unstable_v1")]
+    pub(super) use super::cosmic_keyboard_layout_unstable_v1::zcosmic_keyboard_layout_v1::ZcosmicKeyboardLayoutV1;
     #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
     pub(super) use super::cosmic_output_management_unstable_v1::zcosmic_output_configuration_head_v1::ZcosmicOutputConfigurationHeadV1;
     #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
@@ -2257,6 +2263,14 @@ mod all_types {
                 "zcosmic_workspace_image_capture_source_manager_v1" => {
                     #[cfg(feature = "protocol-cosmic_image_source_unstable_v1")] { Some(ObjectInterface::ZcosmicWorkspaceImageCaptureSourceManagerV1) }
                     #[cfg(not(feature = "protocol-cosmic_image_source_unstable_v1"))] { None }
+                },
+                "zcosmic_keyboard_layout_manager_v1" => {
+                    #[cfg(feature = "protocol-cosmic_keyboard_layout_unstable_v1")] { Some(ObjectInterface::ZcosmicKeyboardLayoutManagerV1) }
+                    #[cfg(not(feature = "protocol-cosmic_keyboard_layout_unstable_v1"))] { None }
+                },
+                "zcosmic_keyboard_layout_v1" => {
+                    #[cfg(feature = "protocol-cosmic_keyboard_layout_unstable_v1")] { Some(ObjectInterface::ZcosmicKeyboardLayoutV1) }
+                    #[cfg(not(feature = "protocol-cosmic_keyboard_layout_unstable_v1"))] { None }
                 },
                 "zcosmic_output_configuration_head_v1" => {
                     #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")] { Some(ObjectInterface::ZcosmicOutputConfigurationHeadV1) }
@@ -4191,6 +4205,20 @@ mod all_types {
                     }
                     Ok(ZcosmicWorkspaceImageCaptureSourceManagerV1::new(state, version))
                 }
+                #[cfg(feature = "protocol-cosmic_keyboard_layout_unstable_v1")]
+                Self::ZcosmicKeyboardLayoutManagerV1 => {
+                    if version > ZcosmicKeyboardLayoutManagerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(ZcosmicKeyboardLayoutManagerV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-cosmic_keyboard_layout_unstable_v1")]
+                Self::ZcosmicKeyboardLayoutV1 => {
+                    if version > ZcosmicKeyboardLayoutV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(ZcosmicKeyboardLayoutV1::new(state, version))
+                }
                 #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
                 Self::ZcosmicOutputConfigurationHeadV1 => {
                     if version > ZcosmicOutputConfigurationHeadV1::XML_VERSION {
@@ -5054,6 +5082,12 @@ pub enum ObjectInterface {
     /// zcosmic_workspace_image_capture_source_manager_v1
     #[cfg(feature = "protocol-cosmic_image_source_unstable_v1")]
     ZcosmicWorkspaceImageCaptureSourceManagerV1,
+    /// zcosmic_keyboard_layout_manager_v1
+    #[cfg(feature = "protocol-cosmic_keyboard_layout_unstable_v1")]
+    ZcosmicKeyboardLayoutManagerV1,
+    /// zcosmic_keyboard_layout_v1
+    #[cfg(feature = "protocol-cosmic_keyboard_layout_unstable_v1")]
+    ZcosmicKeyboardLayoutV1,
     /// zcosmic_output_configuration_head_v1
     #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
     ZcosmicOutputConfigurationHeadV1,
@@ -5608,6 +5642,10 @@ impl ObjectInterface {
             Self::CosmicCornerRadiusToplevelV1 => "cosmic_corner_radius_toplevel_v1",
             #[cfg(feature = "protocol-cosmic_image_source_unstable_v1")]
             Self::ZcosmicWorkspaceImageCaptureSourceManagerV1 => "zcosmic_workspace_image_capture_source_manager_v1",
+            #[cfg(feature = "protocol-cosmic_keyboard_layout_unstable_v1")]
+            Self::ZcosmicKeyboardLayoutManagerV1 => "zcosmic_keyboard_layout_manager_v1",
+            #[cfg(feature = "protocol-cosmic_keyboard_layout_unstable_v1")]
+            Self::ZcosmicKeyboardLayoutV1 => "zcosmic_keyboard_layout_v1",
             #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
             Self::ZcosmicOutputConfigurationHeadV1 => "zcosmic_output_configuration_head_v1",
             #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
@@ -6154,6 +6192,10 @@ impl ObjectInterface {
             Self::CosmicCornerRadiusToplevelV1 => 1,
             #[cfg(feature = "protocol-cosmic_image_source_unstable_v1")]
             Self::ZcosmicWorkspaceImageCaptureSourceManagerV1 => 1,
+            #[cfg(feature = "protocol-cosmic_keyboard_layout_unstable_v1")]
+            Self::ZcosmicKeyboardLayoutManagerV1 => 1,
+            #[cfg(feature = "protocol-cosmic_keyboard_layout_unstable_v1")]
+            Self::ZcosmicKeyboardLayoutV1 => 1,
             #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
             Self::ZcosmicOutputConfigurationHeadV1 => 2,
             #[cfg(feature = "protocol-cosmic_output_management_unstable_v1")]
