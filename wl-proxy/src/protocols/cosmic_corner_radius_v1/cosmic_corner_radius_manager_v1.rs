@@ -1,6 +1,6 @@
 //! corner radius global
 //!
-//! Manager for creating corner-radius objects for existing toplevels
+//! Manager for creating corner-radius objects for existing surfaces
 
 use crate::protocol_helpers::prelude::*;
 use super::super::all_types::*;
@@ -18,7 +18,7 @@ struct DefaultHandler;
 impl CosmicCornerRadiusManagerV1Handler for DefaultHandler { }
 
 impl ConcreteObject for CosmicCornerRadiusManagerV1 {
-    const XML_VERSION: u32 = 1;
+    const XML_VERSION: u32 = 2;
     const INTERFACE: ObjectInterface = ObjectInterface::CosmicCornerRadiusManagerV1;
     const INTERFACE_NAME: &str = "cosmic_corner_radius_manager_v1";
 }
@@ -110,12 +110,17 @@ impl CosmicCornerRadiusManagerV1 {
     /// Since when the get_corner_radius message is available.
     pub const MSG__GET_CORNER_RADIUS__SINCE: u32 = 1;
 
+    /// Since when the get_corner_radius message is deprecated.
+    pub const MSG__GET_CORNER_RADIUS__DEPRECATED_SINCE: u32 = 2;
+
     /// Create a new corner-radius object for an existing toplevel
     ///
     /// Instantiate an interface extension for the given xdg_toplevel to specify their corner radius.
     ///
     /// If the given xdg_toplevel already has a cosmic_corner_radius_toplevel_v1 object associated,
     /// the corner_radius_exists protocol error will be raised.
+    ///
+    /// Deprecated: Use `get_corner_radius_surface` instead.
     ///
     /// # Arguments
     ///
@@ -184,6 +189,8 @@ impl CosmicCornerRadiusManagerV1 {
     /// If the given xdg_toplevel already has a cosmic_corner_radius_toplevel_v1 object associated,
     /// the corner_radius_exists protocol error will be raised.
     ///
+    /// Deprecated: Use `get_corner_radius_surface` instead.
+    ///
     /// # Arguments
     ///
     /// - `id`: the new cosmic_corner_radius_toplevel_v1 object
@@ -210,6 +217,8 @@ impl CosmicCornerRadiusManagerV1 {
     /// If the given xdg_toplevel already has a cosmic_corner_radius_toplevel_v1 object associated,
     /// the corner_radius_exists protocol error will be raised.
     ///
+    /// Deprecated: Use `get_corner_radius_surface` instead.
+    ///
     /// # Arguments
     ///
     /// - `toplevel`: the toplevel
@@ -233,6 +242,8 @@ impl CosmicCornerRadiusManagerV1 {
     /// If the given xdg_toplevel already has a cosmic_corner_radius_toplevel_v1 object associated,
     /// the corner_radius_exists protocol error will be raised.
     ///
+    /// Deprecated: Use `get_corner_radius_surface` instead.
+    ///
     /// # Arguments
     ///
     /// - `toplevel`: the toplevel
@@ -245,6 +256,306 @@ impl CosmicCornerRadiusManagerV1 {
         self.send_get_corner_radius(
             &id,
             toplevel,
+        );
+        id
+    }
+
+    /// Since when the get_corner_radius_surface message is available.
+    pub const MSG__GET_CORNER_RADIUS_SURFACE__SINCE: u32 = 2;
+
+    /// Create a new corner-radius object for an existing xdg-surface
+    ///
+    /// Instantiate an interface extension for the given xdg_surface to specify their corner radius.
+    ///
+    /// If the given xdg_surface already has a cosmic_corner_radius_toplevel_v1 object associated,
+    /// the corner_radius_exists protocol error will be raised.
+    ///
+    /// It is an error submitting this request for a xdg+surface object, that doesn't have a role
+    /// associated yet. (See `xdg_surface::get_toplevel` or `xdg_surface::get_popup`.) A no_role
+    /// protocol error will be raised in this case.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new cosmic_corner_radius_toplevel_v1 object
+    /// - `surface`: the surface
+    #[inline]
+    pub fn try_send_get_corner_radius_surface(
+        &self,
+        id: &Rc<CosmicCornerRadiusToplevelV1>,
+        surface: &Rc<XdgSurface>,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            id,
+            surface,
+        );
+        let arg0_obj = arg0;
+        let arg0 = arg0_obj.core();
+        let arg1 = arg1.core();
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        let arg1_id = match arg1.server_obj_id.get() {
+            None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("surface"))),
+            Some(id) => id,
+        };
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("id", e)))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= cosmic_corner_radius_manager_v1#{}.get_corner_radius_surface(id: cosmic_corner_radius_toplevel_v1#{}, surface: xdg_surface#{})\n", id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id, arg1_id);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            2,
+            arg0_id,
+            arg1_id,
+        ]);
+        Ok(())
+    }
+
+    /// Create a new corner-radius object for an existing xdg-surface
+    ///
+    /// Instantiate an interface extension for the given xdg_surface to specify their corner radius.
+    ///
+    /// If the given xdg_surface already has a cosmic_corner_radius_toplevel_v1 object associated,
+    /// the corner_radius_exists protocol error will be raised.
+    ///
+    /// It is an error submitting this request for a xdg+surface object, that doesn't have a role
+    /// associated yet. (See `xdg_surface::get_toplevel` or `xdg_surface::get_popup`.) A no_role
+    /// protocol error will be raised in this case.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new cosmic_corner_radius_toplevel_v1 object
+    /// - `surface`: the surface
+    #[inline]
+    pub fn send_get_corner_radius_surface(
+        &self,
+        id: &Rc<CosmicCornerRadiusToplevelV1>,
+        surface: &Rc<XdgSurface>,
+    ) {
+        let res = self.try_send_get_corner_radius_surface(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_send("cosmic_corner_radius_manager_v1.get_corner_radius_surface", &e);
+        }
+    }
+
+    /// Create a new corner-radius object for an existing xdg-surface
+    ///
+    /// Instantiate an interface extension for the given xdg_surface to specify their corner radius.
+    ///
+    /// If the given xdg_surface already has a cosmic_corner_radius_toplevel_v1 object associated,
+    /// the corner_radius_exists protocol error will be raised.
+    ///
+    /// It is an error submitting this request for a xdg+surface object, that doesn't have a role
+    /// associated yet. (See `xdg_surface::get_toplevel` or `xdg_surface::get_popup`.) A no_role
+    /// protocol error will be raised in this case.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`: the surface
+    #[inline]
+    pub fn new_try_send_get_corner_radius_surface(
+        &self,
+        surface: &Rc<XdgSurface>,
+    ) -> Result<Rc<CosmicCornerRadiusToplevelV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_corner_radius_surface(
+            &id,
+            surface,
+        )?;
+        Ok(id)
+    }
+
+    /// Create a new corner-radius object for an existing xdg-surface
+    ///
+    /// Instantiate an interface extension for the given xdg_surface to specify their corner radius.
+    ///
+    /// If the given xdg_surface already has a cosmic_corner_radius_toplevel_v1 object associated,
+    /// the corner_radius_exists protocol error will be raised.
+    ///
+    /// It is an error submitting this request for a xdg+surface object, that doesn't have a role
+    /// associated yet. (See `xdg_surface::get_toplevel` or `xdg_surface::get_popup`.) A no_role
+    /// protocol error will be raised in this case.
+    ///
+    /// # Arguments
+    ///
+    /// - `surface`: the surface
+    #[inline]
+    pub fn new_send_get_corner_radius_surface(
+        &self,
+        surface: &Rc<XdgSurface>,
+    ) -> Rc<CosmicCornerRadiusToplevelV1> {
+        let id = self.core.create_child();
+        self.send_get_corner_radius_surface(
+            &id,
+            surface,
+        );
+        id
+    }
+
+    /// Since when the get_corner_radius_layer message is available.
+    pub const MSG__GET_CORNER_RADIUS_LAYER__SINCE: u32 = 2;
+
+    /// Create a new corner-radius object for an existing layer
+    ///
+    /// Instantiate an interface extension for the given layer-surface to specify their corner radius.
+    ///
+    /// If the given layer-suface already has a cosmic_corner_radius_layer_v1 object associated,
+    /// the corner_radius_exists protocol error will be raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new cosmic_corner_radius_layer_v1 object
+    /// - `layer`: the layer surface
+    #[inline]
+    pub fn try_send_get_corner_radius_layer(
+        &self,
+        id: &Rc<CosmicCornerRadiusLayerV1>,
+        layer: &Rc<ZwlrLayerSurfaceV1>,
+    ) -> Result<(), ObjectError> {
+        let (
+            arg0,
+            arg1,
+        ) = (
+            id,
+            layer,
+        );
+        let arg0_obj = arg0;
+        let arg0 = arg0_obj.core();
+        let arg1 = arg1.core();
+        let core = self.core();
+        let Some(id) = core.server_obj_id.get() else {
+            return Err(ObjectError(ObjectErrorKind::ReceiverNoServerId));
+        };
+        let arg1_id = match arg1.server_obj_id.get() {
+            None => return Err(ObjectError(ObjectErrorKind::ArgNoServerId("layer"))),
+            Some(id) => id,
+        };
+        arg0.generate_server_id(arg0_obj.clone())
+            .map_err(|e| ObjectError(ObjectErrorKind::GenerateServerId("id", e)))?;
+        let arg0_id = arg0.server_obj_id.get().unwrap_or(0);
+        #[cfg(feature = "logging")]
+        if self.core.state.log {
+            #[cold]
+            fn log(state: &State, id: u32, arg0: u32, arg1: u32) {
+                let (millis, micros) = time_since_epoch();
+                let prefix = &state.log_prefix;
+                let args = format_args!("[{millis:7}.{micros:03}] {prefix}server      <= cosmic_corner_radius_manager_v1#{}.get_corner_radius_layer(id: cosmic_corner_radius_layer_v1#{}, layer: zwlr_layer_surface_v1#{})\n", id, arg0, arg1);
+                state.log(args);
+            }
+            log(&self.core.state, id, arg0_id, arg1_id);
+        }
+        let Some(endpoint) = &self.core.state.server else {
+            return Ok(());
+        };
+        if !endpoint.flush_queued.replace(true) {
+            self.core.state.add_flushable_endpoint(endpoint, None);
+        }
+        let mut outgoing_ref = endpoint.outgoing.borrow_mut();
+        let outgoing = &mut *outgoing_ref;
+        let mut fmt = outgoing.formatter();
+        fmt.words([
+            id,
+            3,
+            arg0_id,
+            arg1_id,
+        ]);
+        Ok(())
+    }
+
+    /// Create a new corner-radius object for an existing layer
+    ///
+    /// Instantiate an interface extension for the given layer-surface to specify their corner radius.
+    ///
+    /// If the given layer-suface already has a cosmic_corner_radius_layer_v1 object associated,
+    /// the corner_radius_exists protocol error will be raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new cosmic_corner_radius_layer_v1 object
+    /// - `layer`: the layer surface
+    #[inline]
+    pub fn send_get_corner_radius_layer(
+        &self,
+        id: &Rc<CosmicCornerRadiusLayerV1>,
+        layer: &Rc<ZwlrLayerSurfaceV1>,
+    ) {
+        let res = self.try_send_get_corner_radius_layer(
+            id,
+            layer,
+        );
+        if let Err(e) = res {
+            log_send("cosmic_corner_radius_manager_v1.get_corner_radius_layer", &e);
+        }
+    }
+
+    /// Create a new corner-radius object for an existing layer
+    ///
+    /// Instantiate an interface extension for the given layer-surface to specify their corner radius.
+    ///
+    /// If the given layer-suface already has a cosmic_corner_radius_layer_v1 object associated,
+    /// the corner_radius_exists protocol error will be raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `layer`: the layer surface
+    #[inline]
+    pub fn new_try_send_get_corner_radius_layer(
+        &self,
+        layer: &Rc<ZwlrLayerSurfaceV1>,
+    ) -> Result<Rc<CosmicCornerRadiusLayerV1>, ObjectError> {
+        let id = self.core.create_child();
+        self.try_send_get_corner_radius_layer(
+            &id,
+            layer,
+        )?;
+        Ok(id)
+    }
+
+    /// Create a new corner-radius object for an existing layer
+    ///
+    /// Instantiate an interface extension for the given layer-surface to specify their corner radius.
+    ///
+    /// If the given layer-suface already has a cosmic_corner_radius_layer_v1 object associated,
+    /// the corner_radius_exists protocol error will be raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `layer`: the layer surface
+    #[inline]
+    pub fn new_send_get_corner_radius_layer(
+        &self,
+        layer: &Rc<ZwlrLayerSurfaceV1>,
+    ) -> Rc<CosmicCornerRadiusLayerV1> {
+        let id = self.core.create_child();
+        self.send_get_corner_radius_layer(
+            &id,
+            layer,
         );
         id
     }
@@ -286,6 +597,8 @@ pub trait CosmicCornerRadiusManagerV1Handler: Any {
     /// If the given xdg_toplevel already has a cosmic_corner_radius_toplevel_v1 object associated,
     /// the corner_radius_exists protocol error will be raised.
     ///
+    /// Deprecated: Use `get_corner_radius_surface` instead.
+    ///
     /// # Arguments
     ///
     /// - `id`: the new cosmic_corner_radius_toplevel_v1 object
@@ -309,6 +622,76 @@ pub trait CosmicCornerRadiusManagerV1Handler: Any {
         );
         if let Err(e) = res {
             log_forward("cosmic_corner_radius_manager_v1.get_corner_radius", &e);
+        }
+    }
+
+    /// Create a new corner-radius object for an existing xdg-surface
+    ///
+    /// Instantiate an interface extension for the given xdg_surface to specify their corner radius.
+    ///
+    /// If the given xdg_surface already has a cosmic_corner_radius_toplevel_v1 object associated,
+    /// the corner_radius_exists protocol error will be raised.
+    ///
+    /// It is an error submitting this request for a xdg+surface object, that doesn't have a role
+    /// associated yet. (See `xdg_surface::get_toplevel` or `xdg_surface::get_popup`.) A no_role
+    /// protocol error will be raised in this case.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new cosmic_corner_radius_toplevel_v1 object
+    /// - `surface`: the surface
+    ///
+    /// All borrowed proxies passed to this function are guaranteed to be
+    /// immutable and non-null.
+    #[inline]
+    fn handle_get_corner_radius_surface(
+        &mut self,
+        slf: &Rc<CosmicCornerRadiusManagerV1>,
+        id: &Rc<CosmicCornerRadiusToplevelV1>,
+        surface: &Rc<XdgSurface>,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_get_corner_radius_surface(
+            id,
+            surface,
+        );
+        if let Err(e) = res {
+            log_forward("cosmic_corner_radius_manager_v1.get_corner_radius_surface", &e);
+        }
+    }
+
+    /// Create a new corner-radius object for an existing layer
+    ///
+    /// Instantiate an interface extension for the given layer-surface to specify their corner radius.
+    ///
+    /// If the given layer-suface already has a cosmic_corner_radius_layer_v1 object associated,
+    /// the corner_radius_exists protocol error will be raised.
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: the new cosmic_corner_radius_layer_v1 object
+    /// - `layer`: the layer surface
+    ///
+    /// All borrowed proxies passed to this function are guaranteed to be
+    /// immutable and non-null.
+    #[inline]
+    fn handle_get_corner_radius_layer(
+        &mut self,
+        slf: &Rc<CosmicCornerRadiusManagerV1>,
+        id: &Rc<CosmicCornerRadiusLayerV1>,
+        layer: &Rc<ZwlrLayerSurfaceV1>,
+    ) {
+        if !slf.core.forward_to_server.get() {
+            return;
+        }
+        let res = slf.try_send_get_corner_radius_layer(
+            id,
+            layer,
+        );
+        if let Err(e) = res {
+            log_forward("cosmic_corner_radius_manager_v1.get_corner_radius_layer", &e);
         }
     }
 }
@@ -399,6 +782,82 @@ impl ObjectPrivate for CosmicCornerRadiusManagerV1 {
                     DefaultHandler.handle_get_corner_radius(&self, arg0, arg1);
                 }
             }
+            2 => {
+                let [
+                    arg0,
+                    arg1,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 16)));
+                };
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> cosmic_corner_radius_manager_v1#{}.get_corner_radius_surface(id: cosmic_corner_radius_toplevel_v1#{}, surface: xdg_surface#{})\n", client_id, id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1);
+                }
+                let arg0_id = arg0;
+                let arg0 = CosmicCornerRadiusToplevelV1::new(&self.core.state, self.core.version);
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg0_id, "id", e)))?;
+                let arg1_id = arg1;
+                let Some(arg1) = client.endpoint.lookup(arg1_id) else {
+                    return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg1_id)));
+                };
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<XdgSurface>() else {
+                    let o = client.endpoint.lookup(arg1_id).unwrap();
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("surface", o.core().interface, ObjectInterface::XdgSurface)));
+                };
+                let arg0 = &arg0;
+                let arg1 = &arg1;
+                if let Some(handler) = handler {
+                    (**handler).handle_get_corner_radius_surface(&self, arg0, arg1);
+                } else {
+                    DefaultHandler.handle_get_corner_radius_surface(&self, arg0, arg1);
+                }
+            }
+            3 => {
+                let [
+                    arg0,
+                    arg1,
+                ] = msg[2..] else {
+                    return Err(ObjectError(ObjectErrorKind::WrongMessageSize(msg.len() as u32 * 4, 16)));
+                };
+                #[cfg(feature = "logging")]
+                if self.core.state.log {
+                    #[cold]
+                    fn log(state: &State, client_id: u64, id: u32, arg0: u32, arg1: u32) {
+                        let (millis, micros) = time_since_epoch();
+                        let prefix = &state.log_prefix;
+                        let args = format_args!("[{millis:7}.{micros:03}] {prefix}client#{:<4} -> cosmic_corner_radius_manager_v1#{}.get_corner_radius_layer(id: cosmic_corner_radius_layer_v1#{}, layer: zwlr_layer_surface_v1#{})\n", client_id, id, arg0, arg1);
+                        state.log(args);
+                    }
+                    log(&self.core.state, client.endpoint.id, msg[0], arg0, arg1);
+                }
+                let arg0_id = arg0;
+                let arg0 = CosmicCornerRadiusLayerV1::new(&self.core.state, self.core.version);
+                arg0.core().set_client_id(client, arg0_id, arg0.clone())
+                    .map_err(|e| ObjectError(ObjectErrorKind::SetClientId(arg0_id, "id", e)))?;
+                let arg1_id = arg1;
+                let Some(arg1) = client.endpoint.lookup(arg1_id) else {
+                    return Err(ObjectError(ObjectErrorKind::NoClientObject(client.endpoint.id, arg1_id)));
+                };
+                let Ok(arg1) = (arg1 as Rc<dyn Any>).downcast::<ZwlrLayerSurfaceV1>() else {
+                    let o = client.endpoint.lookup(arg1_id).unwrap();
+                    return Err(ObjectError(ObjectErrorKind::WrongObjectType("layer", o.core().interface, ObjectInterface::ZwlrLayerSurfaceV1)));
+                };
+                let arg0 = &arg0;
+                let arg1 = &arg1;
+                if let Some(handler) = handler {
+                    (**handler).handle_get_corner_radius_layer(&self, arg0, arg1);
+                } else {
+                    DefaultHandler.handle_get_corner_radius_layer(&self, arg0, arg1);
+                }
+            }
             n => {
                 let _ = client;
                 let _ = msg;
@@ -430,6 +889,8 @@ impl ObjectPrivate for CosmicCornerRadiusManagerV1 {
         let name = match id {
             0 => "destroy",
             1 => "get_corner_radius",
+            2 => "get_corner_radius_surface",
+            3 => "get_corner_radius_layer",
             _ => return None,
         };
         Some(name)
@@ -470,20 +931,26 @@ impl Object for CosmicCornerRadiusManagerV1 {
 impl CosmicCornerRadiusManagerV1 {
     /// Since when the error.corner_radius_exists enum variant is available.
     pub const ENM__ERROR_CORNER_RADIUS_EXISTS__SINCE: u32 = 1;
+    /// Since when the error.no_role enum variant is available.
+    pub const ENM__ERROR_NO_ROLE__SINCE: u32 = 1;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct CosmicCornerRadiusManagerV1Error(pub u32);
 
 impl CosmicCornerRadiusManagerV1Error {
-    /// the toplevel already has a corner-radius object
+    /// the surface already has a corner-radius object
     pub const CORNER_RADIUS_EXISTS: Self = Self(0);
+
+    /// the surface already has a corner-radius object
+    pub const NO_ROLE: Self = Self(1);
 }
 
 impl Debug for CosmicCornerRadiusManagerV1Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let name = match *self {
             Self::CORNER_RADIUS_EXISTS => "CORNER_RADIUS_EXISTS",
+            Self::NO_ROLE => "NO_ROLE",
             _ => return Debug::fmt(&self.0, f),
         };
         f.write_str(name)
