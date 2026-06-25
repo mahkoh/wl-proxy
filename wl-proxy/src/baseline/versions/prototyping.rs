@@ -4,7 +4,8 @@ use linearize::{StaticCopyMap, Linearize};
 use crate::protocols::ObjectInterface;
 
 const cosmic_a11y_manager_v1: u32 = 3;
-const cosmic_corner_radius_manager_v1: u32 = 1;
+const cosmic_corner_radius_layer_v1: u32 = 1;
+const cosmic_corner_radius_manager_v1: u32 = 2;
 const cosmic_corner_radius_toplevel_v1: u32 = 1;
 const ext_background_effect_manager_v1: u32 = 1;
 const ext_background_effect_surface_v1: u32 = 1;
@@ -294,6 +295,8 @@ pub(in super::super) const BASELINE: &StaticCopyMap<ObjectInterface, u32> = {
         let mut baseline = [0; ObjectInterface::LENGTH];
         #[cfg(feature = "protocol-cosmic_a11y_v1")]
         { baseline[ObjectInterface::CosmicA11yManagerV1.__linearize_d66aa8fa_6974_4651_b2b7_75291a9e7105()] = cosmic_a11y_manager_v1; }
+        #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+        { baseline[ObjectInterface::CosmicCornerRadiusLayerV1.__linearize_d66aa8fa_6974_4651_b2b7_75291a9e7105()] = cosmic_corner_radius_layer_v1; }
         #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
         { baseline[ObjectInterface::CosmicCornerRadiusManagerV1.__linearize_d66aa8fa_6974_4651_b2b7_75291a9e7105()] = cosmic_corner_radius_manager_v1; }
         #[cfg(feature = "protocol-cosmic_corner_radius_v1")]

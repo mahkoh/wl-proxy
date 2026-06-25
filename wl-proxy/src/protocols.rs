@@ -1179,6 +1179,10 @@ mod all_types {
     #[cfg(feature = "protocol-cosmic_a11y_v1")]
     pub(super) use super::cosmic_a11y_v1::cosmic_a11y_manager_v1::CosmicA11yManagerV1Error;
     #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+    pub(super) use super::cosmic_corner_radius_v1::cosmic_corner_radius_layer_v1::CosmicCornerRadiusLayerV1;
+    #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+    pub(super) use super::cosmic_corner_radius_v1::cosmic_corner_radius_layer_v1::CosmicCornerRadiusLayerV1Error;
+    #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
     pub(super) use super::cosmic_corner_radius_v1::cosmic_corner_radius_manager_v1::CosmicCornerRadiusManagerV1;
     #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
     pub(super) use super::cosmic_corner_radius_v1::cosmic_corner_radius_manager_v1::CosmicCornerRadiusManagerV1Error;
@@ -2251,6 +2255,10 @@ mod all_types {
                 "cosmic_a11y_manager_v1" => {
                     #[cfg(feature = "protocol-cosmic_a11y_v1")] { Some(ObjectInterface::CosmicA11yManagerV1) }
                     #[cfg(not(feature = "protocol-cosmic_a11y_v1"))] { None }
+                },
+                "cosmic_corner_radius_layer_v1" => {
+                    #[cfg(feature = "protocol-cosmic_corner_radius_v1")] { Some(ObjectInterface::CosmicCornerRadiusLayerV1) }
+                    #[cfg(not(feature = "protocol-cosmic_corner_radius_v1"))] { None }
                 },
                 "cosmic_corner_radius_manager_v1" => {
                     #[cfg(feature = "protocol-cosmic_corner_radius_v1")] { Some(ObjectInterface::CosmicCornerRadiusManagerV1) }
@@ -4185,6 +4193,13 @@ mod all_types {
                     Ok(CosmicA11yManagerV1::new(state, version))
                 }
                 #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+                Self::CosmicCornerRadiusLayerV1 => {
+                    if version > CosmicCornerRadiusLayerV1::XML_VERSION {
+                        return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
+                    }
+                    Ok(CosmicCornerRadiusLayerV1::new(state, version))
+                }
+                #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
                 Self::CosmicCornerRadiusManagerV1 => {
                     if version > CosmicCornerRadiusManagerV1::XML_VERSION {
                         return Err(ObjectError(ObjectErrorKind::MaxVersion(self, version)));
@@ -5073,6 +5088,9 @@ pub enum ObjectInterface {
     /// cosmic_a11y_manager_v1
     #[cfg(feature = "protocol-cosmic_a11y_v1")]
     CosmicA11yManagerV1,
+    /// cosmic_corner_radius_layer_v1
+    #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+    CosmicCornerRadiusLayerV1,
     /// cosmic_corner_radius_manager_v1
     #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
     CosmicCornerRadiusManagerV1,
@@ -5637,6 +5655,8 @@ impl ObjectInterface {
             #[cfg(feature = "protocol-cosmic_a11y_v1")]
             Self::CosmicA11yManagerV1 => "cosmic_a11y_manager_v1",
             #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+            Self::CosmicCornerRadiusLayerV1 => "cosmic_corner_radius_layer_v1",
+            #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
             Self::CosmicCornerRadiusManagerV1 => "cosmic_corner_radius_manager_v1",
             #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
             Self::CosmicCornerRadiusToplevelV1 => "cosmic_corner_radius_toplevel_v1",
@@ -6187,7 +6207,9 @@ impl ObjectInterface {
             #[cfg(feature = "protocol-cosmic_a11y_v1")]
             Self::CosmicA11yManagerV1 => 3,
             #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
-            Self::CosmicCornerRadiusManagerV1 => 1,
+            Self::CosmicCornerRadiusLayerV1 => 1,
+            #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
+            Self::CosmicCornerRadiusManagerV1 => 2,
             #[cfg(feature = "protocol-cosmic_corner_radius_v1")]
             Self::CosmicCornerRadiusToplevelV1 => 1,
             #[cfg(feature = "protocol-cosmic_image_source_unstable_v1")]

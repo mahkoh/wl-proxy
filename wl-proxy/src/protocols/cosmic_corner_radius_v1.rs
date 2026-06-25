@@ -22,5 +22,6 @@
 #![allow(rustdoc::bare_urls)]
 #![allow(rustdoc::invalid_rust_codeblocks)]
 
+pub mod cosmic_corner_radius_layer_v1;
 pub mod cosmic_corner_radius_manager_v1;
 pub mod cosmic_corner_radius_toplevel_v1;
