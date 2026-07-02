@@ -194,7 +194,7 @@
       </description>
     </request>
   </interface>
-  <interface name="wl_shm_pool" version="2">
+  <interface name="wl_shm_pool" version="3">
     <description summary="a shared memory pool">
       The wl_shm_pool object encapsulates a piece of memory shared
       between the compositor and client.  Through the wl_shm_pool
@@ -249,8 +249,15 @@
       </description>
       <arg name="size" type="int" summary="new size of the pool, in bytes"/>
     </request>
+    <enum name="error" since="3">
+      <description summary="wl_shm_pool error values">
+        These errors can be emitted in response to wl_shm_pool requests.
+      </description>
+      <entry name="invalid_format" value="0" summary="buffer format is not known"/>
+      <entry name="invalid_stride" value="1" summary="invalid size or stride during buffer creation"/>
+    </enum>
   </interface>
-  <interface name="wl_shm" version="2">
+  <interface name="wl_shm" version="3">
     <description summary="shared memory support">
       A singleton global object that provides support for shared
       memory.
@@ -294,12 +301,12 @@
         Objects created via this interface remain unaffected.
       </description>
     </request>
-    <enum name="error">
+    <enum name="error" since="3">
       <description summary="wl_shm error values">
         These errors can be emitted in response to wl_shm requests.
       </description>
-      <entry name="invalid_format" value="0" summary="buffer format is not known"/>
-      <entry name="invalid_stride" value="1" summary="invalid size or stride during pool or buffer creation"/>
+      <entry name="invalid_format" value="0" deprecated-since="3" summary="buffer format is not known"/>
+      <entry name="invalid_stride" value="1" summary="invalid size or stride during pool creation"/>
       <entry name="invalid_fd" value="2" summary="mmapping the file descriptor failed"/>
     </enum>
     <enum name="format">

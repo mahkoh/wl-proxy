@@ -359,6 +359,7 @@ mod all_types {
     pub(super) use super::wayland::wl_shm::WlShmError;
     pub(super) use super::wayland::wl_shm::WlShmFormat;
     pub(super) use super::wayland::wl_shm_pool::WlShmPool;
+    pub(super) use super::wayland::wl_shm_pool::WlShmPoolError;
     pub(super) use super::wayland::wl_subcompositor::WlSubcompositor;
     pub(super) use super::wayland::wl_subcompositor::WlSubcompositorError;
     pub(super) use super::wayland::wl_subsurface::WlSubsurface;
@@ -5772,8 +5773,8 @@ impl ObjectInterface {
             Self::WlSeat => 11,
             Self::WlShell => 1,
             Self::WlShellSurface => 1,
-            Self::WlShm => 2,
-            Self::WlShmPool => 2,
+            Self::WlShm => 3,
+            Self::WlShmPool => 3,
             Self::WlSubcompositor => 1,
             Self::WlSubsurface => 1,
             Self::WlSurface => 7,

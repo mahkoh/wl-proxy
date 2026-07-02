@@ -24,7 +24,7 @@ struct DefaultHandler;
 impl WlShmPoolHandler for DefaultHandler { }
 
 impl ConcreteObject for WlShmPool {
-    const XML_VERSION: u32 = 2;
+    const XML_VERSION: u32 = 3;
     const INTERFACE: ObjectInterface = ObjectInterface::WlShmPool;
     const INTERFACE_NAME: &str = "wl_shm_pool";
 }
@@ -725,3 +725,34 @@ impl Object for WlShmPool {
     }
 }
 
+impl WlShmPool {
+    /// Since when the error.invalid_format enum variant is available.
+    pub const ENM__ERROR_INVALID_FORMAT__SINCE: u32 = 1;
+    /// Since when the error.invalid_stride enum variant is available.
+    pub const ENM__ERROR_INVALID_STRIDE__SINCE: u32 = 1;
+}
+
+/// wl_shm_pool error values
+///
+/// These errors can be emitted in response to wl_shm_pool requests.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct WlShmPoolError(pub u32);
+
+impl WlShmPoolError {
+    /// buffer format is not known
+    pub const INVALID_FORMAT: Self = Self(0);
+
+    /// invalid size or stride during buffer creation
+    pub const INVALID_STRIDE: Self = Self(1);
+}
+
+impl Debug for WlShmPoolError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match *self {
+            Self::INVALID_FORMAT => "INVALID_FORMAT",
+            Self::INVALID_STRIDE => "INVALID_STRIDE",
+            _ => return Debug::fmt(&self.0, f),
+        };
+        f.write_str(name)
+    }
+}

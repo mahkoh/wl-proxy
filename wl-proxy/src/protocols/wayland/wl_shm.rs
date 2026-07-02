@@ -26,7 +26,7 @@ struct DefaultHandler;
 impl WlShmHandler for DefaultHandler { }
 
 impl ConcreteObject for WlShm {
-    const XML_VERSION: u32 = 2;
+    const XML_VERSION: u32 = 3;
     const INTERFACE: ObjectInterface = ObjectInterface::WlShm;
     const INTERFACE_NAME: &str = "wl_shm";
 }
@@ -636,6 +636,9 @@ impl Object for WlShm {
 impl WlShm {
     /// Since when the error.invalid_format enum variant is available.
     pub const ENM__ERROR_INVALID_FORMAT__SINCE: u32 = 1;
+
+    /// Since when the error.invalid_format enum variant is deprecated.
+    pub const ENM__ERROR_INVALID_FORMAT__DEPRECATED_SINCE: u32 = 3;
     /// Since when the error.invalid_stride enum variant is available.
     pub const ENM__ERROR_INVALID_STRIDE__SINCE: u32 = 1;
     /// Since when the error.invalid_fd enum variant is available.
@@ -939,7 +942,7 @@ impl WlShmError {
     /// buffer format is not known
     pub const INVALID_FORMAT: Self = Self(0);
 
-    /// invalid size or stride during pool or buffer creation
+    /// invalid size or stride during pool creation
     pub const INVALID_STRIDE: Self = Self(1);
 
     /// mmapping the file descriptor failed
