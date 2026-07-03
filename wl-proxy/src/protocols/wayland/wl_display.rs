@@ -442,11 +442,15 @@ impl WlDisplay {
 
     /// acknowledge object ID deletion
     ///
-    /// This event is used internally by the object ID management
-    /// logic. When a client deletes an object that it had created,
-    /// the server will send this event to acknowledge that it has
-    /// seen the delete request. When the client receives this event,
-    /// it will know that it can safely reuse the object ID.
+    /// This event is used internally by the object ID management logic.
+    ///
+    /// When the server stops using an object created by the client, the server
+    /// sends this event. In particular, after sending this event, the server
+    /// will no longer send any events that contain the object as the receiver
+    /// or as an argument.
+    ///
+    /// When the client receives this event, it knows that it can reuse the
+    /// object ID.
     ///
     /// # Arguments
     ///
@@ -495,11 +499,15 @@ impl WlDisplay {
 
     /// acknowledge object ID deletion
     ///
-    /// This event is used internally by the object ID management
-    /// logic. When a client deletes an object that it had created,
-    /// the server will send this event to acknowledge that it has
-    /// seen the delete request. When the client receives this event,
-    /// it will know that it can safely reuse the object ID.
+    /// This event is used internally by the object ID management logic.
+    ///
+    /// When the server stops using an object created by the client, the server
+    /// sends this event. In particular, after sending this event, the server
+    /// will no longer send any events that contain the object as the receiver
+    /// or as an argument.
+    ///
+    /// When the client receives this event, it knows that it can reuse the
+    /// object ID.
     ///
     /// # Arguments
     ///
