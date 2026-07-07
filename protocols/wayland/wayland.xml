@@ -340,7 +340,7 @@
       <entry name="bgrx4444" value="0x32315842" summary="16-bit BGRx format, [15:0] B:G:R:x 4:4:4:4 little endian"/>
       <entry name="argb4444" value="0x32315241" summary="16-bit ARGB format, [15:0] A:R:G:B 4:4:4:4 little endian"/>
       <entry name="abgr4444" value="0x32314241" summary="16-bit ABGR format, [15:0] A:B:G:R 4:4:4:4 little endian"/>
-      <entry name="rgba4444" value="0x32314152" summary="16-bit RBGA format, [15:0] R:G:B:A 4:4:4:4 little endian"/>
+      <entry name="rgba4444" value="0x32314152" summary="16-bit RGBA format, [15:0] R:G:B:A 4:4:4:4 little endian"/>
       <entry name="bgra4444" value="0x32314142" summary="16-bit BGRA format, [15:0] B:G:R:A 4:4:4:4 little endian"/>
       <entry name="xrgb1555" value="0x35315258" summary="16-bit xRGB format, [15:0] x:R:G:B 1:5:5:5 little endian"/>
       <entry name="xbgr1555" value="0x35314258" summary="16-bit xBGR 1555 format, [15:0] x:B:G:R 1:5:5:5 little endian"/>
@@ -458,9 +458,9 @@
       <entry name="gr1616f" value="0x48205247" summary="[31:0] G:R 16:16 little endian"/>
       <entry name="bgr161616f" value="0x48524742" summary="[47:0] B:G:R 16:16:16 little endian"/>
       <entry name="r32f" value="0x46202052" summary="[31:0] R 32 little endian"/>
-      <entry name="gr3232f" value="0x46205247" summary="[63:0] R:G 32:32 little endian"/>
-      <entry name="bgr323232f" value="0x46524742" summary="[95:0] R:G:B 32:32:32 little endian"/>
-      <entry name="abgr32323232f" value="0x46384241" summary="[127:0] R:G:B:A 32:32:32:32 little endian"/>
+      <entry name="gr3232f" value="0x46205247" summary="[63:0] G:R 32:32 little endian"/>
+      <entry name="bgr323232f" value="0x46524742" summary="[95:0] B:G:R 32:32:32 little endian"/>
+      <entry name="abgr32323232f" value="0x46384241" summary="[127:0] A:B:G:R 32:32:32:32 little endian"/>
       <entry name="nv20" value="0x3032564e" summary="2x1 subsampled Cr:Cb plane"/>
       <entry name="nv30" value="0x3033564e" summary="non-subsampled Cr:Cb plane"/>
       <entry name="s010" value="0x30313053" summary="2x2 subsampled Cb (1) and Cr (2) planes 10 bits per channel"/>
@@ -472,6 +472,11 @@
       <entry name="s016" value="0x36313053" summary="2x2 subsampled Cb (1) and Cr (2) planes 16 bits per channel"/>
       <entry name="s216" value="0x36313253" summary="2x1 subsampled Cb (1) and Cr (2) planes 16 bits per channel"/>
       <entry name="s416" value="0x36313453" summary="non-subsampled Cb (1) and Cr (2) planes 16 bits per channel"/>
+      <entry name="xvuy2101010" value="0x30335958" summary="[31:0] x:Cr:Cb:Y 2:10:10:10 little endian"/>
+      <entry name="p230" value="0x30333250" summary="2x1 subsampled Cr:Cb plane 10 bits per channel packed"/>
+      <entry name="t430" value="0x30333454"/>
+      <entry name="y8" value="0x59455247" summary="8-bit Y-only"/>
+      <entry name="xyyy2101010" value="0x34415059" summary="[31:0] x:Y2:Y1:Y0 2:10:10:10 little endian"/>
     </enum>
   </interface>
   <interface name="wl_buffer" version="1">
